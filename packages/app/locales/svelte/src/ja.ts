@@ -22,4 +22,24 @@ export const ja: SvelteTranslations = {
     '\u4e0d\u660e\u306a\u30da\u30fc\u30b8\u30cd\u30fc\u30b7\u30e7\u30f3\u65b9\u5411: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProviderはChatProvider内で使用する必要があります',
   'svelte.error.useToastOutsideProvider': 'useToastはToastProvider内で使用する必要があります',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProviderはWorkspaceProvider内で使用する必要があります。',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProviderはEditorProvider内で使用する必要があります。',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProviderはPreviewProvider内で使用する必要があります。',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClientはAuthProvider内で使用する必要があります。',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProviderはThemeProvider内で使用する必要があります。',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstanceはRouterProvider内で使用する必要があります。',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClientはHttpProvider内で使用する必要があります。',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProviderはStorageProvider内で使用する必要があります。',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProviderはLoggerProvider内で使用する必要があります。',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProviderはStateProvider内で使用する必要があります。',
+  'svelte.error.unsupportedMethod': 'サポートされていないメソッド: {{method}}',
+  'svelte.error.oauthFailed': 'OAuthログインに失敗しました',
 }

@@ -9,7 +9,6 @@ export const ky: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider EditorProvider ичинде колдонулушу керек',
   'react.error.useHttpOutsideProvider': 'useHttpClient HttpProvider ичинде колдонулушу керек',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider I18nProvider ичинде колдонулушу керек',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider LoggerProvider ичинде колдонулушу керек',
   'react.error.usePreviewOutsideProvider':

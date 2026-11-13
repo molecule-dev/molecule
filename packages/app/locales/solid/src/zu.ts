@@ -24,4 +24,26 @@ export const zu: SolidTranslations = {
     'useToast kumele kusetshenziswe ngaphakathi kwe-ToastProvider',
   'solid.error.useChatOutsideProvider':
     'useChatProvider kumele kusetshenziswe ngaphakathi kwe-ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'I-useWorkspaceProvider kumele isetshenziswe ngaphakathi kwe-WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider':
+    'i-useEditorProvider kumele isetshenziswe ngaphakathi kwe-EditorProvider',
+  'solid.error.usePreviewOutsideProvider':
+    'i-usePreviewProvider kumele isetshenziswe ngaphakathi kwe-PreviewProvider',
+  'solid.error.useAuthOutsideProvider':
+    'i-useAuthClient kumele isetshenziswe ngaphakathi kwe-AuthProvider',
+  'solid.error.useHttpOutsideProvider':
+    'i-useHttpClient kumele isetshenziswe ngaphakathi kwe-HttpProvider',
+  'solid.error.unsupportedMethod': 'Indlela engasekelwa: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'i-useLoggerProvider kumele isetshenziswe ngaphakathi kwe-LoggerProvider',
+  'solid.error.oauthFailed': 'Ukungena ngemvume kwe-OAuth kwehlulekile',
+  'solid.error.useRouterOutsideProvider':
+    'i-useRouterInstance kumele isetshenziswe ngaphakathi kwe-RouterProvider',
+  'solid.error.useStoreOutsideProvider':
+    'i-useStateProvider kumele isetshenziswe ngaphakathi kwe-StateProvider',
+  'solid.error.useStorageOutsideProvider':
+    'i-useStorageProvider kumele isetshenziswe ngaphakathi kwe-StorageProvider',
+  'solid.error.useThemeOutsideProvider':
+    'i-useThemeProvider kumele isetshenziswe ngaphakathi kwe-ThemeProvider',
 }

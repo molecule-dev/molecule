@@ -25,7 +25,13 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-i18n', () => ({}))
+vi.mock('@molecule/app-i18n', () => ({
+  t: vi.fn(
+    (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key,
+  ),
+  getProvider: vi.fn(() => bondedI18nProvider),
+}))
 vi.mock('@molecule/app-http', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-logger', () => ({}))
@@ -40,11 +46,16 @@ import {
   useTranslation,
 } from '../composables/useTranslation.js'
 
+/** The provider the bonded fallback hands out (see useI18nProvider). */
+const bondedI18nProvider = { t: vi.fn(), getLocale: vi.fn(() => 'en') }
+
 describe('useI18nProvider', () => {
   beforeEach(() => {
     mockInjectReturnValue = undefined
     onMountedCallbacks.length = 0
     onUnmountedCallbacks.length = 0
+    bondedI18nProvider.t.mockClear()
+    bondedI18nProvider.getLocale.mockClear()
   })
 
   it('returns the injected i18n provider', () => {
@@ -54,9 +65,10 @@ describe('useI18nProvider', () => {
     expect(result).toBe(mockProvider)
   })
 
-  it('throws when i18n provider is not injected', () => {
+  it('falls back to the bonded provider when none is injected', () => {
     mockInjectReturnValue = undefined
-    expect(() => useI18nProvider()).toThrow('useI18nProvider requires I18nProvider to be provided')
+    const result = useI18nProvider()
+    expect(result).toBe(bondedI18nProvider)
   })
 })
 
@@ -110,7 +122,7 @@ describe('useTranslation', () => {
   it('t delegates to provider', () => {
     const result = useTranslation()
     result.t('hello.world', { name: 'Alice' })
-    expect(mockProvider.t).toHaveBeenCalledWith('hello.world', { name: 'Alice' })
+    expect(mockProvider.t).toHaveBeenCalledWith('hello.world', { name: 'Alice' }, undefined)
   })
 
   it('locale reflects initial locale', () => {
@@ -198,7 +210,11 @@ describe('useT', () => {
   it('delegates to provider.t', () => {
     const t = useT()
     t('key', { name: 'World' })
-    expect((mockInjectReturnValue as never).t).toHaveBeenCalledWith('key', { name: 'World' })
+    expect((mockInjectReturnValue as never).t).toHaveBeenCalledWith(
+      'key',
+      { name: 'World' },
+      undefined,
+    )
   })
 })
 

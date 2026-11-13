@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "svelte": "dist/index.js",
+  "svelte": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -16,11 +16,14 @@
   },
   "files": [
     "dist",
+    "!dist/**/__tests__",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings && svelte-package --input src --output dist --tsconfig ./tsconfig.json",
+    "dev": "svelte-package --input src --output dist --tsconfig ./tsconfig.json --watch",
     "test": "vitest run",
     "test:watch": "vitest"
   },

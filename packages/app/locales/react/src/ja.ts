@@ -9,7 +9,6 @@ export const ja: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProviderはEditorProvider内で使用する必要があります',
   'react.error.useHttpOutsideProvider': 'useHttpClientはHttpProvider内で使用する必要があります',
-  'react.error.useI18nOutsideProvider': 'useI18nProviderはI18nProvider内で使用する必要があります',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProviderはLoggerProvider内で使用する必要があります',
   'react.error.usePreviewOutsideProvider':

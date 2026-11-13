@@ -22,4 +22,22 @@ export const kk: SolidTranslations = {
     'Accordion компоненттері Accordion ішінде пайдаланылуы керек',
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider ішінде пайдаланылуы керек',
   'solid.error.useChatOutsideProvider': 'useChatProvider ChatProvider ішінде пайдаланылуы керек',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider WorkspaceProvider ішінде пайдаланылуы керек',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider EditorProvider ішінде пайдаланылуы керек',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider бағдарламасы PreviewProvider ішінде пайдаланылуы керек',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient AuthProvider ішінде пайдаланылуы керек',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient HttpProvider ішінде пайдаланылуы керек',
+  'solid.error.unsupportedMethod': 'Қолдау көрсетілмейтін әдіс: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider LoggerProvider ішінде пайдаланылуы керек',
+  'solid.error.oauthFailed': 'OAuth кіру сәтсіз аяқталды',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance RouterProvider ішінде пайдаланылуы керек',
+  'solid.error.useStoreOutsideProvider': 'useStateProvider StateProvider ішінде пайдаланылуы керек',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider StorageProvider ішінде пайдаланылуы керек',
+  'solid.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider ішінде пайдаланылуы керек',
 }

@@ -8,7 +8,6 @@ export const sv: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider måste användas inom en ChatProvider',
   'react.error.useEditorOutsideProvider': 'useEditorProvider måste användas inom en EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient måste användas inom en HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider måste användas inom en I18nProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider måste användas inom en LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider måste användas inom en PreviewProvider',

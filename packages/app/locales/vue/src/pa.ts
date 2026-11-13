@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const pa: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance ਨੂੰ RouterProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
-  'vue.error.useI18nOutsideProvider':
-    'useI18nProvider ਨੂੰ I18nProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider ਨੂੰ StateProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'vue.error.useThemeOutsideProvider':
@@ -20,4 +18,11 @@ export const pa: VueTranslations = {
   'vue.error.unsupportedMethod': 'ਅਸਮਰਥਿਤ ਵਿਧੀ: {{method}}',
   'vue.error.useChatOutsideProvider':
     'useChatProvider ਨੂੰ ChatProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider ਨੂੰ EditorProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'vue.error.oauthFailed': 'OAuth ਲੌਗਇਨ ਅਸਫਲ ਰਿਹਾ',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider ਨੂੰ PreviewProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ਨੂੰ WorkspaceProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
 }

@@ -9,7 +9,6 @@ export const mn: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider-ийг EditorProvider дотор ашиглах ёстой',
   'react.error.useHttpOutsideProvider': 'useHttpClient-ийг HttpProvider дотор ашиглах ёстой',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider-ийг I18nProvider дотор ашиглах ёстой',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider-ийг LoggerProvider дотор ашиглах ёстой',
   'react.error.usePreviewOutsideProvider':

@@ -185,7 +185,7 @@ export function useHttp<T>(
             t(
               'react.error.unsupportedMethod',
               { method },
-              { defaultValue: `Unsupported method: ${method}` },
+              { defaultValue: 'Unsupported method: {{method}}' },
             ),
           )
       }

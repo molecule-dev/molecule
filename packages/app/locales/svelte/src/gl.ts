@@ -13,4 +13,21 @@ export const gl: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Dirección de paxinación descoñecida: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider debe usarse dentro dun ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast debe usarse dentro dun ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider debe usarse dentro dun WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider debe usarse dentro dun EditorProvider',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider debe usarse dentro de PreviewProvider',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient debe usarse dentro dun AuthProvider',
+  'svelte.error.useThemeOutsideProvider': 'useThemeProvider debe usarse dentro dun ThemeProvider',
+  'svelte.error.useRouterOutsideProvider': 'useRouterInstance debe usarse dentro de RouterProvider',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient debe usarse dentro dun HttpProvider',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider debe usarse dentro dun StorageProvider',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider debe usarse dentro dun LoggerProvider',
+  'svelte.error.useStoreOutsideProvider': 'useStateProvider debe usarse dentro dun StateProvider',
+  'svelte.error.unsupportedMethod': 'Método non compatible: {{method}}',
+  'svelte.error.oauthFailed': 'Fallou o inicio de sesión con OAuth',
 }

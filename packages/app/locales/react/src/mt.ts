@@ -8,7 +8,6 @@ export const mt: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider irid jintuża ġewwa ChatProvider',
   'react.error.useEditorOutsideProvider': 'useEditorProvider irid jintuża ġewwa EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient irid jintuża ġewwa HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider irid jintuża ġewwa I18nProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider irid jintuża ġewwa LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider irid jintuża ġewwa PreviewProvider',
   'react.error.useRouterOutsideProvider': 'useRouterInstance irid jintuża ġewwa RouterProvider',

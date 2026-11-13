@@ -12,8 +12,6 @@ export const ta: ReactTranslations = {
     'useEditorProvider ஒரு EditorProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'react.error.useHttpOutsideProvider':
     'useHttpClient ஒரு HttpProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider ஒரு I18nProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider ஒரு LoggerProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'react.error.usePreviewOutsideProvider':

@@ -3,7 +3,6 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Finnish. */
 export const fi: VueTranslations = {
   'vue.error.useRouterOutsideProvider': 'useRouterInstance tulee käyttää RouterProvider sisällä',
-  'vue.error.useI18nOutsideProvider': 'useI18nProvider tulee käyttää I18nProvider sisällä',
   'vue.error.useStoreOutsideProvider': 'useStateProvider tulee käyttää StateProvider sisällä',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider tulee käyttää ThemeProvider sisällä',
   'vue.error.useAuthOutsideProvider': 'useAuthClient tulee käyttää AuthProvider sisällä',
@@ -14,4 +13,11 @@ export const fi: VueTranslations = {
   'vue.error.unsupportedMethod': 'Ei-tuettu menetelmä: {{method}}',
   'vue.error.useChatOutsideProvider':
     'useChatProvider on käytettävä ChatProvider-komponentin sisällä',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider-muuttujaa on käytettävä EditorProvider-muuttujassa.',
+  'vue.error.oauthFailed': 'OAuth-kirjautuminen epäonnistui',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider-parametria on käytettävä PreviewProvider-parametrin sisällä.',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider-arvoa on käytettävä WorkspaceProvider-arvoa noudattaen.',
 }

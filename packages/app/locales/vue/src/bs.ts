@@ -3,7 +3,6 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Bosnian. */
 export const bs: VueTranslations = {
   'vue.error.useRouterOutsideProvider': 'useRouterInstance mora se koristiti unutar RouterProvider',
-  'vue.error.useI18nOutsideProvider': 'useI18nProvider mora se koristiti unutar I18nProvider',
   'vue.error.useStoreOutsideProvider': 'useStateProvider mora se koristiti unutar StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider mora se koristiti unutar ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient mora se koristiti unutar AuthProvider',
@@ -14,4 +13,11 @@ export const bs: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'useToast mora se koristiti unutar ToastProvider',
   'vue.error.unsupportedMethod': 'Nepodržana metoda: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider se mora koristiti unutar ChatProvider-a',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider se mora koristiti unutar EditorProvider-a',
+  'vue.error.oauthFailed': 'Prijava putem OAuth-a nije uspjela',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider se mora koristiti unutar PreviewProvider-a',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider se mora koristiti unutar WorkspaceProvider-a',
 }

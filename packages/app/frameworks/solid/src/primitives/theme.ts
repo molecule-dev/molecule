@@ -4,12 +4,156 @@
  * @module
  */
 
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js'
+import { type Accessor, createEffect, createSignal, onCleanup, useContext } from 'solid-js'
 
+import { t } from '@molecule/app-i18n'
 import type { Theme, ThemeColors, ThemeProvider } from '@molecule/app-theme'
 
-import { getThemeProvider } from '../context.js'
+import { getThemeProvider, ThemeContext } from '../context.js'
 import type { ThemePrimitives } from '../types.js'
+
+/**
+ * The theme provider from the nearest `MoleculeProvider` (`config.theme`),
+ * under React's hook name.
+ *
+ * @returns The theme provider instance.
+ * @throws {Error} When no `MoleculeProvider` above configures `theme`.
+ */
+export function useThemeProvider(): ThemeProvider {
+  const provider = useContext(ThemeContext)
+  if (!provider) {
+    throw new Error(
+      t('solid.error.useThemeOutsideProvider', undefined, {
+        defaultValue: 'useThemeProvider must be used within a ThemeProvider',
+      }),
+    )
+  }
+  return provider
+}
+
+/**
+ * Subscribe to a theme provider, supporting both `subscribe` and
+ * `onThemeChange` methods.
+ *
+ * @param provider - The ThemeProvider instance to subscribe to.
+ * @param callback - Listener invoked whenever the active theme changes.
+ * @returns An unsubscribe function that removes the listener.
+ */
+function subscribeToThemeProvider(provider: ThemeProvider, callback: () => void): () => void {
+  if (typeof provider.subscribe === 'function') {
+    return provider.subscribe(callback as unknown as (theme: Theme) => void)
+  }
+  if (
+    typeof (provider as unknown as Record<string, (...args: unknown[]) => unknown>)
+      .onThemeChange === 'function'
+  ) {
+    return (
+      provider as unknown as Record<string, (...args: unknown[]) => () => void>
+    ).onThemeChange(callback)
+  }
+  return () => {}
+}
+
+/**
+ * What {@link useTheme} returns: the theme fields as accessors and the
+ * actions as plain functions (the same names React's `useTheme` returns).
+ */
+export interface UseThemeResult {
+  /** The current theme as an accessor. */
+  theme: Accessor<Theme>
+  /** The current theme's name as an accessor. */
+  themeName: Accessor<string>
+  /** Sets the theme by name. */
+  setTheme: (name: string) => void
+  /** Toggles light/dark through the provider's `toggleMode`. */
+  toggleTheme: () => void
+  /** The current mode as an accessor. */
+  mode: Accessor<'light' | 'dark'>
+}
+
+/**
+ * Theme state and actions, under React's hook name.
+ *
+ * @returns Theme fields as accessors and the actions.
+ * @throws {Error} When no `MoleculeProvider` above configures `theme`.
+ * @example
+ * ```tsx
+ * const { theme, themeName, setTheme, toggleTheme } = useTheme()
+ * <button onClick={toggleTheme}>Current theme: {themeName()}</button>
+ * ```
+ */
+export function useTheme(): UseThemeResult {
+  const provider = useThemeProvider()
+
+  const [theme, setThemeSignal] = createSignal<Theme>(provider.getTheme())
+  const unsubscribe = subscribeToThemeProvider(provider, () => {
+    setThemeSignal(provider.getTheme())
+  })
+  onCleanup(unsubscribe)
+
+  const setTheme = (name: string): void => {
+    provider.setTheme(name)
+  }
+
+  // Prefer the provider's purpose-built light/dark toggle; the index cycle is
+  // the fallback for providers that predate `toggleMode` (React does the same).
+  const toggleTheme = (): void => {
+    if (typeof provider.toggleMode === 'function') {
+      provider.toggleMode()
+      return
+    }
+    const themes = provider.getThemes?.() ?? []
+    if (themes.length === 0) return
+    const currentName = provider.getTheme().name
+    const currentIndex = themes.findIndex((candidate: Theme | string) =>
+      typeof candidate === 'string' ? candidate === currentName : candidate.name === currentName,
+    )
+    const nextIndex = (currentIndex + 1) % themes.length
+    const next = themes[nextIndex]
+    provider.setTheme(typeof next === 'string' ? next : (next as Theme).name)
+  }
+
+  return {
+    theme,
+    themeName: () => theme().name,
+    setTheme,
+    toggleTheme,
+    mode: () => theme().mode,
+  }
+}
+
+/**
+ * The whole current theme object, under React's hook name.
+ *
+ * @returns Accessor for the current theme.
+ * @throws {Error} When no `MoleculeProvider` above configures `theme`.
+ */
+export function useCurrentTheme(): Accessor<Theme> {
+  const { theme } = useTheme()
+  return theme
+}
+
+/**
+ * The theme mode (light/dark), under React's hook name.
+ *
+ * @returns Accessor for the current mode.
+ * @throws {Error} When no `MoleculeProvider` above configures `theme`.
+ */
+export function useThemeMode(): Accessor<'light' | 'dark'> {
+  const { mode } = useTheme()
+  return mode
+}
+
+/**
+ * The current theme's color palette, under React's hook name.
+ *
+ * @returns Accessor for the current theme's colors.
+ * @throws {Error} When no `MoleculeProvider` above configures `theme`.
+ */
+export function useThemeColors(): Accessor<ThemeColors> {
+  const { theme } = useTheme()
+  return () => theme().colors
+}
 
 /**
  * Create theme primitives for theme state and actions.
@@ -174,6 +318,9 @@ export function createThemeColors(theme: Accessor<Theme>): Accessor<ThemeColors>
 /**
  * Apply theme CSS variables to document.
  *
+ * @deprecated The theme bond (e.g. `@molecule/app-theme-css-variables`) owns
+ * document styling; this duplicates it. React's bindings never touch the
+ * document — drive the theme provider (`useTheme`) and let the bond style.
  * @example
  * ```tsx
  * function App() {

@@ -8,6 +8,11 @@ vi.mock('@molecule/app-push', () => ({
   getProvider: vi.fn(),
 }))
 
+vi.mock('@molecule/app-logger', () => ({
+  getLogger: vi.fn(() => ({ warn: vi.fn() })),
+}))
+
+import { getLogger } from '@molecule/app-logger'
 import { getProvider } from '@molecule/app-push'
 
 const createMockProvider = (): ReturnType<typeof createMockProvider> => ({
@@ -141,59 +146,71 @@ describe('usePush', () => {
     scope.stop()
   })
 
-  it('subscribes to token changes on creation', () => {
+  it('makes no provider calls on mount without checkOnMount', () => {
     const scope = effectScope()
 
     scope.run(() => {
       usePush()
     })
 
-    expect(mockProvider.onTokenChange).toHaveBeenCalledOnce()
-    expect(mockProvider.onTokenChange).toHaveBeenCalledWith(expect.any(Function))
+    // React's usePush subscribes to nothing at mount; token changes flow only
+    // through the hook's own register/unregister.
+    expect(mockProvider.checkPermission).not.toHaveBeenCalled()
+    expect(mockProvider.onTokenChange).not.toHaveBeenCalled()
 
     scope.stop()
   })
 
-  it('updates token when token change event fires', () => {
+  it('onTokenChange is a pass-through returning the unsubscriber', () => {
     const scope = effectScope()
     let result!: UsePushReturn
-    let tokenChangeCallback:
-      ((token: { value: string; platform: string; timestamp: number }) => void) | null = null
-
-    mockProvider.onTokenChange.mockImplementation((cb: typeof tokenChangeCallback) => {
-      tokenChangeCallback = cb
-      return vi.fn()
-    })
+    const unsub = vi.fn()
+    mockProvider.onTokenChange.mockReturnValue(unsub)
 
     scope.run(() => {
       result = usePush()
     })
 
-    expect(result.token.value).toBeNull()
+    const listener = vi.fn()
+    expect(result.onTokenChange(listener)).toBe(unsub)
+    expect(mockProvider.onTokenChange).toHaveBeenCalledWith(listener)
+    // The hook owns no token subscription of its own to tear down.
+    scope.stop()
+    expect(unsub).not.toHaveBeenCalled()
+  })
 
-    // Simulate token change
-    const newToken = { value: 'new-token', platform: 'web' as const, timestamp: 2000 }
-    tokenChangeCallback!(newToken)
+  it('checkOnMount reads the permission once on mount', async () => {
+    const scope = effectScope()
+    let result!: UsePushReturn
 
-    expect(result.token.value).toEqual(newToken)
+    scope.run(() => {
+      result = usePush({ checkOnMount: true })
+    })
+
+    expect(mockProvider.checkPermission).toHaveBeenCalledOnce()
+    await vi.waitFor(() => expect(result.permission.value).toBe('default'))
 
     scope.stop()
   })
 
-  it('unsubscribes from token changes on scope dispose', () => {
+  it('a failing checkOnMount leaves permission unset and warns', async () => {
+    const warn = vi.fn()
+    vi.mocked(getLogger).mockReturnValue({ warn } as never)
+    mockProvider.checkPermission.mockRejectedValue(new Error('permission API blocked'))
     const scope = effectScope()
-    const unsub = vi.fn()
-    mockProvider.onTokenChange.mockReturnValue(unsub)
+    let result!: UsePushReturn
 
     scope.run(() => {
-      usePush()
+      result = usePush({ checkOnMount: true })
     })
 
-    expect(unsub).not.toHaveBeenCalled()
+    await vi.waitFor(() => expect(warn).toHaveBeenCalledOnce())
+    expect(warn).toHaveBeenCalledWith('Checking push permission on mount failed', {
+      error: expect.any(Error),
+    })
+    expect(result.permission.value).toBeNull()
 
     scope.stop()
-
-    expect(unsub).toHaveBeenCalledOnce()
   })
 
   it('delegates onNotificationReceived to provider', () => {

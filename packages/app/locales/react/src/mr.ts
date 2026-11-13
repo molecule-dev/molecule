@@ -7,7 +7,6 @@ export const mr: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider हे ChatProvider मध्ये वापरले पाहिजे',
   'react.error.useEditorOutsideProvider': 'useEditorProvider हे EditorProvider मध्ये वापरले पाहिजे',
   'react.error.useHttpOutsideProvider': 'useHttpClient हे HttpProvider मध्ये वापरले पाहिजे',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider हे I18nProvider मध्ये वापरले पाहिजे',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider हे LoggerProvider मध्ये वापरले पाहिजे',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider हे PreviewProvider मध्ये वापरले पाहिजे',

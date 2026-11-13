@@ -24,4 +24,26 @@ export const it: Partial<SolidTranslations> = {
     "useToast deve essere utilizzato all'interno di un ToastProvider",
   'solid.error.useChatOutsideProvider':
     "useChatProvider deve essere utilizzato all'interno di un ChatProvider",
+  'solid.error.useWorkspaceOutsideProvider':
+    "useWorkspaceProvider deve essere utilizzato all'interno di un WorkspaceProvider",
+  'solid.error.useEditorOutsideProvider':
+    "useEditorProvider deve essere utilizzato all'interno di un EditorProvider",
+  'solid.error.usePreviewOutsideProvider':
+    "usePreviewProvider deve essere utilizzato all'interno di un PreviewProvider",
+  'solid.error.useAuthOutsideProvider':
+    "useAuthClient deve essere utilizzato all'interno di un AuthProvider",
+  'solid.error.useHttpOutsideProvider':
+    "useHttpClient deve essere utilizzato all'interno di un HttpProvider",
+  'solid.error.unsupportedMethod': 'Metodo non supportato: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    "useLoggerProvider deve essere utilizzato all'interno di un LoggerProvider",
+  'solid.error.oauthFailed': 'Accesso OAuth non riuscito',
+  'solid.error.useRouterOutsideProvider':
+    "useRouterInstance deve essere utilizzato all'interno di un RouterProvider",
+  'solid.error.useStoreOutsideProvider':
+    "useStateProvider deve essere utilizzato all'interno di uno StateProvider",
+  'solid.error.useStorageOutsideProvider':
+    "useStorageProvider deve essere utilizzato all'interno di uno StorageProvider",
+  'solid.error.useThemeOutsideProvider':
+    "useThemeProvider deve essere utilizzato all'interno di un ThemeProvider",
 }

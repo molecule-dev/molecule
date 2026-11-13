@@ -22,4 +22,24 @@ export const ja: SolidTranslations = {
     'AccordionコンポーネントはAccordion内で使用する必要があります',
   'solid.error.useToastOutsideProvider': 'useToastはToastProvider内で使用する必要があります',
   'solid.error.useChatOutsideProvider': 'useChatProviderはChatProvider内で使用する必要があります',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProviderはWorkspaceProvider内で使用する必要があります。',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProviderはEditorProvider内で使用する必要があります。',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProviderはPreviewProvider内で使用する必要があります。',
+  'solid.error.useAuthOutsideProvider': 'useAuthClientはAuthProvider内で使用する必要があります。',
+  'solid.error.useHttpOutsideProvider': 'useHttpClientはHttpProvider内で使用する必要があります。',
+  'solid.error.unsupportedMethod': 'サポートされていないメソッド: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProviderはLoggerProvider内で使用する必要があります。',
+  'solid.error.oauthFailed': 'OAuthログインに失敗しました',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstanceはRouterProvider内で使用する必要があります。',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProviderはStateProvider内で使用する必要があります。',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProviderはStorageProvider内で使用する必要があります。',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProviderはThemeProvider内で使用する必要があります。',
 }

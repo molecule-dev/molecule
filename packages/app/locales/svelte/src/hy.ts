@@ -24,4 +24,24 @@ export const hy: SvelteTranslations = {
     'useChatProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B ChatProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
   'svelte.error.useToastOutsideProvider':
     'useToast-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B ToastProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider-ը պետք է օգտագործվի WorkspaceProvider-ի շրջանակներում։',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider-ը պետք է օգտագործվի EditorProvider-ի ներսում',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider-ը պետք է օգտագործվի PreviewProvider-ի ներսում',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient-ը պետք է օգտագործվի AuthProvider-ի ներսում',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider-ը պետք է օգտագործվի ThemeProvider-ի ներսում։',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance-ը պետք է օգտագործվի RouterProvider-ի ներսում։',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient-ը պետք է օգտագործվի HttpProvider-ի ներսում',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider-ը պետք է օգտագործվի StorageProvider-ի շրջանակներում',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider-ը պետք է օգտագործվի LoggerProvider-ի ներսում',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider-ը պետք է օգտագործվի StateProvider-ի ներսում',
+  'svelte.error.unsupportedMethod': 'Չաջակցվող մեթոդ՝ {{method}}',
+  'svelte.error.oauthFailed': 'OAuth մուտքը ձախողվեց',
 }

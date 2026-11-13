@@ -19,7 +19,12 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-i18n', () => ({}))
+vi.mock('@molecule/app-i18n', () => ({
+  t: vi.fn(
+    (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key,
+  ),
+}))
 vi.mock('@molecule/app-http', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-logger', () => ({}))
@@ -48,7 +53,7 @@ describe('useLoggerProvider', () => {
   it('throws when logger provider is not injected', () => {
     mockInjectReturnValue = undefined
     expect(() => useLoggerProvider()).toThrow(
-      'useLoggerProvider requires LoggerProvider to be provided',
+      'useLoggerProvider must be used within a LoggerProvider',
     )
   })
 })

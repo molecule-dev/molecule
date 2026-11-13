@@ -7,7 +7,6 @@ export const et: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider tuleb kasutada ChatProvider sees',
   'react.error.useEditorOutsideProvider': 'useEditorProvider tuleb kasutada EditorProvider sees',
   'react.error.useHttpOutsideProvider': 'useHttpClient tuleb kasutada HttpProvider sees',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider tuleb kasutada I18nProvider sees',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider tuleb kasutada LoggerProvider sees',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider tuleb kasutada PreviewProvider sees',
   'react.error.useRouterOutsideProvider': 'useRouterInstance tuleb kasutada RouterProvider sees',

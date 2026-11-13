@@ -7,7 +7,6 @@ export const he: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'יש להשתמש ב-useChatProvider בתוך ChatProvider',
   'react.error.useEditorOutsideProvider': 'יש להשתמש ב-useEditorProvider בתוך EditorProvider',
   'react.error.useHttpOutsideProvider': 'יש להשתמש ב-useHttpClient בתוך HttpProvider',
-  'react.error.useI18nOutsideProvider': 'יש להשתמש ב-useI18nProvider בתוך I18nProvider',
   'react.error.useLoggerOutsideProvider': 'יש להשתמש ב-useLoggerProvider בתוך LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'יש להשתמש ב-usePreviewProvider בתוך PreviewProvider',
   'react.error.useRouterOutsideProvider': 'יש להשתמש ב-useRouterInstance בתוך RouterProvider',

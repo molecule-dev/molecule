@@ -12,8 +12,6 @@ export const fi: ReactTranslations = {
     'useEditorProvider on käytettävä EditorProvider-komponentin sisällä',
   'react.error.useHttpOutsideProvider':
     'useHttpClient on käytettävä HttpProvider-komponentin sisällä',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider on käytettävä I18nProvider-komponentin sisällä',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider on käytettävä LoggerProvider-komponentin sisällä',
   'react.error.usePreviewOutsideProvider':

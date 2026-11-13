@@ -4,10 +4,12 @@
  * @module
  */
 
-import { computed, type ComputedRef, onScopeDispose, shallowRef } from 'vue'
+import { computed, type ComputedRef, getCurrentScope, onScopeDispose } from 'vue'
 
 import type { UpdateCheckOptions, VersionEvent, VersionState } from '@molecule/app-version'
 import { getProvider } from '@molecule/app-version'
+
+import { subscribeExternalSnapshot } from './external-snapshot.js'
 
 /**
  * Return type for the useVersion composable.
@@ -64,25 +66,35 @@ const VERSION_EVENTS: VersionEvent[] = [
 export function useVersion(): UseVersionReturn {
   const provider = getProvider()
 
-  const versionState = shallowRef<VersionState>(provider.getState())
-
-  const unsubscribers: Array<() => void> = []
-
-  const refreshState = (): void => {
-    versionState.value = provider.getState()
-  }
-
-  for (const event of VERSION_EVENTS) {
-    const unsub = provider.on(event, refreshState)
-    unsubscribers.push(unsub)
-  }
-
-  onScopeDispose(() => {
-    for (const unsub of unsubscribers) {
-      unsub()
+  // Cached snapshot: the provider hands out a new object per read, so equality
+  // is decided field by field, exactly like React's getSnapshot cache.
+  let cached: VersionState | null = null
+  const read = (): VersionState => {
+    const next = provider.getState()
+    const previous = cached
+    if (
+      previous !== null &&
+      previous.isUpdateAvailable === next.isUpdateAvailable &&
+      previous.isChecking === next.isChecking &&
+      previous.isServiceWorkerWaiting === next.isServiceWorkerWaiting &&
+      previous.newVersion === next.newVersion &&
+      previous.buildId === next.buildId &&
+      previous.version === next.version
+    ) {
+      return previous
     }
-    unsubscribers.length = 0
+    cached = next
+    return next
+  }
+
+  const { state: versionState, unsubscribe } = subscribeExternalSnapshot(read, (onStateChange) => {
+    const unsubs = VERSION_EVENTS.map((event) => provider.on(event, onStateChange))
+    return () => unsubs.forEach((unsub) => unsub())
   })
+
+  if (getCurrentScope()) {
+    onScopeDispose(unsubscribe)
+  }
 
   const state = computed(() => versionState.value)
   const isUpdateAvailable = computed(() => versionState.value.isUpdateAvailable)

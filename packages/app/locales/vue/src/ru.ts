@@ -4,7 +4,6 @@ import type { VueTranslations } from './types.js'
 export const ru: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance должен использоваться внутри RouterProvider',
-  'vue.error.useI18nOutsideProvider': 'useI18nProvider должен использоваться внутри I18nProvider',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider должен использоваться внутри StateProvider',
   'vue.error.useThemeOutsideProvider':
@@ -18,4 +17,11 @@ export const ru: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'useToast должен использоваться внутри ToastProvider',
   'vue.error.unsupportedMethod': 'Неподдерживаемый метод: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider должен использоваться внутри ChatProvider',
+  'vue.error.useEditorOutsideProvider':
+    'Метод useEditorProvider должен использоваться внутри метода EditorProvider.',
+  'vue.error.oauthFailed': 'Не удалось выполнить вход через OAuth.',
+  'vue.error.usePreviewOutsideProvider':
+    'Параметр usePreviewProvider должен использоваться внутри параметра PreviewProvider.',
+  'vue.error.useWorkspaceOutsideProvider':
+    'Параметр useWorkspaceProvider должен использоваться внутри WorkspaceProvider.',
 }

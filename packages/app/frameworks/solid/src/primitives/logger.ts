@@ -4,9 +4,96 @@
  * @module
  */
 
+import { useContext } from 'solid-js'
+
+import { t } from '@molecule/app-i18n'
 import type { Logger, LoggerConfig, LoggerProvider } from '@molecule/app-logger'
 
-import { getLoggerProvider } from '../context.js'
+import { getLoggerProvider, LoggerContext } from '../context.js'
+
+/**
+ * Get the logger provider from the nearest `MoleculeProvider` (`config.logger`).
+ *
+ * @returns The logger provider.
+ * @throws {Error} When no `MoleculeProvider` above configures `logger`.
+ */
+export function useLoggerProvider(): LoggerProvider {
+  const provider = useContext(LoggerContext)
+  if (!provider) {
+    throw new Error(
+      t('solid.error.useLoggerOutsideProvider', undefined, {
+        defaultValue: 'useLoggerProvider must be used within a LoggerProvider',
+      }),
+    )
+  }
+  return provider
+}
+
+/**
+ * Get a logger for one component or module, exactly like React's `useLogger`:
+ * with `config` the provider creates a logger from `{ name, ...config }`,
+ * without it the shared logger of that name is returned.
+ *
+ * @param name - Logger name (usually component or module name)
+ * @param config - Optional logger configuration
+ * @returns Logger instance
+ *
+ * @example
+ * ```tsx
+ * function MyComponent() {
+ *   const logger = useLogger('MyComponent')
+ *
+ *   onMount(() => {
+ *     logger.info('Component mounted')
+ *   })
+ *
+ *   const handleError = (error: Error) => {
+ *     logger.error('Operation failed', error)
+ *   }
+ *
+ *   return <div>...</div>
+ * }
+ * ```
+ */
+export function useLogger(name: string, config?: Partial<LoggerConfig>): Logger {
+  const provider = useLoggerProvider()
+  if (config) {
+    return provider.createLogger({ name, ...config })
+  }
+  return provider.getLogger(name)
+}
+
+/**
+ * Get the root logger, under React's hook name.
+ *
+ * @returns Root logger instance
+ */
+export function useRootLogger(): Logger {
+  return useLoggerProvider().getLogger()
+}
+
+/**
+ * Create a child logger with additional context.
+ *
+ * @param parentName - Parent logger name
+ * @param context - Additional context
+ * @returns Child logger instance
+ *
+ * @example
+ * ```tsx
+ * function UserList() {
+ *   const logger = useChildLogger('UserList', { component: 'UserList' })
+ *   const handleUserClick = (userId: string) => {
+ *     logger.withContext({ userId }).info('User clicked')
+ *   }
+ *   return <div>...</div>
+ * }
+ * ```
+ */
+export function useChildLogger(parentName: string, context: Record<string, unknown>): Logger {
+  const parent = useLoggerProvider().getLogger(parentName)
+  return parent.withContext(context)
+}
 
 /**
  * Get a logger instance.

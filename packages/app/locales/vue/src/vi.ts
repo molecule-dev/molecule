@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const vi: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance ph\u1ea3i \u0111\u01b0\u1ee3c s\u1eed d\u1ee5ng b\u00ean trong RouterProvider',
-  'vue.error.useI18nOutsideProvider':
-    'useI18nProvider ph\u1ea3i \u0111\u01b0\u1ee3c s\u1eed d\u1ee5ng b\u00ean trong I18nProvider',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider ph\u1ea3i \u0111\u01b0\u1ee3c s\u1eed d\u1ee5ng b\u00ean trong StateProvider',
   'vue.error.useThemeOutsideProvider':
@@ -23,4 +21,11 @@ export const vi: VueTranslations = {
   'vue.error.unsupportedMethod':
     'Ph\u01b0\u01a1ng th\u1ee9c kh\u00f4ng \u0111\u01b0\u1ee3c h\u1ed7 tr\u1ee3: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider phải được sử dụng bên trong ChatProvider',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider phải được sử dụng bên trong một EditorProvider.',
+  'vue.error.oauthFailed': 'Đăng nhập OAuth thất bại',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider phải được sử dụng bên trong PreviewProvider.',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider phải được sử dụng bên trong một WorkspaceProvider.',
 }

@@ -21,4 +21,22 @@ export const gu: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider': 'Accordion ઘટકો Accordion ની અંદર વાપરવા આવશ્યક છે',
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider ની અંદર વાપરવું આવશ્યક છે',
   'solid.error.useChatOutsideProvider': 'useChatProvider એ ChatProvider ની અંદર વાપરવું આવશ્યક છે',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider નો ઉપયોગ WorkspaceProvider ની અંદર થવો જોઈએ.',
+  'solid.error.useEditorOutsideProvider': 'useEditorProvider નો ઉપયોગ EditorProvider માં થવો જોઈએ.',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider નો ઉપયોગ PreviewProvider ની અંદર જ થવો જોઈએ.',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient નો ઉપયોગ AuthProvider માં થવો જોઈએ.',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient નો ઉપયોગ HttpProvider માં થવો જોઈએ.',
+  'solid.error.unsupportedMethod': 'અસમર્થિત પદ્ધતિ: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider નો ઉપયોગ LoggerProvider ની અંદર જ થવો જોઈએ.',
+  'solid.error.oauthFailed': 'OAuth લૉગિન નિષ્ફળ થયું',
+  'solid.error.useRouterOutsideProvider': 'useRouterInstance નો ઉપયોગ RouterProvider માં થવો જોઈએ.',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider નો ઉપયોગ StateProvider ની અંદર જ થવો જોઈએ.',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider નો ઉપયોગ StorageProvider ની અંદર જ થવો જોઈએ.',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider નો ઉપયોગ ThemeProvider ની અંદર જ થવો જોઈએ.',
 }

@@ -22,4 +22,24 @@ export const sr: SvelteTranslations = {
     '\u041d\u0435\u043f\u043e\u0437\u043d\u0430\u0442 \u0441\u043c\u0435\u0440 \u043f\u0430\u0433\u0438\u043d\u0430\u0446\u0438\u0458\u0435: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider мора да се користи унутар ChatProvider-а',
   'svelte.error.useToastOutsideProvider': 'useToast мора да се користи унутар ToastProvider-а',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider мора се користити унутар WorkspaceProvider-а',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider мора бити коришћен унутар EditorProvider-а',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider мора се користити унутар PreviewProvider-а',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient мора се користити унутар AuthProvider-а',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider мора се користити унутар ThemeProvider-а',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance мора да се користи унутар RouterProvider-а',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient мора да се користи унутар HttpProvider-а',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider мора се користити унутар StorageProvider-а',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider мора се користити унутар LoggerProvider-а',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider мора се користити унутар StateProvider-а',
+  'svelte.error.unsupportedMethod': 'Неподржана метода: {{method}}',
+  'svelte.error.oauthFailed': 'Пријављивање путем OAuth-а није успело',
 }

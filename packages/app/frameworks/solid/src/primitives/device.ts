@@ -63,3 +63,20 @@ export function createDevice(): DevicePrimitives {
     languages: provider.getLanguages(),
   }
 }
+
+/**
+ * Device information, React's `useDevice` under the same name: one static
+ * snapshot of the bonded device provider (`supports`, `isOnline` and
+ * `isStandalone` stay live functions reading the provider).
+ *
+ * @returns Device information and utility methods
+ *
+ * @example
+ * ```tsx
+ * function LayoutPicker() {
+ *   const { deviceInfo } = useDevice()
+ *   return deviceInfo.isMobile ? <MobileLayout /> : <DesktopLayout />
+ * }
+ * ```
+ */
+export const useDevice: () => DevicePrimitives = createDevice

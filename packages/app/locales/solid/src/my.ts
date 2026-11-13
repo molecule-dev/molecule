@@ -23,4 +23,24 @@ export const my: SolidTranslations = {
   'solid.error.useToastOutsideProvider': 'useToast ကို ToastProvider အတွင်း အသုံးပြုရမည်',
   'solid.error.useChatOutsideProvider':
     'useChatProvider ကို ChatProvider အတွင်းတွင် အသုံးပြုရပါမည်',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ကို WorkspaceProvider အတွင်းတွင် အသုံးပြုရမည်',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider ကို EditorProvider အတွင်းတွင် အသုံးပြုရမည်',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider ကို PreviewProvider အတွင်းတွင် အသုံးပြုရမည်',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient ကို AuthProvider အတွင်းတွင် အသုံးပြုရမည်',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient ကို HttpProvider တစ်ခုအတွင်း အသုံးပြုရမည်။',
+  'solid.error.unsupportedMethod': 'ပံ့ပိုးမထားသော နည်းလမ်း- {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider ကို LoggerProvider အတွင်းတွင် အသုံးပြုရမည်',
+  'solid.error.oauthFailed': 'OAuth အကောင့်ဝင်ခြင်း မအောင်မြင်ပါ',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance ကို RouterProvider အတွင်းတွင် အသုံးပြုရမည်',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider ကို StateProvider အတွင်းတွင် အသုံးပြုရမည်',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider ကို StorageProvider အတွင်းတွင် အသုံးပြုရမည်',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider ကို ThemeProvider အတွင်းတွင် အသုံးပြုရမည်',
 }

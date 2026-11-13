@@ -13,4 +13,23 @@ export const es: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Dirección de paginación desconocida: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider debe usarse dentro de un ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast debe usarse dentro de un ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider debe usarse dentro de un WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider debe usarse dentro de un EditorProvider',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider debe usarse dentro de un PreviewProvider',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient debe usarse dentro de un AuthProvider.',
+  'svelte.error.useThemeOutsideProvider': 'useThemeProvider debe usarse dentro de un ThemeProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance debe usarse dentro de un RouterProvider',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient debe usarse dentro de un HttpProvider.',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider debe usarse dentro de un StorageProvider.',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider debe usarse dentro de un LoggerProvider',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider debe usarse dentro de un StateProvider.',
+  'svelte.error.unsupportedMethod': 'Método no compatible: {{method}}',
+  'svelte.error.oauthFailed': 'Falló el inicio de sesión de OAuth.',
 }

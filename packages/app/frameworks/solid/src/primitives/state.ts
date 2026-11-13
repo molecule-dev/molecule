@@ -4,11 +4,13 @@
  * @module
  */
 
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js'
+import { type Accessor, createEffect, createSignal, useContext } from 'solid-js'
 
+import { t } from '@molecule/app-i18n'
 import type { StateProvider, Store, StoreConfig } from '@molecule/app-state'
 
-import { getStateProvider } from '../context.js'
+import { getStateProvider, StateContext } from '../context.js'
+import { useSyncExternalStore } from './external-store.js'
 
 /**
  * Create a reactive store using Solid signals.
@@ -45,36 +47,126 @@ export function createStore<T extends object>(config: StoreConfig<T>): Store<T> 
 }
 
 /**
- * Use a store with optional selector, returning an accessor.
+ * Hook options for {@link useStore}.
  *
- * @param store - Store to subscribe to
- * @param selector - Optional selector function
- * @returns Accessor for selected state
+ * @template T - The store's state type.
+ * @template S - The selected value type.
+ */
+export interface UseStoreOptions<T, S> {
+  /** Derives the subscribed value from the whole state. */
+  selector?: (state: T) => S
+  /** Keeps the previous result when it says the new selection equals it. */
+  equalityFn?: (a: S, b: S) => boolean
+}
+
+/**
+ * The fix, appended to the error below — this hook is the one place that READS
+ * the context, so it is the one place that has to say where the context comes
+ * from. The sentences are code (an import, a component, a bond call), so they
+ * are appended in English rather than translated.
+ */
+const STATE_CONTEXT_FIX =
+  ' To fix: render a state provider above this component — ' +
+  "`import { MoleculeProvider, StateProvider } from '@molecule/app-solid'`; " +
+  '<MoleculeProvider> passes the provider bonded under `@molecule/app-state` ' +
+  '(bond one with `setupAllDefaultBonds()` from `@molecule/app-bonds-default-solid`, ' +
+  'or `setProvider(provider)` from `@molecule/app-state`), and ' +
+  '<StateProvider provider={provider}> passes one you hold. ' +
+  'To read a store you already have, call useStore(store) instead — it subscribes to the ' +
+  'store it is given and needs no provider.'
+
+/**
+ * The state provider from the nearest `MoleculeProvider` (`config.state`),
+ * under React's hook name.
  *
+ * The context comes from `config.state` — which supplies the provider bonded
+ * under `@molecule/app-state` by default, so a scaffolded app needs no
+ * `state` entry.
+ *
+ * @returns Accessor for the state provider from context.
+ * @throws {Error} When no state provider is above the component — the message
+ *   names the fix (which provider to render, and the import for it).
+ */
+export function useStateProvider(): Accessor<StateProvider> {
+  const provider = useContext(StateContext)
+  if (!provider) {
+    throw new Error(
+      t('solid.error.useStoreOutsideProvider', undefined, {
+        defaultValue: 'useStateProvider must be used within a StateProvider',
+      }) + STATE_CONTEXT_FIX,
+    )
+  }
+  return () => provider
+}
+
+/**
+ * Subscribe to a store with an optional selector and equality function, under
+ * React's hook name.
+ *
+ * The store is the argument, so this hook needs NO `StateProvider`: it reads
+ * `store.getState()` and subscribes with `store.subscribe()`, and never
+ * touches the state context. A store minted outside the `state` bond is as
+ * valid here as one `@molecule/app-state`'s `createStore()` made.
+ *
+ * @param store - The store to subscribe to.
+ * @param options - Selector and equality function.
+ * @returns Accessor for the selected state.
  * @example
  * ```tsx
- * function UserName() {
- *   const name = useStore(userStore, (s) => s.name)
- *   return <span>{name()}</span>
- * }
+ * const count = useStore(counterStore)
+ * const doubled = useStore(counterStore, { selector: (s) => s.count * 2 })
  * ```
  */
-export function useStore<T extends object, S = T>(
+export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T, S>): Accessor<S> {
+  const { selector, equalityFn } = options ?? {}
+
+  // The previous selection, for the equality check. `undefined` means no read
+  // has happened yet (React uses a ref with the same initial value).
+  let prevSelected: S | undefined
+
+  const getSnapshot = (): S => {
+    const state = store.getState()
+    const selected = selector ? selector(state) : (state as unknown as S)
+    if (equalityFn && prevSelected !== undefined && equalityFn(prevSelected, selected)) {
+      return prevSelected
+    }
+    prevSelected = selected
+    return selected
+  }
+
+  return useSyncExternalStore((onChange) => store.subscribe(onChange), getSnapshot)
+}
+
+/**
+ * The store's `setState` function, under React's hook name.
+ *
+ * @param store - The store to get setState from.
+ * @returns The setState function.
+ */
+export function useSetStore<T>(store: Store<T>): Store<T>['setState'] {
+  return store.setState
+}
+
+/**
+ * A function bound to a store's `setState`/`getState`, under React's hook name.
+ *
+ * The action factory runs on every CALL, so it always reads fresh state.
+ *
+ * @param store - The store to bind to.
+ * @param action - Receives setState and getState, returns the callable.
+ * @returns The bound action function.
+ * @example
+ * ```tsx
+ * const increment = useStoreAction(counterStore, (setState, getState) => () => {
+ *   setState({ count: getState().count + 1 })
+ * })
+ * ```
+ */
+export function useStoreAction<T, Args extends unknown[], R>(
   store: Store<T>,
-  selector?: (state: T) => S,
-): Accessor<S> {
-  const select = selector ?? ((s: T) => s as unknown as S)
-  const [state, setState] = createSignal<S>(select(store.getState()))
-
-  createEffect(() => {
-    const unsubscribe = store.subscribe((newState) => {
-      setState(() => select(newState))
-    })
-
-    onCleanup(unsubscribe)
-  })
-
-  return state
+  action: (setState: Store<T>['setState'], getState: Store<T>['getState']) => (...args: Args) => R,
+): (...args: Args) => R {
+  return (...args: Args) => action(store.setState, store.getState)(...args)
 }
 
 /**

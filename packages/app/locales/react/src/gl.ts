@@ -8,7 +8,6 @@ export const gl: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider debe usarse dentro dun ChatProvider',
   'react.error.useEditorOutsideProvider': 'useEditorProvider debe usarse dentro dun EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient debe usarse dentro dun HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider debe usarse dentro dun I18nProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider debe usarse dentro dun LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider debe usarse dentro dun PreviewProvider',

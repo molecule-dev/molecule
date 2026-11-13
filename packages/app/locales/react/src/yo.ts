@@ -7,7 +7,6 @@ export const yo: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider gbodo lo laarin ChatProvider',
   'react.error.useEditorOutsideProvider': 'useEditorProvider gbodo lo laarin EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient gbodo lo laarin HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider gbodo lo laarin I18nProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider gbodo lo laarin LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider gbodo lo laarin PreviewProvider',
   'react.error.useRouterOutsideProvider': 'useRouterInstance gbodo lo laarin RouterProvider',

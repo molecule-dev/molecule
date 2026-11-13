@@ -7,7 +7,6 @@ export const si: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider ChatProvider තුළ භාවිතා කළ යුතුය',
   'react.error.useEditorOutsideProvider': 'useEditorProvider EditorProvider තුළ භාවිතා කළ යුතුය',
   'react.error.useHttpOutsideProvider': 'useHttpClient HttpProvider තුළ භාවිතා කළ යුතුය',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider I18nProvider තුළ භාවිතා කළ යුතුය',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider LoggerProvider තුළ භාවිතා කළ යුතුය',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider PreviewProvider තුළ භාවිතා කළ යුතුය',
   'react.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider තුළ භාවිතා කළ යුතුය',

@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const lt: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance turi b\u016bti naudojamas RouterProvider viduje',
-  'vue.error.useI18nOutsideProvider':
-    'useI18nProvider turi b\u016bti naudojamas I18nProvider viduje',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider turi b\u016bti naudojamas StateProvider viduje',
   'vue.error.useThemeOutsideProvider':
@@ -19,4 +17,11 @@ export const lt: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'useToast turi b\u016bti naudojamas ToastProvider viduje',
   'vue.error.unsupportedMethod': 'Nepalaikomas metodas: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider turi būti naudojamas ChatProvider viduje',
+  'vue.error.useEditorOutsideProvider':
+    '„EditorProvider“ parametras turi būti naudojamas „useEditorProvider“ parametro viduje.',
+  'vue.error.oauthFailed': 'OAuth prisijungimas nepavyko',
+  'vue.error.usePreviewOutsideProvider':
+    '„usePreviewProvider“ turi būti naudojamas „PreviewProvider“ viduje.',
+  'vue.error.useWorkspaceOutsideProvider':
+    '„useWorkspaceProvider“ turi būti naudojamas „WorkspaceProvider“ viduje.',
 }

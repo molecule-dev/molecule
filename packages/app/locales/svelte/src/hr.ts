@@ -13,4 +13,24 @@ export const hr: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Nepoznat smjer paginacije: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider se mora koristiti unutar ChatProvider-a',
   'svelte.error.useToastOutsideProvider': 'useToast se mora koristiti unutar ToastProvider-a',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider se mora koristiti unutar WorkspaceProvider-a',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider se mora koristiti unutar EditorProvider-a',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider se mora koristiti unutar PreviewProvider-a',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient se mora koristiti unutar AuthProvider-a',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider se mora koristiti unutar ThemeProvider-a',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance se mora koristiti unutar RouterProvidera',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient se mora koristiti unutar HttpProvidera',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider se mora koristiti unutar StorageProvider-a',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider se mora koristiti unutar LoggerProvidera',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider se mora koristiti unutar StateProvider-a',
+  'svelte.error.unsupportedMethod': 'Nepodržana metoda: {{method}}',
+  'svelte.error.oauthFailed': 'Prijava putem OAuth-a nije uspjela',
 }

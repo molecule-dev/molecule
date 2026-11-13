@@ -24,4 +24,24 @@ export const hy: SolidTranslations = {
     'useToast \u057a\u0565\u057f\u0584 \u0567 \u0585\u0563\u057f\u0561\u0563\u0578\u0580\u056e\u057e\u056b ToastProvider-\u056b \u0576\u0565\u0580\u057d\u0578\u0582\u0574',
   'solid.error.useChatOutsideProvider':
     'useChatProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B ChatProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider-ը պետք է օգտագործվի WorkspaceProvider-ի շրջանակներում։',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider-ը պետք է օգտագործվի EditorProvider-ի ներսում',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider-ը պետք է օգտագործվի PreviewProvider-ի ներսում',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient-ը պետք է օգտագործվի AuthProvider-ի ներսում',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient-ը պետք է օգտագործվի HttpProvider-ի ներսում',
+  'solid.error.unsupportedMethod': 'Չաջակցվող մեթոդ՝ {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider-ը պետք է օգտագործվի LoggerProvider-ի ներսում',
+  'solid.error.oauthFailed': 'OAuth մուտքը ձախողվեց',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance-ը պետք է օգտագործվի RouterProvider-ի ներսում։',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider-ը պետք է օգտագործվի StateProvider-ի ներսում',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider-ը պետք է օգտագործվի StorageProvider-ի շրջանակներում',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider-ը պետք է օգտագործվի ThemeProvider-ի ներսում։',
 }

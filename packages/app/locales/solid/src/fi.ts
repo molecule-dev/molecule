@@ -23,4 +23,26 @@ export const fi: SolidTranslations = {
   'solid.error.useToastOutsideProvider': 'useToast on käytettävä ToastProvider-komponentin sisällä',
   'solid.error.useChatOutsideProvider':
     'useChatProvider on käytettävä ChatProvider-komponentin sisällä',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider-arvoa on käytettävä WorkspaceProvider-arvoa noudattaen.',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider-muuttujaa on käytettävä EditorProvider-muuttujassa.',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider-parametria on käytettävä PreviewProvider-parametrin sisällä.',
+  'solid.error.useAuthOutsideProvider':
+    'useAuthClient-ominaisuutta on käytettävä AuthProvider-ominaisuuden sisällä.',
+  'solid.error.useHttpOutsideProvider':
+    'useHttpClient-ominaisuutta on käytettävä HttpProvider-palvelun sisällä.',
+  'solid.error.unsupportedMethod': 'Ei-tuettu menetelmä: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider-parametria on käytettävä LoggerProvider-parametrin sisällä.',
+  'solid.error.oauthFailed': 'OAuth-kirjautuminen epäonnistui',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance-ominaisuutta on käytettävä RouterProvider-kohteen sisällä.',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider-arvoa on käytettävä StateProvider-arvoa käyttävänä arvona.',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider-parametria on käytettävä StorageProvider-parametrin sisällä.',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider-muuttujaa on käytettävä ThemeProvider-muuttujassa.',
 }

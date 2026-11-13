@@ -24,4 +24,26 @@ export const ro: SolidTranslations = {
     'useToast trebuie utilizat în interiorul unui ToastProvider',
   'solid.error.useChatOutsideProvider':
     'useChatProvider trebuie utilizat în interiorul unui ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider trebuie utilizat în cadrul unui WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider trebuie utilizat în cadrul unui EditorProvider',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider trebuie utilizat în cadrul unui PreviewProvider',
+  'solid.error.useAuthOutsideProvider':
+    'useAuthClient trebuie utilizat în cadrul unui AuthProvider',
+  'solid.error.useHttpOutsideProvider':
+    'useHttpClient trebuie utilizat în cadrul unui HttpProvider',
+  'solid.error.unsupportedMethod': 'Metodă neacceptată: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider trebuie utilizat în cadrul unui LoggerProvider',
+  'solid.error.oauthFailed': 'Conectarea OAuth a eșuat',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance trebuie utilizată în cadrul unui RouterProvider',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider trebuie utilizat în cadrul unui StateProvider',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider trebuie utilizat în cadrul unui StorageProvider',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider trebuie utilizat în cadrul unui ThemeProvider',
 }

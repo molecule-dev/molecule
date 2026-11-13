@@ -22,4 +22,26 @@ export const hu: SolidTranslations = {
     'Az Accordion komponenseket egy Accordion-on belül kell használni',
   'solid.error.useToastOutsideProvider': 'useToast -t egy ToastProvider-en belül kell használni',
   'solid.error.useChatOutsideProvider': 'A useChatProvider-t ChatProvider-en belül kell használni',
+  'solid.error.useWorkspaceOutsideProvider':
+    'A useWorkspaceProvider paramétert egy WorkspaceProvider-en belül kell használni.',
+  'solid.error.useEditorOutsideProvider':
+    'A useEditorProvider paramétert egy EditorProvider-en belül kell használni.',
+  'solid.error.usePreviewOutsideProvider':
+    'A usePreviewProvider paramétert PreviewProvider-en belül kell használni.',
+  'solid.error.useAuthOutsideProvider':
+    'A useAuthClient-et egy AuthProvider-en belül kell használni.',
+  'solid.error.useHttpOutsideProvider':
+    'A useHttpClient függvényt egy HttpProvider-en belül kell használni.',
+  'solid.error.unsupportedMethod': 'Nem támogatott metódus: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'A useLoggerProvider paramétert egy LoggerProvider-en belül kell használni.',
+  'solid.error.oauthFailed': 'OAuth bejelentkezés sikertelen',
+  'solid.error.useRouterOutsideProvider':
+    'A useRouterInstance függvényt egy RouterProvider-en belül kell használni.',
+  'solid.error.useStoreOutsideProvider':
+    'A useStateProvider paramétert egy StateProvider paraméteren belül kell használni.',
+  'solid.error.useStorageOutsideProvider':
+    'A useStorageProvider paramétert egy StorageProvider paraméteren belül kell használni.',
+  'solid.error.useThemeOutsideProvider':
+    'A useThemeProvider-t egy ThemeProvider-en belül kell használni.',
 }

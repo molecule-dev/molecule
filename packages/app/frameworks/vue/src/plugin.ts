@@ -8,8 +8,11 @@ import type { App, Plugin } from 'vue'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
+import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
+import type { WorkspaceProvider } from '@molecule/app-ide'
+import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
 import type { Router } from '@molecule/app-routing'
 import type { StateProvider } from '@molecule/app-state'
@@ -19,13 +22,16 @@ import type { ThemeProvider } from '@molecule/app-theme'
 import {
   AuthKey,
   ChatKey,
+  EditorKey,
   HttpKey,
   I18nKey,
   LoggerKey,
+  PreviewKey,
   RouterKey,
   StateKey,
   StorageKey,
   ThemeKey,
+  WorkspaceKey,
 } from './injection-keys.js'
 
 /**
@@ -42,6 +48,12 @@ export interface MoleculePluginOptions {
   logger?: LoggerProvider
   /** The AI chat provider `useChat` and `useChatProvider` use. */
   chat?: ChatProvider
+  /** The IDE workspace provider `useWorkspace` and `useWorkspaceProvider` use. */
+  workspace?: WorkspaceProvider
+  /** The code editor provider `useEditor` and `useEditorProvider` use. */
+  editor?: EditorProvider
+  /** The live preview provider `usePreview` and `usePreviewProvider` use. */
+  preview?: PreviewProvider
 }
 
 /**
@@ -66,7 +78,20 @@ export interface MoleculePluginOptions {
  */
 export const moleculePlugin: Plugin<MoleculePluginOptions> = {
   install(app: App, options: MoleculePluginOptions = {}) {
-    const { state, auth, theme, router, i18n, http, storage, logger, chat } = options
+    const {
+      state,
+      auth,
+      theme,
+      router,
+      i18n,
+      http,
+      storage,
+      logger,
+      chat,
+      workspace,
+      editor,
+      preview,
+    } = options
 
     if (state) {
       app.provide(StateKey, state)
@@ -102,6 +127,18 @@ export const moleculePlugin: Plugin<MoleculePluginOptions> = {
 
     if (chat) {
       app.provide(ChatKey, chat)
+    }
+
+    if (workspace) {
+      app.provide(WorkspaceKey, workspace)
+    }
+
+    if (editor) {
+      app.provide(EditorKey, editor)
+    }
+
+    if (preview) {
+      app.provide(PreviewKey, preview)
     }
   },
 }
@@ -220,6 +257,45 @@ export function createChatPlugin(provider: ChatProvider): Plugin {
   return {
     install(app: App) {
       app.provide(ChatKey, provider)
+    },
+  }
+}
+
+/**
+ * Creates a Vue plugin that provides an IDE workspace provider via dependency injection.
+ * @param provider - The workspace provider to inject into the Vue application.
+ * @returns A Vue plugin that provides the workspace provider to all descendant components.
+ */
+export function createWorkspacePlugin(provider: WorkspaceProvider): Plugin {
+  return {
+    install(app: App) {
+      app.provide(WorkspaceKey, provider)
+    },
+  }
+}
+
+/**
+ * Creates a Vue plugin that provides a code editor provider via dependency injection.
+ * @param provider - The editor provider to inject into the Vue application.
+ * @returns A Vue plugin that provides the editor provider to all descendant components.
+ */
+export function createEditorPlugin(provider: EditorProvider): Plugin {
+  return {
+    install(app: App) {
+      app.provide(EditorKey, provider)
+    },
+  }
+}
+
+/**
+ * Creates a Vue plugin that provides a live preview provider via dependency injection.
+ * @param provider - The preview provider to inject into the Vue application.
+ * @returns A Vue plugin that provides the preview provider to all descendant components.
+ */
+export function createPreviewPlugin(provider: PreviewProvider): Plugin {
+  return {
+    install(app: App) {
+      app.provide(PreviewKey, provider)
     },
   }
 }

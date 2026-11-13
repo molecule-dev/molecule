@@ -13,4 +13,26 @@ export const bg: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Неизвестна посока на страниране: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider трябва да се използва в ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast трябва да се използва в ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider трябва да се използва в рамките на WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider трябва да се използва в рамките на EditorProvider',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider трябва да се използва в рамките на PreviewProvider',
+  'svelte.error.useAuthOutsideProvider':
+    'useAuthClient трябва да се използва в рамките на AuthProvider',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider трябва да се използва в рамките на ThemeProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance трябва да се използва в RouterProvider',
+  'svelte.error.useHttpOutsideProvider':
+    'useHttpClient трябва да се използва в рамките на HttpProvider',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider трябва да се използва в рамките на StorageProvider',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider трябва да се използва в рамките на LoggerProvider',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider трябва да се използва в рамките на StateProvider',
+  'svelte.error.unsupportedMethod': 'Неподдържан метод: {{method}}',
+  'svelte.error.oauthFailed': 'Влизането чрез OAuth не бе успешно',
 }

@@ -22,4 +22,24 @@ export const ko: SvelteTranslations = {
     '\uc54c \uc218 \uc5c6\ub294 \ud398\uc774\uc9c0\ub124\uc774\uc158 \ubc29\ud5a5: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider는 ChatProvider 내에서 사용해야 합니다',
   'svelte.error.useToastOutsideProvider': 'useToast는 ToastProvider 내에서 사용해야 합니다',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider는 WorkspaceProvider 내에서 사용해야 합니다.',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider는 EditorProvider 내에서 사용해야 합니다.',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider는 PreviewProvider 내에서 사용해야 합니다.',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient는 AuthProvider 내에서 사용해야 합니다.',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider는 ThemeProvider 내에서 사용해야 합니다.',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance는 RouterProvider 내에서 사용해야 합니다.',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient는 HttpProvider 내에서 사용해야 합니다.',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider는 StorageProvider 내에서 사용해야 합니다.',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider는 LoggerProvider 내에서 사용해야 합니다.',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider는 StateProvider 내에서 사용해야 합니다.',
+  'svelte.error.unsupportedMethod': '지원되지 않는 메서드: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth 로그인 실패',
 }

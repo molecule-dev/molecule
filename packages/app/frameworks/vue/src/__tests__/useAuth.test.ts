@@ -26,7 +26,12 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-i18n', () => ({}))
+vi.mock('@molecule/app-i18n', () => ({
+  t: vi.fn(
+    (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key,
+  ),
+}))
 vi.mock('@molecule/app-http', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-logger', () => ({}))
@@ -51,7 +56,7 @@ describe('useAuthClient', () => {
 
   it('throws when auth client is not injected', () => {
     mockInjectReturnValue = undefined
-    expect(() => useAuthClient()).toThrow('useAuthClient requires AuthProvider to be provided')
+    expect(() => useAuthClient()).toThrow('useAuthClient must be used within an AuthProvider')
   })
 })
 

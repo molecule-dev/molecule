@@ -12,8 +12,6 @@ export const ro: ReactTranslations = {
     'useEditorProvider trebuie utilizat în interiorul unui EditorProvider',
   'react.error.useHttpOutsideProvider':
     'useHttpClient trebuie utilizat în interiorul unui HttpProvider',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider trebuie utilizat în interiorul unui I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider trebuie utilizat în interiorul unui LoggerProvider',
   'react.error.usePreviewOutsideProvider':

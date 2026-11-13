@@ -876,7 +876,7 @@ describe('State primitives', () => {
 
   it('useStore with selector returns selected value', async () => {
     const { useStore } = await getStateModule()
-    const count = useStore(mockStore, (s: Record<string, unknown>) => s.count)
+    const count = useStore(mockStore, { selector: (s: Record<string, unknown>) => s.count })
 
     expect(count()).toBe(0)
   })

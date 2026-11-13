@@ -21,4 +21,19 @@ export const kn: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider': 'Accordion ಘಟಕಗಳನ್ನು Accordion ಒಳಗೆ ಬಳಸಬೇಕು',
   'solid.error.useToastOutsideProvider': 'useToast ಅನ್ನು ToastProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'solid.error.useChatOutsideProvider': 'useChatProvider ಅನ್ನು ChatProvider ಒಳಗೆ ಬಳಸಬೇಕು',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ಅನ್ನು WorkspaceProvider ನೊಳಗೆ ಬಳಸಬೇಕು.',
+  'solid.error.useEditorOutsideProvider': 'useEditorProvider ಅನ್ನು EditorProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider ಅನ್ನು PreviewProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient ಅನ್ನು AuthProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient ಅನ್ನು HttpProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
+  'solid.error.unsupportedMethod': 'ಬೆಂಬಲವಿಲ್ಲದ ವಿಧಾನ: {{method}}',
+  'solid.error.useLoggerOutsideProvider': 'useLoggerProvider ಅನ್ನು LoggerProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
+  'solid.error.oauthFailed': 'OAuth ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ',
+  'solid.error.useRouterOutsideProvider': 'useRouterInstance ಅನ್ನು RouterProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು',
+  'solid.error.useStoreOutsideProvider': 'useStateProvider ಅನ್ನು StateProvider ನೊಳಗೆ ಬಳಸಬೇಕು.',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider ಅನ್ನು StorageProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
+  'solid.error.useThemeOutsideProvider': 'useThemeProvider ಅನ್ನು ThemeProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
 }

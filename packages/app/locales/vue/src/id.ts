@@ -3,7 +3,6 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Indonesian. */
 export const id: VueTranslations = {
   'vue.error.useRouterOutsideProvider': 'useRouterInstance harus digunakan di dalam RouterProvider',
-  'vue.error.useI18nOutsideProvider': 'useI18nProvider harus digunakan di dalam I18nProvider',
   'vue.error.useStoreOutsideProvider': 'useStateProvider harus digunakan di dalam StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider harus digunakan di dalam ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient harus digunakan di dalam AuthProvider',
@@ -14,4 +13,11 @@ export const id: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'useToast harus digunakan di dalam ToastProvider',
   'vue.error.unsupportedMethod': 'Metode tidak didukung: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider harus digunakan di dalam ChatProvider',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider harus digunakan di dalam EditorProvider.',
+  'vue.error.oauthFailed': 'Login OAuth gagal.',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider harus digunakan di dalam PreviewProvider.',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider harus digunakan di dalam WorkspaceProvider.',
 }

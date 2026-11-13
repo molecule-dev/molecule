@@ -1,28 +1,29 @@
 import { describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
 
-import { usePromise, type UsePromiseReturn } from '../usePromise.js'
+import { usePromise, type UsePromiseState } from '../usePromise.js'
 
 const flush = (): Promise<void> => new Promise<void>((r) => setTimeout(r, 0))
 
 describe('usePromise', () => {
   it('initial state is idle with null value and error', () => {
     const scope = effectScope()
-    let result!: UsePromiseReturn<string>
+    let state!: UsePromiseState<string>
     scope.run(() => {
-      result = usePromise(async () => 'hello')
+      ;[state] = usePromise(async () => 'hello')
     })
 
-    expect(result.status.value).toBe('idle')
-    expect(result.value.value).toBeNull()
-    expect(result.error.value).toBeNull()
+    expect(state.status).toBe('idle')
+    expect(state.value).toBeNull()
+    expect(state.error).toBeNull()
 
     scope.stop()
   })
 
   it('sets pending on call, then resolved on success', async () => {
     const scope = effectScope()
-    let result!: UsePromiseReturn<string>
+    let state!: UsePromiseState<string>
+    let call!: () => Promise<string>
     let resolve!: (value: string) => void
     const asyncFn = (): Promise<string> =>
       new Promise<string>((r) => {
@@ -30,139 +31,108 @@ describe('usePromise', () => {
       })
 
     scope.run(() => {
-      result = usePromise(asyncFn)
+      ;[state, call] = usePromise(asyncFn)
     })
 
-    const promise = result.call()
-    expect(result.status.value).toBe('pending')
-    expect(result.value.value).toBeNull()
+    const promise = call()
+    expect(state.status).toBe('pending')
+    expect(state.value).toBeNull()
 
     resolve('hello')
     await promise
 
-    expect(result.status.value).toBe('resolved')
-    expect(result.value.value).toBe('hello')
-    expect(result.error.value).toBeNull()
+    expect(state.status).toBe('resolved')
+    expect(state.value).toBe('hello')
+    expect(state.error).toBeNull()
 
     scope.stop()
   })
 
   it('sets pending on call, then rejected on error', async () => {
     const scope = effectScope()
-    let result!: UsePromiseReturn<string>
+    let state!: UsePromiseState<string>
+    let call!: () => Promise<string>
     const error = new Error('test error')
 
     scope.run(() => {
-      result = usePromise(async () => {
+      ;[state, call] = usePromise(async () => {
         throw error
       })
     })
 
-    await expect(result.call()).rejects.toThrow('test error')
+    await expect(call()).rejects.toThrow('test error')
 
-    expect(result.status.value).toBe('rejected')
-    expect(result.value.value).toBeNull()
-    expect(result.error.value).toBe(error)
-
-    scope.stop()
-  })
-
-  it('cancel sets rejected with cancellation error', () => {
-    const scope = effectScope()
-    let result!: UsePromiseReturn<string>
-
-    scope.run(() => {
-      result = usePromise(async () => 'hello')
-    })
-
-    result.cancel('User cancelled')
-
-    expect(result.status.value).toBe('rejected')
-    expect(result.value.value).toBeNull()
-    expect(result.error.value).toBeInstanceOf(Error)
-    expect(result.error.value!.message).toBe('User cancelled')
+    expect(state.status).toBe('rejected')
+    expect(state.value).toBeNull()
+    expect(state.error).toBe(error)
 
     scope.stop()
   })
 
-  it('cancel uses default message when none provided', () => {
+  it('cancel sets rejected with the given message', () => {
     const scope = effectScope()
-    let result!: UsePromiseReturn<string>
+    let state!: UsePromiseState<string>
 
     scope.run(() => {
-      result = usePromise(async () => 'hello')
+      ;[state] = usePromise(async () => 'hello')
     })
 
-    result.cancel()
+    state.cancel('User cancelled')
 
-    expect(result.error.value!.message).toBe('Cancelled')
+    expect(state.status).toBe('rejected')
+    expect(state.value).toBeNull()
+    expect(state.error).toBeInstanceOf(Error)
+    expect(state.error!.message).toBe('User cancelled')
+
+    scope.stop()
+  })
+
+  it('cancel without a message leaves the error null (React parity)', () => {
+    const scope = effectScope()
+    let state!: UsePromiseState<string>
+
+    scope.run(() => {
+      ;[state] = usePromise(async () => 'hello')
+    })
+
+    state.cancel()
+
+    expect(state.status).toBe('rejected')
+    expect(state.error).toBeNull()
 
     scope.stop()
   })
 
   it('reset clears state to idle', async () => {
     const scope = effectScope()
-    let result!: UsePromiseReturn<string>
+    let state!: UsePromiseState<string>
+    let call!: () => Promise<string>
 
     scope.run(() => {
-      result = usePromise(async () => 'hello')
+      ;[state, call] = usePromise(async () => 'hello')
     })
 
-    await result.call()
-    expect(result.status.value).toBe('resolved')
-    expect(result.value.value).toBe('hello')
+    await call()
+    expect(state.status).toBe('resolved')
+    expect(state.value).toBe('hello')
 
-    result.reset()
+    state.reset()
 
-    expect(result.status.value).toBe('idle')
-    expect(result.value.value).toBeNull()
-    expect(result.error.value).toBeNull()
+    expect(state.status).toBe('idle')
+    expect(state.value).toBeNull()
+    expect(state.error).toBeNull()
 
     scope.stop()
   })
 
-  it('multiple calls — latest result wins', async () => {
+  it('reset while a call is pending lets its result land (React parity)', async () => {
     const scope = effectScope()
-    let result!: UsePromiseReturn<number>
-    const resolvers: Array<(value: number) => void> = []
-
-    scope.run(() => {
-      result = usePromise(
-        () =>
-          new Promise<number>((r) => {
-            resolvers.push(r)
-          }),
-      )
-    })
-
-    void result.call()
-    const promise2 = result.call()
-
-    // Resolve the first call (stale)
-    resolvers[0](1)
-    await flush()
-
-    // Status should still be pending because call 2 is the current one
-    expect(result.status.value).toBe('pending')
-    expect(result.value.value).toBeNull()
-
-    // Resolve the second call (current)
-    resolvers[1](2)
-    await promise2
-
-    expect(result.status.value).toBe('resolved')
-    expect(result.value.value).toBe(2)
-
-    scope.stop()
-  })
-
-  it('scope stop (unmount) prevents state updates', async () => {
-    const scope = effectScope()
-    let result!: UsePromiseReturn<string>
+    let state!: UsePromiseState<string>
+    let call!: () => Promise<string>
     let resolve!: (value: string) => void
 
     scope.run(() => {
-      result = usePromise(
+      ;[state, call] = usePromise(
         () =>
           new Promise<string>((r) => {
             resolve = r
@@ -170,8 +140,74 @@ describe('usePromise', () => {
       )
     })
 
-    const promise = result.call()
-    expect(result.status.value).toBe('pending')
+    const promise = call()
+    expect(state.status).toBe('pending')
+
+    state.reset()
+    expect(state.status).toBe('idle')
+
+    resolve('late')
+    await promise
+
+    expect(state.status).toBe('resolved')
+    expect(state.value).toBe('late')
+
+    scope.stop()
+  })
+
+  it('multiple calls — latest result wins', async () => {
+    const scope = effectScope()
+    let state!: UsePromiseState<number>
+    let call!: () => Promise<number>
+    const resolvers: Array<(value: number) => void> = []
+
+    scope.run(() => {
+      ;[state, call] = usePromise(
+        () =>
+          new Promise<number>((r) => {
+            resolvers.push(r)
+          }),
+      )
+    })
+
+    void call()
+    const promise2 = call()
+
+    // Resolve the first call (stale)
+    resolvers[0](1)
+    await flush()
+
+    // Status should still be pending because call 2 is the current one
+    expect(state.status).toBe('pending')
+    expect(state.value).toBeNull()
+
+    // Resolve the second call (current)
+    resolvers[1](2)
+    await promise2
+
+    expect(state.status).toBe('resolved')
+    expect(state.value).toBe(2)
+
+    scope.stop()
+  })
+
+  it('scope stop (unmount) prevents state updates', async () => {
+    const scope = effectScope()
+    let state!: UsePromiseState<string>
+    let call!: () => Promise<string>
+    let resolve!: (value: string) => void
+
+    scope.run(() => {
+      ;[state, call] = usePromise(
+        () =>
+          new Promise<string>((r) => {
+            resolve = r
+          }),
+      )
+    })
+
+    const promise = call()
+    expect(state.status).toBe('pending')
 
     // Stop the scope (simulates unmount)
     scope.stop()
@@ -181,110 +217,72 @@ describe('usePromise', () => {
     await promise
 
     // State should not have been updated after disposal
-    expect(result.status.value).toBe('pending')
-    expect(result.value.value).toBeNull()
+    expect(state.status).toBe('pending')
+    expect(state.value).toBeNull()
   })
 
   it('passes arguments through to the async function', async () => {
     const scope = effectScope()
     const fn = vi.fn(async (a: number, b: number) => a + b)
-    let result!: UsePromiseReturn<number>
+    let state!: UsePromiseState<number>
+    let call!: (a: number, b: number) => Promise<number>
 
     scope.run(() => {
-      result = usePromise(fn)
+      ;[state, call] = usePromise(fn)
     })
 
-    const value = await result.call(3, 4)
+    const value = await call(3, 4)
 
     expect(fn).toHaveBeenCalledWith(3, 4)
     expect(value).toBe(7)
-    expect(result.value.value).toBe(7)
+    expect(state.value).toBe(7)
 
     scope.stop()
   })
 
-  it('preserves previous value during pending state', async () => {
+  it('preserves the previous value while a newer call is pending', async () => {
     const scope = effectScope()
-    let result!: UsePromiseReturn<string>
-    let resolve!: (value: string) => void
+    let state!: UsePromiseState<string>
+    let call!: () => Promise<string>
+    const resolvers: Array<(value: string) => void> = []
 
     scope.run(() => {
-      result = usePromise(async () => 'first')
-    })
-
-    // First call resolves
-    await result.call()
-    expect(result.value.value).toBe('first')
-
-    // Second call starts — value should be preserved during pending
-    usePromise(
-      () =>
-        new Promise<string>((r) => {
-          resolve = r
-        }),
-    )
-    // Actually re-test with original
-    scope.stop()
-
-    const scope2 = effectScope()
-    scope2.run(() => {
-      result = usePromise(
+      ;[state, call] = usePromise(
         () =>
           new Promise<string>((r) => {
-            resolve = r
+            resolvers.push(r)
           }),
       )
     })
 
-    // Resolve first call
-    const p1 = result.call()
-    resolve('first')
-    await p1
+    const first = call()
+    resolvers[0]('first')
+    await first
 
-    expect(result.value.value).toBe('first')
-
-    // Start second call — value preserved while pending
-    // We need a new composable that allows separate resolvers
-    scope2.stop()
-
-    const scope3 = effectScope()
-    const resolvers3: Array<(value: string) => void> = []
-    scope3.run(() => {
-      result = usePromise(
-        () =>
-          new Promise<string>((r) => {
-            resolvers3.push(r)
-          }),
-      )
-    })
-
-    const p3a = result.call()
-    resolvers3[0]('first')
-    await p3a
-
-    expect(result.value.value).toBe('first')
+    expect(state.value).toBe('first')
 
     // Start another call — previous value should be preserved during pending
-    result.call()
-    expect(result.status.value).toBe('pending')
-    expect(result.value.value).toBe('first')
+    void call()
+    expect(state.status).toBe('pending')
+    expect(state.value).toBe('first')
 
-    scope3.stop()
+    scope.stop()
   })
 
   it('converts non-Error thrown values to Error objects', async () => {
     const scope = effectScope()
-    let result!: UsePromiseReturn<string>
+    let state!: UsePromiseState<string>
+    let call!: () => Promise<string>
 
     scope.run(() => {
-      result = usePromise(async () => {
+      ;[state, call] = usePromise(async () => {
         throw 'string error'
       })
     })
 
-    await expect(result.call()).rejects.toThrow('string error')
-    expect(result.error.value).toBeInstanceOf(Error)
-    expect(result.error.value!.message).toBe('string error')
+    await expect(call()).rejects.toThrow('string error')
+    expect(state.error).toBeInstanceOf(Error)
+    expect(state.error!.message).toBe('string error')
 
     scope.stop()
   })

@@ -15,4 +15,26 @@ export const fr: Partial<SvelteTranslations> = {
     "La fonction useChatProvider doit être utilisée au sein d'un ChatProvider.",
   'svelte.error.useToastOutsideProvider':
     "La méthode useToast doit être utilisée à l'intérieur d'un ToastProvider.",
+  'svelte.error.useWorkspaceOutsideProvider':
+    "La fonction useWorkspaceProvider doit être utilisée à l'intérieur d'un WorkspaceProvider.",
+  'svelte.error.useEditorOutsideProvider':
+    "La méthode useEditorProvider doit être utilisée à l'intérieur d'un EditorProvider.",
+  'svelte.error.usePreviewOutsideProvider':
+    "La méthode usePreviewProvider doit être utilisée à l'intérieur d'un PreviewProvider.",
+  'svelte.error.useAuthOutsideProvider':
+    "La méthode useAuthClient doit être utilisée au sein d'un AuthProvider.",
+  'svelte.error.useThemeOutsideProvider':
+    "La méthode useThemeProvider doit être utilisée à l'intérieur d'un ThemeProvider.",
+  'svelte.error.useRouterOutsideProvider':
+    "La méthode useRouterInstance doit être utilisée au sein d'un RouterProvider.",
+  'svelte.error.useHttpOutsideProvider':
+    "La méthode useHttpClient doit être utilisée au sein d'un HttpProvider.",
+  'svelte.error.useStorageOutsideProvider':
+    "La méthode useStorageProvider doit être utilisée à l'intérieur d'un StorageProvider.",
+  'svelte.error.useLoggerOutsideProvider':
+    "La méthode useLoggerProvider doit être utilisée à l'intérieur d'un LoggerProvider.",
+  'svelte.error.useStoreOutsideProvider':
+    "useStateProvider doit être utilisé à l'intérieur d'un StateProvider.",
+  'svelte.error.unsupportedMethod': 'Méthode non prise en charge : {{method}}',
+  'svelte.error.oauthFailed': 'Échec de la connexion OAuth',
 }

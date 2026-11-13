@@ -10,7 +10,6 @@ export const af: Partial<ReactTranslations> = {
   'react.error.useEditorOutsideProvider':
     "useEditorProvider moet binne 'n EditorProvider gebruik word.",
   'react.error.useHttpOutsideProvider': "useHttpClient moet binne 'n HttpProvider gebruik word",
-  'react.error.useI18nOutsideProvider': "useI18nProvider moet binne 'n I18nProvider gebruik word",
   'react.error.useLoggerOutsideProvider':
     "useLoggerProvider moet binne 'n LoggerProvider gebruik word",
   'react.error.usePreviewOutsideProvider':

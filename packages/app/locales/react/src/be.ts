@@ -10,8 +10,6 @@ export const be: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider павінен выкарыстоўвацца ўнутры EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient павінен выкарыстоўвацца ўнутры HttpProvider',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider павінен выкарыстоўвацца ўнутры I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider павінен выкарыстоўвацца ўнутры LoggerProvider',
   'react.error.usePreviewOutsideProvider':

@@ -23,4 +23,26 @@ export const mk: SvelteTranslations = {
   'svelte.error.useChatOutsideProvider':
     'useChatProvider мора да се користи внатре во ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast мора да се користи внатре во ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider мора да се користи во рамките на WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider мора да се користи во рамките на EditorProvider',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider мора да се користи во рамките на PreviewProvider',
+  'svelte.error.useAuthOutsideProvider':
+    'useAuthClient мора да се користи во рамките на AuthProvider',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider мора да се користи во рамките на ThemeProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance мора да се користи во рамките на RouterProvider',
+  'svelte.error.useHttpOutsideProvider':
+    'useHttpClient мора да се користи во рамките на HttpProvider',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider мора да се користи во рамките на StorageProvider',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider мора да се користи во рамките на LoggerProvider',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider мора да се користи во рамките на StateProvider',
+  'svelte.error.unsupportedMethod': 'Неподдржан метод: {{method}}',
+  'svelte.error.oauthFailed': 'Најавувањето со OAuth не успеа',
 }

@@ -21,4 +21,18 @@ export const ar: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider': 'يجب استخدام مكونات Accordion داخل Accordion',
   'solid.error.useToastOutsideProvider': 'يجب استخدام useToast داخل ToastProvider',
   'solid.error.useChatOutsideProvider': 'يجب استخدام useChatProvider داخل ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'يجب استخدام useWorkspaceProvider داخل WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider': 'يجب استخدام useEditorProvider داخل EditorProvider',
+  'solid.error.usePreviewOutsideProvider': 'يجب استخدام usePreviewProvider داخل PreviewProvider',
+  'solid.error.useAuthOutsideProvider':
+    'يجب استخدام useAuthClient داخل موفر المصادقة (AuthProvider)',
+  'solid.error.useHttpOutsideProvider': 'يجب استخدام useHttpClient داخل HttpProvider',
+  'solid.error.unsupportedMethod': 'طريقة غير مدعومة: {{method}}',
+  'solid.error.useLoggerOutsideProvider': 'يجب استخدام useLoggerProvider داخل LoggerProvider',
+  'solid.error.oauthFailed': 'فشل تسجيل الدخول باستخدام OAuth',
+  'solid.error.useRouterOutsideProvider': 'يجب استخدام useRouterInstance داخل RouterProvider',
+  'solid.error.useStoreOutsideProvider': 'يجب استخدام useStateProvider داخل StateProvider',
+  'solid.error.useStorageOutsideProvider': 'يجب استخدام useStorageProvider داخل StorageProvider',
+  'solid.error.useThemeOutsideProvider': 'يجب استخدام useThemeProvider داخل ThemeProvider',
 }

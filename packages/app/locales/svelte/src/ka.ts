@@ -22,4 +22,24 @@ export const ka: SvelteTranslations = {
     '\u10e3\u10ea\u10dc\u10dd\u10d1\u10d8 \u10de\u10d0\u10d2\u10d8\u10dc\u10d0\u10ea\u10d8\u10d8\u10e1 \u10db\u10d8\u10db\u10d0\u10e0\u10d7\u10e3\u10da\u10d4\u10d1\u10d0: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider უნდა გამოიყენოთ ChatProvider-ის შიგნით',
   'svelte.error.useToastOutsideProvider': 'useToast უნდა გამოიყენოთ ToastProvider-ის შიგნით',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider უნდა იქნას გამოყენებული WorkspaceProvider-ში.',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider უნდა იქნას გამოყენებული EditorProvider-ში',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider უნდა იქნას გამოყენებული PreviewProvider-ში',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient უნდა იქნას გამოყენებული AuthProvider-ში',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider უნდა იქნას გამოყენებული ThemeProvider-ში',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance უნდა იქნას გამოყენებული RouterProvider-ში.',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient უნდა იქნას გამოყენებული HttpProvider-ში',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider უნდა იქნას გამოყენებული StorageProvider-ში',
+  'svelte.error.useLoggerOutsideProvider':
+    'LoggerProvider-ში უნდა იქნას გამოყენებული useLoggerProvider',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider უნდა იქნას გამოყენებული StateProvider-ში',
+  'svelte.error.unsupportedMethod': 'მხარდაუჭერელი მეთოდი: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth-ში შესვლა ვერ მოხერხდა',
 }

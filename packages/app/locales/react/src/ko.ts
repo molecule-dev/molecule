@@ -9,7 +9,6 @@ export const ko: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider는 EditorProvider 내에서 사용해야 합니다',
   'react.error.useHttpOutsideProvider': 'useHttpClient는 HttpProvider 내에서 사용해야 합니다',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider는 I18nProvider 내에서 사용해야 합니다',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider는 LoggerProvider 내에서 사용해야 합니다',
   'react.error.usePreviewOutsideProvider':

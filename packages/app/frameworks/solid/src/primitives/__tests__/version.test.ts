@@ -103,11 +103,16 @@ describe('createVersion', () => {
         })
         handler()
 
-        expect(state().isUpdateAvailable).toBe(true)
-        expect(state().newVersion).toBe('2.0.0')
+        // The snapshot engine renders on the scheduler (React's
+        // useSyncExternalStore cadence), so the new state commits on the next
+        // microtask rather than inside the notification.
+        queueMicrotask(() => {
+          expect(state().isUpdateAvailable).toBe(true)
+          expect(state().newVersion).toBe('2.0.0')
 
-        dispose()
-        resolve()
+          dispose()
+          resolve()
+        })
       })
     })
   })

@@ -12,6 +12,8 @@ vi.mock('vue', () => ({
   inject: vi.fn(() => mockInjectReturnValue),
   ref: vi.fn((v: unknown) => ({ value: v })),
   computed: vi.fn((fn: () => unknown) => ({ value: fn() })),
+  getCurrentScope: vi.fn(() => null),
+  onScopeDispose: vi.fn(),
   onMounted: vi.fn((cb: () => void) => {
     onMountedCallbacks.push(cb)
   }),
@@ -25,7 +27,12 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-i18n', () => ({}))
+vi.mock('@molecule/app-i18n', () => ({
+  t: vi.fn(
+    (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key,
+  ),
+}))
 vi.mock('@molecule/app-http', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-logger', () => ({}))
@@ -51,7 +58,7 @@ describe('useStorageProvider', () => {
   it('throws when storage provider is not injected', () => {
     mockInjectReturnValue = undefined
     expect(() => useStorageProvider()).toThrow(
-      'useStorageProvider requires StorageProvider to be provided',
+      'useStorageProvider must be used within a StorageProvider',
     )
   })
 })
@@ -105,8 +112,9 @@ describe('useStorageValue', () => {
 
   it('loads stored value on mount', async () => {
     const result = useStorageValue('testKey')
-    expect(onMountedCallbacks.length).toBeGreaterThan(0)
-    await onMountedCallbacks[0]()
+    // The read starts when the composable runs (setup time), like React's
+    // mount effect; the fake provider answers on the next microtask.
+    await vi.waitFor(() => expect(result.loading.value).toBe(false))
     expect(mockStorage.get).toHaveBeenCalledWith('testKey')
     expect(result.value.value).toBe('stored-value')
     expect(result.loading.value).toBe(false)
@@ -115,7 +123,7 @@ describe('useStorageValue', () => {
   it('falls back to defaultValue when storage returns null', async () => {
     mockStorage.get.mockResolvedValue(null)
     const result = useStorageValue('testKey', { defaultValue: 'fallback' })
-    await onMountedCallbacks[0]()
+    await vi.waitFor(() => expect(result.loading.value).toBe(false))
     expect(result.value.value).toBe('fallback')
     expect(result.loading.value).toBe(false)
   })
@@ -123,7 +131,7 @@ describe('useStorageValue', () => {
   it('handles error during load', async () => {
     mockStorage.get.mockRejectedValue(new Error('load failed'))
     const result = useStorageValue('testKey')
-    await onMountedCallbacks[0]()
+    await vi.waitFor(() => expect(result.loading.value).toBe(false))
     expect(result.error.value).toBeInstanceOf(Error)
     expect(result.error.value!.message).toBe('load failed')
     expect(result.loading.value).toBe(false)
@@ -132,7 +140,7 @@ describe('useStorageValue', () => {
   it('handles non-Error during load', async () => {
     mockStorage.get.mockRejectedValue('string error')
     const result = useStorageValue('testKey')
-    await onMountedCallbacks[0]()
+    await vi.waitFor(() => expect(result.loading.value).toBe(false))
     expect(result.error.value).toBeInstanceOf(Error)
     expect(result.error.value!.message).toBe('string error')
   })

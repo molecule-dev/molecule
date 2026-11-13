@@ -24,4 +24,26 @@ export const el: SolidTranslations = {
     'useToast πρέπει να χρησιμοποιείται εντός ενός ToastProvider',
   'solid.error.useChatOutsideProvider':
     'Το useChatProvider πρέπει να χρησιμοποιείται εντός ενός ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'Το useWorkspaceProvider πρέπει να χρησιμοποιείται εντός ενός WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider':
+    'Το useEditorProvider πρέπει να χρησιμοποιηθεί εντός ενός EditorProvider',
+  'solid.error.usePreviewOutsideProvider':
+    'Το usePreviewProvider πρέπει να χρησιμοποιηθεί μέσα σε ένα PreviewProvider',
+  'solid.error.useAuthOutsideProvider':
+    'Το useAuthClient πρέπει να χρησιμοποιηθεί μέσα σε ένα AuthProvider',
+  'solid.error.useHttpOutsideProvider':
+    'Το useHttpClient πρέπει να χρησιμοποιηθεί μέσα σε ένα HttpProvider',
+  'solid.error.unsupportedMethod': 'Μη υποστηριζόμενη μέθοδος: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'Το useLoggerProvider πρέπει να χρησιμοποιείται εντός ενός LoggerProvider',
+  'solid.error.oauthFailed': 'Η σύνδεση στο OAuth απέτυχε',
+  'solid.error.useRouterOutsideProvider':
+    'Το useRouterInstance πρέπει να χρησιμοποιηθεί εντός ενός RouterProvider',
+  'solid.error.useStoreOutsideProvider':
+    'Το useStateProvider πρέπει να χρησιμοποιηθεί εντός ενός StateProvider',
+  'solid.error.useStorageOutsideProvider':
+    'Το useStorageProvider πρέπει να χρησιμοποιείται εντός ενός StorageProvider',
+  'solid.error.useThemeOutsideProvider':
+    'Το useThemeProvider πρέπει να χρησιμοποιείται μέσα σε ένα ThemeProvider',
 }

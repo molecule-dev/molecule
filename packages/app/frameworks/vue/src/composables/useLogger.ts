@@ -6,6 +6,7 @@
 
 import { inject } from 'vue'
 
+import { t } from '@molecule/app-i18n'
 import type { Logger, LoggerConfig, LoggerProvider } from '@molecule/app-logger'
 
 import { LoggerKey } from '../injection-keys.js'
@@ -19,7 +20,11 @@ import { LoggerKey } from '../injection-keys.js'
 export function useLoggerProvider(): LoggerProvider {
   const provider = inject(LoggerKey)
   if (!provider) {
-    throw new Error('useLoggerProvider requires LoggerProvider to be provided')
+    throw new Error(
+      t('vue.error.useLoggerOutsideProvider', undefined, {
+        defaultValue: 'useLoggerProvider must be used within a LoggerProvider',
+      }),
+    )
   }
   return provider
 }

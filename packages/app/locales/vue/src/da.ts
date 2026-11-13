@@ -3,7 +3,6 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Danish. */
 export const da: VueTranslations = {
   'vue.error.useRouterOutsideProvider': 'useRouterInstance skal bruges inden for en RouterProvider',
-  'vue.error.useI18nOutsideProvider': 'useI18nProvider skal bruges inden for en I18nProvider',
   'vue.error.useStoreOutsideProvider': 'useStateProvider skal bruges inden for en StateProvider',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider skal bruges inden for en ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'useAuthClient skal bruges inden for en AuthProvider',
@@ -14,4 +13,9 @@ export const da: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'useToast skal bruges inden for en ToastProvider',
   'vue.error.unsupportedMethod': 'Ikke-understøttet metode: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider skal bruges inden for en ChatProvider',
+  'vue.error.useEditorOutsideProvider': 'useEditorProvider skal bruges i en EditorProvider',
+  'vue.error.oauthFailed': 'OAuth-login mislykkedes',
+  'vue.error.usePreviewOutsideProvider': 'usePreviewProvider skal bruges i en PreviewProvider',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider skal bruges inden for en WorkspaceProvider',
 }

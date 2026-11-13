@@ -9,7 +9,6 @@ export const ga: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'Ní mór useEditorProvider a úsáid laistigh de EditorProvider',
   'react.error.useHttpOutsideProvider': 'Ní mór useHttpClient a úsáid laistigh de HttpProvider',
-  'react.error.useI18nOutsideProvider': 'Ní mór useI18nProvider a úsáid laistigh de I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'Ní mór useLoggerProvider a úsáid laistigh de LoggerProvider',
   'react.error.usePreviewOutsideProvider':

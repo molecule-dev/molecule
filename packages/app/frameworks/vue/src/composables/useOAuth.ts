@@ -1,19 +1,79 @@
 /**
  * Vue composable for OAuth authentication.
  *
- * Provides helpers to build OAuth URLs and start a login via a full-page
- * redirect, and automatically handles the OAuth callback by detecting `code`
- * and `state` URL parameters and exchanging them for a session (when used
- * inside a component; see {@link UseOAuthReturn.handleCallback} for manual use).
+ * Supports two initiation modes that share ONE callback path:
+ *   - {@link UseOAuthReturn.redirect} — full-page redirect (the default; unchanged).
+ *   - {@link UseOAuthReturn.loginViaPopup} — opens the provider in a popup so the
+ *     opener page never navigates (used by in-app auth modals). On completion the
+ *     popup relays the result to the opener via a STRICTLY-validated `postMessage`
+ *     and closes itself; the opener establishes the session in place.
+ *
+ * Security model for the popup relay (see inline notes at each gate):
+ *   - The popup posts ONLY to its own origin (`targetOrigin = location.origin`),
+ *     never `'*'`, so the bearer token can never be delivered to another origin.
+ *   - The opener accepts a result ONLY when ALL hold: `event.origin === location.origin`,
+ *     `event.source === thePopupWindowWeOpened`, and `event.data.type` matches our
+ *     private message type. Anything else is ignored — a forged cross-origin (or
+ *     wrong-window) message cannot inject a session.
+ *   - The popup-relay path is gated on `window.name === OAUTH_POPUP_WINDOW_NAME`
+ *     AND `window.opener`, so an ordinary full-page callback is completely
+ *     unaffected (it still establishes the session inline as before).
+ *   - The opener tears down its listener + timers on result, on user-close, and on
+ *     a hard timeout, so no stale handler lingers.
+ *
+ * Unmounting does not cancel a flow that has started. A popup result or a
+ * callback exchange that settles afterwards still establishes the session on
+ * the shared auth client, because the user did sign in. `onSuccess` and
+ * `onError` are not called after unmount: they belong to the unmounted view.
  *
  * @module
  */
 
-import { computed, type ComputedRef, getCurrentInstance, inject, onMounted } from 'vue'
+import {
+  computed,
+  type ComputedRef,
+  getCurrentInstance,
+  getCurrentScope,
+  inject,
+  onMounted,
+  onScopeDispose,
+} from 'vue'
 
 import type { AuthClient } from '@molecule/app-auth'
+import { t } from '@molecule/app-i18n'
 
 import { AuthKey } from '../injection-keys.js'
+
+/** What `onError` gets when the server gives no reason of its own. */
+const oauthFailed = (): string =>
+  t('vue.error.oauthFailed', undefined, { defaultValue: 'OAuth login failed' })
+
+/**
+ * `window.open` name for the OAuth popup. The callback page relays its result to
+ * the opener ONLY when its own `window.name` equals this AND `window.opener`
+ * exists — so a normal (full-page) callback never takes the relay path.
+ */
+const OAUTH_POPUP_WINDOW_NAME = 'molecule-oauth-popup'
+
+/** Private `postMessage` type for the popup→opener result relay. */
+const OAUTH_RESULT_MESSAGE_TYPE = 'molecule:oauth-result'
+
+/** Hard cap on how long the opener waits for the popup before giving up. */
+const OAUTH_POPUP_TIMEOUT_MS = 5 * 60 * 1000
+
+/** Shape of the result the popup relays to the opener. */
+interface OAuthRelayMessage {
+  /** Private discriminator — the opener ignores any message without this exact type. */
+  type: typeof OAUTH_RESULT_MESSAGE_TYPE
+  /** Whether the exchange succeeded. */
+  ok: boolean
+  /** Bearer token from the exchange (relayed same-origin only), when `ok`. */
+  token?: string | null
+  /** The authenticated user, when `ok`. */
+  user?: unknown
+  /** Failure message, when not `ok`. */
+  error?: string
+}
 
 /**
  * OAuth configuration options.
@@ -31,6 +91,13 @@ export interface UseOAuthOptions {
   onSuccess?: () => void
   /** Callback fired with an error message when the OAuth login fails. */
   onError?: (error: string) => void
+  /**
+   * How the page leaves for the provider: {@link UseOAuthReturn.redirect} and the
+   * blocked-popup fallback call it with the provider URL. Defaults to a full-page
+   * navigation (`window.location.href = url`); pass an in-app browser opener on
+   * native, or a router's external navigation.
+   */
+  navigate?: (url: string) => void
   /**
    * Explicit auth client used to establish the session after the callback
    * exchange. Defaults to the injected client ({@link AuthKey}) when the
@@ -51,6 +118,13 @@ export interface UseOAuthReturn {
   /** Full-page redirect to the provider's OAuth initiation endpoint. */
   redirect: (provider: string) => void
   /**
+   * Open the provider in a popup so the opener page does NOT navigate. On success
+   * the session is established in the opener in place and `onSuccess` fires;
+   * on failure `onError` fires. Falls back to a full-page {@link redirect}
+   * when the popup is blocked.
+   */
+  loginViaPopup: (provider: string) => void
+  /**
    * Handles an OAuth callback: when the current URL carries a `code` param and
    * a provider was stashed by {@link redirect}, exchanges the code for a
    * session. A guarded no-op otherwise. Runs automatically on mount when the
@@ -64,19 +138,14 @@ export interface UseOAuthReturn {
  * Composable for OAuth authentication.
  *
  * Reads OAuth configuration from the provided options and provides helpers to
- * build OAuth URLs and start a login. When used inside a component, it
- * automatically handles OAuth callbacks on mount by detecting `code` and
- * `state` URL parameters and exchanging them for a session.
+ * build OAuth URLs and start a login (full-page or popup). When used inside a
+ * component, it automatically handles OAuth callbacks on mount by detecting
+ * `code` and `state` URL parameters and exchanging them for a session — and,
+ * when the callback is running inside a popup we opened, relaying the result to
+ * the opener instead.
  *
- * Session establishment: the exchange result is applied to the resolved auth
- * client (an explicit `options.authClient`, else the injected {@link AuthKey}
- * client when running during component setup). When NO client is available,
- * the server has already established the httpOnly-cookie session via the
- * exchange, so a user-carrying response still counts as success —
- * `options.onSuccess` fires; a response with no user fires `options.onError`.
- *
- * @param options - OAuth configuration (base URL, providers, endpoint paths, callbacks, auth client).
- * @returns Available providers, a URL builder, a redirect method, and a callback handler.
+ * @param options - OAuth configuration (base URL, providers, endpoint paths, callbacks, navigate, auth client).
+ * @returns Available providers, a URL builder, a redirect method, and a popup login method.
  */
 export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
   const baseURL = options?.baseURL ?? ''
@@ -89,6 +158,25 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
   // composable callable outside components (where injection is unavailable).
   const injectedClient = getCurrentInstance() ? inject(AuthKey, null) : null
   const authClient: AuthClient<unknown> | null = options?.authClient ?? injectedClient
+
+  // Whether the host is mounted, read when a flow settles. Set at setup, so a
+  // callback exchange started on the first mount still reports its result.
+  let mounted = true
+  if (getCurrentInstance()) {
+    onMounted(() => {
+      mounted = true
+    })
+  }
+  if (getCurrentInstance()) {
+    onMounted(() => {
+      void handleCallback()
+    })
+  }
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      mounted = false
+    })
+  }
 
   const providers = computed(() => options?.oauthProviders ?? [])
 
@@ -124,11 +212,143 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
     return `${url}${url.includes('?') ? '&' : '?'}redirect_to=${encodeURIComponent(path)}`
   }
 
-  const redirect = (provider: string): void => {
-    stashProvider(provider)
-    window.location.href = withReturnPath(getOAuthUrl(provider))
+  /**
+   * Establish the authenticated session from an exchange result: seed the access
+   * token + user and let `initialize()` flip `authenticated`. Mirrors what
+   * `authClient.login()` does for password login. Returns whether a user was set
+   * (a result with no user is not a real session).
+   */
+  const establishSession = async (
+    token: string | null | undefined,
+    user: unknown,
+  ): Promise<boolean> => {
+    // Seed the token via the auth client's configured token storage adapter
+    // (in-memory by default) — NOT localStorage directly. Writing the bearer
+    // token to localStorage violates the in-memory-default storage contract and
+    // makes it JS-readable (XSS-exfiltratable).
+    if (!authClient) return Boolean(user && typeof user === 'object')
+    if (token) authClient.setAccessToken(token)
+    if (user && typeof user === 'object') {
+      authClient.setUser(user)
+      await authClient.initialize()
+      return true
+    }
+    return false
   }
 
+  /** Leaves the page for the provider: the `navigate` option, else a full-page navigation. */
+  const leaveFor = (url: string): void => {
+    const navigateOption = options?.navigate
+    if (navigateOption) navigateOption(url)
+    else window.location.href = url
+  }
+
+  const redirect = (provider: string): void => {
+    stashProvider(provider)
+    leaveFor(withReturnPath(getOAuthUrl(provider)))
+  }
+
+  // The currently-open OAuth popup, so a second click focuses it instead of
+  // stacking a second flow (the relay gates already fail safe, but one window is
+  // cleaner and avoids an orphaned listener until the timeout reaps it).
+  let activePopup: Window | null = null
+
+  const loginViaPopup = (provider: string): void => {
+    // A flow is already open — focus it rather than starting another.
+    if (activePopup && !activePopup.closed) {
+      try {
+        activePopup.focus()
+      } catch (_error) {
+        /* best-effort focus */
+      }
+      return
+    }
+    stashProvider(provider)
+    const url = withReturnPath(getOAuthUrl(provider))
+
+    // A named popup. We intentionally do NOT pass `noopener` — the popup needs
+    // `window.opener` to relay its result back. The window only ever navigates
+    // to OUR api → the trusted provider → OUR origin, so this is the standard
+    // OAuth-popup trade-off (a malicious *provider* could touch `window.opener`,
+    // which is out of scope; we don't open attacker-controlled URLs here).
+    const features = 'popup=yes,width=520,height=680,menubar=no,toolbar=no,location=yes'
+    const popup = window.open(url, OAUTH_POPUP_WINDOW_NAME, features)
+
+    // Popup blocked (or unavailable) → fall back to a full-page redirect so login
+    // still works. No listener is registered in this branch.
+    if (!popup) {
+      leaveFor(url)
+      return
+    }
+    activePopup = popup
+
+    let settled = false
+    const timers: {
+      closed?: ReturnType<typeof setInterval>
+      timeout?: ReturnType<typeof setTimeout>
+    } = {}
+
+    const cleanup = (): void => {
+      window.removeEventListener('message', onMessage)
+      if (timers.closed) clearInterval(timers.closed)
+      if (timers.timeout) clearTimeout(timers.timeout)
+      if (activePopup === popup) activePopup = null
+    }
+
+    const onMessage = (event: MessageEvent): void => {
+      // SECURITY — accept the result ONLY from our own origin, ONLY from the exact
+      // popup window we opened, and ONLY when it carries our private type. Any one
+      // failing means a forged / unrelated message: ignore it silently. This is
+      // what prevents a malicious page from injecting a session.
+      if (event.origin !== window.location.origin) return
+      if (event.source !== popup) return
+      const data = event.data as OAuthRelayMessage | null
+      if (!data || typeof data !== 'object' || data.type !== OAUTH_RESULT_MESSAGE_TYPE) return
+      if (settled) return
+      settled = true
+      cleanup()
+      try {
+        popup.close()
+      } catch (_error) {
+        /* already closed — nothing to do */
+      }
+      if (data.ok) {
+        void establishSession(data.token, data.user).then((ok) => {
+          if (!mounted) return
+          if (ok) options?.onSuccess?.()
+          else options?.onError?.(oauthFailed())
+        })
+      } else if (mounted) {
+        options?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
+      }
+    }
+
+    window.addEventListener('message', onMessage)
+
+    // The user closed the popup without completing — silently stop waiting (no
+    // error toast for a deliberate cancel) and release the listener.
+    timers.closed = setInterval(() => {
+      if (popup.closed && !settled) {
+        settled = true
+        cleanup()
+      }
+    }, 500)
+
+    // Hard safety timeout so a wedged popup never leaks a listener forever.
+    timers.timeout = setTimeout(() => {
+      if (!settled) {
+        settled = true
+        cleanup()
+        try {
+          popup.close()
+        } catch (_error) {
+          /* best-effort */
+        }
+      }
+    }, OAUTH_POPUP_TIMEOUT_MS)
+  }
+
+  /** The callback body, shared by the mount hook and the manual `handleCallback`. */
   const handleCallback = async (): Promise<void> => {
     if (typeof window === 'undefined') return
 
@@ -147,6 +367,11 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
     }
     if (!provider) return
 
+    // Are we the OAuth popup we opened? Relay the result to the opener instead of
+    // establishing the session in this (about-to-close) window. Gated on BOTH the
+    // window name AND window.opener so a normal full-page callback never relays.
+    const inPopup = !!window.opener && window.name === OAUTH_POPUP_WINDOW_NAME
+
     // Clean up URL (remove code/state params) and sessionStorage
     const cleanUrl = new URL(window.location.href)
     cleanUrl.searchParams.delete('code')
@@ -158,12 +383,28 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
       /* SSR-safe — sessionStorage is unavailable in SSR/sandboxed environments */
     }
 
+    /** Relay a result to the opener (popup path) — origin-pinned, never `'*'`. */
+    const relayToOpener = (message: OAuthRelayMessage): void => {
+      try {
+        // targetOrigin is our OWN origin: the browser delivers the message (and the
+        // token it carries) ONLY if the opener is still on this origin. Never '*'.
+        window.opener?.postMessage(message, window.location.origin)
+      } catch (_error) {
+        /* opener gone / cross-origin — the opener's close-poll will recover */
+      }
+      try {
+        window.close()
+      } catch (_error) {
+        /* best-effort */
+      }
+    }
+
     // Exchange code for session
     try {
       const response = await fetch(`${baseURL}${loginEndpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Send cookies (oauth_state/oauth_verifier) for state validation
+        credentials: 'include', // Send cookies (oauth_state) for state validation
         body: JSON.stringify({
           server: provider,
           code,
@@ -173,23 +414,29 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
       })
 
       if (!response.ok) {
-        // The error body may not be JSON; the fallback error and onError below
-        // already carry the failure, so the parse error is intentionally ignored.
-        const data = await response.json().catch((_error) => ({ error: 'OAuth login failed' }))
-        options?.onError?.(data.error || 'OAuth login failed')
+        // A body that is not JSON: report the generic failure. The parse error is
+        // intentionally ignored — the fallback error below already carries the
+        // failure to the opener or the callbacks.
+        const data = await response.json().catch((_error: unknown) => ({ error: oauthFailed() }))
+        const error = data.error || oauthFailed()
+        if (inPopup) {
+          relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
+          return
+        }
+        if (mounted) options?.onError?.(error)
         return
       }
 
-      // A non-JSON success body leaves `user` null; the token comes from the
-      // response headers either way, so the parse error is intentionally ignored.
-      const data: unknown = await response.json().catch((_error) => null)
+      // A body that is not JSON carries no user; the token comes from the header.
+      const data: unknown = await response.json().catch((_error: unknown) => null)
       // Store the token from the response
       const authHeader =
         response.headers.get('authorization') || response.headers.get('set-authorization')
       const token = authHeader ? authHeader.replace('Bearer ', '') : null
 
       // The authenticated user is `props` (molecule resource convention) or `user`
-      // (generic AuthResult).
+      // (generic AuthResult). OAuth issues no refresh token, so we carry the token +
+      // user to whoever will own the session.
       const user =
         data && typeof data === 'object'
           ? ((data as { props?: unknown; user?: unknown }).props ??
@@ -197,44 +444,34 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
             null)
           : null
 
-      if (authClient) {
-        // Seed the token + user via the auth client and let `initialize()` flip
-        // `authenticated` — mirrors what `authClient.login()` does for password
-        // login. A result with no user is not a real session.
-        if (token) authClient.setAccessToken(token)
-        if (user && typeof user === 'object') {
-          authClient.setUser(user)
-          await authClient.initialize()
-          options?.onSuccess?.()
-        } else {
-          options?.onError?.('OAuth login failed')
-        }
-      } else if (user && typeof user === 'object') {
-        // No auth client available: the server has already established the
-        // httpOnly-cookie session via the exchange, so a user-carrying response
-        // still counts as success.
-        options?.onSuccess?.()
-      } else {
-        options?.onError?.('OAuth login failed')
+      if (inPopup) {
+        // Relay to the opener — it (same origin) establishes the session in place.
+        // Do NOT establish it here; this window is about to close.
+        relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: true, token, user })
+        return
       }
-    } catch (err) {
-      options?.onError?.(err instanceof Error && err.message ? err.message : 'OAuth login failed')
-    }
-  }
 
-  // Auto-handle the OAuth callback when used inside a component. The
-  // `getCurrentInstance()` guard keeps the composable callable outside
-  // components (e.g. tests), where `handleCallback` can be invoked manually.
-  if (getCurrentInstance()) {
-    onMounted(() => {
-      void handleCallback()
-    })
+      // Full-page callback: establish the session here, then fire onSuccess —
+      // unchanged behavior.
+      const ok = await establishSession(token, user)
+      if (!mounted) return
+      if (ok) options?.onSuccess?.()
+      else options?.onError?.(oauthFailed())
+    } catch (err) {
+      const error = err instanceof Error ? err.message : oauthFailed()
+      if (inPopup) {
+        relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
+        return
+      }
+      if (mounted) options?.onError?.(error)
+    }
   }
 
   return {
     providers,
     getOAuthUrl,
     redirect,
+    loginViaPopup,
     handleCallback,
   }
 }

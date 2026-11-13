@@ -21,4 +21,23 @@ export const et: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider': 'Accordion komponente tuleb kasutada Accordion sees',
   'solid.error.useToastOutsideProvider': 'useToast tuleb kasutada ToastProvider sees',
   'solid.error.useChatOutsideProvider': 'useChatProvider tuleb kasutada ChatProvider sees',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider peab olema kasutusel WorkspaceProvideri sees.',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider peab olema kasutatud EditorProvideri sees.',
+  'solid.error.usePreviewOutsideProvider':
+    'EelvaatePakkuja sees tuleb kasutada usePreviewProviderit',
+  'solid.error.useAuthOutsideProvider': "AuthProvideri sees tuleb kasutada useAuthClient'i",
+  'solid.error.useHttpOutsideProvider': 'useHttpClient peab olema kasutatud HttpProvideri sees.',
+  'solid.error.unsupportedMethod': 'Toetamata meetod: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'LoggerProvideri sees tuleb kasutada useLoggerProviderit.',
+  'solid.error.oauthFailed': 'OAuthi sisselogimine ebaõnnestus',
+  'solid.error.useRouterOutsideProvider':
+    "useRouterInstance'i tuleb kasutada RouterProvideri sees.",
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider peab olema kasutatud StateProvider sees.',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider peab olema kasutusel StorageProvideri sees.',
+  'solid.error.useThemeOutsideProvider': 'useThemeProviderit tuleb kasutada ThemeProvideri sees.',
 }

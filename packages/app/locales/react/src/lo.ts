@@ -7,7 +7,6 @@ export const lo: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider ຕ້ອງໃຊ້ພາຍໃນ ChatProvider',
   'react.error.useEditorOutsideProvider': 'useEditorProvider ຕ້ອງໃຊ້ພາຍໃນ EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient ຕ້ອງໃຊ້ພາຍໃນ HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider ຕ້ອງໃຊ້ພາຍໃນ I18nProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider ຕ້ອງໃຊ້ພາຍໃນ LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider ຕ້ອງໃຊ້ພາຍໃນ PreviewProvider',
   'react.error.useRouterOutsideProvider': 'useRouterInstance ຕ້ອງໃຊ້ພາຍໃນ RouterProvider',

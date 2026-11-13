@@ -10,6 +10,7 @@ const onUnmountedCallbacks: Array<() => void> = []
 vi.mock('vue', () => ({
   inject: vi.fn(() => mockInjectReturnValue),
   ref: vi.fn((v: unknown) => ({ value: v })),
+  shallowRef: vi.fn((v: unknown) => ({ value: v })),
   computed: vi.fn((fn: () => unknown) => ({ value: fn(), effect: fn })),
   onUnmounted: vi.fn((cb: () => void) => {
     onUnmountedCallbacks.push(cb)
@@ -22,7 +23,12 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-i18n', () => ({}))
+vi.mock('@molecule/app-i18n', () => ({
+  t: vi.fn(
+    (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key,
+  ),
+}))
 vi.mock('@molecule/app-http', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-logger', () => ({}))
@@ -51,9 +57,7 @@ describe('useStateProvider', () => {
 
   it('throws when state provider is not injected', () => {
     mockInjectReturnValue = undefined
-    expect(() => useStateProvider()).toThrow(
-      'useStateProvider requires StateProvider to be provided',
-    )
+    expect(() => useStateProvider()).toThrow('useStateProvider must be used within a StateProvider')
   })
 })
 

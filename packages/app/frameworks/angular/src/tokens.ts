@@ -8,8 +8,11 @@ import { InjectionToken } from '@angular/core'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
+import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
+import type { WorkspaceProvider } from '@molecule/app-ide'
+import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
 import type { Router } from '@molecule/app-routing'
 import type { StateProvider } from '@molecule/app-state'
@@ -60,3 +63,20 @@ export const LOGGER_PROVIDER = new InjectionToken<LoggerProvider>('molecule-logg
  * Injection token for the AI chat provider.
  */
 export const CHAT_PROVIDER = new InjectionToken<ChatProvider>('molecule-chat-provider')
+
+/**
+ * Injection token for the IDE workspace provider.
+ */
+export const WORKSPACE_PROVIDER = new InjectionToken<WorkspaceProvider>(
+  'molecule-workspace-provider',
+)
+
+/**
+ * Injection token for the code editor provider.
+ */
+export const EDITOR_PROVIDER = new InjectionToken<EditorProvider>('molecule-editor-provider')
+
+/**
+ * Injection token for the live preview provider.
+ */
+export const PREVIEW_PROVIDER = new InjectionToken<PreviewProvider>('molecule-preview-provider')

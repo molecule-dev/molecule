@@ -22,4 +22,24 @@ export const ca: Partial<SolidTranslations> = {
     "Els components de l'acordió s'han d'utilitzar dins d'un acordió.",
   'solid.error.useToastOutsideProvider': "useToast s'ha d'utilitzar dins d'un ToastProvider.",
   'solid.error.useChatOutsideProvider': "useChatProvider s'ha d'utilitzar dins d'un ChatProvider.",
+  'solid.error.useWorkspaceOutsideProvider':
+    "useWorkspaceProvider s'ha d'utilitzar dins d'un WorkspaceProvider.",
+  'solid.error.useEditorOutsideProvider':
+    "useEditorProvider s'ha d'utilitzar dins d'un EditorProvider.",
+  'solid.error.usePreviewOutsideProvider':
+    "usePreviewProvider s'ha d'utilitzar dins d'un PreviewProvider.",
+  'solid.error.useAuthOutsideProvider': "useAuthClient s'ha d'utilitzar dins d'un AuthProvider.",
+  'solid.error.useHttpOutsideProvider': "useHttpClient s'ha d'utilitzar dins d'un HttpProvider.",
+  'solid.error.unsupportedMethod': 'Mètode no compatible: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    "useLoggerProvider s'ha d'utilitzar dins d'un LoggerProvider.",
+  'solid.error.oauthFailed': "L'inici de sessió amb OAuth ha fallat",
+  'solid.error.useRouterOutsideProvider':
+    "useRouterInstance s'ha d'utilitzar dins d'un RouterProvider.",
+  'solid.error.useStoreOutsideProvider':
+    "useStateProvider s'ha d'utilitzar dins d'un StateProvider.",
+  'solid.error.useStorageOutsideProvider':
+    "useStorageProvider s'ha d'utilitzar dins d'un StorageProvider.",
+  'solid.error.useThemeOutsideProvider':
+    "useThemeProvider s'ha d'utilitzar dins d'un ThemeProvider.",
 }

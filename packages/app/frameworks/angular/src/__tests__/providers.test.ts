@@ -33,9 +33,18 @@ vi.mock('@molecule/app-http', () => ({}))
 vi.mock('@molecule/app-i18n', () => ({}))
 vi.mock('@molecule/app-logger', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-state', () => ({}))
+vi.mock('@molecule/app-state', () => ({
+  hasProvider: vi.fn(() => false),
+  getProvider: vi.fn(() => undefined),
+}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
+
+import type { StateProvider } from '@molecule/app-state'
+import {
+  getProvider as getStateProvider,
+  hasProvider as hasStateProvider,
+} from '@molecule/app-state'
 
 import {
   provideAuth,
@@ -208,6 +217,18 @@ describe('providers', () => {
 
       const providersArg = makeEnvProvidersCalls[0]
       expect(providersArg).toHaveLength(0)
+    })
+
+    it('should fall back to the bonded state provider when none is configured', () => {
+      const bondedProvider = { createStore: vi.fn() } as unknown as StateProvider
+      vi.mocked(hasStateProvider).mockReturnValueOnce(true)
+      vi.mocked(getStateProvider).mockReturnValueOnce(bondedProvider)
+
+      provideMolecule({})
+
+      const providersArg = makeEnvProvidersCalls[0]
+      expect(providersArg).toHaveLength(1)
+      expect(providersArg[0]).toEqual({ provide: STATE_PROVIDER, useValue: bondedProvider })
     })
 
     it('should handle single provider configuration', () => {

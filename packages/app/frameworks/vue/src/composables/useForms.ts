@@ -7,8 +7,9 @@
 import {
   computed,
   type ComputedRef,
-  onMounted,
-  onUnmounted,
+  getCurrentInstance,
+  getCurrentScope,
+  onScopeDispose,
   type ShallowRef,
   shallowRef,
   watch,
@@ -19,32 +20,55 @@ import type {
   FieldState,
   FormController,
   FormOptions,
+  FormResetOptions,
   FormState,
   FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
+import {
+  createForm as createBondedForm,
+  formValuesEqual,
+  snapshotFormValue,
+} from '@molecule/app-forms'
 
-/** Subscribe first, then close the setup-to-mount delivery gap synchronously. */
-function subscribeAndRefresh<T extends FormValuesConstraint<T>>(
-  form: FormController<T>,
-  state: ShallowRef<FormState<T>>,
-): () => void {
-  const refresh = (): void => {
-    state.value = form.getState()
-  }
-  const unsubscribe = form.subscribe(refresh)
-  refresh()
-  return unsubscribe
+import { adoptContinuity, type ContinuityState, offerContinuity } from './host-continuity.js'
+
+/**
+ * What one host slot owns across the mounts a host makes of this composable
+ * (a host that swaps the arguments re-mounts the composable; React kept the
+ * controller, the external-values history and the asState tuples on the
+ * re-rendered instance). A changed `resetKey` starts a fresh controller, which
+ * is a fresh lane.
+ */
+interface FormLane<T extends FormValuesConstraint<T>> extends ContinuityState {
+  /** The controller created by the slot's first mount. */
+  form: FormController<T>
+  /** The resetKey the controller was created for. */
+  resetKey: string | number | boolean | bigint | null | undefined
+  /** The last external `values` applied, compared by content (React's ref). */
+  lastExternal: { values: Partial<T> } | null
+  /** asState's [edit, fill] tuples per name, per controller. */
+  stateTuples: Map<keyof T | undefined, readonly [unknown, unknown]>
 }
 
 /**
  * Options for useForm composable.
+ *
+ * Every `FormOptions` field is supported. `createForm` is only an override —
+ * omit it and the composable creates the controller through the bonded forms
+ * provider (`createForm` from `@molecule/app-forms`), which uses the built-in
+ * native provider until the app bonds its own.
  */
 export interface UseFormOptions<T extends FormValuesConstraint<T>> extends FormOptions<T> {
+  /** External values preserve dirty fields by default. Set keepDirtyValues: false to replace them explicitly. */
+  resetOptions?: FormResetOptions
+  /** New record identity. Serialize composite keys; fresh objects/arrays must not reset drafts on each mount. */
+  resetKey?: string | number | boolean | bigint | null
   /**
-   * Form provider's createForm function.
+   * Explicit form factory for this one form. Defaults to the bonded forms
+   * provider; pass it only to pin a specific provider instance.
    */
-  createForm: (options: FormOptions<T>) => FormController<T>
+  createForm?: (options: FormOptions<T>) => FormController<T>
 }
 
 /**
@@ -58,7 +82,10 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
   isSubmitting: ComputedRef<boolean>
 
   // Field methods
-  register: (name: keyof T, options?: RegisterOptions) => FieldRegistration
+  register: (
+    name: keyof T,
+    options?: Omit<RegisterOptions, 'name'> & { name?: string },
+  ) => FieldRegistration
   getValue: <K extends keyof T>(name: K) => T[K]
   setValue: <K extends keyof T>(name: K, value: T[K]) => void
   getError: (name: keyof T) => string | undefined
@@ -70,8 +97,22 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
     onSubmit: (values: T) => void | Promise<void>,
     onError?: (errors: Partial<Record<keyof T, string>>) => void,
   ) => (event?: { preventDefault?: () => void }) => Promise<void>
-  updateValues: (values: Partial<T>) => void
   reset: (values?: Partial<T>) => void
+  updateValues: (values: Partial<T>, resetOptions?: FormResetOptions) => void
+  /** Whole-form state tuple: edits mark only changed fields dirty; fills preserve them. */
+  asState(): readonly [
+    T,
+    (value: T | ((previous: T) => T)) => void,
+    (value: Partial<T> | ((previous: T) => Partial<T>)) => void,
+  ]
+  /** One field as [value, edit, fill]. Fill preserves edits made before data arrives. */
+  asState<K extends keyof T>(
+    name: K,
+  ): readonly [
+    T[K],
+    (value: T[K] | ((previous: T[K]) => T[K])) => void,
+    (value: T[K] | ((previous: T[K]) => T[K])) => void,
+  ]
   validate: () => Promise<boolean>
 
   // Form controller (for use with useWatch/useFieldState)
@@ -81,25 +122,25 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
 /**
  * Composable for form state management.
  *
- * @param options - Form options including createForm from a forms provider
- * @returns Form state, computed properties, and methods
+ * Creates its controller through the bonded forms provider, so a Vue app wires
+ * a form library once (`setProvider` from `@molecule/app-forms`) and every
+ * form picks it up. Passing `createForm` overrides that for one form.
+ *
+ * @param options - Form options. `defaultValues`, `mode` and the form-level
+ * `validate` are forwarded to the provider. When `values` changes by content,
+ * it becomes the new baseline; `resetOptions.keepDirtyValues` retains edited
+ * fields while pristine fields take the loaded values. Omit the options entirely
+ * for a form whose fields are registered with their own defaults.
+ * @returns Form state and methods
  *
  * @example
  * ```vue
  * <script setup>
  * import { useForm } from '@molecule/app-vue'
- * import { createForm } from '@molecule/app-forms'
  *
- * const {
- *   register,
- *   handleSubmit,
- *   formState,
- *   isSubmitting,
- * } = useForm({
- *   createForm,
+ * const { register, handleSubmit, formState, isSubmitting } = useForm({
  *   defaultValues: { email: '', password: '' },
  * })
- *
  * const onSubmit = handleSubmit(async (values) => {
  *   await login(values)
  * })
@@ -109,10 +150,6 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
  *   <form @submit.prevent="onSubmit">
  *     <input v-bind="register('email', { required: true, email: true })" />
  *     <span v-if="formState.errors.email">{{ formState.errors.email }}</span>
- *
- *     <input v-bind="register('password', { required: true, minLength: 8 })" type="password" />
- *     <span v-if="formState.errors.password">{{ formState.errors.password }}</span>
- *
  *     <button type="submit" :disabled="isSubmitting">
  *       {{ isSubmitting ? 'Logging in...' : 'Log In' }}
  *     </button>
@@ -120,28 +157,64 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
  * </template>
  * ```
  */
-export function useForm<T extends FormValuesConstraint<T>>(
-  options: UseFormOptions<T>,
+export function useForm<T extends FormValuesConstraint<T> = Record<string, unknown>>(
+  options: UseFormOptions<T> = {},
 ): UseFormReturn<T> {
-  const { createForm, ...formOptions } = options
+  const { createForm = createBondedForm, resetKey, ...formOptions } = options
 
-  // Create form controller once (not reactive itself, just a controller instance)
-  const form = createForm(formOptions)
+  // The app identity keys continuity: a host re-mounting the composable with
+  // new arguments adopts the previous controller (when the resetKey did not
+  // change), exactly what React's re-rendered instance kept.
+  const app = getCurrentInstance()?.appContext.app
+  const adopted = adoptContinuity<FormLane<T>>(app)
+  const sameForm = adopted !== null && Object.is(adopted.resetKey, resetKey)
+  const form = sameForm ? adopted.form : createForm(formOptions)
+  const lane: FormLane<T> = sameForm
+    ? adopted
+    : { dead: false, form, resetKey, lastExternal: null, stateTuples: new Map() }
+  lane.resetKey = resetKey
 
-  // Reactive state (shallowRef avoids Vue's UnwrapRef issues with generic FormState<T>)
+  let mounted = true
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      mounted = false
+      // The lane lives until the tick ends (a replacing mount adopts it); a
+      // real unmount marks it dead. The controller itself stays as React
+      // leaves it: subscribed-to-nothing, never destroyed mid-flight.
+      offerContinuity(lane, app)
+    })
+  }
+
+  const keepDirtyValues = options.resetOptions?.keepDirtyValues !== false
+  // External content has its own history. A reset may change the controller
+  // baseline without making an unchanged record external again.
+  const applyExternalValues = (): void => {
+    const values = options.values
+    if (values === undefined) {
+      lane.lastExternal = null
+      return
+    }
+    if (lane.lastExternal !== null && formValuesEqual(lane.lastExternal.values, values)) return
+    lane.lastExternal = { values: snapshotFormValue(values) }
+    form.updateValues(values, { keepDirtyValues })
+  }
+  applyExternalValues()
+  watch(
+    () => options.values,
+    () => applyExternalValues(),
+    { deep: true },
+  )
+
+  // Subscribed state (the controller rebuilds its state object only on change).
   const state: ShallowRef<FormState<T>> = shallowRef(form.getState())
-
-  // Subscribe to form state changes
-  let unsubscribe: (() => void) | null = null
-
-  onMounted(() => {
-    unsubscribe = subscribeAndRefresh(form, state)
-  })
-
-  onUnmounted(() => {
-    unsubscribe?.()
-    form.destroy()
-  })
+  const refresh = (): void => {
+    state.value = form.getState()
+  }
+  const unsubscribe = form.subscribe(refresh)
+  refresh()
+  if (getCurrentScope()) {
+    onScopeDispose(unsubscribe)
+  }
 
   // Computed properties
   const formState = computed(() => state.value)
@@ -150,9 +223,11 @@ export function useForm<T extends FormValuesConstraint<T>>(
   const isSubmitting = computed(() => state.value.isSubmitting)
 
   // Field methods
-  const register = (name: keyof T, registerOptions?: RegisterOptions): FieldRegistration => {
-    return form.register({ ...registerOptions, name: name as string } as RegisterOptions)
-  }
+  const register = (
+    name: keyof T,
+    registerOptions?: Omit<RegisterOptions, 'name'> & { name?: string },
+  ): FieldRegistration =>
+    form.register({ ...registerOptions, name: name as string } as RegisterOptions)
 
   const getValue = <K extends keyof T>(name: K): T[K] => form.getValue(name)
 
@@ -175,29 +250,62 @@ export function useForm<T extends FormValuesConstraint<T>>(
 
   const clearErrors = (): void => form.clearErrors()
 
-  // Form methods
+  const reset = (values?: Partial<T>): void => form.reset(values)
+
+  const updateValues = (values: Partial<T>, resetOptions?: FormResetOptions): void =>
+    form.updateValues(values, resetOptions)
+
+  const validate = (): Promise<boolean> => form.validate()
+
+  const asState = (name?: keyof T): readonly [unknown, unknown, unknown] => {
+    const read = (): T | T[keyof T] =>
+      name === undefined ? form.getState().values : form.getValue(name)
+    // The value the caller sees comes from the subscribed snapshot, not a
+    // fresh read: a fill that lands between renders must not jump ahead.
+    const visible = name === undefined ? state.value.values : state.value.values[name]
+    const existing = lane.stateTuples.get(name)
+    if (existing) return [visible, ...existing] as readonly [unknown, unknown, unknown]
+    const edit = (value: T | T[keyof T] | ((previous: T | T[keyof T]) => T | T[keyof T])): void => {
+      const next =
+        typeof value === 'function'
+          ? (value as (previous: T | T[keyof T]) => T | T[keyof T])(read())
+          : value
+      if (name !== undefined) {
+        form.setValue(name as string, next as T[keyof T])
+        return
+      }
+      const values = next as T
+      for (const field of Object.keys(Object.assign({}, form.getState().values, values)) as Extract<
+        keyof T,
+        string
+      >[]) {
+        if (!formValuesEqual(form.getValue(field), values[field]))
+          form.setValue(field, values[field])
+      }
+    }
+    const fill = (
+      value: Partial<T> | T[keyof T] | ((previous: T | T[keyof T]) => Partial<T> | T[keyof T]),
+    ): void => {
+      const next =
+        typeof value === 'function'
+          ? (value as (previous: T | T[keyof T]) => Partial<T> | T[keyof T])(read())
+          : value
+      form.updateValues(
+        name === undefined ? (next as Partial<T>) : ({ [name]: next } as Partial<T>),
+        { keepDirtyValues: true },
+      )
+    }
+    lane.stateTuples.set(name, [edit, fill] as const)
+    return [visible, edit, fill] as const
+  }
+
   const handleSubmit = (
     onSubmit: (values: T) => void | Promise<void>,
     onError?: (errors: Partial<Record<keyof T, string>>) => void,
-  ): ((event?: { preventDefault?: () => void }) => Promise<void>) => {
-    return form.handleSubmit(onSubmit, onError)
-  }
-
-  const updateValues = (values: Partial<T>): void => {
-    form.updateValues(values, options.resetOptions)
-  }
-
-  watch(
-    () => options.values,
-    (values) => {
-      if (values !== undefined) updateValues({ ...values })
-    },
-    { deep: true },
-  )
-
-  const reset = (values?: Partial<T>): void => form.reset(values)
-
-  const validate = (): Promise<boolean> => form.validate()
+  ): ((event?: { preventDefault?: () => void }) => Promise<void>) =>
+    form.handleSubmit((values) => {
+      if (mounted) return onSubmit(values)
+    }, onError)
 
   return {
     formState,
@@ -211,8 +319,9 @@ export function useForm<T extends FormValuesConstraint<T>>(
     setError,
     clearErrors,
     handleSubmit,
-    updateValues,
     reset,
+    updateValues,
+    asState: asState as UseFormReturn<T>['asState'],
     validate,
     form,
   }
@@ -231,7 +340,6 @@ export function useForm<T extends FormValuesConstraint<T>>(
  * import { useForm, useWatch } from '@molecule/app-vue'
  *
  * const { form, register } = useForm({
- *   createForm,
  *   defaultValues: { country: '', city: '' },
  * })
  *
@@ -246,15 +354,14 @@ export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
 ): ComputedRef<T[K]> {
   const state: ShallowRef<FormState<T>> = shallowRef(form.getState())
 
-  let unsubscribe: (() => void) | null = null
-
-  onMounted(() => {
-    unsubscribe = subscribeAndRefresh(form, state)
-  })
-
-  onUnmounted(() => {
-    unsubscribe?.()
-  })
+  const refresh = (): void => {
+    state.value = form.getState()
+  }
+  const unsubscribe = form.subscribe(refresh)
+  refresh()
+  if (getCurrentScope()) {
+    onScopeDispose(unsubscribe)
+  }
 
   return computed(() => state.value.values[name])
 }
@@ -272,7 +379,6 @@ export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
  * import { useForm, useFieldState } from '@molecule/app-vue'
  *
  * const { form, register } = useForm({
- *   createForm,
  *   defaultValues: { email: '' },
  * })
  *
@@ -285,24 +391,16 @@ export function useFieldState<T extends FormValuesConstraint<T>>(
   form: FormController<T>,
   name: keyof T,
 ): ComputedRef<FieldState<T[keyof T]>> {
-  const state: ShallowRef<FormState<T>> = shallowRef(form.getState())
+  const state: ShallowRef<FieldState<T[keyof T]>> = shallowRef(form.getFieldState(name))
 
-  let unsubscribe: (() => void) | null = null
+  const refresh = (): void => {
+    state.value = form.getFieldState(name)
+  }
+  const unsubscribe = form.subscribe(refresh)
+  refresh()
+  if (getCurrentScope()) {
+    onScopeDispose(unsubscribe)
+  }
 
-  onMounted(() => {
-    unsubscribe = subscribeAndRefresh(form, state)
-  })
-
-  onUnmounted(() => {
-    unsubscribe?.()
-  })
-
-  return computed(() => ({
-    value: state.value.values[name],
-    error: state.value.errors[name] as string | undefined,
-    touched: state.value.touched[name] ?? false,
-    dirty: state.value.values[name] !== undefined,
-    valid: !state.value.errors[name],
-    validating: false,
-  }))
+  return computed(() => state.value)
 }

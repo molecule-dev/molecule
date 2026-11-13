@@ -23,4 +23,26 @@ export const pa: SvelteTranslations = {
   'svelte.error.useChatOutsideProvider':
     'useChatProvider ਨੂੰ ChatProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'svelte.error.useToastOutsideProvider': 'useToast ਨੂੰ ToastProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ਨੂੰ WorkspaceProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider ਨੂੰ EditorProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider ਨੂੰ PreviewProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useAuthOutsideProvider':
+    'useAuthClient ਨੂੰ AuthProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider ਨੂੰ ThemeProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance ਨੂੰ ਇੱਕ RouterProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useHttpOutsideProvider':
+    'useHttpClient ਨੂੰ HttpProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider ਨੂੰ StorageProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider ਨੂੰ LoggerProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider ਨੂੰ StateProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.unsupportedMethod': 'ਅਸਮਰਥਿਤ ਢੰਗ: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth ਲੌਗਇਨ ਅਸਫਲ ਰਿਹਾ',
 }

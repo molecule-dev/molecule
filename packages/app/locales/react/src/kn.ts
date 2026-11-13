@@ -7,7 +7,6 @@ export const kn: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider ಅನ್ನು ChatProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useEditorOutsideProvider': 'useEditorProvider ಅನ್ನು EditorProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useHttpOutsideProvider': 'useHttpClient ಅನ್ನು HttpProvider ಒಳಗೆ ಬಳಸಬೇಕು',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider ಅನ್ನು I18nProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider ಅನ್ನು LoggerProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider ಅನ್ನು PreviewProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.useRouterOutsideProvider': 'useRouterInstance ಅನ್ನು RouterProvider ಒಳಗೆ ಬಳಸಬೇಕು',

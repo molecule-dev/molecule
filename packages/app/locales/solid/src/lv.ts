@@ -21,4 +21,18 @@ export const lv: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider': 'Accordion komponenti jāizmanto Accordion iekšienē',
   'solid.error.useToastOutsideProvider': 'useToast jāizmanto ToastProvider iekšienē',
   'solid.error.useChatOutsideProvider': 'useChatProvider jāizmanto ChatProvider ietvaros',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ir jāizmanto WorkspaceProvider ietvaros.',
+  'solid.error.useEditorOutsideProvider': 'useEditorProvider ir jāizmanto EditorProvider ietvaros.',
+  'solid.error.usePreviewOutsideProvider': 'PreviewProvider ietvaros jāizmanto usePreviewProvider.',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient ir jāizmanto AuthProvider ietvaros.',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient ir jāizmanto HttpProvider ietvaros.',
+  'solid.error.unsupportedMethod': 'Neatbalstīta metode: {{method}}',
+  'solid.error.useLoggerOutsideProvider': 'useLoggerProvider ir jāizmanto LoggerProvider ietvaros.',
+  'solid.error.oauthFailed': 'OAuth pieteikšanās neizdevās.',
+  'solid.error.useRouterOutsideProvider': 'useRouterInstance ir jāizmanto RouterProvider ietvaros.',
+  'solid.error.useStoreOutsideProvider': 'useStateProvider ir jāizmanto StateProvider ietvaros.',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider ir jāizmanto StorageProvider ietvaros.',
+  'solid.error.useThemeOutsideProvider': 'useThemeProvider ir jāizmanto ThemeProvider ietvaros.',
 }

@@ -16,4 +16,26 @@ export const it: SvelteTranslations = {
     "useChatProvider deve essere utilizzato all'interno di un ChatProvider",
   'svelte.error.useToastOutsideProvider':
     "useToast deve essere utilizzato all'interno di un ToastProvider",
+  'svelte.error.useWorkspaceOutsideProvider':
+    "useWorkspaceProvider deve essere utilizzato all'interno di un WorkspaceProvider",
+  'svelte.error.useEditorOutsideProvider':
+    "useEditorProvider deve essere utilizzato all'interno di un EditorProvider",
+  'svelte.error.usePreviewOutsideProvider':
+    "usePreviewProvider deve essere utilizzato all'interno di un PreviewProvider",
+  'svelte.error.useAuthOutsideProvider':
+    "useAuthClient deve essere utilizzato all'interno di un AuthProvider",
+  'svelte.error.useThemeOutsideProvider':
+    "useThemeProvider deve essere utilizzato all'interno di un ThemeProvider",
+  'svelte.error.useRouterOutsideProvider':
+    "useRouterInstance deve essere utilizzato all'interno di un RouterProvider",
+  'svelte.error.useHttpOutsideProvider':
+    "useHttpClient deve essere utilizzato all'interno di un HttpProvider",
+  'svelte.error.useStorageOutsideProvider':
+    "useStorageProvider deve essere utilizzato all'interno di uno StorageProvider",
+  'svelte.error.useLoggerOutsideProvider':
+    "useLoggerProvider deve essere utilizzato all'interno di un LoggerProvider",
+  'svelte.error.useStoreOutsideProvider':
+    "useStateProvider deve essere utilizzato all'interno di uno StateProvider",
+  'svelte.error.unsupportedMethod': 'Metodo non supportato: {{method}}',
+  'svelte.error.oauthFailed': 'Accesso OAuth non riuscito',
 }

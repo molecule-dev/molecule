@@ -2,6 +2,7 @@ import eslint from '@eslint/js'
 import prettier from 'eslint-config-prettier'
 import jsdoc from 'eslint-plugin-jsdoc'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
+import svelte from 'eslint-plugin-svelte'
 import tseslint from 'typescript-eslint'
 
 import { noHandStyledButton } from './eslint-rules/no-hand-styled-button.mjs'
@@ -106,11 +107,60 @@ const moleculeLocal = {
   },
 }
 
+/** The naming-convention rule entry: PascalCase only for types and const values. */
+const NAMING_CONVENTION = [
+  'warn',
+  { selector: 'interface', format: ['PascalCase'] },
+  { selector: 'typeAlias', format: ['PascalCase'] },
+  { selector: 'enum', format: ['PascalCase'] },
+  { selector: 'enumMember', format: ['PascalCase'] },
+  {
+    selector: 'variable',
+    modifiers: ['const'],
+    format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+    leadingUnderscore: 'allowSingleOrDouble',
+    trailingUnderscore: 'allow',
+  },
+  {
+    selector: 'variable',
+    format: ['camelCase', 'UPPER_CASE'],
+    leadingUnderscore: 'allowSingleOrDouble',
+    trailingUnderscore: 'allow',
+  },
+  {
+    selector: 'parameter',
+    format: ['camelCase'],
+    leadingUnderscore: 'allowSingleOrDouble',
+  },
+  { selector: 'function', format: ['camelCase', 'PascalCase'] },
+  { selector: 'typeLike', format: ['PascalCase'] },
+]
+
+/**
+ * The same rule for .svelte components, where a `let` variable may be PascalCase too: Svelte 5
+ * declares props with `let { … } = $props()`, and a prop holding a component renders as <Target />.
+ */
+const SVELTE_NAMING_CONVENTION = NAMING_CONVENTION.map((entry) =>
+  typeof entry === 'object' && entry.selector === 'variable' && !entry.modifiers
+    ? { ...entry, format: [...entry.format, 'PascalCase'] }
+    : entry,
+)
+
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   jsdoc.configs['flat/recommended-typescript'],
+  // .svelte components (the Svelte binding and UI packages): eslint-plugin-svelte parses the
+  // markup, typescript-eslint the <script lang="ts">, so they are held to the rules around them.
+  ...svelte.configs.recommended,
+  {
+    files: ['**/*.svelte', '**/*.svelte.ts'],
+    languageOptions: {
+      parserOptions: { parser: tseslint.parser, extraFileExtensions: ['.svelte'] },
+    },
+  },
   prettier,
+  ...svelte.configs.prettier,
   {
     plugins: {
       'simple-import-sort': simpleImportSort,
@@ -192,33 +242,7 @@ export default tseslint.config(
       ],
       'simple-import-sort/exports': 'warn',
       '@typescript-eslint/no-import-type-side-effects': 'warn',
-      '@typescript-eslint/naming-convention': [
-        'warn',
-        { selector: 'interface', format: ['PascalCase'] },
-        { selector: 'typeAlias', format: ['PascalCase'] },
-        { selector: 'enum', format: ['PascalCase'] },
-        { selector: 'enumMember', format: ['PascalCase'] },
-        {
-          selector: 'variable',
-          modifiers: ['const'],
-          format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
-          leadingUnderscore: 'allowSingleOrDouble',
-          trailingUnderscore: 'allow',
-        },
-        {
-          selector: 'variable',
-          format: ['camelCase', 'UPPER_CASE'],
-          leadingUnderscore: 'allowSingleOrDouble',
-          trailingUnderscore: 'allow',
-        },
-        {
-          selector: 'parameter',
-          format: ['camelCase'],
-          leadingUnderscore: 'allowSingleOrDouble',
-        },
-        { selector: 'function', format: ['camelCase', 'PascalCase'] },
-        { selector: 'typeLike', format: ['PascalCase'] },
-      ],
+      '@typescript-eslint/naming-convention': NAMING_CONVENTION,
     },
   },
   {
@@ -384,5 +408,24 @@ export default tseslint.config(
       'packages/**/*.js',
       'packages/**/*.js.map',
     ],
+  },
+  {
+    // After the shared rules, so these win for components.
+    files: ['**/*.svelte'],
+    rules: {
+      // svelte-check type-checks every <script lang="ts">, which is what typescript-eslint
+      // recommends over no-undef for TypeScript (it cannot see DOM or ambient globals).
+      'no-undef': 'off',
+      '@typescript-eslint/naming-convention': SVELTE_NAMING_CONVENTION,
+      // A SvelteKit app resolves its own routes with $app/paths; these packages are libraries
+      // rendered inside such apps and receive their hrefs as props.
+      'svelte/no-navigation-without-resolve': 'off',
+    },
+  },
+  {
+    // Renders the bonded icon set's SVG markup, as React's Icon does with
+    // dangerouslySetInnerHTML; nothing user-supplied reaches it.
+    files: ['packages/app/frameworks/svelte-ui/src/components/Icon.svelte'],
+    rules: { 'svelte/no-at-html-tags': 'off' },
   },
 )

@@ -23,4 +23,26 @@ export const ta: SolidTranslations = {
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider உள்ளே பயன்படுத்த வேண்டும்',
   'solid.error.useChatOutsideProvider':
     'useChatProvider ஒரு ChatProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider என்பது ஒரு WorkspaceProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider ஆனது ஒரு EditorProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider ஆனது ஒரு PreviewProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'solid.error.useAuthOutsideProvider':
+    'useAuthClient ஆனது AuthProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'solid.error.useHttpOutsideProvider':
+    'useHttpClient ஆனது ஒரு HttpProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'solid.error.unsupportedMethod': 'ஆதரிக்கப்படாத முறை: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider ஆனது ஒரு LoggerProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'solid.error.oauthFailed': 'OAuth உள்நுழைவு தோல்வியடைந்தது',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance ஆனது ஒரு RouterProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider என்பது ஒரு StateProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider ஆனது ஒரு StorageProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider ஆனது ஒரு ThemeProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
 }

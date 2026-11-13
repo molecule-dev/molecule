@@ -8,7 +8,6 @@ export const ig: Partial<ReactTranslations> = {
   'react.error.useChatOutsideProvider': "A ga-eji useChatProvider n'ime ChatProvider",
   'react.error.useEditorOutsideProvider': "A ga-eji useEditorProvider n'ime Onye Na-enye Editor",
   'react.error.useHttpOutsideProvider': "A ga-eji useHttpClient mee ihe n'ime HttpProvider",
-  'react.error.useI18nOutsideProvider': "A ga-eji useI18nProvider mee ihe n'ime I18nProvider",
   'react.error.useLoggerOutsideProvider': "A ga-eji useLoggerProvider n'ime LoggerProvider",
   'react.error.usePreviewOutsideProvider': "A ga-eji usePreviewProvider n'ime PreviewProvider",
   'react.error.useRouterOutsideProvider':

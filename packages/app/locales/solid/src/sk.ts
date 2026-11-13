@@ -22,4 +22,19 @@ export const sk: SolidTranslations = {
     'Komponenty Accordion musia byť použité vnútri Accordion',
   'solid.error.useToastOutsideProvider': 'useToast musí byť použitý vnútri ToastProvider',
   'solid.error.useChatOutsideProvider': 'useChatProvider musí byť použitý vnútri ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider sa musí použiť v rámci WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider': 'useEditorProvider sa musí použiť v rámci EditorProvider',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider sa musí použiť v rámci PreviewProvider',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient sa musí použiť v rámci AuthProvider',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient sa musí použiť v rámci HttpProvider',
+  'solid.error.unsupportedMethod': 'Nepodporovaná metóda: {{method}}',
+  'solid.error.useLoggerOutsideProvider': 'useLoggerProvider sa musí použiť v rámci LoggerProvider',
+  'solid.error.oauthFailed': 'Prihlásenie cez OAuth zlyhalo',
+  'solid.error.useRouterOutsideProvider': 'useRouterInstance sa musí použiť v rámci RouterProvider',
+  'solid.error.useStoreOutsideProvider': 'useStateProvider sa musí použiť v rámci StateProvider',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider sa musí použiť v rámci StorageProvider',
+  'solid.error.useThemeOutsideProvider': 'useThemeProvider sa musí použiť v rámci ThemeProvider',
 }

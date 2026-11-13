@@ -33420,13 +33420,42 @@
     },
     "snapshots": [
      {
-      "result": {
-       "$threw": "Error"
-      },
+      "result": "ltr",
       "route": "/"
      }
     ],
     "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "outside an i18n provider, follows the bonded provider": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "ltr",
+      "route": "/"
+     },
+     {
+      "result": "rtl",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "ar"
+      ]
+     }
+    ],
     "listenersAfterUnmount": {
      "auth": 0,
      "i18n": 0,
@@ -42974,9 +43003,7 @@
     },
     "snapshots": [
      {
-      "result": {
-       "$threw": "Error"
-      },
+      "result": null,
       "route": "/"
      }
     ],
@@ -43336,12 +43363,45 @@
    },
    "without an i18n provider": {
     "shape": {
-     "kind": "value"
+     "kind": "object",
+     "fields": {
+      "addLocale": "method",
+      "addTranslations": "method",
+      "exists": "method",
+      "formatDate": "method",
+      "formatList": "method",
+      "formatNumber": "method",
+      "formatRelativeTime": "method",
+      "getDirection": "method",
+      "getLocale": "method",
+      "getLocales": "method",
+      "getRevision": "method",
+      "onLocaleChange": "method",
+      "registerContent": "method",
+      "removeLocale": "method",
+      "setLocale": "method",
+      "t": "method"
+     }
     },
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "addLocale": "[method]",
+       "addTranslations": "[method]",
+       "exists": "[method]",
+       "formatDate": "[method]",
+       "formatList": "[method]",
+       "formatNumber": "[method]",
+       "formatRelativeTime": "[method]",
+       "getDirection": "[method]",
+       "getLocale": "[method]",
+       "getLocales": "[method]",
+       "getRevision": "[method]",
+       "onLocaleChange": "[method]",
+       "registerContent": "[method]",
+       "removeLocale": "[method]",
+       "setLocale": "[method]",
+       "t": "[method]"
       },
       "route": "/"
      }
@@ -43703,13 +43763,42 @@
     },
     "snapshots": [
      {
-      "result": {
-       "$threw": "Error"
-      },
+      "result": "en",
       "route": "/"
      }
     ],
     "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "outside an i18n provider, follows the bonded provider": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "en",
+      "route": "/"
+     },
+     {
+      "result": "de",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "de"
+      ]
+     }
+    ],
     "listenersAfterUnmount": {
      "auth": 0,
      "i18n": 0,
@@ -65895,17 +65984,70 @@
    },
    "without an i18n provider": {
     "shape": {
-     "kind": "value"
+     "kind": "function"
     },
     "snapshots": [
      {
-      "result": {
-       "$threw": "Error"
-      },
+      "result": "[function]",
       "route": "/"
      }
     ],
     "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "outside an i18n provider, follows the bonded provider": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": "Home"
+       }
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "fr"
+      ]
+     },
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": "Accueil"
+       }
+      ]
+     }
+    ],
     "listenersAfterUnmount": {
      "auth": 0,
      "i18n": 0,
@@ -73824,17 +73966,269 @@
    },
    "without an i18n provider": {
     "shape": {
-     "kind": "value"
+     "kind": "object",
+     "fields": {
+      "direction": "value",
+      "formatDate": "method",
+      "formatNumber": "method",
+      "locale": "value",
+      "locales": "value",
+      "setLocale": "method",
+      "t": "method"
+     }
     },
     "snapshots": [
      {
       "result": {
-       "$threw": "Error"
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
       },
       "route": "/"
      }
     ],
     "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "outside an i18n provider, follows the bonded provider": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "direction": "value",
+      "formatDate": "method",
+      "formatNumber": "method",
+      "locale": "value",
+      "locales": "value",
+      "setLocale": "method",
+      "t": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {
+          "nav.home": "Home"
+         }
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {
+          "nav.home": "Accueil"
+         }
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {
+          "nav.home": "Home"
+         }
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {
+          "nav.home": "Accueil"
+         }
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "fr",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {
+          "nav.home": "Home"
+         }
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {
+          "nav.home": "Accueil"
+         }
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "fr",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {
+          "nav.home": "Home"
+         }
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {
+          "nav.home": "Accueil"
+         }
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> t",
+      "args": [
+       {
+        "returned": "Home"
+       }
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "fr"
+      ]
+     },
+     {
+      "name": "=> t",
+      "args": [
+       {
+        "returned": "Accueil"
+       }
+      ]
+     }
+    ],
     "listenersAfterUnmount": {
      "auth": 0,
      "i18n": 0,

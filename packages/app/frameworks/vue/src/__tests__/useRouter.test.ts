@@ -25,7 +25,12 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-i18n', () => ({}))
+vi.mock('@molecule/app-i18n', () => ({
+  t: vi.fn(
+    (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key,
+  ),
+}))
 vi.mock('@molecule/app-http', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-logger', () => ({}))
@@ -62,7 +67,7 @@ describe('useRouterInstance', () => {
   it('throws when router is not injected', () => {
     mockInjectReturnValue = undefined
     expect(() => useRouterInstance()).toThrow(
-      'useRouterInstance requires RouterProvider to be provided',
+      'useRouterInstance must be used within a RouterProvider',
     )
   })
 })

@@ -9,7 +9,6 @@ export const da: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider skal bruges inden for en EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient skal bruges inden for en HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider skal bruges inden for en I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider skal bruges inden for en LoggerProvider',
   'react.error.usePreviewOutsideProvider':

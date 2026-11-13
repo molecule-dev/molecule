@@ -12,8 +12,6 @@ export const fil: ReactTranslations = {
     'Ang useEditorProvider ay dapat gamitin sa loob ng EditorProvider',
   'react.error.useHttpOutsideProvider':
     'Ang useHttpClient ay dapat gamitin sa loob ng HttpProvider',
-  'react.error.useI18nOutsideProvider':
-    'Ang useI18nProvider ay dapat gamitin sa loob ng I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'Ang useLoggerProvider ay dapat gamitin sa loob ng LoggerProvider',
   'react.error.usePreviewOutsideProvider':

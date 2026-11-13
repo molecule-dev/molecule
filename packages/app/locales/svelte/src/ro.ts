@@ -17,4 +17,26 @@ export const ro: SvelteTranslations = {
     'useChatProvider trebuie utilizat în interiorul unui ChatProvider',
   'svelte.error.useToastOutsideProvider':
     'useToast trebuie utilizat în interiorul unui ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider trebuie utilizat în cadrul unui WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider trebuie utilizat în cadrul unui EditorProvider',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider trebuie utilizat în cadrul unui PreviewProvider',
+  'svelte.error.useAuthOutsideProvider':
+    'useAuthClient trebuie utilizat în cadrul unui AuthProvider',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider trebuie utilizat în cadrul unui ThemeProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance trebuie utilizată în cadrul unui RouterProvider',
+  'svelte.error.useHttpOutsideProvider':
+    'useHttpClient trebuie utilizat în cadrul unui HttpProvider',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider trebuie utilizat în cadrul unui StorageProvider',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider trebuie utilizat în cadrul unui LoggerProvider',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider trebuie utilizat în cadrul unui StateProvider',
+  'svelte.error.unsupportedMethod': 'Metodă neacceptată: {{method}}',
+  'svelte.error.oauthFailed': 'Conectarea OAuth a eșuat',
 }

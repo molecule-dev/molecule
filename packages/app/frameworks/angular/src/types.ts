@@ -6,9 +6,12 @@
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState } from '@molecule/app-auth'
+import type { EditorProvider } from '@molecule/app-code-editor'
 import type { FormController, FormOptions } from '@molecule/app-forms'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
+import type { WorkspaceProvider } from '@molecule/app-ide'
+import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { Logger, LoggerProvider } from '@molecule/app-logger'
 import type { QueryParams, RouteLocation, RouteParams, Router } from '@molecule/app-routing'
 import type { StateProvider, Store, StoreConfig } from '@molecule/app-state'
@@ -41,6 +44,12 @@ export interface MoleculeModuleConfig {
   logger?: LoggerProvider
   /** The AI chat provider useChat and useChatProvider use. */
   chat?: ChatProvider
+  /** The IDE workspace provider useWorkspace and useWorkspaceProvider use. */
+  workspace?: WorkspaceProvider
+  /** The code editor provider useEditor and useEditorProvider use. */
+  editor?: EditorProvider
+  /** The live preview provider usePreview and usePreviewProvider use. */
+  preview?: PreviewProvider
 }
 
 /**
@@ -55,18 +64,24 @@ export interface MoleculeTokens {
   HTTP_CLIENT: symbol
   STORAGE_PROVIDER: symbol
   LOGGER_PROVIDER: symbol
+  CHAT_PROVIDER: symbol
+  WORKSPACE_PROVIDER: symbol
+  EDITOR_PROVIDER: symbol
+  PREVIEW_PROVIDER: symbol
 }
 
 // Re-export core types for convenience
 export type {
   AuthClient,
   AuthState,
+  EditorProvider,
   FormController,
   FormOptions,
   HttpClient,
   I18nProvider,
   Logger,
   LoggerProvider,
+  PreviewProvider,
   QueryParams,
   RouteLocation,
   RouteParams,
@@ -77,4 +92,5 @@ export type {
   StoreConfig,
   Theme,
   ThemeProvider,
+  WorkspaceProvider,
 }

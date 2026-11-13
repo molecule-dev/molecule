@@ -22,4 +22,21 @@ export const pl: SolidTranslations = {
     'Komponenty Accordion muszą być użyte wewnątrz Accordion',
   'solid.error.useToastOutsideProvider': 'useToast musi być użyty wewnątrz ToastProvider',
   'solid.error.useChatOutsideProvider': 'useChatProvider musi być używany wewnątrz ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider musi być używany w WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider musi być używany w ramach EditorProvider',
+  'solid.error.usePreviewOutsideProvider': 'usePreviewProvider musi być używany w PreviewProvider',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient musi być używany w ramach AuthProvider',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient musi być używany w ramach HttpProvider',
+  'solid.error.unsupportedMethod': 'Nieobsługiwana metoda: {{method}}',
+  'solid.error.useLoggerOutsideProvider': 'useLoggerProvider musi być używany w LoggerProvider',
+  'solid.error.oauthFailed': 'Nieudane logowanie OAuth',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance musi być używany w ramach RouterProvider',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider musi być używany w obrębie StateProvider',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider musi być używany w ramach StorageProvider',
+  'solid.error.useThemeOutsideProvider': 'useThemeProvider musi być używany w ramach ThemeProvider',
 }

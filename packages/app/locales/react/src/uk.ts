@@ -12,8 +12,6 @@ export const uk: ReactTranslations = {
     'useEditorProvider повинен використовуватися всередині EditorProvider',
   'react.error.useHttpOutsideProvider':
     'useHttpClient повинен використовуватися всередині HttpProvider',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider повинен використовуватися всередині I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider повинен використовуватися всередині LoggerProvider',
   'react.error.usePreviewOutsideProvider':

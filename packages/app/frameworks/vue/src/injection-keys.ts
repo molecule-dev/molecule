@@ -8,8 +8,11 @@ import type { InjectionKey } from 'vue'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
+import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
+import type { WorkspaceProvider } from '@molecule/app-ide'
+import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
 import type { Router } from '@molecule/app-routing'
 import type { StateProvider } from '@molecule/app-state'
@@ -60,3 +63,18 @@ export const LoggerKey: InjectionKey<LoggerProvider> = Symbol('molecule-logger')
  * Injection key for the AI chat provider.
  */
 export const ChatKey: InjectionKey<ChatProvider> = Symbol('molecule-chat')
+
+/**
+ * Injection key for the IDE workspace provider.
+ */
+export const WorkspaceKey: InjectionKey<WorkspaceProvider> = Symbol('molecule-workspace')
+
+/**
+ * Injection key for the code editor provider.
+ */
+export const EditorKey: InjectionKey<EditorProvider> = Symbol('molecule-editor')
+
+/**
+ * Injection key for the live preview provider.
+ */
+export const PreviewKey: InjectionKey<PreviewProvider> = Symbol('molecule-preview')

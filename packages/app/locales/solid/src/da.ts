@@ -22,4 +22,19 @@ export const da: SolidTranslations = {
     'Accordion-komponenter skal bruges inden for en Accordion',
   'solid.error.useToastOutsideProvider': 'useToast skal bruges inden for en ToastProvider',
   'solid.error.useChatOutsideProvider': 'useChatProvider skal bruges inden for en ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider skal bruges inden for en WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider': 'useEditorProvider skal bruges i en EditorProvider',
+  'solid.error.usePreviewOutsideProvider': 'usePreviewProvider skal bruges i en PreviewProvider',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient skal bruges inden for en AuthProvider',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient skal bruges i en HttpProvider',
+  'solid.error.unsupportedMethod': 'Ikke-understøttet metode: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider skal bruges inden for en LoggerProvider',
+  'solid.error.oauthFailed': 'OAuth-login mislykkedes',
+  'solid.error.useRouterOutsideProvider': 'useRouterInstance skal bruges i en RouterProvider',
+  'solid.error.useStoreOutsideProvider': 'useStateProvider skal bruges inden for en StateProvider',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider skal bruges inden for en StorageProvider',
+  'solid.error.useThemeOutsideProvider': 'useThemeProvider skal bruges inden for en ThemeProvider',
 }

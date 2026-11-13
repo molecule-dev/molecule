@@ -4,10 +4,12 @@
  * @module
  */
 
-import { type Accessor, createSignal, onCleanup } from 'solid-js'
+import type { Accessor } from 'solid-js'
 
 import type { UpdateCheckOptions, VersionState } from '@molecule/app-version'
 import { getProvider } from '@molecule/app-version'
+
+import { useSyncExternalStore } from './external-store.js'
 
 /**
  * Version primitives return type.
@@ -50,28 +52,62 @@ export interface VersionPrimitives {
  * ```
  */
 export function createVersion(): VersionPrimitives {
+  return useVersion()
+}
+
+/**
+ * Version and update state, under React's hook name: the state fields as
+ * accessors over the bonded provider's snapshot (refreshed on the same six
+ * events React subscribes) and the actions as plain functions.
+ *
+ * Uses module-level `getProvider()` — version is a singleton, not
+ * context-provided.
+ *
+ * @returns Version state and action methods.
+ * @example
+ * ```tsx
+ * const { isUpdateAvailable, newVersion, applyUpdate } = useVersion()
+ * <Show when={isUpdateAvailable()}>
+ *   <span>Version {newVersion()} is available!</span>
+ * </Show>
+ * ```
+ */
+export function useVersion(): VersionPrimitives {
   const provider = getProvider()
 
-  const [state, setState] = createSignal<VersionState>(provider.getState())
+  // Cached snapshot for stability (React's cachedStateRef): a state whose
+  // tracked fields all match keeps the previous object.
+  let cachedState: VersionState | null = null
 
-  const events = [
-    'update-available',
-    'service-worker-waiting',
-    'service-worker-activated',
-    'check-start',
-    'check-complete',
-    'check-error',
-  ] as const
+  const getSnapshot = (): VersionState => {
+    const next = provider.getState()
+    const prev = cachedState
+    if (
+      prev !== null &&
+      prev.isUpdateAvailable === next.isUpdateAvailable &&
+      prev.isChecking === next.isChecking &&
+      prev.isServiceWorkerWaiting === next.isServiceWorkerWaiting &&
+      prev.newVersion === next.newVersion &&
+      prev.buildId === next.buildId &&
+      prev.version === next.version
+    ) {
+      return prev
+    }
+    cachedState = next
+    return next
+  }
 
-  const unsubscribes = events.map((event) =>
-    provider.on(event, () => {
-      setState(provider.getState())
-    }),
-  )
-
-  onCleanup(() => {
-    unsubscribes.forEach((unsub) => unsub())
-  })
+  const state = useSyncExternalStore((onStateChange) => {
+    const unsubs = [
+      provider.on('update-available', onStateChange),
+      provider.on('service-worker-waiting', onStateChange),
+      provider.on('service-worker-activated', onStateChange),
+      provider.on('check-start', onStateChange),
+      provider.on('check-complete', onStateChange),
+      provider.on('check-error', onStateChange),
+    ]
+    return () => unsubs.forEach((unsub) => unsub())
+  }, getSnapshot)
 
   return {
     state,
@@ -80,9 +116,9 @@ export function createVersion(): VersionPrimitives {
     isServiceWorkerWaiting: () => state().isServiceWorkerWaiting,
     newVersion: () => state().newVersion,
     checkForUpdates: () => provider.checkForUpdates(),
-    applyUpdate: (options?) => provider.applyUpdate(options),
+    applyUpdate: (options?: { force?: boolean }) => provider.applyUpdate(options),
     dismissUpdate: () => provider.dismissUpdate(),
-    startPeriodicChecks: (options?) => provider.startPeriodicChecks(options),
+    startPeriodicChecks: (options?: UpdateCheckOptions) => provider.startPeriodicChecks(options),
     stopPeriodicChecks: () => provider.stopPeriodicChecks(),
   }
 }

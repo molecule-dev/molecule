@@ -5,7 +5,6 @@ export const af: Partial<VueTranslations> = {
   'vue.error.unsupportedMethod': 'Nie-ondersteunde metode: {{method}}',
   'vue.error.useRouterOutsideProvider':
     "useRouterInstance moet binne 'n RouterProvider gebruik word",
-  'vue.error.useI18nOutsideProvider': "useI18nProvider moet binne 'n I18nProvider gebruik word",
   'vue.error.useStoreOutsideProvider': "useStateProvider moet binne 'n StateProvider gebruik word.",
   'vue.error.useThemeOutsideProvider': "useThemeProvider moet binne 'n Temaverskaffer gebruik word",
   'vue.error.useAuthOutsideProvider': "useAuthClient moet binne 'n AuthProvider gebruik word",
@@ -16,4 +15,11 @@ export const af: Partial<VueTranslations> = {
     "useLoggerProvider moet binne 'n LoggerProvider gebruik word",
   'vue.error.useToastOutsideProvider': "useToast moet binne 'n ToastProvider gebruik word",
   'vue.error.useChatOutsideProvider': "useChatProvider moet binne 'n ChatProvider gebruik word.",
+  'vue.error.useEditorOutsideProvider':
+    "useEditorProvider moet binne 'n EditorProvider gebruik word.",
+  'vue.error.oauthFailed': 'OAuth-aanmelding het misluk',
+  'vue.error.usePreviewOutsideProvider':
+    "usePreviewProvider moet binne 'n PreviewProvider gebruik word",
+  'vue.error.useWorkspaceOutsideProvider':
+    "useWorkspaceProvider moet binne 'n Werkruimteverskaffer gebruik word.",
 }

@@ -18,4 +18,17 @@ export const he: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider': 'רכיבי Accordion חייבים לשמש בתוך Accordion',
   'solid.error.useToastOutsideProvider': 'useToast יש להשתמש בתוך ToastProvider',
   'solid.error.useChatOutsideProvider': 'יש להשתמש ב-useChatProvider בתוך ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'יש להשתמש ב-useWorkspaceProvider בתוך WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider': 'יש להשתמש ב-useEditorProvider בתוך EditorProvider',
+  'solid.error.usePreviewOutsideProvider': 'יש להשתמש ב-usePreviewProvider בתוך PreviewProvider',
+  'solid.error.useAuthOutsideProvider': 'יש להשתמש ב-useAuthClient בתוך ספק אימות',
+  'solid.error.useHttpOutsideProvider': 'יש להשתמש ב-useHttpClient בתוך HttpProvider',
+  'solid.error.unsupportedMethod': 'שיטה לא נתמכת: {{method}}',
+  'solid.error.useLoggerOutsideProvider': 'יש להשתמש ב-useLoggerProvider בתוך LoggerProvider',
+  'solid.error.oauthFailed': 'כניסה ל-OAuth נכשלה',
+  'solid.error.useRouterOutsideProvider': 'יש להשתמש ב-useRouterInstance בתוך RouterProvider',
+  'solid.error.useStoreOutsideProvider': 'יש להשתמש ב-useStateProvider בתוך StateProvider',
+  'solid.error.useStorageOutsideProvider': 'יש להשתמש ב-useStorageProvider בתוך StorageProvider',
+  'solid.error.useThemeOutsideProvider': 'יש להשתמש ב-useThemeProvider בתוך ThemeProvider',
 }

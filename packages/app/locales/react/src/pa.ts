@@ -12,8 +12,6 @@ export const pa: ReactTranslations = {
     'useEditorProvider ਨੂੰ EditorProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'react.error.useHttpOutsideProvider':
     'useHttpClient ਨੂੰ HttpProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider ਨੂੰ I18nProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider ਨੂੰ LoggerProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'react.error.usePreviewOutsideProvider':

@@ -15,4 +15,22 @@ export const pl: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Nieznany kierunek paginacji: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider musi być używany wewnątrz ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast musi być używany wewnątrz ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider musi być używany w WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider musi być używany w ramach EditorProvider',
+  'svelte.error.usePreviewOutsideProvider': 'usePreviewProvider musi być używany w PreviewProvider',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient musi być używany w ramach AuthProvider',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider musi być używany w ramach ThemeProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance musi być używany w ramach RouterProvider',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient musi być używany w ramach HttpProvider',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider musi być używany w ramach StorageProvider',
+  'svelte.error.useLoggerOutsideProvider': 'useLoggerProvider musi być używany w LoggerProvider',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider musi być używany w obrębie StateProvider',
+  'svelte.error.unsupportedMethod': 'Nieobsługiwana metoda: {{method}}',
+  'svelte.error.oauthFailed': 'Nieudane logowanie OAuth',
 }

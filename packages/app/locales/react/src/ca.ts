@@ -10,7 +10,6 @@ export const ca: Partial<ReactTranslations> = {
   'react.error.useEditorOutsideProvider':
     "useEditorProvider s'ha d'utilitzar dins d'un EditorProvider.",
   'react.error.useHttpOutsideProvider': "useHttpClient s'ha d'utilitzar dins d'un HttpProvider.",
-  'react.error.useI18nOutsideProvider': "useI18nProvider s'ha d'utilitzar dins d'un I18nProvider.",
   'react.error.useLoggerOutsideProvider':
     "useLoggerProvider s'ha d'utilitzar dins d'un LoggerProvider.",
   'react.error.usePreviewOutsideProvider':

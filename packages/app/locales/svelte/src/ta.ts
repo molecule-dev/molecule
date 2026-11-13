@@ -24,4 +24,26 @@ export const ta: SvelteTranslations = {
     'useChatProvider ஒரு ChatProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'svelte.error.useToastOutsideProvider':
     'useToast ஒரு ToastProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider என்பது ஒரு WorkspaceProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider ஆனது ஒரு EditorProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider ஆனது ஒரு PreviewProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.useAuthOutsideProvider':
+    'useAuthClient ஆனது AuthProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider ஆனது ஒரு ThemeProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance ஆனது ஒரு RouterProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.useHttpOutsideProvider':
+    'useHttpClient ஆனது ஒரு HttpProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider ஆனது ஒரு StorageProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider ஆனது ஒரு LoggerProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider என்பது ஒரு StateProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'svelte.error.unsupportedMethod': 'ஆதரிக்கப்படாத முறை: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth உள்நுழைவு தோல்வியடைந்தது',
 }

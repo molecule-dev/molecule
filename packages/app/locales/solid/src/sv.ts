@@ -22,4 +22,19 @@ export const sv: SolidTranslations = {
     'Accordion-komponenter måste användas inom en Accordion',
   'solid.error.useToastOutsideProvider': 'useToast måste användas inom en ToastProvider',
   'solid.error.useChatOutsideProvider': 'useChatProvider måste användas inom en ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider måste användas inom en WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider': 'useEditorProvider måste användas inom en EditorProvider',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider måste användas inom en PreviewProvider',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient måste användas inom en AuthProvider',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient måste användas inom en HttpProvider',
+  'solid.error.unsupportedMethod': 'Metod som inte stöds: {{method}}',
+  'solid.error.useLoggerOutsideProvider': 'useLoggerProvider måste användas inom en LoggerProvider',
+  'solid.error.oauthFailed': 'OAuth-inloggning misslyckades',
+  'solid.error.useRouterOutsideProvider': 'useRouterInstance måste användas inom en RouterProvider',
+  'solid.error.useStoreOutsideProvider': 'useStateProvider måste användas inom en StateProvider',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider måste användas inom en StorageProvider',
+  'solid.error.useThemeOutsideProvider': 'useThemeProvider måste användas inom en ThemeProvider',
 }

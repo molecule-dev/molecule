@@ -23,4 +23,24 @@ export const be: SolidTranslations = {
   'solid.error.useToastOutsideProvider': 'useToast павінен выкарыстоўвацца ўнутры ToastProvider',
   'solid.error.useChatOutsideProvider':
     'useChatProvider павінен выкарыстоўвацца ўнутры ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider павінен выкарыстоўвацца ўнутры WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider павінен выкарыстоўвацца ўнутры EditorProvider',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider павінен выкарыстоўвацца ўнутры PreviewProvider',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient павінен выкарыстоўвацца ўнутры AuthProvider',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient павінен выкарыстоўвацца ўнутры HttpProvider',
+  'solid.error.unsupportedMethod': 'Непадтрымоўваны метад: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider павінен выкарыстоўвацца ўнутры LoggerProvider',
+  'solid.error.oauthFailed': 'Памылка ўваходу праз OAuth',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance павінен выкарыстоўвацца ўнутры RouterProvider',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider павінен выкарыстоўвацца ўнутры StateProvider',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider павінен выкарыстоўвацца ўнутры StorageProvider',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider павінен выкарыстоўвацца ўнутры ThemeProvider',
 }

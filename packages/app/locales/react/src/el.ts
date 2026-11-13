@@ -12,8 +12,6 @@ export const el: ReactTranslations = {
     'Το useEditorProvider πρέπει να χρησιμοποιείται εντός ενός EditorProvider',
   'react.error.useHttpOutsideProvider':
     'Το useHttpClient πρέπει να χρησιμοποιείται εντός ενός HttpProvider',
-  'react.error.useI18nOutsideProvider':
-    'Το useI18nProvider πρέπει να χρησιμοποιείται εντός ενός I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'Το useLoggerProvider πρέπει να χρησιμοποιείται εντός ενός LoggerProvider',
   'react.error.usePreviewOutsideProvider':

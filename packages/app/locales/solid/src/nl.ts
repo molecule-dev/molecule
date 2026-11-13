@@ -23,4 +23,26 @@ export const nl: SolidTranslations = {
   'solid.error.useToastOutsideProvider': 'useToast moet worden gebruikt binnen een ToastProvider',
   'solid.error.useChatOutsideProvider':
     'useChatProvider moet binnen een ChatProvider worden gebruikt',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider moet binnen een WorkspaceProvider worden gebruikt.',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider moet binnen een EditorProvider worden gebruikt',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider moet binnen een PreviewProvider worden gebruikt.',
+  'solid.error.useAuthOutsideProvider':
+    'useAuthClient moet binnen een AuthProvider worden gebruikt.',
+  'solid.error.useHttpOutsideProvider':
+    'useHttpClient moet binnen een HttpProvider worden gebruikt.',
+  'solid.error.unsupportedMethod': 'Niet-ondersteunde methode: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider moet binnen een LoggerProvider worden gebruikt',
+  'solid.error.oauthFailed': 'OAuth-aanmelding mislukt',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance moet binnen een RouterProvider worden gebruikt',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider moet binnen een StateProvider worden gebruikt',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider moet binnen een StorageProvider worden gebruikt.',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider moet binnen een ThemeProvider worden gebruikt',
 }

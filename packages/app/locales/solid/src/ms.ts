@@ -21,4 +21,19 @@ export const ms: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider': 'Komponen Accordion mesti digunakan dalam Accordion',
   'solid.error.useToastOutsideProvider': 'useToast mesti digunakan dalam ToastProvider',
   'solid.error.useChatOutsideProvider': 'useChatProvider mesti digunakan dalam ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider mesti digunakan dalam WorkspaceProvider',
+  'solid.error.useEditorOutsideProvider': 'useEditorProvider mesti digunakan dalam EditorProvider',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider mesti digunakan dalam PreviewProvider',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient mesti digunakan dalam AuthProvider',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient mesti digunakan dalam HttpProvider',
+  'solid.error.unsupportedMethod': 'Kaedah yang tidak disokong: {{method}}',
+  'solid.error.useLoggerOutsideProvider': 'useLoggerProvider mesti digunakan dalam LoggerProvider',
+  'solid.error.oauthFailed': 'Log masuk OAuth gagal',
+  'solid.error.useRouterOutsideProvider': 'useRouterInstance mesti digunakan dalam RouterProvider',
+  'solid.error.useStoreOutsideProvider': 'useStateProvider mesti digunakan dalam StateProvider',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider mesti digunakan dalam StorageProvider',
+  'solid.error.useThemeOutsideProvider': 'useThemeProvider mesti digunakan dalam ThemeProvider',
 }

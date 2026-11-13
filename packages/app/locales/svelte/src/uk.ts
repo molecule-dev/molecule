@@ -24,4 +24,24 @@ export const uk: SvelteTranslations = {
     'useChatProvider повинен використовуватися всередині ChatProvider',
   'svelte.error.useToastOutsideProvider':
     'useToast повинен використовуватися всередині ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider має використовуватися всередині WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider має використовуватися всередині EditorProvider',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider має використовуватися всередині PreviewProvider',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient має використовуватися в AuthProvider',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider має використовуватися всередині ThemeProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance має використовуватися в RouterProvider',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient має використовуватися в HttpProvider',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider має використовуватися всередині StorageProvider',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider має використовуватися всередині LoggerProvider',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider має використовуватися всередині StateProvider',
+  'svelte.error.unsupportedMethod': 'Непідтримуваний метод: {{method}}',
+  'svelte.error.oauthFailed': 'Не вдалося ввійти через OAuth',
 }

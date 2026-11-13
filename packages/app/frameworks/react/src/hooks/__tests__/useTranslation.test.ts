@@ -1,13 +1,53 @@
 // @vitest-environment jsdom
-import { renderHook } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { createElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { I18nProvider, InterpolationValues } from '@molecule/app-i18n'
-import { I18nError } from '@molecule/app-i18n'
+import { createSimpleI18nProvider, I18nError, setProvider } from '@molecule/app-i18n'
 
 import { I18nContext } from '../../contexts.js'
-import { useI18nError } from '../useTranslation.js'
+import { useI18nError, useI18nProvider, useT, useTranslation } from '../useTranslation.js'
+
+describe('the translation hooks outside an I18nProvider', () => {
+  // A component that renders without an I18nProvider used the static `t`, which reads the
+  // bonded provider. The hooks read that same provider there, and they also re-render the
+  // component on a locale switch, which the static `t` never did.
+  const bondedProvider = (): I18nProvider => {
+    const provider = createSimpleI18nProvider('en', [
+      { code: 'en', name: 'English', translations: { greeting: 'Hello' } },
+      { code: 'fr', name: 'Français', translations: { greeting: 'Bonjour' } },
+    ])
+    setProvider(provider)
+    return provider
+  }
+
+  it('reads the bonded provider instead of throwing', () => {
+    const provider = bondedProvider()
+    const { result } = renderHook(() => useI18nProvider())
+    expect(result.current).toBe(provider)
+  })
+
+  it('re-renders with the new language when the bonded provider switches locale', async () => {
+    const provider = bondedProvider()
+    const translation = renderHook(() => useTranslation().t('greeting'))
+    const shorthand = renderHook(() => useT()('greeting', 'Hello'))
+    expect(translation.result.current).toBe('Hello')
+    expect(shorthand.result.current).toBe('Hello')
+    await act(() => provider.setLocale('fr'))
+    expect(translation.result.current).toBe('Bonjour')
+    expect(shorthand.result.current).toBe('Bonjour')
+  })
+
+  it('still prefers the provider an enclosing I18nProvider supplies', () => {
+    bondedProvider()
+    const scoped = createMockProvider(() => 'scoped')
+    const { result } = renderHook(() => useTranslation().t('greeting'), {
+      wrapper: createWrapper(scoped),
+    })
+    expect(result.current).toBe('scoped')
+  })
+})
 
 // Minimal mock I18nProvider — only the methods useTranslation() actually reads
 const createMockProvider = (tFn?: I18nProvider['t']): I18nProvider => ({

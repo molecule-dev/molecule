@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const fil: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'Ang useRouterInstance ay dapat gamitin sa loob ng RouterProvider',
-  'vue.error.useI18nOutsideProvider':
-    'Ang useI18nProvider ay dapat gamitin sa loob ng I18nProvider',
   'vue.error.useStoreOutsideProvider':
     'Ang useStateProvider ay dapat gamitin sa loob ng StateProvider',
   'vue.error.useThemeOutsideProvider':
@@ -20,4 +18,11 @@ export const fil: VueTranslations = {
   'vue.error.unsupportedMethod': 'Hindi sinusuportahang paraan: {{method}}',
   'vue.error.useChatOutsideProvider':
     'Ang useChatProvider ay dapat gamitin sa loob ng ChatProvider',
+  'vue.error.useEditorOutsideProvider':
+    'Dapat gamitin ang useEditorProvider sa loob ng isang EditorProvider',
+  'vue.error.oauthFailed': 'Nabigo ang pag-login sa OAuth',
+  'vue.error.usePreviewOutsideProvider':
+    'Dapat gamitin ang usePreviewProvider sa loob ng isang PreviewProvider',
+  'vue.error.useWorkspaceOutsideProvider':
+    'Dapat gamitin ang useWorkspaceProvider sa loob ng isang WorkspaceProvider',
 }

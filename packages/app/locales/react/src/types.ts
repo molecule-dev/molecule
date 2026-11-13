@@ -5,7 +5,6 @@ export type ReactTranslationKey =
   | 'react.error.useChatOutsideProvider'
   | 'react.error.useEditorOutsideProvider'
   | 'react.error.useHttpOutsideProvider'
-  | 'react.error.useI18nOutsideProvider'
   | 'react.error.useLoggerOutsideProvider'
   | 'react.error.usePreviewOutsideProvider'
   | 'react.error.useRouterOutsideProvider'

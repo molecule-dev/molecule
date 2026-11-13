@@ -10,8 +10,6 @@ export const ha: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'Dole ne a yi amfani da useEditorProvider a cikin EditorProvider',
   'react.error.useHttpOutsideProvider': 'Dole ne a yi amfani da useHttpClient a cikin HttpProvider',
-  'react.error.useI18nOutsideProvider':
-    'Dole ne a yi amfani da useI18nProvider a cikin I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'Dole ne a yi amfani da useLoggerProvider a cikin LoggerProvider',
   'react.error.usePreviewOutsideProvider':

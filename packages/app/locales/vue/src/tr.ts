@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const tr: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance bir RouterProvider i\u00e7inde kullan\u0131lmal\u0131d\u0131r',
-  'vue.error.useI18nOutsideProvider':
-    'useI18nProvider bir I18nProvider i\u00e7inde kullan\u0131lmal\u0131d\u0131r',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider bir StateProvider i\u00e7inde kullan\u0131lmal\u0131d\u0131r',
   'vue.error.useThemeOutsideProvider':
@@ -22,4 +20,11 @@ export const tr: VueTranslations = {
     'useToast bir ToastProvider i\u00e7inde kullan\u0131lmal\u0131d\u0131r',
   'vue.error.unsupportedMethod': 'Desteklenmeyen y\u00f6ntem: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider bir ChatProvider içinde kullanılmalıdır',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider, bir EditorProvider içinde kullanılmalıdır.',
+  'vue.error.oauthFailed': 'OAuth oturum açma işlemi başarısız oldu.',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider, bir PreviewProvider içinde kullanılmalıdır.',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider, bir WorkspaceProvider içinde kullanılmalıdır.',
 }

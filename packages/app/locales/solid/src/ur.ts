@@ -23,4 +23,24 @@ export const ur: SolidTranslations = {
   'solid.error.useToastOutsideProvider': 'useToast کو ToastProvider کے اندر استعمال کیا جانا چاہیے',
   'solid.error.useChatOutsideProvider':
     'useChatProvider کو ChatProvider کے اندر استعمال کیا جانا چاہیے',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider کو WorkspaceProvider کے اندر استعمال کیا جانا چاہیے۔',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider کو EditorProvider کے اندر استعمال کرنا چاہیے۔',
+  'solid.error.usePreviewOutsideProvider':
+    'UsePreviewProvider کا استعمال ایک PreviewProvider کے اندر ہونا چاہیے۔',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient کا استعمال AuthProvider کے اندر ہونا چاہیے۔',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient کا استعمال HttpProvider کے اندر ہونا چاہیے۔',
+  'solid.error.unsupportedMethod': 'غیر تعاون یافتہ طریقہ: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider کو LoggerProvider کے اندر استعمال کیا جانا چاہیے۔',
+  'solid.error.oauthFailed': 'OAuth لاگ ان ناکام ہوگیا۔',
+  'solid.error.useRouterOutsideProvider':
+    'UseRouterInstance کا استعمال RouterProvider کے اندر ہونا چاہیے۔',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider کو ایک StateProvider کے اندر استعمال کیا جانا چاہیے۔',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider کو StorageProvider کے اندر استعمال کرنا چاہیے۔',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider کو تھیم پرووائیڈر کے اندر استعمال کیا جانا چاہیے۔',
 }

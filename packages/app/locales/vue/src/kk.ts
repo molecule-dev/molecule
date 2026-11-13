@@ -4,7 +4,6 @@ import type { VueTranslations } from './types.js'
 export const kk: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance RouterProvider ішінде пайдаланылуы керек',
-  'vue.error.useI18nOutsideProvider': 'useI18nProvider I18nProvider ішінде пайдаланылуы керек',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider ішінде пайдаланылуы керек',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider ішінде пайдаланылуы керек',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider ішінде пайдаланылуы керек',
@@ -16,4 +15,11 @@ export const kk: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'useToast ToastProvider ішінде пайдаланылуы керек',
   'vue.error.unsupportedMethod': 'Қолдау көрсетілмейтін әдіс: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider ChatProvider ішінде пайдаланылуы керек',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider EditorProvider ішінде пайдаланылуы керек',
+  'vue.error.oauthFailed': 'OAuth кіру сәтсіз аяқталды',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider бағдарламасы PreviewProvider ішінде пайдаланылуы керек',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider WorkspaceProvider ішінде пайдаланылуы керек',
 }

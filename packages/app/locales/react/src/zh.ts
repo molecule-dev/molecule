@@ -7,7 +7,6 @@ export const zh: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider 必须在 ChatProvider 内使用',
   'react.error.useEditorOutsideProvider': 'useEditorProvider 必须在 EditorProvider 内使用',
   'react.error.useHttpOutsideProvider': 'useHttpClient 必须在 HttpProvider 内使用',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider 必须在 I18nProvider 内使用',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider 必须在 LoggerProvider 内使用',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider 必须在 PreviewProvider 内使用',
   'react.error.useRouterOutsideProvider': 'useRouterInstance 必须在 RouterProvider 内使用',

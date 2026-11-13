@@ -21,4 +21,17 @@ export const zhTW: SvelteTranslations = {
     '\u672a\u77e5\u7684\u5206\u9801\u65b9\u5411: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider 必須在 ChatProvider 內使用',
   'svelte.error.useToastOutsideProvider': 'useToast 必須在 ToastProvider 內使用',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider 必須在 WorkspaceProvider 中使用。',
+  'svelte.error.useEditorOutsideProvider': 'useEditorProvider 必須在 EditorProvider 中使用。',
+  'svelte.error.usePreviewOutsideProvider': 'usePreviewProvider 必須在 PreviewProvider 中使用',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient 必須在 AuthProvider 中使用。',
+  'svelte.error.useThemeOutsideProvider': 'useThemeProvider 必須在 ThemeProvider 中使用',
+  'svelte.error.useRouterOutsideProvider': 'useRouterInstance 必須在 RouterProvider 中使用。',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient 必須在 HttpProvider 中使用。',
+  'svelte.error.useStorageOutsideProvider': 'useStorageProvider 必須在 StorageProvider 中使用。',
+  'svelte.error.useLoggerOutsideProvider': 'useLoggerProvider 必須在 LoggerProvider 中使用',
+  'svelte.error.useStoreOutsideProvider': 'useStateProvider 必須在 StateProvider 中使用。',
+  'svelte.error.unsupportedMethod': '不支援的方法：{{method}}',
+  'svelte.error.oauthFailed': 'OAuth登入失敗',
 }

@@ -7,7 +7,6 @@ export const km: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider ត្រូវតែប្រើនៅក្នុង ChatProvider',
   'react.error.useEditorOutsideProvider': 'useEditorProvider ត្រូវតែប្រើនៅក្នុង EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient ត្រូវតែប្រើនៅក្នុង HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider ត្រូវតែប្រើនៅក្នុង I18nProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider ត្រូវតែប្រើនៅក្នុង LoggerProvider',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider ត្រូវតែប្រើនៅក្នុង PreviewProvider',
   'react.error.useRouterOutsideProvider': 'useRouterInstance ត្រូវតែប្រើនៅក្នុង RouterProvider',

@@ -7,7 +7,6 @@ export const ms: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider mesti digunakan dalam ChatProvider',
   'react.error.useEditorOutsideProvider': 'useEditorProvider mesti digunakan dalam EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient mesti digunakan dalam HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider mesti digunakan dalam I18nProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider mesti digunakan dalam LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider mesti digunakan dalam PreviewProvider',

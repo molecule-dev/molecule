@@ -23,4 +23,26 @@ export const ru: SvelteTranslations = {
   'svelte.error.useChatOutsideProvider':
     'useChatProvider должен использоваться внутри ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast должен использоваться внутри ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'Параметр useWorkspaceProvider должен использоваться внутри WorkspaceProvider.',
+  'svelte.error.useEditorOutsideProvider':
+    'Метод useEditorProvider должен использоваться внутри метода EditorProvider.',
+  'svelte.error.usePreviewOutsideProvider':
+    'Параметр usePreviewProvider должен использоваться внутри параметра PreviewProvider.',
+  'svelte.error.useAuthOutsideProvider':
+    'Метод useAuthClient необходимо использовать внутри AuthProvider.',
+  'svelte.error.useThemeOutsideProvider':
+    'Параметр useThemeProvider должен использоваться внутри параметра ThemeProvider.',
+  'svelte.error.useRouterOutsideProvider':
+    'Параметр useRouterInstance должен использоваться внутри RouterProvider.',
+  'svelte.error.useHttpOutsideProvider':
+    'Функция useHttpClient должна использоваться внутри объекта HttpProvider.',
+  'svelte.error.useStorageOutsideProvider':
+    'Параметр useStorageProvider должен использоваться внутри параметра StorageProvider.',
+  'svelte.error.useLoggerOutsideProvider':
+    'Параметр useLoggerProvider должен использоваться внутри LoggerProvider.',
+  'svelte.error.useStoreOutsideProvider':
+    'Метод useStateProvider должен использоваться внутри StateProvider.',
+  'svelte.error.unsupportedMethod': 'Неподдерживаемый метод: {{method}}',
+  'svelte.error.oauthFailed': 'Не удалось выполнить вход через OAuth.',
 }

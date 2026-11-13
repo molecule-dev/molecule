@@ -8,7 +8,6 @@ export const gu: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider એ EditorProvider ની અંદર વાપરવું આવશ્યક છે',
   'react.error.useHttpOutsideProvider': 'useHttpClient એ HttpProvider ની અંદર વાપરવું આવશ્યક છે',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider એ I18nProvider ની અંદર વાપરવું આવશ્યક છે',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider એ LoggerProvider ની અંદર વાપરવું આવશ્યક છે',
   'react.error.usePreviewOutsideProvider':

@@ -8,7 +8,6 @@ export const ml: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider ഒരു EditorProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'react.error.useHttpOutsideProvider': 'useHttpClient ഒരു HttpProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider ഒരു I18nProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider ഒരു LoggerProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'react.error.usePreviewOutsideProvider':

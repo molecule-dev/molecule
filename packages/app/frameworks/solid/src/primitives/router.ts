@@ -4,8 +4,9 @@
  * @module
  */
 
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js'
+import { type Accessor, createEffect, createSignal, onCleanup, useContext } from 'solid-js'
 
+import { t } from '@molecule/app-i18n'
 import type {
   NavigateOptions,
   QueryParams,
@@ -14,8 +15,134 @@ import type {
   Router,
 } from '@molecule/app-routing'
 
-import { getRouter } from '../context.js'
+import { getRouter, RouterContext } from '../context.js'
 import type { RouterPrimitives } from '../types.js'
+
+/**
+ * The router from the nearest `MoleculeProvider` (`config.router`), under
+ * React's hook name.
+ *
+ * @returns The router instance.
+ * @throws {Error} When no `MoleculeProvider` above configures `router`.
+ */
+export function useRouterInstance(): Router {
+  const router = useContext(RouterContext)
+  if (!router) {
+    throw new Error(
+      t('solid.error.useRouterOutsideProvider', undefined, {
+        defaultValue: 'useRouterInstance must be used within a RouterProvider',
+      }),
+    )
+  }
+  return router
+}
+
+/**
+ * Routing state and actions, under React's hook name.
+ *
+ * @returns Location, params and query as accessors; the navigation actions.
+ * @throws {Error} When no `MoleculeProvider` above configures `router`.
+ * @example
+ * ```tsx
+ * const { location, params, navigate, back } = useRouter()
+ * <span>Current path: {location().pathname}</span>
+ * ```
+ */
+export function useRouter(): RouterPrimitives {
+  const router = useRouterInstance()
+
+  const [location, setLocation] = createSignal<RouteLocation>(router.getLocation())
+  const [params, setParams] = createSignal<RouteParams>(router.getParams())
+  const [query, setQuery] = createSignal<QueryParams>(router.getQuery())
+
+  const unsubscribe = router.subscribe((newLocation: RouteLocation) => {
+    setLocation(newLocation)
+    setParams(router.getParams())
+    setQuery(router.getQuery())
+  })
+  onCleanup(unsubscribe)
+
+  return {
+    location,
+    params,
+    query,
+    navigate: (path: string, options?: NavigateOptions) => router.navigate(path, options),
+    navigateTo: (
+      name: string,
+      params?: RouteParams,
+      query?: QueryParams,
+      options?: NavigateOptions,
+    ) => router.navigateTo(name, params, query, options),
+    back: () => router.back(),
+    forward: () => router.forward(),
+    isActive: (path: string, exact?: boolean) => router.isActive(path, exact),
+  }
+}
+
+/**
+ * The current location, under React's hook name.
+ *
+ * @returns Accessor for the current route location.
+ * @throws {Error} When no `MoleculeProvider` above configures `router`.
+ */
+export function useLocation(): Accessor<RouteLocation> {
+  const { location } = useRouter()
+  return location
+}
+
+/**
+ * The current route's path parameters, under React's hook name.
+ *
+ * @returns Accessor for the route params.
+ * @throws {Error} When no `MoleculeProvider` above configures `router`.
+ */
+export function useParams<T extends Record<string, string> = RouteParams>(): Accessor<T> {
+  const { params } = useRouter()
+  return params as Accessor<T>
+}
+
+/**
+ * The parsed query parameters, under React's hook name.
+ *
+ * @returns Accessor for the query params.
+ * @throws {Error} When no `MoleculeProvider` above configures `router`.
+ */
+export function useQuery<T extends QueryParams = QueryParams>(): Accessor<T> {
+  const { query } = useRouter()
+  return query as Accessor<T>
+}
+
+/**
+ * A function that navigates, under React's hook name. It does not subscribe
+ * to route changes: navigation needs the instance, not the location.
+ *
+ * @returns The navigate function.
+ * @throws {Error} When no `MoleculeProvider` above configures `router`.
+ */
+export function useNavigate(): (path: string, options?: NavigateOptions) => void {
+  const router = useRouterInstance()
+  return (path: string, options?: NavigateOptions) => router.navigate(path, options)
+}
+
+/**
+ * Whether a path matches the current route, under React's hook name.
+ *
+ * @param path - The path to check.
+ * @param exact - Whether to match exactly (default false).
+ * @returns Accessor for whether the path is active.
+ * @throws {Error} When no `MoleculeProvider` above configures `router`.
+ */
+export function useIsActive(path: string, exact = false): Accessor<boolean> {
+  const router = useRouterInstance()
+  const [active, setActive] = createSignal<boolean>(router.isActive(path, exact))
+
+  const unsubscribe = router.subscribe(() => {
+    setActive(router.isActive(path, exact))
+  })
+  onCleanup(unsubscribe)
+
+  return active
+}
 
 /**
  * Create router primitives for navigation state and actions.
@@ -75,84 +202,6 @@ export function createRouter(): RouterPrimitives {
     forward: router.forward.bind(router),
     isActive: router.isActive.bind(router),
   }
-}
-
-/**
- * Get current route location as accessor.
- *
- * @returns Accessor for current location
- *
- * @example
- * ```tsx
- * function Breadcrumb() {
- *   const location = useLocation()
- *   return <span>{location().pathname}</span>
- * }
- * ```
- */
-export function useLocation(): Accessor<RouteLocation> {
-  const { location } = createRouter()
-  return location
-}
-
-/**
- * Get current route params as accessor.
- *
- * @returns Accessor for route params
- *
- * @example
- * ```tsx
- * function UserProfile() {
- *   const params = useParams()
- *   return <div>User ID: {params().userId}</div>
- * }
- * ```
- */
-export function useParams(): Accessor<RouteParams> {
-  const { params } = createRouter()
-  return params
-}
-
-/**
- * Get current query params as accessor.
- *
- * @returns Accessor for query params
- *
- * @example
- * ```tsx
- * function SearchResults() {
- *   const query = useQuery()
- *   return <div>Search: {query().q}</div>
- * }
- * ```
- */
-export function useQuery(): Accessor<QueryParams> {
-  const { query } = createRouter()
-  return query
-}
-
-/**
- * Get navigate function.
- *
- * @returns Navigate function
- *
- * @example
- * ```tsx
- * function LoginButton() {
- *   const navigate = useNavigate()
- *
- *   const handleLogin = async () => {
- *     await login()
- *     navigate('/dashboard')
- *   }
- *
- *   return <button onClick={handleLogin}>Login</button>
- * }
- * ```
- */
-export function useNavigate(): (path: string, options?: NavigateOptions) => void {
-  const { navigate } = createRouter()
-  return navigate
 }
 
 /**

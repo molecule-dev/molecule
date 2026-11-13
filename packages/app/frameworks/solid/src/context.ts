@@ -8,9 +8,12 @@ import { createContext, useContext } from 'solid-js'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, RegisterExtraShape } from '@molecule/app-auth'
+import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { t } from '@molecule/app-i18n'
+import type { WorkspaceProvider } from '@molecule/app-ide'
+import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
 import type { Router } from '@molecule/app-routing'
 import type { StateProvider } from '@molecule/app-state'
@@ -29,6 +32,9 @@ const HttpContext = createContext<HttpClient>()
 const StorageContext = createContext<StorageProvider>()
 const LoggerContext = createContext<LoggerProvider>()
 const ChatContext = createContext<ChatProvider>()
+const WorkspaceContext = createContext<WorkspaceProvider>()
+const EditorContext = createContext<EditorProvider>()
+const PreviewContext = createContext<PreviewProvider>()
 
 /**
  * Get the state provider from context.
@@ -185,15 +191,72 @@ export function getLoggerProvider(): LoggerProvider {
   return ctx
 }
 
+/**
+ * Get the IDE workspace provider from context.
+ *
+ * @returns The workspace provider instance.
+ * @throws {Error} If used outside MoleculeProvider.
+ */
+export function getWorkspaceProvider(): WorkspaceProvider {
+  const ctx = useContext(WorkspaceContext)
+  if (!ctx) {
+    throw new Error(
+      t('solid.error.useWorkspaceOutsideProvider', undefined, {
+        defaultValue: 'useWorkspaceProvider must be used within a WorkspaceProvider',
+      }),
+    )
+  }
+  return ctx
+}
+
+/**
+ * Get the code editor provider from context.
+ *
+ * @returns The editor provider instance.
+ * @throws {Error} If used outside MoleculeProvider.
+ */
+export function getEditorProvider(): EditorProvider {
+  const ctx = useContext(EditorContext)
+  if (!ctx) {
+    throw new Error(
+      t('solid.error.useEditorOutsideProvider', undefined, {
+        defaultValue: 'useEditorProvider must be used within an EditorProvider',
+      }),
+    )
+  }
+  return ctx
+}
+
+/**
+ * Get the live preview provider from context.
+ *
+ * @returns The preview provider instance.
+ * @throws {Error} If used outside MoleculeProvider.
+ */
+export function getPreviewProvider(): PreviewProvider {
+  const ctx = useContext(PreviewContext)
+  if (!ctx) {
+    throw new Error(
+      t('solid.error.usePreviewOutsideProvider', undefined, {
+        defaultValue: 'usePreviewProvider must be used within a PreviewProvider',
+      }),
+    )
+  }
+  return ctx
+}
+
 // Export contexts for advanced use cases
 export {
   AuthContext,
   ChatContext,
+  EditorContext,
   HttpContext,
   I18nContext,
   LoggerContext,
+  PreviewContext,
   RouterContext,
   StateContext,
   StorageContext,
   ThemeContext,
+  WorkspaceContext,
 }

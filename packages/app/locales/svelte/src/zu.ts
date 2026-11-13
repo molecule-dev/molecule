@@ -16,4 +16,26 @@ export const zu: SvelteTranslations = {
     'useChatProvider kumele kusetshenziswe ngaphakathi kwe-ChatProvider',
   'svelte.error.useToastOutsideProvider':
     'useToast kumele kusetshenziswe ngaphakathi kwe-ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'I-useWorkspaceProvider kumele isetshenziswe ngaphakathi kwe-WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider':
+    'i-useEditorProvider kumele isetshenziswe ngaphakathi kwe-EditorProvider',
+  'svelte.error.usePreviewOutsideProvider':
+    'i-usePreviewProvider kumele isetshenziswe ngaphakathi kwe-PreviewProvider',
+  'svelte.error.useAuthOutsideProvider':
+    'i-useAuthClient kumele isetshenziswe ngaphakathi kwe-AuthProvider',
+  'svelte.error.useThemeOutsideProvider':
+    'i-useThemeProvider kumele isetshenziswe ngaphakathi kwe-ThemeProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'i-useRouterInstance kumele isetshenziswe ngaphakathi kwe-RouterProvider',
+  'svelte.error.useHttpOutsideProvider':
+    'i-useHttpClient kumele isetshenziswe ngaphakathi kwe-HttpProvider',
+  'svelte.error.useStorageOutsideProvider':
+    'i-useStorageProvider kumele isetshenziswe ngaphakathi kwe-StorageProvider',
+  'svelte.error.useLoggerOutsideProvider':
+    'i-useLoggerProvider kumele isetshenziswe ngaphakathi kwe-LoggerProvider',
+  'svelte.error.useStoreOutsideProvider':
+    'i-useStateProvider kumele isetshenziswe ngaphakathi kwe-StateProvider',
+  'svelte.error.unsupportedMethod': 'Indlela engasekelwa: {{method}}',
+  'svelte.error.oauthFailed': 'Ukungena ngemvume kwe-OAuth kwehlulekile',
 }

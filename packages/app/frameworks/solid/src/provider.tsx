@@ -9,13 +9,16 @@ import { createComponent, type JSX, type ParentComponent } from 'solid-js'
 import {
   AuthContext,
   ChatContext,
+  EditorContext,
   HttpContext,
   I18nContext,
   LoggerContext,
+  PreviewContext,
   RouterContext,
   StateContext,
   StorageContext,
   ThemeContext,
+  WorkspaceContext,
 } from './context.js'
 import { SessionReady } from './session-ready.js'
 import type { MoleculeConfig } from './types.js'
@@ -76,6 +79,45 @@ export const MoleculeProvider: ParentComponent<{ config: MoleculeConfig }> = (pr
       createComponent(ChatContext.Provider, {
         get value() {
           return props.config.chat!
+        },
+        get children() {
+          return inner()
+        },
+      })
+  }
+
+  if (props.config.preview) {
+    const inner = render
+    render = () =>
+      createComponent(PreviewContext.Provider, {
+        get value() {
+          return props.config.preview!
+        },
+        get children() {
+          return inner()
+        },
+      })
+  }
+
+  if (props.config.editor) {
+    const inner = render
+    render = () =>
+      createComponent(EditorContext.Provider, {
+        get value() {
+          return props.config.editor!
+        },
+        get children() {
+          return inner()
+        },
+      })
+  }
+
+  if (props.config.workspace) {
+    const inner = render
+    render = () =>
+      createComponent(WorkspaceContext.Provider, {
+        get value() {
+          return props.config.workspace!
         },
         get children() {
           return inner()

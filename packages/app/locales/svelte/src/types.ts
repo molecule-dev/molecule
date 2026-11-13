@@ -11,6 +11,18 @@ export type SvelteTranslationKey =
   | 'svelte.error.unknownPaginationDirection'
   | 'svelte.error.useChatOutsideProvider'
   | 'svelte.error.useToastOutsideProvider'
+  | 'svelte.error.useWorkspaceOutsideProvider'
+  | 'svelte.error.useEditorOutsideProvider'
+  | 'svelte.error.usePreviewOutsideProvider'
+  | 'svelte.error.useAuthOutsideProvider'
+  | 'svelte.error.useThemeOutsideProvider'
+  | 'svelte.error.useRouterOutsideProvider'
+  | 'svelte.error.useHttpOutsideProvider'
+  | 'svelte.error.useStorageOutsideProvider'
+  | 'svelte.error.useLoggerOutsideProvider'
+  | 'svelte.error.useStoreOutsideProvider'
+  | 'svelte.error.unsupportedMethod'
+  | 'svelte.error.oauthFailed'
 
 /** Translation record mapping svelte keys to translated strings. */
 export type SvelteTranslations = Record<SvelteTranslationKey, string>

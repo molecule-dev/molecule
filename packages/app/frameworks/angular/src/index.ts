@@ -79,8 +79,10 @@
 
 export * from './agent-identity.js'
 export * from './chat.js'
+export * from './hooks/index.js'
 export * from './i18n-reactive.js'
 export * from './providers.js'
 export * from './services/index.js'
+export * from './session-ready.js'
 export * from './tokens.js'
 export * from './types.js'

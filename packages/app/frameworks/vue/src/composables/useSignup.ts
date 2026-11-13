@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { ComputedRef } from 'vue'
+import { computed, type ComputedRef } from 'vue'
 
 import type { AuthResult, RegisterData } from '@molecule/app-auth'
 import type { PromiseStatus } from '@molecule/app-utilities'
@@ -31,15 +31,13 @@ export interface UseSignupReturn<T = unknown> {
  */
 export function useSignup<T = unknown>(): UseSignupReturn<T> {
   const client = useAuthClient<T>()
-  const { status, value, error, call, reset } = usePromise((data: RegisterData) =>
-    client.register(data),
-  )
+  const [state, call] = usePromise((data: RegisterData) => client.register(data))
 
   return {
-    status,
-    value: value as ComputedRef<AuthResult<T> | null>,
-    error,
+    status: computed(() => state.status),
+    value: computed(() => state.value as AuthResult<T> | null),
+    error: computed(() => state.error),
     signup: call,
-    reset,
+    reset: state.reset,
   }
 }

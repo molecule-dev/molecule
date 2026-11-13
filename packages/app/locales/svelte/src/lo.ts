@@ -22,4 +22,17 @@ export const lo: SvelteTranslations = {
     '\u0e97\u0eb4\u0e94\u0e97\u0eb2\u0e87\u0e81\u0eb2\u0e99\u0ec1\u0e9a\u0ec8\u0e87\u0edc\u0ec9\u0eb2\u0e97\u0eb5\u0ec8\u0e9a\u0ecd\u0ec8\u0eae\u0eb9\u0ec9\u0e88\u0eb1\u0e81: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider ຕ້ອງໃຊ້ພາຍໃນ ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast ຕ້ອງໃຊ້ພາຍໃນ ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'ຕ້ອງໃຊ້ useWorkspaceProvider ພາຍໃນ WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider': 'ຕ້ອງໃຊ້ useEditorProvider ພາຍໃນ EditorProvider',
+  'svelte.error.usePreviewOutsideProvider': 'ຕ້ອງໃຊ້ usePreviewProvider ພາຍໃນ PreviewProvider',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient ຕ້ອງຖືກນໍາໃຊ້ພາຍໃນ AuthProvider',
+  'svelte.error.useThemeOutsideProvider': 'ຕ້ອງໃຊ້ useThemeProvider ພາຍໃນ ThemeProvider',
+  'svelte.error.useRouterOutsideProvider': 'useRouterInstance ຕ້ອງຖືກໃຊ້ພາຍໃນ RouterProvider',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient ຕ້ອງຖືກນໍາໃຊ້ພາຍໃນ HttpProvider',
+  'svelte.error.useStorageOutsideProvider': 'ຕ້ອງໃຊ້ useStorageProvider ພາຍໃນ StorageProvider',
+  'svelte.error.useLoggerOutsideProvider': 'ຕ້ອງໃຊ້ useLoggerProvider ພາຍໃນ LoggerProvider',
+  'svelte.error.useStoreOutsideProvider': 'ຕ້ອງໃຊ້ useStateProvider ພາຍໃນ StateProvider',
+  'svelte.error.unsupportedMethod': 'ວິທີການທີ່ບໍ່ຮອງຮັບ: {{method}}',
+  'svelte.error.oauthFailed': 'ການເຂົ້າສູ່ລະບົບ OAuth ລົ້ມເຫຼວ',
 }

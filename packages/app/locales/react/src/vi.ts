@@ -9,7 +9,6 @@ export const vi: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider phải được sử dụng bên trong EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient phải được sử dụng bên trong HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider phải được sử dụng bên trong I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider phải được sử dụng bên trong LoggerProvider',
   'react.error.usePreviewOutsideProvider':

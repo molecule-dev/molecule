@@ -1,23 +1,24 @@
 /**
- * Tests for useHttp composable
+ * Tests for the useHttp composable family.
+ *
+ * The composables run outside a component here (`getCurrentInstance` is null),
+ * which is the documented out-of-setup fallback: a fresh lane per call and the
+ * mount-time `immediate` request firing synchronously.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 let mockInjectReturnValue: unknown = undefined
-const onMountedCallbacks: Array<() => void> = []
-const onUnmountedCallbacks: Array<() => void> = []
 
-// Mock Vue
+// Mock Vue: no component instance, no reactive scope — the plain-call path.
 vi.mock('vue', () => ({
   inject: vi.fn(() => mockInjectReturnValue),
   ref: vi.fn((v: unknown) => ({ value: v })),
   computed: vi.fn((fn: () => unknown) => ({ value: fn() })),
-  onMounted: vi.fn((cb: () => void) => {
-    onMountedCallbacks.push(cb)
-  }),
-  onUnmounted: vi.fn((cb: () => void) => {
-    onUnmountedCallbacks.push(cb)
-  }),
+  getCurrentInstance: vi.fn(() => null),
+  getCurrentScope: vi.fn(() => null),
+  onScopeDispose: vi.fn(),
+  onMounted: vi.fn(),
+  onUnmounted: vi.fn(),
 }))
 
 // Mock molecule packages
@@ -25,7 +26,12 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-i18n', () => ({}))
+vi.mock('@molecule/app-i18n', () => ({
+  t: vi.fn(
+    (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key,
+  ),
+}))
 vi.mock('@molecule/app-http', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-logger', () => ({}))
@@ -45,8 +51,6 @@ import {
 describe('useHttpClient', () => {
   beforeEach(() => {
     mockInjectReturnValue = undefined
-    onMountedCallbacks.length = 0
-    onUnmountedCallbacks.length = 0
   })
 
   it('returns the injected HTTP client', () => {
@@ -58,7 +62,7 @@ describe('useHttpClient', () => {
 
   it('throws when HTTP client is not injected', () => {
     mockInjectReturnValue = undefined
-    expect(() => useHttpClient()).toThrow('useHttpClient requires HttpProvider to be provided')
+    expect(() => useHttpClient()).toThrow('useHttpClient must be used within an HttpProvider')
   })
 })
 
@@ -74,9 +78,6 @@ describe('useHttp', () => {
   let mockClient: MockHttpClient
 
   beforeEach(() => {
-    onMountedCallbacks.length = 0
-    onUnmountedCallbacks.length = 0
-
     mockClient = {
       get: vi.fn(() => Promise.resolve({ data: { id: 1, name: 'test' }, status: 200 })),
       post: vi.fn(() => Promise.resolve({ data: { id: 2 }, status: 201 })),
@@ -103,23 +104,21 @@ describe('useHttp', () => {
     expect(result.error.value).toBeNull()
   })
 
-  it('initializes with loading true when immediate', () => {
-    const result = useHttp('GET', '/api/test', undefined, { immediate: true })
-    expect(result.loading.value).toBe(true)
+  it('immediate fires its request once, synchronously, outside a component', () => {
+    useHttp('GET', '/api/test', { immediate: true })
+    expect(mockClient.get).toHaveBeenCalledTimes(1)
+    expect(mockClient.get).toHaveBeenCalledWith('/api/test', {})
   })
 
   it('execute calls client.get for GET method', async () => {
     const result = useHttp('GET', '/api/users')
-    // Simulate mount to set mounted = true
-    onMountedCallbacks[0]()
     await result.execute()
-    expect(mockClient.get).toHaveBeenCalledWith('/api/users', undefined)
+    expect(mockClient.get).toHaveBeenCalledWith('/api/users', {})
   })
 
   it('execute calls client.post for POST method', async () => {
     const config = { data: { name: 'test' } } as never
     const result = useHttp('POST', '/api/users', config)
-    onMountedCallbacks[0]()
     await result.execute()
     expect(mockClient.post).toHaveBeenCalledWith('/api/users', { name: 'test' }, config)
   })
@@ -127,7 +126,6 @@ describe('useHttp', () => {
   it('execute calls client.put for PUT method', async () => {
     const config = { data: { name: 'updated' } } as never
     const result = useHttp('PUT', '/api/users/1', config)
-    onMountedCallbacks[0]()
     await result.execute()
     expect(mockClient.put).toHaveBeenCalledWith('/api/users/1', { name: 'updated' }, config)
   })
@@ -135,21 +133,18 @@ describe('useHttp', () => {
   it('execute calls client.patch for PATCH method', async () => {
     const config = { data: { name: 'patched' } } as never
     const result = useHttp('PATCH', '/api/users/1', config)
-    onMountedCallbacks[0]()
     await result.execute()
     expect(mockClient.patch).toHaveBeenCalledWith('/api/users/1', { name: 'patched' }, config)
   })
 
   it('execute calls client.delete for DELETE method', async () => {
     const result = useHttp('DELETE', '/api/users/1')
-    onMountedCallbacks[0]()
     await result.execute()
-    expect(mockClient.delete).toHaveBeenCalledWith('/api/users/1', undefined)
+    expect(mockClient.delete).toHaveBeenCalledWith('/api/users/1', {})
   })
 
   it('execute updates data on success', async () => {
     const result = useHttp('GET', '/api/users')
-    onMountedCallbacks[0]()
     await result.execute()
     expect(result.data.value).toEqual({ id: 1, name: 'test' })
     expect(result.loading.value).toBe(false)
@@ -159,7 +154,6 @@ describe('useHttp', () => {
   it('execute updates error on failure', async () => {
     mockClient.get.mockRejectedValue(new Error('Network error'))
     const result = useHttp('GET', '/api/users')
-    onMountedCallbacks[0]()
     await result.execute()
     expect(result.error.value).toBeInstanceOf(Error)
     expect(result.error.value!.message).toBe('Network error')
@@ -170,7 +164,6 @@ describe('useHttp', () => {
   it('execute wraps non-Error failures in Error', async () => {
     mockClient.get.mockRejectedValue('string error')
     const result = useHttp('GET', '/api/users')
-    onMountedCallbacks[0]()
     await result.execute()
     expect(result.error.value).toBeInstanceOf(Error)
     expect(result.error.value!.message).toBe('string error')
@@ -178,8 +171,7 @@ describe('useHttp', () => {
 
   it('execute calls onSuccess callback', async () => {
     const onSuccess = vi.fn()
-    const result = useHttp('GET', '/api/users', undefined, { onSuccess })
-    onMountedCallbacks[0]()
+    const result = useHttp('GET', '/api/users', { onSuccess })
     await result.execute()
     expect(onSuccess).toHaveBeenCalledWith({ id: 1, name: 'test' })
   })
@@ -187,15 +179,13 @@ describe('useHttp', () => {
   it('execute calls onError callback', async () => {
     const onError = vi.fn()
     mockClient.get.mockRejectedValue(new Error('fail'))
-    const result = useHttp('GET', '/api/users', undefined, { onError })
-    onMountedCallbacks[0]()
+    const result = useHttp('GET', '/api/users', { onError })
     await result.execute()
     expect(onError).toHaveBeenCalledWith(expect.any(Error))
   })
 
   it('execute returns data on success', async () => {
     const result = useHttp('GET', '/api/users')
-    onMountedCallbacks[0]()
     const data = await result.execute()
     expect(data).toEqual({ id: 1, name: 'test' })
   })
@@ -203,18 +193,42 @@ describe('useHttp', () => {
   it('execute returns null on failure', async () => {
     mockClient.get.mockRejectedValue(new Error('fail'))
     const result = useHttp('GET', '/api/users')
-    onMountedCallbacks[0]()
     const data = await result.execute()
     expect(data).toBeNull()
   })
 
-  it('execute returns null when not mounted', async () => {
+  it('a request superseded by reset still resolves its own data but the state stays cleared', async () => {
+    let resolveGet: ((value: { data: unknown; status: number }) => void) | null = null
+    mockClient.get.mockImplementation(
+      () =>
+        new Promise<{ data: unknown; status: number }>((resolve) => {
+          resolveGet = resolve
+        }),
+    )
     const result = useHttp('GET', '/api/users')
-    // Do NOT call onMounted - component was never mounted
-    // Simulate unmount to set mounted = false
-    onUnmountedCallbacks[0]()
-    const data = await result.execute()
-    expect(data).toBeNull()
+    const pending = result.execute()
+    result.reset()
+    resolveGet!({ data: { late: true }, status: 200 })
+    await expect(pending).resolves.toEqual({ late: true })
+    expect(result.data.value).toBeNull()
+    expect(result.loading.value).toBe(false)
+  })
+
+  it('the newest request owns the state an older one cannot overwrite', async () => {
+    const gates: Array<(value: { data: unknown; status: number }) => void> = []
+    mockClient.get.mockImplementation(
+      () =>
+        new Promise<{ data: unknown; status: number }>((resolve) => {
+          gates.push(resolve)
+        }),
+    )
+    const result = useHttp('GET', '/api/users')
+    const first = result.execute()
+    const second = result.execute()
+    gates[1]({ data: { who: 'second' }, status: 200 })
+    gates[0]({ data: { who: 'first' }, status: 200 })
+    await Promise.all([first, second])
+    expect(result.data.value).toEqual({ who: 'second' })
   })
 
   it('reset clears data, loading, and error', () => {
@@ -228,24 +242,15 @@ describe('useHttp', () => {
     expect(result.error.value).toBeNull()
   })
 
-  it('immediate option triggers execute on mount', () => {
-    useHttp('GET', '/api/users', undefined, { immediate: true })
-    expect(onMountedCallbacks.length).toBeGreaterThan(0)
-    // The onMounted callback should call execute when immediate is true
-    // We just verify it was registered
-  })
-
-  it('registers onMounted and onUnmounted callbacks', () => {
-    useHttp('GET', '/api/users')
-    expect(onMountedCallbacks.length).toBeGreaterThan(0)
-    expect(onUnmountedCallbacks.length).toBeGreaterThan(0)
+  it('an unsupported method throws without sending a request', async () => {
+    const result = useHttp('TRACE' as 'GET', '/api/users')
+    await expect(result.execute()).resolves.toBeNull()
+    expect(mockClient.get).not.toHaveBeenCalled()
   })
 })
 
 describe('useGet', () => {
   beforeEach(() => {
-    onMountedCallbacks.length = 0
-    onUnmountedCallbacks.length = 0
     mockInjectReturnValue = {
       get: vi.fn(() => Promise.resolve({ data: 'get-data', status: 200 })),
       post: vi.fn(),
@@ -257,16 +262,13 @@ describe('useGet', () => {
 
   it('creates a GET request composable', async () => {
     const result = useGet('/api/items')
-    onMountedCallbacks[0]()
     await result.execute()
-    expect((mockInjectReturnValue as never).get).toHaveBeenCalledWith('/api/items', undefined)
+    expect((mockInjectReturnValue as never).get).toHaveBeenCalledWith('/api/items', {})
   })
 })
 
 describe('usePost', () => {
   beforeEach(() => {
-    onMountedCallbacks.length = 0
-    onUnmountedCallbacks.length = 0
     mockInjectReturnValue = {
       get: vi.fn(),
       post: vi.fn(() => Promise.resolve({ data: 'post-data', status: 201 })),
@@ -279,7 +281,6 @@ describe('usePost', () => {
   it('creates a POST request composable', async () => {
     const config = { data: { name: 'new' } } as never
     const result = usePost('/api/items', config)
-    onMountedCallbacks[0]()
     await result.execute()
     expect((mockInjectReturnValue as never).post).toHaveBeenCalledWith(
       '/api/items',
@@ -291,8 +292,6 @@ describe('usePost', () => {
 
 describe('usePut', () => {
   beforeEach(() => {
-    onMountedCallbacks.length = 0
-    onUnmountedCallbacks.length = 0
     mockInjectReturnValue = {
       get: vi.fn(),
       post: vi.fn(),
@@ -305,7 +304,6 @@ describe('usePut', () => {
   it('creates a PUT request composable', async () => {
     const config = { data: { name: 'updated' } } as never
     const result = usePut('/api/items/1', config)
-    onMountedCallbacks[0]()
     await result.execute()
     expect((mockInjectReturnValue as never).put).toHaveBeenCalledWith(
       '/api/items/1',
@@ -317,8 +315,6 @@ describe('usePut', () => {
 
 describe('usePatch', () => {
   beforeEach(() => {
-    onMountedCallbacks.length = 0
-    onUnmountedCallbacks.length = 0
     mockInjectReturnValue = {
       get: vi.fn(),
       post: vi.fn(),
@@ -331,7 +327,6 @@ describe('usePatch', () => {
   it('creates a PATCH request composable', async () => {
     const config = { data: { field: 'val' } } as never
     const result = usePatch('/api/items/1', config)
-    onMountedCallbacks[0]()
     await result.execute()
     expect((mockInjectReturnValue as never).patch).toHaveBeenCalledWith(
       '/api/items/1',
@@ -343,8 +338,6 @@ describe('usePatch', () => {
 
 describe('useDelete', () => {
   beforeEach(() => {
-    onMountedCallbacks.length = 0
-    onUnmountedCallbacks.length = 0
     mockInjectReturnValue = {
       get: vi.fn(),
       post: vi.fn(),
@@ -356,8 +349,7 @@ describe('useDelete', () => {
 
   it('creates a DELETE request composable', async () => {
     const result = useDelete('/api/items/1')
-    onMountedCallbacks[0]()
     await result.execute()
-    expect((mockInjectReturnValue as never).delete).toHaveBeenCalledWith('/api/items/1', undefined)
+    expect((mockInjectReturnValue as never).delete).toHaveBeenCalledWith('/api/items/1', {})
   })
 })

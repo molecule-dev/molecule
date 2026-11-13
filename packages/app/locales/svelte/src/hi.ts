@@ -14,4 +14,26 @@ export const hi: SvelteTranslations = {
   'svelte.error.useChatOutsideProvider':
     'useChatProvider का उपयोग ChatProvider के अंदर किया जाना चाहिए',
   'svelte.error.useToastOutsideProvider': 'useToast का उपयोग ToastProvider के अंदर किया जाना चाहिए',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider का उपयोग WorkspaceProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider का उपयोग EditorProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider का उपयोग PreviewProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.useAuthOutsideProvider':
+    'useAuthClient का उपयोग AuthProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider का उपयोग ThemeProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance का उपयोग RouterProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.useHttpOutsideProvider':
+    'useHttpClient का उपयोग HttpProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider का उपयोग StorageProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider का उपयोग LoggerProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider का उपयोग StateProvider के भीतर ही किया जाना चाहिए।',
+  'svelte.error.unsupportedMethod': 'असमर्थित विधि: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth लॉगिन विफल',
 }

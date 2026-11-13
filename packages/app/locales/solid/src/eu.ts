@@ -23,4 +23,24 @@ export const eu: SolidTranslations = {
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider baten barruan erabili behar da',
   'solid.error.useChatOutsideProvider':
     'useChatProvider ChatProvider baten barruan erabili behar da',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider WorkspaceProvider baten barruan erabili behar da',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider EditorProvider baten barruan erabili behar da',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider PreviewProvider baten barruan erabili behar da',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient AuthProvider baten barruan erabili behar da',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient HttpProvider baten barruan erabili behar da',
+  'solid.error.unsupportedMethod': 'Metodo bateraezina: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider LoggerProvider baten barruan erabili behar da',
+  'solid.error.oauthFailed': 'OAuth saioa hastea huts egin du',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance RouterProvider baten barruan erabili behar da',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider StateProvider baten barruan erabili behar da',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider StorageProvider baten barruan erabili behar da',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider ThemeProvider baten barruan erabili behar da',
 }

@@ -22,4 +22,23 @@ export const mr: SvelteTranslations = {
     '\u0905\u091c\u094d\u091e\u093e\u0924 \u092a\u0947\u091c\u093f\u0928\u0947\u0936\u0928 \u0926\u093f\u0936\u093e: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider हे ChatProvider मध्ये वापरले पाहिजे',
   'svelte.error.useToastOutsideProvider': 'useToast हे ToastProvider मध्ये वापरले पाहिजे',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider चा वापर WorkspaceProvider च्या आतच केला पाहिजे.',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider चा वापर EditorProvider च्या आतच केला पाहिजे.',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider चा वापर PreviewProvider च्या आतच केला पाहिजे.',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient चा वापर AuthProvider च्या आतच केला पाहिजे.',
+  'svelte.error.useThemeOutsideProvider': 'useThemeProvider हे ThemeProvider मध्ये वापरले पाहिजे',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance चा वापर RouterProvider च्या आतच केला पाहिजे.',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient चा वापर HttpProvider च्या आतच केला पाहिजे.',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider चा वापर StorageProvider च्या आतच केला पाहिजे.',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider हे LoggerProvider मध्ये वापरले पाहिजे',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider चा वापर StateProvider च्या आतच केला पाहिजे.',
+  'svelte.error.unsupportedMethod': 'असमर्थित पद्धत: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth लॉगिन अयशस्वी झाले',
 }

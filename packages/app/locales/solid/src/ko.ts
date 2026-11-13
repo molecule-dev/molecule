@@ -22,4 +22,22 @@ export const ko: SolidTranslations = {
     'Accordion 컴포넌트는 Accordion 내에서 사용해야 합니다',
   'solid.error.useToastOutsideProvider': 'useToast는 ToastProvider 내에서 사용해야 합니다',
   'solid.error.useChatOutsideProvider': 'useChatProvider는 ChatProvider 내에서 사용해야 합니다',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider는 WorkspaceProvider 내에서 사용해야 합니다.',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider는 EditorProvider 내에서 사용해야 합니다.',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider는 PreviewProvider 내에서 사용해야 합니다.',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient는 AuthProvider 내에서 사용해야 합니다.',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient는 HttpProvider 내에서 사용해야 합니다.',
+  'solid.error.unsupportedMethod': '지원되지 않는 메서드: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider는 LoggerProvider 내에서 사용해야 합니다.',
+  'solid.error.oauthFailed': 'OAuth 로그인 실패',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance는 RouterProvider 내에서 사용해야 합니다.',
+  'solid.error.useStoreOutsideProvider': 'useStateProvider는 StateProvider 내에서 사용해야 합니다.',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider는 StorageProvider 내에서 사용해야 합니다.',
+  'solid.error.useThemeOutsideProvider': 'useThemeProvider는 ThemeProvider 내에서 사용해야 합니다.',
 }

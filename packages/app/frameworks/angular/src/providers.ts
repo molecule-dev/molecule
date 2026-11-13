@@ -15,11 +15,18 @@ import {
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
+import type { EditorProvider } from '@molecule/app-code-editor'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
+import type { WorkspaceProvider } from '@molecule/app-ide'
+import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
 import type { Router } from '@molecule/app-routing'
 import type { StateProvider } from '@molecule/app-state'
+import {
+  getProvider as getStateProvider,
+  hasProvider as hasStateProvider,
+} from '@molecule/app-state'
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
@@ -27,13 +34,16 @@ import { bumpLocaleVersion } from './i18n-reactive.js'
 import {
   AUTH_CLIENT,
   CHAT_PROVIDER,
+  EDITOR_PROVIDER,
   HTTP_CLIENT,
   I18N_PROVIDER,
   LOGGER_PROVIDER,
+  PREVIEW_PROVIDER,
   ROUTER,
   STATE_PROVIDER,
   STORAGE_PROVIDER,
   THEME_PROVIDER,
+  WORKSPACE_PROVIDER,
 } from './tokens.js'
 import type { MoleculeModuleConfig } from './types.js'
 
@@ -128,6 +138,36 @@ export function provideChat(provider: ChatProvider): EnvironmentProviders {
 }
 
 /**
+ * Registers the IDE workspace provider useWorkspace and useWorkspaceProvider use.
+ *
+ * @param provider - Workspace provider
+ * @returns Environment providers
+ */
+export function provideWorkspace(provider: WorkspaceProvider): EnvironmentProviders {
+  return makeEnvironmentProviders([{ provide: WORKSPACE_PROVIDER, useValue: provider }])
+}
+
+/**
+ * Registers the code editor provider useEditor and useEditorProvider use.
+ *
+ * @param provider - Editor provider
+ * @returns Environment providers
+ */
+export function provideEditor(provider: EditorProvider): EnvironmentProviders {
+  return makeEnvironmentProviders([{ provide: EDITOR_PROVIDER, useValue: provider }])
+}
+
+/**
+ * Registers the live preview provider usePreview and usePreviewProvider use.
+ *
+ * @param provider - Preview provider
+ * @returns Environment providers
+ */
+export function providePreview(provider: PreviewProvider): EnvironmentProviders {
+  return makeEnvironmentProviders([{ provide: PREVIEW_PROVIDER, useValue: provider }])
+}
+
+/**
  * Provide all molecule services at once.
  *
  * @param config - Configuration with all providers
@@ -153,8 +193,12 @@ export function provideChat(provider: ChatProvider): EnvironmentProviders {
 export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProviders {
   const providers: (Provider | EnvironmentProviders)[] = []
 
-  if (config.state) {
-    providers.push({ provide: STATE_PROVIDER, useValue: config.state })
+  // Like React's MoleculeProvider: fall back to the provider bonded under
+  // `@molecule/app-state` (the singleton every `createStore()` reads), so a
+  // scaffolded app needs no `state` option; an explicit `state` wins.
+  const stateProvider = config.state ?? (hasStateProvider() ? getStateProvider() : undefined)
+  if (stateProvider) {
+    providers.push({ provide: STATE_PROVIDER, useValue: stateProvider })
   }
   if (config.auth) {
     providers.push({ provide: AUTH_CLIENT, useValue: config.auth })
@@ -191,6 +235,15 @@ export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProvid
   }
   if (config.chat) {
     providers.push({ provide: CHAT_PROVIDER, useValue: config.chat })
+  }
+  if (config.workspace) {
+    providers.push({ provide: WORKSPACE_PROVIDER, useValue: config.workspace })
+  }
+  if (config.editor) {
+    providers.push({ provide: EDITOR_PROVIDER, useValue: config.editor })
+  }
+  if (config.preview) {
+    providers.push({ provide: PREVIEW_PROVIDER, useValue: config.preview })
   }
   if (config.awaitSession && config.auth) {
     const client = config.auth

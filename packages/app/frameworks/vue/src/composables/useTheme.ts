@@ -6,6 +6,7 @@
 
 import { computed, type ComputedRef, inject, onMounted, onUnmounted, ref } from 'vue'
 
+import { t } from '@molecule/app-i18n'
 import type { Theme, ThemeColors, ThemeProvider } from '@molecule/app-theme'
 
 import { ThemeKey } from '../injection-keys.js'
@@ -20,9 +21,48 @@ import type { UseThemeReturn } from '../types.js'
 export function useThemeProvider(): ThemeProvider {
   const provider = inject(ThemeKey)
   if (!provider) {
-    throw new Error('useThemeProvider requires ThemeProvider to be provided')
+    throw new Error(
+      t('vue.error.useThemeOutsideProvider', undefined, {
+        defaultValue: 'useThemeProvider must be used within a ThemeProvider',
+      }),
+    )
   }
   return provider
+}
+
+/**
+ * Subscribe to a theme provider, supporting both `subscribe` and the legacy
+ * `onThemeChange` methods.
+ *
+ * @param provider - The theme provider instance to subscribe to.
+ * @param callback - Listener invoked whenever the active theme changes.
+ * @returns An unsubscribe function that removes the listener.
+ */
+function subscribeToThemeProvider(provider: ThemeProvider, callback: () => void): () => void {
+  if (typeof provider.subscribe === 'function') {
+    return provider.subscribe(callback as unknown as (theme: Theme) => void)
+  }
+  const legacy = (provider as unknown as Record<string, (...args: unknown[]) => unknown>)
+    .onThemeChange
+  if (typeof legacy === 'function') {
+    return (
+      provider as unknown as Record<string, (...args: unknown[]) => () => void>
+    ).onThemeChange(callback)
+  }
+  return () => {}
+}
+
+/**
+ * The provider's current theme NAME, read through `getThemeName()` when the
+ * provider has one and `getTheme().name` otherwise.
+ *
+ * @param provider - The theme provider.
+ * @returns The active theme's name.
+ */
+function readThemeName(provider: ThemeProvider): string {
+  const byName = (provider as unknown as Record<string, (...args: unknown[]) => string>)
+    .getThemeName
+  return typeof byName === 'function' ? byName.call(provider) : provider.getTheme().name
 }
 
 /**
@@ -51,16 +91,20 @@ export function useTheme(): UseThemeReturn {
 
   // Reactive state
   const currentTheme = ref<Theme>(provider.getTheme())
-  const currentThemeName = ref<string>(provider.getTheme().name)
+  const currentThemeName = ref<string>(readThemeName(provider))
 
   // Subscribe to theme changes
   let unsubscribe: (() => void) | null = null
 
   onMounted(() => {
-    unsubscribe = provider.subscribe(() => {
+    unsubscribe = subscribeToThemeProvider(provider, () => {
       currentTheme.value = provider.getTheme()
-      currentThemeName.value = provider.getTheme().name
+      currentThemeName.value = readThemeName(provider)
     })
+    // A theme change between setup and mount sends no notification this
+    // subscription could see — reconcile it now.
+    currentTheme.value = provider.getTheme()
+    currentThemeName.value = readThemeName(provider)
   })
 
   onUnmounted(() => {
@@ -76,10 +120,24 @@ export function useTheme(): UseThemeReturn {
   const setTheme = (name: string): void => provider.setTheme(name)
 
   const toggleTheme = (): void => {
+    // Prefer the provider's purpose-built light/dark toggle. `toggleMode` is a
+    // required `ThemeProvider` method and the semantically correct action for a
+    // light/dark toggle — unlike `getThemes()`, which is optional, so the
+    // index-cycle below silently no-ops for providers that don't implement it.
+    // The index-cycle is kept only as a fallback for non-conforming providers
+    // that predate `toggleMode`.
+    if (typeof provider.toggleMode === 'function') {
+      provider.toggleMode()
+      return
+    }
     const themes = provider.getThemes?.() ?? []
-    const currentIndex = themes.findIndex((t) => t.name === currentThemeName.value)
-    const nextIndex = (currentIndex + 1) % themes.length
-    provider.setTheme(themes[nextIndex])
+    if (themes.length === 0) return
+    const currentName = readThemeName(provider)
+    const currentIndex = themes.findIndex((entry) =>
+      typeof entry === 'string' ? entry === currentName : entry.name === currentName,
+    )
+    const next = themes[(currentIndex + 1) % themes.length]
+    provider.setTheme(typeof next === 'string' ? next : (next as Theme).name)
   }
 
   return {

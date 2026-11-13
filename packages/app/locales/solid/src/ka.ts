@@ -22,4 +22,24 @@ export const ka: SolidTranslations = {
     'Accordion კომპონენტები უნდა გამოიყენოს Accordion-ის შიგნით',
   'solid.error.useToastOutsideProvider': 'useToast უნდა გამოიყენოს ToastProvider-ის შიგნით',
   'solid.error.useChatOutsideProvider': 'useChatProvider უნდა გამოიყენოთ ChatProvider-ის შიგნით',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider უნდა იქნას გამოყენებული WorkspaceProvider-ში.',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider უნდა იქნას გამოყენებული EditorProvider-ში',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider უნდა იქნას გამოყენებული PreviewProvider-ში',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient უნდა იქნას გამოყენებული AuthProvider-ში',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient უნდა იქნას გამოყენებული HttpProvider-ში.',
+  'solid.error.unsupportedMethod': 'მხარდაუჭერელი მეთოდი: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'LoggerProvider-ში უნდა იქნას გამოყენებული useLoggerProvider',
+  'solid.error.oauthFailed': 'OAuth-ში შესვლა ვერ მოხერხდა',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance უნდა იქნას გამოყენებული RouterProvider-ში.',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider უნდა იქნას გამოყენებული StateProvider-ში',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider უნდა იქნას გამოყენებული StorageProvider-ში',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider უნდა იქნას გამოყენებული ThemeProvider-ში',
 }

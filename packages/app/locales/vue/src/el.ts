@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const el: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'Το useRouterInstance πρέπει να χρησιμοποιείται εντός ενός RouterProvider',
-  'vue.error.useI18nOutsideProvider':
-    'Το useI18nProvider πρέπει να χρησιμοποιείται εντός ενός I18nProvider',
   'vue.error.useStoreOutsideProvider':
     'Το useStateProvider πρέπει να χρησιμοποιείται εντός ενός StateProvider',
   'vue.error.useThemeOutsideProvider':
@@ -23,4 +21,11 @@ export const el: VueTranslations = {
   'vue.error.unsupportedMethod': 'Μη υποστηριζόμενη μέθοδος: {{method}}',
   'vue.error.useChatOutsideProvider':
     'Το useChatProvider πρέπει να χρησιμοποιείται εντός ενός ChatProvider',
+  'vue.error.useEditorOutsideProvider':
+    'Το useEditorProvider πρέπει να χρησιμοποιηθεί εντός ενός EditorProvider',
+  'vue.error.oauthFailed': 'Η σύνδεση στο OAuth απέτυχε',
+  'vue.error.usePreviewOutsideProvider':
+    'Το usePreviewProvider πρέπει να χρησιμοποιηθεί μέσα σε ένα PreviewProvider',
+  'vue.error.useWorkspaceOutsideProvider':
+    'Το useWorkspaceProvider πρέπει να χρησιμοποιείται εντός ενός WorkspaceProvider',
 }

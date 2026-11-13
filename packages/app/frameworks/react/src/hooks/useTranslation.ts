@@ -13,27 +13,21 @@ import type {
   NumberFormatOptions,
   TranslateOptions,
 } from '@molecule/app-i18n'
-import { I18nError, t } from '@molecule/app-i18n'
+import { getProvider, I18nError } from '@molecule/app-i18n'
 
 import { I18nContext } from '../contexts.js'
 import type { UseTFunction, UseTranslationResult } from '../types.js'
 
 /**
- * Hook to access the i18n provider from context.
+ * Hook to access the i18n provider: the one the nearest `I18nProvider` supplies, otherwise
+ * the bonded `@molecule/app-i18n` provider, which is the one the static `t` reads. A component
+ * can therefore translate through {@link useTranslation} wherever the static `t` works, and it
+ * re-renders when the locale changes.
  *
- * @returns The i18n provider from context
- * @throws {Error} Error if used outside of I18nProvider
+ * @returns The i18n provider from context, or the bonded provider.
  */
 export function useI18nProvider(): I18nProvider {
-  const provider = useContext(I18nContext)
-  if (!provider) {
-    throw new Error(
-      t('react.error.useI18nOutsideProvider', undefined, {
-        defaultValue: 'useI18nProvider must be used within an I18nProvider',
-      }),
-    )
-  }
-  return provider
+  return useContext(I18nContext) ?? getProvider()
 }
 
 /**

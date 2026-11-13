@@ -8,7 +8,6 @@ export const is: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider verður að nota innan ChatProvider',
   'react.error.useEditorOutsideProvider': 'useEditorProvider verður að nota innan EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient verður að nota innan HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider verður að nota innan I18nProvider',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider verður að nota innan LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider verður að nota innan PreviewProvider',

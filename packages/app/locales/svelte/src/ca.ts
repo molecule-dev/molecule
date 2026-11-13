@@ -13,4 +13,24 @@ export const ca: Partial<SvelteTranslations> = {
   'svelte.error.noLoggerProvider': 'Proveïdor del registrador no trobat en context',
   'svelte.error.useChatOutsideProvider': "useChatProvider s'ha d'utilitzar dins d'un ChatProvider.",
   'svelte.error.useToastOutsideProvider': "useToast s'ha d'utilitzar dins d'un ToastProvider.",
+  'svelte.error.useWorkspaceOutsideProvider':
+    "useWorkspaceProvider s'ha d'utilitzar dins d'un WorkspaceProvider.",
+  'svelte.error.useEditorOutsideProvider':
+    "useEditorProvider s'ha d'utilitzar dins d'un EditorProvider.",
+  'svelte.error.usePreviewOutsideProvider':
+    "usePreviewProvider s'ha d'utilitzar dins d'un PreviewProvider.",
+  'svelte.error.useAuthOutsideProvider': "useAuthClient s'ha d'utilitzar dins d'un AuthProvider.",
+  'svelte.error.useThemeOutsideProvider':
+    "useThemeProvider s'ha d'utilitzar dins d'un ThemeProvider.",
+  'svelte.error.useRouterOutsideProvider':
+    "useRouterInstance s'ha d'utilitzar dins d'un RouterProvider.",
+  'svelte.error.useHttpOutsideProvider': "useHttpClient s'ha d'utilitzar dins d'un HttpProvider.",
+  'svelte.error.useStorageOutsideProvider':
+    "useStorageProvider s'ha d'utilitzar dins d'un StorageProvider.",
+  'svelte.error.useLoggerOutsideProvider':
+    "useLoggerProvider s'ha d'utilitzar dins d'un LoggerProvider.",
+  'svelte.error.useStoreOutsideProvider':
+    "useStateProvider s'ha d'utilitzar dins d'un StateProvider.",
+  'svelte.error.unsupportedMethod': 'Mètode no compatible: {{method}}',
+  'svelte.error.oauthFailed': "L'inici de sessió amb OAuth ha fallat",
 }

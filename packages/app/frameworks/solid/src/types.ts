@@ -8,9 +8,12 @@ import type { Accessor, JSX, Setter } from 'solid-js'
 
 import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
+import type { EditorProvider } from '@molecule/app-code-editor'
 import type { FormController, FormOptions } from '@molecule/app-forms'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
+import type { WorkspaceProvider } from '@molecule/app-ide'
+import type { PreviewProvider } from '@molecule/app-live-preview'
 import type { Logger, LoggerProvider } from '@molecule/app-logger'
 import type { QueryParams, RouteLocation, RouteParams, Router } from '@molecule/app-routing'
 import type { StateProvider, Store as MoleculeStore, StoreConfig } from '@molecule/app-state'
@@ -44,6 +47,12 @@ export interface MoleculeConfig {
   logger?: LoggerProvider
   /** The AI chat provider useChat and useChatProvider use. */
   chat?: ChatProvider
+  /** The IDE workspace service useWorkspace and useWorkspaceProvider use. */
+  workspace?: WorkspaceProvider
+  /** The code editor service useEditor and useEditorProvider use. */
+  editor?: EditorProvider
+  /** The live preview service usePreview and usePreviewProvider use. */
+  preview?: PreviewProvider
 }
 
 /**

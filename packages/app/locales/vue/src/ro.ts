@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const ro: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance trebuie utilizat \u00een interiorul unui RouterProvider',
-  'vue.error.useI18nOutsideProvider':
-    'useI18nProvider trebuie utilizat \u00een interiorul unui I18nProvider',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider trebuie utilizat \u00een interiorul unui StateProvider',
   'vue.error.useThemeOutsideProvider':
@@ -23,4 +21,11 @@ export const ro: VueTranslations = {
   'vue.error.unsupportedMethod': 'Metod\u0103 nesuportat\u0103: {{method}}',
   'vue.error.useChatOutsideProvider':
     'useChatProvider trebuie utilizat în interiorul unui ChatProvider',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider trebuie utilizat în cadrul unui EditorProvider',
+  'vue.error.oauthFailed': 'Conectarea OAuth a eșuat',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider trebuie utilizat în cadrul unui PreviewProvider',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider trebuie utilizat în cadrul unui WorkspaceProvider',
 }

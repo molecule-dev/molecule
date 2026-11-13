@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const hy: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance-\u0568 \u057a\u0565\u057f\u0584 \u0567 \u0585\u0563\u057f\u0561\u0563\u0578\u0580\u056e\u057e\u056b RouterProvider-\u056b \u0576\u0565\u0580\u057d\u0578\u0582\u0574',
-  'vue.error.useI18nOutsideProvider':
-    'useI18nProvider-\u0568 \u057a\u0565\u057f\u0584 \u0567 \u0585\u0563\u057f\u0561\u0563\u0578\u0580\u056e\u057e\u056b I18nProvider-\u056b \u0576\u0565\u0580\u057d\u0578\u0582\u0574',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider-\u0568 \u057a\u0565\u057f\u0584 \u0567 \u0585\u0563\u057f\u0561\u0563\u0578\u0580\u056e\u057e\u056b StateProvider-\u056b \u0576\u0565\u0580\u057d\u0578\u0582\u0574',
   'vue.error.useThemeOutsideProvider':
@@ -24,4 +22,11 @@ export const hy: VueTranslations = {
     '\u0549\u0561\u057b\u0561\u056f\u0581\u057e\u0561\u056e \u0574\u0565\u0569\u0578\u0564: {{method}}',
   'vue.error.useChatOutsideProvider':
     'useChatProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B ChatProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider-ը պետք է օգտագործվի EditorProvider-ի ներսում',
+  'vue.error.oauthFailed': 'OAuth մուտքը ձախողվեց',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider-ը պետք է օգտագործվի PreviewProvider-ի ներսում',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider-ը պետք է օգտագործվի WorkspaceProvider-ի շրջանակներում։',
 }

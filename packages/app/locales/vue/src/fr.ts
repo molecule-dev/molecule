@@ -5,8 +5,6 @@ export const fr: Partial<VueTranslations> = {
   'vue.error.unsupportedMethod': 'Méthode non prise en charge : {{method}}',
   'vue.error.useRouterOutsideProvider':
     "La méthode useRouterInstance doit être utilisée au sein d'un RouterProvider.",
-  'vue.error.useI18nOutsideProvider':
-    "La fonction useI18nProvider doit être utilisée à l'intérieur d'un I18nProvider.",
   'vue.error.useStoreOutsideProvider':
     "useStateProvider doit être utilisé à l'intérieur d'un StateProvider.",
   'vue.error.useThemeOutsideProvider':
@@ -23,4 +21,11 @@ export const fr: Partial<VueTranslations> = {
     "La méthode useToast doit être utilisée à l'intérieur d'un ToastProvider.",
   'vue.error.useChatOutsideProvider':
     "La fonction useChatProvider doit être utilisée au sein d'un ChatProvider.",
+  'vue.error.useEditorOutsideProvider':
+    "La méthode useEditorProvider doit être utilisée à l'intérieur d'un EditorProvider.",
+  'vue.error.oauthFailed': 'Échec de la connexion OAuth',
+  'vue.error.usePreviewOutsideProvider':
+    "La méthode usePreviewProvider doit être utilisée à l'intérieur d'un PreviewProvider.",
+  'vue.error.useWorkspaceOutsideProvider':
+    "La fonction useWorkspaceProvider doit être utilisée à l'intérieur d'un WorkspaceProvider.",
 }

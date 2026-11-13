@@ -22,4 +22,24 @@ export const mn: SvelteTranslations = {
     '\u04ae\u043b \u043c\u044d\u0434\u044d\u0433\u0434\u044d\u0445\u0433\u04af\u0439 \u0445\u0443\u0443\u0434\u0430\u0441\u043b\u0430\u043b\u0442\u044b\u043d \u0447\u0438\u0433\u043b\u044d\u043b: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider-ийг ChatProvider дотор ашиглах ёстой',
   'svelte.error.useToastOutsideProvider': 'useToast-ийг ToastProvider дотор ашиглах ёстой',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider нь WorkspaceProvider дотор ашиглагдах ёстой',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider нь EditorProvider дотор ашиглагдах ёстой',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider нь PreviewProvider дотор ашиглагдах ёстой',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient нь AuthProvider дотор ашиглагдах ёстой',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider нь ThemeProvider дотор ашиглагдах ёстой',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance нь RouterProvider дотор ашиглагдах ёстой',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient нь HttpProvider дотор ашиглагдах ёстой',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider нь StorageProvider дотор ашиглагдах ёстой',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider нь LoggerProvider дотор ашиглагдах ёстой',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider нь StateProvider дотор ашиглагдах ёстой',
+  'svelte.error.unsupportedMethod': 'Дэмжигдээгүй арга: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth нэвтрэх ажиллагаа амжилтгүй боллоо',
 }

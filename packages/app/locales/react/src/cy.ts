@@ -7,7 +7,6 @@ export const cy: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'Rhaid defnyddio useChatProvider o fewn ChatProvider',
   'react.error.useEditorOutsideProvider': 'Rhaid defnyddio useEditorProvider o fewn EditorProvider',
   'react.error.useHttpOutsideProvider': 'Rhaid defnyddio useHttpClient o fewn HttpProvider',
-  'react.error.useI18nOutsideProvider': 'Rhaid defnyddio useI18nProvider o fewn I18nProvider',
   'react.error.useLoggerOutsideProvider': 'Rhaid defnyddio useLoggerProvider o fewn LoggerProvider',
   'react.error.usePreviewOutsideProvider':
     'Rhaid defnyddio usePreviewProvider o fewn PreviewProvider',

@@ -9,7 +9,6 @@ export const sw: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider lazima utumike ndani ya EditorProvider',
   'react.error.useHttpOutsideProvider': 'useHttpClient lazima utumike ndani ya HttpProvider',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider lazima utumike ndani ya I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider lazima utumike ndani ya LoggerProvider',
   'react.error.usePreviewOutsideProvider':

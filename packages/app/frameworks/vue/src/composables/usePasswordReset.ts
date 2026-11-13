@@ -1,10 +1,10 @@
 /**
- * Vue composable for password reset with async state tracking.
+ * Vue composable for password reset flow with async state tracking.
  *
  * @module
  */
 
-import type { ComputedRef } from 'vue'
+import { computed, type ComputedRef } from 'vue'
 
 import type { PasswordResetConfirm, PasswordResetRequest } from '@molecule/app-auth'
 import type { PromiseStatus } from '@molecule/app-utilities'
@@ -33,20 +33,23 @@ export interface UsePasswordResetReturn {
 export function usePasswordReset(): UsePasswordResetReturn {
   const client = useAuthClient()
 
-  const request = usePromise((data: PasswordResetRequest) => client.requestPasswordReset(data))
-
-  const confirm = usePromise((data: PasswordResetConfirm) => client.confirmPasswordReset(data))
+  const [requestState, requestCall] = usePromise((data: PasswordResetRequest) =>
+    client.requestPasswordReset(data),
+  )
+  const [confirmState, confirmCall] = usePromise((data: PasswordResetConfirm) =>
+    client.confirmPasswordReset(data),
+  )
 
   return {
-    requestStatus: request.status,
-    requestError: request.error,
-    confirmStatus: confirm.status,
-    confirmError: confirm.error,
-    requestReset: request.call,
-    confirmReset: confirm.call,
+    requestStatus: computed(() => requestState.status),
+    requestError: computed(() => requestState.error),
+    confirmStatus: computed(() => confirmState.status),
+    confirmError: computed(() => confirmState.error),
+    requestReset: requestCall,
+    confirmReset: confirmCall,
     reset: () => {
-      request.reset()
-      confirm.reset()
+      requestState.reset()
+      confirmState.reset()
     },
   }
 }

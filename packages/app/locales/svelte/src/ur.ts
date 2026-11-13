@@ -24,4 +24,26 @@ export const ur: SvelteTranslations = {
     'useChatProvider کو ChatProvider کے اندر استعمال کیا جانا چاہیے',
   'svelte.error.useToastOutsideProvider':
     'useToast کو ToastProvider کے اندر استعمال کیا جانا چاہیے',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider کو WorkspaceProvider کے اندر استعمال کیا جانا چاہیے۔',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider کو EditorProvider کے اندر استعمال کرنا چاہیے۔',
+  'svelte.error.usePreviewOutsideProvider':
+    'UsePreviewProvider کا استعمال ایک PreviewProvider کے اندر ہونا چاہیے۔',
+  'svelte.error.useAuthOutsideProvider':
+    'useAuthClient کا استعمال AuthProvider کے اندر ہونا چاہیے۔',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider کو تھیم پرووائیڈر کے اندر استعمال کیا جانا چاہیے۔',
+  'svelte.error.useRouterOutsideProvider':
+    'UseRouterInstance کا استعمال RouterProvider کے اندر ہونا چاہیے۔',
+  'svelte.error.useHttpOutsideProvider':
+    'useHttpClient کا استعمال HttpProvider کے اندر ہونا چاہیے۔',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider کو StorageProvider کے اندر استعمال کرنا چاہیے۔',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider کو LoggerProvider کے اندر استعمال کیا جانا چاہیے۔',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider کو ایک StateProvider کے اندر استعمال کرنا چاہیے۔',
+  'svelte.error.unsupportedMethod': 'غیر تعاون یافتہ طریقہ: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth لاگ ان ناکام ہوگیا۔',
 }

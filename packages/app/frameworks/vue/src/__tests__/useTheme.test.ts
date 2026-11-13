@@ -11,6 +11,7 @@ const onUnmountedCallbacks: Array<() => void> = []
 vi.mock('vue', () => ({
   inject: vi.fn(() => mockInjectReturnValue),
   ref: vi.fn((v: unknown) => ({ value: v })),
+  shallowRef: vi.fn((v: unknown) => ({ value: v })),
   computed: vi.fn((fn: () => unknown) => ({ value: fn() })),
   onMounted: vi.fn((cb: () => void) => {
     onMountedCallbacks.push(cb)
@@ -25,7 +26,12 @@ vi.mock('@molecule/app-state', () => ({}))
 vi.mock('@molecule/app-auth', () => ({}))
 vi.mock('@molecule/app-theme', () => ({}))
 vi.mock('@molecule/app-routing', () => ({}))
-vi.mock('@molecule/app-i18n', () => ({}))
+vi.mock('@molecule/app-i18n', () => ({
+  t: vi.fn(
+    (key: string, _values?: unknown, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key,
+  ),
+}))
 vi.mock('@molecule/app-http', () => ({}))
 vi.mock('@molecule/app-storage', () => ({}))
 vi.mock('@molecule/app-logger', () => ({}))
@@ -61,9 +67,7 @@ describe('useThemeProvider', () => {
 
   it('throws when theme provider is not injected', () => {
     mockInjectReturnValue = undefined
-    expect(() => useThemeProvider()).toThrow(
-      'useThemeProvider requires ThemeProvider to be provided',
-    )
+    expect(() => useThemeProvider()).toThrow('useThemeProvider must be used within a ThemeProvider')
   })
 })
 
@@ -129,7 +133,7 @@ describe('useTheme', () => {
     const result = useTheme()
     result.toggleTheme()
     // Current theme is 'light' (index 0), should toggle to 'dark' (index 1)
-    expect(mockProvider.setTheme).toHaveBeenCalledWith({ name: 'dark', mode: 'dark' })
+    expect(mockProvider.setTheme).toHaveBeenCalledWith('dark')
   })
 
   it('toggleTheme wraps around to first theme', () => {
@@ -138,7 +142,7 @@ describe('useTheme', () => {
     const result = useTheme()
     result.toggleTheme()
     // Current theme is 'dark' (index 1), should wrap to 'light' (index 0)
-    expect(mockProvider.setTheme).toHaveBeenCalledWith({ name: 'light', mode: 'light' })
+    expect(mockProvider.setTheme).toHaveBeenCalledWith('light')
   })
 
   it('toggleTheme handles missing getThemes gracefully', () => {

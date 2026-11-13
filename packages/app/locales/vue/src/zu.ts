@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const zu: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance kumele isetshenziswe ngaphakathi kwe-RouterProvider',
-  'vue.error.useI18nOutsideProvider':
-    'useI18nProvider kumele isetshenziswe ngaphakathi kwe-I18nProvider',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider kumele isetshenziswe ngaphakathi kwe-StateProvider',
   'vue.error.useThemeOutsideProvider':
@@ -23,4 +21,11 @@ export const zu: VueTranslations = {
   'vue.error.unsupportedMethod': 'Indlela engasekelwe: {{method}}',
   'vue.error.useChatOutsideProvider':
     'useChatProvider kumele kusetshenziswe ngaphakathi kwe-ChatProvider',
+  'vue.error.useEditorOutsideProvider':
+    'i-useEditorProvider kumele isetshenziswe ngaphakathi kwe-EditorProvider',
+  'vue.error.oauthFailed': 'Ukungena ngemvume kwe-OAuth kwehlulekile',
+  'vue.error.usePreviewOutsideProvider':
+    'i-usePreviewProvider kumele isetshenziswe ngaphakathi kwe-PreviewProvider',
+  'vue.error.useWorkspaceOutsideProvider':
+    'I-useWorkspaceProvider kumele isetshenziswe ngaphakathi kwe-WorkspaceProvider',
 }

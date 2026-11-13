@@ -50,10 +50,26 @@ const stopSubscription = (stop: unknown): void => {
  * a component's `$store` reads are (a store may only be current while it has a subscriber).
  * A store is anything whose `subscribe` calls back at once with the current value (the
  * Svelte store contract); an object whose `subscribe` does not (a router) is not one.
+ *
+ * Injected service objects are never probed: several of them carry a `subscribe`
+ * method, and probing one would call it — recording a service call and a
+ * listener the binding itself never makes (React's `useWorkspaceProvider`
+ * returns the provider object untouched, and so must every framework). The
+ * kit's own README excludes such objects from the store contract; identifying
+ * them by identity (they are exactly the services the composition root passed)
+ * is the only way to probe nothing the binding did not create.
  */
 class StoreReader {
   private readonly live = new Map<object, { value: unknown; stop: unknown }>()
   private readonly notStores = new WeakSet<object>()
+  private readonly services: ReadonlySet<unknown>
+
+  /**
+   * @param services - The service objects the composition root passed; never probed.
+   */
+  constructor(services: ReadonlySet<unknown>) {
+    this.services = services
+  }
 
   /**
    * Subscribes to a value if it is a store not yet subscribed.
@@ -62,6 +78,7 @@ class StoreReader {
    */
   track(value: unknown): void {
     if (!value || (typeof value !== 'object' && typeof value !== 'function')) return
+    if (this.services.has(value)) return
     const key = value as object
     if (this.live.has(key) || this.notStores.has(key)) return
     const subscribe = (value as { subscribe?: unknown }).subscribe
@@ -130,10 +147,11 @@ export const svelteBindingAdapter: BindingAdapter = {
     let instance: Record<string, unknown> | null = null
     // A reactiveArgs hook reads its options from this store for the life of one mount.
     const reactiveOptions = writable<unknown>(args[0])
-    let stores = new StoreReader()
+    const serviceObjects = new Set(Object.values(services))
+    let stores = new StoreReader(serviceObjects)
     const config = { ...services }
     const start = (current: unknown[]): void => {
-      stores = new StoreReader()
+      stores = new StoreReader(serviceObjects)
       if (options.render === 'text') {
         const props = Object.fromEntries(
           Object.entries((current[0] as Record<string, unknown>) ?? {}).map(([name, value]) => [

@@ -18,4 +18,22 @@ export const lv: SvelteTranslations = {
     'Nezin\u0101ms lapo\u0161anas virziens: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider jāizmanto ChatProvider ietvaros',
   'svelte.error.useToastOutsideProvider': 'useToast jāizmanto ToastProvider ietvaros',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ir jāizmanto WorkspaceProvider ietvaros.',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider ir jāizmanto EditorProvider ietvaros.',
+  'svelte.error.usePreviewOutsideProvider':
+    'PreviewProvider ietvaros jāizmanto usePreviewProvider.',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient ir jāizmanto AuthProvider ietvaros.',
+  'svelte.error.useThemeOutsideProvider': 'useThemeProvider ir jāizmanto ThemeProvider ietvaros.',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance ir jāizmanto RouterProvider ietvaros.',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient ir jāizmanto HttpProvider ietvaros.',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider ir jāizmanto StorageProvider ietvaros.',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider ir jāizmanto LoggerProvider ietvaros.',
+  'svelte.error.useStoreOutsideProvider': 'useStateProvider ir jāizmanto StateProvider ietvaros.',
+  'svelte.error.unsupportedMethod': 'Neatbalstīta metode: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth pieteikšanās neizdevās.',
 }

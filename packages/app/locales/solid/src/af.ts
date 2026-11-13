@@ -22,4 +22,24 @@ export const af: Partial<SolidTranslations> = {
     "Trekklavierkomponente moet binne 'n trekklavier gebruik word",
   'solid.error.useToastOutsideProvider': "useToast moet binne 'n ToastProvider gebruik word",
   'solid.error.useChatOutsideProvider': "useChatProvider moet binne 'n ChatProvider gebruik word.",
+  'solid.error.useWorkspaceOutsideProvider':
+    "useWorkspaceProvider moet binne 'n Werkruimteverskaffer gebruik word.",
+  'solid.error.useEditorOutsideProvider':
+    "useEditorProvider moet binne 'n EditorProvider gebruik word.",
+  'solid.error.usePreviewOutsideProvider':
+    "usePreviewProvider moet binne 'n PreviewProvider gebruik word.",
+  'solid.error.useAuthOutsideProvider': "useAuthClient moet binne 'n AuthProvider gebruik word.",
+  'solid.error.useHttpOutsideProvider': "useHttpClient moet binne 'n HttpProvider gebruik word",
+  'solid.error.unsupportedMethod': 'Nie-ondersteunde metode: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    "useLoggerProvider moet binne 'n LoggerProvider gebruik word",
+  'solid.error.oauthFailed': 'OAuth-aanmelding het misluk',
+  'solid.error.useRouterOutsideProvider':
+    "useRouterInstance moet binne 'n RouterProvider gebruik word",
+  'solid.error.useStoreOutsideProvider':
+    "useStateProvider moet binne 'n StateProvider gebruik word.",
+  'solid.error.useStorageOutsideProvider':
+    "useStorageProvider moet binne 'n StorageProvider gebruik word.",
+  'solid.error.useThemeOutsideProvider':
+    "useThemeProvider moet binne 'n Temaverskaffer gebruik word",
 }

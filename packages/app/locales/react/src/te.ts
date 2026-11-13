@@ -7,7 +7,6 @@ export const te: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider ChatProvider లోపల ఉపయోగించాలి',
   'react.error.useEditorOutsideProvider': 'useEditorProvider EditorProvider లోపల ఉపయోగించాలి',
   'react.error.useHttpOutsideProvider': 'useHttpClient HttpProvider లోపల ఉపయోగించాలి',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider I18nProvider లోపల ఉపయోగించాలి',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider LoggerProvider లోపల ఉపయోగించాలి',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider PreviewProvider లోపల ఉపయోగించాలి',
   'react.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider లోపల ఉపయోగించాలి',

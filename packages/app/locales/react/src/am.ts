@@ -7,7 +7,6 @@ export const am: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider በChatProvider ውስጥ መጠቀም አለበት',
   'react.error.useEditorOutsideProvider': 'useEditorProvider በEditorProvider ውስጥ መጠቀም አለበት',
   'react.error.useHttpOutsideProvider': 'useHttpClient በHttpProvider ውስጥ መጠቀም አለበት',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider በI18nProvider ውስጥ መጠቀም አለበት',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider በLoggerProvider ውስጥ መጠቀም አለበት',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider በPreviewProvider ውስጥ መጠቀም አለበት',
   'react.error.useRouterOutsideProvider': 'useRouterInstance በRouterProvider ውስጥ መጠቀም አለበት',

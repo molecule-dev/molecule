@@ -22,4 +22,17 @@ export const km: SvelteTranslations = {
     '\u1791\u17b7\u179f\u178a\u17c5\u1793\u17c3\u1780\u17b6\u179a\u1794\u17c9\u17b6\u1784\u17a2\u17b7\u1793\u17c3\u179f\u17b7\u1793\u1798\u17b7\u1793\u179f\u17d2\u1782\u17b6\u179b\u17cb: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider ត្រូវតែប្រើនៅក្នុង ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast ត្រូវតែប្រើនៅក្នុង ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ត្រូវតែប្រើនៅក្នុង WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider': 'useEditorProvider ត្រូវតែប្រើនៅក្នុង EditorProvider',
+  'svelte.error.usePreviewOutsideProvider': 'usePreviewProvider ត្រូវតែប្រើនៅក្នុង PreviewProvider',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient ត្រូវតែប្រើនៅក្នុង AuthProvider',
+  'svelte.error.useThemeOutsideProvider': 'useThemeProvider ត្រូវតែប្រើនៅក្នុង ThemeProvider',
+  'svelte.error.useRouterOutsideProvider': 'useRouterInstance ត្រូវតែប្រើនៅក្នុង RouterProvider',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient ត្រូវតែប្រើនៅក្នុង HttpProvider',
+  'svelte.error.useStorageOutsideProvider': 'useStorageProvider ត្រូវតែប្រើនៅក្នុង StorageProvider',
+  'svelte.error.useLoggerOutsideProvider': 'useLoggerProvider ត្រូវតែប្រើនៅក្នុង LoggerProvider',
+  'svelte.error.useStoreOutsideProvider': 'useStateProvider ត្រូវតែប្រើនៅក្នុង StateProvider',
+  'svelte.error.unsupportedMethod': 'វិធីសាស្ត្រដែលមិនគាំទ្រ៖ {{method}}',
+  'svelte.error.oauthFailed': 'ការចូល OAuth បរាជ័យ',
 }

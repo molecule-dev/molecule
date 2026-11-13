@@ -8,7 +8,6 @@ export const ne: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider ChatProvider भित्र प्रयोग गर्नुपर्छ',
   'react.error.useEditorOutsideProvider': 'useEditorProvider EditorProvider भित्र प्रयोग गर्नुपर्छ',
   'react.error.useHttpOutsideProvider': 'useHttpClient HttpProvider भित्र प्रयोग गर्नुपर्छ',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider I18nProvider भित्र प्रयोग गर्नुपर्छ',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider LoggerProvider भित्र प्रयोग गर्नुपर्छ',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider PreviewProvider भित्र प्रयोग गर्नुपर्छ',

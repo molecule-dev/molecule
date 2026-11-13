@@ -22,4 +22,24 @@ export const ml: SvelteTranslations = {
     '\u0d05\u0d1c\u0d4d\u0d1e\u0d3e\u0d24\u0d2e\u0d3e\u0d2f \u0d2a\u0d47\u0d1c\u0d3f\u0d28\u0d47\u0d37\u0d7b \u0d26\u0d3f\u0d36: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider ഒരു ChatProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'svelte.error.useToastOutsideProvider': 'useToast ഒരു ToastProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ഒരു WorkspaceProvider-നുള്ളിൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider ഒരു EditorProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider ഒരു PreviewProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient ഒരു AuthProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider ഒരു ThemeProvider-നുള്ളിൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance ഒരു RouterProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient ഒരു HttpProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider ഒരു StorageProvider-നുള്ളിൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider ഒരു LoggerProvider-നുള്ളിൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider ഒരു StateProvider-നുള്ളിൽ തന്നെ ഉപയോഗിക്കണം.',
+  'svelte.error.unsupportedMethod': 'പിന്തുണയ്ക്കാത്ത രീതി: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth ലോഗിൻ പരാജയപ്പെട്ടു',
 }

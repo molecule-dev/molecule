@@ -603,7 +603,6 @@
     "app::passwordStrengthMeter.ariaValueText :: default built in JavaScript",
     "app::progressRings.summary :: default built in JavaScript",
     "app::push.error.missingDependency :: default differs from en.ts",
-    "app::react.error.unsupportedMethod :: default built in JavaScript",
     "app::routing.error.missingParam :: default built in JavaScript",
     "app::routing.error.noNavigationRef :: default differs from en.ts",
     "app::routing.error.routeNotFound :: default built in JavaScript",

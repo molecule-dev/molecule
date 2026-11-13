@@ -4,8 +4,6 @@ import type { VueTranslations } from './types.js'
 export const ta: VueTranslations = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance ஒரு RouterProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
-  'vue.error.useI18nOutsideProvider':
-    'useI18nProvider ஒரு I18nProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'vue.error.useStoreOutsideProvider':
     'useStateProvider ஒரு StateProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'vue.error.useThemeOutsideProvider':
@@ -22,4 +20,11 @@ export const ta: VueTranslations = {
   'vue.error.unsupportedMethod': 'ஆதரிக்கப்படாத முறை: {{method}}',
   'vue.error.useChatOutsideProvider':
     'useChatProvider ஒரு ChatProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
+  'vue.error.useEditorOutsideProvider':
+    'useEditorProvider ஆனது ஒரு EditorProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'vue.error.oauthFailed': 'OAuth உள்நுழைவு தோல்வியடைந்தது',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider ஆனது ஒரு PreviewProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ஆனது ஒரு WorkspaceProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
 }

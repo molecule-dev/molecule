@@ -4,8 +4,9 @@
  * @module
  */
 
-import { onScopeDispose, type ShallowRef, shallowRef } from 'vue'
+import { type ShallowRef, shallowRef } from 'vue'
 
+import { getLogger } from '@molecule/app-logger'
 import type {
   NotificationActionListener,
   NotificationReceivedListener,
@@ -15,6 +16,16 @@ import type {
   TokenChangeListener,
 } from '@molecule/app-push'
 import { getProvider } from '@molecule/app-push'
+
+/**
+ * Options for the usePush composable (e.g. check permission on mount).
+ */
+export interface UsePushOptions {
+  /**
+   * Whether to check permission status on mount.
+   */
+  checkOnMount?: boolean
+}
 
 /**
  * Return type for the usePush composable.
@@ -39,6 +50,8 @@ export interface UsePushReturn {
  * Uses module-level getProvider() from `@molecule/app-push` (singleton).
  * Wraps async methods to update reactive refs for permission and token.
  *
+ * @param options - Composable options (`checkOnMount` reads the permission once
+ *   on mount; a failing check logs a warning and leaves the permission unset).
  * @returns Push notification state and action methods
  *
  * @example
@@ -46,7 +59,7 @@ export interface UsePushReturn {
  * <script setup>
  * import { usePush } from '@molecule/app-vue'
  *
- * const { permission, token, requestPermission, register } = usePush()
+ * const { permission, token, requestPermission, register } = usePush({ checkOnMount: true })
  *
  * async function enablePush() {
  *   await requestPermission()
@@ -62,19 +75,25 @@ export interface UsePushReturn {
  * </template>
  * ```
  */
-export function usePush(): UsePushReturn {
+export function usePush(options?: UsePushOptions): UsePushReturn {
+  const { checkOnMount = false } = options ?? {}
   const provider = getProvider()
 
   const permission = shallowRef<PermissionStatus | null>(null)
   const token = shallowRef<PushToken | null>(null)
 
-  const tokenChangeUnsub = provider.onTokenChange((newToken) => {
-    token.value = newToken
-  })
-
-  onScopeDispose(() => {
-    tokenChangeUnsub()
-  })
+  // Check permission on mount if requested.
+  if (checkOnMount) {
+    provider
+      .checkPermission()
+      .then((status) => {
+        permission.value = status
+      })
+      .catch((error: unknown) => {
+        // The permission stays unknown until checkPermission() is called again.
+        getLogger('usePush').warn('Checking push permission on mount failed', { error })
+      })
+  }
 
   const checkPermission = async (): Promise<PermissionStatus> => {
     const status = await provider.checkPermission()

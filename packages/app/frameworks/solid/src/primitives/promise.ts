@@ -9,6 +9,8 @@ import { batch, createSignal, onCleanup } from 'solid-js'
 
 import type { PromiseState, PromiseStatus } from '@molecule/app-utilities'
 
+import { liveStateTuple } from './reactive-tuple.js'
+
 /**
  * Promise state accessor with actions.
  */
@@ -134,4 +136,115 @@ export function createPromise<T extends (...args: any[]) => Promise<any>>(
   }
 
   return { state, call, cancel, reset }
+}
+
+/**
+ * Extended promise state with actions (React's `usePromise` shape).
+ *
+ * @template T - The resolved value type.
+ */
+export interface UsePromiseState<T> {
+  status: PromiseStatus
+  value: T | null
+  error: Error | null
+  cancel: (message?: string) => void
+  reset: () => void
+}
+
+/**
+ * Wraps an async function with state tracking, under React's hook name: a
+ * `[state, wrapped]` tuple. The wrapped function tracks its latest call — a
+ * stale resolution or rejection after a newer call started is not shown but
+ * still reaches its caller (a rejection rethrows). `cancel` marks the pending
+ * call rejected with its message; `reset` returns to idle.
+ *
+ * @param asyncFn - The async function to wrap.
+ * @returns The tuple: the live state and the wrapped function.
+ * @example
+ * ```tsx
+ * const [state, fetchUser] = usePromise((id: string) => api.getUser(id))
+ * <button disabled={state().status === 'pending'}>Fetch</button>
+ * ```
+ */
+export const usePromise = <T extends (...args: never[]) => Promise<unknown>>(
+  asyncFn: T,
+): [
+  UsePromiseState<Awaited<ReturnType<T>>>,
+  (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>,
+] => {
+  type V = Awaited<ReturnType<T>>
+
+  const [status, setStatus] = createSignal<PromiseStatus>('idle')
+  const [value, setValue] = createSignal<V | null>(null)
+  const [error, setError] = createSignal<Error | null>(null)
+
+  let isUnmounted = false
+  let callId = 0
+
+  onCleanup(() => {
+    isUnmounted = true
+  })
+
+  const cancel = (message?: string): void => {
+    callId += 1
+
+    if (!isUnmounted) {
+      setStatus('rejected')
+      setError(message ? new Error(message) : null)
+    }
+  }
+
+  const reset = (): void => {
+    if (!isUnmounted) {
+      setStatus('idle')
+      setValue(() => null)
+      setError(null)
+    }
+  }
+
+  const callAsyncFn = (...args: Parameters<T>): Promise<V> => {
+    callId += 1
+    const thisCallId = callId
+
+    if (!isUnmounted) {
+      setStatus('pending')
+      setError(null)
+    }
+
+    const promise = asyncFn(...args) as Promise<V>
+
+    return promise.then(
+      (resolved: V) => {
+        if (thisCallId === callId && !isUnmounted) {
+          setStatus('resolved')
+          setValue(() => resolved)
+          setError(null)
+        }
+        return resolved
+      },
+      (err: unknown) => {
+        const rejection = err instanceof Error ? err : new Error(String(err))
+
+        if (thisCallId === callId && !isUnmounted) {
+          setStatus('rejected')
+          setError(rejection)
+        }
+
+        throw rejection
+      },
+    )
+  }
+
+  const state = (): UsePromiseState<V> => ({
+    status: status(),
+    value: value(),
+    error: error(),
+    cancel,
+    reset,
+  })
+
+  return liveStateTuple(state, [callAsyncFn]) as [
+    UsePromiseState<V>,
+    (...args: Parameters<T>) => Promise<V>,
+  ]
 }

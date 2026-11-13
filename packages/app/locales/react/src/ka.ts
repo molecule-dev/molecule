@@ -9,7 +9,6 @@ export const ka: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider უნდა გამოიყენოთ EditorProvider-ის შიგნით',
   'react.error.useHttpOutsideProvider': 'useHttpClient უნდა გამოიყენოთ HttpProvider-ის შიგნით',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider უნდა გამოიყენოთ I18nProvider-ის შიგნით',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider უნდა გამოიყენოთ LoggerProvider-ის შიგნით',
   'react.error.usePreviewOutsideProvider':

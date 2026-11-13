@@ -14,4 +14,20 @@ export const mt: SvelteTranslations = {
     'Direzzjoni tal-paginazzjoni mhux maghrufa: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider irid jintuża ġewwa ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast irid jintuża ġewwa ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider irid jintuża fi ħdan WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider': 'useEditorProvider irid jintuża fi ħdan EditorProvider',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider irid jintuża fi ħdan PreviewProvider',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient irid jintuża fi ħdan AuthProvider',
+  'svelte.error.useThemeOutsideProvider': 'useThemeProvider irid jintuża fi ħdan ThemeProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance għandu jintuża fi ħdan RouterProvider',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient irid jintuża fi ħdan HttpProvider',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider irid jintuża fi ħdan StorageProvider',
+  'svelte.error.useLoggerOutsideProvider': 'useLoggerProvider irid jintuża fi ħdan LoggerProvider',
+  'svelte.error.useStoreOutsideProvider': 'useStateProvider irid jintuża fi ħdan StateProvider',
+  'svelte.error.unsupportedMethod': 'Metodu mhux appoġġjat: {{method}}',
+  'svelte.error.oauthFailed': 'Il-login tal-OAuth falla',
 }

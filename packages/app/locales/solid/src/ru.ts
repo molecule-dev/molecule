@@ -22,4 +22,26 @@ export const ru: SolidTranslations = {
     'Компоненты Accordion должны использоваться внутри Accordion',
   'solid.error.useToastOutsideProvider': 'useToast должен использоваться внутри ToastProvider',
   'solid.error.useChatOutsideProvider': 'useChatProvider должен использоваться внутри ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'Параметр useWorkspaceProvider должен использоваться внутри WorkspaceProvider.',
+  'solid.error.useEditorOutsideProvider':
+    'Метод useEditorProvider должен использоваться внутри метода EditorProvider.',
+  'solid.error.usePreviewOutsideProvider':
+    'Параметр usePreviewProvider должен использоваться внутри параметра PreviewProvider.',
+  'solid.error.useAuthOutsideProvider':
+    'Метод useAuthClient необходимо использовать внутри AuthProvider.',
+  'solid.error.useHttpOutsideProvider':
+    'Функция useHttpClient должна использоваться внутри объекта HttpProvider.',
+  'solid.error.unsupportedMethod': 'Неподдерживаемый метод: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'Параметр useLoggerProvider должен использоваться внутри LoggerProvider.',
+  'solid.error.oauthFailed': 'Не удалось выполнить вход через OAuth.',
+  'solid.error.useRouterOutsideProvider':
+    'Параметр useRouterInstance должен использоваться внутри RouterProvider.',
+  'solid.error.useStoreOutsideProvider':
+    'Метод useStateProvider должен использоваться внутри StateProvider.',
+  'solid.error.useStorageOutsideProvider':
+    'Параметр useStorageProvider должен использоваться внутри параметра StorageProvider.',
+  'solid.error.useThemeOutsideProvider':
+    'Параметр useThemeProvider должен использоваться внутри параметра ThemeProvider.',
 }

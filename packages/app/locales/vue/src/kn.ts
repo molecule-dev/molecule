@@ -3,7 +3,6 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Kannada. */
 export const kn: VueTranslations = {
   'vue.error.useRouterOutsideProvider': 'useRouterInstance ಅನ್ನು RouterProvider ಒಳಗೆ ಬಳಸಬೇಕು',
-  'vue.error.useI18nOutsideProvider': 'useI18nProvider ಅನ್ನು I18nProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'vue.error.useStoreOutsideProvider': 'useStateProvider ಅನ್ನು StateProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ಅನ್ನು ThemeProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'vue.error.useAuthOutsideProvider': 'useAuthClient ಅನ್ನು AuthProvider ಒಳಗೆ ಬಳಸಬೇಕು',
@@ -13,4 +12,9 @@ export const kn: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'useToast ಅನ್ನು ToastProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'vue.error.unsupportedMethod': 'ಬೆಂಬಲಿಸದ ವಿಧಾನ: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider ಅನ್ನು ChatProvider ಒಳಗೆ ಬಳಸಬೇಕು',
+  'vue.error.useEditorOutsideProvider': 'useEditorProvider ಅನ್ನು EditorProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
+  'vue.error.oauthFailed': 'OAuth ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ',
+  'vue.error.usePreviewOutsideProvider': 'usePreviewProvider ಅನ್ನು PreviewProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ಅನ್ನು WorkspaceProvider ನೊಳಗೆ ಬಳಸಬೇಕು.',
 }

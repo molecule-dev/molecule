@@ -12,8 +12,6 @@ export const ur: ReactTranslations = {
     'useEditorProvider کو EditorProvider کے اندر استعمال کیا جانا چاہیے',
   'react.error.useHttpOutsideProvider':
     'useHttpClient کو HttpProvider کے اندر استعمال کیا جانا چاہیے',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider کو I18nProvider کے اندر استعمال کیا جانا چاہیے',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider کو LoggerProvider کے اندر استعمال کیا جانا چاہیے',
   'react.error.usePreviewOutsideProvider':

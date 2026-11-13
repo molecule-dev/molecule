@@ -21,4 +21,17 @@ export const yo: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider': 'Àwọn ẹya Accordion gbọdọ làti lo nínú Accordion',
   'solid.error.useToastOutsideProvider': 'useToast gbọdọ làti lo nínú ToastProvider',
   'solid.error.useChatOutsideProvider': 'useChatProvider gbodo lo laarin ChatProvider',
+  'solid.error.useWorkspaceOutsideProvider':
+    'A gbọ́dọ̀ lo olupese aaye iṣẹ-ṣiṣe (useWorkspaceProvider) láàrín Olùpèsè Ibi-iṣẹ́',
+  'solid.error.useEditorOutsideProvider': 'a gbọ́dọ̀ lo useEditorProvider láàrín Olùpèsè Olóòtú',
+  'solid.error.usePreviewOutsideProvider': 'a gbọ́dọ̀ lo usePreviewProvider nínú PreviewProvider kan',
+  'solid.error.useAuthOutsideProvider': 'a gbọ́dọ̀ lo useAuthClient láàrín Olùpèsè Auth',
+  'solid.error.useHttpOutsideProvider': 'a gbọ́dọ̀ lo userHttpClient nínú HttpProvider kan',
+  'solid.error.unsupportedMethod': 'Ọ̀nà tí kò ní àtìlẹ́yìn: {{method}}',
+  'solid.error.useLoggerOutsideProvider': 'a gbọ́dọ̀ lo useLoggerProvider nínú LoggerProvider',
+  'solid.error.oauthFailed': 'Wíwọlé OAuth kùnà',
+  'solid.error.useRouterOutsideProvider': 'a gbọ́dọ̀ lo useRouterInstance láàrín Olùpèsè Router kan',
+  'solid.error.useStoreOutsideProvider': 'a gbọ́dọ̀ lo useStateProvider láàrín Olùpèsè Ìpínlẹ̀ kan',
+  'solid.error.useStorageOutsideProvider': 'a gbọ́dọ̀ lo useStorageProvider láàrín StorageProvider',
+  'solid.error.useThemeOutsideProvider': 'a gbọ́dọ̀ lo useThemeProvider láàrín ThemeProvider kan',
 }

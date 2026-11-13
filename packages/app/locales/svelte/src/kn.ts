@@ -22,4 +22,20 @@ export const kn: SvelteTranslations = {
     '\u0c85\u0caa\u0cb0\u0cbf\u0c9a\u0cbf\u0ca4 \u0caa\u0cc1\u0c9f\u0ca6 \u0ca6\u0cbf\u0c95\u0ccd\u0c95\u0cc1: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider ಅನ್ನು ChatProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'svelte.error.useToastOutsideProvider': 'useToast ಅನ್ನು ToastProvider ಒಳಗೆ ಬಳಸಬೇಕು',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider ಅನ್ನು WorkspaceProvider ನೊಳಗೆ ಬಳಸಬೇಕು.',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider ಅನ್ನು EditorProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider ಅನ್ನು PreviewProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient ಅನ್ನು AuthProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
+  'svelte.error.useThemeOutsideProvider': 'useThemeProvider ಅನ್ನು ThemeProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
+  'svelte.error.useRouterOutsideProvider': 'useRouterInstance ಅನ್ನು RouterProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient ಅನ್ನು HttpProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider ಅನ್ನು StorageProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
+  'svelte.error.useLoggerOutsideProvider': 'useLoggerProvider ಅನ್ನು LoggerProvider ನ ಒಳಗೆ ಬಳಸಬೇಕು.',
+  'svelte.error.useStoreOutsideProvider': 'useStateProvider ಅನ್ನು StateProvider ನೊಳಗೆ ಬಳಸಬೇಕು.',
+  'svelte.error.unsupportedMethod': 'ಬೆಂಬಲವಿಲ್ಲದ ವಿಧಾನ: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ',
 }

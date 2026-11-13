@@ -13,4 +13,26 @@ export const hu: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Ismeretlen lapozási irány: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'A useChatProvider-t ChatProvider-en belül kell használni',
   'svelte.error.useToastOutsideProvider': 'A useToast-ot ToastProvider-en belül kell használni',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'A useWorkspaceProvider paramétert egy WorkspaceProvider-en belül kell használni.',
+  'svelte.error.useEditorOutsideProvider':
+    'A useEditorProvider paramétert egy EditorProvider-en belül kell használni.',
+  'svelte.error.usePreviewOutsideProvider':
+    'A usePreviewProvider paramétert egy PreviewProvider-en belül kell használni.',
+  'svelte.error.useAuthOutsideProvider':
+    'A useAuthClient-et egy AuthProvider-en belül kell használni.',
+  'svelte.error.useThemeOutsideProvider':
+    'A useThemeProvider-t egy ThemeProvider-en belül kell használni.',
+  'svelte.error.useRouterOutsideProvider':
+    'A useRouterInstance függvényt egy RouterProvider-en belül kell használni.',
+  'svelte.error.useHttpOutsideProvider':
+    'A useHttpClient függvényt egy HttpProvider-en belül kell használni.',
+  'svelte.error.useStorageOutsideProvider':
+    'A useStorageProvider paramétert egy StorageProvider paraméteren belül kell használni.',
+  'svelte.error.useLoggerOutsideProvider':
+    'A useLoggerProvider paramétert egy LoggerProvider-en belül kell használni.',
+  'svelte.error.useStoreOutsideProvider':
+    'A useStateProvider paramétert egy StateProvider paraméteren belül kell használni.',
+  'svelte.error.unsupportedMethod': 'Nem támogatott metódus: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth bejelentkezés sikertelen',
 }

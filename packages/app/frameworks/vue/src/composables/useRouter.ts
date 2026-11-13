@@ -6,6 +6,7 @@
 
 import { computed, type ComputedRef, inject, onMounted, onUnmounted, ref } from 'vue'
 
+import { t } from '@molecule/app-i18n'
 import type {
   NavigateOptions,
   QueryParams,
@@ -26,7 +27,11 @@ import type { UseRouterReturn } from '../types.js'
 export function useRouterInstance(): Router {
   const router = inject(RouterKey)
   if (!router) {
-    throw new Error('useRouterInstance requires RouterProvider to be provided')
+    throw new Error(
+      t('vue.error.useRouterOutsideProvider', undefined, {
+        defaultValue: 'useRouterInstance must be used within a RouterProvider',
+      }),
+    )
   }
   return router
 }

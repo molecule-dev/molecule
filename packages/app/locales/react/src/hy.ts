@@ -12,8 +12,6 @@ export const hy: ReactTranslations = {
     'useEditorProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B EditorProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
   'react.error.useHttpOutsideProvider':
     'useHttpClient-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B HttpProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B I18nProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B LoggerProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
   'react.error.usePreviewOutsideProvider':

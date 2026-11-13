@@ -3,7 +3,6 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Kyrgyz. */
 export const ky: VueTranslations = {
   'vue.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider ичинде колдонулушу керек',
-  'vue.error.useI18nOutsideProvider': 'useI18nProvider I18nProvider ичинде колдонулушу керек',
   'vue.error.useStoreOutsideProvider': 'useStateProvider StateProvider ичинде колдонулушу керек',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider ThemeProvider ичинде колдонулушу керек',
   'vue.error.useAuthOutsideProvider': 'useAuthClient AuthProvider ичинде колдонулушу керек',
@@ -14,4 +13,10 @@ export const ky: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'useToast ToastProvider ичинде колдонулушу керек',
   'vue.error.unsupportedMethod': 'Колдоого алынбаган ыкма: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider ChatProvider ичинде колдонулушу керек',
+  'vue.error.useEditorOutsideProvider': 'useEditorProvider EditorProvider ичинде колдонулушу керек',
+  'vue.error.oauthFailed': 'OAuth кирүүсү ишке ашкан жок',
+  'vue.error.usePreviewOutsideProvider':
+    'usePreviewProvider PreviewProvider ичинде колдонулушу керек',
+  'vue.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider WorkspaceProvider ичинде колдонулушу керек',
 }

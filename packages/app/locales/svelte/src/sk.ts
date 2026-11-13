@@ -14,4 +14,22 @@ export const sk: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Nezn\u00e1my smer str\u00e1nkovania: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider musí byť použitý vnútri ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast musí byť použitý vnútri ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider sa musí použiť v rámci WorkspaceProvider',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider sa musí použiť v rámci EditorProvider',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider sa musí použiť v rámci PreviewProvider',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient sa musí použiť v rámci AuthProvider',
+  'svelte.error.useThemeOutsideProvider': 'useThemeProvider sa musí použiť v rámci ThemeProvider',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance sa musí použiť v rámci RouterProvider',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient sa musí použiť v rámci HttpProvider',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider sa musí použiť v rámci StorageProvider',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider sa musí použiť v rámci LoggerProvider',
+  'svelte.error.useStoreOutsideProvider': 'useStateProvider sa musí použiť v rámci StateProvider',
+  'svelte.error.unsupportedMethod': 'Nepodporovaná metóda: {{method}}',
+  'svelte.error.oauthFailed': 'Prihlásenie cez OAuth zlyhalo',
 }

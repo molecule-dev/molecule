@@ -22,4 +22,24 @@ export const vi: SvelteTranslations = {
     'H\u01b0\u1edbng ph\u00e2n trang kh\u00f4ng x\u00e1c \u0111\u1ecbnh: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider phải được sử dụng bên trong ChatProvider',
   'svelte.error.useToastOutsideProvider': 'useToast phải được sử dụng bên trong ToastProvider',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider phải được sử dụng bên trong một WorkspaceProvider.',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider phải được sử dụng bên trong một EditorProvider.',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider phải được sử dụng bên trong PreviewProvider.',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient phải được sử dụng trong AuthProvider.',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider phải được sử dụng bên trong ThemeProvider.',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance phải được sử dụng bên trong RouterProvider',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient phải được sử dụng bên trong HttpProvider.',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider phải được sử dụng bên trong StorageProvider.',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider phải được sử dụng bên trong một LoggerProvider.',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider phải được sử dụng bên trong một StateProvider.',
+  'svelte.error.unsupportedMethod': 'Phương thức không được hỗ trợ: {{method}}',
+  'svelte.error.oauthFailed': 'Đăng nhập OAuth thất bại',
 }

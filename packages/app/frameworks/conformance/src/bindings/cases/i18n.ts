@@ -245,6 +245,21 @@ export const useTranslationCases: HookCases = {
       ],
     },
     { name: 'without an i18n provider', context: { omitServices: ['i18n'] } },
+    {
+      // A component rendered outside every I18nProvider (above the composition root, in a
+      // portal root of its own) translates through the bonded provider and re-renders when
+      // that provider switches locale, as the static `t` it replaces would read.
+      name: 'outside an i18n provider, follows the bonded provider',
+      context: {
+        omitServices: ['i18n'],
+        translations: { en: { 'nav.home': 'Home' }, fr: { 'nav.home': 'Accueil' } },
+      },
+      steps: [
+        { type: 'call', method: 't', args: ['nav.home'] },
+        { type: 'locale', locale: 'fr' },
+        { type: 'call', method: 't', args: ['nav.home'] },
+      ],
+    },
   ],
 }
 
@@ -263,6 +278,11 @@ export const useLocaleCases: HookCases = {
       ],
     },
     { name: 'without an i18n provider', context: { omitServices: ['i18n'] } },
+    {
+      name: 'outside an i18n provider, follows the bonded provider',
+      context: { omitServices: ['i18n'] },
+      steps: [{ type: 'locale', locale: 'de' }],
+    },
   ],
 }
 
@@ -336,6 +356,18 @@ export const useTCases: HookCases = {
       ],
     },
     { name: 'without an i18n provider', context: { omitServices: ['i18n'] } },
+    {
+      name: 'outside an i18n provider, follows the bonded provider',
+      context: {
+        omitServices: ['i18n'],
+        translations: { en: { 'nav.home': 'Home' }, fr: { 'nav.home': 'Accueil' } },
+      },
+      steps: [
+        { type: 'call', args: ['nav.home'] },
+        { type: 'locale', locale: 'fr' },
+        { type: 'call', args: ['nav.home'] },
+      ],
+    },
   ],
 }
 
@@ -361,6 +393,11 @@ export const useDirectionCases: HookCases = {
       ],
     },
     { name: 'without an i18n provider', context: { omitServices: ['i18n'] } },
+    {
+      name: 'outside an i18n provider, follows the bonded provider',
+      context: { omitServices: ['i18n'] },
+      steps: [{ type: 'locale', locale: 'ar' }],
+    },
   ],
 }
 

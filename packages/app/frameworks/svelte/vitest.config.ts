@@ -1,5 +1,5 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
   // The binding conformance host is a real `.svelte` component.
@@ -9,6 +9,8 @@ export default defineConfig({
     conditions: ['browser'],
   },
   test: {
+    // svelte-package copies every test into dist/ and stages its output under .svelte-kit/.
+    exclude: [...configDefaults.exclude, 'dist/**', '.svelte-kit/**'],
     globals: true,
     environment: 'node',
     testTimeout: 10000,

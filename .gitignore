@@ -19,6 +19,8 @@ dist
 # compiled JS from TypeScript (keep hand-written .js like eslint.config.js)
 packages/**/src/**/*.js
 packages/**/vitest.config.js
+# svelte-package stages its output here
+.svelte-kit
 vitest.workspace.js
 
 # testing

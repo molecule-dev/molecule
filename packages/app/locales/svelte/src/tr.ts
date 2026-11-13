@@ -18,4 +18,24 @@ export const tr: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Bilinmeyen sayfalama y\u00f6n\u00fc: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider bir ChatProvider içinde kullanılmalıdır',
   'svelte.error.useToastOutsideProvider': 'useToast bir ToastProvider içinde kullanılmalıdır',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider, bir WorkspaceProvider içinde kullanılmalıdır.',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider, bir EditorProvider içinde kullanılmalıdır.',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProvider, bir PreviewProvider içinde kullanılmalıdır.',
+  'svelte.error.useAuthOutsideProvider': 'useAuthClient, bir AuthProvider içinde kullanılmalıdır.',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider, bir ThemeProvider içinde kullanılmalıdır.',
+  'svelte.error.useRouterOutsideProvider':
+    'useRouterInstance bir RouterProvider içinde kullanılmalıdır',
+  'svelte.error.useHttpOutsideProvider': 'useHttpClient bir HttpProvider içinde kullanılmalıdır',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProvider, bir StorageProvider içinde kullanılmalıdır.',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider, bir LoggerProvider içinde kullanılmalıdır.',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProvider, bir StateProvider içinde kullanılmalıdır.',
+  'svelte.error.unsupportedMethod': 'Desteklenmeyen yöntem: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth oturum açma işlemi başarısız oldu.',
 }

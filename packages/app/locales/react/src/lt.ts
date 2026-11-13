@@ -9,7 +9,6 @@ export const lt: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider turi būti naudojamas EditorProvider viduje',
   'react.error.useHttpOutsideProvider': 'useHttpClient turi būti naudojamas HttpProvider viduje',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider turi būti naudojamas I18nProvider viduje',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider turi būti naudojamas LoggerProvider viduje',
   'react.error.usePreviewOutsideProvider':

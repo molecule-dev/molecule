@@ -203,7 +203,7 @@ describe('SessionReady', () => {
     wrappers.push(plain)
     expect(plain.text()).toContain('Public page')
     // Like every composable consumer, SessionReady requires its service.
-    expect(() => mount(SessionReady)).toThrow('useAuthClient requires AuthProvider to be provided')
+    expect(() => mount(SessionReady)).toThrow('useAuthClient must be used within an AuthProvider')
   })
 
   it('renders its fallback, then the children with the restored user', async () => {

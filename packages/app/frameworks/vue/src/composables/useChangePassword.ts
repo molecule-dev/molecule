@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { ComputedRef } from 'vue'
+import { computed, type ComputedRef } from 'vue'
 
 import type { PromiseStatus } from '@molecule/app-utilities'
 
@@ -28,14 +28,14 @@ export interface UseChangePasswordReturn {
  */
 export function useChangePassword(): UseChangePasswordReturn {
   const client = useAuthClient()
-  const { status, error, call, reset } = usePromise((oldPassword: string, newPassword: string) =>
+  const [state, call] = usePromise((oldPassword: string, newPassword: string) =>
     client.changePassword(oldPassword, newPassword),
   )
 
   return {
-    status,
-    error,
+    status: computed(() => state.status),
+    error: computed(() => state.error),
     changePassword: call,
-    reset,
+    reset: state.reset,
   }
 }

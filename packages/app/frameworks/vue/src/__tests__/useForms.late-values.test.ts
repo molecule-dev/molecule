@@ -146,6 +146,9 @@ describe('Vue late form values', () => {
       createForm: (formOptions) => nativeProvider.createForm(formOptions),
       defaultValues: { details: { title: 'Valid A' } },
       values: { details: { title: 'Valid A' } },
+      // A replacement (keepDirtyValues: false) cancels the pending submission:
+      // the loaded record must never be submitted without being re-validated.
+      resetOptions: { keepDirtyValues: false },
       validate: async (values) => {
         validated.push(values.details.title)
         await gate
@@ -171,6 +174,51 @@ describe('Vue late form values', () => {
 
     expect(validated).toEqual(['Valid A'])
     expect(onSubmit).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('keeps a pending submission through a merged values change (default keepDirtyValues)', async () => {
+    interface NestedValues {
+      details: { title: string }
+    }
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const validated: string[] = []
+    const options = reactive<UseFormOptions<NestedValues>>({
+      createForm: (formOptions) => nativeProvider.createForm(formOptions),
+      defaultValues: { details: { title: 'Valid A' } },
+      values: { details: { title: 'Valid A' } },
+      validate: async (values) => {
+        validated.push(values.details.title)
+        await gate
+        return {}
+      },
+    })
+    let form!: UseFormReturn<NestedValues>
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          form = useForm(options)
+          return () => h('div')
+        },
+      }),
+    )
+    const onSubmit = vi.fn()
+    const submission = form.handleSubmit(onSubmit)()
+
+    // The default keeps dirty values: the merge lands but the submission —
+    // validated against its start-of-submit snapshot — completes.
+    options.values!.details.title = ''
+    await nextTick()
+    expect(form.getValue('details').title).toBe('')
+    release({})
+    await submission
+
+    expect(validated).toEqual(['Valid A'])
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expect(onSubmit.mock.calls[0][0]).toEqual({ details: { title: 'Valid A' } })
     wrapper.unmount()
   })
 })

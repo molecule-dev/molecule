@@ -7,7 +7,6 @@ export const lv: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider jāizmanto ChatProvider ietvaros',
   'react.error.useEditorOutsideProvider': 'useEditorProvider jāizmanto EditorProvider ietvaros',
   'react.error.useHttpOutsideProvider': 'useHttpClient jāizmanto HttpProvider ietvaros',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider jāizmanto I18nProvider ietvaros',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider jāizmanto LoggerProvider ietvaros',
   'react.error.usePreviewOutsideProvider': 'usePreviewProvider jāizmanto PreviewProvider ietvaros',
   'react.error.useRouterOutsideProvider': 'useRouterInstance jāizmanto RouterProvider ietvaros',

@@ -8,7 +8,6 @@ export const fa: ReactTranslations = {
   'react.error.useChatOutsideProvider': 'useChatProvider باید درون ChatProvider استفاده شود',
   'react.error.useEditorOutsideProvider': 'useEditorProvider باید درون EditorProvider استفاده شود',
   'react.error.useHttpOutsideProvider': 'useHttpClient باید درون HttpProvider استفاده شود',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider باید درون I18nProvider استفاده شود',
   'react.error.useLoggerOutsideProvider': 'useLoggerProvider باید درون LoggerProvider استفاده شود',
   'react.error.usePreviewOutsideProvider':
     'usePreviewProvider باید درون PreviewProvider استفاده شود',

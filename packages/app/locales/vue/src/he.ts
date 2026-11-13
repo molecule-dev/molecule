@@ -3,7 +3,6 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Hebrew. */
 export const he: VueTranslations = {
   'vue.error.useRouterOutsideProvider': 'יש להשתמש ב-useRouterInstance בתוך RouterProvider',
-  'vue.error.useI18nOutsideProvider': 'יש להשתמש ב-useI18nProvider בתוך I18nProvider',
   'vue.error.useStoreOutsideProvider': 'יש להשתמש ב-useStateProvider בתוך StateProvider',
   'vue.error.useThemeOutsideProvider': 'יש להשתמש ב-useThemeProvider בתוך ThemeProvider',
   'vue.error.useAuthOutsideProvider': 'יש להשתמש ב-useAuthClient בתוך AuthProvider',
@@ -13,4 +12,9 @@ export const he: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'יש להשתמש ב-useToast בתוך ToastProvider',
   'vue.error.unsupportedMethod': 'שיטה לא נתמכת: {{method}}',
   'vue.error.useChatOutsideProvider': 'יש להשתמש ב-useChatProvider בתוך ChatProvider',
+  'vue.error.useEditorOutsideProvider': 'יש להשתמש ב-useEditorProvider בתוך EditorProvider',
+  'vue.error.oauthFailed': 'כניסה ל-OAuth נכשלה',
+  'vue.error.usePreviewOutsideProvider': 'יש להשתמש ב-usePreviewProvider בתוך PreviewProvider',
+  'vue.error.useWorkspaceOutsideProvider':
+    'יש להשתמש ב-useWorkspaceProvider בתוך WorkspaceProvider',
 }

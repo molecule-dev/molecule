@@ -9,7 +9,6 @@ export const uz: Partial<ReactTranslations> = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider EditorProvider ichida ishlatilishi kerak',
   'react.error.useHttpOutsideProvider': 'useHttpClient HttpProvider ichida ishlatilishi kerak',
-  'react.error.useI18nOutsideProvider': 'useI18nProvider I18nProvider ichida ishlatilishi kerak',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider LoggerProvider ichida ishlatilishi kerak',
   'react.error.usePreviewOutsideProvider':

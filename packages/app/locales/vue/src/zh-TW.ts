@@ -3,7 +3,6 @@ import type { VueTranslations } from './types.js'
 /** Vue translations for Chinese (Traditional). */
 export const zhTW: VueTranslations = {
   'vue.error.useRouterOutsideProvider': 'useRouterInstance 必須在 RouterProvider 內使用',
-  'vue.error.useI18nOutsideProvider': 'useI18nProvider 必須在 I18nProvider 內使用',
   'vue.error.useStoreOutsideProvider': 'useStateProvider 必須在 StateProvider 內使用',
   'vue.error.useThemeOutsideProvider': 'useThemeProvider 必須在 ThemeProvider 內使用',
   'vue.error.useAuthOutsideProvider': 'useAuthClient 必須在 AuthProvider 內使用',
@@ -13,4 +12,8 @@ export const zhTW: VueTranslations = {
   'vue.error.useToastOutsideProvider': 'useToast 必須在 ToastProvider 內使用',
   'vue.error.unsupportedMethod': '不支援的方法: {{method}}',
   'vue.error.useChatOutsideProvider': 'useChatProvider 必須在 ChatProvider 內使用',
+  'vue.error.useEditorOutsideProvider': 'useEditorProvider 必須在 EditorProvider 中使用。',
+  'vue.error.oauthFailed': 'OAuth登入失敗',
+  'vue.error.usePreviewOutsideProvider': 'usePreviewProvider 必須在 PreviewProvider 中使用',
+  'vue.error.useWorkspaceOutsideProvider': 'useWorkspaceProvider 必須在 WorkspaceProvider 中使用。',
 }

@@ -101,7 +101,7 @@ if [ -z "$STAGED" ]; then
   exit 0
 fi
 
-JSTS=$(echo "$STAGED" | grep -E '\.(ts|tsx|js|jsx|mjs|cjs)$' || true)
+JSTS=$(echo "$STAGED" | grep -E '\.(ts|tsx|js|jsx|mjs|cjs|svelte)$' || true)
 JSON_MD=$(echo "$STAGED" | grep -E '\.(json|md|css|scss|html|yaml|yml)$' || true)
 
 if [ -n "$JSTS" ]; then

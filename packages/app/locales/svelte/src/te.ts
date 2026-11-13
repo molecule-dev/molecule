@@ -22,4 +22,24 @@ export const te: SvelteTranslations = {
     '\u0c24\u0c46\u0c32\u0c3f\u0c2f\u0c28\u0c3f \u0c2a\u0c47\u0c1c\u0c3f\u0c28\u0c47\u0c37\u0c28\u0c4d \u0c26\u0c3f\u0c36: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider ChatProvider లోపల ఉపయోగించాలి',
   'svelte.error.useToastOutsideProvider': 'useToast ToastProvider లోపల ఉపయోగించాలి',
+  'svelte.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProviderను తప్పనిసరిగా WorkspaceProvider లోపల ఉపయోగించాలి',
+  'svelte.error.useEditorOutsideProvider':
+    'useEditorProvider ను తప్పనిసరిగా EditorProvider లోపల ఉపయోగించాలి',
+  'svelte.error.usePreviewOutsideProvider':
+    'usePreviewProviderను తప్పనిసరిగా PreviewProvider లోపల ఉపయోగించాలి',
+  'svelte.error.useAuthOutsideProvider': 'AuthProvider లోపల useAuthClient ను ఉపయోగించాలి',
+  'svelte.error.useThemeOutsideProvider':
+    'useThemeProvider ను తప్పనిసరిగా ThemeProvider లోపల ఉపయోగించాలి',
+  'svelte.error.useRouterOutsideProvider': 'useRouterInstance RouterProvider లోపల ఉపయోగించాలి',
+  'svelte.error.useHttpOutsideProvider':
+    'useHttpClient ను తప్పనిసరిగా HttpProvider లోపల ఉపయోగించాలి',
+  'svelte.error.useStorageOutsideProvider':
+    'useStorageProviderను తప్పనిసరిగా StorageProvider లోపల ఉపయోగించాలి',
+  'svelte.error.useLoggerOutsideProvider':
+    'useLoggerProvider ను తప్పనిసరిగా LoggerProvider లోపల ఉపయోగించాలి',
+  'svelte.error.useStoreOutsideProvider':
+    'useStateProviderను తప్పనిసరిగా StateProvider లోపల ఉపయోగించాలి',
+  'svelte.error.unsupportedMethod': 'మద్దతు లేని పద్ధతి: {{method}}',
+  'svelte.error.oauthFailed': 'OAuth లాగిన్ విఫలమైంది',
 }

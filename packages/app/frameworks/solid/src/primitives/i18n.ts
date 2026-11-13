@@ -4,17 +4,217 @@
  * @module
  */
 
-import { type Accessor, createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  useContext,
+} from 'solid-js'
 
 import type {
+  DateFormatOptions,
   I18nProvider,
   InterpolationValues,
   LocaleConfig,
+  NumberFormatOptions,
   TranslateFunction,
   TranslateOptions,
 } from '@molecule/app-i18n'
+import { getProvider as getBondedI18nProvider, I18nError } from '@molecule/app-i18n'
 
-import { getI18nProvider } from '../context.js'
+import { getI18nProvider, I18nContext } from '../context.js'
+
+/**
+ * The i18n provider: the one the nearest `MoleculeProvider` supplies
+ * (`config.i18n`), otherwise the bonded `@molecule/app-i18n` provider, which
+ * is the one the static `t` reads. A component can therefore translate
+ * through the hooks wherever the static `t` works.
+ *
+ * @returns The i18n provider from context, or the bonded provider.
+ */
+export function useI18nProvider(): I18nProvider {
+  return useContext(I18nContext) ?? getBondedI18nProvider()
+}
+
+/**
+ * Subscribe the calling component to the provider's locale notifications.
+ *
+ * @param provider - The i18n provider from context.
+ * @returns A version accessor that changes on every notification.
+ */
+function useLocaleNotifications(provider: I18nProvider): Accessor<number> {
+  const [version, setVersion] = createSignal(0)
+  const unsubscribe = provider.onLocaleChange(() => setVersion((v) => v + 1))
+  onCleanup(unsubscribe)
+  return version
+}
+
+/**
+ * What {@link useTranslation} returns (the same names React returns).
+ */
+export interface UseTranslationResult {
+  /**
+   * Translates a key in the active locale. Follows locale changes, so text
+   * read through it re-renders; `useT()` returns one that also keeps its
+   * identity across locale changes.
+   */
+  t: I18nProvider['t']
+  /** The active locale code, as an accessor. */
+  locale: Accessor<string>
+  /** Switches the active locale. Same function while the provider is unchanged. */
+  setLocale: I18nProvider['setLocale']
+  /** The registered locales, as an accessor; a new list once per notification. */
+  locales: Accessor<ReturnType<I18nProvider['getLocales']>>
+  /** Formats a number for the active locale. */
+  formatNumber: I18nProvider['formatNumber']
+  /** Formats a date for the active locale. */
+  formatDate: I18nProvider['formatDate']
+  /** The active locale's text direction, as an accessor. */
+  direction: Accessor<'ltr' | 'rtl'>
+}
+
+/**
+ * Internationalization state and actions, under React's hook name.
+ *
+ * @returns The translation function, the locale, and the formatters.
+ * @example
+ * ```tsx
+ * const { t, locale, setLocale, formatNumber } = useTranslation()
+ * <h1>{t('welcome.title', { name: 'User' })}</h1>
+ * ```
+ */
+export function useTranslation(): UseTranslationResult {
+  const provider = useI18nProvider()
+  const version = useLocaleNotifications(provider)
+
+  const t: I18nProvider['t'] = (key, values, options) => {
+    version()
+    return provider.t(key, values, options)
+  }
+
+  return {
+    t,
+    locale: () => {
+      version()
+      return provider.getLocale()
+    },
+    setLocale: (code: string) => provider.setLocale(code),
+    locales: () => {
+      version()
+      return provider.getLocales()
+    },
+    formatNumber: (value: number, options?: NumberFormatOptions) =>
+      provider.formatNumber(value, options),
+    formatDate: (value: Date | number | string, options?: DateFormatOptions) =>
+      provider.formatDate(value, options),
+    direction: () => {
+      version()
+      return provider.getDirection()
+    },
+  }
+}
+
+/**
+ * Options for the shorthand form of {@link UseTFunction}: the fallback text is
+ * passed positionally, so only `count` remains here.
+ */
+export type UseTShorthandOptions = Omit<TranslateOptions, 'defaultValue'>
+
+/**
+ * Translation function returned by {@link useT}.
+ *
+ * Two compatible call forms:
+ * - `t(key, values?, options?)` — the {@link I18nProvider.t} signature.
+ * - `t(key, fallback, options?)` — a string second argument is the inline
+ *   English `defaultValue`, with optional `count` for pluralization.
+ *
+ * Its identity is stable while the i18n provider instance is unchanged, so it
+ * can be used directly as an effect dependency.
+ */
+export type UseTFunction = I18nProvider['t'] & {
+  (key: string, fallback: string, options?: UseTShorthandOptions): string
+}
+
+/**
+ * The translation function alone, under React's hook name.
+ *
+ * The returned function keeps ONE identity for as long as the provider
+ * instance is unchanged (locale changes included), and still re-reads the
+ * active translations on every call, so text read through it is current. Call
+ * it in either of two compatible forms:
+ *
+ * - `t(key, values?, options?)` — the provider signature.
+ * - `t(key, fallback, options?)` — a string second argument is the
+ *   `defaultValue`, so `t('cart.empty', 'Your cart is empty')` equals
+ *   `t('cart.empty', undefined, { defaultValue: 'Your cart is empty' })`.
+ *
+ * @returns The translation function (stable identity while the provider is
+ *   unchanged).
+ */
+export function useT(): UseTFunction {
+  const provider = useI18nProvider()
+  const version = useLocaleNotifications(provider)
+
+  const t = (
+    key: string,
+    valuesOrDefault?: InterpolationValues | string,
+    options?: TranslateOptions,
+  ): string => {
+    version()
+    return typeof valuesOrDefault === 'string'
+      ? provider.t(key, undefined, { ...options, defaultValue: valuesOrDefault })
+      : provider.t(key, valuesOrDefault, options)
+  }
+  return t as UseTFunction
+}
+
+/**
+ * The current locale, under React's hook name.
+ *
+ * @returns Accessor for the current locale code.
+ */
+export function useLocale(): Accessor<string> {
+  const { locale } = useTranslation()
+  return locale
+}
+
+/**
+ * The text direction, under React's hook name.
+ *
+ * @returns Accessor for the active locale's text direction ('ltr' or 'rtl').
+ */
+export function useDirection(): Accessor<'ltr' | 'rtl'> {
+  const { direction } = useTranslation()
+  return direction
+}
+
+/**
+ * Translates an error at render time so the displayed message updates
+ * automatically when the locale changes, under React's hook name.
+ *
+ * If `error` is an `I18nError` (thrown via `throw new I18nError(key)`), its
+ * key is translated using the current locale; for plain `Error` instances,
+ * `error.message` is returned unchanged.
+ *
+ * @param error - The error to translate, or `null`/`undefined`.
+ * @returns Accessor for the translated error string, or null without an error.
+ */
+export function useI18nError(error: Error | null | undefined): Accessor<string | null> {
+  const { t } = useTranslation()
+  return () => {
+    if (!error) return null
+    // defaultValue is the I18nError's own message — the fallback text its
+    // throw site provided (for a server error: the server's already-translated
+    // message). Without it, a key the CLIENT dictionary happens to lack
+    // renders as the raw key instead of a message.
+    if (error instanceof I18nError) {
+      return t(error.i18nKey, error.i18nValues, { defaultValue: error.message })
+    }
+    return error.message
+  }
+}
 
 /**
  * Create i18n primitives for translations.
@@ -122,54 +322,6 @@ export function createI18n(): {
 export function useTranslate(): TranslateFunction {
   const { t } = createI18n()
   return t
-}
-
-/**
- * Get current locale as accessor.
- *
- * @returns Accessor for current locale
- *
- * @example
- * ```tsx
- * function LocaleIndicator() {
- *   const locale = useLocale()
- *   return <span>Current: {locale()}</span>
- * }
- * ```
- */
-export function useLocale(): Accessor<string> {
-  const { locale } = createI18n()
-  return locale
-}
-
-/**
- * Create a reactive translation.
- *
- * @param key - Translation key
- * @param values - Interpolation values for the translation.
- * @param options - Translation options
- * @returns Accessor for translated string
- *
- * @example
- * ```tsx
- * function WelcomeMessage() {
- *   const message = useTranslation('welcome.message', { name: 'User' })
- *   return <p>{message()}</p>
- * }
- * ```
- */
-export function useTranslation(
-  key: string,
-  values?: InterpolationValues,
-  options?: TranslateOptions,
-): Accessor<string> {
-  const { t, locale } = createI18n()
-
-  return createMemo(() => {
-    // Re-run when locale changes
-    locale()
-    return t(key, values, options)
-  })
 }
 
 /**

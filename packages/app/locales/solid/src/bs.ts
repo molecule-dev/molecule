@@ -22,4 +22,24 @@ export const bs: SolidTranslations = {
     'Accordion komponente se moraju koristiti unutar Accordion-a',
   'solid.error.useToastOutsideProvider': 'useToast se mora koristiti unutar ToastProvider-a',
   'solid.error.useChatOutsideProvider': 'useChatProvider se mora koristiti unutar ChatProvider-a',
+  'solid.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider se mora koristiti unutar WorkspaceProvider-a',
+  'solid.error.useEditorOutsideProvider':
+    'useEditorProvider se mora koristiti unutar EditorProvider-a',
+  'solid.error.usePreviewOutsideProvider':
+    'usePreviewProvider se mora koristiti unutar PreviewProvider-a',
+  'solid.error.useAuthOutsideProvider': 'useAuthClient se mora koristiti unutar AuthProvider-a',
+  'solid.error.useHttpOutsideProvider': 'useHttpClient se mora koristiti unutar HttpProvider-a',
+  'solid.error.unsupportedMethod': 'Nepodržana metoda: {{method}}',
+  'solid.error.useLoggerOutsideProvider':
+    'useLoggerProvider se mora koristiti unutar LoggerProvider-a',
+  'solid.error.oauthFailed': 'Prijava putem OAuth-a nije uspjela',
+  'solid.error.useRouterOutsideProvider':
+    'useRouterInstance se mora koristiti unutar RouterProvider-a',
+  'solid.error.useStoreOutsideProvider':
+    'useStateProvider se mora koristiti unutar StateProvider-a',
+  'solid.error.useStorageOutsideProvider':
+    'useStorageProvider se mora koristiti unutar StorageProvider-a',
+  'solid.error.useThemeOutsideProvider':
+    'useThemeProvider se mora koristiti unutar ThemeProvider-a',
 }

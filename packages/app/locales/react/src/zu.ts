@@ -12,8 +12,6 @@ export const zu: ReactTranslations = {
     'useEditorProvider kumele kusetshenziswe ngaphakathi kwe-EditorProvider',
   'react.error.useHttpOutsideProvider':
     'useHttpClient kumele kusetshenziswe ngaphakathi kwe-HttpProvider',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider kumele kusetshenziswe ngaphakathi kwe-I18nProvider',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider kumele kusetshenziswe ngaphakathi kwe-LoggerProvider',
   'react.error.usePreviewOutsideProvider':

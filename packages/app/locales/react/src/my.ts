@@ -10,8 +10,6 @@ export const my: ReactTranslations = {
   'react.error.useEditorOutsideProvider':
     'useEditorProvider ကို EditorProvider အတွင်းတွင် အသုံးပြုရပါမည်',
   'react.error.useHttpOutsideProvider': 'useHttpClient ကို HttpProvider အတွင်းတွင် အသုံးပြုရပါမည်',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider ကို I18nProvider အတွင်းတွင် အသုံးပြုရပါမည်',
   'react.error.useLoggerOutsideProvider':
     'useLoggerProvider ကို LoggerProvider အတွင်းတွင် အသုံးပြုရပါမည်',
   'react.error.usePreviewOutsideProvider':
