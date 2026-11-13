@@ -1,56 +1,74 @@
 /**
- * Angular Badge UI component with UIClassMap-driven styling.
+ * Badge component (React parity).
  *
  * @module
  */
 
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
+import { Component } from '@angular/core'
 
 import type { ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { styleText } from '../utilities/style.js'
+
 /**
- * Angular Badge UI component with UIClassMap-driven styling.
+ * Badge component.
+ *
+ * The host element is the `<span>` React renders (`span[mol-badge]`); the
+ * color variant maps to `badge({ variant })` exactly as React's `Badge`.
  */
 @Component({
-  selector: 'mol-badge',
+  selector: 'span[mol-badge]',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <span [class]="badgeClasses" [style]="style" [attr.data-testid]="testId">
-      <ng-content></ng-content>
-    </span>
-  `,
+  inputs: ['color', 'variant', 'size', 'rounded', 'className', 'style', 'testId'],
+  host: {
+    '[class]': 'classes()',
+    '[style]': 'hostStyle()',
+    '[attr.data-testid]': 'testId',
+  },
+  template: `<ng-content></ng-content>`,
 })
-/**
- * Molecule Badge class.
- */
-export class MoleculeBadge {
-  @Input() color: ColorVariant = 'primary'
-  @Input() variant: 'solid' | 'outline' | 'subtle' = 'solid'
-  @Input() size?: Size
-  @Input() rounded = true
-  @Input() className?: string
-  @Input() style?: Record<string, string>
-  @Input() testId?: string
+export class Badge {
+  /** Named color variant (`primary`, `success`, …). */
+  color: ColorVariant = 'primary'
+  /** Visual style (kept for React prop parity; the class map keys off `color`). */
+  variant: 'solid' | 'outline' | 'subtle' = 'solid'
+  /** Badge size. */
+  size?: Size
+  /** Whether the badge is fully rounded (default) or square. */
+  rounded = true
+  /** Extra classes joined onto the badge classes. */
+  className?: string
+  /** Inline style object (React camelCase). */
+  style?: Record<string, unknown>
+  /** `data-testid` for the badge. */
+  testId?: string
 
   /**
-   * Retrieves the current UI class map.
-   * @returns The UIClassMap instance for styling.
+   * The current class map.
+   * @returns The UIClassMap.
    */
-  private get cm(): UIClassMap {
+  cm(): UIClassMap {
     return getClassMap()
   }
 
   /**
-   * Computes the combined CSS classes for the badge element.
-   * @returns The badge class name string.
+   * Computes the badge class list.
+   * @returns The class string.
    */
-  get badgeClasses(): string {
-    return this.cm.cn(
-      this.cm.badge({ variant: this.color, size: this.size }),
-      !this.rounded && this.cm.badgeSquare,
+  classes(): string {
+    return this.cm().cn(
+      this.cm().badge({ variant: this.color, size: this.size }),
+      !this.rounded && this.cm().badgeSquare,
       this.className,
     )
+  }
+
+  /**
+   * Serializes the inline style.
+   * @returns The style attribute text.
+   */
+  hostStyle(): string | null {
+    return styleText(this.style)
   }
 }

@@ -4,18 +4,23 @@
  * @module
  */
 
-import { defineComponent, h, type PropType } from 'vue'
+import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
-import type { ButtonVariant, ColorVariant, Size } from '@molecule/app-ui'
+import type { ButtonProps, ButtonSize, ButtonVariant, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { Spinner } from './Spinner.js'
 
 /**
  * Vue Button UI component with UIClassMap-driven styling.
+ *
+ * Faithful port of `@molecule/app-ui-react`'s Button. While `loading` is
+ * true, the native button is disabled and marked busy.
  */
 export const Button = defineComponent({
   name: 'MButton',
+  inheritAttrs: false,
   props: {
     variant: {
       type: String as PropType<ButtonVariant>,
@@ -26,7 +31,7 @@ export const Button = defineComponent({
       default: 'primary',
     },
     size: {
-      type: String as PropType<Size>,
+      type: String as PropType<ButtonSize>,
       default: 'md',
     },
     loading: {
@@ -46,10 +51,14 @@ export const Button = defineComponent({
       type: String as PropType<'button' | 'submit' | 'reset'>,
       default: 'button',
     },
-    class: String,
+    leftIcon: null,
+    rightIcon: null,
+    className: String,
+    style: [String, Object] as PropType<ButtonProps['style']>,
+    testId: String,
   },
   emits: ['click'],
-  setup(props, { slots, emit }) {
+  setup(props, { attrs, slots, emit }) {
     const cm = getClassMap()
 
     return () => {
@@ -60,22 +69,34 @@ export const Button = defineComponent({
           size: props.size,
           fullWidth: props.fullWidth,
         }),
-        props.class,
+        ...classOf(props.className, attrs),
       )
+
+      const leftIcon = props.leftIcon ?? slots.leftIcon?.()
+      const rightIcon = props.rightIcon ?? slots.rightIcon?.()
+
+      const children: VNodeChild[] = []
+      if (props.loading) children.push(h(Spinner, { size: 'sm', className: cm.buttonIconLeft }))
+      if (!props.loading && !!leftIcon)
+        children.push(h('span', { class: cm.buttonIconLeft }, [leftIcon]))
+      const label = props.loading && props.loadingText ? props.loadingText : slots.default?.()
+      if (label !== undefined) children.push(label)
+      if (!props.loading && !!rightIcon)
+        children.push(h('span', { class: cm.buttonIconRight }, [rightIcon]))
 
       return h(
         'button',
         {
           type: props.type,
           class: classes,
+          style: styleOf(props.style, attrs),
+          'data-testid': props.testId,
           disabled: props.disabled || props.loading,
           'aria-busy': props.loading,
-          onClick: (e: MouseEvent) => emit('click', e),
+          onClick: (event: MouseEvent) => emit('click', event),
+          ...restAttrs(attrs),
         },
-        [
-          props.loading && h(Spinner, { size: 'sm', class: cm.buttonIconLeft }),
-          props.loading && props.loadingText ? props.loadingText : slots.default?.(),
-        ],
+        children,
       )
     }
   },

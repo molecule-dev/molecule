@@ -19,6 +19,7 @@ import { t } from '@molecule/app-i18n'
 import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { toStyleProps } from '../utilities/dom.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
@@ -51,7 +52,7 @@ const useAccordionContext = (): AccordionContextValue => {
  */
 const AccordionItemComponent: Component<{
   item: AccordionItemType<string>
-  class?: string
+  className?: string
 }> = (props) => {
   const { expandedItems, toggleItem } = useAccordionContext()
   const cm = getClassMap()
@@ -60,11 +61,14 @@ const AccordionItemComponent: Component<{
   const triggerId = createUniqueId()
 
   return (
-    <div class={cm.cn(cm.accordionItem, props.class)} data-state={isExpanded() ? 'open' : 'closed'}>
+    <div
+      class={cm.cn(cm.accordionItem, props.className)}
+      data-state={isExpanded() ? 'open' : 'closed'}
+    >
       <button
         id={triggerId}
         type="button"
-        class={cm.cn(cm.accordion({}), cm.accordionTriggerBase)}
+        class={cm.cn(cm.accordion({ variant: 'default' }), cm.accordionTriggerBase)}
         onClick={() => !props.item.disabled && toggleItem(props.item.value)}
         aria-expanded={isExpanded()}
         aria-controls={contentId}
@@ -80,9 +84,9 @@ const AccordionItemComponent: Component<{
         aria-labelledby={triggerId}
         data-state={isExpanded() ? 'open' : 'closed'}
         class={cm.accordionContent}
-        style={{
+        style={toStyleProps({
           display: isExpanded() ? 'block' : 'none',
-        }}
+        })}
       >
         <div class={cm.accordionContentInner}>{props.item.content as JSX.Element}</div>
       </div>
@@ -161,10 +165,18 @@ export const Accordion: Component<AccordionProps<string>> = (props) => {
   }
 
   return (
-    <AccordionContext.Provider value={{ expandedItems, toggleItem, multiple: multiple() }}>
+    <AccordionContext.Provider
+      value={{
+        expandedItems,
+        toggleItem,
+        get multiple() {
+          return multiple()
+        },
+      }}
+    >
       <div
         class={cm.cn(cm.accordionRoot, local.className)}
-        style={local.style}
+        style={toStyleProps(local.style)}
         data-testid={local.testId}
       >
         <For each={local.items}>{(item) => <AccordionItemComponent item={item} />}</For>

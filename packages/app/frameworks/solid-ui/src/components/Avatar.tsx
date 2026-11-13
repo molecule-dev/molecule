@@ -10,22 +10,9 @@ import { t } from '@molecule/app-i18n'
 import type { AvatarProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { toStyleProps } from '../utilities/dom.js'
+import { getInitials } from '../utilities/initials.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
-
-/**
- * Get initials from a name.
- * @param name - The full name to extract initials from.
- * @returns The uppercase initials string.
- */
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-}
 
 /**
  * Renders the Avatar component.
@@ -45,28 +32,29 @@ export const Avatar: Component<AvatarProps> = (props) => {
     'testId',
   ])
 
-  const cm = getClassMap()
   const [imageError, setImageError] = createSignal(false)
 
-  const showFallback = (): boolean => !local.src || imageError()
+  const cm = getClassMap()
+  const size = (): 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number => local.size ?? 'md'
   const rounded = (): boolean => local.rounded ?? true
+  const showFallback = (): boolean => !local.src || imageError()
 
   const containerClasses = (): string =>
     cm.cn(
-      cm.avatar({ size: typeof local.size === 'number' ? undefined : local.size }),
+      cm.avatar({ size: typeof local.size === 'number' ? undefined : (local.size ?? 'md') }),
       !rounded() && cm.avatarSquare,
       local.className,
     )
 
-  const customSize = (): { width: string; height: string } | undefined =>
-    typeof local.size === 'number'
-      ? { width: `${local.size}px`, height: `${local.size}px` }
+  const customStyle = (): Record<string, string | number> | undefined =>
+    typeof size() === 'number'
+      ? ({ width: size() as number, height: size() as number } as const)
       : undefined
 
   return (
     <div
       class={containerClasses()}
-      style={{ ...local.style, ...customSize() }}
+      style={toStyleProps({ ...local.style, ...customStyle() })}
       data-testid={local.testId}
     >
       <Show
@@ -77,7 +65,7 @@ export const Avatar: Component<AvatarProps> = (props) => {
               when={local.fallback}
               fallback={
                 <Show when={local.name} fallback={renderIcon('user', cm.avatarFallbackIcon)}>
-                  <span class={cm.avatarInitials}>{getInitials(local.name!)}</span>
+                  <span class={cm.avatarInitials}>{getInitials(local.name)}</span>
                 </Show>
               }
             >

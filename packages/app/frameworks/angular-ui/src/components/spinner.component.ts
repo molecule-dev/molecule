@@ -1,85 +1,92 @@
 /**
- * Angular Spinner UI component with UIClassMap-driven styling.
+ * Spinner component (React parity).
  *
  * @module
  */
 
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
+import { Component } from '@angular/core'
 
 import { t } from '@molecule/app-i18n'
-import type { ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
+import type { Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { styleText } from '../utilities/style.js'
+
+/** Color names the class map knows — anything else is a raw CSS color. */
+const NAMED_COLORS = ['primary', 'secondary', 'success', 'warning', 'error', 'info']
+
 /**
- * Angular Spinner UI component with UIClassMap-driven styling.
+ * Spinner component.
+ *
+ * The host element is the `<div role="status">` React renders. A raw CSS
+ * color (not a known color name) is expressed as inline border colors, and
+ * `data-*`/`aria-*` rest props land on the host (React's spread target).
  */
 @Component({
-  selector: 'mol-spinner',
+  selector: 'div[mol-spinner]',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div
-      role="status"
-      [attr.aria-label]="spinnerLabel"
-      [class]="spinnerClasses"
-      [style]="computedStyle"
-      [attr.data-testid]="testId"
-    >
-      @if (label) {
-        <span [class]="cm.srOnly">{{ label }}</span>
-      }
-    </div>
-  `,
+  inputs: ['size', 'color', 'label', 'className', 'style', 'testId'],
+  host: {
+    '[attr.role]': '"status"',
+    '[attr.aria-label]': 'ariaLabel()',
+    '[class]': 'classes()',
+    '[style]': 'hostStyle()',
+    '[attr.data-testid]': 'testId',
+  },
+  template: `@if (label) {
+    <span [class]="cm().srOnly">{{ label }}</span>
+  }`,
 })
-/**
- * Molecule Spinner class.
- */
-export class MoleculeSpinner {
-  @Input() size: Size = 'md'
-  @Input() color?: ColorVariant | string
-  @Input() label?: string
-  @Input() className?: string
-  @Input() style?: Record<string, string>
-  @Input() testId?: string
+export class Spinner {
+  /** Spinner size. */
+  size: Size = 'md'
+  /** Named color variant or a raw CSS color. */
+  color?: string
+  /** Accessible label; also renders a screen-reader-only text node. */
+  label?: string
+  /** Extra classes joined onto the spinner classes. */
+  className?: string
+  /** Inline style object (React camelCase). */
+  style?: Record<string, unknown>
+  /** `data-testid`. */
+  testId?: string
 
   /**
-   * Retrieves the current UI class map.
-   * @returns The UIClassMap instance for styling.
+   * The current class map.
+   * @returns The UIClassMap.
    */
-  get cm(): UIClassMap {
+  cm(): UIClassMap {
     return getClassMap()
   }
 
   /**
-   * Computes the accessible spinner label.
-   * @returns The localized aria-label for the spinner.
+   * The accessible label (localized default when not given).
+   * @returns The aria-label text.
    */
-  get spinnerLabel(): string {
+  ariaLabel(): string {
     return this.label || t('ui.spinner.loading', undefined, { defaultValue: 'Loading' })
   }
 
   /**
-   * Computes the combined CSS classes for the spinner element.
-   * @returns The spinner class name string.
+   * Computes the spinner class list.
+   * @returns The class string.
    */
-  get spinnerClasses(): string {
-    return this.cm.cn(this.cm.spinner({ size: this.size }), this.className)
+  classes(): string {
+    return this.cm().cn(this.cm().spinner({ size: this.size }), this.className)
   }
 
   /**
-   * Computes the merged inline styles including custom color.
-   * @returns The computed style object with optional custom border color.
+   * Serializes the merged inline style (caller style plus a raw-color border
+   * override when `color` is a CSS color rather than a named variant).
+   * @returns The style attribute text.
    */
-  get computedStyle(): Record<string, string> {
-    const base: Record<string, string> = { ...this.style }
-    if (
+  hostStyle(): string | null {
+    const colorStyle =
       this.color &&
       typeof this.color === 'string' &&
-      !['primary', 'secondary', 'success', 'warning', 'error', 'info'].includes(this.color)
-    ) {
-      base['borderColor'] = this.color
-      base['borderTopColor'] = 'transparent'
-    }
-    return base
+      !NAMED_COLORS.includes(this.color as (typeof NAMED_COLORS)[number])
+        ? { borderColor: this.color, borderTopColor: 'transparent' }
+        : undefined
+    return styleText({ ...this.style, ...colorStyle })
   }
 }

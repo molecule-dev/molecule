@@ -134,6 +134,14 @@ export const solidAdapter: FrameworkAdapter = {
     return runSteps(
       testCase,
       async (container) => {
+        // The same mount scaffolding the React reference adapter uses: the
+        // component renders inside a `data-parity-unwrap` div inside the
+        // harness container, so the raw-DOM focus path (computed before
+        // normalization unwraps scaffolding) has the same depth in every
+        // framework.
+        const mountPoint = document.createElement('div')
+        mountPoint.setAttribute('data-parity-unwrap', '')
+        container.appendChild(mountPoint)
         const dispose = render(
           () =>
             createComponent(MoleculeProvider, {
@@ -142,6 +150,11 @@ export const solidAdapter: FrameworkAdapter = {
                 router: services.router,
                 theme: services.theme,
                 auth: services.auth,
+                // The React reference adapter's `AuthProvider` defaults
+                // `awaitSession = true`: the tree renders only after the auth
+                // client has decided the session (SessionReady's fallback is
+                // null), so a `status: 'loading'` case renders nothing.
+                awaitSession: true,
               },
               get children() {
                 const merged: Record<string, unknown> = {}
@@ -163,7 +176,7 @@ export const solidAdapter: FrameworkAdapter = {
                 return createComponent(Comp, merged)
               },
             }),
-          container,
+          mountPoint,
         )
         return {
           flush: async () => {

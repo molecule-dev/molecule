@@ -1,127 +1,171 @@
 /**
- * Angular RadioGroup UI component with UIClassMap-driven styling.
+ * RadioGroup component (React parity).
  *
  * @module
  */
 
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core'
+import { Component, ElementRef, EventEmitter, inject, Output } from '@angular/core'
 
-import type { RadioOption, Size, UIClassMap } from '@molecule/app-ui'
+import { t } from '@molecule/app-i18n'
+import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { styleText } from '../utilities/style.js'
+
+/** One radio option. */
+export interface RadioOption {
+  /** The option's value. */
+  value: string
+  /** The option's label (text). */
+  label?: unknown
+  /** Whether this option is disabled. */
+  disabled?: boolean
+}
+
 /**
- * Angular RadioGroup UI component with UIClassMap-driven styling.
+ * RadioGroup component.
+ *
+ * The host is the `role="radiogroup"` div React renders. Selecting an option
+ * emits that option's VALUE (not the DOM event) through the `change` output,
+ * exactly like React's per-option handler.
  */
 @Component({
-  selector: 'mol-radio-group',
+  selector: 'div[mol-radio-group]',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div
-      [class]="className"
-      [style]="style"
-      [attr.data-testid]="testId"
-      role="radiogroup"
-      [attr.aria-label]="label"
-    >
-      @if (label) {
-        <div [class]="groupLabelClasses">{{ label }}</div>
-      }
-      <div [class]="directionClasses">
-        @for (option of options; track option.value) {
-          <label [class]="getOptionLabelClasses(option)">
-            <input
-              type="radio"
-              [name]="label"
-              [value]="option.value"
-              [checked]="value === option.value"
-              [disabled]="disabled || option.disabled"
-              [attr.data-state]="value === option.value ? 'checked' : 'unchecked'"
-              [class]="radioClasses"
-              (change)="onRadioChange(option.value)"
-            />
-            <span [class]="cm.controlText">{{ option.label }}</span>
-          </label>
-        }
-      </div>
-      @if (error) {
-        <p [class]="errorClasses">{{ error }}</p>
+  inputs: [
+    'options',
+    'value',
+    'size',
+    'label',
+    'name',
+    'direction',
+    'error',
+    'className',
+    'style',
+    'testId',
+    'disabled',
+  ],
+  host: {
+    '[class]': 'className',
+    '[style]': 'hostStyle()',
+    '[attr.data-testid]': 'testId',
+    '[attr.role]': '"radiogroup"',
+    '[attr.aria-label]': 'groupLabel()',
+    '[attr.aria-invalid]': 'error ? "true" : null',
+    '[attr.aria-describedby]': 'error ? errorId() : null',
+  },
+  template: `@if (label) {
+      <div [class]="cm().cn(cm().label({ required: false }), cm().sp('mb', 2))">{{ label }}</div>
+    }
+    <div [class]="cm().radioGroupLayout(direction ?? 'vertical')">
+      @for (option of options ?? []; track option.value) {
+        <label
+          [class]="
+            cm().cn(cm().controlLabel, (disabled || option.disabled) && cm().controlDisabled)
+          "
+        >
+          <input
+            type="radio"
+            [attr.name]="groupName()"
+            [attr.value]="option.value"
+            [attr.checked]="value === option.value ? '' : null"
+            [disabled]="disabled || option.disabled"
+            (change)="select($event)"
+            [attr.data-state]="value === option.value ? 'checked' : 'unchecked'"
+            [class]="cm().cn(cm().radio({ error: !!error }), cm().cursorPointer)"
+          />
+          <span [class]="cm().controlText">{{ option.label }}</span>
+        </label>
       }
     </div>
-  `,
+    @if (error) {
+      <p [attr.id]="errorId()" [class]="cm().cn(cm().formError, cm().sp('mt', 1))">{{ error }}</p>
+    }`,
 })
-/**
- * Molecule Radio Group class.
- */
-export class MoleculeRadioGroup {
-  @Input() options: RadioOption<string>[] = []
-  @Input() value?: string
-  @Input() size?: Size
-  @Input() label?: string
-  @Input() direction: 'horizontal' | 'vertical' = 'vertical'
-  @Input() error?: string
-  @Input() className?: string
-  @Input() style?: Record<string, string>
-  @Input() testId?: string
-  @Input() disabled = false
-
-  @Output() valueChange = new EventEmitter<string>()
+export class RadioGroup {
+  /** The options to render. */
+  options?: RadioOption[]
+  /** The selected option value. */
+  value?: string
+  /** Group size (kept for prop parity). */
+  size?: unknown
+  /** Group label. */
+  label?: string
+  /** Native radio group name (defaults to a stable generated name). */
+  name?: string
+  /** Layout direction. */
+  direction?: 'vertical' | 'horizontal'
+  /** Error message. */
+  error?: string
+  /** Extra classes for the group root. */
+  className?: string
+  /** Inline style object (React camelCase). */
+  style?: Record<string, unknown>
+  /** `data-testid`. */
+  testId?: string
+  /** Disables every option. */
+  disabled?: boolean
 
   /**
-   * Retrieves the current UI class map.
-   * @returns The UIClassMap instance for styling.
+   * The current class map.
+   * @returns The UIClassMap.
    */
-  get cm(): UIClassMap {
+  cm(): UIClassMap {
     return getClassMap()
   }
 
   /**
-   * Computes the CSS classes for the radio group label.
-   * @returns The group label class name string.
+   * The native radio group name.
+   * @returns The name value.
    */
-  get groupLabelClasses(): string {
-    return this.cm.cn(this.cm.label({}), this.cm.radioGroupLabel)
+  groupName(): string {
+    return this.name || 'r0'
   }
 
   /**
-   * Computes the CSS classes for the layout direction.
-   * @returns The direction layout class name string.
+   * The error paragraph id.
+   * @returns The id value.
    */
-  get directionClasses(): string {
-    return this.cm.radioGroupLayout(this.direction)
+  errorId(): string {
+    return `${this.groupName()}-error`
   }
 
   /**
-   * Computes the CSS classes for radio input elements.
-   * @returns The radio input class name string.
+   * The accessible group label.
+   * @returns The label text.
    */
-  get radioClasses(): string {
-    return this.cm.cn(this.cm.radio({ error: !!this.error }), this.cm.cursorPointer)
+  groupLabel(): string {
+    return this.label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })
   }
 
   /**
-   * Computes the CSS classes for the error message.
-   * @returns The error class name string.
+   * Serializes the inline style.
+   * @returns The style attribute text.
    */
-  get errorClasses(): string {
-    return this.cm.cn(this.cm.formError, this.cm.sp('mt', 1))
+  hostStyle(): string | null {
+    return styleText(this.style)
   }
 
   /**
-   * Computes the CSS classes for an individual radio option label.
-   * @param option - The radio option to compute classes for.
-   * @returns The option label class name string.
+   * Emits the selected option's value; the change event stops here so the
+   * host-level `change` output binding does not record it a second time. Every
+   * radio's checked state is then restored to the controlled `value` — checking
+   * one radio natively UNCHECKS the previously selected one, so restoring only
+   * the clicked input would leave the group with no selection at all.
+   *
+   * @param event - The native radio change event.
    */
-  getOptionLabelClasses(option: RadioOption<string>): string {
-    const isDisabled = this.disabled || option.disabled
-    return this.cm.cn(this.cm.controlLabel, isDisabled && this.cm.controlDisabled)
+  select(event: Event): void {
+    event.stopPropagation()
+    this.change.emit((event.target as HTMLInputElement).value)
+    // React always controls radios (checked={value === option.value}); restore.
+    const radios = (this.host.nativeElement as HTMLElement).querySelectorAll('input[type="radio"]')
+    for (const radio of Array.from(radios) as HTMLInputElement[])
+      radio.checked = this.value === radio.value
   }
 
-  /**
-   * Handles radio option selection change.
-   * @param optionValue - The value of the selected radio option.
-   */
-  onRadioChange(optionValue: string): void {
-    this.valueChange.emit(optionValue)
-  }
+  /** Fires the selected option's value. */
+  @Output() readonly change = new EventEmitter<string>()
+
+  private readonly host = inject(ElementRef)
 }

@@ -9,6 +9,8 @@ import { type Component, type JSX, splitProps } from 'solid-js'
 import type { BadgeProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { toStyleProps } from '../utilities/dom.js'
+
 /**
  * Renders the Badge component.
  * @param props - The component props.
@@ -30,13 +32,13 @@ export const Badge: Component<BadgeProps> = (props) => {
 
   const badgeClasses = (): string =>
     cm.cn(
-      cm.badge({ variant: local.color, size: local.size }),
+      cm.badge({ variant: local.color ?? 'primary', size: local.size }),
       !(local.rounded ?? true) && cm.badgeSquare,
       local.className,
     )
 
   return (
-    <span class={badgeClasses()} style={local.style} data-testid={local.testId}>
+    <span class={badgeClasses()} style={toStyleProps(local.style)} data-testid={local.testId}>
       {local.children as JSX.Element}
     </span>
   )

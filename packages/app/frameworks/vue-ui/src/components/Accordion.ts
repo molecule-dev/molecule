@@ -13,12 +13,13 @@ import {
   type PropType,
   provide,
   ref,
-  type VNodeArrayChildren,
+  type VNodeChild,
 } from 'vue'
 
-import type { AccordionItem as AccordionItemType } from '@molecule/app-ui'
+import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { classOf, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
 
 /**
@@ -42,11 +43,12 @@ const AccordionItemComponent = defineComponent({
       type: Object as PropType<AccordionItemType<string>>,
       required: true,
     },
-    class: String,
   },
   setup(props) {
     const cm = getClassMap()
     const context = inject(AccordionContextKey)!
+    // Stable per-item ids wiring the trigger to its region (React's `useId`
+    // pair; the conformance normalizer renumbers ids by appearance either way).
     const triggerId = `accordion-trigger-${props.item.value}`
     const contentId = `accordion-content-${props.item.value}`
 
@@ -56,7 +58,7 @@ const AccordionItemComponent = defineComponent({
       return h(
         'div',
         {
-          class: cm.cn(cm.accordionItem, props.class),
+          class: cm.accordionItem,
           'data-state': isExpanded ? 'open' : 'closed',
         },
         [
@@ -65,17 +67,14 @@ const AccordionItemComponent = defineComponent({
             {
               id: triggerId,
               type: 'button',
-              class: cm.cn(cm.accordion(), cm.accordionTriggerBase),
+              class: cm.cn(cm.accordion({ variant: 'default' }), cm.accordionTriggerBase),
               onClick: () => !props.item.disabled && context.toggleItem(props.item.value),
               'aria-expanded': isExpanded,
               'aria-controls': contentId,
               'data-state': isExpanded ? 'open' : 'closed',
               disabled: props.item.disabled,
             },
-            [
-              props.item.header,
-              renderIcon('chevron-down', cm.accordionChevron),
-            ] as VNodeArrayChildren,
+            [props.item.header, renderIcon('chevron-down', cm.accordionChevron)] as VNodeChild[],
           ),
           h(
             'div',
@@ -89,9 +88,7 @@ const AccordionItemComponent = defineComponent({
                 display: isExpanded ? 'block' : 'none',
               },
             },
-            h('div', { class: cm.accordionContentInner }, [
-              props.item.content,
-            ] as VNodeArrayChildren),
+            h('div', { class: cm.accordionContentInner }, [props.item.content] as VNodeChild[]),
           ),
         ],
       )
@@ -101,15 +98,22 @@ const AccordionItemComponent = defineComponent({
 
 /**
  * Vue Accordion UI component with UIClassMap-driven styling.
+ *
+ * Faithful port of `@molecule/app-ui-react`'s Accordion: single/multiple
+ * expansion, controlled (`value`) or uncontrolled (`defaultValue`),
+ * `collapsible: false` keeps the last item open, disabled items never toggle,
+ * and `change` (React's `onChange`) receives the value (single mode) or the
+ * array (multiple mode).
  */
 export const Accordion = defineComponent({
   name: 'MAccordion',
+  inheritAttrs: false,
   props: {
     items: {
       type: Array as PropType<AccordionItemType<string>[]>,
       required: true,
     },
-    modelValue: {
+    value: {
       type: [String, Array] as PropType<string | string[]>,
     },
     defaultValue: {
@@ -123,10 +127,12 @@ export const Accordion = defineComponent({
       type: Boolean,
       default: true,
     },
-    class: String,
+    className: String,
+    style: [String, Object] as PropType<AccordionProps['style']>,
+    testId: String,
   },
-  emits: ['update:modelValue', 'change'],
-  setup(props, { emit }) {
+  emits: ['change'],
+  setup(props, { attrs, emit }) {
     const cm = getClassMap()
 
     // Normalize value to array
@@ -137,10 +143,9 @@ export const Accordion = defineComponent({
 
     const internalExpanded = ref<string[]>(normalizeValue(props.defaultValue))
 
+    // Use controlled value if provided, otherwise use internal state
     const expandedItems = computed(() => {
-      return props.modelValue !== undefined
-        ? normalizeValue(props.modelValue)
-        : internalExpanded.value
+      return props.value !== undefined ? normalizeValue(props.value) : internalExpanded.value
     })
 
     const toggleItem = (itemValue: string): void => {
@@ -149,6 +154,7 @@ export const Accordion = defineComponent({
       if (expandedItems.value.includes(itemValue)) {
         // Collapsing
         if (!props.collapsible && expandedItems.value.length === 1) {
+          // Can't collapse if not collapsible and it's the only expanded item
           return
         }
         newExpanded = expandedItems.value.filter((v) => v !== itemValue)
@@ -161,16 +167,14 @@ export const Accordion = defineComponent({
         }
       }
 
-      if (props.modelValue === undefined) {
+      if (props.value === undefined) {
         internalExpanded.value = newExpanded
       }
 
-      // Emit appropriate value type
+      // Call onChange with appropriate type
       if (props.multiple) {
-        emit('update:modelValue', newExpanded)
         emit('change', newExpanded)
       } else {
-        emit('update:modelValue', newExpanded[0] || '')
         emit('change', newExpanded[0] || '')
       }
     }
@@ -187,7 +191,9 @@ export const Accordion = defineComponent({
       h(
         'div',
         {
-          class: cm.cn(cm.accordionRoot, props.class),
+          class: cm.cn(cm.accordionRoot, ...classOf(props.className, attrs)),
+          style: styleOf(props.style, attrs),
+          'data-testid': props.testId,
         },
         props.items.map((item) =>
           h(AccordionItemComponent, {

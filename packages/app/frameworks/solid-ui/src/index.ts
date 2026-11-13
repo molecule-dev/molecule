@@ -1,13 +1,18 @@
 /**
  * SolidJS UI components for molecule.dev.
  *
- * Provides Solid implementations of the core `@molecule/app-ui` component
- * interfaces, styled through the UIClassMap abstraction — 25 components:
- * Accordion, Alert, Avatar, Badge, Button, Card, Checkbox, Dropdown, Form,
+ * Implements the same component surface as `@molecule/app-ui-react`, styled
+ * through the UIClassMap abstraction: the core `@molecule/app-ui` components
+ * (Accordion, Alert, Avatar, Badge, Button, Card, Checkbox, Dropdown, Form,
  * Input, Layout helpers, Modal, Pagination, Progress, RadioGroup, Select,
  * Separator, Skeleton, Spinner, Switch, Table, Tabs, Textarea, Toast,
- * Tooltip. React-only extras (Icon, UserMenu, ThemeToggle, PageHeader,
- * AuthGuard, …) live in `@molecule/app-ui-react` and are NOT available here.
+ * Tooltip) plus the app-level components (AuthGuard, ConfirmButton,
+ * ConfirmDialog, EmptyState, FloatingInput, Icon, LanguagePicker,
+ * LoadErrorBanner, OptimisticToggleButton, PageHeader, PageShell,
+ * PanelClose, PromptDialog, ResponsiveAppShell, SidebarUserCard, ThemeToggle,
+ * UserMenu, UserMenuPopover) and their hooks (`usePanelClose`, `useToast`,
+ * `useIsDesktop`, `useUserMenuPopoverClose`). Props keep React's names and
+ * value shapes (`className`, camelCase `style` objects, `onClick`).
  *
  * @example
  * ```tsx

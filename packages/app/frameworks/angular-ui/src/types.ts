@@ -54,7 +54,6 @@ export type {
   PaginationProps,
   RadioGroupProps,
   // Radio
-  RadioOption,
   SelectElementProps,
   // Select
   SelectOption,

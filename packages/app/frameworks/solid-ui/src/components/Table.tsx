@@ -10,6 +10,7 @@ import { t } from '@molecule/app-i18n'
 import type { TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { toStyleProps } from '../utilities/dom.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 import { Spinner } from './Spinner.jsx'
 
@@ -70,7 +71,7 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
           <Spinner size="lg" />
         </div>
       </Show>
-      <table class={tableClasses()} style={local.style} data-testid={local.testId}>
+      <table class={tableClasses()} style={toStyleProps(local.style)} data-testid={local.testId}>
         <thead class={cm.tableHeader}>
           <tr class={cm.tableRow}>
             <For each={local.columns}>
@@ -82,10 +83,17 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
                     column.align === 'right' && cm.textRight,
                     column.sortable && cm.tableHeadSortable,
                   )}
-                  style={{
-                    width: typeof column.width === 'number' ? `${column.width}px` : column.width,
-                  }}
+                  style={toStyleProps({ width: column.width })}
                   onClick={() => column.sortable && handleSort(column)}
+                  aria-sort={
+                    column.sortable
+                      ? local.sort?.key === (column.key as string)
+                        ? local.sort.direction === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                        : 'none'
+                      : undefined
+                  }
                 >
                   <div class={cm.tableSortWrapper}>
                     {column.header as JSX.Element}

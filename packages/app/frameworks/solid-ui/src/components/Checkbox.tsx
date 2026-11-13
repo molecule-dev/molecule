@@ -4,10 +4,12 @@
  * @module
  */
 
-import { type Component, createEffect, type JSX, Show, splitProps } from 'solid-js'
+import { type Component, createEffect, createUniqueId, type JSX, Show, splitProps } from 'solid-js'
 
 import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import { toStyleProps } from '../utilities/dom.js'
 
 /**
  * Renders the Checkbox component.
@@ -30,26 +32,45 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
     'onChange',
   ])
 
-  const cm = getClassMap()
-  // eslint-disable-next-line no-unassigned-vars -- assigned via SolidJS ref binding
-  let checkboxRef: HTMLInputElement | undefined
+  let inputRef: HTMLInputElement | undefined
 
+  const cm = getClassMap()
   const checkboxId = (): string | undefined => local.id || local.name
+  // The error message must be programmatically associated with the input
+  // (like Input/Textarea/Select already do) — a bare sibling <p> is never
+  // announced by screen readers, so the failure reason was invisible.
+  const generatedId = createUniqueId()
+  const errorId = (): string => `${checkboxId() || generatedId}-error`
 
   createEffect(() => {
-    if (checkboxRef) {
-      checkboxRef.indeterminate = !!local.indeterminate
+    if (inputRef) {
+      inputRef.indeterminate = !!local.indeterminate
+      // React renders `checked` as a boolean ATTRIBUTE on first mount (and
+      // re-syncs it on controlled updates); the JSX binding keeps the live
+      // property in step.
+      if (local.checked === true) inputRef.setAttribute('checked', '')
+      else if (local.checked === false) inputRef.removeAttribute('checked')
     }
   })
 
   const checkboxClasses = (): string =>
     cm.cn(cm.checkbox({ error: !!local.error }), local.className)
 
+  // React's checkbox onChange fires on the `click` event; a controlled
+  // checkbox restores the prop value after the event when the caller does
+  // not adopt the toggled one.
+  const handleClick = (event: MouseEvent & { currentTarget: HTMLInputElement }): void => {
+    ;(local.onChange as ((event: Event) => void) | undefined)?.(event)
+    if (local.checked !== undefined) event.currentTarget.checked = !!local.checked
+  }
+
   return (
     <div class={cm.formFieldWrapper}>
       <label class={cm.controlLabel}>
         <input
-          ref={checkboxRef}
+          ref={(el) => {
+            inputRef = el
+          }}
           type="checkbox"
           id={checkboxId()}
           name={local.name}
@@ -57,20 +78,23 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
           disabled={local.disabled}
           data-state={local.checked ? 'checked' : 'unchecked'}
           aria-invalid={!!local.error}
+          aria-describedby={local.error ? errorId() : undefined}
           class={checkboxClasses()}
-          style={local.style}
+          style={toStyleProps(local.style)}
           data-testid={local.testId}
-          onChange={local.onChange as JSX.EventHandlerUnion<HTMLInputElement, Event>}
+          onClick={handleClick}
           {...(rest as JSX.InputHTMLAttributes<HTMLInputElement>)}
         />
-        <Show when={!!local.label}>
+        <Show when={local.label}>
           <span class={cm.cn(cm.controlText, local.disabled && cm.controlDisabled)}>
             {local.label as JSX.Element}
           </span>
         </Show>
       </label>
       <Show when={local.error}>
-        <p class={cm.cn(cm.formError, cm.sp('mt', 1))}>{local.error}</p>
+        <p id={errorId()} class={cm.cn(cm.formError, cm.sp('mt', 1))}>
+          {local.error}
+        </p>
       </Show>
     </div>
   )

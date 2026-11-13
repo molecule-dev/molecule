@@ -39,8 +39,10 @@ vi.mock('@molecule/app-icons', () => ({
   getIcon: vi.fn((name: string) => ({ name, viewBox: '0 0 24 24', paths: [] })),
 }))
 
-const { getModalWrapperStyle, MoleculeModal } = await import('../components/modal.component.js')
-const { getTooltipArrowStyle, MoleculeTooltip } = await import('../components/tooltip.component.js')
+const { getModalWrapperStyle, MoleculeModal } =
+  await import('../components/molecule/modal.component.js')
+const { getTooltipArrowStyle, MoleculeTooltip } =
+  await import('../components/molecule/tooltip.component.js')
 
 const placements = [
   'top',

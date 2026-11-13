@@ -1,5 +1,5 @@
 /**
- * Toast component.
+ * Vue Toast UI components with UIClassMap-driven styling.
  *
  * @module
  */
@@ -16,15 +16,40 @@ import {
   reactive,
   ref,
   Teleport,
+  type VNodeChild,
+  watch,
 } from 'vue'
 
 import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
-import type { ColorVariant } from '@molecule/app-ui'
+import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { classOf, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
 
+/** Where a {@link ToastContainer} anchors its toasts on screen. */
+type ToastPosition = 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
+
+/** One toast the provider manages: its props plus the provider-assigned id. */
+type ToastEntry = Omit<ToastProps, 'onDismiss'> & { id: string }
+
+/** What {@link ToastProvider} provides and {@link useToast} returns. */
+export interface ToastContext {
+  /** The currently managed toasts, oldest first. */
+  toasts: ToastEntry[]
+  /** Adds a toast and returns its id. */
+  addToast: (toast: Omit<ToastEntry, 'id'>) => string
+  /** Removes the toast with the given id. */
+  removeToast: (id: string) => void
+}
+
+/** Injection key carrying the {@link ToastContext} from provider to consumer. */
+const toastContextKey: InjectionKey<ToastContext> = Symbol('ToastContext')
+
+/**
+ * Map status to toast variant.
+ */
 const statusVariantMap: Record<ColorVariant, 'default' | 'success' | 'warning' | 'error' | 'info'> =
   {
     primary: 'default',
@@ -35,6 +60,9 @@ const statusVariantMap: Record<ColorVariant, 'default' | 'success' | 'warning' |
     info: 'info',
   }
 
+/**
+ * Map toast variant to icon name.
+ */
 const statusIconMap: Record<string, IconName> = {
   info: 'info-circle',
   success: 'check-circle',
@@ -42,30 +70,18 @@ const statusIconMap: Record<string, IconName> = {
   error: 'x-circle',
 }
 
-type ToastPosition = 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
-
-interface ToastData {
-  id: string
-  title?: string
-  description?: string
-  status?: ColorVariant
-  duration?: number
-  dismissible?: boolean
-}
-
-interface ToastContext {
-  toasts: ToastData[]
-  addToast: (toast: Omit<ToastData, 'id'>) => string
-  removeToast: (id: string) => void
-}
-
-const ToastContextKey: InjectionKey<ToastContext> = Symbol('ToastContext')
-
 /**
- * Single Toast component.
+ * Vue Toast UI component with UIClassMap-driven styling.
+ *
+ * Faithful port of `@molecule/app-ui-react`'s Toast. The auto-dismiss
+ * countdown pauses on hover AND focus (WCAG 2.2.1) and resumes with whatever
+ * time was left. The announced role follows `status`: `warning`/`error` get
+ * the assertive `role="alert"`; every other status gets the polite
+ * `role="status"`.
  */
 export const Toast = defineComponent({
   name: 'MToast',
+  inheritAttrs: false,
   props: {
     title: String,
     description: String,
@@ -81,103 +97,189 @@ export const Toast = defineComponent({
       type: Boolean,
       default: true,
     },
+    position: {
+      type: String as PropType<ToastPosition>,
+      default: 'bottom-right',
+    },
     closeLabel: String,
-    class: String,
+    className: String,
+    style: [String, Object] as PropType<ToastProps['style']>,
+    testId: String,
   },
   emits: ['dismiss'],
-  setup(props, { emit, slots }) {
+  setup(props, { attrs, emit, slots }) {
     const cm = getClassMap()
     const isVisible = ref(true)
-    let timer: ReturnType<typeof setTimeout> | null = null
 
-    const variant = statusVariantMap[props.status] || 'default'
+    // WCAG 2.2.1 (Timing Adjustable): a countdown a slow reader or AT user
+    // cannot pause loses the message mid-read. `remaining` carries the time
+    // left across pause/resume cycles (hover in/out, focus in/out) instead of
+    // a fixed deadline.
+    let remaining = props.duration
+    let startedAt: number | null = null
+    let timer: ReturnType<typeof setTimeout> | undefined
+
+    const clearTimer = (): void => {
+      if (timer) {
+        clearTimeout(timer)
+        timer = undefined
+      }
+      startedAt = null
+    }
+
+    const startTimer = (ms: number): void => {
+      clearTimer()
+      if (ms <= 0) return
+      startedAt = Date.now()
+      timer = setTimeout(() => {
+        isVisible.value = false
+        emit('dismiss')
+      }, ms)
+    }
+
+    const pauseTimer = (): void => {
+      if (startedAt === null) return
+      const elapsed = Date.now() - startedAt
+      remaining = Math.max(0, remaining - elapsed)
+      clearTimer()
+    }
+
+    const resumeTimer = (): void => {
+      if (remaining > 0) startTimer(remaining)
+    }
+
+    // React's effect (deps: [duration]) — reset the countdown whenever the
+    // duration changes, start it once on mount, clear it on unmount.
+    onMounted(() => {
+      remaining = props.duration
+      startTimer(props.duration)
+    })
+    onUnmounted(clearTimer)
+    watch(
+      () => props.duration,
+      (duration) => {
+        remaining = duration
+        startTimer(duration)
+      },
+    )
 
     const handleDismiss = (): void => {
       isVisible.value = false
       emit('dismiss')
     }
 
-    onMounted(() => {
-      if (props.duration > 0) {
-        timer = setTimeout(handleDismiss, props.duration)
-      }
-    })
-
-    onUnmounted(() => {
-      if (timer) clearTimeout(timer)
-    })
-
     return () => {
       if (!isVisible.value) return null
 
+      const variant = statusVariantMap[props.status] || 'default'
       const iconName = statusIconMap[variant]
+      const statusIcon = iconName ? renderIcon(iconName, cm.iconMd) : null
 
+      // Assertive announcement is appropriate for warnings/errors; every
+      // other status stays polite so routine confirmations don't interrupt a
+      // screen reader mid-sentence.
+      const role = variant === 'warning' || variant === 'error' ? 'alert' : 'status'
+
+      const title = props.title ?? slots.title?.()
+      const description = props.description ?? slots.description?.()
+
+      const content: VNodeChild[] = []
+      if (title) content.push(h('div', { class: cm.toastTitle }, title))
+      if (description || slots.default) {
+        content.push(h('div', { class: cm.toastDescription }, description || slots.default?.()))
+      }
+
+      const children: VNodeChild[] = []
+      if (statusIcon) children.push(h('span', { class: cm.toastIconWrapper }, statusIcon))
+      children.push(h('div', { class: cm.toastContentWrapper }, content))
+      if (props.dismissible) {
+        children.push(
+          h(
+            'button',
+            {
+              type: 'button',
+              onClick: handleDismiss,
+              class: cm.toastClose,
+              'aria-label':
+                props.closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' }),
+            },
+            renderIcon('x-mark', cm.iconSm),
+          ),
+        )
+      }
+
+      // React's onFocus/onBlur are the bubbling focusin/focusout events.
       return h(
         'div',
         {
-          role: 'alert',
+          role,
           'data-state': 'open',
-          class: cm.cn(cm.toast({ variant }), props.class),
+          class: cm.cn(cm.toast({ variant }), ...classOf(props.className, attrs)),
+          style: styleOf(props.style, attrs),
+          'data-testid': props.testId,
+          onMouseenter: pauseTimer,
+          onMouseleave: resumeTimer,
+          onFocusin: pauseTimer,
+          onFocusout: resumeTimer,
         },
-        [
-          iconName && h('span', { class: cm.toastIconWrapper }, renderIcon(iconName, cm.iconMd)),
-          h('div', { class: cm.toastContentWrapper }, [
-            props.title && h('div', { class: cm.toastTitle }, props.title),
-            (props.description || slots.default) &&
-              h('div', { class: cm.toastDescription }, props.description || slots.default?.()),
-          ]),
-          props.dismissible &&
-            h(
-              'button',
-              {
-                type: 'button',
-                onClick: handleDismiss,
-                class: cm.toastClose,
-                'aria-label':
-                  props.closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' }),
-              },
-              renderIcon('x-mark', cm.iconSm),
-            ),
-        ],
+        children,
       )
     }
   },
 })
 
 /**
- * Toast container component.
+ * Vue Toast container component with UIClassMap-driven styling.
+ *
+ * Faithful port of `@molecule/app-ui-react`'s ToastContainer: a positioned
+ * stack rendered into a `document.body` portal.
+ *
+ * @returns The component definition.
  */
 export const ToastContainer = defineComponent({
   name: 'MToastContainer',
+  inheritAttrs: false,
   props: {
     position: {
       type: String as PropType<ToastPosition>,
       default: 'bottom-right',
     },
-    class: String,
+    className: String,
   },
-  setup(props, { slots }) {
+  setup(props, { attrs, slots }) {
     const cm = getClassMap()
 
-    return () =>
-      h(
-        Teleport,
-        { to: 'body' },
+    return () => {
+      if (typeof document === 'undefined') return null
+      // Teleport children go through the ARRAY form: the slots-object form
+      // whose default returns a single VNode silently renders nothing (Vue
+      // 3.5 keeps the teleport anchors but never mounts the content).
+      return h(Teleport, { to: 'body' }, [
         h(
           'div',
           {
-            class: cm.cn(cm.toastContainer({ position: props.position }), props.class),
+            class: cm.cn(
+              cm.toastContainer({ position: props.position }),
+              ...classOf(props.className, attrs),
+            ),
           },
           slots.default?.(),
         ),
-      )
+      ])
+    }
   },
 })
 
 let toastCounter = 0
 
 /**
- * Toast provider component.
+ * Vue Toast provider component.
+ *
+ * Faithful port of `@molecule/app-ui-react`'s ToastProvider: renders its
+ * children plus a positioned {@link ToastContainer} and manages toasts added
+ * through {@link useToast}.
+ *
+ * @returns The component definition.
  */
 export const ToastProvider = defineComponent({
   name: 'MToastProvider',
@@ -188,48 +290,45 @@ export const ToastProvider = defineComponent({
     },
   },
   setup(props, { slots }) {
-    const toasts = reactive<ToastData[]>([])
+    const toasts = reactive<ToastEntry[]>([])
 
-    const addToast = (toast: Omit<ToastData, 'id'>): string => {
+    const addToast = (toast: Omit<ToastEntry, 'id'>): string => {
       const id = `toast-${++toastCounter}`
       toasts.push({ ...toast, id })
       return id
     }
 
     const removeToast = (id: string): void => {
-      const index = toasts.findIndex((t) => t.id === id)
-      if (index !== -1) {
-        toasts.splice(index, 1)
-      }
+      const index = toasts.findIndex((toast) => toast.id === id)
+      if (index !== -1) toasts.splice(index, 1)
     }
 
-    provide(ToastContextKey, { toasts, addToast, removeToast })
+    provide(toastContextKey, { toasts, addToast, removeToast })
 
     return () => [
       slots.default?.(),
-      h(ToastContainer, { position: props.position }, () =>
-        toasts.map((toast) =>
-          h(Toast, {
-            key: toast.id,
-            title: toast.title,
-            description: toast.description,
-            status: toast.status,
-            duration: toast.duration,
-            dismissible: toast.dismissible,
-            onDismiss: () => removeToast(toast.id),
-          }),
-        ),
+      h(
+        ToastContainer,
+        { position: props.position },
+        {
+          default: () =>
+            toasts.map((toast) =>
+              h(Toast, { ...toast, key: toast.id, onDismiss: () => removeToast(toast.id) }),
+            ),
+        },
       ),
     ]
   },
 })
 
 /**
- * Composable to use toast context.
- * @returns The result.
+ * Composable to access the toast context for adding and removing toasts.
+ *
+ * @returns The toast context with toast management methods.
+ * @throws {Error} When called outside a {@link ToastProvider}.
  */
 export function useToast(): ToastContext {
-  const context = inject(ToastContextKey)
+  const context = inject(toastContextKey)
   if (!context) {
     throw new Error(
       t('vue.error.useToastOutsideProvider', undefined, {

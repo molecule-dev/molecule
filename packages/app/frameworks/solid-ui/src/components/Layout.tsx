@@ -9,13 +9,21 @@ import { type Component, type JSX, splitProps } from 'solid-js'
 import type { ContainerProps, FlexProps, GridProps, Size, SpacerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { toStyleProps } from '../utilities/dom.js'
+
+/** The gap tokens the ClassMap's `flex`/`grid` recipes accept. */
+const GAP_SIZES = ['none', 'xs', 'sm', 'md', 'lg', 'xl'] as const
+
+/** The named spacer sizes. */
+const SPACER_SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+
 /**
- * Container component.
+ * Renders the Container component.
  * @param props - The component props.
  * @returns The rendered component element.
  */
 export const Container: Component<ContainerProps> = (props) => {
-  const [local] = splitProps(props, [
+  const [local, rest] = splitProps(props, [
     'children',
     'maxWidth',
     'centered',
@@ -26,36 +34,34 @@ export const Container: Component<ContainerProps> = (props) => {
   ])
 
   const cm = getClassMap()
-  const centered = (): boolean => local.centered ?? true
-
   const containerClasses = (): string =>
     cm.cn(
-      cm.container({ size: (local.maxWidth ?? 'lg') as Size | '2xl' | 'full' }),
-      centered() && cm.mxAuto,
+      cm.container({
+        size: (local.maxWidth ?? 'lg') as 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full',
+      }),
+      (local.centered ?? true) && cm.mxAuto,
       local.className,
     )
 
-  const containerStyle = (): JSX.CSSProperties | undefined => {
-    const mw = local.maxWidth ?? 'lg'
-    const standardSizes = ['sm', 'md', 'lg', 'xl', '2xl', 'full']
-    const customMaxWidth = !standardSizes.includes(mw) ? mw : undefined
-    return customMaxWidth ? { ...local.style, 'max-width': customMaxWidth } : local.style
-  }
-
   return (
-    <div class={containerClasses()} style={containerStyle()} data-testid={local.testId}>
+    <div
+      class={containerClasses()}
+      style={toStyleProps(local.style)}
+      data-testid={local.testId}
+      {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
+    >
       {local.children as JSX.Element}
     </div>
   )
 }
 
 /**
- * Flex container component.
+ * Renders the Flex container component.
  * @param props - The component props.
  * @returns The rendered component element.
  */
 export const Flex: Component<FlexProps> = (props) => {
-  const [local] = splitProps(props, [
+  const [local, rest] = splitProps(props, [
     'children',
     'direction',
     'justify',
@@ -70,41 +76,46 @@ export const Flex: Component<FlexProps> = (props) => {
 
   const cm = getClassMap()
 
+  // Map direction names to classMap API ('column' -> 'col', etc.)
+  const dirMap: Record<string, 'row' | 'col' | 'row-reverse' | 'col-reverse'> = {
+    row: 'row',
+    column: 'col',
+    'row-reverse': 'row-reverse',
+    'column-reverse': 'col-reverse',
+  }
+  const cmDirection = (): 'row' | 'col' | 'row-reverse' | 'col-reverse' =>
+    dirMap[local.direction ?? 'row'] || 'row'
+
   const flexClasses = (): string =>
     cm.cn(
       cm.flex({
-        direction:
-          local.direction === 'column'
-            ? 'col'
-            : local.direction === 'column-reverse'
-              ? 'col-reverse'
-              : (local.direction as 'row' | 'row-reverse' | undefined),
-        align: local.align,
-        justify: local.justify,
-        wrap: local.wrap,
+        direction: cmDirection(),
+        align: local.align as FlexProps['align'],
+        justify: local.justify as FlexProps['justify'],
+        wrap: local.wrap as FlexProps['wrap'],
         gap:
-          typeof local.gap === 'string'
-            ? (local.gap as 'xs' | 'sm' | 'md' | 'lg' | 'xl')
+          typeof local.gap === 'string' && (GAP_SIZES as readonly string[]).includes(local.gap)
+            ? (local.gap as 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl')
             : undefined,
       }),
       local.className,
     )
 
-  const gapStyle = (): { gap: string } | undefined => {
-    const gap = local.gap
-    if (typeof gap === 'number') return { gap: `${gap}px` }
-    if (typeof gap === 'string' && !['xs', 'sm', 'md', 'lg', 'xl', 'none'].includes(gap)) {
-      return { gap }
-    }
-    return undefined
-  }
+  // If gap is a number or non-standard string, use inline style
+  const gapStyle = (): Record<string, string | number> | undefined =>
+    typeof local.gap === 'number'
+      ? { gap: local.gap }
+      : typeof local.gap === 'string' && !(GAP_SIZES as readonly string[]).includes(local.gap)
+        ? { gap: local.gap }
+        : undefined
 
   return (
     <div
       class={flexClasses()}
-      style={{ ...local.style, ...gapStyle() }}
+      style={toStyleProps({ ...local.style, ...gapStyle() })}
       data-testid={local.testId}
       onClick={local.onClick as JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>}
+      {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
     >
       {local.children as JSX.Element}
     </div>
@@ -112,12 +123,12 @@ export const Flex: Component<FlexProps> = (props) => {
 }
 
 /**
- * Grid container component.
+ * Renders the Grid container component.
  * @param props - The component props.
  * @returns The rendered component element.
  */
 export const Grid: Component<GridProps> = (props) => {
-  const [local] = splitProps(props, [
+  const [local, rest] = splitProps(props, [
     'children',
     'columns',
     'rows',
@@ -136,78 +147,79 @@ export const Grid: Component<GridProps> = (props) => {
       cm.grid({
         cols: typeof local.columns === 'number' ? local.columns : undefined,
         gap:
-          typeof local.gap === 'string'
-            ? (local.gap as 'xs' | 'sm' | 'md' | 'lg' | 'xl')
+          typeof local.gap === 'string' && (GAP_SIZES as readonly string[]).includes(local.gap)
+            ? (local.gap as 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl')
             : undefined,
       }),
-      typeof local.rows === 'number' && cm.gridRows(local.rows as number),
       local.className,
     )
 
-  const gridStyle = (): JSX.CSSProperties => ({
+  const gridStyle = (): Record<string, string | number | undefined> => ({
     ...local.style,
-    'grid-template-columns': typeof local.columns === 'string' ? local.columns : undefined,
-    'grid-template-rows': typeof local.rows === 'string' ? local.rows : undefined,
+    gridTemplateColumns: typeof local.columns === 'string' ? local.columns : undefined,
+    gridTemplateRows: typeof local.rows === 'string' ? local.rows : undefined,
     gap:
       typeof local.gap === 'number'
-        ? `${local.gap}px`
-        : typeof local.gap === 'string' &&
-            !['xs', 'sm', 'md', 'lg', 'xl', 'none'].includes(local.gap)
+        ? local.gap
+        : typeof local.gap === 'string' && !(GAP_SIZES as readonly string[]).includes(local.gap)
           ? local.gap
           : undefined,
-    'column-gap':
+    columnGap:
       typeof local.columnGap === 'number'
-        ? `${local.columnGap}px`
+        ? local.columnGap
         : typeof local.columnGap === 'string'
           ? local.columnGap
           : undefined,
-    'row-gap':
+    rowGap:
       typeof local.rowGap === 'number'
-        ? `${local.rowGap}px`
+        ? local.rowGap
         : typeof local.rowGap === 'string'
           ? local.rowGap
           : undefined,
   })
 
   return (
-    <div class={gridClasses()} style={gridStyle()} data-testid={local.testId}>
+    <div
+      class={gridClasses()}
+      style={toStyleProps(gridStyle())}
+      data-testid={local.testId}
+      {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
+    >
       {local.children as JSX.Element}
     </div>
   )
 }
 
 /**
- * Spacer component.
+ * Renders the Spacer component.
  * @param props - The component props.
  * @returns The rendered component element.
  */
 export const Spacer: Component<SpacerProps> = (props) => {
-  const [local] = splitProps(props, ['size', 'horizontal', 'className', 'style', 'testId'])
+  const [local, rest] = splitProps(props, ['size', 'horizontal', 'className', 'style', 'testId'])
 
   const cm = getClassMap()
   const size = (): string | number => local.size ?? 'md'
 
-  const spacerClasses = (): string => {
-    const s = size()
-    const isNamedSize = typeof s === 'string' && ['xs', 'sm', 'md', 'lg', 'xl'].includes(s)
-    return cm.cn(
-      isNamedSize
-        ? cm.spacer({ size: s as Size, horizontal: local.horizontal })
+  const isNamedSize = (): boolean =>
+    typeof size() === 'string' && (SPACER_SIZES as readonly string[]).includes(size() as string)
+
+  const spacerClasses = (): string =>
+    cm.cn(
+      isNamedSize()
+        ? cm.spacer({ size: size() as Size, horizontal: !!local.horizontal })
         : local.horizontal
           ? cm.displayInlineBlock
           : cm.displayBlock,
       local.className,
     )
-  }
 
-  const sizeStyle = (): Record<string, string> | undefined => {
+  const sizeStyle = (): Record<string, string | number> | undefined => {
     const s = size()
     if (typeof s === 'number') {
-      return local.horizontal
-        ? { width: `${s}px`, height: '1px' }
-        : { height: `${s}px`, width: '1px' }
+      return local.horizontal ? { width: s, height: '1px' } : { height: s, width: '1px' }
     }
-    if (typeof s === 'string' && !['xs', 'sm', 'md', 'lg', 'xl'].includes(s)) {
+    if (typeof s === 'string' && !isNamedSize()) {
       return local.horizontal ? { width: s } : { height: s }
     }
     return undefined
@@ -216,8 +228,9 @@ export const Spacer: Component<SpacerProps> = (props) => {
   return (
     <div
       class={spacerClasses()}
-      style={{ ...local.style, ...sizeStyle() }}
+      style={toStyleProps({ ...local.style, ...sizeStyle() })}
       data-testid={local.testId}
+      {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
     />
   )
 }

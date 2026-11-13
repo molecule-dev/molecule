@@ -4,12 +4,13 @@
  * @module
  */
 
-import { type Component, createMemo, For, Show, splitProps } from 'solid-js'
+import { type Component, createMemo, For, type JSX, Show, splitProps } from 'solid-js'
 
 import { t } from '@molecule/app-i18n'
 import type { PaginationProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { toStyleProps } from '../utilities/dom.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
@@ -65,9 +66,22 @@ function generatePaginationRange(
 }
 
 /**
- * Pagination component.
+ * Renders the ellipsis indicator.
+ * @returns The ellipsis JSX element.
+ */
+const Ellipsis = (): JSX.Element => {
+  const cm = getClassMap()
+  return (
+    <span class={cm.paginationEllipsis} aria-hidden="true">
+      {renderIcon('ellipsis-horizontal', cm.iconSm)}
+    </span>
+  )
+}
+
+/**
+ * Renders the Pagination component.
  * @param props - The component props.
- * @returns The rendered component element.
+ * @returns The rendered pagination JSX.
  */
 export const Pagination: Component<PaginationProps> = (props) => {
   const [local] = splitProps(props, [
@@ -87,29 +101,23 @@ export const Pagination: Component<PaginationProps> = (props) => {
   ])
 
   const cm = getClassMap()
-  const siblings = (): number => local.siblings ?? 1
-  const boundaries = (): number => local.boundaries ?? 1
-  const showFirstLast = (): boolean => local.showFirstLast ?? false
-  const showPrevNext = (): boolean => local.showPrevNext ?? true
+
+  const page = (): number => local.page
+  const totalPages = (): number => local.totalPages
+  const size = (): 'xs' | 'sm' | 'md' | 'lg' | 'xl' => local.size ?? 'md'
 
   const range = createMemo(() =>
-    generatePaginationRange(local.page, local.totalPages, siblings(), boundaries()),
+    generatePaginationRange(page(), totalPages(), local.siblings ?? 1, local.boundaries ?? 1),
   )
 
   const handlePageChange = (newPage: number): void => {
-    if (newPage >= 1 && newPage <= local.totalPages && newPage !== local.page && !local.disabled) {
+    if (newPage >= 1 && newPage <= totalPages() && newPage !== page() && !local.disabled) {
       local.onChange(newPage)
     }
   }
 
   const buttonClasses = (isActive: boolean): string =>
-    cm.cn(
-      cm.pagination({
-        active: isActive,
-        size: local.size,
-      }),
-      cm.paginationInteractive,
-    )
+    cm.cn(cm.pagination({ active: isActive, size: size() }), cm.paginationInteractive)
 
   return (
     <nav
@@ -118,18 +126,18 @@ export const Pagination: Component<PaginationProps> = (props) => {
         local.labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })
       }
       class={cm.cn(cm.paginationRoot, local.className)}
-      style={local.style}
+      style={toStyleProps(local.style)}
       data-testid={local.testId}
     >
       <ul class={cm.paginationContent}>
         {/* First page button */}
-        <Show when={showFirstLast()}>
+        <Show when={local.showFirstLast ?? false}>
           <li>
             <button
               type="button"
               class={buttonClasses(false)}
               onClick={() => handlePageChange(1)}
-              disabled={local.page === 1 || local.disabled}
+              disabled={page() === 1 || local.disabled}
               aria-label={
                 local.labels?.first ??
                 t('ui.pagination.first', undefined, { defaultValue: 'Go to first page' })
@@ -141,13 +149,13 @@ export const Pagination: Component<PaginationProps> = (props) => {
         </Show>
 
         {/* Previous page button */}
-        <Show when={showPrevNext()}>
+        <Show when={local.showPrevNext ?? true}>
           <li>
             <button
               type="button"
               class={buttonClasses(false)}
-              onClick={() => handlePageChange(local.page - 1)}
-              disabled={local.page === 1 || local.disabled}
+              onClick={() => handlePageChange(page() - 1)}
+              disabled={page() === 1 || local.disabled}
               aria-label={
                 local.labels?.previous ??
                 t('ui.pagination.previous', undefined, { defaultValue: 'Go to previous page' })
@@ -160,48 +168,43 @@ export const Pagination: Component<PaginationProps> = (props) => {
 
         {/* Page numbers */}
         <For each={range()}>
-          {(item, _index) => (
-            <Show
-              when={item !== 'ellipsis'}
-              fallback={
-                <li>
-                  <span class={cm.paginationEllipsis} aria-hidden="true">
-                    {renderIcon('ellipsis-horizontal', cm.iconSm)}
-                  </span>
-                </li>
-              }
-            >
+          {(item: number | 'ellipsis') =>
+            item === 'ellipsis' ? (
+              <li>
+                <Ellipsis />
+              </li>
+            ) : (
               <li>
                 <button
                   type="button"
-                  class={buttonClasses((item as number) === local.page)}
-                  onClick={() => handlePageChange(item as number)}
+                  class={buttonClasses(item === page())}
+                  onClick={() => handlePageChange(item)}
                   disabled={local.disabled}
                   aria-label={
-                    local.labels?.goToPage?.(item as number) ??
+                    local.labels?.goToPage?.(item) ??
                     t(
                       'ui.pagination.goToPage',
-                      { page: item as number },
+                      { page: item },
                       { defaultValue: 'Go to page {{page}}' },
                     )
                   }
-                  aria-current={(item as number) === local.page ? 'page' : undefined}
+                  aria-current={item === page() ? 'page' : undefined}
                 >
-                  {item as number}
+                  {item}
                 </button>
               </li>
-            </Show>
-          )}
+            )
+          }
         </For>
 
         {/* Next page button */}
-        <Show when={showPrevNext()}>
+        <Show when={local.showPrevNext ?? true}>
           <li>
             <button
               type="button"
               class={buttonClasses(false)}
-              onClick={() => handlePageChange(local.page + 1)}
-              disabled={local.page === local.totalPages || local.disabled}
+              onClick={() => handlePageChange(page() + 1)}
+              disabled={page() === totalPages() || local.disabled}
               aria-label={
                 local.labels?.next ??
                 t('ui.pagination.next', undefined, { defaultValue: 'Go to next page' })
@@ -213,13 +216,13 @@ export const Pagination: Component<PaginationProps> = (props) => {
         </Show>
 
         {/* Last page button */}
-        <Show when={showFirstLast()}>
+        <Show when={local.showFirstLast ?? false}>
           <li>
             <button
               type="button"
               class={buttonClasses(false)}
-              onClick={() => handlePageChange(local.totalPages)}
-              disabled={local.page === local.totalPages || local.disabled}
+              onClick={() => handlePageChange(totalPages())}
+              disabled={page() === totalPages() || local.disabled}
               aria-label={
                 local.labels?.last ??
                 t('ui.pagination.last', undefined, { defaultValue: 'Go to last page' })

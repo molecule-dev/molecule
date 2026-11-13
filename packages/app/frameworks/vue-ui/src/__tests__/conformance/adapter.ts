@@ -48,6 +48,7 @@ import {
   createI18nPlugin,
   createRouterPlugin,
   createThemePlugin,
+  SessionReady,
 } from '@molecule/app-vue'
 
 import * as VueUI from '../../index.js'
@@ -135,12 +136,28 @@ export const vueAdapter: FrameworkAdapter = {
     if (testCase.children) slots.default = () => toVueNodes(testCase.children)
     const listeners: Record<string, unknown> = {}
     for (const name of testCase.callbacks ?? []) listeners[name] = recorder.spy(name)
+    /** The case component with its props, slots and listeners — what the mount wrapper hosts. */
+    const hostTree = (): VNode => h(Comp, { ...state.props, ...nodeProps, ...listeners }, slots)
 
     return runSteps(
       testCase,
       async (container) => {
         const app = createApp({
-          render: () => h(Comp, { ...state.props, ...nodeProps, ...listeners }, slots),
+          // The same `div[data-parity-unwrap]` mount wrapper the kit's React
+          // reference adapter uses (react-adapter.ts): it disappears from the
+          // normalized DOM snapshot but IS counted by the kit's focus path, so
+          // without it every `@focus body>div:0>…` line comes out one level
+          // short of the recorded goldens.
+          //
+          // React's reference adapter wraps the tree in `AuthProvider`, whose
+          // default `awaitSession` renders `SessionReady` around the children —
+          // nothing at all while the auth status is `'loading'`. The Vue
+          // composition root does the same: `createAuthPlugin` provides the
+          // client and `SessionReady` (no fallback slot) holds the tree.
+          render: () =>
+            h('div', { 'data-parity-unwrap': '' }, [
+              services.auth ? h(SessionReady, null, { default: () => [hostTree()] }) : hostTree(),
+            ]),
         })
         app.use(createI18nPlugin(services.i18n))
         app.use(createRouterPlugin(services.router))

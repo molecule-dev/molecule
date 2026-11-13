@@ -1,15 +1,10 @@
+import solid from 'vite-plugin-solid'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  // The package preserves JSX for vite-plugin-solid consumers. Tests render it
-  // through Solid's supported hyperscript runtime (as @molecule/app-solid's do).
-  oxc: {
-    jsx: {
-      runtime: 'automatic',
-      development: false,
-      importSource: 'solid-js/h',
-    },
-  },
+  // The package ships preserved JSX for consumers that compile it with
+  // vite-plugin-solid; the tests compile it the same way.
+  plugins: [solid()],
   resolve: {
     // Solid's client build (its `node` build is SSR-only and cannot mount).
     conditions: ['browser'],

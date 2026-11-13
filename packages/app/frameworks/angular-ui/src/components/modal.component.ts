@@ -1,293 +1,465 @@
 /**
- * Angular Modal UI component with UIClassMap-driven styling.
+ * Modal component (React parity): a `document.body` portal dialog.
  *
  * @module
  */
 
 import {
-  ChangeDetectionStrategy,
+  type AfterViewInit,
   Component,
+  type DoCheck,
+  ElementRef,
   EventEmitter,
   inject,
-  Input,
-  type OnChanges,
   type OnDestroy,
-  type OnInit,
   Output,
-  type SimpleChanges,
+  ViewChild,
 } from '@angular/core'
-import { DomSanitizer, type SafeHtml } from '@angular/platform-browser'
 
 import { t } from '@molecule/app-i18n'
 import type { ModalSize, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { getIconSvg } from '../utilities/render-icon.js'
+import { createScrollLock, getFocusableElements } from '../utilities/focus.js'
+import type { ResolvedIcon } from '../utilities/render-icon.js'
+import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
+import { moveRestAttributes } from '../utilities/rest-attrs.js'
+import { styleText } from '../utilities/style.js'
 
-/**
- * Get the inline style for the modal centering wrapper. `dialogWrapper` has
- * no dedicated ClassMap resolver option (it's a fixed token, not a
- * `{ centered }`-parameterized one), so a top-anchored (non-centered) layout
- * is expressed via the one inline-style exception the workspace styling rule
- * allows for values ClassMap genuinely cannot express.
- *
- * A standalone function (rather than a class member) so it's unit-testable
- * without constructing `MoleculeModal` — the class can't be `new`'d outside
- * an Angular injection context (`sanitizer = inject(DomSanitizer)` runs at
- * field-initializer time).
- * @param centered - Whether the modal is vertically centered.
- * @returns An inline style object, or `undefined` when centered.
- */
-export function getModalWrapperStyle(centered: boolean): Record<string, string> | undefined {
-  return centered ? undefined : { alignItems: 'flex-start' }
+/** Module-level open-modal stack (Escape/Tab act only for the topmost). */
+const openModalStack: number[] = []
+
+/** Pushes a modal onto the stack (it becomes the topmost). */
+const pushModalStack = (id: number): void => {
+  if (!openModalStack.includes(id)) openModalStack.push(id)
 }
 
+/** Removes a modal from the stack. */
+const popModalStack = (id: number): void => {
+  const index = openModalStack.indexOf(id)
+  if (index !== -1) openModalStack.splice(index, 1)
+}
+
+/** Whether the given modal is currently the topmost of the stack. */
+const isTopOfModalStack = (id: number): boolean =>
+  openModalStack.length > 0 && openModalStack[openModalStack.length - 1] === id
+
+let modalInstance = 0
+
 /**
- * Angular Modal UI component with UIClassMap-driven styling.
+ * Modal component.
  *
- * `centered` (default `true`) vertically centers the dialog; `centered:
- * false` top-anchors it instead, via `getModalWrapperStyle()`.
+ * React's root is a FRAGMENT portaled into `document.body` (an overlay
+ * `<div>` and a centering wrapper `<div>`), so the host is unwrapped
+ * (`data-parity-unwrap`, `display: contents`) and both elements are moved
+ * into the body. Implements the WAI-ARIA APG modal dialog pattern (focus
+ * into the dialog on open, trapped Tab, focus restored on close, Escape for
+ * the topmost dialog only, reference-counted body scroll lock).
  */
 @Component({
   selector: 'mol-modal',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @if (open) {
-      <!-- Overlay background -->
-      <div [class]="overlayClass" aria-hidden="true"></div>
-
-      <!-- Centering wrapper -->
-      <div [class]="wrapperClass" [style]="wrapperStyle" (click)="onOverlayClick($event)">
-        <!-- Content -->
-        <div
-          role="dialog"
-          aria-modal="true"
-          [attr.aria-labelledby]="title ? 'modal-title' : null"
-          [class]="contentClasses"
-          [style]="style"
-          [attr.data-testid]="testId"
-          (click)="$event.stopPropagation()"
-        >
-          @if (title || showCloseButton) {
-            <div [class]="headerClass">
-              @if (title) {
-                <h2 id="modal-title" [class]="titleClass">{{ title }}</h2>
-              } @else if (showCloseButton) {
-                <div></div>
-              }
-              @if (showCloseButton) {
-                <button
-                  type="button"
-                  (click)="close.emit()"
-                  [class]="closeClass"
-                  [attr.aria-label]="closeAriaLabel"
-                >
-                  <span [innerHTML]="closeIconSvg"></span>
-                </button>
-              }
-            </div>
-          }
-
-          <div [class]="bodyClass">
-            <ng-content></ng-content>
+  imports: [MolIconSvg],
+  inputs: [
+    'open',
+    'title',
+    'size',
+    'showCloseButton',
+    'closeOnOverlayClick',
+    'closeOnEscape',
+    'footer',
+    'centered',
+    'closeLabel',
+    'preventScroll',
+    'className',
+    'style',
+    'testId',
+  ],
+  outputs: ['close'],
+  host: {
+    'data-parity-unwrap': '',
+    style: 'display: contents',
+  },
+  template: `<div #overlay [class]="cm().dialogOverlay" aria-hidden="true"></div>
+    <div
+      #wrapper
+      [class]="cm().dialogWrapper"
+      [style]="wrapperStyle()"
+      (click)="handleOverlayClick($event)"
+    >
+      <div
+        #dialog
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="title ? titleId : null"
+        tabindex="-1"
+        [class]="dialogClasses()"
+        [style]="dialogStyle()"
+        [attr.data-testid]="testId"
+        (click)="stopPropagation($event)"
+      >
+        @if (title) {
+          <div [class]="cm().dialogHeader">
+            <h2 [id]="titleId" [class]="cm().dialogTitle">{{ title }}</h2>
+            @if (showCloseButton) {
+              <button
+                type="button"
+                (click)="requestCloseFromButton($event)"
+                [class]="cm().dialogClose"
+                data-mol-id="modal-close"
+                [attr.aria-label]="closeText()"
+              >
+                <svg mol-icon [data]="closeIcon()" />
+              </button>
+            }
           </div>
-
-          @if (hasFooter) {
-            <div [class]="footerClass">
-              <ng-content select="[modal-footer]"></ng-content>
-            </div>
+        } @else {
+          @if (showCloseButton) {
+            <button
+              type="button"
+              (click)="requestCloseFromButton($event)"
+              [class]="cm().dialogCloseFloating"
+              data-mol-id="modal-close"
+              [attr.aria-label]="closeText()"
+            >
+              <svg mol-icon [data]="closeIcon()" />
+            </button>
           }
+        }
+        <div [class]="cm().dialogBody"><ng-content></ng-content></div>
+        <div #footerSlot [class]="cm().dialogFooter">
+          <ng-content select="[slot=footer]"></ng-content>
         </div>
       </div>
-    }
-  `,
+    </div>`,
 })
-/**
- * Molecule Modal class.
- */
-export class MoleculeModal implements OnInit, OnDestroy, OnChanges {
-  @Input() open = false
-  @Input() title?: string
-  @Input() size: ModalSize = 'md'
-  @Input() showCloseButton = true
-  @Input() closeLabel?: string
-  @Input() closeOnOverlayClick = true
-  @Input() closeOnEscape = true
-  @Input() centered = true
-  @Input() preventScroll = true
-  @Input() hasFooter = false
-  @Input() className?: string
-  @Input() style?: Record<string, string>
-  @Input() testId?: string
+export class Modal implements AfterViewInit, DoCheck, OnDestroy {
+  /** Whether the dialog is open. */
+  open = false
+  /** The dialog title. */
+  title?: string
+  /** Dialog width preset. */
+  size: ModalSize = 'md'
+  /** Whether the header/close button renders. */
+  showCloseButton = true
+  /** Whether clicking the overlay closes the dialog. */
+  closeOnOverlayClick = true
+  /** Whether Escape closes the dialog. */
+  closeOnEscape = true
+  /** Footer content (node-valued prop). */
+  footer?: unknown
+  /** Whether the dialog is vertically centered. */
+  centered = true
+  /** The close button's accessible label. */
+  closeLabel?: string
+  /** Whether body scroll is locked while open. */
+  preventScroll = true
+  /** Extra classes for the dialog. */
+  className?: string
+  /** Inline style object for the dialog (React camelCase). */
+  style?: Record<string, unknown>
+  /** `data-testid` for the dialog. */
+  testId?: string
 
-  @Output() close = new EventEmitter<void>()
+  /** Fires when the dialog asks to close (React's `onClose`). */
+  @Output() readonly close = new EventEmitter<MouseEvent | undefined>()
+
+  /** The overlay element (moved to `document.body`). */
+  @ViewChild('overlay') overlay?: ElementRef<HTMLDivElement>
+  /** The centering wrapper (moved to `document.body`). */
+  @ViewChild('wrapper') wrapper?: ElementRef<HTMLDivElement>
+  /** The dialog element. */
+  @ViewChild('dialog') dialog?: ElementRef<HTMLDivElement>
+  /** The footer wrapper (detached when unused). */
+  @ViewChild('footerSlot') footerSlot?: ElementRef<HTMLDivElement>
+
+  /** The per-instance title id (the normalizer renumbers it). */
+  readonly titleId = `mol-modal-title-${++modalInstance}`
+  /** The instance's stack id. */
+  private readonly stackId = modalInstance
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+  private readonly sync = createScrollLock()
+  private lastOpen = false
+  private lastFooter = false
+  private footerParent: HTMLElement | null = null
+  private previouslyFocused: HTMLElement | null = null
+  private listeners: (() => void)[] = []
+  private locked = false
+  private moved = false
 
   /**
-   * Retrieves the current UI class map.
-   * @returns The UIClassMap instance for styling.
+   * The current class map.
+   * @returns The UIClassMap.
    */
-  get cm(): UIClassMap {
+  cm(): UIClassMap {
     return getClassMap()
   }
 
   /**
-   * Computes the accessible close button label.
-   * @returns The localized aria-label for the close button.
+   * The dialog class list.
+   * @returns The class string.
    */
-  get closeAriaLabel(): string {
-    return this.closeLabel || t('ui.modal.close', undefined, { defaultValue: 'Close' })
-  }
-
-  private boundEscapeHandler = this.handleEscape.bind(this)
-
-  /**
-   * Retrieves the CSS class for the modal wrapper.
-   * @returns The wrapper class name string.
-   */
-  get wrapperClass(): string {
-    return this.cm.dialogWrapper
+  dialogClasses(): string {
+    return this.cm().cn(this.cm().modal({ size: this.size }), this.className)
   }
 
   /**
-   * Retrieves the inline style for the modal centering wrapper.
-   * @returns An inline style object, or `undefined` when centered.
+   * Serializes the dialog's inline style.
+   * @returns The style attribute text.
    */
-  get wrapperStyle(): Record<string, string> | undefined {
-    return getModalWrapperStyle(this.centered)
+  dialogStyle(): string | null {
+    return styleText(this.style)
   }
 
   /**
-   * Retrieves the CSS class for the modal body.
-   * @returns The body class name string.
+   * The wrapper's inline style (top-anchored when not centered).
+   * @returns The style attribute text.
    */
-  get bodyClass(): string {
-    return this.cm.dialogBody
+  wrapperStyle(): string | null {
+    return styleText(this.centered ? undefined : { alignItems: 'flex-start' })
   }
 
   /**
-   * Retrieves the CSS class for the modal overlay.
-   * @returns The overlay class name string.
+   * The close button's accessible label.
+   * @returns The label text.
    */
-  get overlayClass(): string {
-    return this.cm.dialogOverlay
+  closeText(): string {
+    return this.closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' })
   }
 
   /**
-   * Retrieves the CSS class for the modal header.
-   * @returns The header class name string.
+   * The close button's X glyph.
+   * @returns The resolved icon.
    */
-  get headerClass(): string {
-    return this.cm.dialogHeader
+  closeIcon(): ResolvedIcon {
+    return resolveIcon('x-mark', this.cm().iconMd)
   }
 
   /**
-   * Retrieves the CSS class for the modal footer.
-   * @returns The footer class name string.
+   * Stops a click inside the dialog from reaching the overlay handler.
+   *
+   * @param event - The click event.
    */
-  get footerClass(): string {
-    return this.cm.dialogFooter
+  stopPropagation(event: MouseEvent): void {
+    event.stopPropagation()
   }
 
   /**
-   * Retrieves the CSS class for the modal title.
-   * @returns The title class name string.
+   * Closes when the click is on the wrapper itself (not bubbled content).
+   *
+   * @param event - The click event.
    */
-  get titleClass(): string {
-    return this.cm.dialogTitle
+  handleOverlayClick(event: MouseEvent): void {
+    if (this.closeOnOverlayClick && event.target === event.currentTarget) this.requestClose()
+  }
+
+  /** Emits the close request (React's `onClose`). */
+  requestClose(): void {
+    this.close.emit()
   }
 
   /**
-   * Retrieves the CSS class for the close button.
-   * @returns The close button class name string.
+   * Emits the close request from the close button — React's close button is
+   * `onClick={onClose}`, so the click event reaches the callback.
+   *
+   * @param event - The click event.
    */
-  get closeClass(): string {
-    return this.cm.dialogClose
-  }
-
-  private sanitizer = inject(DomSanitizer)
-
-  /**
-   * Generates the SVG markup for the close button icon.
-   * @returns The sanitized SVG for the close icon.
-   */
-  get closeIconSvg(): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(getIconSvg('x-mark', this.cm.iconMd))
+  requestCloseFromButton(event: MouseEvent): void {
+    this.close.emit(event)
   }
 
   /**
-   * Computes the combined CSS classes for the modal content.
-   * @returns The modal content class name string.
+   * Reads the view queries (they resolve only at view init), moves the portal
+   * content into `document.body` and applies the initial open state.
    */
-  get contentClasses(): string {
-    return this.cm.cn(this.cm.modal({ size: this.size }), this.className)
-  }
-
-  /**
-   * Initializes event listeners on component creation.
-   */
-  ngOnInit(): void {
-    this.updateListeners()
-  }
-
-  /**
-   * Handles input property changes.
-   * @param changes - The changed input properties.
-   */
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['open']) {
-      this.updateListeners()
-      this.updateBodyScroll()
+  ngAfterViewInit(): void {
+    const overlay = this.overlay?.nativeElement
+    const wrapper = this.wrapper?.nativeElement
+    const dialog = this.dialog?.nativeElement
+    this.footerParent = this.footerSlot?.nativeElement.parentElement ?? null
+    if (dialog) moveRestAttributes(this.host.nativeElement, dialog)
+    this.lastFooter = this.hasFooter()
+    this.syncFooter()
+    const open = !!this.open
+    if (open) {
+      this.previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
+      pushModalStack(this.stackId)
+      if (overlay && wrapper) this.attachPortal()
+      if (dialog) {
+        const focusables = getFocusableElements(dialog)
+        ;(focusables[0] ?? dialog).focus()
+      }
+      this.addListeners()
+    } else if (overlay && wrapper) {
+      // React renders nothing while closed.
+      this.detachPortal()
     }
+    this.syncScrollLock()
+    this.lastOpen = open
   }
 
   /**
-   * Cleans up event listeners and body scroll on component destruction.
+   * Reconciles the open state and the footer on later passes.
    */
+  ngDoCheck(): void {
+    const open = !!this.open
+    if (open !== this.lastOpen) {
+      this.lastOpen = open
+      this.transition(open)
+    }
+    this.lastFooter = this.hasFooter()
+    this.syncFooter()
+    this.syncScrollLock()
+  }
+
+  /** Removes listeners, unlocks scroll and restores the portal nodes (unmount). */
   ngOnDestroy(): void {
-    document.removeEventListener('keydown', this.boundEscapeHandler)
-    if (this.preventScroll) {
-      document.body.style.overflow = ''
+    this.removeListeners()
+    popModalStack(this.stackId)
+    if (this.locked) {
+      this.sync.unlock()
+      this.locked = false
+    }
+    // The portal nodes must be children of the host again for Angular's own
+    // removal to succeed.
+    const host = this.host.nativeElement
+    if (this.moved) {
+      const overlay = this.overlay?.nativeElement
+      const wrapper = this.wrapper?.nativeElement
+      if (overlay?.parentNode === document.body) host.appendChild(overlay)
+      if (wrapper?.parentNode === document.body) host.appendChild(wrapper)
+      this.moved = false
     }
   }
 
   /**
-   * Adds or removes the keyboard escape listener based on open state.
+   * Whether the footer slot carries nodes (read each pass so a later props
+   * step adding it still renders).
+   * @returns True when the footer wrapper should render.
    */
-  private updateListeners(): void {
-    if (this.open) {
-      document.addEventListener('keydown', this.boundEscapeHandler)
+  private hasFooter(): boolean {
+    const slot = this.footerSlot?.nativeElement
+    if (!slot) return false
+    for (const node of Array.from(slot.childNodes)) {
+      if (node.nodeType === 1) return true
+      if (node.nodeType === 3 && (node.textContent ?? '').trim()) return true
+    }
+    return false
+  }
+
+  /** Applies React's `{!!footer && <div className={dialogFooter}>…</div>}`. */
+  private syncFooter(): void {
+    const slot = this.footerSlot?.nativeElement
+    if (!slot) return
+    const shouldRender = this.lastFooter
+    if (shouldRender && !slot.isConnected) {
+      ;(this.footerParent ?? this.dialog?.nativeElement ?? null)?.appendChild(slot)
+    } else if (!shouldRender && slot.isConnected) {
+      slot.remove()
+    }
+  }
+
+  /**
+   * Applies an open/closed transition (React mounts/unmounts the portal and
+   * its effects).
+   *
+   * @param open - The new open state.
+   */
+  private transition(open: boolean): void {
+    if (open) {
+      this.previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
+      pushModalStack(this.stackId)
+      this.attachPortal()
+      const dialog = this.dialog?.nativeElement
+      if (dialog) {
+        const focusables = getFocusableElements(dialog)
+        ;(focusables[0] ?? dialog).focus()
+      }
+      this.addListeners()
     } else {
-      document.removeEventListener('keydown', this.boundEscapeHandler)
+      popModalStack(this.stackId)
+      this.removeListeners()
+      this.detachPortal()
+      const toRestore = this.previouslyFocused
+      if (toRestore && document.contains(toRestore)) toRestore.focus()
+    }
+    this.syncScrollLock()
+  }
+
+  /** Re-inserts the portal nodes into `document.body` (in React's order). */
+  private attachPortal(): void {
+    const overlay = this.overlay?.nativeElement
+    const wrapper = this.wrapper?.nativeElement
+    if (!overlay || !wrapper) return
+    document.body.appendChild(overlay)
+    document.body.appendChild(wrapper)
+    this.moved = true
+  }
+
+  /** Removes the portal nodes from the document (React renders null). */
+  private detachPortal(): void {
+    this.overlay?.nativeElement.remove()
+    this.wrapper?.nativeElement.remove()
+    this.moved = false
+  }
+
+  /** Locks or unlocks body scroll for React's `open && preventScroll`. */
+  private syncScrollLock(): void {
+    const shouldLock = !!this.open && this.preventScroll
+    if (shouldLock && !this.locked) {
+      this.sync.lock()
+      this.locked = true
+    } else if (!shouldLock && this.locked) {
+      this.sync.unlock()
+      this.locked = false
     }
   }
 
-  /**
-   * Updates the document body overflow based on open state.
-   */
-  private updateBodyScroll(): void {
-    if (this.preventScroll) {
-      document.body.style.overflow = this.open ? 'hidden' : ''
-    }
+  /** Adds Escape and the Tab focus trap while open (React's effect). */
+  private addListeners(): void {
+    this.removeListeners()
+    const onKeyDown = (event: KeyboardEvent): void => this.handleKeyDown(event)
+    document.addEventListener('keydown', onKeyDown)
+    this.listeners.push(() => document.removeEventListener('keydown', onKeyDown))
+  }
+
+  /** Removes the document listeners. */
+  private removeListeners(): void {
+    for (const off of this.listeners) off()
+    this.listeners = []
   }
 
   /**
-   * Handles escape key press to close the modal.
-   * @param e - The keyboard event.
+   * Escape closes the topmost dialog; Tab wraps inside it.
+   *
+   * @param event - The key event.
    */
-  private handleEscape(e: KeyboardEvent): void {
-    if (this.closeOnEscape && e.key === 'Escape') {
-      this.close.emit()
+  private handleKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      if (this.closeOnEscape && isTopOfModalStack(this.stackId)) this.requestClose()
+      return
     }
-  }
-
-  /**
-   * Handles overlay click to close the modal.
-   * @param event - The mouse event from the overlay click.
-   */
-  onOverlayClick(event: MouseEvent): void {
-    if (this.closeOnOverlayClick && event.target === event.currentTarget) {
-      this.close.emit()
+    if (event.key !== 'Tab' || !isTopOfModalStack(this.stackId)) return
+    const el = this.dialog?.nativeElement
+    if (!el) return
+    const focusables = getFocusableElements(el)
+    if (focusables.length === 0) {
+      event.preventDefault()
+      el.focus()
+      return
+    }
+    const first = focusables[0]
+    const last = focusables[focusables.length - 1]
+    const active = document.activeElement
+    if (event.shiftKey) {
+      if (active === first || !el.contains(active)) {
+        event.preventDefault()
+        last.focus()
+      }
+    } else if (active === last || !el.contains(active)) {
+      event.preventDefault()
+      first.focus()
     }
   }
 }

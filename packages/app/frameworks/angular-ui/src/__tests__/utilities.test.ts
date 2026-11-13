@@ -21,7 +21,7 @@ vi.mock('@molecule/app-icons', () => ({
 }))
 
 const { cn } = await import('../utilities/utilities.js')
-const { getIconSvg } = await import('../utilities/render-icon.js')
+const { getIconSvg } = await import('../utilities/icon-markup.js')
 
 describe('cn', () => {
   it('joins truthy class strings with spaces', () => {
@@ -35,9 +35,9 @@ describe('cn', () => {
 
 describe('getIconSvg', () => {
   it('builds an <svg> string with the supplied className and a default viewBox', () => {
-    const svg = getIconSvg('plain', 'h-4 w-4')
+    const svg = getIconSvg('plain', 'icon-a icon-b')
     expect(svg.startsWith('<svg ')).toBe(true)
-    expect(svg).toContain('class="h-4 w-4"')
+    expect(svg).toContain('class="icon-a icon-b"')
     expect(svg).toContain('viewBox="0 0 20 20"')
     expect(svg).toContain('fill="currentColor"')
     expect(svg).toContain('<path d="M0 0" />')

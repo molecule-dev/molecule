@@ -10,15 +10,23 @@ import { getIcon, type IconName } from '@molecule/app-icons'
 
 /**
  * Renders an icon by name as a Solid SVG element.
- * @param name - The icon name to render.
- * @param className - Optional CSS class for the SVG element.
- * @returns The rendered SVG icon element.
+ *
+ * The SVG is marked `aria-hidden` + `focusable="false"`: every call site is
+ * decorative chrome (close X, chevrons, status glyphs) whose accessible name
+ * comes from the surrounding control's `aria-label`/text. Without this, some
+ * screen reader/browser combos announce a stray "image" for each glyph.
+ *
+ * @param name - Icon name from the icon set.
+ * @param className - CSS class for sizing.
+ * @returns The rendered SVG element.
  */
 export function renderIcon(name: IconName, className?: string): JSX.Element {
   const icon = getIcon(name)
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      attr:focusable="false"
       class={className}
       viewBox={icon.viewBox || '0 0 20 20'}
       fill={icon.fill || 'currentColor'}

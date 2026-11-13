@@ -10,6 +10,8 @@ import { t } from '@molecule/app-i18n'
 import type { BaseProps, ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { toStyleProps } from '../utilities/dom.js'
+
 /**
  * Props for the Progress component.
  */
@@ -51,9 +53,9 @@ export interface ProgressProps extends BaseProps {
 }
 
 /**
- * Progress component.
+ * Renders the Progress component.
  * @param props - The component props.
- * @returns The rendered component element.
+ * @returns The rendered progress JSX.
  */
 export const Progress: Component<ProgressProps> = (props) => {
   const [local] = splitProps(props, [
@@ -70,13 +72,14 @@ export const Progress: Component<ProgressProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const value = (): number => local.value
   const max = (): number => local.max ?? 100
-  const percentage = (): number => Math.min(Math.max((local.value / max()) * 100, 0), 100)
+  const percentage = (): number => Math.min(Math.max((value() / max()) * 100, 0), 100)
 
   return (
     <div
       class={cm.cn(cm.progressWrapper, local.className)}
-      style={local.style}
+      style={toStyleProps(local.style)}
       data-testid={local.testId}
     >
       <Show when={local.label || local.showValue}>
@@ -90,9 +93,12 @@ export const Progress: Component<ProgressProps> = (props) => {
         </div>
       </Show>
       <div
-        class={cm.cn(cm.progress(), cm.progressHeight(local.size || 'md'))}
+        class={cm.cn(cm.progress(), cm.progressHeight(local.size ?? 'md'))}
         role="progressbar"
-        aria-valuenow={local.indeterminate ? undefined : local.value}
+        // Clamp like the visual bar does — aria-valuenow outside
+        // [valuemin, valuemax] is invalid ARIA and screen readers may
+        // announce nonsense percentages (e.g. value=150 of max=100).
+        aria-valuenow={local.indeterminate ? undefined : Math.min(Math.max(value(), 0), max())}
         aria-valuemin={0}
         aria-valuemax={max()}
         aria-label={local.label ?? t('ui.progress.label', undefined, { defaultValue: 'Progress' })}
@@ -100,12 +106,12 @@ export const Progress: Component<ProgressProps> = (props) => {
         <div
           class={cm.cn(
             cm.progressBar(),
-            cm.progressColor(local.color || 'primary'),
+            cm.progressColor(local.color ?? 'primary'),
             local.indeterminate && cm.progressIndeterminate,
           )}
-          style={
-            local.indeterminate ? undefined : { transform: `translateX(-${100 - percentage()}%)` }
-          }
+          style={toStyleProps(
+            local.indeterminate ? undefined : { transform: `translateX(-${100 - percentage()}%)` },
+          )}
         />
       </div>
     </div>

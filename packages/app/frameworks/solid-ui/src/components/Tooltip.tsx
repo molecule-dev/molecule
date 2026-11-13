@@ -8,15 +8,18 @@ import {
   type Component,
   createEffect,
   createSignal,
+  createUniqueId,
   type JSX,
   onCleanup,
   Show,
   splitProps,
 } from 'solid-js'
-import { Portal } from 'solid-js/web'
 
 import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+import { toStyleProps } from '../utilities/dom.js'
+import { BodyPortal } from '../utilities/portal.jsx'
 
 interface Position {
   top: number
@@ -25,6 +28,10 @@ interface Position {
 
 /** Arrow square size (px) before the 45° rotation that turns it into a diamond. */
 const ARROW_SIZE = 8
+
+// Coordinate hover and delayed shows across all tooltip instances in a page.
+// A document key avoids sharing an active control between distinct documents.
+const activeTooltips = new WeakMap<Document, () => void>()
 
 /**
  * Returns the arrow's inline position style for a given placement. The arrow
@@ -145,6 +152,25 @@ function calculatePosition(
 }
 
 /**
+ * Whether the pointer just crossed INTO (or out of) an element's boundary.
+ *
+ * React implements `onMouseEnter`/`onMouseLeave` on top of the BUBBLING
+ * `mouseover`/`mouseout` events (mouseenter/leave don't bubble, so a plain
+ * listener on the wrapper never hears a hover that starts on a child).
+ * This is the enter/leave test React applies: the move counts only when the
+ * event's `relatedTarget` (the element the pointer came from / went to) is
+ * OUTSIDE the wrapper — moving between descendants is not a boundary crossing.
+ *
+ * @param wrapper - The element the enter/leave handlers are attached to.
+ * @param event - The bubbling mouseover/mouseout.
+ * @returns True when the pointer crossed the wrapper's boundary.
+ */
+function crossedBoundary(wrapper: Element, event: MouseEvent): boolean {
+  const related = event.relatedTarget
+  return !(related instanceof Element && wrapper.contains(related))
+}
+
+/**
  * Tooltip component.
  *
  * `hasArrow` renders a small themed pointer at the resolved `placement` edge.
@@ -164,32 +190,60 @@ export const Tooltip: Component<TooltipProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const tooltipId = createUniqueId()
   const [isVisible, setIsVisible] = createSignal(false)
   const [position, setPosition] = createSignal<Position>({ top: 0, left: 0 })
-  // Hidden until positioned: the position is computed in rAF (after the element mounts),
-  // so without this gate the tooltip would paint once at the default {0,0} top-left and
-  // then jump to the correct spot — the flicker. Reveal only once it's placed.
-  const [positioned, setPositioned] = createSignal(false)
-  // eslint-disable-next-line no-unassigned-vars -- assigned via SolidJS ref binding
+  // Assigned through the SolidJS ref bindings below and read by the
+  // positioning/focus code; declared unassigned on purpose.
   let triggerRef: HTMLDivElement | undefined
-  // eslint-disable-next-line no-unassigned-vars -- assigned via SolidJS ref binding
   let tooltipRef: HTMLDivElement | undefined
   let timeoutId: ReturnType<typeof setTimeout> | undefined
+  let hideTimeoutId: ReturnType<typeof setTimeout> | undefined
 
   const placement = (): TooltipPlacement => local.placement || 'top'
   const delay = (): number => local.delay || 0
 
   const updatePosition = (): void => {
-    if (triggerRef && tooltipRef) {
-      const triggerRect = triggerRef.getBoundingClientRect()
-      const tooltipRect = tooltipRef.getBoundingClientRect()
-      const newPosition = calculatePosition(triggerRect, tooltipRect, placement())
-      setPosition(newPosition)
-      setPositioned(true)
+    if (!triggerRef || !tooltipRef) return
+    const triggerRect = triggerRef.getBoundingClientRect()
+    const tooltipRect = tooltipRef.getBoundingClientRect()
+    const newPosition = calculatePosition(triggerRect, tooltipRect, placement())
+    // Clamp into the viewport so a wide/edge tooltip never spills off the page
+    // (which would spawn a horizontal scrollbar). Positions are in document
+    // space (they already include scrollX/scrollY); use clientWidth/clientHeight
+    // — NOT innerWidth/innerHeight — so the page scrollbar is excluded. The
+    // Math.max(min, max) guard keeps it on-screen even when the tooltip is
+    // wider than the viewport.
+    const margin = 8
+    const minLeft = window.scrollX + margin
+    const maxLeft =
+      window.scrollX + document.documentElement.clientWidth - tooltipRect.width - margin
+    const minTop = window.scrollY + margin
+    const maxTop =
+      window.scrollY + document.documentElement.clientHeight - tooltipRect.height - margin
+    newPosition.left = Math.min(Math.max(newPosition.left, minLeft), Math.max(minLeft, maxLeft))
+    newPosition.top = Math.min(Math.max(newPosition.top, minTop), Math.max(minTop, maxTop))
+    setPosition(newPosition)
+  }
+
+  const hide = (): void => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
     }
+    clearTimeout(hideTimeoutId)
+    if (activeTooltips.get(document) === hide) {
+      activeTooltips.delete(document)
+    }
+    setIsVisible(false)
   }
 
   const show = (): void => {
+    const previous = activeTooltips.get(document)
+    if (previous !== hide) previous?.()
+    // Claim before scheduling so another trigger also cancels pending shows.
+    activeTooltips.set(document, hide)
+    clearTimeout(hideTimeoutId)
+    clearTimeout(timeoutId)
     if (delay() > 0) {
       timeoutId = setTimeout(() => {
         setIsVisible(true)
@@ -199,12 +253,15 @@ export const Tooltip: Component<TooltipProps> = (props) => {
     }
   }
 
-  const hide = (): void => {
-    if (timeoutId) {
-      clearTimeout(timeoutId)
-    }
-    setIsVisible(false)
-    setPositioned(false)
+  // Allow the pointer to cross the placement gap into the tooltip itself.
+  const scheduleHide = (): void => {
+    clearTimeout(timeoutId)
+    clearTimeout(hideTimeoutId)
+    hideTimeoutId = setTimeout(hide, 150)
+  }
+
+  const keepVisible = (): void => {
+    clearTimeout(hideTimeoutId)
   }
 
   // Show on focus ONLY for keyboard focus (:focus-visible). A mouse click or a
@@ -225,25 +282,74 @@ export const Tooltip: Component<TooltipProps> = (props) => {
 
   createEffect(() => {
     if (isVisible()) {
-      // Wait for next frame so tooltip element is rendered
-      requestAnimationFrame(updatePosition)
+      // Position after the tooltip element exists in the DOM (the Show above
+      // renders it in the same signal flush, after this effect was created).
+      // A microtask — not rAF — so fake-timer environments place it too.
+      queueMicrotask(updatePosition)
     }
+  })
+
+  // Hovered content must dismiss while focus stays in the editor/composer:
+  // Escape anywhere in the document hides a visible tooltip.
+  createEffect(() => {
+    if (!isVisible()) return
+    const onEscape = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') hide()
+    }
+    document.addEventListener('keydown', onEscape)
+    onCleanup(() => document.removeEventListener('keydown', onEscape))
+  })
+
+  // Programmatically associates the tooltip with its trigger: when `children`
+  // is exactly one element, it gets `aria-describedby` while the tooltip is
+  // visible (and the attribute is removed again when hidden) — that id is what
+  // a screen reader announces alongside the element's accessible name. For
+  // text, fragments or multiple children there is no single node to attach the
+  // id to, so the association is skipped rather than guessed.
+  createEffect(() => {
+    const wrapper = triggerRef
+    const visible = isVisible()
+    if (!wrapper) return
+    const elements = Array.from(wrapper.children)
+    const hasText = Array.from(wrapper.childNodes).some(
+      (node) => node.nodeType === 3 && (node.textContent ?? '').trim() !== '',
+    )
+    const target = elements.length === 1 && !hasText ? elements[0] : null
+    if (!target) return
+    if (visible) target.setAttribute('aria-describedby', tooltipId)
+    else target.removeAttribute('aria-describedby')
   })
 
   onCleanup(() => {
     if (timeoutId) {
       clearTimeout(timeoutId)
     }
+    clearTimeout(hideTimeoutId)
+    if (activeTooltips.get(document) === hide) {
+      activeTooltips.delete(document)
+    }
   })
 
   return (
     <>
       <div
-        ref={triggerRef}
-        onMouseEnter={show}
-        onMouseLeave={hide}
-        onFocus={handleFocus}
-        onBlur={hide}
+        ref={(el) => {
+          triggerRef = el
+        }}
+        onMouseOver={(event) => {
+          if (crossedBoundary(triggerRef ?? event.currentTarget, event)) show()
+        }}
+        onMouseOut={(event) => {
+          if (crossedBoundary(triggerRef ?? event.currentTarget, event)) scheduleHide()
+        }}
+        onFocusIn={handleFocus}
+        onFocusOut={hide}
+        // WCAG 1.4.13: hover/focus-triggered content must be dismissable
+        // WITHOUT moving the pointer or focus — Escape hides the tooltip
+        // (the keydown on the focused child bubbles up to this wrapper).
+        onKeyDown={(event: KeyboardEvent) => {
+          if (event.key === 'Escape') hide()
+        }}
         // Any click on a tooltip-wrapped control hides the tooltip — clicking a
         // button shouldn't leave its hover/focus tooltip lingering. The wrapper
         // wraps children directly, so this single handler covers every
@@ -254,7 +360,7 @@ export const Tooltip: Component<TooltipProps> = (props) => {
         {local.children as JSX.Element}
       </div>
       <Show when={isVisible()}>
-        <Portal>
+        <BodyPortal>
           {/*
             Outer positioned wrapper carries the top/left/z-index placement +
             the positioned() visibility gate; the arrow renders as its
@@ -264,28 +370,36 @@ export const Tooltip: Component<TooltipProps> = (props) => {
             descendant of that element instead.
           */}
           <div
-            style={{
+            style={toStyleProps({
               position: 'absolute',
-              top: `${position().top}px`,
-              left: `${position().left}px`,
-              visibility: positioned() ? 'visible' : 'hidden',
-              'z-index': 9999,
+              top: position().top,
+              left: position().left,
+              zIndex: 9999,
+            })}
+            onMouseOver={(event) => {
+              if (crossedBoundary(event.currentTarget, event)) keepVisible()
+            }}
+            onMouseOut={(event) => {
+              if (crossedBoundary(event.currentTarget, event)) scheduleHide()
             }}
           >
             <div
-              ref={tooltipRef}
+              ref={(el) => {
+                tooltipRef = el
+              }}
+              id={tooltipId}
               role="tooltip"
               class={cm.cn(cm.tooltipContent, local.className)}
-              style={local.style}
+              style={toStyleProps(local.style)}
               data-testid={local.testId}
             >
               {local.content as JSX.Element}
             </div>
             <Show when={local.hasArrow}>
-              <span aria-hidden="true" style={getArrowStyle(placement())} />
+              <span aria-hidden="true" style={toStyleProps(getArrowStyle(placement()))} />
             </Show>
           </div>
-        </Portal>
+        </BodyPortal>
       </Show>
     </>
   )

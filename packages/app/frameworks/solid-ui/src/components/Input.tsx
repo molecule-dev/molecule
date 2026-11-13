@@ -4,12 +4,13 @@
  * @module
  */
 
-import { type Component, type JSX, Show, splitProps } from 'solid-js'
+import { type Component, createUniqueId, type JSX, Show, splitProps } from 'solid-js'
 
 import { t } from '@molecule/app-i18n'
 import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { toStyleProps } from '../utilities/dom.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
@@ -21,14 +22,15 @@ export const Input: Component<InputProps> = (props) => {
   const [local, rest] = splitProps(props, [
     'type',
     'size',
+    'align',
     'label',
     'error',
     'hint',
     'leftElement',
     'rightElement',
     'clearable',
-    'clearLabel',
     'onClear',
+    'clearLabel',
     'className',
     'style',
     'testId',
@@ -45,11 +47,27 @@ export const Input: Component<InputProps> = (props) => {
   ])
 
   const cm = getClassMap()
-  const inputId = (): string | undefined => local.id || local.name
+  // Fall back to a generated id so label htmlFor / aria-describedby never
+  // point at `undefined-error` (which also collides across multiple
+  // id-less inputs on the same page).
+  const generatedId = createUniqueId()
+  const inputId = (): string => local.id || local.name || generatedId
+
+  // React's text-input onChange fires on the `input` event, and a
+  // controlled input restores the prop value after each event when the
+  // caller does not adopt the typed one.
+  const handleInput = (event: Event & { target: HTMLInputElement }): void => {
+    ;(local.onChange as ((event: Event) => void) | undefined)?.(event)
+    if (local.value !== undefined) event.target.value = String(local.value)
+  }
 
   const inputClasses = (): string =>
     cm.cn(
-      cm.input({ error: !!local.error, size: local.size }),
+      cm.input({
+        error: !!local.error,
+        size: local.size ?? 'md',
+        align: local.align,
+      }),
       !!local.leftElement && cm.inputPadLeft,
       !!(local.rightElement || local.clearable) && cm.inputPadRight,
       local.className,
@@ -58,19 +76,22 @@ export const Input: Component<InputProps> = (props) => {
   return (
     <div class={cm.inputWrapper}>
       <Show when={local.label}>
-        <label for={inputId()} class={cm.cn(cm.label({ required: local.required }), cm.labelBlock)}>
+        <label
+          for={inputId()}
+          class={cm.cn(cm.label({ required: !!local.required }), cm.labelBlock)}
+        >
           {local.label}
         </label>
       </Show>
       <div class={cm.inputInner}>
-        <Show when={!!local.leftElement}>
+        <Show when={local.leftElement}>
           <div class={cm.inputLeftElement}>{local.leftElement as JSX.Element}</div>
         </Show>
         <input
-          type={local.type || 'text'}
+          type={local.type ?? 'text'}
           id={inputId()}
           name={local.name}
-          value={(local.value as string) ?? ''}
+          attr:value={local.value ?? local.defaultValue}
           placeholder={local.placeholder}
           disabled={local.disabled}
           required={local.required}
@@ -79,11 +100,11 @@ export const Input: Component<InputProps> = (props) => {
             local.error ? `${inputId()}-error` : local.hint ? `${inputId()}-hint` : undefined
           }
           class={inputClasses()}
-          style={local.style}
+          style={toStyleProps(local.style)}
           data-testid={local.testId}
-          onChange={local.onChange as JSX.EventHandlerUnion<HTMLInputElement, Event>}
-          onFocus={local.onFocus as JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>}
-          onBlur={local.onBlur as JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>}
+          onInput={handleInput}
+          onFocusIn={local.onFocus as JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>}
+          onFocusOut={local.onBlur as JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>}
           {...(rest as JSX.InputHTMLAttributes<HTMLInputElement>)}
         />
         <Show when={local.rightElement || (local.clearable && local.value)}>
@@ -94,7 +115,7 @@ export const Input: Component<InputProps> = (props) => {
             >
               <button
                 type="button"
-                onClick={local.onClear}
+                onClick={local.onClear as JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>}
                 class={cm.inputClearButton}
                 aria-label={
                   local.clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })

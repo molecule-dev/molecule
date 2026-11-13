@@ -4,21 +4,46 @@
  * @module
  */
 
-import { type Component, For, type JSX, Show, splitProps } from 'solid-js'
+import {
+  type Component,
+  createEffect,
+  createUniqueId,
+  For,
+  type JSX,
+  Show,
+  splitProps,
+} from 'solid-js'
 
-import { getIconDataUrl } from '@molecule/app-icons'
+import { t } from '@molecule/app-i18n'
 import type { SelectProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { toStyleProps } from '../utilities/dom.js'
+import { renderIcon } from '../utilities/renderIcon.jsx'
+
+/**
+ * Props for {@link Select}: the core contract plus the React-style
+ * `defaultValue` spelling the uncontrolled path mirrors.
+ */
+export interface SolidSelectProps<T = string> extends SelectProps<T> {
+  /**
+   * Initial selection for an uncontrolled select (React's `defaultValue`).
+   * Used only while `value` is omitted.
+   */
+  defaultValue?: T
+}
+
 /**
  * Renders the Select component.
+ *
  * @param props - The component props.
  * @returns The rendered select JSX.
  */
-export const Select: Component<SelectProps<string>> = (props) => {
+export const Select: Component<SolidSelectProps<string>> = (props) => {
   const [local, rest] = splitProps(props, [
     'options',
     'value',
+    'defaultValue',
     'onValueChange',
     'size',
     'label',
@@ -36,33 +61,109 @@ export const Select: Component<SelectProps<string>> = (props) => {
     'onChange',
   ])
 
+  let selectRef: HTMLSelectElement | undefined
+
   const cm = getClassMap()
-  const selectId = (): string | undefined => local.id || local.name
+  // Fall back to a generated id so label htmlFor / aria-describedby never
+  // point at `undefined-error` (which also collides across multiple
+  // id-less selects on the same page).
+  const generatedId = createUniqueId()
+  const selectId = (): string => local.id || local.name || generatedId
+
+  // React's `<select>` selection (react-dom's updateOptions): mark the option
+  // whose value matches as selected — for a `defaultValue` that also stamps
+  // the `selected` attribute (defaultSelected) — falling back to the first
+  // NON-DISABLED option when nothing matches (a no-match value never leaves
+  // the select with an empty selection). A select's selected option cannot be
+  // set before its <option> children exist, so apply it after render (React
+  // applies it in the commit, after children mount).
+  const applySelectValue = (raw: unknown, defaultSelected: boolean): void => {
+    if (!selectRef) return
+    const wanted = String(raw)
+    for (const option of Array.from(selectRef.options)) {
+      if (option.value === wanted) {
+        option.selected = true
+        if (defaultSelected) option.defaultSelected = true
+        return
+      }
+    }
+    for (const option of Array.from(selectRef.options)) {
+      if (!option.disabled) {
+        option.selected = true
+        return
+      }
+    }
+  }
+
+  createEffect(() => {
+    const value = local.value
+    const defaultValue = local.defaultValue
+    if (value !== undefined) applySelectValue(value, false)
+    else if (defaultValue !== undefined) applySelectValue(defaultValue, true)
+  })
 
   const selectClasses = (): string =>
-    cm.cn(cm.select({ error: !!local.error, size: local.size }), cm.selectNative, local.className)
+    cm.cn(
+      cm.select({ error: !!local.error, size: local.size ?? 'md' }),
+      cm.selectNative,
+      cm.inputPadRight,
+      local.className,
+    )
 
-  // Group options by group property
-  const groupedOptions = (): Record<string, typeof local.options> => {
-    const grouped: Record<string, typeof local.options> = {}
+  // The clearable "no selection" option shares value="" with the
+  // placeholder option — rendering both produced two <option value="">
+  // entries in the same <select>. Suppress the redundant one; the
+  // placeholder already serves as the clear target.
+  const showClearOption = (): boolean => !!(local.clearable && !local.placeholder)
+
+  const handleChange = (event: Event & { target: HTMLSelectElement }): void => {
+    ;(local.onChange as ((event: Event) => void) | undefined)?.(event)
+    local.onValueChange?.(event.target.value)
+    // A controlled select restores the prop value after the event when the
+    // caller does not adopt the picked one.
+    if (local.value !== undefined) applySelectValue(local.value, false)
+  }
+
+  const renderOption = (option: {
+    value: string
+    label?: unknown
+    disabled?: boolean
+  }): JSX.Element => (
+    <option value={option.value} disabled={option.disabled}>
+      {option.label as JSX.Element}
+    </option>
+  )
+
+  const renderOptions = (): JSX.Element => {
+    // Group options by group property
+    const grouped = new Map<string, typeof local.options>()
     for (const option of local.options) {
       const group = option.group || ''
-      if (!grouped[group]) {
-        grouped[group] = []
-      }
-      grouped[group].push(option)
+      const list = grouped.get(group)
+      if (list) list.push(option)
+      else grouped.set(group, [option])
     }
-    return grouped
-  }
+    const groups = [...grouped.entries()]
 
-  const handleChange: JSX.EventHandlerUnion<HTMLSelectElement, Event> = (e) => {
-    local.onChange?.(e as unknown as Event)
-    local.onValueChange?.(e.currentTarget.value)
-  }
+    if (groups.length === 1 && groups[0][0] === '') {
+      // No groups, render flat options
+      return <For each={groups[0][1]}>{(option) => renderOption(option)}</For>
+    }
 
-  const hasGroups = (): boolean => {
-    const groups = Object.keys(groupedOptions())
-    return !(groups.length === 1 && groups[0] === '')
+    // Render grouped options
+    return (
+      <For each={groups}>
+        {([group, groupOptions]: [string, typeof local.options]) =>
+          group === '' ? (
+            <For each={groupOptions}>{(option) => renderOption(option)}</For>
+          ) : (
+            <optgroup label={group}>
+              <For each={groupOptions}>{(option) => renderOption(option)}</For>
+            </optgroup>
+          )
+        }
+      </For>
+    )
   }
 
   return (
@@ -70,16 +171,18 @@ export const Select: Component<SelectProps<string>> = (props) => {
       <Show when={local.label}>
         <label
           for={selectId()}
-          class={cm.cn(cm.label({ required: local.required }), cm.labelBlock)}
+          class={cm.cn(cm.label({ required: !!local.required }), cm.labelBlock)}
         >
           {local.label}
         </label>
       </Show>
       <div class={cm.inputInner}>
         <select
+          ref={(el) => {
+            selectRef = el
+          }}
           id={selectId()}
           name={local.name}
-          value={local.value}
           disabled={local.disabled}
           required={local.required}
           aria-invalid={!!local.error}
@@ -87,12 +190,7 @@ export const Select: Component<SelectProps<string>> = (props) => {
             local.error ? `${selectId()}-error` : local.hint ? `${selectId()}-hint` : undefined
           }
           class={selectClasses()}
-          style={{
-            ...local.style,
-            'background-image': getIconDataUrl('chevron-down', '#6b7280'),
-            'background-position': 'right 0.5rem center',
-            'background-size': '1.5em 1.5em',
-          }}
+          style={toStyleProps(local.style)}
           data-testid={local.testId}
           onChange={handleChange}
           {...(rest as JSX.SelectHTMLAttributes<HTMLSelectElement>)}
@@ -102,49 +200,23 @@ export const Select: Component<SelectProps<string>> = (props) => {
               {local.placeholder}
             </option>
           </Show>
-          <Show when={local.clearable}>
-            <option value="">--</option>
+          <Show when={showClearOption()}>
+            <option value="">{t('ui.select.clear', undefined, { defaultValue: '--' })}</option>
           </Show>
-          <Show
-            when={hasGroups()}
-            fallback={
-              <For each={local.options}>
-                {(option) => (
-                  <option value={option.value} disabled={option.disabled}>
-                    {option.label}
-                  </option>
-                )}
-              </For>
-            }
-          >
-            <For each={Object.entries(groupedOptions())}>
-              {([group, groupOptions]) => (
-                <Show
-                  when={group !== ''}
-                  fallback={
-                    <For each={groupOptions}>
-                      {(option) => (
-                        <option value={option.value} disabled={option.disabled}>
-                          {option.label}
-                        </option>
-                      )}
-                    </For>
-                  }
-                >
-                  <optgroup label={group}>
-                    <For each={groupOptions}>
-                      {(option) => (
-                        <option value={option.value} disabled={option.disabled}>
-                          {option.label}
-                        </option>
-                      )}
-                    </For>
-                  </optgroup>
-                </Show>
-              )}
-            </For>
-          </Show>
+          {renderOptions()}
         </select>
+        {/* Chevron rendered as a real inline SVG (not a CSS backgroundImage
+            data URI baked with a literal hex color) so it resolves
+            `currentColor` from `cm.textMuted` and tracks the active theme,
+            matching Input's rightElement icon treatment. `pointerEvents:
+            'none'` is inline because it fills a gap ClassMap's
+            `inputRightElement` doesn't address (that token is also used
+            to host a real clickable clear-button elsewhere) — without it
+            this purely decorative, absolutely-positioned overlay would
+            swallow clicks on the select's own chevron-sized hit area. */}
+        <div class={cm.inputRightElement} style={{ 'pointer-events': 'none' }}>
+          {renderIcon('chevron-down', cm.cn(cm.iconSm, cm.textMuted))}
+        </div>
       </div>
       <Show when={local.error}>
         <p id={`${selectId()}-error`} class={cm.formError}>

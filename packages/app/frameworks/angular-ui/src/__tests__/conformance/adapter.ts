@@ -36,6 +36,9 @@ import {
   Component,
   type ComponentRef,
   createComponent,
+  type DoCheck,
+  ElementRef,
+  inject,
   isSignal,
   provideZonelessChangeDetection,
   reflectComponentType,
@@ -44,7 +47,13 @@ import {
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
 
-import { provideAuth, provideI18n, provideRouter, provideTheme } from '@molecule/app-angular'
+import {
+  provideAuth,
+  provideI18n,
+  provideRouter,
+  provideTheme,
+  useAuth,
+} from '@molecule/app-angular'
 import {
   buildServices,
   callProbe,
@@ -82,8 +91,28 @@ const DOM_EVENTS: Record<string, string> = {
   onSubmit: 'submit',
 }
 
+/** HTML void elements: Angular's parser rejects an end tag for these. */
+const VOID_ELEMENTS = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'source',
+  'track',
+  'wbr',
+])
+
 /** Most arguments a render function template exposes (`a0`…`a2`). */
 const RENDER_ARGS = 3
+
+/** Hosts mounted so far: each gets its own id (see the host's `data-parity-host`). */
+let hostCount = 0
 
 const exportsOf = AngularUI as unknown as Record<string, unknown>
 
@@ -184,6 +213,7 @@ const renderNode = (node: NodeSpec, built: Built, scope: Scope): string => {
         : ` ${k}="${attr(v)}"`,
     )
     .join('')
+  if (VOID_ELEMENTS.has(node.tag)) return `<${node.tag}${attrs} />`
   return `<${node.tag}${attrs}>${renderNodes(node.children, built, scope)}</${node.tag}>`
 }
 
@@ -234,6 +264,8 @@ const renderComponent = (
   slots: Record<string, NodeSpec[]>,
   built: Built,
   scope: Scope,
+  /** Props later `props` steps will merge in (their node values must swap too). */
+  laterProps: Record<string, unknown>[] = [],
 ): string => {
   const Comp = exportsOf[name]
   if (!isComponent(Comp))
@@ -246,7 +278,11 @@ const renderComponent = (
   const bindings: string[] = [...attrs]
   for (const key of Object.keys(props)) {
     const raw = `${propsExpr}['${key}']`
-    const value = hasTemplates(props[key]) ? `r(${raw}, tpls)` : raw
+    // A node value may arrive in the initial props OR in a later `props` step;
+    // when either carries one, the binding must swap placeholders for templates.
+    const templated =
+      hasTemplates(props[key]) || laterProps.some((lp) => key in lp && hasTemplates(lp[key]))
+    const value = templated ? `r(${raw}, tpls)` : raw
     if (inputs.has(key)) bindings.push(`[${key}]="${value}"`)
     else if (key === 'className') bindings.push(`[class]="${value}"`)
     else if (key === 'style') bindings.push(`[style]="${value}"`)
@@ -256,6 +292,14 @@ const renderComponent = (
       bindings.push(`[attr.${key}]="${value} === false ? null : ${value} === true ? '' : ${value}"`)
   }
   for (const cb of callbacks) {
+    // An input named exactly like the React callback receives the recording
+    // spy itself — React calls the function (so `await onConfirm()` sees the
+    // case's promise and the call records its real arity). Components that
+    // await a callback declare it as an input; everything else uses outputs.
+    if (inputs.has(cb)) {
+      bindings.push(`[${cb}]="cbFns['${cb}']"`)
+      continue
+    }
     const output = cb.replace(/^on([A-Z])/, (_m, c: string) => c.toLowerCase())
     if (outputs.has(output)) bindings.push(`(${output})="cb('${cb}', $event)"`)
     else if (DOM_EVENTS[cb]) bindings.push(`(${DOM_EVENTS[cb]})="cb('${cb}', $event)"`)
@@ -309,6 +353,43 @@ const probeComponent = (spec: ProbeSpec): Type<unknown> =>
     },
   ) as Type<unknown>
 
+/**
+ * The mount wrapper for cases with an auth context: holds its content until
+ * the auth client has decided the session, exactly like React's reference
+ * mount inside `AuthProvider` (default `awaitSession`). Its host is unwrapped
+ * by the DOM normalizer (`data-parity-unwrap`), so it adds nothing to the
+ * snapshot.
+ */
+const SessionGate = Component({
+  selector: 'mol-session-gate',
+  standalone: true,
+  host: { 'data-parity-unwrap': '', style: 'display: contents' },
+  template: `@if (decided()) {<ng-content></ng-content>}`,
+})(
+  class MolSessionGate implements DoCheck {
+    /** The auth status this gate holds on (`'loading'` renders nothing). */
+    readonly status = useAuth().status
+    private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+    /**
+     * Whether the session is decided.
+     * @returns True once the status has left `'loading'`.
+     */
+    decided(): boolean {
+      return this.status() !== 'loading'
+    }
+    /**
+     * Adopts the decided content beside the gate, so the gate element never
+     * appears in a `@focus` path (React's AuthProvider renders no DOM).
+     */
+    ngDoCheck(): void {
+      const host = this.host.nativeElement
+      const parent = host.parentNode
+      if (!parent) return
+      for (const node of Array.from(host.childNodes)) parent.insertBefore(node, host)
+    }
+  },
+)
+
 /** The Angular adapter. */
 export const angularAdapter: FrameworkAdapter = {
   name: 'angular',
@@ -344,17 +425,31 @@ export const angularAdapter: FrameworkAdapter = {
       testCase.slots ?? {},
       built,
       'static',
+      laterProps,
     )
     const templates = [...built.templates.values()].sort((a, b) => a.id - b.id)
     // Template refs are visible across the whole view, so `tpls` may name templates defined after it.
     const refs = `@let tpls = [${templates.map((t) => `tpl${t.id}`).join(', ')}];`
-    const template = `${templates.length ? refs : ''}${main}${templates.map((t) => t.markup).join('')}`
+    // React's reference adapter wraps the tree in `AuthProvider`, whose default
+    // `awaitSession` renders nothing while the auth status is `'loading'` — the
+    // components themselves never see the undecided state. The gate below
+    // reproduces that mount wrapper (as the Vue adapter's `SessionReady` does);
+    // it renders nothing until the client has decided the session.
+    const gateOpen = services.auth ? `<mol-session-gate>` : ''
+    const gateClose = services.auth ? `</mol-session-gate>` : ''
+    const template = `${templates.length ? refs : ''}${gateOpen}${main}${gateClose}${templates
+      .map((t) => t.markup)
+      .join('')}`
 
     const cache = new WeakMap<object, unknown>()
     const host = Component({
       selector: 'div[data-parity-unwrap]',
+      // Angular derives a component id from the definition, so two cases with the
+      // same template collide (NG0912); the normalizer drops this wrapper anyway.
+      host: { 'data-parity-host': String(++hostCount) },
       standalone: true,
       imports: [
+        ...(services.auth ? [SessionGate] : []),
         ...[...built.used].map((n) => exportsOf[n] as Type<unknown>),
         ...built.probes.values(),
       ],
@@ -365,8 +460,16 @@ export const angularAdapter: FrameworkAdapter = {
         p: Record<string, unknown> = initialProps
         np = built.nested
         s = built.strings
+        /** Recording spies bound as function inputs (`callbacks` inputs). */
+        cbFns: Record<string, (...args: unknown[]) => unknown> = {}
         cb = (name: string, value: unknown): void => {
-          spies.get(name)?.(value)
+          const spy = spies.get(name)
+          if (!spy) return
+          // An output emitted without a value records zero arguments (React's
+          // no-argument callbacks, e.g. onConfirm); Angular cannot distinguish
+          // emit() from emit(undefined), so undefined means "no args".
+          if (value === undefined) spy()
+          else spy(value)
         }
         /** Swaps template placeholders for the templates (memoized, so inputs keep their identity). */
         r = (value: unknown, refs: TemplateRef<unknown>[]): unknown => {
@@ -385,7 +488,10 @@ export const angularAdapter: FrameworkAdapter = {
         /** Interpolates `{0.field}` placeholders with a render template's arguments. */
         ip = (value: string, args: unknown[]): string => interpolate(value, args)
       },
-    ) as Type<{ p: Record<string, unknown> }>
+    ) as Type<{
+      p: Record<string, unknown>
+      cbFns: Record<string, (...args: unknown[]) => unknown>
+    }>
 
     let stepProps = 0
     return runSteps(
@@ -400,10 +506,14 @@ export const angularAdapter: FrameworkAdapter = {
             ...(services.auth ? [provideAuth(services.auth)] : []),
           ],
         })
-        const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(host, {
+        const ref: ComponentRef<{
+          p: Record<string, unknown>
+          cbFns: Record<string, (...args: unknown[]) => unknown>
+        }> = createComponent(host, {
           environmentInjector: appRef.injector,
         })
         container.appendChild(ref.location.nativeElement as HTMLElement)
+        ref.instance.cbFns = Object.fromEntries(spies)
         appRef.attachView(ref.hostView)
         appRef.tick()
         return {
@@ -416,6 +526,9 @@ export const angularAdapter: FrameworkAdapter = {
           setProps: async () => {
             // Steps run in order, so the next materialized `props` step is this one.
             ref.instance.p = { ...ref.instance.p, ...laterProps[stepProps++] }
+            // Zoneless: tick() only refreshes views marked dirty, and nothing marks
+            // the host after a plain field write, so mark it before ticking.
+            ref.changeDetectorRef.markForCheck()
             appRef.tick()
           },
           location: () => {
