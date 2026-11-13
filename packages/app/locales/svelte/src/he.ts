@@ -12,4 +12,5 @@ export const he: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'ספק רישום לא נמצא בהקשר',
   'svelte.error.unknownPaginationDirection': 'כיוון עימוד לא ידוע: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'יש להשתמש ב-useChatProvider בתוך ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'יש להשתמש ב-useToast בתוך ToastProvider',
 }

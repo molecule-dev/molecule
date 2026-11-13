@@ -14,4 +14,5 @@ export const fil: SvelteTranslations = {
     'Hindi kilalang direksyon ng pagination: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'Ang useChatProvider ay dapat gamitin sa loob ng ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'Ang useToast ay dapat gamitin sa loob ng ToastProvider',
 }

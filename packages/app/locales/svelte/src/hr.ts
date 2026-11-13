@@ -12,4 +12,5 @@ export const hr: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Pružatelj zapisnika nije pronađen u kontekstu',
   'svelte.error.unknownPaginationDirection': 'Nepoznat smjer paginacije: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider se mora koristiti unutar ChatProvider-a',
+  'svelte.error.useToastOutsideProvider': 'useToast se mora koristiti unutar ToastProvider-a',
 }

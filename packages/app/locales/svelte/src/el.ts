@@ -13,4 +13,6 @@ export const el: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Άγνωστη κατεύθυνση σελιδοποίησης: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'Το useChatProvider πρέπει να χρησιμοποιείται εντός ενός ChatProvider',
+  'svelte.error.useToastOutsideProvider':
+    'Το useToast πρέπει να χρησιμοποιείται εντός ενός ToastProvider',
 }

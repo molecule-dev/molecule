@@ -13,4 +13,5 @@ export const eu: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Orrikatze-norabide ezezaguna: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider ChatProvider baten barruan erabili behar da',
+  'svelte.error.useToastOutsideProvider': 'useToast ToastProvider baten barruan erabili behar da',
 }

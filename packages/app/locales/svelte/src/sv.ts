@@ -12,4 +12,5 @@ export const sv: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Loggleverant\u00f6r hittades inte i kontext',
   'svelte.error.unknownPaginationDirection': 'Ok\u00e4nd pagineringsriktning: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider måste användas inom en ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast måste användas inom en ToastProvider',
 }

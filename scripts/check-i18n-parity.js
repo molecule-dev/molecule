@@ -17,7 +17,9 @@
  *
  * What it checks (statically, zero network):
  *   - MISSING (enforced): a literal `t('ns.key')` whose namespace `ns` is owned
- *     by exactly one locale bond, but the key is absent from that bond's en.ts.
+ *     by a locale bond, but the key is absent from that bond's en.ts (from every
+ *     owner's, when several bonds share the namespace). Svelte and Vue single-file
+ *     components are scanned with the TypeScript sources.
  *     Literal keys are unambiguous, so this direction is false-positive free.
  *     Comment lines are not usage: a JSDoc example's `t('welcome.title')` shows
  *     how to call `t`, it is not text the package renders.
@@ -71,7 +73,11 @@ function collectSourceFiles(dir, out = []) {
       const p = join(dir, e.name)
       if (p.includes('/locales/')) continue
       collectSourceFiles(p, out)
-    } else if (/\.tsx?$/.test(e.name) && !e.name.endsWith('.d.ts') && !e.name.includes('.test.')) {
+    } else if (
+      /\.(tsx?|svelte|vue)$/.test(e.name) &&
+      !e.name.endsWith('.d.ts') &&
+      !e.name.includes('.test.')
+    ) {
       out.push(join(dir, e.name))
     }
   }
@@ -99,7 +105,7 @@ function loadBonds(root) {
       const enPath = join(locDir, name, 'src', 'en.ts')
       if (!existsSync(enPath)) continue
       const keys = readEnKeys(enPath)
-      if (keys.size > 0) bonds.push({ id: `${stack}/${name}`, keys })
+      if (keys.size > 0) bonds.push({ id: `${stack}/${name}`, stack, keys })
     }
   }
   return bonds
@@ -134,7 +140,7 @@ function codeLines(txt) {
 
 /** Scan all package source for translation-key usage signals. */
 function loadUsage(root) {
-  const literals = new Set() // keys passed to t('…')
+  const literals = new Map() // key passed to t('…') → the stacks ('app'/'api') using it
   const referenced = new Set() // literals ∪ key:/labelKey: config string values
   const dynamicPrefixes = new Set() // ``ns.${x}`` template prefixes
   for (const stack of ['app', 'api']) {
@@ -143,7 +149,8 @@ function loadUsage(root) {
       const txt = codeLines(readFileSync(f, 'utf8'))
       for (const m of txt.matchAll(/\bt\(\s*['"]([^'"]+)['"]/g)) {
         if (KEY_RE.test(m[1])) {
-          literals.add(m[1])
+          if (!literals.has(m[1])) literals.set(m[1], new Set())
+          literals.get(m[1]).add(stack)
           referenced.add(m[1])
         }
       }
@@ -168,11 +175,13 @@ export function analyzeParity(root = ROOT) {
   const bonds = loadBonds(root)
   const { literals, referenced, dynamicPrefixes } = loadUsage(root)
 
-  // namespace (first segment) → set of bonds that define keys under it
+  // `stack:namespace` → the bonds of that stack that define keys under it. A stack
+  // loads only its own bonds (an API package cannot import an app locale bond), so a
+  // key the API uses is owned only by an API bond.
   const nsOwners = new Map()
   for (const b of bonds) {
     for (const k of b.keys) {
-      const ns = k.split('.')[0]
+      const ns = `${b.stack}:${k.split('.')[0]}`
       if (!nsOwners.has(ns)) nsOwners.set(ns, new Set())
       nsOwners.get(ns).add(b.id)
     }
@@ -183,15 +192,19 @@ export function analyzeParity(root = ROOT) {
   // UNOWNED: literal t() key whose namespace no bond owns at all.
   const missing = []
   const unowned = []
-  for (const k of literals) {
-    const owners = nsOwners.get(k.split('.')[0])
-    if (!owners) {
-      unowned.push(k)
-      continue
+  for (const [k, stacks] of literals) {
+    for (const stack of stacks) {
+      const owners = nsOwners.get(`${stack}:${k.split('.')[0]}`)
+      if (!owners) {
+        unowned.push(`${stack}::${k}`)
+        continue
+      }
+      // A namespace several bonds share (`ui`: the shared UI bond and older
+      // per-framework ones) cannot say which one should hold the key, but a key NONE
+      // of them defines is missing whichever it is.
+      if ([...owners].some((bondId) => definesKey(definedByBond.get(bondId), k))) continue
+      missing.push(`${[...owners].sort().join('|')}::${k}`)
     }
-    if (owners.size !== 1) continue
-    const bondId = [...owners][0]
-    if (!definesKey(definedByBond.get(bondId), k)) missing.push(`${bondId}::${k}`)
   }
 
   const coveredByDynamic = (k) => {

@@ -12,4 +12,5 @@ export const gl: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Provedor de rexistro non atopado no contexto',
   'svelte.error.unknownPaginationDirection': 'Dirección de paxinación descoñecida: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider debe usarse dentro dun ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast debe usarse dentro dun ToastProvider',
 }

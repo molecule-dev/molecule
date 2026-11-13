@@ -13,4 +13,5 @@ export const sq: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Drejtim i panjohur i faqosjes: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider duhet të përdoret brenda një ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast duhet të përdoret brenda një ToastProvider',
 }

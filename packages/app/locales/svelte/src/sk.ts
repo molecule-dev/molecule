@@ -13,4 +13,5 @@ export const sk: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Poskytovate\u013e logovania nebol n\u00e1jden\u00fd v kontexte',
   'svelte.error.unknownPaginationDirection': 'Nezn\u00e1my smer str\u00e1nkovania: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider musí byť použitý vnútri ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast musí byť použitý vnútri ToastProvider',
 }

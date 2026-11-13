@@ -14,4 +14,6 @@ export const it: SvelteTranslations = {
     'Direzione di paginazione sconosciuta: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     "useChatProvider deve essere utilizzato all'interno di un ChatProvider",
+  'svelte.error.useToastOutsideProvider':
+    "useToast deve essere utilizzato all'interno di un ToastProvider",
 }

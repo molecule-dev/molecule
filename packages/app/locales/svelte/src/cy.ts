@@ -12,4 +12,5 @@ export const cy: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Darparwr cofnodwr heb ei ganfod yn y cyd-destun',
   'svelte.error.unknownPaginationDirection': 'Cyfeiriad tudalennu anhysbys: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'Rhaid defnyddio useChatProvider o fewn ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'Rhaid defnyddio useToast o fewn ToastProvider',
 }

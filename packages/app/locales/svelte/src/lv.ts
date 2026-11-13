@@ -17,4 +17,5 @@ export const lv: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection':
     'Nezin\u0101ms lapo\u0161anas virziens: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider jāizmanto ChatProvider ietvaros',
+  'svelte.error.useToastOutsideProvider': 'useToast jāizmanto ToastProvider ietvaros',
 }

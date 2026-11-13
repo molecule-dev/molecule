@@ -13,4 +13,6 @@ export const fi: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Tuntematon sivutussuunta: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider on käytettävä ChatProvider-komponentin sisällä',
+  'svelte.error.useToastOutsideProvider':
+    'useToast on käytettävä ToastProvider-komponentin sisällä',
 }

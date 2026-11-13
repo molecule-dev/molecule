@@ -12,4 +12,5 @@ export const ig: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'A choghi onye na-enye ndekota na kontekst',
   'svelte.error.unknownPaginationDirection': 'Ntuzighari pagineshon amagh\u1ecb: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': "A ga-eji useChatProvider n'ime ChatProvider",
+  'svelte.error.useToastOutsideProvider': "A ga-eji Toast mee ihe n'ime Onye Na-enye Toast",
 }

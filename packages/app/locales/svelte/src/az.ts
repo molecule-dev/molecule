@@ -13,4 +13,5 @@ export const az: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Naməlum səhifələmə istiqaməti: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider ChatProvider daxilində istifadə edilməlidir',
+  'svelte.error.useToastOutsideProvider': 'useToast ToastProvider daxilində istifadə edilməlidir',
 }

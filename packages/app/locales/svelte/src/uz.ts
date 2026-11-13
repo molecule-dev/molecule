@@ -12,4 +12,5 @@ export const uz: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Logger provayderi kontekstda topilmadi',
   'svelte.error.unknownPaginationDirection': 'Noma\'lum sahifalash yo\'nalishi: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider ChatProvider ichida ishlatilishi kerak',
+  'svelte.error.useToastOutsideProvider': 'useToast ToastProvider ichida ishlatilishi kerak',
 }

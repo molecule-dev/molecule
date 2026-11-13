@@ -12,4 +12,5 @@ export const lt: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Registravimo teik\u0117jas nerastas kontekste',
   'svelte.error.unknownPaginationDirection': 'Ne\u017einoma puslapiavimo kryptis: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider turi būti naudojamas ChatProvider viduje',
+  'svelte.error.useToastOutsideProvider': 'useToast turi būti naudojamas ToastProvider viduje',
 }

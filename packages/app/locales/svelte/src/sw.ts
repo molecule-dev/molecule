@@ -12,4 +12,5 @@ export const sw: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Mtoa huduma wa kumbukumbu hakupatikana katika muktadha',
   'svelte.error.unknownPaginationDirection': 'Mwelekeo usiojulikana wa kurasa: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider lazima utumike ndani ya ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast lazima utumike ndani ya ToastProvider',
 }

@@ -22,4 +22,5 @@ export const pa: SvelteTranslations = {
     '\u0a05\u0a17\u0a3f\u0a06\u0a24 \u0a2a\u0a47\u0a1c\u0a3f\u0a28\u0a47\u0a36\u0a28 \u0a26\u0a3f\u0a36\u0a3e: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider ਨੂੰ ChatProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'svelte.error.useToastOutsideProvider': 'useToast ਨੂੰ ToastProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
 }

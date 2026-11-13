@@ -22,4 +22,6 @@ export const ta: SvelteTranslations = {
     '\u0ba4\u0bc6\u0bb0\u0bbf\u0baf\u0bbe\u0ba4 \u0baa\u0b95\u0bcd\u0b95 \u0ba4\u0bbf\u0b9a\u0bc8: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider ஒரு ChatProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
+  'svelte.error.useToastOutsideProvider':
+    'useToast ஒரு ToastProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
 }

@@ -22,4 +22,5 @@ export const my: SvelteTranslations = {
     '\u1019\u101e\u102d\u101e\u1031\u102c \u1005\u102c\u1019\u103b\u1000\u103a\u1014\u103e\u102c\u1015\u103c\u102f\u1001\u103c\u1004\u103a\u1038 \u1021\u101b\u1015\u103a: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider ကို ChatProvider အတွင်းတွင် အသုံးပြုရပါမည်',
+  'svelte.error.useToastOutsideProvider': 'useToast ကို ToastProvider အတွင်းတွင် အသုံးပြုရပါမည်',
 }

@@ -20,4 +20,5 @@ export const zhTW: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection':
     '\u672a\u77e5\u7684\u5206\u9801\u65b9\u5411: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider 必須在 ChatProvider 內使用',
+  'svelte.error.useToastOutsideProvider': 'useToast 必須在 ToastProvider 內使用',
 }

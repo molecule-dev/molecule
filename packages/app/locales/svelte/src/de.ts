@@ -13,4 +13,6 @@ export const de: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Unbekannte Paginierungsrichtung: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider muss innerhalb eines ChatProvider verwendet werden',
+  'svelte.error.useToastOutsideProvider':
+    'useToast muss innerhalb eines ToastProvider verwendet werden',
 }

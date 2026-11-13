@@ -21,4 +21,5 @@ export const vi: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection':
     'H\u01b0\u1edbng ph\u00e2n trang kh\u00f4ng x\u00e1c \u0111\u1ecbnh: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider phải được sử dụng bên trong ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast phải được sử dụng bên trong ToastProvider',
 }

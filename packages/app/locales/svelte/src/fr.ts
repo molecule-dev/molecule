@@ -13,4 +13,6 @@ export const fr: Partial<SvelteTranslations> = {
   'svelte.error.noAuthClient': "Client d'authentification introuvable dans le contexte",
   'svelte.error.useChatOutsideProvider':
     "La fonction useChatProvider doit être utilisée au sein d'un ChatProvider.",
+  'svelte.error.useToastOutsideProvider':
+    "La méthode useToast doit être utilisée à l'intérieur d'un ToastProvider.",
 }

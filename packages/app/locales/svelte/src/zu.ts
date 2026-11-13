@@ -14,4 +14,6 @@ export const zu: SvelteTranslations = {
     'Indlela yokwehlukanisa amakhasi engaziwa: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider kumele kusetshenziswe ngaphakathi kwe-ChatProvider',
+  'svelte.error.useToastOutsideProvider':
+    'useToast kumele kusetshenziswe ngaphakathi kwe-ToastProvider',
 }

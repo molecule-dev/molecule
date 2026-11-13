@@ -12,4 +12,5 @@ export const en: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Logger provider not found in context',
   'svelte.error.unknownPaginationDirection': 'Unknown pagination direction: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider must be used within a ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast must be used within a ToastProvider',
 }

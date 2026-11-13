@@ -22,4 +22,6 @@ export const uk: SvelteTranslations = {
     '\u041d\u0435\u0432\u0456\u0434\u043e\u043c\u0438\u0439 \u043d\u0430\u043f\u0440\u044f\u043c\u043e\u043a \u043f\u0430\u0433\u0456\u043d\u0430\u0446\u0456\u0457: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider повинен використовуватися всередині ChatProvider',
+  'svelte.error.useToastOutsideProvider':
+    'useToast повинен використовуватися всередині ToastProvider',
 }

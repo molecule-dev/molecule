@@ -22,4 +22,6 @@ export const ur: SvelteTranslations = {
     '\u0646\u0627\u0645\u0639\u0644\u0648\u0645 \u0635\u0641\u062d\u06c1 \u0628\u0646\u062f\u06cc \u06a9\u06cc \u0633\u0645\u062a: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider کو ChatProvider کے اندر استعمال کیا جانا چاہیے',
+  'svelte.error.useToastOutsideProvider':
+    'useToast کو ToastProvider کے اندر استعمال کیا جانا چاہیے',
 }

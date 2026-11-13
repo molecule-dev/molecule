@@ -12,4 +12,5 @@ export const am: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'የመዝገብ አቅራቢ በአውድ ውስጥ አልተገኘም',
   'svelte.error.unknownPaginationDirection': 'ያልታወቀ የገጽ አቅጣጫ: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider በChatProvider ውስጥ መጠቀም አለበት',
+  'svelte.error.useToastOutsideProvider': 'useToast በToastProvider ውስጥ መጠቀም አለበት',
 }

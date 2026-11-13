@@ -15,4 +15,6 @@ export const ro: SvelteTranslations = {
     'Direc\u021bie de paginare necunoscut\u0103: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider trebuie utilizat în interiorul unui ChatProvider',
+  'svelte.error.useToastOutsideProvider':
+    'useToast trebuie utilizat în interiorul unui ToastProvider',
 }

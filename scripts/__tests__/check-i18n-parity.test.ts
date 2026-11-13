@@ -87,7 +87,7 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
 
     it('reports a namespace no bond owns as unowned, and an owned one as missing', () => {
       const { missing, unowned } = analyzeParity(fixture())
-      expect(unowned).toEqual(['bondless.label'])
+      expect(unowned).toEqual(['app::bondless.label'])
       expect(missing).toEqual(['app/owned::owned.subtitle'])
     })
 
@@ -107,7 +107,58 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
         ].join('\n'),
       )
       // The code line in the same file still counts.
-      expect(analyzeParity(root).unowned).toEqual(['bondless.label', 'bondless.other'])
+      expect(analyzeParity(root).unowned).toEqual(['app::bondless.label', 'app::bondless.other'])
+    })
+
+    it('reports a key that no bond sharing its namespace defines', () => {
+      // Two bonds own `shared.*`; neither defines shared.missing, so it is missing
+      // whichever bond should hold it. shared.inSecond is defined by one, so it is not.
+      const root = fixture()
+      write(
+        root,
+        'packages/app/locales/first/src/en.ts',
+        "export const en = {\n  'shared.a': 'A',\n}\n",
+      )
+      write(
+        root,
+        'packages/app/locales/second/src/en.ts',
+        "export const en = {\n  'shared.inSecond': 'B',\n}\n",
+      )
+      write(
+        root,
+        'packages/app/frameworks/kit/src/kit.ts',
+        "t('shared.inSecond')\nt('shared.missing')\n",
+      )
+      expect(analyzeParity(root).missing).toEqual([
+        'app/first|app/second::shared.missing',
+        'app/owned::owned.subtitle',
+      ])
+    })
+
+    it('owns an API key only through an API bond', () => {
+      // The app bond defines owned.title, but an API package cannot load an app bond.
+      const root = fixture()
+      write(root, 'packages/api/resources/widget/src/handler.ts', "t('owned.title')\n")
+      expect(analyzeParity(root).unowned).toEqual(['api::owned.title', 'app::bondless.label'])
+    })
+
+    it('reads keys from Svelte and Vue single-file components', () => {
+      const root = fixture()
+      write(
+        root,
+        'packages/app/frameworks/svelte-ui/src/Banner.svelte',
+        "<button>{t('bondless.svelte', {}, { defaultValue: 'Retry' })}</button>\n",
+      )
+      write(
+        root,
+        'packages/app/frameworks/vue-ui/src/Banner.vue',
+        "<template><button>{{ t('bondless.vue') }}</button></template>\n",
+      )
+      expect(analyzeParity(root).unowned).toEqual([
+        'app::bondless.label',
+        'app::bondless.svelte',
+        'app::bondless.vue',
+      ])
     })
 
     it('stops reporting the namespace once a bond defines it', () => {

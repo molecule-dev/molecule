@@ -13,4 +13,5 @@ export const be: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'Невядомы кірунак пагінацыі: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider павінен выкарыстоўвацца ўнутры ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast павінен выкарыстоўвацца ўнутры ToastProvider',
 }

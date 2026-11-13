@@ -13,4 +13,5 @@ export const is: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection':
     '\u00d3\u00feekkt s\u00ed\u00f0u\u00e1tt: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider verður að nota innan ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast verður að nota innan ToastProvider',
 }

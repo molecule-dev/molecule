@@ -14,4 +14,5 @@ export const ha: Partial<SvelteTranslations> = {
     "Ba a sami na'ura mai ba da hanya tsakanin hanyoyin sadarwa a cikin mahallin ba",
   'svelte.error.useChatOutsideProvider':
     'Dole ne a yi amfani da useChatProvider a cikin ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'Dole ne a yi amfani da useToast a cikin ToastProvider',
 }

@@ -17,4 +17,5 @@ export const tr: SvelteTranslations = {
     'G\u00fcnl\u00fck sa\u011flay\u0131c\u0131s\u0131 ba\u011flamda bulunamad\u0131',
   'svelte.error.unknownPaginationDirection': 'Bilinmeyen sayfalama y\u00f6n\u00fc: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider bir ChatProvider içinde kullanılmalıdır',
+  'svelte.error.useToastOutsideProvider': 'useToast bir ToastProvider içinde kullanılmalıdır',
 }

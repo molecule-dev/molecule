@@ -10,6 +10,7 @@ export type SvelteTranslationKey =
   | 'svelte.error.noLoggerProvider'
   | 'svelte.error.unknownPaginationDirection'
   | 'svelte.error.useChatOutsideProvider'
+  | 'svelte.error.useToastOutsideProvider'
 
 /** Translation record mapping svelte keys to translated strings. */
 export type SvelteTranslations = Record<SvelteTranslationKey, string>

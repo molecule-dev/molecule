@@ -13,4 +13,5 @@ export const ms: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection':
     'Arah penomboran halaman tidak diketahui: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider mesti digunakan dalam ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast mesti digunakan dalam ToastProvider',
 }

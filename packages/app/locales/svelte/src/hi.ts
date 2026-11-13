@@ -13,4 +13,5 @@ export const hi: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection': 'अज्ञात पेजिनेशन दिशा: "{{direction}}"',
   'svelte.error.useChatOutsideProvider':
     'useChatProvider का उपयोग ChatProvider के अंदर किया जाना चाहिए',
+  'svelte.error.useToastOutsideProvider': 'useToast का उपयोग ToastProvider के अंदर किया जाना चाहिए',
 }

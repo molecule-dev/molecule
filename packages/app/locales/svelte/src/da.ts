@@ -12,4 +12,5 @@ export const da: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Logudbyder ikke fundet i kontekst',
   'svelte.error.unknownPaginationDirection': 'Ukendt pagineringsretning: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider skal bruges inden for en ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast skal bruges inden for en ToastProvider',
 }

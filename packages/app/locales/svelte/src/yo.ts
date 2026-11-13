@@ -13,4 +13,5 @@ export const yo: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection':
     '\u00cct\u00f2s\u00f3n\u00e0 \u00ecwak\u00e0 oj\u00fa-\u00ecw\u00e9 a\u00ecm\u00f2: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider gbodo lo laarin ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast gbodo lo laarin ToastProvider',
 }

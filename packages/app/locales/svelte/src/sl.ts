@@ -12,4 +12,5 @@ export const sl: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Ponudnik bele\u017eenja ni bil najden v kontekstu',
   'svelte.error.unknownPaginationDirection': 'Neznana smer ostra\u0161evanja: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider je treba uporabiti znotraj ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast je treba uporabiti znotraj ToastProvider',
 }

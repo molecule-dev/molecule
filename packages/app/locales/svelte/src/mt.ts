@@ -13,4 +13,5 @@ export const mt: SvelteTranslations = {
   'svelte.error.unknownPaginationDirection':
     'Direzzjoni tal-paginazzjoni mhux maghrufa: "{{direction}}"',
   'svelte.error.useChatOutsideProvider': 'useChatProvider irid jintuża ġewwa ChatProvider',
+  'svelte.error.useToastOutsideProvider': 'useToast irid jintuża ġewwa ToastProvider',
 }
