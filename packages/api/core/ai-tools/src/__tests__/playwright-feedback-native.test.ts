@@ -46,9 +46,13 @@ beforeAll(async () => {
   await symlink(modules, join(root, 'node_modules'), 'dir')
   await mkdir(join(root, 'e2e'))
   await writeFile(join(root, 'package.json'), '{"type":"module"}')
+  // The supplied suite's own budgets. Background feedback runs at low CPU priority, so a correct
+  // app's click can wait well over half a second for a stable frame while the rest of this package's
+  // tests run: a 600 ms budget failed "gives a corrected app no note" in a full run (1 of 1852)
+  // and passed alone. Two seconds keeps the broken cases quick.
   await writeFile(
     join(root, 'playwright.config.mjs'),
-    `export default {testDir:'./e2e',workers:1,retries:0,timeout:5000,expect:{timeout:600},use:{baseURL:'http://127.0.0.1:${port}',actionTimeout:600}}`,
+    `export default {testDir:'./e2e',workers:1,retries:0,timeout:5000,expect:{timeout:2000},use:{baseURL:'http://127.0.0.1:${port}',actionTimeout:2000}}`,
   )
   const bodies = [
     [
