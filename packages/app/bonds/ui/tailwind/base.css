@@ -243,6 +243,12 @@
   --color-on-info-container: color-mix(in srgb, var(--color-info) 25%, var(--color-foreground));
 }
 
+/* `dark:` utilities follow the ACTIVE theme, not the browser's preference. The
+   theme bond stamps data-mol-mode on <html>; Tailwind's default `dark:` reads
+   prefers-color-scheme, which shows dark utilities under a light-themed app (and
+   light ones under a dark-themed app) whenever the two disagree. */
+@custom-variant dark (&:where([data-mol-mode='dark'], [data-mol-mode='dark'] *));
+
 @layer base {
   /* Tell the browser which widget scheme matches the ACTIVE theme (the theme
      bond stamps data-mol-mode on <html>). Without this, native UI the page
