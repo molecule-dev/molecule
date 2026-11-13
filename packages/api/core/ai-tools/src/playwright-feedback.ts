@@ -180,6 +180,12 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       failedRecords.delete(path)
     }
   }
+  // The record a background pass re-runs a known failure with: only the tests its latest failed run
+  // named. Undefined for a file not known to fail, known to fail with no record of which test, or
+  // stopped part-way: that file resumes at the tests it never finished, and its stopped runs
+  // already keep the failures they saw.
+  const recheckRecord = (path: string): string | undefined =>
+    failing.has(path) && !resumes.has(path) ? failedRecords.get(path) : undefined
   const revisionSources = new Set<string>()
   // Attempts determine fairness, not coverage. A foreground tool may interrupt a long file
   // every time; repeating it first on every release would starve every later file forever.
@@ -215,12 +221,19 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       const sourcePaths = project.root ? paths.map((p) => posix.resolve(project.root!, p)) : paths
       // An edited spec file may have other tests now: its next run is the whole file.
       for (const path of sourcePaths) resumes.delete(path)
-      // Never-attempted specs go first in inventory order, then the oldest attempt. Both source
-      // writes and foreground interruptions therefore leave the other files their turn. A known
-      // failure waits its turn too, and the deploy check re-runs it anyway.
+      // A file with a known failure goes first, and runs only the tests its latest failed run
+      // named: the same selection the deploy's known-failure check runs. Its pass clears the known
+      // failure before a deploy asks for it, and its failure answers whether the write fixed it.
+      // The rest go never-attempted first in inventory order, then the oldest attempt, so source
+      // writes and foreground interruptions leave the other files their turn.
       const selected = selectFeedbackSpecs(project, sourcePaths)
         .filter(({ spec }) => !completed.has(spec.path))
-        .sort((a, b) => (lastAttempt.get(a.spec.path) ?? -1) - (lastAttempt.get(b.spec.path) ?? -1))
+        .sort(
+          (a, b) =>
+            Number(recheckRecord(b.spec.path) !== undefined) -
+              Number(recheckRecord(a.spec.path) !== undefined) ||
+            (lastAttempt.get(a.spec.path) ?? -1) - (lastAttempt.get(b.spec.path) ?? -1),
+        )
       for (const { spec, sourceFiles } of selected) {
         if (!current()) break
         const emit = (result: PlaywrightFeedbackResult): void => {
@@ -245,20 +258,24 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         }
         let result: PlaywrightFeedbackResult
         lastAttempt.set(spec.path, ++attemptedRuns)
-        const resume = resumes.get(spec.path)
+        const known = recheckRecord(spec.path)
+        const resume = known === undefined ? resumes.get(spec.path) : undefined
         try {
-          // A whole-file run calls the host exactly as before; only a resumed file adds a record.
-          running = resume
-            ? options.run(
-                spec,
-                sourceFiles,
-                version,
-                emit,
-                abort.signal,
-                'background',
-                grouped(spec.path, recordedTestIds(resume.record)),
-              )
-            : options.run(spec, sourceFiles, version, emit, abort.signal)
+          // A whole-file run calls the host exactly as before; only a known failure's re-run and a
+          // resumed file add a record.
+          const record = known ?? resume?.record
+          running =
+            record !== undefined
+              ? options.run(
+                  spec,
+                  sourceFiles,
+                  version,
+                  emit,
+                  abort.signal,
+                  'background',
+                  grouped(spec.path, recordedTestIds(record)),
+                )
+              : options.run(spec, sourceFiles, version, emit, abort.signal)
           result = await running
         } catch (_error) {
           continue
@@ -271,10 +288,15 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         // and its next background run starts at the tests it never finished.
         if (result.status === 'cancelled' && !stopped) {
           rememberStopped(spec.path, result)
-          const unfinished = result.unfinishedTests && grouped(spec.path, result.unfinishedTests)
+          // A stopped re-run of known failures is not the file's resume point: the record it ran
+          // still names what is left of them, and the file's other tests never started.
+          const unfinished =
+            known === undefined && result.unfinishedTests
+              ? grouped(spec.path, result.unfinishedTests)
+              : undefined
           if (unfinished)
             resumes.set(spec.path, { record: unfinished, version: resume?.version ?? version })
-          else if (result.unfinishedTests) resumes.delete(spec.path)
+          else if (known === undefined && result.unfinishedTests) resumes.delete(spec.path)
         }
         options.onResult?.(live() ? result : { ...result, status: 'cancelled', failures: [] })
         if (!live()) break
@@ -285,6 +307,25 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           break
         }
         yieldsInARow = 0
+        if (known !== undefined && result.selection === 'last-failed') {
+          if (result.status === 'failed') {
+            // Still failing: the known failure, with this run's record, is its latest outcome.
+            failing.add(spec.path)
+            remember(spec.path, result)
+            if (!current()) break
+            completed.add(spec.path)
+            emit(result)
+            continue
+          }
+          // A pass clears the known failure as the deploy check's pass does. A record that selected
+          // nothing the runner could run (a renamed or removed test) is dropped. Either way the
+          // file's other tests have not run on this source: it goes back to the inventory whole.
+          if (settledClean(result)) failing.delete(spec.path)
+          failedRecords.delete(spec.path)
+          delivered.delete(spec.path)
+          for (const path of paths) changed.add(path)
+          continue
+        }
         // The rest of a resumed file. Its record selected nothing the runner could run (the file's
         // tests changed since it stopped): the whole file runs on the next pass.
         const resumed = resume !== undefined && result.selection === 'last-failed'

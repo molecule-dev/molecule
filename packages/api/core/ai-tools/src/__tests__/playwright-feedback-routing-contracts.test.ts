@@ -119,8 +119,10 @@ it.each([true, false])(
     controllers.push(controller)
     controller.changed(['/equipment/src/Preferences.tsx'])
     await vi.waitFor(
+      // A native start (node, the runner, the config and the spec's transform) passed 8 s beside
+      // the rest of the suite's runs on a loaded machine.
       async () => expect(await readFile(join(f.root, 'started'), 'utf8')).toBe('yes'),
-      { timeout: 8000 },
+      { timeout: 20000 },
     )
     const release = await controller.pause()
     expect(results.map((result) => result.status)).toEqual(['cancelled'])
