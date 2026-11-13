@@ -1,5 +1,11 @@
 # @molecule/app-ide-default
 
+## 1.1.0
+
+### Minor Changes
+
+- `WorkspaceProvider` gains an optional `getState()` that returns the full workspace state, and the default provider implements it, so a binding that mounts after earlier panel changes reads them at once.
+
 ## 1.0.1
 
 ### Patch Changes
