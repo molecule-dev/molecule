@@ -61,6 +61,28 @@ function runnerOutput(text: string): string {
 }
 
 /**
+ * Playwright's own last-run record, reduced to the ids of the tests it names.
+ * @param text - A `.last-run.json` the runner wrote (`{ status, failedTests }`).
+ * @returns The same record re-serialized with only its test ids, or undefined when it names none
+ *   or is not a record (a missing, oversized or malformed file).
+ */
+function lastRunRecord(text: string): string | undefined {
+  if (text.length > 200_000) return undefined
+  try {
+    const value = JSON.parse(text) as { failedTests?: unknown }
+    const ids = Array.isArray(value.failedTests)
+      ? value.failedTests.filter((id): id is string => typeof id === 'string' && id.length <= 200)
+      : []
+    return ids.length
+      ? JSON.stringify({ status: 'failed', failedTests: ids.slice(0, 1000) })
+      : undefined
+  } catch (_error) {
+    // Not JSON: no record, so the next checkpoint runs the whole file.
+    return undefined
+  }
+}
+
+/**
  * Subscribe to writes without making them wait for browser work.
  * @param options - Source loader, native runner and delivery callbacks.
  * @returns Nonblocking writes, cancellation and an explicit current-revision native checkpoint.
@@ -79,6 +101,13 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   const failing = new Set<string>()
   const completed = new Set<string>()
   const outcomes = new Map<string, PlaywrightFeedbackResult>()
+  // The runner's record of the tests each spec's latest failed run did not pass. A known-failures
+  // checkpoint re-runs only those tests; a failed run without a record drops an older one.
+  const failedRecords = new Map<string, string>()
+  const remember = (path: string, result: PlaywrightFeedbackResult): void => {
+    if (result.lastRun) failedRecords.set(path, result.lastRun)
+    else failedRecords.delete(path)
+  }
   const revisionSources = new Set<string>()
   // Attempts determine fairness, not coverage. A foreground tool may interrupt a long file
   // every time; repeating it first on every release would starve every later file forever.
@@ -153,8 +182,13 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         // A finished run is that spec's latest native outcome even when a write landed while it
         // ran: a failure stays known (the deploy check re-runs it on current source), a pass or
         // self-skip clears it. Only a run with no write during it is reused or reported.
-        if (settledClean(result)) failing.delete(spec.path)
-        else if (result.status === 'failed') failing.add(spec.path)
+        if (settledClean(result)) {
+          failing.delete(spec.path)
+          failedRecords.delete(spec.path)
+        } else if (result.status === 'failed') {
+          failing.add(spec.path)
+          remember(spec.path, result)
+        }
         if (!current()) break
         completed.add(spec.path)
         outcomes.set(spec.path, result)
@@ -228,25 +262,82 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         const selected = selectFeedbackSpecs(project, paths)
           .filter(({ spec }) => !checkOptions.failedOnly || failing.has(spec.path))
           .sort((a, b) => Number(failing.has(b.spec.path)) - Number(failing.has(a.spec.path)))
+        const foreground = async (
+          spec: FeedbackSpec,
+          sourceFiles: string[],
+          record?: string,
+        ): Promise<PlaywrightFeedbackResult> => {
+          // A whole-file run calls the host exactly as before; only a record adds the argument.
+          running =
+            record === undefined
+              ? options.run(spec, sourceFiles, version, () => {}, abort.signal, 'foreground')
+              : options.run(
+                  spec,
+                  sourceFiles,
+                  version,
+                  () => {},
+                  abort.signal,
+                  'foreground',
+                  record,
+                )
+          try {
+            return await running
+          } finally {
+            running = undefined
+          }
+        }
         for (const { spec, sourceFiles } of selected) {
           if (stopped || abort.signal.aborted || version !== revision) break
           let result = outcomes.get(spec.path)
           // Reuse passes and self-skipped specs only. A restart, fixture repair or
           // transient failure can change a failed outcome without changing application source.
-          if (!result || !settledClean(result)) {
+          const record = checkOptions.failedOnly ? failedRecords.get(spec.path) : undefined
+          let answered = false
+          if ((!result || !settledClean(result)) && record) {
+            // Only the tests the last failed run named. Their pass clears the known failure; the
+            // file's other tests stay with background diagnosis, so it is never a whole-file pass.
+            const known = await foreground(spec, sourceFiles, record)
+            if (stopped || abort.signal.aborted || version !== revision) break
+            options.onResult?.(known)
+            if (known.selection === 'last-failed' && known.status === 'failed') {
+              results.push(known)
+              failing.add(spec.path)
+              remember(spec.path, known)
+              break
+            }
+            if (known.selection === 'last-failed' && settledClean(known)) {
+              results.push(known)
+              failing.delete(spec.path)
+              failedRecords.delete(spec.path)
+              continue
+            }
+            if (known.selection === 'last-failed') {
+              // The record selected nothing the runner could run (a renamed or removed test):
+              // the whole file answers instead.
+              failedRecords.delete(spec.path)
+            } else {
+              // A host that does not pass records on ran the whole file: that is its answer.
+              result = known
+              outcomes.set(spec.path, known)
+              answered = true
+            }
+          }
+          if (!result || (!answered && !settledClean(result))) {
             lastAttempt.set(spec.path, ++attemptedRuns)
-            running = options.run(spec, sourceFiles, version, () => {}, abort.signal, 'foreground')
-            result = await running
-            running = undefined
+            result = await foreground(spec, sourceFiles)
             if (stopped || abort.signal.aborted || version !== revision) break
             options.onResult?.(result)
             outcomes.set(spec.path, result)
           }
           results.push(result)
-          if (result.status === 'failed') failing.add(spec.path)
+          if (result.status === 'failed') {
+            failing.add(spec.path)
+            remember(spec.path, result)
+          }
           if (!settledClean(result)) break
           completed.add(spec.path)
           failing.delete(spec.path)
+          failedRecords.delete(spec.path)
         }
         if (stopped || abort.signal.aborted || version !== revision) return []
         // A partial checkpoint verified only known failures. Keep the pending source paths
@@ -296,6 +387,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         if (!settledClean(result)) continue
         lastAttempt.set(result.spec, ++attemptedRuns)
         failing.delete(result.spec)
+        failedRecords.delete(result.spec)
         completed.add(result.spec)
         outcomes.set(result.spec, { ...result, revision })
         delivered.delete(result.spec)
@@ -375,6 +467,11 @@ export async function runPlaywrightFeedback(
     signal?: AbortSignal
     /** Explicit verification keeps the process slot instead of yielding to its own caller. */
     foreground?: boolean
+    /**
+     * An earlier failed run's record ({@link PlaywrightFeedbackResult.lastRun}): run only the
+     * tests it names, with Playwright's own `--last-failed`.
+     */
+    lastFailed?: string
   },
 ): Promise<PlaywrightFeedbackResult> {
   const started = Date.now()
@@ -386,8 +483,16 @@ export async function runPlaywrightFeedback(
   const reportPath = posix.join(dir, 'report.json')
   const reporterPath = posix.join(dir, 'feedback-reporter.cjs')
   const eventsPath = posix.join(dir, 'failures.jsonl')
+  // Playwright reads and rewrites this record itself (PLAYWRIGHT_LAST_RUN_OUTPUT_FILE, 1.62+).
+  const lastRunPath = posix.join(dir, 'last-run.json')
+  const known = options.lastFailed === undefined ? undefined : lastRunRecord(options.lastFailed)
   const timeout = options.timeoutMs ?? 120_000
-  const base = { spec: spec.path, revision, failures: [] as PlaywrightFeedbackFailure[] }
+  const base = {
+    spec: spec.path,
+    revision,
+    failures: [] as PlaywrightFeedbackFailure[],
+    ...(known ? { selection: 'last-failed' as const } : {}),
+  }
   const unavailable = (reason: string): PlaywrightFeedbackResult => ({
     ...base,
     status: 'unavailable',
@@ -401,10 +506,11 @@ export async function runPlaywrightFeedback(
     `--global-timeout=${timeout}`,
     `--output=${shellQuote(posix.join(dir, 'results'))}`,
     ...(options.foreground ? ['--max-failures=1'] : []),
+    ...(known ? ['--last-failed'] : []),
   ])
   // The standard OS priority keeps background diagnosis behind the dev server
   // and builds when they share one CPU. Playwright owns its global deadline.
-  const command = `export MOL_TEST_INTERNAL=1 PLAYWRIGHT_JSON_OUTPUT_FILE=${shellQuote(reportPath)} MOL_TEST_FEEDBACK_EVENTS=${shellQuote(eventsPath)}; node ${shellQuote(posix.join(dir, 'run.cjs'))}`
+  const command = `export MOL_TEST_INTERNAL=1 PLAYWRIGHT_JSON_OUTPUT_FILE=${shellQuote(reportPath)} PLAYWRIGHT_LAST_RUN_OUTPUT_FILE=${shellQuote(lastRunPath)} MOL_TEST_FEEDBACK_EVENTS=${shellQuote(eventsPath)}; node ${shellQuote(posix.join(dir, 'run.cjs'))}`
   let cancelling: Promise<void> | undefined
   const cancel = (): void => {
     // Best-effort stop signal: if it cannot be written there is no other
@@ -457,6 +563,7 @@ export async function runPlaywrightFeedback(
       { timeout: 5_000 },
     )
     await backend.writeFile(reporterPath, feedbackReporterSource())
+    if (known) await backend.writeFile(lastRunPath, known)
     await backend.writeFile(
       posix.join(dir, 'run.cjs'),
       feedbackProcessSource({
@@ -489,6 +596,14 @@ export async function runPlaywrightFeedback(
     if (poll) clearTimeout(poll)
     if (reading) await reading
     await readEvents()
+    let lastRun: string | undefined
+    try {
+      lastRun = lastRunRecord(await backend.readFile(lastRunPath))
+    } catch (_error) {
+      // An older runner writes no record here; the next checkpoint runs the whole file.
+      lastRun = undefined
+    }
+    const record = lastRun ? { lastRun } : {}
     let reportText: string
     try {
       reportText = await backend.readFile(reportPath)
@@ -496,6 +611,7 @@ export async function runPlaywrightFeedback(
       if (nativeFailures.size)
         return {
           ...base,
+          ...record,
           failures: [...nativeFailures.values()],
           status: 'failed',
           durationMs: Date.now() - started,
@@ -514,6 +630,7 @@ export async function runPlaywrightFeedback(
     if (base.failures.length)
       return {
         ...base,
+        ...record,
         ...(report.stats ? { nativeStats: report.stats } : {}),
         status: 'failed',
         durationMs: Date.now() - started,

@@ -52,6 +52,17 @@ export interface PlaywrightFeedbackResult {
   /** Native counts for this one diagnostic selection, never whole-suite proof. */
   nativeStats?: PlaywrightReportStats
   reason?: string
+  /**
+   * Playwright's own last-run record (`.last-run.json`: the ids of the tests that failed or did
+   * not run) from a failed run, when the runner wrote one. A later checkpoint hands it back so
+   * the runner re-runs only those tests (`--last-failed`).
+   */
+  lastRun?: string
+  /**
+   * `last-failed` when the run selected only the tests an earlier run's record names. Its pass
+   * clears those failures; it never stands for the whole file.
+   */
+  selection?: 'last-failed'
 }
 
 /** Host operations for the same scheduler in a CLI process or a remote sandbox. */
@@ -66,6 +77,12 @@ export interface PlaywrightFeedbackOptions {
     signal: AbortSignal,
     /** A checkpoint is explicit verification and must not yield to its caller's deploy/build. */
     mode?: 'background' | 'foreground',
+    /**
+     * The spec's last failed run record ({@link PlaywrightFeedbackResult.lastRun}), passed on a
+     * known-failures checkpoint. Hand it to `runPlaywrightFeedback` as `lastFailed` so only
+     * those tests run; a host that ignores it runs the whole file, as before.
+     */
+    lastRun?: string,
   ) => Promise<PlaywrightFeedbackResult>
   /** Only current native failures are delivered. Passing apps receive no note. */
   onFailures?: (result: PlaywrightFeedbackResult) => void
@@ -80,6 +97,9 @@ export interface PlaywrightFeedbackCheckOptions {
    * Re-run only the spec files in {@link PlaywrightFeedback.failingSpecs}. With none, the
    * checkpoint loads and runs nothing and returns no results. Pending background diagnosis
    * of the other files resumes after foreground work releases its pause.
+   * Within such a file only the tests its last failed run names are re-run, when the runner
+   * recorded them; the whole file runs when it did not, or when that record selects no test.
+   * Their pass clears the known failure; the rest of the file goes back to background diagnosis.
    */
   failedOnly?: boolean
 }
