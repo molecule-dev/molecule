@@ -46,9 +46,6 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/app-ai-chat": {
-      "optional": true
-    },
     "@molecule/app-ide": {
       "optional": true
     },
@@ -60,6 +57,7 @@
     }
   },
   "devDependencies": {
+    "@molecule/app-ai-chat": "1.7.3",
     "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-bonds-default-react": "3.0.3",
     "@molecule/app-i18n": "1.1.2",

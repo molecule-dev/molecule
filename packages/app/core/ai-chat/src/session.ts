@@ -1,0 +1,2775 @@
+/**
+ * The chat session: transcript, streaming, queueing, retries and recovery for
+ * one chat view, with no UI framework in it.
+ *
+ * Every framework binding's `useChat` adapts one session to its reactivity —
+ * `subscribe` + `getState` for the state, `connect()` while the view is
+ * mounted, `update()` when its options change, `controls` for the actions — so
+ * the behavior is written once and is identical in React, Vue, Svelte, Solid
+ * and Angular.
+ *
+ * Sessions for the same project share one module-level transcript store (see
+ * `session-store.ts`): a stream keeps filling it while no view is mounted, and a
+ * view that remounts (the boot view swapping to the IDE) picks up where the
+ * last one was.
+ *
+ * @example
+ * ```typescript
+ * import { createChatSession, requireProvider } from '@molecule/app-ai-chat'
+ *
+ * const session = createChatSession({ provider: requireProvider(), endpoint: '/api/chat' })
+ * const stop = session.subscribe(() => render(session.getState()))
+ * const disconnect = session.connect()
+ * await session.controls.sendMessage('Summarize my open orders')
+ * ```
+ *
+ * @module
+ */
+
+import { t } from '@molecule/app-i18n'
+import { getLogger } from '@molecule/app-logger'
+
+import { DEFAULT_AGENT_NAME } from './agent-identity.js'
+import { convergeHistory } from './history.js'
+import { deriveToolStatus, messageProgress } from './message-progress.js'
+import {
+  acceptedQueueIds,
+  browserSessionPersistence,
+  buildCtxUpdate,
+  clearMessageStores,
+  clearStreamingFlag,
+  consumeStreamingFlag,
+  emitStore,
+  getMessageStore,
+  loadPersistedQueue,
+  mergeBackgroundTasks,
+  type MsgStreamCtx,
+  persistQueue,
+  type QueueEntry,
+  removeQueuedMessage,
+  restoreQueuedMessages,
+  type RetryTarget,
+  setStoreMessages,
+  setStoreRemoteStreaming,
+  setStoreStreaming,
+  setStreamingFlag,
+  startRemoteStreamPoll,
+  stopRemoteStreamPoll,
+} from './session-store.js'
+import type {
+  ChatErrorMeta,
+  ChatMode,
+  ChatRetryCountdown,
+  ChatSendOptions,
+  ChatSession,
+  ChatSessionControls,
+  ChatSessionState,
+  CreateChatSessionOptions,
+} from './session-types.js'
+import type {
+  BackgroundTaskState,
+  ChatAttachment,
+  ChatConfig,
+  ChatMessage,
+  ChatStreamEvent,
+  MessageBlock,
+} from './types.js'
+
+/** Prefix used by auto-fix messages so we can identify them in the queue. */
+const AUTOFIX_PREFIX = 'Fix these issues:'
+
+/**
+ * Base backoff (in seconds) before the first auto-retry of a turn interrupted by
+ * a 5XX backend error. The wait doubles each attempt → 5s, 10s, 20s, then holds
+ * at {@link RETRY_MAX_SECONDS}.
+ */
+const RETRY_BASE_SECONDS = 5
+
+/** Ceiling on the backoff wait (seconds) — later attempts hold here. */
+const RETRY_MAX_SECONDS = 30
+
+/**
+ * Maximum number of auto-retry attempts after a 5XX backend error before the
+ * error is surfaced to the user (no more retries).
+ *
+ * Sized so the ladder outlasts a server restart, which is what a 5XX shutdown
+ * handoff / transport drop usually IS: 5+10+20+30×5 ≈ 3 minutes of coverage.
+ * The old cap of 3 (35 s) gave up while the API was still booting from a
+ * ~90 s deploy restart, so the handed-off turn was never resumed (2026-08-18).
+ * The countdown is visible and cancelable throughout, so a longer ladder costs
+ * the user nothing they cannot stop.
+ */
+const MAX_RETRY_ATTEMPTS = 8
+
+/**
+ * How long (ms) an in-flight stream may be silent before a page-lifecycle
+ * return to the foreground (visibilitychange → visible, bfcache `pageshow`,
+ * network `online`) treats the connection as dead. The server writes a
+ * `keep_alive` frame at least every ~25s during tool execution, so a healthy
+ * foreground stream is never this quiet — but a page frozen by a mobile screen
+ * lock has its socket torn down by the OS WITHOUT the pending read() ever
+ * rejecting. Past this threshold the reader is aborted so the no-terminal
+ * reconcile (history reload + resume-if-still-streaming) runs immediately
+ * instead of waiting out the 3-minute stall watchdog. When the foreground
+ * return lands BEFORE the threshold (a short lock — the socket may be just as
+ * dead), a one-shot re-check is armed for the moment silence would cross it,
+ * so recovery is never gated on the stall watchdog either way.
+ */
+const LIFECYCLE_STALE_STREAM_MS = 45_000
+
+/**
+ * How long (ms) an open stream may deliver no event before it is aborted as
+ * stalled (then the no-terminal path reloads history and resumes). The server
+ * writes `keep_alive` at least every ~25 s, on a relayed reconnect too, so a
+ * live stream never comes near it. Applies to a send AND a resume.
+ */
+const STREAM_STALL_MS = 180_000
+
+/**
+ * How long (ms) the client's own open stream may be silent while the push
+ * channel keeps delivering live frames of the same turn before the stream is
+ * treated as deaf and aborted. Both carry the same frames, written at the same
+ * moment, so a healthy stream is never this far behind its own echo.
+ */
+const STREAM_DEAF_MS = 20_000
+
+/**
+ * Minimum time (ms) the page must have been hidden before a visibility return
+ * triggers an idle-state history reconcile. Filters ordinary quick tab
+ * switches so an idle, up-to-date transcript doesn't refetch on every one.
+ */
+const LIFECYCLE_MIN_HIDDEN_MS = 5_000
+
+/**
+ * Pace status labels. A small change's verification (type-check + lint over a
+ * couple of files) finishes in well under a second, so its step labels were
+ * emitted in a rapid burst — they flashed by unreadably, or a batched render
+ * showed just the final clear and the spinner had no text at all. Queue them
+ * and surface each for a minimum dwell so the progression is legible
+ * regardless of how fast (or how batched) they arrive.
+ */
+const STATUS_MIN_DWELL_MS = 650
+
+/** Stable empty arrays for the server state. */
+const EMPTY_MESSAGES: ChatMessage[] = []
+const EMPTY_TASKS: BackgroundTaskState[] = []
+
+/** The state a server renders: an empty, idle chat. */
+const SERVER_STATE: ChatSessionState = {
+  messages: EMPTY_MESSAGES,
+  isLoading: false,
+  isRemoteStreaming: false,
+  error: null,
+  errorMeta: null,
+  mode: 'execute',
+  fastMode: false,
+  streamingStatus: null,
+  backgroundTasks: EMPTY_TASKS,
+  retryCountdown: null,
+}
+
+/**
+ * Test-only: clear all conversation stores. The store is module-level (it must
+ * outlive view mounts), so it persists across test cases — reset it in a
+ * `beforeEach` the same way tests clear `sessionStorage`.
+ */
+export function resetChatStoresForTests(): void {
+  clearMessageStores()
+}
+
+/** A mutable box, the session's equivalent of a component ref. */
+type Box<T> = { current: T }
+
+/**
+ * Operations bound to one project's transcript store. The session builds one per
+ * project key; an operation that is already running keeps the store it started
+ * on even if the session moves to another project meanwhile.
+ */
+interface KeyedOperations extends ChatSessionControls {
+  setMessages: (updater: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) => void
+  loadConversation: () => void
+  resumeStream: (resumeId: string, existingContent: string) => Promise<void>
+  createMessageStream: (deps: MessageStreamDeps) => {
+    onEvent: (event: ChatStreamEvent) => void
+    finalizeCurrent: () => void
+  }
+  applyContentEvent: (ctx: MsgStreamCtx, event: ChatStreamEvent) => void
+  finalizeRemoteStream: () => void
+}
+
+/** Per-invocation concerns a message stream needs from its send or resume. */
+interface MessageStreamDeps {
+  resetStall: () => void
+  markTerminal: () => void
+  /**
+   * The original send, so an error BEFORE any server event arrived retries by
+   * RE-SENDING it (the server never persisted the user message — a resume
+   * would drop it). Only the sendMessage path provides this; the resume path
+   * omits it, so its errors always retry as another resume.
+   */
+  retrySend?: {
+    message: string
+    attachments?: ChatAttachment[]
+    options?: ChatSendOptions
+    userMsgId?: string
+  }
+}
+
+/**
+ * Create a chat session for one chat view.
+ *
+ * Manages message state, sends messages to the backend through the chat
+ * provider, and handles streaming responses, the queue, auto-retries, page
+ * lifecycle recovery and pushed frames of turns running elsewhere.
+ *
+ * @param init - The chat provider plus the session options (endpoint, project, callbacks).
+ * @returns The session: state, `controls`, `subscribe`, `update` and `connect`.
+ */
+export function createChatSession(init: CreateChatSessionOptions): ChatSession {
+  // ── Options (the latest values; `update` replaces them) ──────────────────
+  let provider = init.provider
+  let endpoint = init.endpoint
+  let projectId = init.projectId
+  let agentName = init.agentName ?? DEFAULT_AGENT_NAME
+  let readOnly = init.readOnly ?? false
+  let onFileChange = init.onFileChange
+  let onModeChange = init.onModeChange
+  let onConversationId = init.onConversationId
+  let onStreamEvent = init.onStreamEvent
+  const persistence = init.persistence ?? browserSessionPersistence
+  // Project-scoped key for the message store + persistence. The store is keyed
+  // by project (stable across the whole build flow — the conversation id is
+  // assigned mid-stream, so keying on it directly would swap the store out from
+  // under a live stream). Multi-conversation correctness is handled in
+  // loadConversation, which tracks the store's conversation id and resets only
+  // on a genuine switch (a DIFFERENT id), not when a new conversation first
+  // receives its id.
+  let activeKey = projectId ?? 'default'
+  // Capture loadOnMount at creation — prevents mid-session flips
+  // (e.g. initialMessage consumed → loadOnMount becomes true → history
+  // load overwrites streaming messages).
+  const loadOnMountRef: Box<boolean> = { current: init.loadOnMount ?? true }
+  const currentConfig = (): ChatConfig => ({ endpoint, projectId })
+
+  // ── Subscribers ──────────────────────────────────────────────────────────
+  const listeners = new Set<() => void>()
+  const notify = (): void => {
+    for (const listener of [...listeners]) listener()
+  }
+  // One listener on the active project's store while anyone is subscribed: the
+  // remote-turn poll stops once a store has no listeners at all.
+  const onStoreChange = (): void => notify()
+  let subscribedKey: string | null = null
+  const syncStoreSubscription = (): void => {
+    const want = listeners.size > 0 ? activeKey : null
+    if (want === subscribedKey) return
+    if (subscribedKey !== null) getMessageStore(subscribedKey).listeners.delete(onStoreChange)
+    if (want !== null) getMessageStore(want).listeners.add(onStoreChange)
+    subscribedKey = want
+  }
+
+  // ── Per-session state ────────────────────────────────────────────────────
+  // `messages`, `isLoading`, `isRemoteStreaming` and `backgroundTasks` live in
+  // the shared store (getMessageStore), so they survive remounts and a stream
+  // keeps filling them while no view is mounted. The rest is this session's own.
+  let error: string | null = null
+  let errorMeta: ChatErrorMeta | null = null
+  // Active 5XX backoff-retry countdown, or null when none is pending. When a
+  // backend error is a server error (HTTP 5XX) the session does NOT surface a
+  // terminal error — it shows this cancelable countdown and, when it elapses,
+  // auto-resumes the interrupted turn "where the user left off". `secondsRemaining`
+  // ticks down once per second; `attempt` is the 1-based retry number.
+  let retryCountdown: ChatRetryCountdown | null = null
+  let mode: ChatMode = 'execute'
+  // Fast/priority speed tier — server-persisted per conversation, hydrated from
+  // the history load's `fastMode` meta field (same channel as `mode`).
+  let fastMode = false
+  // Transient label for a background phase (e.g. the verification pass) surfaced
+  // by `status` stream events. Shown in place of the spinner's rotating messages
+  // so the user sees the current step; cleared (null) by the server's status
+  // event when the phase ends, and defensively on send/stream-end.
+  let streamingStatus: string | null = null
+
+  const setError = (next: string | null): void => {
+    if (next === error) return
+    error = next
+    notify()
+  }
+  const setErrorMeta = (next: ChatErrorMeta | null): void => {
+    if (next === errorMeta) return
+    errorMeta = next
+    notify()
+  }
+  const setRetryCountdown = (next: ChatRetryCountdown | null): void => {
+    if (next === retryCountdown) return
+    retryCountdown = next
+    notify()
+  }
+  const setMode = (next: ChatMode): void => {
+    if (next === mode) return
+    mode = next
+    notify()
+  }
+  const setFastMode = (next: boolean): void => {
+    if (next === fastMode) return
+    fastMode = next
+    notify()
+  }
+  const setStreamingStatus = (next: string | null): void => {
+    if (next === streamingStatus) return
+    streamingStatus = next
+    notify()
+  }
+
+  let cachedState: ChatSessionState | null = null
+  const getState = (): ChatSessionState => {
+    const store = getMessageStore(activeKey)
+    const c = cachedState
+    if (
+      c &&
+      c.messages === store.messages &&
+      c.isLoading === store.streaming &&
+      c.isRemoteStreaming === store.remoteStreaming &&
+      c.backgroundTasks === store.backgroundTasks &&
+      c.error === error &&
+      c.errorMeta === errorMeta &&
+      c.mode === mode &&
+      c.fastMode === fastMode &&
+      c.streamingStatus === streamingStatus &&
+      c.retryCountdown === retryCountdown
+    )
+      return c
+    cachedState = {
+      messages: store.messages,
+      isLoading: store.streaming,
+      isRemoteStreaming: store.remoteStreaming,
+      error,
+      errorMeta,
+      mode,
+      fastMode,
+      streamingStatus,
+      backgroundTasks: store.backgroundTasks,
+      retryCountdown,
+    }
+    return cachedState
+  }
+
+  // ── Session refs ─────────────────────────────────────────────────────────
+  // The store generation this session last aligned with (stamped by
+  // loadConversation and on each send/resume start). Null until first stamped
+  // — treated as current. A DISCONNECTED session's stream callbacks keep this
+  // frozen at the generation their conversation was on, so once the user
+  // switches conversations (store.generation bumps) every late write from the
+  // old stream — text flushes, finalize, the trailing setIsLoading(false) — is
+  // dropped instead of bleeding into the new conversation's view.
+  const generationRef: Box<number | null> = { current: null }
+  const statusQueueRef: Box<Array<string | null>> = { current: [] }
+  const statusTimerRef: Box<ReturnType<typeof setTimeout> | null> = { current: null }
+  // True while a view is mounted (and before the first connect, like a
+  // component that has not committed yet).
+  const mountedRef: Box<boolean> = { current: true }
+  const idCounterRef: Box<number> = { current: 0 }
+  // Whether a request is in flight (messages sent meanwhile queue behind it).
+  const sendingRef: Box<boolean> = { current: false }
+  // Set when the user clicks Stop, so the post-send reconcile does NOT overwrite
+  // the locally-finalized streamed content with server history. The abort()
+  // callback already finalizes the streaming message (keeping every streamed
+  // char + tool card, flagged aborted); reloading history here could otherwise
+  // win a race against the server's own post-abort persist and momentarily wipe
+  // the streamed turn (C4 — "everything streamed disappeared, returned on refresh").
+  const userAbortedRef: Box<boolean> = { current: false }
+  // Track page unload so the streaming flag isn't cleared during refresh.
+  // On refresh the browser aborts the in-flight fetch, which causes the
+  // sendMessage while-loop to exit and run cleanup — clearing the flag
+  // before the new page can read it. beforeunload fires synchronously
+  // before the abort microtask, so the ref is set in time.
+  const unloadingRef: Box<boolean> = { current: false }
+  // Timestamp of the most recent stream event (any type, keep_alive included),
+  // stamped fresh when a send/resume request starts. Read by the page-lifecycle
+  // check to distinguish a live-but-quiet stream from one whose socket died
+  // while the page was frozen (mobile screen lock).
+  const lastStreamEventAtRef: Box<number> = { current: 0 }
+  // Whether this client's OWN stream is open and has delivered a server event
+  // (it got past the request — not waiting out a 409 or a resume's history
+  // poll). Only such a stream can be judged deaf by the pushed-frame check in
+  // applyRemoteEvent: before its first event, the turn whose frames arrive
+  // over the push channel may be someone else's.
+  const localStreamLiveRef: Box<boolean> = { current: false }
+  // When the page went hidden, or null while visible — lets the lifecycle
+  // check skip the idle reconcile after ordinary quick tab switches.
+  const hiddenAtRef: Box<number | null> = { current: null }
+  // ── Throttled flush for streaming message updates ─────────────────────────
+  // Instead of writing the store on every SSE event (130+ per response, each
+  // doing an O(n) array scan + a view update), we accumulate the latest
+  // mutable state and flush to the store on a 50ms throttle.
+  const flushTimerRef: Box<ReturnType<typeof setTimeout> | null> = { current: null }
+  // Stores a function that, when called, performs the setMessages update for
+  // the current streaming message. Replaced each time a new stream starts.
+  const pendingFlushFnRef: Box<(() => void) | null> = { current: null }
+  // The remote (pushed) stream accumulator — see applyRemoteEvent.
+  const remoteCtxRef: Box<{ ctx: MsgStreamCtx; generation: number } | null> = { current: null }
+
+  // ── Status queue ─────────────────────────────────────────────────────────
+  const pumpStatus = (): void => {
+    const next = statusQueueRef.current.shift()
+    if (next === undefined) {
+      statusTimerRef.current = null
+      return
+    }
+    setStreamingStatus(next)
+    // Non-null labels dwell so they're readable; a null (phase end) clears at once.
+    statusTimerRef.current = setTimeout(() => pumpStatus(), next === null ? 0 : STATUS_MIN_DWELL_MS)
+  }
+  const enqueueStatus = (label: string | null): void => {
+    const q = statusQueueRef.current
+    if (q.length > 0 && q[q.length - 1] === label) return // collapse consecutive dups
+    // Collapse a pending clear that's immediately superseded by a real label.
+    // runVerification emits a trailing `null` before the runtime-probe phase
+    // re-labels ("Checking the server responds", …); without this the queued
+    // null would still get its turn and blank the spinner for one dwell between
+    // phases. A standalone trailing null (genuine end of phase) is preserved.
+    if (label !== null && q.length > 0 && q[q.length - 1] === null) q.pop()
+    q.push(label)
+    if (!statusTimerRef.current) pumpStatus()
+  }
+  const resetStatusQueue = (): void => {
+    if (statusTimerRef.current) {
+      clearTimeout(statusTimerRef.current)
+      statusTimerRef.current = null
+    }
+    statusQueueRef.current = []
+    setStreamingStatus(null)
+  }
+
+  /**
+   * Apply the server's persisted mode after a history load. The server is
+   * authoritative: it used to be applied only when it was NOT 'execute', so a
+   * tab that had been told 'plan' and then missed the live plan→build flip (an
+   * SSE that dropped during a long boot, a backgrounded tab, a second tab) sat
+   * in plan mode for good while the executor built — the toggle lit, the header
+   * reading Plan (backlog G33). Idempotent: nothing fires when the mode matches.
+   */
+  const applyServerMode = (): void => {
+    const serverMode = (provider as { lastMeta?: Record<string, unknown> }).lastMeta?.mode
+    if (serverMode !== 'plan' && serverMode !== 'execute') return
+    if (serverMode === mode) return
+    setMode(serverMode)
+    onModeChange?.(serverMode)
+  }
+
+  /**
+   * Build a flush-scheduling toolkit for a single streaming message.
+   *
+   * Returns `{ scheduleFlush, flushNow }` that share the same timer.
+   * - `scheduleFlush(buildUpdate)` — stores the update builder and schedules a
+   *   50ms debounced flush (no-op if one is already pending).
+   * - `flushNow(buildUpdate?)` — cancels any pending timer and flushes
+   *   immediately. If `buildUpdate` is provided it replaces the stored one first.
+   *
+   * `buildUpdate` is a function `(msg: ChatMessage) => Partial<ChatMessage>`
+   * that returns the fields to merge into the streaming message.
+   *
+   * @param setMessages - Writes the store the message lives in.
+   * @param targetId - The streaming message's id.
+   * @returns The two flush functions.
+   */
+  const createFlushScheduler = (
+    setMessages: KeyedOperations['setMessages'],
+    targetId: string,
+  ): {
+    scheduleFlush: (buildUpdate: (msg: ChatMessage) => Partial<ChatMessage>) => void
+    flushNow: (buildUpdate?: (msg: ChatMessage) => Partial<ChatMessage>) => void
+  } => {
+    const scheduleFlush = (buildUpdate: (msg: ChatMessage) => Partial<ChatMessage>): void => {
+      // Always store the latest builder so when the timer fires we use the
+      // most recent mutable state.
+      pendingFlushFnRef.current = () => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === targetId ? { ...m, ...buildUpdate(m) } : m)),
+        )
+      }
+      if (flushTimerRef.current === null) {
+        flushTimerRef.current = setTimeout(() => {
+          flushTimerRef.current = null
+          pendingFlushFnRef.current?.()
+          pendingFlushFnRef.current = null
+        }, 50)
+      }
+    }
+
+    const flushNow = (buildUpdate?: (msg: ChatMessage) => Partial<ChatMessage>): void => {
+      if (flushTimerRef.current !== null) {
+        clearTimeout(flushTimerRef.current)
+        flushTimerRef.current = null
+      }
+      if (buildUpdate) {
+        pendingFlushFnRef.current = () => {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === targetId ? { ...m, ...buildUpdate(m) } : m)),
+          )
+        }
+      }
+      pendingFlushFnRef.current?.()
+      pendingFlushFnRef.current = null
+    }
+
+    return { scheduleFlush, flushNow }
+  }
+
+  // ── Backoff auto-retry machinery ──────────────────────────────────────────
+  // When a stream `error` event reports an HTTP 5XX status OR a transport-layer
+  // drop (the connection died — server restart/crash, network blip — flagged
+  // `transport` by the provider), we don't surface a terminal error — we show a
+  // cancelable, once-per-second countdown and then either resume the turn
+  // "where the user left off" (provider.sendMessage('', { resume: true })) or,
+  // when the turn never started server-side, re-send the original message (see
+  // RetryTarget). 4XX, limit/quota, and signup-required errors never auto-retry.
+  // Bounded to MAX_RETRY_ATTEMPTS (sized to outlast a server restart).
+
+  // Retries already performed for the CURRENT incident. Reset to 0 on a clean
+  // `done`, a new send, an abort, a clearHistory, or a cancel.
+  const retryAttemptRef: Box<number> = { current: 0 }
+  // The live countdown interval handle (ticks once/second). Cleared on fire,
+  // cancel, reset, and disconnect so no interval ever leaks.
+  const retryIntervalRef: Box<ReturnType<typeof setInterval> | null> = { current: null }
+  // Mirror of the countdown value driven by the interval.
+  const retrySecondsRef: Box<number> = { current: 0 }
+  // What to do when the countdown elapses — resume the in-flight turn, or
+  // re-send a message the server never received (see RetryTarget).
+  const retryTargetRef: Box<RetryTarget | null> = { current: null }
+  // The original error message to surface if the user cancels the countdown or
+  // the retry budget is exhausted — so they always see WHY the turn failed.
+  const pendingRetryErrorRef: Box<string | null> = { current: null }
+
+  /** Stop the countdown interval, if one is running. */
+  const clearRetryTimers = (): void => {
+    if (retryIntervalRef.current !== null) {
+      clearInterval(retryIntervalRef.current)
+      retryIntervalRef.current = null
+    }
+  }
+
+  /**
+   * Clear any pending retry WITHOUT surfacing the error — used when the user
+   * moves on (sends a new message, aborts, or clears history) so a stale retry
+   * and its interval never leak into the next turn.
+   */
+  const resetRetry = (): void => {
+    clearRetryTimers()
+    retryAttemptRef.current = 0
+    retryTargetRef.current = null
+    pendingRetryErrorRef.current = null
+    setRetryCountdown(null)
+  }
+
+  /**
+   * Fire the scheduled retry: stop the countdown and either resume the
+   * interrupted turn "where the user left off" (resume:true) or re-send the
+   * original message when the turn never started server-side (see RetryTarget —
+   * resuming then would drop the never-persisted user message). The retry budget
+   * (retryAttemptRef) is intentionally NOT reset here — a retry that fails again
+   * re-arms the backoff up to the attempt cap.
+   */
+  const fireRetry = (): void => {
+    clearRetryTimers()
+    setRetryCountdown(null)
+    const target = retryTargetRef.current
+    retryTargetRef.current = null
+    if (!target || !mountedRef.current) return
+    if (target.kind === 'resume') {
+      void core.resumeStream(target.id, target.content)
+      return
+    }
+    // Re-send under the original id: an acceptance whose response was lost must
+    // not create a second server message. Refresh the optimistic bubble in place.
+    if (target.userMsgId) {
+      const uid = target.userMsgId
+      core.setMessages((prev) => prev.filter((m) => m.id !== uid))
+    }
+    void core.sendMessage(target.message, target.attachments, {
+      ...target.options,
+      ...(target.userMsgId ? { messageId: target.userMsgId } : {}),
+    })
+  }
+
+  /**
+   * Schedule a cancelable, once-per-second countdown that auto-resumes the turn
+   * when it elapses. Backoff curve: 5s, 10s, 20s, then 30s (exponential, base
+   * 5s, capped) up to MAX_RETRY_ATTEMPTS. Returns false (without scheduling) once the attempt cap is
+   * reached, so the caller surfaces the terminal error instead.
+   * @param target - What the retry should do — resume the interrupted turn, or
+   *   re-send a message the server never received.
+   * @param message - The error to surface if the user cancels or the budget runs out.
+   * @returns True if a retry was scheduled; false if the budget is exhausted.
+   */
+  const scheduleRetry = (target: RetryTarget, message: string): boolean => {
+    if (retryAttemptRef.current >= MAX_RETRY_ATTEMPTS) return false
+    const attempt = retryAttemptRef.current + 1 // 1-based
+    retryAttemptRef.current = attempt
+    retryTargetRef.current = target
+    pendingRetryErrorRef.current = message
+    const waitSeconds = Math.min(RETRY_MAX_SECONDS, RETRY_BASE_SECONDS * 2 ** (attempt - 1)) // 5, 10, 20, 30…
+    retrySecondsRef.current = waitSeconds
+    setRetryCountdown({ secondsRemaining: waitSeconds, attempt })
+    clearRetryTimers()
+    retryIntervalRef.current = setInterval(() => {
+      retrySecondsRef.current -= 1
+      if (retrySecondsRef.current <= 0) {
+        fireRetry()
+      } else {
+        setRetryCountdown({ secondsRemaining: retrySecondsRef.current, attempt })
+      }
+    }, 1000)
+    return true
+  }
+
+  /**
+   * Decide how to handle a stream `error` event: auto-retry on a 5XX backend
+   * error OR a transport-layer drop (start the cancelable countdown + resume or
+   * re-send the turn), or surface a terminal error for everything else — a 4XX,
+   * a limit/quota gate, a signup-required error, a server-emitted error with no
+   * status, or an exhausted budget.
+   *
+   * A 5XX covers the server saying "try again" (overload shed, and the
+   * shutdown-drain handoff a deploying instance sends before closing its
+   * streams). `transport` covers the server never getting to say anything — the
+   * connection died (crash, kill, network blip); the provider flags those
+   * explicitly so a server-emitted terminal error (also status-less) is never
+   * mistaken for one. A user Stop never produces an error event (the provider
+   * swallows its own AbortError), but guard on userAbortedRef anyway.
+   *
+   * @param event - The error stream event (carries an optional HTTP `status`
+   *   and the provider's `transport` flag).
+   * @param target - What a scheduled retry should do (resume vs re-send).
+   */
+  const handleStreamError = (
+    event: {
+      message: string
+      status?: number
+      transport?: boolean
+      limitType?: string
+      requiresSignup?: boolean
+      billingAction?: string
+      upgradeTier?: string | null
+    },
+    target: RetryTarget,
+  ): void => {
+    const isServerError =
+      typeof event.status === 'number' && event.status >= 500 && event.status < 600
+    const isTransportDrop = event.transport === true && !userAbortedRef.current
+    // Only a 5XX or a transport drop, and never a limit/quota gate or a
+    // signup-required error.
+    const retryable =
+      (isServerError || isTransportDrop) && !event.limitType && !event.requiresSignup
+    if (retryable && scheduleRetry(target, event.message)) return
+    // Not retryable (or the budget is spent) — surface the terminal error and
+    // reset the budget so a future, independent failure starts fresh.
+    retryAttemptRef.current = 0
+    setError(event.message)
+    // The backend's own answer to "what can this user do about it" rides along
+    // with the limit name: a CTA built from `limitType` alone can only guess,
+    // and guessing is how an empty balance ends up offering "Upgrade".
+    setErrorMeta(
+      event.limitType
+        ? {
+            limitType: event.limitType,
+            requiresSignup: event.requiresSignup,
+            billingAction: event.billingAction,
+            upgradeTier: event.upgradeTier,
+          }
+        : null,
+    )
+  }
+
+  /**
+   * Cancel a pending auto-retry (user-initiated) and surface the original error
+   * (via `error`) so the user sees why the turn failed.
+   */
+  const cancelRetry = (): void => {
+    clearRetryTimers()
+    const message = pendingRetryErrorRef.current
+    if (message !== null) {
+      setError(message)
+      setErrorMeta(null)
+    }
+    retryAttemptRef.current = 0
+    retryTargetRef.current = null
+    pendingRetryErrorRef.current = null
+    setRetryCountdown(null)
+  }
+
+  /**
+   * The operations bound to one project's store.
+   *
+   * @param storageKey - The project key (projectId, or 'default').
+   * @returns The operations.
+   */
+  const createKeyedOperations = (storageKey: string): KeyedOperations => {
+    const isStaleGeneration = (): boolean =>
+      generationRef.current !== null &&
+      getMessageStore(storageKey).generation !== generationRef.current
+    const setMessages = (
+      updater: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[]),
+    ): void => {
+      if (isStaleGeneration()) return
+      setStoreMessages(storageKey, updater)
+    }
+    const pendingRef = getMessageStore(storageKey).pending
+    // Append an inline transcript CARD (model / mode / skills / custom notice) as a complete
+    // `role:'system'` card-message in the ONE message store — the same store as every other
+    // message, so cards interleave by timestamp and there is no separate card array. Used for
+    // BOTH this client's own `card` stream events (createMessageStream) AND a teammate's
+    // broadcast `card` (the host's pushed-event path, via the controls). De-duped by the
+    // server-assigned id so an echo (own broadcast in a second tab) or a reload-then-broadcast
+    // race never doubles a card. A card is a finished item — no streaming/finalize.
+    const appendCardMessage = (
+      id: string,
+      timestamp: number,
+      card: NonNullable<ChatMessage['cardEvent']>,
+    ): void => {
+      setMessages((prev) =>
+        prev.some((m) => m.id === id)
+          ? prev
+          : [...prev, { id, role: 'system' as const, content: '', timestamp, cardEvent: card }],
+      )
+    }
+    // Append a COMPLETE, non-streaming chat message (a `message` stream event — e.g. a
+    // teammate's human-only team note) to the ONE message store. Same dedupe contract as
+    // appendCardMessage: the server emits it with the id + timestamp it persisted, so an
+    // echo (own broadcast in a second tab) or a reload-then-broadcast race never doubles
+    // it. A complete message is a finished item — no streaming/finalize.
+    const appendCompleteMessage = (message: ChatMessage): void => {
+      const store = getMessageStore(storageKey)
+      const pending = store.pending
+      const existingMessage = store.messages.find((item) => item.id === message.id)
+      if (
+        message.queued &&
+        (store.deliveredQueueIds.has(message.id) || (existingMessage && !existingMessage.queued))
+      )
+        return
+      if (!message.queued) {
+        if (message.hidden || pending.current.some((entry) => entry.userMsgId === message.id))
+          store.deliveredQueueIds.add(message.id)
+        pending.current = pending.current.filter((entry) => entry.userMsgId !== message.id)
+      } else {
+        const entry = pending.current.find((item) => item.userMsgId === message.id)
+        if (entry) {
+          entry.accepted = true
+          entry.message = message.content
+        } else if (provider.queueMessage)
+          pending.current.push({
+            userMsgId: message.id,
+            message: message.content,
+            durable: true,
+            accepted: true,
+            ...(message.hidden ? { suppressUserMessage: true } : {}),
+            ...(message.automatic ? { automatic: true } : {}),
+            ...(message.viaDictation ? { viaDictation: true } : {}),
+          })
+      }
+      persistQueue(persistence, storageKey, pending.current)
+      if (message.hidden) {
+        if (!message.queued)
+          setMessages((prev) => prev.filter((item) => item.id !== message.id || !item.queued))
+        return
+      }
+      setMessages((prev) => {
+        const existing = prev.find((item) => item.id === message.id)
+        if (!existing) return [...prev, message]
+        // A delayed acceptance response cannot re-queue a message already delivered.
+        if (!existing.queued) return prev
+        return prev.map((item) => (item.id === message.id ? message : item))
+      })
+    }
+    const setIsLoading = (streaming: boolean): void => {
+      if (isStaleGeneration()) return
+      setStoreStreaming(storageKey, streaming)
+    }
+    // Commands the executor detached with `run_in_background`. Session-level
+    // rather than per-message on purpose: one starts under one assistant message
+    // and finishes minutes later under another, so a message-scoped block could
+    // only ever show half of it.
+    const restoreBackgroundTasks = (): void => {
+      const tasks = (provider as { lastMeta?: { backgroundTasks?: BackgroundTaskState[] } })
+        .lastMeta?.backgroundTasks
+      if (Array.isArray(tasks)) mergeBackgroundTasks(storageKey, tasks)
+    }
+    const restoreUserStop = (intentRevision: number): void => {
+      const store = getMessageStore(storageKey)
+      const stoppedAt = (provider as { lastMeta?: Record<string, unknown> }).lastMeta?.userStoppedAt
+      // Missing metadata must never clear a local Stop. A history request begun
+      // before the user's next send must likewise never reinstate an old Stop.
+      if (
+        store.userIntentRevision === intentRevision &&
+        !store.streaming &&
+        typeof stoppedAt === 'string' &&
+        stoppedAt.length > 0
+      )
+        store.stoppedByUser = true
+    }
+    // Pushed (broadcast) chat event arrived for this conversation while no local
+    // send is in flight — confirm against the server's streaming flag and track
+    // the remote turn so the Stop control stays visible (see startRemoteStreamPoll).
+    const noteRemoteStreamEvent = (): void => {
+      const config = currentConfig()
+      const generation = getMessageStore(storageKey).generation
+      startRemoteStreamPoll(storageKey, async () => {
+        const accepted = acceptedQueueIds(storageKey)
+        const intentRevision = getMessageStore(storageKey).userIntentRevision
+        let history = await provider.loadHistory(config)
+        if (getMessageStore(storageKey).generation === generation) {
+          restoreBackgroundTasks()
+          restoreUserStop(intentRevision)
+          if (provider.queueMessage)
+            history = restoreQueuedMessages(persistence, storageKey, history, accepted)
+        }
+        return {
+          streaming: (provider as { isServerStreaming?: boolean }).isServerStreaming === true,
+          history,
+        }
+      })
+    }
+
+    // Reload history and converge the local view on the server transcript (and
+    // re-enter a still-streaming turn). Runs on the page-lifecycle events, and is
+    // EXPOSED (as `reconcileHistory`) so the host can call it when its chat push
+    // channel (re)connects: a broadcast sent while that socket was down — a
+    // teammate's /teamsay note against a backgrounded tab or a slept laptop — is
+    // otherwise lost until the next lifecycle event happens to fire.
+    const reconcileHistory = async (): Promise<void> => {
+      const config = currentConfig()
+      const generation = getMessageStore(storageKey).generation
+      const intentRevision = getMessageStore(storageKey).userIntentRevision
+      const accepted = acceptedQueueIds(storageKey)
+      try {
+        let history = await provider.loadHistory(config)
+        if (getMessageStore(storageKey).generation !== generation) return
+        restoreBackgroundTasks()
+        restoreUserStop(intentRevision)
+        if (provider.queueMessage)
+          history = restoreQueuedMessages(persistence, storageKey, history, accepted)
+        if (!mountedRef.current || sendingRef.current) return
+        applyServerMode()
+        const store = getMessageStore(storageKey)
+        if (store.streaming) return
+        const serverStreaming =
+          (provider as { isServerStreaming?: boolean }).isServerStreaming === true
+        // Converge on the server transcript, keeping everything the server does
+        // not have yet. Local-only messages are NOT just the queued ones: an
+        // answer the user just sent still carries its local id until the turn
+        // persists, and session-local cards (a tool card, a platform nudge) never
+        // reach history at all. Keeping only `queued` here deleted all of them
+        // whenever a lifecycle event or a push reconnect landed inside that
+        // window — the user watched their own answer and the card it answered
+        // vanish, then reappear when the next poll's merge brought them back
+        // (reported 2026-09-21). `convergeHistory` is the same function the
+        // remote-history merge uses, so the two paths cannot drift again: it also
+        // refuses to rewind a message the server DOES have but has an older copy
+        // of, and its content-echo rule still drops the optimistic copy of a send
+        // the server has since persisted.
+        const prevMessages = store.messages
+        const next = convergeHistory(prevMessages, history)
+        // An identical transcript still skips, so a plain foreground never churns.
+        // A tie keeps the local object, so an unchanged message converges to the
+        // very same reference — which makes an identity scan both exact and cheap,
+        // and catches a CONTENT-only change that a length/last-id compare misses.
+        const changed =
+          next.length !== prevMessages.length || next.some((m, i) => m !== prevMessages[i])
+        if (history.length > 0 && changed) setMessages(next)
+        if (serverStreaming && readOnly) {
+          // Read-only watcher: re-enter the watch path instead of resuming.
+          setStoreRemoteStreaming(storageKey, true)
+          noteRemoteStreamEvent()
+          return
+        }
+        if (serverStreaming && history.length > 0 && !store.stoppedByUser) {
+          const last = history[history.length - 1]
+          if (last.role === 'assistant') {
+            void core.resumeStream(last.id, last.content)
+          } else {
+            const placeholderId = `assistant-${++idCounterRef.current}`
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: placeholderId,
+                role: 'assistant',
+                content: '',
+                timestamp: Date.now(),
+                isStreaming: true,
+                blocks: [],
+              },
+            ])
+            void core.resumeStream(placeholderId, '')
+          }
+        }
+      } catch (_error) {
+        // Foreground reconcile is best-effort — the next lifecycle event (or a
+        // manual reload) retries; nothing local is lost by skipping it.
+      }
+    }
+
+    // Load history on mount (and on a conversation change) and restore any
+    // persisted queue / interrupted stream.
+    const loadConversation = (): void => {
+      const config = currentConfig()
+      // ── Conversation-switch detection — SYNCHRONOUS, before any async load ──
+      // A switch = the endpoint names a DIFFERENT conversation than the store
+      // currently holds. A brand-new conversation that just received its id
+      // (store id undefined → defined) is NOT a switch — adopt the id and keep
+      // the live messages, so the in-flight discovery/plan stream isn't wiped
+      // the moment the conversation is created server-side.
+      //
+      // On a genuine switch the PREVIOUS conversation's still-running stream must
+      // stop writing into this project-keyed store immediately — bumping the
+      // generation orphans its writes (see MessageStore.generation) — and the
+      // store's leftover transcript + streaming state belong to the old
+      // conversation, so clear them before the new history hydrates. Done
+      // synchronously (not inside the history .then()) so a slow or failed
+      // history fetch can't leave the old stream bleeding into the new view.
+      const syncStore = getMessageStore(storageKey)
+      const endpointConvId = config.endpoint.match(/conversationId=([^&]+)/)?.[1]
+      const isSwitch =
+        !!endpointConvId &&
+        !!syncStore.conversationId &&
+        endpointConvId !== syncStore.conversationId
+      if (endpointConvId) syncStore.conversationId = endpointConvId
+      if (isSwitch) {
+        syncStore.generation++
+        // The old conversation's stop decision doesn't apply to the new one.
+        syncStore.stoppedByUser = false
+        stopRemoteStreamPoll(storageKey)
+        setStoreStreaming(storageKey, false)
+        setStoreMessages(storageKey, [])
+        syncStore.backgroundTasks = []
+        syncStore.pending.current = []
+        syncStore.deliveredQueueIds.clear()
+        persistQueue(persistence, storageKey, [])
+        emitStore(storageKey)
+      }
+      // A send loop this session started under an older generation is orphaned:
+      // it exits at its generation check without releasing the send slot, so
+      // release it here, or every send in the new conversation queues behind a
+      // stream whose writes are already dropped.
+      if (generationRef.current !== null && generationRef.current !== syncStore.generation) {
+        sendingRef.current = false
+      }
+      generationRef.current = syncStore.generation
+      const loadGeneration = syncStore.generation
+      const intentRevision = syncStore.userIntentRevision
+
+      if (!loadOnMountRef.current) return
+
+      // Read persisted state synchronously before the async history fetch
+      const persistedQueue = loadPersistedQueue(persistence, storageKey)
+      const interrupted = consumeStreamingFlag(persistence, storageKey)
+      const accepted = acceptedQueueIds(storageKey)
+
+      provider
+        .loadHistory(config)
+        .then((history) => {
+          if (!mountedRef.current || syncStore.generation !== loadGeneration) return
+          restoreBackgroundTasks()
+          restoreUserStop(intentRevision)
+          if (provider.queueMessage)
+            history = restoreQueuedMessages(persistence, storageKey, history, accepted)
+          // A server-accepted item absent from fresh history was consumed/deleted.
+          // Unacknowledged submissions still need their idempotent retry.
+          const queuedIds = new Set(history.filter((item) => item.queued).map((item) => item.id))
+          const restoreQueue = persistedQueue.filter(
+            (entry) =>
+              !entry.accepted || (entry.userMsgId != null && queuedIds.has(entry.userMsgId)),
+          )
+
+          // Restore mode from server (persisted in conversation.aiContext.mode).
+          // Idempotent + cheap, so do it regardless of store state. The http bond
+          // surfaces app-specific GET fields generically via `lastMeta` (it no
+          // longer names the plan/execute vocabulary — molecule anti-pattern 14).
+          applyServerMode()
+          // Restore the conversation's fast-mode flag the same way (servers
+          // without the field leave the default `false`).
+          const serverFastMode = (provider as { lastMeta?: Record<string, unknown> }).lastMeta
+            ?.fastMode
+          if (typeof serverFastMode === 'boolean') setFastMode(serverFastMode)
+
+          // Multi-conversation handling: the switch itself was detected + applied
+          // SYNCHRONOUSLY above — here we only hydrate.
+          //
+          // Same conversation with a live/populated store (e.g. the IDE ChatPanel
+          // mounting after the boot panel, or a re-render): the store is the source
+          // of truth — do NOT overwrite with server history (that would wipe
+          // in-flight streaming messages) and do NOT resume (the original stream is
+          // still writing to the store). Hydrate + resume only when the store is
+          // empty (first mount / after refresh) or on a real switch (whose store
+          // was already cleared synchronously).
+          // (On a switch the store was cleared synchronously — a populated store
+          // here means a NEW local send already started in the switched-to
+          // conversation while history was loading; don't clobber it either.)
+          if (syncStore.messages.length > 0 && (!isSwitch || syncStore.streaming)) return
+
+          if (history.length > 0) {
+            setMessages(history)
+          }
+
+          // Also check the provider's streaming flag — the server tells us
+          // directly whether a stream is active, even if persistence was lost
+          const serverStreaming =
+            (provider as { isServerStreaming?: boolean }).isServerStreaming === true
+
+          // Read-only watcher (a viewer): never POSTs — no resume request. When a
+          // turn is live, mark the trailing assistant message streaming for the
+          // indicator and start the remote watch: live frames arrive over the
+          // push channel, the reconcile poll backstops gaps, and the flag clears
+          // when the server reports the turn finished.
+          if (readOnly) {
+            if (serverStreaming) {
+              const last = history[history.length - 1]
+              if (last?.role === 'assistant') {
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === last.id ? { ...m, isStreaming: true } : m)),
+                )
+              }
+              setStoreRemoteStreaming(storageKey, true)
+              noteRemoteStreamEvent()
+            }
+            return
+          }
+
+          const shouldResume =
+            !syncStore.stoppedByUser && (interrupted || serverStreaming) && history.length > 0
+
+          if (shouldResume) {
+            // Stream was interrupted — resume into the last assistant message,
+            // or create a new placeholder if the last message is from the user
+            // (the server hadn't saved the assistant response yet).
+            const lastMsg = history[history.length - 1]
+            let resumeTarget: { id: string; content: string }
+
+            if (lastMsg?.role === 'assistant') {
+              resumeTarget = { id: lastMsg.id, content: lastMsg.content }
+            } else {
+              // No assistant message after the last user message — create one
+              const placeholderId = `assistant-${++idCounterRef.current}`
+              const placeholder: ChatMessage = {
+                id: placeholderId,
+                role: 'assistant',
+                content: '',
+                timestamp: Date.now(),
+                isStreaming: true,
+                blocks: [],
+              }
+              setMessages((prev) => [...prev, placeholder])
+              resumeTarget = { id: placeholderId, content: '' }
+            }
+
+            for (const entry of restoreQueue) {
+              if (
+                !entry.userMsgId ||
+                !pendingRef.current.some((item) => item.userMsgId === entry.userMsgId)
+              )
+                pendingRef.current.push(entry)
+            }
+            const target = resumeTarget
+            setTimeout(() => {
+              if (
+                mountedRef.current &&
+                syncStore.generation === loadGeneration &&
+                !syncStore.stoppedByUser
+              ) {
+                void core.resumeStream(target.id, target.content)
+              }
+            }, 0)
+          } else if (restoreQueue.length > 0 || pendingRef.current.length > 0) {
+            for (const entry of restoreQueue) {
+              if (
+                !entry.userMsgId ||
+                !pendingRef.current.some((item) => item.userMsgId === entry.userMsgId)
+              )
+                pendingRef.current.push(entry)
+            }
+            persistQueue(persistence, storageKey, pendingRef.current)
+            if (syncStore.stoppedByUser) return
+            const first = pendingRef.current[0]
+            if (!first.durable) pendingRef.current.shift()
+            setTimeout(() => {
+              if (
+                mountedRef.current &&
+                syncStore.generation === loadGeneration &&
+                !syncStore.stoppedByUser
+              ) {
+                // Re-send with the entry's own intent flags — a queue persisted
+                // before a refresh must re-send as what it was (an auto-sent
+                // fix stays automatic, a dictated message keeps its flag), not
+                // degraded to a plain typed message.
+                void core.sendMessage(first.message, first.attachments, {
+                  ...(first.userMsgId ? { messageId: first.userMsgId } : {}),
+                  ...(first.suppressUserMessage ? { suppressUserMessage: true } : {}),
+                  ...(first.automatic ? { automatic: true } : {}),
+                  ...(first.userInitiated ? { userInitiated: true } : {}),
+                  ...(first.viaDictation ? { viaDictation: true } : {}),
+                })
+              }
+            }, 0)
+          }
+        })
+        .catch((error: unknown) => {
+          // The chat still works without its history; log why it is empty.
+          getLogger('useChat').warn('Loading chat history failed', { error })
+        })
+    }
+
+    // Apply ONE content stream event (text/thinking/tool/diff/verification/…) to a
+    // message's live accumulator context. Shared by the LOCAL stream (own SSE)
+    // and the REMOTE ingestion path (pushed broadcast frames from a teammate's
+    // turn — applyRemoteEvent) so both materialize messages through the exact
+    // same code and can never diverge.
+    const applyContentEvent = (ctx: MsgStreamCtx, event: ChatStreamEvent): void => {
+      switch (event.type) {
+        case 'text': {
+          ctx.assistantText += event.content
+          const last = ctx.blocks[ctx.blocks.length - 1]
+          if (last?.type === 'text') last.content += event.content
+          else ctx.blocks.push({ type: 'text', content: event.content })
+          ctx.scheduleFlush(() => ({ content: ctx.assistantText, blocks: [...ctx.blocks] }))
+          break
+        }
+        case 'thinking': {
+          const lastBlock = ctx.blocks[ctx.blocks.length - 1] as
+            (MessageBlock & { _startedAt?: number; durationMs?: number }) | undefined
+          if (lastBlock?.type === 'thinking') {
+            lastBlock.content += event.content
+            lastBlock.durationMs = Date.now() - (lastBlock._startedAt ?? Date.now())
+          } else {
+            const now = Date.now()
+            ctx.blocks.push(
+              Object.assign(
+                { type: 'thinking' as const, content: event.content, durationMs: 0 },
+                { _startedAt: now },
+              ),
+            )
+          }
+          ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
+          break
+        }
+        case 'tool_use': {
+          // tool_use_start may have already created the entry + block — fill in the
+          // final input rather than pushing a duplicate.
+          const existing = ctx.toolCalls.find((tc) => tc.id === event.id)
+          if (existing) {
+            existing.name = event.name
+            existing.input = event.input
+            existing.status = 'running'
+          } else {
+            ctx.toolCalls.push({
+              id: event.id,
+              name: event.name,
+              input: event.input,
+              status: 'running',
+            })
+            ctx.blocks.push({ type: 'tool_call', id: event.id })
+          }
+          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls], blocks: [...ctx.blocks] }))
+          break
+        }
+        case 'tool_use_start': {
+          if (!ctx.toolCalls.some((tc) => tc.id === event.id)) {
+            ctx.toolCalls.push({
+              id: event.id,
+              name: event.name,
+              input: undefined,
+              status: 'running',
+              streamInputChars: 0,
+            })
+            ctx.blocks.push({ type: 'tool_call', id: event.id })
+          }
+          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls], blocks: [...ctx.blocks] }))
+          break
+        }
+        case 'tool_input_delta': {
+          const tc = ctx.toolCalls.find((call) => call.id === event.id)
+          if (tc) {
+            tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
+            if (event.partialInput) {
+              tc.input = {
+                ...(tc.input as Record<string, unknown> | undefined),
+                ...event.partialInput,
+              }
+            }
+          }
+          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
+          break
+        }
+        case 'tool_result': {
+          const tc = ctx.toolCalls.find((call) => call.id === event.id)
+          if (tc) {
+            tc.output = event.output
+            tc.status = deriveToolStatus(event.output)
+          }
+          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
+          break
+        }
+        case 'file_diff': {
+          // Attach the diff snapshot to the matching write/edit tool in THIS message.
+          const normalizePath = (p: string): string => p.replace(/^\/workspace\//, '')
+          const match = [...ctx.toolCalls]
+            .reverse()
+            .find(
+              (tc) =>
+                (tc.name === 'write_file' || tc.name === 'edit_file') &&
+                normalizePath((tc.input as { path?: string })?.path ?? '') ===
+                  normalizePath(event.path),
+            )
+          if (match) {
+            match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
+            ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
+          }
+          core.clearQueuedForFile(event.path)
+          onFileChange?.(event.path, event.newContent)
+          break
+        }
+        case 'commit_suggestion':
+          ctx.scheduleFlush(() => ({
+            commitSuggestion: { files: event.files, status: 'pending' as const },
+          }))
+          break
+        case 'verification_result':
+          ctx.blocks.push({
+            type: 'verification',
+            status: event.status,
+            ...(event.output ? { output: event.output } : {}),
+            ...(event.renderCheckUnavailable ? { renderCheckUnavailable: true } : {}),
+            workspaces: event.workspaces,
+            ...(event.categories ? { categories: event.categories } : {}),
+          })
+          ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
+          break
+        case 'resource_limit':
+          ctx.blocks.push({
+            type: 'resource_limit',
+            resource: event.resource,
+            message: event.message,
+          })
+          ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
+          break
+        case 'compaction':
+          ctx.blocks.push({
+            type: 'text',
+            content: `**Context compacted** — ${event.compactedCount} older messages were summarized to free space.\n\n${event.summary}`,
+          })
+          ctx.scheduleFlush(() => ({ content: ctx.assistantText, blocks: [...ctx.blocks] }))
+          break
+        case 'loop_limit_reached':
+          ctx.loopLimitReached = event.maxLoops
+          ctx.scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
+          break
+        default:
+          break
+      }
+    }
+
+    // Build a per-stream event handler that materializes the SAME per-message structure
+    // the server persists: each `message_start` finalizes the previous message and opens a
+    // new one (with the server's id + timestamp); every subsequent stream item routes into
+    // the current message. Shared by sendMessage AND resumeStream so the two paths cannot
+    // diverge (the historical #1 risk). Per-invocation concerns (the stall watchdog, the
+    // terminal-received flag) are injected via `deps`.
+    const createMessageStream = (
+      deps: MessageStreamDeps,
+    ): { onEvent: (event: ChatStreamEvent) => void; finalizeCurrent: () => void } => {
+      let currentCtx: MsgStreamCtx | null = null
+      // Whether ANY server event arrived on this stream (the server's first event
+      // is `conversation`, sent right after it persists the user message). Decides
+      // resume-vs-resend on error: seen → the turn started server-side → resume;
+      // not seen → nothing was persisted → re-send.
+      let sawServerEvent = false
+      // Whether this stream ATTACHED to a turn already running server-side (the
+      // `attached` frame): the frames before the attach are only in the persisted
+      // transcript, so the stream converges on it at the attach and once more at
+      // its terminal — the deltas between attach and adoption are otherwise lost
+      // until a reload.
+      let attachedToLiveTurn = false
+
+      /**
+       * Pull the server transcript and merge it under what is on screen (never a
+       * rewind — see convergeHistory). Used by the attach path while THIS client's
+       * own stream is live, which is exactly when reconcileHistory declines to run.
+       */
+      const convergeFromServer = async (): Promise<void> => {
+        try {
+          const history = await provider.loadHistory(currentConfig())
+          if (!mountedRef.current || history.length === 0) return
+          if (getMessageStore(storageKey).generation !== streamGeneration) return
+          setMessages((prev) => convergeHistory(prev, history))
+        } catch (_error) {
+          // Best-effort: the terminal converge, the lifecycle reconcile or a reload recovers.
+        }
+      }
+
+      /**
+       * If the store's copy of the current message is further along than the
+       * accumulator (the converge just brought a persisted prefix the accumulator
+       * never saw), reseed the accumulator so its next flush cannot rewind it.
+       * Same rule the remote-stream ingestion applies (applyRemoteEvent).
+       */
+      const reseedCurrentFromStore = (): void => {
+        const ctx = currentCtx
+        if (!ctx) return
+        const storeMsg = getMessageStore(storageKey).messages.find((m) => m.id === ctx.id)
+        if (!storeMsg) return
+        const ctxProgress = messageProgress({
+          id: ctx.id,
+          role: 'assistant',
+          timestamp: 0,
+          ...buildCtxUpdate(ctx),
+        } as ChatMessage)
+        if (messageProgress(storeMsg) > ctxProgress) {
+          ctx.assistantText = storeMsg.content
+          ctx.blocks = storeMsg.blocks ? [...storeMsg.blocks] : []
+          ctx.toolCalls = storeMsg.toolCalls ? storeMsg.toolCalls.map((tc) => ({ ...tc })) : []
+        }
+      }
+
+      const finalizeCurrent = (): void => {
+        const ctx = currentCtx
+        if (!ctx) return
+        currentCtx = null
+        // A truly-empty turn (no text, no blocks, no tool calls, no loop-limit notice) is
+        // a ghost — drop it. The server filters the same empty message from persistence,
+        // so live === stored.
+        if (
+          !ctx.assistantText &&
+          ctx.blocks.length === 0 &&
+          ctx.toolCalls.length === 0 &&
+          ctx.loopLimitReached == null
+        ) {
+          ctx.flushNow() // cancel any pending flush bound to this id
+          setMessages((prev) => prev.filter((m) => m.id !== ctx.id))
+          return
+        }
+        ctx.flushNow(() => ({ ...buildCtxUpdate(ctx), isStreaming: false }))
+      }
+
+      const applyOrphanToolResult = (toolCallId: string, output: unknown): void => {
+        // Newest-first, and only a call with no output yet: providers whose call ids
+        // restart per response (call_1, call_2…) must not overwrite an older, finished call.
+        const msgs = getMessageStore(storageKey).messages
+        const isPending = (tc: { id: string; output?: unknown }): boolean =>
+          tc.id === toolCallId && tc.output === undefined
+        const holder = [...msgs].reverse().find((m) => m.toolCalls?.some(isPending))
+        if (!holder) return
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === holder.id && m.toolCalls
+              ? {
+                  ...m,
+                  toolCalls: m.toolCalls.map((tc) =>
+                    isPending(tc) ? { ...tc, output, status: deriveToolStatus(output) } : tc,
+                  ),
+                }
+              : m,
+          ),
+        )
+      }
+
+      const startMessage = (id: string, timestamp: number): void => {
+        // Flush + finalize the OUTGOING message BEFORE re-pointing the shared flush timer,
+        // so its last batched text isn't overwritten and lost at the boundary (EC-3).
+        finalizeCurrent()
+        const { scheduleFlush, flushNow } = createFlushScheduler(setMessages, id)
+        currentCtx = { id, assistantText: '', blocks: [], toolCalls: [], scheduleFlush, flushNow }
+        setMessages((prev) => [
+          ...prev,
+          { id, role: 'assistant', content: '', timestamp, isStreaming: true, blocks: [] },
+        ])
+      }
+
+      // The store generation this stream belongs to. If the user switches
+      // conversations mid-stream (new chat / picker), loadConversation bumps the
+      // store's generation and every remaining event of THIS stream is dropped
+      // wholesale — text, cards, mode flips, the conversation-id report, and the
+      // parent forward all belong to the old conversation's view. The turn still
+      // completes server-side; switching back reloads it from history.
+      const streamGeneration = getMessageStore(storageKey).generation
+
+      const onEvent = (event: ChatStreamEvent): void => {
+        if (getMessageStore(storageKey).generation !== streamGeneration) return
+        lastStreamEventAtRef.current = Date.now()
+        localStreamLiveRef.current = true
+        deps.resetStall()
+        // Any non-error event proves the server accepted the turn (see
+        // sawServerEvent) — an error can then safely retry as a resume.
+        if (event.type !== 'error') sawServerEvent = true
+        // Forward EVERY event to the host (Workspace/ChatPanel) — it derives cards
+        // (model/mode), fires client_action, etc. Not gated on mountedRef: events write to
+        // the conversation store, which must keep filling across a boot→IDE remount.
+        onStreamEvent?.(event)
+
+        // ── Structural / ctx-independent events ──
+        switch (event.type) {
+          case 'queue_removed':
+            removeQueuedMessage(persistence, storageKey, event.messageId)
+            return
+          case 'background_task':
+            mergeBackgroundTasks(storageKey, [event.task])
+            return
+          case 'context_usage':
+            return
+          case 'message_start':
+            // A status line shown before this message (e.g. "The AI provider
+            // dropped the reply, so Synthase is resuming it…") has done its job
+            // once the resumed reply starts: clear it after its dwell instead of
+            // leaving it pinned over the new text.
+            enqueueStatus(null)
+            startMessage(event.id, event.timestamp)
+            return
+          case 'attached': {
+            // Joined a turn that is already running (a reconnect, or a resume the
+            // server got to first — after a restart it resumes interrupted turns
+            // itself). Adopt the message it is inside so the deltas that follow
+            // land on it; open it fresh when the store has no copy yet (the
+            // converge below brings the persisted prefix, and the reseed folds it
+            // under the accumulator). No messageId: the turn is between messages
+            // and the next message_start opens the next one as usual.
+            attachedToLiveTurn = true
+            if (event.messageId) {
+              const store = getMessageStore(storageKey)
+              const existing = store.messages.find((m) => m.id === event.messageId)
+              if (currentCtx?.id !== event.messageId) {
+                if (existing) {
+                  finalizeCurrent()
+                  const { scheduleFlush, flushNow } = createFlushScheduler(setMessages, existing.id)
+                  currentCtx = {
+                    id: existing.id,
+                    assistantText: existing.content,
+                    blocks: existing.blocks ? [...existing.blocks] : [],
+                    toolCalls: existing.toolCalls
+                      ? existing.toolCalls.map((tc) => ({ ...tc }))
+                      : [],
+                    scheduleFlush,
+                    flushNow,
+                  }
+                  const adoptedId = existing.id
+                  setMessages((prev) =>
+                    prev.map((m) => (m.id === adoptedId ? { ...m, isStreaming: true } : m)),
+                  )
+                } else {
+                  startMessage(event.messageId, event.timestamp ?? Date.now())
+                }
+              }
+            }
+            void convergeFromServer().then(reseedCurrentFromStore)
+            return
+          }
+          case 'card':
+            // A complete inline card (model / mode / skills / custom) — append it to the ONE
+            // message store as a card-message; it does NOT belong to the current streaming
+            // message (it interleaves by its own server timestamp). Recorded + persisted
+            // server-side, so this is byte-identical to what loadHistory returns on reload.
+            appendCardMessage(event.id, event.timestamp, event.card)
+            return
+          case 'message':
+            // A complete, non-streaming message (e.g. a human-only team note) — append it
+            // whole. Persisted server-side with this same id + timestamp, so it reloads
+            // byte-identically; de-duped by id against a broadcast echo.
+            appendCompleteMessage(event.message)
+            return
+          case 'mode':
+            setMode(event.mode)
+            onModeChange?.(event.mode)
+            return
+          case 'status':
+            enqueueStatus(event.label)
+            return
+          case 'conversation':
+            onConversationId?.(event.id)
+            return
+          case 'done':
+            deps.markTerminal()
+            // A clean finish ends the incident — reset the 5XX retry budget.
+            retryAttemptRef.current = 0
+            finalizeCurrent()
+            // An attached stream saw only the frames after its attach; the server
+            // transcript has the whole turn — take it now, never on a reload.
+            if (attachedToLiveTurn) void convergeFromServer()
+            return
+          case 'error':
+            deps.markTerminal()
+            // A 5XX or transport drop auto-retries behind a countdown; anything
+            // else surfaces. Either way, finalize the partial current message.
+            // Retry shape: the turn started server-side (any event arrived) →
+            // resume it; it never started → re-send the original message.
+            handleStreamError(
+              event,
+              !sawServerEvent && deps.retrySend
+                ? { kind: 'resend', ...deps.retrySend }
+                : {
+                    kind: 'resume',
+                    id: currentCtx?.id ?? '',
+                    content: currentCtx?.assistantText ?? '',
+                  },
+            )
+            finalizeCurrent()
+            return
+        }
+
+        // ── Content events — belong to the CURRENT message ──
+        const ctx = currentCtx
+        if (!ctx) {
+          // A tool result before any message_start: this tab's resume restarted
+          // the turn and the server settled a call from the PREVIOUS message (an
+          // interrupted write reported as `interrupted_by_restart`). Apply it to
+          // the message that holds that call, or its card stays "Running" until
+          // a reload. Any other content event before a message_start is ignored.
+          if (event.type === 'tool_result') applyOrphanToolResult(event.id, event.output)
+          return
+        }
+
+        applyContentEvent(ctx, event)
+      }
+
+      return { onEvent, finalizeCurrent }
+    }
+
+    // ── REMOTE stream ingestion (pushed broadcast frames) ─────────────────────
+    // A teammate's (or another tab's) running turn broadcasts every stream frame
+    // over the project push channel. These are ingested into the SAME message
+    // store through the SAME content applier as an own SSE stream, so a watching
+    // client renders the turn live — text, thinking, tool cards, verification —
+    // instead of a spinner that resolves to a finished transcript. The
+    // accumulator survives panel remounts poorly by design (it is re-adopted from
+    // the store's trailing message on the next frame), and the reconcile poll
+    // (startRemoteStreamPoll) backstops any missed frames within one interval.
+    const finalizeRemoteStream = (): void => {
+      const entry = remoteCtxRef.current
+      remoteCtxRef.current = null
+      if (!entry) return
+      if (getMessageStore(storageKey).generation !== entry.generation) return
+      const { ctx } = entry
+      ctx.flushNow(() => ({ ...buildCtxUpdate(ctx), isStreaming: false }))
+    }
+
+    const applyRemoteEvent = (event: ChatStreamEvent): void => {
+      const store = getMessageStore(storageKey)
+      if (event.type === 'queue_removed') {
+        removeQueuedMessage(persistence, storageKey, event.messageId)
+        return
+      }
+      if (event.type === 'background_task') {
+        mergeBackgroundTasks(storageKey, [event.task])
+        return
+      }
+      if (event.type === 'context_usage') return
+      // Complete, id-deduped items apply even while a local stream runs: the
+      // sender's own SSE copy wins the dedupe, and a teammate's team note (or a
+      // shared setting card) must land mid-turn too.
+      if (event.type === 'card') {
+        appendCardMessage(event.id, event.timestamp, event.card)
+        return
+      }
+      if (event.type === 'message') {
+        // A broadcast user message: the sender's tab already shows its optimistic
+        // bubble (different local id) — never double it while its send is live.
+        if (
+          event.message.role === 'user' &&
+          store.streaming &&
+          !provider.queueMessage &&
+          !store.messages.some((message) => message.id === event.message.id && message.queued)
+        )
+          return
+        appendCompleteMessage(event.message)
+        return
+      }
+      // Everything else is a live frame of the running turn. While THIS client
+      // owns a stream, pushed frames are its own WS echo — drop them (the SSE
+      // stream is authoritative for the sender).
+      if (store.streaming) {
+        // ...unless that stream has gone deaf. The echo is a copy of frames the
+        // server wrote to the stream at the same moment, so a live frame arriving
+        // here while the open stream has delivered nothing for STREAM_DEAF_MS
+        // means the stream is no longer being written to (a half-open socket, a
+        // relay that lost its turn) — and every frame was being thrown away while
+        // the chat looked frozen until a reload. Abort it: the no-terminal path
+        // reloads history and resumes, which re-attaches to the live turn. Hidden
+        // pages are skipped (timers there are throttled; the lifecycle check
+        // covers the return to the foreground).
+        if (
+          localStreamLiveRef.current &&
+          Date.now() - lastStreamEventAtRef.current > STREAM_DEAF_MS &&
+          (typeof document === 'undefined' || document.visibilityState !== 'hidden')
+        ) {
+          localStreamLiveRef.current = false
+          try {
+            provider.abort()
+          } catch (_error) {
+            // provider.abort() may throw when no stream is active — safe to ignore
+          }
+        }
+        return
+      }
+      // A stale accumulator from a previous conversation must never absorb frames.
+      if (remoteCtxRef.current && remoteCtxRef.current.generation !== store.generation) {
+        remoteCtxRef.current = null
+      }
+      switch (event.type) {
+        case 'mode':
+          setMode(event.mode)
+          onModeChange?.(event.mode)
+          return
+        case 'status':
+          enqueueStatus(event.label)
+          return
+        case 'conversation':
+        case 'designing':
+        case 'ready_to_build':
+        case 'client_action':
+        case 'preview_error':
+        case 'custom':
+        case 'activity':
+          // Panel-level concerns (or deliberately ignored for remote turns) — the
+          // host handles them from its own push handler; nothing to store here.
+          return
+        case 'message_start': {
+          core.finalizeRemoteStream()
+          const { scheduleFlush, flushNow } = createFlushScheduler(setMessages, event.id)
+          const existing = store.messages.find((m) => m.id === event.id)
+          const ctx: MsgStreamCtx = {
+            id: event.id,
+            assistantText: existing?.content ?? '',
+            blocks: existing?.blocks ? [...existing.blocks] : [],
+            toolCalls: existing?.toolCalls ? existing.toolCalls.map((tc) => ({ ...tc })) : [],
+            scheduleFlush,
+            flushNow,
+          }
+          remoteCtxRef.current = { ctx, generation: store.generation }
+          if (existing) {
+            setMessages((prev) =>
+              prev.map((m) => (m.id === event.id ? { ...m, isStreaming: true } : m)),
+            )
+          } else {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: event.id,
+                role: 'assistant',
+                content: '',
+                timestamp: event.timestamp,
+                isStreaming: true,
+                blocks: [],
+              },
+            ])
+          }
+          setStoreRemoteStreaming(storageKey, true)
+          return
+        }
+        case 'done':
+        case 'error':
+          // The remote turn ended. Finalize the accumulator and retire the
+          // indicator now; the reconcile poll's next tick applies the final
+          // authoritative transcript and confirms against the server. A remote
+          // error is NOT surfaced as this client's error banner — the copy can be
+          // sender-personal (budget/signup), and the sender's client owns retries.
+          core.finalizeRemoteStream()
+          resetStatusQueue()
+          setStoreRemoteStreaming(storageKey, false)
+          if (event.type === 'done' && mountedRef.current && !readOnly && !store.stoppedByUser) {
+            const next = pendingRef.current[0]
+            if (next) {
+              if (!next.durable) pendingRef.current.shift()
+              persistQueue(persistence, storageKey, pendingRef.current)
+              void core.sendMessage(next.message, next.attachments, {
+                messageId: next.userMsgId,
+                suppressUserMessage: next.suppressUserMessage,
+                automatic: next.automatic,
+                userInitiated: next.userInitiated,
+                viaDictation: next.viaDictation,
+              })
+            }
+          }
+          return
+        default:
+          break
+      }
+      // ── Content frame (text / thinking / tool / diff / verification / …) ──
+      let entry = remoteCtxRef.current
+      if (!entry) {
+        // Attached mid-message (its message_start predates this watcher): adopt
+        // the transcript's trailing assistant message as the accumulator. When
+        // the history snapshot hasn't produced it yet, skip — the reconcile poll
+        // fills the prefix within one interval and a later frame adopts.
+        const lastMsg = store.messages[store.messages.length - 1]
+        if (!lastMsg || lastMsg.role !== 'assistant' || lastMsg.id === undefined) {
+          setStoreRemoteStreaming(storageKey, true)
+          return
+        }
+        const { scheduleFlush, flushNow } = createFlushScheduler(setMessages, lastMsg.id)
+        entry = {
+          ctx: {
+            id: lastMsg.id,
+            assistantText: lastMsg.content,
+            blocks: lastMsg.blocks ? [...lastMsg.blocks] : [],
+            toolCalls: lastMsg.toolCalls ? lastMsg.toolCalls.map((tc) => ({ ...tc })) : [],
+            scheduleFlush,
+            flushNow,
+          },
+          generation: store.generation,
+        }
+        remoteCtxRef.current = entry
+        const adoptedId = lastMsg.id
+        setMessages((prev) =>
+          prev.map((m) => (m.id === adoptedId ? { ...m, isStreaming: true } : m)),
+        )
+      }
+      const { ctx } = entry
+      // If the reconcile merge advanced this message past the accumulator (frames
+      // missed during a push-channel drop), reseed from the store copy so a later
+      // flush can never rewind what the merge already rendered.
+      const storeMsg = store.messages.find((m) => m.id === ctx.id)
+      if (storeMsg) {
+        const ctxProgress = messageProgress({
+          id: ctx.id,
+          role: 'assistant',
+          timestamp: 0,
+          ...buildCtxUpdate(ctx),
+        } as ChatMessage)
+        if (messageProgress(storeMsg) > ctxProgress) {
+          ctx.assistantText = storeMsg.content
+          ctx.blocks = storeMsg.blocks ? [...storeMsg.blocks] : []
+          ctx.toolCalls = storeMsg.toolCalls ? storeMsg.toolCalls.map((tc) => ({ ...tc })) : []
+        }
+      }
+      setStoreRemoteStreaming(storageKey, true)
+      core.applyContentEvent(ctx, event)
+    }
+
+    const sendMessage = async (
+      message: string,
+      attachments?: ChatAttachment[],
+      options?: ChatSendOptions,
+    ): Promise<void> => {
+      if (!mountedRef.current) return
+      const config = currentConfig()
+
+      // ── Side channel: a human-to-human message (e.g. a team note), NOT a turn ──
+      // Sent immediately on the provider's independent side-channel request:
+      // it must never queue behind an active turn (a /teamsay during the
+      // sender's own streaming turn used to vanish into the silent suppressed
+      // queue until the turn ended), never take over the streaming state, and
+      // never tear down remote-turn tracking (a viewer's note while watching a
+      // teammate's turn used to kill the watcher's live stream view). The
+      // server persists + broadcasts the canonical message; the response's own
+      // `message` event renders it here, id-deduped against the broadcast echo.
+      if (options?.sideChannel && provider.sendSideMessage) {
+        try {
+          await provider.sendSideMessage(
+            message,
+            { ...config, ...(options.suppressUserMessage ? { suppressUserMessage: true } : {}) },
+            (event) => {
+              if (!mountedRef.current || isStaleGeneration()) return
+              if (event.type === 'message') {
+                appendCompleteMessage(event.message)
+              } else if (event.type === 'card') {
+                appendCardMessage(event.id, event.timestamp, event.card)
+              } else if (event.type === 'error') {
+                setError(
+                  event.message ??
+                    t('chat.error.sendFailed', undefined, {
+                      defaultValue: 'Failed to send message',
+                    }),
+                )
+              }
+            },
+          )
+        } catch (error) {
+          if (mountedRef.current) {
+            setError(
+              error instanceof Error
+                ? error.message
+                : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' }),
+            )
+          }
+        }
+        return
+      }
+      // No provider side-channel support — fall through to the normal turn path
+      // (the message may queue behind an active turn there).
+
+      // When suppressed (ask_user responses, the post-boot kickoff), the text is
+      // still sent to the server but no local user-message bubble is appended —
+      // the answer is reflected in the ask_user tool card, and the server marks
+      // the persisted message hidden so it never reappears on refresh.
+      const suppressUserMessage = options?.suppressUserMessage === true
+      // Auto-sent on the user's behalf (e.g. an auto-fix prompt): kept visible
+      // but flagged so it renders in the distinct auto-sent style, not like a
+      // typed user message.
+      const automatic = options?.automatic === true
+      // Composed (fully or in part) through the mic button's dictation — the
+      // persisted message keeps the flag so history can badge it with a mic.
+      const viaDictation = options?.viaDictation === true
+
+      // A user Stop is a standing order: drop every AUTONOMOUS automatic send
+      // (preview-health / preview-error / verification auto-fix dispatches) until
+      // the user re-engages. Anything the user does themselves — typing a message,
+      // answering ask_user, or an automatic send they explicitly requested
+      // (userInitiated, e.g. the broken-preview overlay's "Fix with AI" button) —
+      // IS that re-engagement: it clears the stop and proceeds. Without this, the
+      // preview-health auto-fix restarted the executor seconds after a Stop (the
+      // server's userStoppedAt gate is the durable backstop for other tabs).
+      const store = getMessageStore(storageKey)
+      // A send can only come from the LIVE session — align with the store's
+      // current generation so this turn's writes pass the stale-stream gate.
+      generationRef.current = store.generation
+      if (store.stoppedByUser) {
+        if (automatic && options?.userInitiated !== true) return
+        store.stoppedByUser = false
+      }
+      if (!automatic || options?.userInitiated) store.userIntentRevision++
+
+      // Resolve the pending ask_user card IN THE STORE: set the most-recent unanswered
+      // ask_user tool call's output to this answer. The chosen option's checked state is
+      // derived from a string `output`, so persisting it here keeps it checked across the
+      // discovery→IDE remount (it previously lived only in the card's local view state and
+      // vanished on remount). Idempotent; gated on the explicit askUserAnswer flag so the
+      // suppressed post-boot kickoff never resolves a stale ask_user with its own text.
+      if (options?.askUserAnswer) {
+        setMessages((prev) => {
+          for (let i = prev.length - 1; i >= 0; i--) {
+            const tcs = prev[i].toolCalls
+            if (!tcs?.some((tc) => tc.name === 'ask_user' && typeof tc.output !== 'string')) {
+              continue
+            }
+            const copy = [...prev]
+            copy[i] = {
+              ...prev[i],
+              toolCalls: tcs.map((tc) =>
+                tc.name === 'ask_user' && typeof tc.output !== 'string'
+                  ? { ...tc, output: message, status: 'done' as const }
+                  : tc,
+              ),
+            }
+            return copy
+          }
+          return prev
+        })
+      }
+
+      const userMsg: ChatMessage = {
+        id: options?.messageId ?? crypto.randomUUID(),
+        role: 'user',
+        content: message,
+        timestamp: Date.now(),
+        ...(automatic ? { automatic: true } : {}),
+        ...(viaDictation ? { viaDictation: true } : {}),
+        ...(attachments?.length
+          ? {
+              attachments: attachments.map((a) => ({
+                filename: a.filename,
+                mediaType: a.mediaType,
+                size: a.size,
+              })),
+            }
+          : {}),
+      }
+
+      // If a request is already in-flight, mark the message as queued and defer sending
+      if (!options?.messageId && (sendingRef.current || store.streaming || store.remoteStreaming)) {
+        if (!suppressUserMessage) {
+          userMsg.queued = true
+          setMessages((prev) => [...prev, userMsg])
+        }
+        const queued: QueueEntry = {
+          message,
+          attachments,
+          ...(automatic ? { automatic: true } : {}),
+          ...(options?.userInitiated ? { userInitiated: true } : {}),
+          ...(viaDictation ? { viaDictation: true } : {}),
+          userMsgId: userMsg.id,
+          ...(suppressUserMessage ? { suppressUserMessage } : {}),
+          ...(provider.queueMessage ? { durable: true } : {}),
+        }
+        pendingRef.current.push(queued)
+        persistQueue(persistence, storageKey, pendingRef.current)
+        if (provider.queueMessage) {
+          const queueGeneration = store.generation
+          try {
+            await provider.queueMessage(
+              message,
+              {
+                ...config,
+                messageId: userMsg.id,
+                suppressUserMessage,
+                automatic,
+                userInitiated: options?.userInitiated,
+                viaDictation,
+              },
+              (event) => {
+                if (getMessageStore(storageKey).generation !== queueGeneration) return
+                if (event.type === 'message') {
+                  const latest = pendingRef.current.find(
+                    (entry) => entry.userMsgId === event.message.id,
+                  )
+                  // The initial acceptance can arrive after an acknowledged edit.
+                  const acceptedMessage =
+                    event.message.queued && latest?.accepted
+                      ? { ...event.message, content: latest.message }
+                      : event.message
+                  appendCompleteMessage(acceptedMessage)
+                } else if (event.type === 'card') {
+                  appendCardMessage(event.id, event.timestamp, event.card)
+                } else if (event.type === 'error') setError(event.message)
+              },
+              attachments,
+              userMsg.id,
+            )
+          } catch (error) {
+            if (getMessageStore(storageKey).generation === queueGeneration)
+              setError(
+                error instanceof Error
+                  ? error.message
+                  : t('chat.error.sendFailed', undefined, {
+                      defaultValue: 'Failed to send message',
+                    }),
+              )
+          }
+        }
+        return
+      }
+
+      if (!suppressUserMessage)
+        setMessages((prev) =>
+          prev.some((item) => item.id === userMsg.id) ? prev : [...prev, userMsg],
+        )
+
+      // A fresh user-initiated send clears any prior stop so the reconcile path
+      // works normally for this turn.
+      userAbortedRef.current = false
+      sendingRef.current = true
+      setIsLoading(true)
+      lastStreamEventAtRef.current = Date.now()
+      // This client now owns the streaming state — end any remote-turn tracking
+      // and close out a remote accumulator so its message doesn't stay spinning.
+      stopRemoteStreamPoll(storageKey)
+      core.finalizeRemoteStream()
+      setError(null)
+      setErrorMeta(null)
+      // A fresh user-initiated send abandons any pending 5XX auto-retry.
+      resetRetry()
+      resetStatusQueue()
+      setStreamingFlag(persistence, storageKey)
+
+      let current: QueueEntry | undefined = {
+        message,
+        attachments,
+        // Carry the optimistic bubble's id (queued entries already do) so a
+        // never-started-turn auto-retry can replace it on re-send.
+        userMsgId: userMsg.id,
+        ...(suppressUserMessage ? { suppressUserMessage: true } : {}),
+        ...(pendingRef.current.find((entry) => entry.userMsgId === userMsg.id)?.durable
+          ? { durable: true }
+          : {}),
+        ...(automatic ? { automatic: true } : {}),
+        ...(options?.userInitiated ? { userInitiated: true } : {}),
+        ...(viaDictation ? { viaDictation: true } : {}),
+      }
+
+      // Set when the LAST iteration's stream dropped without a terminal event
+      // while the server was still streaming the turn — the post-loop tail then
+      // hands off to the resume flow (which polls history live until the server
+      // finishes) instead of leaving the chat frozen mid-turn.
+      let resumeAfterLoop: { id: string; content: string } | null = null
+
+      const sendGeneration = store.generation
+      // False once a conversation switch orphans this loop: its turn belongs to
+      // the old conversation, so it must not write into the new one's view.
+      const ownsStore = (): boolean => getMessageStore(storageKey).generation === sendGeneration
+      while (current) {
+        if (!mountedRef.current) break
+        resumeAfterLoop = null
+
+        // Clear queued indicator now that this message is being sent. Re-stamp it to
+        // the actual send time: while queued it pinned to the transcript bottom (see
+        // timelineSortKey), and its queue-time timestamp predates everything that
+        // streamed in since — keeping it would jump the message back UP on send.
+        if (current.userMsgId && !current.durable) {
+          const uid = current.userMsgId
+          setMessages((prev) =>
+            prev.map((m) => (m.id === uid ? { ...m, queued: false, timestamp: Date.now() } : m)),
+          )
+        }
+
+        const { message: currentMsg, attachments: currentAttachments } = current
+
+        // Liveness watchdog + terminal tracking — the server has its own stream
+        // timeout, but if it goes silent WITHOUT closing the connection the client
+        // would spin forever. Reset a generous watchdog on every event; if it fires,
+        // abort. `receivedTerminal` distinguishes a clean done/error close from a
+        // dropped stream (→ finalize + reconcile instead of an eternal spinner).
+        let receivedTerminal = false
+        let stalled = false
+        let stallTimer: ReturnType<typeof setTimeout> | null = null
+        const resetStall = (): void => {
+          if (stallTimer) clearTimeout(stallTimer)
+          stallTimer = setTimeout(() => {
+            stalled = true
+            try {
+              provider.abort()
+            } catch (_error) {
+              // provider.abort() may throw when no stream is active — safe to ignore
+            }
+          }, STREAM_STALL_MS)
+        }
+
+        // Per-message stream handler: one message per server `message_start` (no upfront
+        // placeholder); each item routes into the current message, so the live transcript
+        // mirrors the persisted per-message structure exactly. Shared with resumeStream.
+        const { onEvent, finalizeCurrent } = core.createMessageStream({
+          resetStall,
+          markTerminal: () => {
+            receivedTerminal = true
+          },
+          // If the turn dies before ANY server event, the auto-retry re-sends
+          // this exact message (resume would drop it — see RetryTarget).
+          retrySend: {
+            message: current.message,
+            attachments: current.attachments,
+            options: {
+              ...(current.suppressUserMessage ? { suppressUserMessage: true } : {}),
+              ...(current.automatic ? { automatic: true } : {}),
+              ...(current.userInitiated ? { userInitiated: true } : {}),
+              ...(current.viaDictation ? { viaDictation: true } : {}),
+            },
+            userMsgId: current.userMsgId,
+          },
+        })
+
+        resetStall()
+        lastStreamEventAtRef.current = Date.now()
+        let resolvedCleanly = false
+        // Per-send config carries the intent flags to the server so it can tag
+        // the persisted message (hidden / automatic). config holds the stable
+        // endpoint + projectId; spread the per-message flags on top.
+        const sendConfig: ChatConfig = {
+          ...config,
+          ...(current.userMsgId ? { messageId: current.userMsgId } : {}),
+          ...(current.suppressUserMessage ? { suppressUserMessage: true } : {}),
+          ...(current.automatic ? { automatic: true } : {}),
+          ...(current.userInitiated ? { userInitiated: true } : {}),
+          ...(current.viaDictation ? { viaDictation: true } : {}),
+        }
+        localStreamLiveRef.current = false
+        try {
+          await provider.sendMessage(currentMsg, sendConfig, onEvent, currentAttachments)
+          resolvedCleanly = true
+        } catch (err) {
+          if (mountedRef.current) {
+            const msg = stalled
+              ? t(
+                  'chat.error.stalled',
+                  { agentName },
+                  {
+                    defaultValue:
+                      '{{agentName}} stopped responding. It may still be finishing in the background — reload to see the latest, or send a new message.',
+                  },
+                )
+              : err instanceof Error
+                ? err.message
+                : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' })
+            setError(msg)
+            // Stream is over — finalize the current (partial) message.
+            finalizeCurrent()
+          }
+        } finally {
+          if (stallTimer) clearTimeout(stallTimer)
+          localStreamLiveRef.current = false
+        }
+
+        // Stream closed WITHOUT a terminal (done/error) event — e.g. the server
+        // hit its own timeout and ended the connection without a final `done`,
+        // or the connection dropped. Finalize so the spinner can't hang, then
+        // reconcile with the server's persisted state: the turn has usually
+        // completed (and persisted) server-side even though we lost the stream,
+        // so reloading history surfaces the real result instead of a blank,
+        // forever-spinning placeholder.
+        //
+        // EXCEPT on a user Stop (userAbortedRef): the abort() callback already
+        // finalized this message with every streamed char + tool card kept. The
+        // server is still persisting the partial turn, so a reload here can race
+        // ahead of that write and momentarily replace the streamed content with
+        // stale history (C4 — the bug where stopping wiped the chat until a
+        // refresh). Trust the local finalization; a later manual reload reconciles.
+        if (
+          mountedRef.current &&
+          ownsStore() &&
+          resolvedCleanly &&
+          !receivedTerminal &&
+          !userAbortedRef.current
+        ) {
+          finalizeCurrent()
+          try {
+            const history = await provider.loadHistory(config)
+            if (!ownsStore()) return
+            // Converge — never replace. "Usually completed" is not always: the
+            // server persists a turn's transcript when the turn ENDS, so a read
+            // taken while it is still running returns the PRE-turn transcript,
+            // and applying that verbatim wiped every message this turn had
+            // streamed until a later poll brought them back. The streamed
+            // messages carry the SERVER's own ids (each `message_start` sends
+            // the id it will persist under), so they fold back into place
+            // rather than duplicating once the turn does land.
+            if (mountedRef.current && history.length > 0) {
+              setMessages((prev) => convergeHistory(prev, history))
+            }
+            applyServerMode()
+            // The turn is often still RUNNING server-side (the socket died while
+            // the page was backgrounded — mobile screen lock — or the edge proxy
+            // recycled the connection): a single history snapshot would leave the
+            // chat silently frozen while the server keeps working. Note it so the
+            // post-loop tail re-enters the resume flow.
+            if (
+              (provider as { isServerStreaming?: boolean }).isServerStreaming === true &&
+              history.length > 0
+            ) {
+              const last = history[history.length - 1]
+              resumeAfterLoop =
+                last.role === 'assistant'
+                  ? { id: last.id, content: last.content }
+                  : { id: '', content: '' }
+            }
+          } catch (_error) {
+            // Best-effort reconciliation — the finalized placeholder is already shown; dropping history here is safe
+          }
+        }
+
+        if (!ownsStore()) return
+        if (userAbortedRef.current || getMessageStore(storageKey).stoppedByUser) break
+        // A durable entry stays editable until delivery; failed sends keep it queued.
+        const sentId: string | undefined = current.userMsgId
+        if (current.durable && pendingRef.current.some((entry) => entry.userMsgId === sentId)) break
+        current = pendingRef.current[0]
+        if (current && !current.durable) pendingRef.current.shift()
+        if (current) {
+          setError(null)
+          setErrorMeta(null)
+          persistQueue(persistence, storageKey, pendingRef.current)
+        }
+      }
+
+      sendingRef.current = false
+      setIsLoading(false)
+      // During page refresh the browser aborts the fetch which unblocks this
+      // code path. Skip clearing so the streaming flag survives for resume.
+      if (!unloadingRef.current) {
+        clearStreamingFlag(persistence, storageKey)
+        persistQueue(persistence, storageKey, pendingRef.current)
+      }
+
+      // Dropped-stream tail: the server was still streaming this turn when the
+      // connection died with no terminal event (see resumeAfterLoop above).
+      // Hand off to the resume flow — it polls history until the server
+      // finishes, then resumes — so the transcript keeps moving. Scheduled
+      // after sendingRef clears (resumeStream refuses while a send is active).
+      if (resumeAfterLoop && mountedRef.current && !unloadingRef.current) {
+        let target = resumeAfterLoop
+        if (!target.id) {
+          // No assistant message after the last user message yet — resume into
+          // a fresh placeholder (same shape as the mount-time resume path).
+          const placeholderId = `assistant-${++idCounterRef.current}`
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: placeholderId,
+              role: 'assistant',
+              content: '',
+              timestamp: Date.now(),
+              isStreaming: true,
+              blocks: [],
+            },
+          ])
+          target = { id: placeholderId, content: '' }
+        }
+        const rt = target
+        setTimeout(() => {
+          if (mountedRef.current) void core.resumeStream(rt.id, rt.content)
+        }, 0)
+      }
+    }
+
+    // Resume an interrupted stream after a page refresh. Two phases:
+    // 1. Wait until the server answers a history read
+    // 2. Send a resume request that continues the AI response with real streaming
+    //
+    // `_existingContent` is no longer used (the resume no longer seeds/continues the
+    // partial message — the server streams its continuation as new message(s)); kept in
+    // the signature for the callers.
+    const resumeStream = async (resumeId: string, _existingContent: string): Promise<void> => {
+      if (!mountedRef.current || sendingRef.current || getMessageStore(storageKey).stoppedByUser)
+        return
+      const config = currentConfig()
+
+      // A resume can only come from the LIVE session — align with the store's
+      // current generation so this turn's writes pass the stale-stream gate.
+      generationRef.current = getMessageStore(storageKey).generation
+      const resumeGeneration = generationRef.current
+
+      // Show the spinner on the last assistant message immediately
+      setMessages((prev) => prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: true } : m)))
+
+      sendingRef.current = true
+      setIsLoading(true)
+      lastStreamEventAtRef.current = Date.now()
+      // This client now owns the streaming state — end any remote-turn tracking
+      // and close out a remote accumulator so its message doesn't stay spinning.
+      stopRemoteStreamPoll(storageKey)
+      core.finalizeRemoteStream()
+      setError(null)
+      setErrorMeta(null)
+      resetStatusQueue()
+      setStreamingFlag(persistence, storageKey)
+
+      // ── Phase 1: wait for the server to be reachable ─────────────────
+      // One successful history read is the whole wait. It used to poll until the
+      // server reported the turn finished (up to five minutes), because a resume
+      // sent into a live turn got a 409. The chat route now ATTACHES a resume
+      // to a live turn instead (the `attached` frame), and a server that
+      // restarted resumes the interrupted turn itself — so the moment the API
+      // answers, sending the resume is right: it either attaches to the running
+      // turn and streams live, or re-enters the interrupted one. Waiting longer
+      // only means watching a 1 s poll instead of the stream.
+      const POLL_INTERVAL = 1000
+      const MAX_POLLS = 300
+
+      for (let i = 0; i < MAX_POLLS; i++) {
+        if (!mountedRef.current || !sendingRef.current) break
+
+        await new Promise((r) => setTimeout(r, POLL_INTERVAL))
+        if (!mountedRef.current || !sendingRef.current) break
+
+        try {
+          const history = await provider.loadHistory(config)
+          if (!mountedRef.current) break
+
+          // Converge on what the server has (never replace — the read can only
+          // add what the store is missing), keeping the spinner on the resumed
+          // message.
+          if (history.length > 0) {
+            setMessages((prev) =>
+              convergeHistory(prev, history).map((m) =>
+                m.id === resumeId ? { ...m, isStreaming: true } : m,
+              ),
+            )
+          }
+          // The server answered — proceed to the resume.
+          break
+        } catch (_error) {
+          // The server is not back yet (a restart in progress) — keep polling until MAX_POLLS
+        }
+      }
+
+      if (!mountedRef.current || !sendingRef.current) {
+        sendingRef.current = false
+        setIsLoading(false)
+        setMessages((prev) =>
+          prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)),
+        )
+        return
+      }
+
+      // ── Phase 2: send a resume request with full SSE streaming ────────
+      // The resumed (partial) message is already persisted + shown. On resume the server
+      // re-enters the agentic loop and streams its NEW iterations as NEW messages (each
+      // with its own message_start) — so stop the resumed message's spinner and let the
+      // shared per-message handler append the new messages after it. No content seeding
+      // (that duplicated text before); new content becomes a new message.
+      setMessages((prev) => prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)))
+
+      // Track whether the resume stream ended with a real terminal (done/error)
+      // event — a drop without one (another screen lock / background freeze
+      // mid-turn) must reconcile + re-resume, not silently stop.
+      let receivedTerminal = false
+      // The same liveness watchdog as sendMessage. A resume attaches to a turn
+      // that is usually already running, often through another instance's relay;
+      // without a watchdog a stream nothing writes to again held the chat frozen
+      // for good, because its pushed copy is dropped while this stream is open.
+      let stallTimer: ReturnType<typeof setTimeout> | null = null
+      const resetStall = (): void => {
+        if (stallTimer) clearTimeout(stallTimer)
+        stallTimer = setTimeout(() => {
+          try {
+            provider.abort()
+          } catch (_error) {
+            // provider.abort() may throw when no stream is active — safe to ignore
+          }
+        }, STREAM_STALL_MS)
+      }
+      const { onEvent, finalizeCurrent } = core.createMessageStream({
+        resetStall,
+        markTerminal: () => {
+          receivedTerminal = true
+        },
+      })
+
+      lastStreamEventAtRef.current = Date.now()
+      localStreamLiveRef.current = false
+      resetStall()
+      try {
+        await provider.sendMessage('', { ...config, resume: true }, onEvent)
+      } catch (err) {
+        if (mountedRef.current) {
+          const msg =
+            err instanceof Error
+              ? err.message
+              : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' })
+          setError(msg)
+          // Stream is over — finalize the current (partial) message.
+          finalizeCurrent()
+        }
+      } finally {
+        if (stallTimer) clearTimeout(stallTimer)
+        localStreamLiveRef.current = false
+      }
+
+      // Same dropped-stream reconcile as sendMessage: the resume stream closed
+      // with no terminal event while the server may still be streaming — so the
+      // same converge-never-replace rule applies (see the sendMessage site).
+      let resumeAgain: { id: string; content: string } | null = null
+      if (mountedRef.current && !receivedTerminal && !userAbortedRef.current) {
+        finalizeCurrent()
+        try {
+          const history = await provider.loadHistory(config)
+          if (mountedRef.current && history.length > 0) {
+            setMessages((prev) => convergeHistory(prev, history))
+          }
+          if (
+            (provider as { isServerStreaming?: boolean }).isServerStreaming === true &&
+            history.length > 0
+          ) {
+            const last = history[history.length - 1]
+            resumeAgain =
+              last.role === 'assistant'
+                ? { id: last.id, content: last.content }
+                : { id: '', content: '' }
+          }
+        } catch (_error) {
+          // Best-effort — the page-lifecycle reconcile or a manual reload recovers.
+        }
+      }
+
+      if (getMessageStore(storageKey).generation !== resumeGeneration) return
+      // The regular send path drains the remaining queue and retains durable IDs.
+      const current = pendingRef.current[0]
+      if (
+        current &&
+        mountedRef.current &&
+        !userAbortedRef.current &&
+        !getMessageStore(storageKey).stoppedByUser
+      ) {
+        if (!current.durable) pendingRef.current.shift()
+        // A queued send takes over the conversation — don't also re-resume.
+        resumeAgain = null
+        setError(null)
+        setErrorMeta(null)
+        persistQueue(persistence, storageKey, pendingRef.current)
+        sendingRef.current = false
+        setIsLoading(false)
+        await core.sendMessage(current.message, current.attachments, {
+          messageId: current.userMsgId,
+          suppressUserMessage: current.suppressUserMessage,
+          automatic: current.automatic,
+          userInitiated: current.userInitiated,
+          viaDictation: current.viaDictation,
+        })
+      }
+
+      sendingRef.current = false
+      setIsLoading(false)
+      if (!unloadingRef.current) {
+        clearStreamingFlag(persistence, storageKey)
+        persistQueue(persistence, storageKey, pendingRef.current)
+      }
+
+      // Dropped again while the server still streams — schedule another resume
+      // after this one fully unwinds (each cycle requires a fresh real drop, so
+      // this cannot tight-loop).
+      if (resumeAgain && mountedRef.current && !unloadingRef.current) {
+        let target = resumeAgain
+        if (!target.id) {
+          const placeholderId = `assistant-${++idCounterRef.current}`
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: placeholderId,
+              role: 'assistant',
+              content: '',
+              timestamp: Date.now(),
+              isStreaming: true,
+              blocks: [],
+            },
+          ])
+          target = { id: placeholderId, content: '' }
+        }
+        const rt = target
+        setTimeout(() => {
+          if (mountedRef.current) void core.resumeStream(rt.id, rt.content)
+        }, 0)
+      }
+    }
+
+    const abort = (): void => {
+      // Mark this as a user Stop so the in-flight send's reconcile path leaves the
+      // locally-finalized streamed content alone (see the reconcile guard above).
+      userAbortedRef.current = true
+      // A stop is a user decision the platform must not overrule: suppress every
+      // autonomous automatic send (auto-fix dispatches) until the user re-engages
+      // (see the sendMessage guard), and end any remote-turn tracking — the server
+      // stream is being killed below, so the Stop control can retire immediately.
+      getMessageStore(storageKey).stoppedByUser = true
+      getMessageStore(storageKey).userIntentRevision++
+      stopRemoteStreamPoll(storageKey)
+      // Drop any remote accumulator outright — the blanket un-stream map below
+      // already marks its message aborted.
+      remoteCtxRef.current = null
+      // Stop means the user took over — cancel any pending 5XX auto-retry + timers.
+      resetRetry()
+      try {
+        provider.abort()
+      } catch (_error) {
+        // provider.abort() may throw when no stream is active — safe to ignore on user-initiated abort
+      }
+      // Also kill the server-side stream so it doesn't continue running. Flagged
+      // userInitiated so the server records the durable stop marker that refuses
+      // automatic follow-up turns from ANY client until the user sends again
+      // (the page-unload beacon deliberately does NOT set this — a refresh is not
+      // a stop, and the post-refresh auto-resume must stay possible).
+      const p = provider as {
+        abortOnServer?: (
+          config: ChatConfig,
+          cid?: string,
+          opts?: { userInitiated?: boolean },
+        ) => void
+      }
+      p.abortOnServer?.(currentConfig(), undefined, { userInitiated: true })
+      // Apply the last throttled delta (the up-to-50ms of text/tool progress that
+      // hadn't flushed yet) BEFORE finalizing, so Stop keeps every streamed char —
+      // not just whatever landed in the previous flush window.
+      if (flushTimerRef.current !== null) {
+        clearTimeout(flushTimerRef.current)
+        flushTimerRef.current = null
+      }
+      pendingFlushFnRef.current?.()
+      pendingFlushFnRef.current = null
+      pendingRef.current = pendingRef.current.filter((entry) => entry.durable)
+      sendingRef.current = false
+      clearStreamingFlag(persistence, storageKey)
+      persistQueue(persistence, storageKey, pendingRef.current)
+      setIsLoading(false)
+      setMessages((prev) =>
+        prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false, aborted: true } : m)),
+      )
+    }
+
+    const clearHistory = async (): Promise<void> => {
+      const config = currentConfig()
+      const clearGeneration = getMessageStore(storageKey).generation
+      pendingRef.current.length = 0
+      // Drop any pending 5XX auto-retry — the conversation is being cleared.
+      resetRetry()
+      clearStreamingFlag(persistence, storageKey)
+      persistQueue(persistence, storageKey, [])
+      await provider.clearHistory(config)
+      if (mountedRef.current && getMessageStore(storageKey).generation === clearGeneration) {
+        setMessages([])
+        getMessageStore(storageKey).backgroundTasks = []
+        getMessageStore(storageKey).deliveredQueueIds.clear()
+        emitStore(storageKey)
+        setError(null)
+        setErrorMeta(null)
+      }
+    }
+
+    const editQueuedMessage = async (msgId: string, newContent: string): Promise<void> => {
+      const config = currentConfig()
+      const entry = pendingRef.current.find((e) => e.userMsgId === msgId)
+      const generation = getMessageStore(storageKey).generation
+      if (entry?.durable) {
+        if (!provider.editQueuedMessage) return
+        try {
+          await provider.editQueuedMessage(msgId, newContent, config)
+        } catch (error) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' }),
+          )
+          return
+        }
+        if (getMessageStore(storageKey).generation !== generation) return
+        if (!pendingRef.current.some((item) => item.userMsgId === msgId)) return
+      }
+      if (entry) {
+        entry.message = newContent
+        if (entry.durable) entry.accepted = true
+        persistQueue(persistence, storageKey, pendingRef.current)
+      }
+      setMessages((prev) =>
+        prev.map((m) => (m.id === msgId && m.queued ? { ...m, content: newContent } : m)),
+      )
+    }
+
+    const deleteQueuedMessage = async (msgId: string): Promise<void> => {
+      const config = currentConfig()
+      const entry = pendingRef.current.find((item) => item.userMsgId === msgId)
+      const generation = getMessageStore(storageKey).generation
+      if (entry?.durable) {
+        if (!provider.deleteQueuedMessage) return
+        try {
+          await provider.deleteQueuedMessage(msgId, config)
+        } catch (error) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' }),
+          )
+          return
+        }
+        if (getMessageStore(storageKey).generation !== generation) return
+      }
+      removeQueuedMessage(persistence, storageKey, msgId)
+    }
+
+    /**
+     * Remove queued auto-fix messages whose content references the given file path.
+     * Called automatically when the AI writes to a file (file_diff event) and can
+     * also be called externally when the user edits a file in the editor.
+     *
+     * @param filePath - The file the AI (or the user) just changed.
+     */
+    const clearQueuedForFile = (filePath: string): void => {
+      const norm = filePath.replace(/^\/workspace\//, '')
+      const toRemove = pendingRef.current.filter(
+        (e) => e.message.startsWith(AUTOFIX_PREFIX) && e.message.includes(norm),
+      )
+      if (toRemove.length === 0) return
+      for (const entry of toRemove) if (entry.userMsgId) void deleteQueuedMessage(entry.userMsgId)
+    }
+
+    const exposedSetMode = (newMode: ChatMode): void => {
+      setMode(newMode)
+      onModeChange?.(newMode)
+    }
+
+    return {
+      setMessages,
+      loadConversation,
+      resumeStream,
+      createMessageStream,
+      applyContentEvent,
+      finalizeRemoteStream,
+      noteRemoteStreamEvent,
+      setMode: exposedSetMode,
+      setFastMode,
+      sendMessage,
+      abort,
+      cancelRetry,
+      clearHistory,
+      editQueuedMessage,
+      deleteQueuedMessage,
+      clearQueuedForFile,
+      appendCardMessage,
+      appendCompleteMessage,
+      applyRemoteEvent,
+      reconcileHistory,
+    }
+  }
+
+  // The operations for the active project. An operation already running keeps
+  // the ones it started with.
+  let core = createKeyedOperations(activeKey)
+
+  // ── Mount-time wiring (connect) ──────────────────────────────────────────
+  const onBeforeUnload = (): void => {
+    unloadingRef.current = true
+    // Kill the server-side stream on page refresh/close so it doesn't
+    // continue running in the background. Uses sendBeacon so it works
+    // even during unload.
+    if (sendingRef.current) {
+      const p = provider as { abortOnServer?: (config: ChatConfig, cid?: string) => void }
+      p.abortOnServer?.(currentConfig(), undefined)
+    }
+  }
+
+  // ── Page-lifecycle recovery (mobile screen lock / backgrounded tab) ───────
+  // A phone lock freezes the page and the OS tears down the SSE socket WITHOUT
+  // rejecting the pending read() — the server keeps working by design (the turn
+  // must finish with nobody watching), but the client would sit frozen until
+  // the stall watchdog fired minutes later. On return to the foreground:
+  //  - a locally-owned stream that has been silent past the keep-alive window
+  //    is aborted, which routes it into sendMessage's no-terminal reconcile
+  //    (history reload + resume-if-still-streaming);
+  //  - with no local send in flight, history is reconciled directly and a turn
+  //    the server is still streaming is re-entered via the resume flow.
+  const attachLifecycle = (): (() => void) => {
+    if (typeof document === 'undefined' || typeof window === 'undefined') return () => {}
+
+    // One-shot re-check armed when the page returns to the foreground INSIDE the
+    // silence threshold: a short screen lock can kill the socket without the
+    // pending read() rejecting, and at unlock time the silence hasn't yet crossed
+    // LIFECYCLE_STALE_STREAM_MS — so the dead reader would otherwise pass as
+    // healthy and sit until the 3-minute stall watchdog. The timer fires at the
+    // point silence WOULD cross the threshold; a live stream's keep-alives land
+    // before then and the check passes through untouched.
+    let staleRecheckTimer: ReturnType<typeof setTimeout> | null = null
+    const clearStaleRecheck = (): void => {
+      if (staleRecheckTimer !== null) {
+        clearTimeout(staleRecheckTimer)
+        staleRecheckTimer = null
+      }
+    }
+    const abortStaleStream = (): void => {
+      try {
+        provider.abort()
+      } catch (_error) {
+        // provider.abort() may throw when no stream is active — safe to ignore
+      }
+    }
+
+    const onLifecycle = (event: Event): void => {
+      if (event.type === 'visibilitychange' && document.visibilityState === 'hidden') {
+        hiddenAtRef.current = Date.now()
+        // Never abort while frozen — the next foreground return re-arms.
+        clearStaleRecheck()
+        return
+      }
+      // `pageshow` also fires on every normal load (mount already reconciles) —
+      // only a bfcache restore is a resume signal.
+      if (event.type === 'pageshow' && !(event as PageTransitionEvent).persisted) return
+      const hiddenFor = hiddenAtRef.current !== null ? Date.now() - hiddenAtRef.current : 0
+      hiddenAtRef.current = null
+      if (!mountedRef.current || document.visibilityState === 'hidden') return
+
+      if (sendingRef.current) {
+        // Local stream in flight. Silence past the server's keep-alive cadence
+        // means the socket died while the page was frozen — abort the dead
+        // reader so the no-terminal reconcile runs now instead of at the stall
+        // watchdog. A genuinely live stream is never this quiet, so short
+        // backgrounds (quick app switches) pass through untouched.
+        const silentFor = Date.now() - lastStreamEventAtRef.current
+        if (silentFor > LIFECYCLE_STALE_STREAM_MS) {
+          abortStaleStream()
+        } else {
+          // Inside the threshold the socket may STILL be dead (a short lock tears
+          // it down silently) — re-check once silence would cross the line.
+          clearStaleRecheck()
+          staleRecheckTimer = setTimeout(
+            () => {
+              staleRecheckTimer = null
+              if (!mountedRef.current || !sendingRef.current) return
+              if (document.visibilityState === 'hidden') return
+              if (Date.now() - lastStreamEventAtRef.current > LIFECYCLE_STALE_STREAM_MS) {
+                abortStaleStream()
+              }
+            },
+            LIFECYCLE_STALE_STREAM_MS - silentFor + 1_000,
+          )
+        }
+        return
+      }
+      // No local send: reconcile after a real absence, unless a remote-turn
+      // poll is already tracking the conversation. `online` skips the
+      // hidden-duration gate — the network coming back is itself the signal.
+      const store = getMessageStore(activeKey)
+      if (store.remotePollTimer !== null) return
+      if (event.type === 'visibilitychange' && hiddenFor < LIFECYCLE_MIN_HIDDEN_MS) return
+      void core.reconcileHistory()
+    }
+
+    document.addEventListener('visibilitychange', onLifecycle)
+    window.addEventListener('pageshow', onLifecycle)
+    window.addEventListener('online', onLifecycle)
+    return () => {
+      document.removeEventListener('visibilitychange', onLifecycle)
+      window.removeEventListener('pageshow', onLifecycle)
+      window.removeEventListener('online', onLifecycle)
+      clearStaleRecheck()
+    }
+  }
+
+  let connected = false
+
+  const connect = (): (() => void) => {
+    connected = true
+    mountedRef.current = true
+    if (typeof window !== 'undefined') window.addEventListener('beforeunload', onBeforeUnload)
+    const detachLifecycle = attachLifecycle()
+    core.loadConversation()
+    let disconnected = false
+    return () => {
+      if (disconnected) return
+      disconnected = true
+      connected = false
+      if (statusTimerRef.current) clearTimeout(statusTimerRef.current)
+      if (flushTimerRef.current !== null) {
+        clearTimeout(flushTimerRef.current)
+        flushTimerRef.current = null
+      }
+      mountedRef.current = false
+      if (typeof window !== 'undefined') window.removeEventListener('beforeunload', onBeforeUnload)
+      detachLifecycle()
+      clearRetryTimers()
+    }
+  }
+
+  const update = (next: CreateChatSessionOptions): void => {
+    const previousEndpoint = endpoint
+    provider = next.provider
+    endpoint = next.endpoint
+    projectId = next.projectId
+    agentName = next.agentName ?? DEFAULT_AGENT_NAME
+    readOnly = next.readOnly ?? false
+    onFileChange = next.onFileChange
+    onModeChange = next.onModeChange
+    onConversationId = next.onConversationId
+    onStreamEvent = next.onStreamEvent
+    const nextKey = projectId ?? 'default'
+    if (nextKey !== activeKey) {
+      activeKey = nextKey
+      core = createKeyedOperations(activeKey)
+      syncStoreSubscription()
+      notify()
+    }
+    if (connected && endpoint !== previousEndpoint) core.loadConversation()
+  }
+
+  const subscribe = (listener: () => void): (() => void) => {
+    listeners.add(listener)
+    syncStoreSubscription()
+    return () => {
+      listeners.delete(listener)
+      syncStoreSubscription()
+    }
+  }
+
+  // The actions always reach the active project's operations.
+  const controls: ChatSessionControls = {
+    noteRemoteStreamEvent: () => core.noteRemoteStreamEvent(),
+    setMode: (newMode) => core.setMode(newMode),
+    setFastMode: (value) => setFastMode(value),
+    sendMessage: (message, attachments, options) => core.sendMessage(message, attachments, options),
+    abort: () => core.abort(),
+    cancelRetry: () => cancelRetry(),
+    clearHistory: () => core.clearHistory(),
+    editQueuedMessage: (msgId, newContent) => core.editQueuedMessage(msgId, newContent),
+    deleteQueuedMessage: (msgId) => core.deleteQueuedMessage(msgId),
+    clearQueuedForFile: (filePath) => core.clearQueuedForFile(filePath),
+    appendCardMessage: (id, timestamp, card) => core.appendCardMessage(id, timestamp, card),
+    appendCompleteMessage: (message) => core.appendCompleteMessage(message),
+    applyRemoteEvent: (event) => core.applyRemoteEvent(event),
+    reconcileHistory: () => core.reconcileHistory(),
+  }
+
+  return {
+    controls,
+    getState,
+    getServerState: () => SERVER_STATE,
+    subscribe,
+    update,
+    connect,
+  }
+}

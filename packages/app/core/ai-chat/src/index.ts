@@ -60,5 +60,9 @@
  * @module
  */
 
+export * from './agent-identity.js'
+export * from './history.js'
 export * from './provider.js'
+export * from './session.js'
+export * from './session-types.js'
 export * from './types.js'
