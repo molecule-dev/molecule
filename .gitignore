@@ -6,14 +6,12 @@ dist
 *.tsbuildinfo
 *.js.map
 *.d.ts
-!packages/app/frameworks/react-native-ui/src/react-native.d.ts
-# Hand-written ambient declare-module typings for runtime-loaded native peers
-# (react-native, expo-*, @react-native-*; and `bcrypt`, loaded dynamically by
-# api-password-bcrypt because a native addon throws at import time on a platform
-# with no prebuild) live in src/ and must be tracked — `*.d.ts` above would
-# otherwise drop them from the commit and break a fresh clone's typecheck.
-!packages/app/bonds/**/src/**/*.d.ts
-!packages/api/bonds/**/src/**/*.d.ts
+# A `.d.ts` under a package's src/ is always hand-written (every build emits to
+# dist/): ambient typings for runtime-loaded native peers (react-native, expo-*,
+# `bcrypt`), JSX augmentations (solid-ui's `attr:` attributes) and the like. It
+# must be tracked — `*.d.ts` above would otherwise drop it from the commit and
+# break a fresh clone's build, while the author's own tree still compiles.
+!packages/**/src/**/*.d.ts
 *.d.ts.map
 
 # compiled JS from TypeScript (keep hand-written .js like eslint.config.js)
