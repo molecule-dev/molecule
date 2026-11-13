@@ -16,8 +16,8 @@
 import { defineComponent, h } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
-import { useTranslation } from '../hooks/useTranslation.js'
 import { Button } from './Button.js'
 import { Modal } from './Modal.js'
 

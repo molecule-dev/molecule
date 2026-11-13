@@ -14,12 +14,11 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { useAuth, useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
 import { getInitials } from '../utilities/initials.js'
-import { createAuthState, createLocation } from '../utilities/services.js'
 import { Modal } from './Modal.jsx'
 import { PanelCloseProvider } from './PanelClose.jsx'
 
@@ -99,8 +98,8 @@ export const SidebarUserCard: Component<SidebarUserCardProps> = (props) => {
 
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { state } = createAuthState<AccountUserShape>()
-  const { location } = createLocation()
+  const { user } = useAuth<AccountUserShape>()
+  const location = useLocation()
   const [open, setOpen] = createSignal(false)
 
   // Close the drawer whenever the route changes. The router updates its
@@ -115,12 +114,11 @@ export const SidebarUserCard: Component<SidebarUserCardProps> = (props) => {
   )
 
   const guestName = (): string => t('sidebarUserCard.guest', {}, { defaultValue: 'Guest' })
-  const displayName = (): string =>
-    local.name ?? state().user?.name ?? state().user?.email ?? guestName()
+  const displayName = (): string => local.name ?? user()?.name ?? user()?.email ?? guestName()
   const displaySecondary = (): string | undefined =>
-    local.secondaryLine ?? state().user?.email ?? undefined
+    local.secondaryLine ?? user()?.email ?? undefined
   const displayAvatarUrl = (): string | undefined =>
-    local.avatarUrl ?? state().user?.avatarUrl ?? undefined
+    local.avatarUrl ?? user()?.avatarUrl ?? undefined
 
   return (
     <>

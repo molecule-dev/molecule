@@ -1,8 +1,6 @@
 import { createEffect, type JSX, on } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
-
-import { createAuthState, createLocation } from '../utilities/services.js'
+import { useAuth, useRouter, useTranslation } from '@molecule/app-solid'
 
 /**
  * Props for {@link AuthGuard}.
@@ -91,11 +89,9 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
  */
 export function AuthGuard(props: AuthGuardProps): JSX.Element {
   const { t } = useTranslation()
-  const { state } = createAuthState()
-  const { location, router } = createLocation()
+  const { status, isAuthenticated } = useAuth()
+  const { location, navigate } = useRouter()
 
-  const status = (): string => state().status
-  const isAuthenticated = (): boolean => state().authenticated
   const loginPath = (): string => props.loginPath ?? '/login'
 
   let lastAuth = false
@@ -114,7 +110,7 @@ export function AuthGuard(props: AuthGuardProps): JSX.Element {
       () => [status(), location().pathname, loginPath()] as const,
       () => {
         if (status() === 'unauthenticated' && location().pathname !== loginPathname(loginPath())) {
-          router.navigate(loginPath(), { replace: true, state: { from: location() } })
+          navigate(loginPath(), { replace: true, state: { from: location() } })
         }
       },
     ),

@@ -23,9 +23,8 @@ import {
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useLocation, useTranslation } from '@molecule/app-vue'
 
-import { useLocation } from '../hooks/useRouter.js'
-import { useTranslation } from '../hooks/useTranslation.js'
 import { classOf, nodeProp, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
 

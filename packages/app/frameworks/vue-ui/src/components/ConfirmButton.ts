@@ -18,8 +18,8 @@ import { defineComponent, h, onUnmounted, type PropType, ref, watch } from 'vue'
 
 import type { ButtonProps, ButtonSize, ButtonVariant, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
-import { useTranslation } from '../hooks/useTranslation.js'
 import { classOf, type FallthroughAttrs, restAttrs, styleOf } from '../utilities/attrs.js'
 
 /** React's DOM-callback names that alias a differently spelled native event. */

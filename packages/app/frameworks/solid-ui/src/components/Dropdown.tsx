@@ -18,12 +18,12 @@ import {
   untrack,
 } from 'solid-js'
 
+import { useLocation } from '@molecule/app-solid'
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
 import { BodyPortal } from '../utilities/portal.jsx'
-import { createLocation } from '../utilities/services.js'
 
 interface Position {
   top: number
@@ -208,7 +208,7 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
   // (and Enter/Space/click) want the first item, ArrowUp wants the last.
   let pendingOpenFocus: 'first' | 'last' = 'first'
   const menuId = createUniqueId()
-  const { location } = createLocation()
+  const location = useLocation()
 
   // Read once: slot children are created per read, and the trigger is a
   // single static node for the life of the dropdown.

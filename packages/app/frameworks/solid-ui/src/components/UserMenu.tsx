@@ -8,10 +8,9 @@
 import { type Component, createEffect, createSignal, type JSX, on, splitProps } from 'solid-js'
 
 import type { IconName } from '@molecule/app-icons'
-import { useTranslation } from '@molecule/app-solid'
+import { useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
-import { createLocation } from '../utilities/services.js'
 import { Button } from './Button.jsx'
 import { Icon } from './Icon.jsx'
 import { Modal } from './Modal.jsx'
@@ -84,7 +83,7 @@ export const UserMenu: Component<UserMenuProps> = (props) => {
 
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { location } = createLocation()
+  const location = useLocation()
   const [open, setOpen] = createSignal(false)
 
   // Close the drawer whenever the route changes (in-app navigation and

@@ -8,8 +8,8 @@ import { defineComponent, h, type PropType, ref } from 'vue'
 
 import type { IconName } from '@molecule/app-icons'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
-import { useTranslation } from '../hooks/useTranslation.js'
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { Icon } from './Icon.js'
 import { Modal } from './Modal.js'

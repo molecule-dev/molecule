@@ -54,13 +54,12 @@ import {
   useContext,
 } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
 import { BodyPortal } from '../utilities/portal.jsx'
 import { renderIcon } from '../utilities/renderIcon.jsx'
-import { createLocation } from '../utilities/services.js'
 
 /** The fleet-wide responsive breakpoint, as a `matchMedia` query. */
 const DESKTOP_QUERY = '(min-width: 768px)'
@@ -242,7 +241,7 @@ const ResponsiveAppShellBase: Component<ResponsiveAppShellProps> = (props) => {
   const [local] = splitProps(props, ['children', 'sidebarWidth', 'className', 'dataMolId'])
   const cm = getClassMap()
   const isDesktop = createIsDesktop()
-  const { location } = createLocation()
+  const location = useLocation()
   const [drawerOpen, setDrawerOpen] = createSignal(false)
   const [hasDrawer, setHasDrawer] = createSignal(false)
   const drawerId = createUniqueId()

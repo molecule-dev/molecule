@@ -12,9 +12,7 @@
 
 import { defineComponent, h, onMounted, type PropType, ref, type VNode, watch } from 'vue'
 
-import { useAuth } from '../hooks/useAuth.js'
-import { useLocation, useMoleculeRouter } from '../hooks/useRouter.js'
-import { useTranslation } from '../hooks/useTranslation.js'
+import { useAuth, useLocation, useRouterInstance, useTranslation } from '@molecule/app-vue'
 
 /**
  * The pathname part of a login path (`/login?next=x` → `/login`).
@@ -108,7 +106,7 @@ export const AuthGuard = defineComponent({
     const { isAuthenticated, status } = useAuth()
     const { t } = useTranslation()
     const location = useLocation()
-    const router = useMoleculeRouter()
+    const router = useRouterInstance()
 
     // React's effect fires on mount and on every `isAuthenticated` change:
     // the callback runs on each false → true transition (including already

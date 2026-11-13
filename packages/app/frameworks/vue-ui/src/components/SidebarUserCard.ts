@@ -7,10 +7,8 @@
 import { defineComponent, h, type PropType, ref, watch } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useAuth, useLocation, useTranslation } from '@molecule/app-vue'
 
-import { useAuth } from '../hooks/useAuth.js'
-import { useLocation } from '../hooks/useRouter.js'
-import { useTranslation } from '../hooks/useTranslation.js'
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { getInitials } from '../utilities/initials.js'
 import { Modal } from './Modal.js'

@@ -8,9 +8,8 @@ import { defineComponent, h, type PropType, ref, watch } from 'vue'
 
 import type { IconName } from '@molecule/app-icons'
 import { getClassMap } from '@molecule/app-ui'
+import { useLocation, useTranslation } from '@molecule/app-vue'
 
-import { useLocation } from '../hooks/useRouter.js'
-import { useTranslation } from '../hooks/useTranslation.js'
 import { Button } from './Button.js'
 import { Icon } from './Icon.js'
 import { Modal } from './Modal.js'

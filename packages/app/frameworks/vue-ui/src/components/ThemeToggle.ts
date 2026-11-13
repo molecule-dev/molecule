@@ -8,9 +8,8 @@ import { defineComponent, h, type PropType } from 'vue'
 
 import type { IconName } from '@molecule/app-icons'
 import { getClassMap } from '@molecule/app-ui'
+import { useTheme, useTranslation } from '@molecule/app-vue'
 
-import { useTheme } from '../hooks/useTheme.js'
-import { useTranslation } from '../hooks/useTranslation.js'
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { Icon } from './Icon.js'
 

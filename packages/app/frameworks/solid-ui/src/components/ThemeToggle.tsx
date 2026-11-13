@@ -1,11 +1,10 @@
 import { type Component, type JSX, Show, splitProps } from 'solid-js'
 
 import type { IconName } from '@molecule/app-icons'
-import { getThemeProvider, useTranslation } from '@molecule/app-solid'
+import { useTheme, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
-import { createThemeState } from '../utilities/services.js'
 import { Icon } from './Icon.jsx'
 
 /**
@@ -66,42 +65,17 @@ export const ThemeToggle: Component<ThemeToggleProps> = (props) => {
 
   const cm = getClassMap()
   const { t } = useTranslation()
-  const provider = getThemeProvider()
-  const theme = createThemeState()
+  // `useTheme()` subscribes to the provider and owns the toggle: it calls the
+  // provider's `toggleMode()` (a required `ThemeProvider` method), so the
+  // light/dark flip is the binding's own behavior, identical to the React
+  // reference's `useTheme()`.
+  const { mode, toggleTheme } = useTheme()
 
   const ariaLabelKey = (): string => local.ariaLabelKey ?? 'theme.toggle'
   const ariaLabelDefault = (): string => local.ariaLabelDefault ?? 'Toggle theme'
   const darkIcon = (): IconName => local.darkIcon ?? 'moon'
   const lightIcon = (): IconName => local.lightIcon ?? 'sun'
   const iconSize = (): number => local.iconSize ?? 20
-
-  // The button is icon-only chrome: its accessible name is the aria-label,
-  // so the mode icon itself stays decorative.
-  const mode = (): 'light' | 'dark' => theme().mode
-
-  const toggleTheme = (): void => {
-    // Prefer the provider's purpose-built light/dark toggle. `toggleMode`
-    // is a required `ThemeProvider` method and the semantically correct
-    // action for a light/dark toggle — unlike `getThemes()`, which is
-    // optional, so the index-cycle below silently no-ops for providers
-    // that don't implement it. The index-cycle is kept only as a fallback
-    // for non-conforming providers that predate `toggleMode`.
-    if (typeof provider.toggleMode === 'function') {
-      provider.toggleMode()
-      return
-    }
-    const themes = provider.getThemes?.() ?? []
-    if (themes.length === 0) return
-    const currentName =
-      typeof (provider as unknown as Record<string, () => string>).getThemeName === 'function'
-        ? (provider as unknown as Record<string, () => string>).getThemeName()
-        : provider.getTheme().name
-    const currentIndex = themes.findIndex((theme) =>
-      typeof theme === 'string' ? theme === currentName : theme.name === currentName,
-    )
-    const next = themes[(currentIndex + 1) % themes.length]
-    provider.setTheme(typeof next === 'string' ? next : next.name)
-  }
 
   return (
     <button

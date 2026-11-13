@@ -20,6 +20,7 @@ const mockH = vi.fn((...args: unknown[]) => ({
   children: args[2],
 }))
 const mockRef = vi.fn((val: unknown) => ({ value: val }))
+const mockShallowRef = vi.fn((val: unknown) => ({ value: val }))
 const mockComputed = vi.fn((fn: () => unknown) => ({ value: fn() }))
 const mockWatch = vi.fn()
 const mockOnMounted = vi.fn()
@@ -34,6 +35,7 @@ vi.mock('vue', () => ({
   defineComponent: (opts: Record<string, unknown>) => mockDefineComponent(opts),
   h: (...args: unknown[]) => mockH(...args),
   ref: (val: unknown) => mockRef(val),
+  shallowRef: (val: unknown) => mockShallowRef(val),
   computed: (fn: () => unknown) => mockComputed(fn),
   watch: (...args: unknown[]) => mockWatch(...args),
   onMounted: (fn: unknown) => mockOnMounted(fn),
@@ -5271,6 +5273,8 @@ describe('UserMenu component', () => {
     }
     const router = {
       getLocation: () => ({ pathname: '/', search: '' }),
+      getParams: () => ({}),
+      getQuery: () => ({}),
       subscribe: () => () => {},
       navigate: () => {},
     }
@@ -5534,6 +5538,8 @@ describe('SidebarUserCard component', () => {
     }
     const router = {
       getLocation: () => ({ pathname: '/', search: '' }),
+      getParams: () => ({}),
+      getQuery: () => ({}),
       subscribe: () => () => {},
       navigate: () => {},
     }
@@ -5976,6 +5982,8 @@ const installPopoverServices = async (authState: Record<string, unknown>): Promi
   const authClient = { getState: () => authState, onAuthChange: () => () => {} }
   const router = {
     getLocation: () => ({ pathname: '/', search: '', hash: '' }),
+    getParams: () => ({}),
+    getQuery: () => ({}),
     subscribe: () => () => {},
     navigate: () => {},
   }
@@ -6521,6 +6529,8 @@ describe('AuthGuard component', () => {
     routerNavigate = vi.fn()
     const router = {
       getLocation: () => ({ pathname, search: '', hash: '' }),
+      getParams: () => ({}),
+      getQuery: () => ({}),
       subscribe: () => () => {},
       navigate: routerNavigate,
     }
@@ -6730,6 +6740,8 @@ describe('ResponsiveAppShell components', () => {
 
   const fakeRouter = {
     getLocation: () => ({ pathname: '/', search: '', hash: '', key: 'k0' }),
+    getParams: () => ({}),
+    getQuery: () => ({}),
     subscribe: (_cb: unknown) => () => undefined,
     navigate: (_to: string) => undefined,
   }

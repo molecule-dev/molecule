@@ -12,7 +12,6 @@ import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
-import { createI18nState } from '../utilities/services.js'
 import { Icon } from './Icon.jsx'
 import { Modal } from './Modal.jsx'
 
@@ -75,8 +74,7 @@ export const LanguagePicker: Component<LanguagePickerProps> = (props) => {
   ])
 
   const cm = getClassMap()
-  const { t } = useTranslation()
-  const { locale, locales, provider } = createI18nState()
+  const { t, locale, setLocale, locales } = useTranslation()
   const [open, setOpen] = createSignal(false)
 
   const ariaLabel = (): string =>
@@ -135,7 +133,7 @@ export const LanguagePicker: Component<LanguagePickerProps> = (props) => {
                   data-active={active() || undefined}
                   aria-pressed={active()}
                   onClick={async () => {
-                    await provider.setLocale(entry.code)
+                    await setLocale(entry.code)
                     setOpen(false)
                   }}
                   class={active() ? cm.languageActive : cm.languageOption}

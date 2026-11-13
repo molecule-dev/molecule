@@ -40,10 +40,8 @@ import {
 } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
+import { useAuth, useLocation, useTranslation } from '@molecule/app-vue'
 
-import { useAuth } from '../hooks/useAuth.js'
-import { useLocation } from '../hooks/useRouter.js'
-import { useTranslation } from '../hooks/useTranslation.js'
 import { classOf } from '../utilities/attrs.js'
 import { getInitials } from '../utilities/initials.js'
 

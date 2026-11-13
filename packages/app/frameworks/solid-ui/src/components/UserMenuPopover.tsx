@@ -25,11 +25,10 @@ import {
   useContext,
 } from 'solid-js'
 
-import { useTranslation } from '@molecule/app-solid'
+import { useAuth, useLocation, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { getInitials } from '../utilities/initials.js'
-import { createAuthState, createLocation } from '../utilities/services.js'
 
 /** The signed-in user shape this family reads. */
 interface AccountUser {
@@ -103,8 +102,8 @@ export const UserMenuPopover: Component<UserMenuPopoverProps> = (props) => {
   const [local] = splitProps(props, ['children', 'guestName', 'className'])
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { state } = createAuthState<AccountUser>()
-  const { location } = createLocation()
+  const { user } = useAuth<AccountUser>()
+  const location = useLocation()
   const [open, setOpen] = createSignal(false)
   const panelId = createUniqueId()
   let containerRef: HTMLDivElement | undefined
@@ -151,8 +150,8 @@ export const UserMenuPopover: Component<UserMenuPopoverProps> = (props) => {
 
   const resolvedGuest = (): string =>
     local.guestName ?? t('userMenuPopover.guest', {}, { defaultValue: 'Account' })
-  const displayName = (): string => state().user?.name ?? state().user?.email ?? resolvedGuest()
-  const email = (): string | undefined => state().user?.email ?? undefined
+  const displayName = (): string => user()?.name ?? user()?.email ?? resolvedGuest()
+  const email = (): string | undefined => user()?.email ?? undefined
 
   return (
     <div
@@ -372,7 +371,7 @@ export const UserMenuPopoverSignOut: Component<UserMenuPopoverSignOutProps> = (p
   const [local] = splitProps(props, ['labelKey', 'labelDefault', 'dataMolId', 'className'])
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { client } = createAuthState<AccountUser>()
+  const { logout } = useAuth()
   const context = usePopoverContext('UserMenuPopoverSignOut')
 
   return (
@@ -382,7 +381,7 @@ export const UserMenuPopoverSignOut: Component<UserMenuPopoverSignOutProps> = (p
       onClick={async () => {
         context.setOpen(false)
         try {
-          await client.logout()
+          await logout()
         } catch (_error) {
           // A logout failure should not crash the panel — the user is already
           // treated as signed-out from the UI perspective; the provider may
