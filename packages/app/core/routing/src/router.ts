@@ -1,26 +1,148 @@
 /**
- * Router creation and management.
+ * The routers this package provides itself: one over the browser's History API and one
+ * in memory. Both are a {@link RouterHistory} handed to {@link createHistoryRouter}, the
+ * same construction every routing bond uses.
  *
  * @module
  */
 
-import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 
+import { createHistoryRouter, parseLocation } from './history-router.js'
 import type {
-  GuardResult,
-  NavigateOptions,
-  NavigationGuard,
-  QueryParams,
-  RouteChangeListener,
-  RouteDefinition,
+  NavigationAction,
   RouteLocation,
-  RouteMatch,
-  RouteParams,
   Router,
   RouterConfig,
+  RouterHistory,
 } from './types.js'
-import { generatePath, matchPath, parseQuery, stringifyQuery } from './utilities.js'
+
+const newKey = (): string => Math.random().toString(36).slice(2)
+
+/** Listener bookkeeping shared by the two histories below. */
+const createEmitter = (): {
+  listen: RouterHistory['listen']
+  emit: (action: NavigationAction) => void
+  clear: () => void
+} => {
+  const listeners = new Set<(action?: NavigationAction) => void>()
+  return {
+    listen(listener) {
+      listeners.add(listener)
+      return () => {
+        listeners.delete(listener)
+      }
+    },
+    emit: (action) => {
+      for (const listener of [...listeners]) listener(action)
+    },
+    clear: () => listeners.clear(),
+  }
+}
+
+/**
+ * The browser's History API as a {@link RouterHistory}: `history` mode keeps the path in
+ * the URL's pathname (under `basePath`), `hash` mode in its hash (`#/users?x=1`).
+ *
+ * @param config - Mode and base path.
+ * @returns The history.
+ */
+const createBrowserRouterHistory = (config: RouterConfig): RouterHistory => {
+  const logger = getLogger('routing')
+  const { mode = 'history', basePath = '' } = config
+  const emitter = createEmitter()
+  let key = newKey()
+  let lastHref = typeof window === 'undefined' ? '' : window.location.href
+
+  const location = (): RouteLocation => {
+    if (mode === 'hash') {
+      return { ...parseLocation(window.location.hash.slice(1) || '/', window.history.state), key }
+    }
+    const { pathname, search, hash } = window.location
+    const inBase = basePath && (pathname === basePath || pathname.startsWith(`${basePath}/`))
+    return {
+      pathname: inBase ? pathname.slice(basePath.length) || '/' : pathname,
+      search,
+      hash,
+      state: window.history.state,
+      key,
+    }
+  }
+
+  const write = (path: string, state: unknown, action: 'push' | 'replace'): void => {
+    logger.debug('Navigating', path)
+    const url = mode === 'hash' ? `#${path}` : basePath + path
+    if (action === 'replace') window.history.replaceState(state ?? null, '', url)
+    else window.history.pushState(state ?? null, '', url)
+    key = newKey()
+    lastHref = window.location.href
+    emitter.emit(action)
+  }
+
+  // Back/forward (and a hand-edited hash): one notification per changed URL, though the
+  // browser fires both popstate and hashchange for a hash move. Listened to for the
+  // router's whole life, so the location key changes with every entry.
+  const onPop = (): void => {
+    if (window.location.href === lastHref) return
+    lastHref = window.location.href
+    key = newKey()
+    emitter.emit('pop')
+  }
+  if (typeof window !== 'undefined') {
+    window.addEventListener('popstate', onPop)
+    if (mode === 'hash') window.addEventListener('hashchange', onPop)
+  }
+
+  return {
+    location,
+    push: (path, state) => write(path, state, 'push'),
+    replace: (path, state) => write(path, state, 'replace'),
+    go: (delta) => window.history.go(delta),
+    listen: emitter.listen,
+    destroy() {
+      emitter.clear()
+      if (typeof window === 'undefined') return
+      window.removeEventListener('popstate', onPop)
+      window.removeEventListener('hashchange', onPop)
+    },
+  }
+}
+
+/**
+ * An in-memory history: a list of entries and a position in it.
+ *
+ * @param initialEntries - The starting entries; the last one is current.
+ * @returns The history.
+ */
+const createMemoryRouterHistory = (initialEntries: string[]): RouterHistory => {
+  const emitter = createEmitter()
+  const entries: RouteLocation[] = (initialEntries.length ? initialEntries : ['/']).map(
+    (entry) => ({ ...parseLocation(entry), key: newKey() }),
+  )
+  let index = entries.length - 1
+
+  return {
+    location: () => entries[index],
+    push(path, state) {
+      entries.splice(index + 1)
+      entries.push({ ...parseLocation(path, state), key: newKey() })
+      index = entries.length - 1
+      emitter.emit('push')
+    },
+    replace(path, state) {
+      entries[index] = { ...parseLocation(path, state), key: newKey() }
+      emitter.emit('replace')
+    },
+    go(delta) {
+      const next = index + delta
+      if (delta === 0 || next < 0 || next >= entries.length) return
+      index = next
+      emitter.emit('pop')
+    },
+    listen: emitter.listen,
+    destroy: emitter.clear,
+  }
+}
 
 /**
  * Creates a browser history-based router using the History API
@@ -30,274 +152,8 @@ import { generatePath, matchPath, parseQuery, stringifyQuery } from './utilities
  * @param config - Router configuration (mode, basePath, initial routes).
  * @returns A `Router` instance bound to the browser history.
  */
-export const createBrowserRouter = (config: RouterConfig = {}): Router => {
-  const logger = getLogger('routing')
-  const { mode = 'history', basePath = '', routes = [] } = config
-
-  let registeredRoutes = [...routes]
-  const listeners = new Set<RouteChangeListener>()
-  const guards: NavigationGuard[] = []
-  const namedRoutes = new Map<string, RouteDefinition>()
-
-  // Index named routes
-  const indexRoutes = (routeList: RouteDefinition[], prefix = ''): void => {
-    for (const route of routeList) {
-      const fullPath = prefix + route.path
-      if (route.name) {
-        namedRoutes.set(route.name, { ...route, path: fullPath })
-      }
-      if (route.children) {
-        indexRoutes(route.children, fullPath)
-      }
-    }
-  }
-  indexRoutes(routes)
-
-  const getLocation = (): RouteLocation => {
-    if (mode === 'hash') {
-      const hash = window.location.hash.slice(1) || '/'
-      const [pathname, search = ''] = hash.split('?')
-      return {
-        pathname: pathname || '/',
-        search: search ? `?${search}` : '',
-        hash: '',
-        key: Math.random().toString(36).slice(2),
-      }
-    }
-
-    return {
-      pathname: window.location.pathname.replace(basePath, '') || '/',
-      search: window.location.search,
-      hash: window.location.hash,
-      state: window.history.state,
-      key: Math.random().toString(36).slice(2),
-    }
-  }
-
-  let currentLocation = getLocation()
-
-  const runGuards = async (to: RouteLocation, from: RouteLocation | null): Promise<GuardResult> => {
-    for (const guard of guards) {
-      const result = await guard(to, from)
-      if (result !== undefined && result !== true) {
-        return result
-      }
-    }
-    return true
-  }
-
-  const notify = (action: 'push' | 'replace' | 'pop'): void => {
-    listeners.forEach((listener) => listener(currentLocation, action))
-  }
-
-  const navigate = async (path: string, options: NavigateOptions = {}): Promise<void> => {
-    logger.debug('Navigating', path)
-    const { replace = false, state, preserveQuery, preserveHash } = options
-
-    let fullPath = path
-    if (preserveQuery && currentLocation.search) {
-      fullPath += currentLocation.search
-    }
-    if (preserveHash && currentLocation.hash) {
-      fullPath += currentLocation.hash
-    }
-
-    const newLocation: RouteLocation = {
-      pathname: fullPath.split('?')[0].split('#')[0],
-      search: fullPath.includes('?') ? `?${fullPath.split('?')[1].split('#')[0]}` : '',
-      hash: fullPath.includes('#') ? `#${fullPath.split('#')[1]}` : '',
-      state,
-      key: Math.random().toString(36).slice(2),
-    }
-
-    const guardResult = await runGuards(newLocation, currentLocation)
-    if (guardResult === false) return
-    if (typeof guardResult === 'string') {
-      navigate(guardResult, { replace: true })
-      return
-    }
-    if (typeof guardResult === 'object' && 'path' in guardResult) {
-      navigate(guardResult.path, { replace: guardResult.replace })
-      return
-    }
-
-    currentLocation = newLocation
-
-    if (mode === 'hash') {
-      const hashPath = newLocation.pathname + newLocation.search
-      if (replace) {
-        window.location.replace(`#${hashPath}`)
-      } else {
-        window.location.hash = hashPath
-      }
-    } else {
-      const url = basePath + fullPath
-      if (replace) {
-        window.history.replaceState(state, '', url)
-      } else {
-        window.history.pushState(state, '', url)
-      }
-    }
-
-    notify(replace ? 'replace' : 'push')
-  }
-
-  // Listen for popstate
-  const handlePopState = (): void => {
-    currentLocation = getLocation()
-    notify('pop')
-  }
-
-  if (typeof window !== 'undefined') {
-    window.addEventListener('popstate', handlePopState)
-    if (mode === 'hash') {
-      window.addEventListener('hashchange', handlePopState)
-    }
-  }
-
-  const router: Router = {
-    getLocation: () => currentLocation,
-
-    getParams<T extends RouteParams = RouteParams>(): T {
-      for (const route of registeredRoutes) {
-        const match = matchPath<T>(route.path, currentLocation.pathname, route.exact)
-        if (match) return match.params
-      }
-      return {} as T
-    },
-
-    getQuery: () => parseQuery(currentLocation.search),
-
-    getQueryParam: (key: string) => {
-      const query = parseQuery(currentLocation.search)
-      const value = query[key]
-      return Array.isArray(value) ? value[0] : value
-    },
-
-    getHash: () => currentLocation.hash,
-
-    navigate,
-
-    navigateTo(
-      name: string,
-      params?: RouteParams,
-      query?: QueryParams,
-      options?: NavigateOptions,
-    ): void {
-      const route = namedRoutes.get(name)
-      if (!route) {
-        throw new Error(
-          t(
-            'routing.error.routeNotFound',
-            { name },
-            { defaultValue: 'Route "{{name}}" not found' },
-          ),
-        )
-      }
-
-      let path = generatePath(route.path, params)
-      if (query) {
-        path += stringifyQuery(query)
-      }
-
-      navigate(path, options)
-    },
-
-    back: () => window.history.back(),
-
-    forward: () => window.history.forward(),
-
-    go: (delta: number) => window.history.go(delta),
-
-    setQuery(params: QueryParams, options?: NavigateOptions): void {
-      const path = currentLocation.pathname + stringifyQuery(params) + currentLocation.hash
-      navigate(path, options)
-    },
-
-    setQueryParam(key: string, value: string | undefined, options?: NavigateOptions): void {
-      const query = parseQuery(currentLocation.search)
-      if (value === undefined) {
-        delete query[key]
-      } else {
-        query[key] = value
-      }
-      this.setQuery(query, options)
-    },
-
-    setHash(hash: string, options?: NavigateOptions): void {
-      const normalizedHash = hash.startsWith('#') ? hash : `#${hash}`
-      const path = currentLocation.pathname + currentLocation.search + normalizedHash
-      navigate(path, options)
-    },
-
-    isActive(path: string, exact?: boolean): boolean {
-      const match = matchPath(path, currentLocation.pathname, exact)
-      return match !== null
-    },
-
-    matchPath<Params extends RouteParams = RouteParams>(
-      pattern: string,
-      pathname: string,
-    ): RouteMatch<Params> | null {
-      return matchPath(pattern, pathname)
-    },
-
-    generatePath(name: string, params?: RouteParams, query?: QueryParams): string {
-      const route = namedRoutes.get(name)
-      if (!route) {
-        throw new Error(
-          t(
-            'routing.error.routeNotFound',
-            { name },
-            { defaultValue: 'Route "{{name}}" not found' },
-          ),
-        )
-      }
-
-      let path = generatePath(route.path, params)
-      if (query) {
-        path += stringifyQuery(query)
-      }
-
-      return path
-    },
-
-    subscribe(listener: RouteChangeListener): () => void {
-      listeners.add(listener)
-      return () => listeners.delete(listener)
-    },
-
-    addGuard(guard: NavigationGuard): () => void {
-      guards.push(guard)
-      return () => {
-        const index = guards.indexOf(guard)
-        if (index !== -1) {
-          guards.splice(index, 1)
-        }
-      }
-    },
-
-    registerRoutes(newRoutes: RouteDefinition[]): void {
-      registeredRoutes = [...registeredRoutes, ...newRoutes]
-      indexRoutes(newRoutes)
-    },
-
-    getRoutes: () => registeredRoutes,
-
-    destroy(): void {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('popstate', handlePopState)
-        if (mode === 'hash') {
-          window.removeEventListener('hashchange', handlePopState)
-        }
-      }
-      listeners.clear()
-      guards.length = 0
-    },
-  }
-
-  return router
-}
+export const createBrowserRouter = (config: RouterConfig = {}): Router =>
+  createHistoryRouter(createBrowserRouterHistory(config), { routes: config.routes })
 
 /**
  * Creates an in-memory router for testing and SSR environments.
@@ -308,210 +164,7 @@ export const createBrowserRouter = (config: RouterConfig = {}): Router => {
  */
 export const createMemoryRouter = (
   config: RouterConfig & { initialEntries?: string[] } = {},
-): Router => {
-  const { routes = [], initialEntries = ['/'] } = config
-
-  const history: RouteLocation[] = initialEntries.map((entry) => ({
-    pathname: entry.split('?')[0].split('#')[0],
-    search: entry.includes('?') ? `?${entry.split('?')[1].split('#')[0]}` : '',
-    hash: entry.includes('#') ? `#${entry.split('#')[1]}` : '',
-    key: Math.random().toString(36).slice(2),
-  }))
-
-  let currentIndex = history.length - 1
-  let registeredRoutes = [...routes]
-  const listeners = new Set<RouteChangeListener>()
-  const guards: NavigationGuard[] = []
-  const namedRoutes = new Map<string, RouteDefinition>()
-
-  const indexRoutes = (routeList: RouteDefinition[], prefix = ''): void => {
-    for (const route of routeList) {
-      const fullPath = prefix + route.path
-      if (route.name) {
-        namedRoutes.set(route.name, { ...route, path: fullPath })
-      }
-      if (route.children) {
-        indexRoutes(route.children, fullPath)
-      }
-    }
-  }
-  indexRoutes(routes)
-
-  const notify = (action: 'push' | 'replace' | 'pop'): void => {
-    listeners.forEach((listener) => listener(history[currentIndex], action))
-  }
-
-  const router: Router = {
-    getLocation: () => history[currentIndex],
-
-    getParams<T extends RouteParams = RouteParams>(): T {
-      const location = history[currentIndex]
-      for (const route of registeredRoutes) {
-        const match = matchPath<T>(route.path, location.pathname, route.exact)
-        if (match) return match.params
-      }
-      return {} as T
-    },
-
-    getQuery: () => parseQuery(history[currentIndex].search),
-
-    getQueryParam: (key: string) => {
-      const query = parseQuery(history[currentIndex].search)
-      const value = query[key]
-      return Array.isArray(value) ? value[0] : value
-    },
-
-    getHash: () => history[currentIndex].hash,
-
-    navigate(path: string, options: NavigateOptions = {}): void {
-      const newLocation: RouteLocation = {
-        pathname: path.split('?')[0].split('#')[0],
-        search: path.includes('?') ? `?${path.split('?')[1].split('#')[0]}` : '',
-        hash: path.includes('#') ? `#${path.split('#')[1]}` : '',
-        state: options.state,
-        key: Math.random().toString(36).slice(2),
-      }
-
-      if (options.replace) {
-        history[currentIndex] = newLocation
-        notify('replace')
-      } else {
-        history.splice(currentIndex + 1)
-        history.push(newLocation)
-        currentIndex++
-        notify('push')
-      }
-    },
-
-    navigateTo(
-      name: string,
-      params?: RouteParams,
-      query?: QueryParams,
-      options?: NavigateOptions,
-    ): void {
-      const route = namedRoutes.get(name)
-      if (!route) {
-        throw new Error(
-          t(
-            'routing.error.routeNotFound',
-            { name },
-            { defaultValue: 'Route "{{name}}" not found' },
-          ),
-        )
-      }
-
-      let path = generatePath(route.path, params)
-      if (query) {
-        path += stringifyQuery(query)
-      }
-
-      this.navigate(path, options)
-    },
-
-    back(): void {
-      if (currentIndex > 0) {
-        currentIndex--
-        notify('pop')
-      }
-    },
-
-    forward(): void {
-      if (currentIndex < history.length - 1) {
-        currentIndex++
-        notify('pop')
-      }
-    },
-
-    go(delta: number): void {
-      const newIndex = currentIndex + delta
-      if (newIndex >= 0 && newIndex < history.length) {
-        currentIndex = newIndex
-        notify('pop')
-      }
-    },
-
-    setQuery(params: QueryParams, options?: NavigateOptions): void {
-      const location = history[currentIndex]
-      const path = location.pathname + stringifyQuery(params) + location.hash
-      this.navigate(path, options)
-    },
-
-    setQueryParam(key: string, value: string | undefined, options?: NavigateOptions): void {
-      const query = parseQuery(history[currentIndex].search)
-      if (value === undefined) {
-        delete query[key]
-      } else {
-        query[key] = value
-      }
-      this.setQuery(query, options)
-    },
-
-    setHash(hash: string, options?: NavigateOptions): void {
-      const location = history[currentIndex]
-      const normalizedHash = hash.startsWith('#') ? hash : `#${hash}`
-      const path = location.pathname + location.search + normalizedHash
-      this.navigate(path, options)
-    },
-
-    isActive(path: string, exact?: boolean): boolean {
-      const match = matchPath(path, history[currentIndex].pathname, exact)
-      return match !== null
-    },
-
-    matchPath<Params extends RouteParams = RouteParams>(
-      pattern: string,
-      pathname: string,
-    ): RouteMatch<Params> | null {
-      return matchPath(pattern, pathname)
-    },
-
-    generatePath(name: string, params?: RouteParams, query?: QueryParams): string {
-      const route = namedRoutes.get(name)
-      if (!route) {
-        throw new Error(
-          t(
-            'routing.error.routeNotFound',
-            { name },
-            { defaultValue: 'Route "{{name}}" not found' },
-          ),
-        )
-      }
-
-      let path = generatePath(route.path, params)
-      if (query) {
-        path += stringifyQuery(query)
-      }
-
-      return path
-    },
-
-    subscribe(listener: RouteChangeListener): () => void {
-      listeners.add(listener)
-      return () => listeners.delete(listener)
-    },
-
-    addGuard(guard: NavigationGuard): () => void {
-      guards.push(guard)
-      return () => {
-        const index = guards.indexOf(guard)
-        if (index !== -1) {
-          guards.splice(index, 1)
-        }
-      }
-    },
-
-    registerRoutes(newRoutes: RouteDefinition[]): void {
-      registeredRoutes = [...registeredRoutes, ...newRoutes]
-      indexRoutes(newRoutes)
-    },
-
-    getRoutes: () => registeredRoutes,
-
-    destroy(): void {
-      listeners.clear()
-      guards.length = 0
-    },
-  }
-
-  return router
-}
+): Router =>
+  createHistoryRouter(createMemoryRouterHistory(config.initialEntries ?? ['/']), {
+    routes: config.routes,
+  })

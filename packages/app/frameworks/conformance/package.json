@@ -6,6 +6,7 @@
   "type": "module",
   "exports": {
     "./bindings": "./src/bindings/index.ts",
+    "./routing": "./src/routing/index.ts",
     "./ui": "./src/ui/index.ts",
     "./ui/setup": "./src/ui/setup.ts"
   },

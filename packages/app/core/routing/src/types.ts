@@ -152,13 +152,48 @@ export type NavigationGuard = (
 ) => GuardResult | Promise<GuardResult>
 
 /**
+ * How a navigation moved through the history: a new entry (`push`), the current entry
+ * replaced (`replace`), or a move to an existing entry (`pop`: back, forward, `go`).
+ */
+export type NavigationAction = 'push' | 'replace' | 'pop'
+
+/**
  * Callback invoked on each route change with the new location and the
  * navigation action that triggered it.
  */
-export type RouteChangeListener = (
-  location: RouteLocation,
-  action: 'push' | 'replace' | 'pop',
-) => void
+export type RouteChangeListener = (location: RouteLocation, action: NavigationAction) => void
+
+/**
+ * A native router's history, as {@link createHistoryRouter} needs it. A routing bond
+ * implements this over its library (Vue Router, Solid Router, Angular Router, SvelteKit)
+ * and gets the whole {@link Router} from `createHistoryRouter`.
+ */
+export interface RouterHistory {
+  /** The current location, read from the native router at the time of the call. */
+  location(): RouteLocation
+  /**
+   * The params of the route the native router matched. Omit it when the native router
+   * does not match routes; params then come from the registered route definitions.
+   */
+  params?(): RouteParams
+  /** Adds `path` (pathname, query string and hash) as a new history entry. */
+  push(path: string, state?: unknown): void | Promise<void>
+  /** Replaces the current history entry with `path`. */
+  replace(path: string, state?: unknown): void | Promise<void>
+  /** Moves `delta` entries back (negative) or forward (positive). */
+  go(delta: number): void
+  /**
+   * Calls `listener` once after every navigation the native router commits, however it
+   * started: a link, the back button, or `push`/`replace` above. Pass the action when the
+   * native router reports it; without one, a navigation this router started is reported
+   * with its own action and any other as `push`.
+   *
+   * @returns A function that stops listening.
+   */
+  listen(listener: (action?: NavigationAction) => void): () => void
+  /** Releases what the history holds (event listeners); called by `Router.destroy()`. */
+  destroy?(): void
+}
 
 /**
  * Client-side router providing navigation, guards, route matching, and history control.
