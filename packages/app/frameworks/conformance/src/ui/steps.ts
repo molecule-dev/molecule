@@ -15,6 +15,7 @@ import { freshContainer, performDomInteraction } from './environment.js'
 import { createFakeAuthClient, createFakeThemeProvider } from './fakes.js'
 import { normalizeArg, normalizeDom } from './normalize.js'
 import type { CallbackResult, CaseResult, Interaction, RecordedCall, UICase } from './spec.js'
+import { loadReferenceStylesheet, referenceStyles } from './stylesheet.js'
 
 /** The services one case runs against, identical for every adapter. */
 export interface CaseServices {
@@ -157,6 +158,30 @@ export function routeStateText(state: unknown): string {
   return JSON.stringify(clean(state))
 }
 
+/**
+ * Every string a case supplies (props, children, interaction values), with
+ * each whitespace-separated token too: an id the case wrote itself, kept
+ * verbatim by the normalizer even where no element carries it.
+ *
+ * @param testCase - The case.
+ * @returns The case's strings and their tokens.
+ */
+export function caseStrings(testCase: UICase): Set<string> {
+  const out = new Set<string>()
+  const seen = new Set<object>()
+  const walk = (value: unknown): void => {
+    if (typeof value === 'string') {
+      out.add(value)
+      for (const token of value.split(/\s+/)) if (token) out.add(token)
+    } else if (value && typeof value === 'object' && !seen.has(value)) {
+      seen.add(value)
+      for (const item of Object.values(value)) walk(item)
+    }
+  }
+  walk(testCase)
+  return out
+}
+
 /** What an adapter supplies to {@link runSteps} for one mounted case. */
 export interface MountedCase {
   /** Flush the framework's pending work (effects, microtasks, change detection). */
@@ -207,6 +232,8 @@ export async function runSteps(
     })
   await getI18nProvider().setLocale(testCase.context?.locale ?? 'en')
   const container = freshContainer(testCase)
+  const keepReferences = caseStrings(testCase)
+  await loadReferenceStylesheet()
   const snapshots: string[] = []
   const readable: string[] = []
   const mounted = await mount(container)
@@ -215,8 +242,14 @@ export async function runSteps(
       const focus = focusPath()
       const state = routeStateText(mounted.locationState?.())
       const tail = `\n@route ${mounted.location()}${state ? ` state=${state}` : ''}${focus ? `\n@focus ${focus}` : ''}`
-      snapshots.push(`${normalizeDom(document.body, { hashClasses: true })}${tail}`)
-      readable.push(`${normalizeDom(document.body)}${tail}`)
+      const styles = referenceStyles(document)
+      try {
+        const options = { keepReferences, computedStyle: styles.computedStyle }
+        snapshots.push(`${normalizeDom(document.body, { ...options, hashClasses: true })}${tail}`)
+        readable.push(`${normalizeDom(document.body, options)}${tail}`)
+      } finally {
+        styles.detach()
+      }
     }
     await mounted.flush()
     snap()

@@ -2,13 +2,30 @@
  * DOM normalization for cross-framework comparison.
  *
  * Removes only what cannot change a pixel or an accessibility tree:
- * comment nodes (Vue/Svelte/Angular anchors), whitespace-only text nodes,
+ * comment nodes (Vue/Svelte/Angular anchors), whitespace that does not draw,
  * Angular's own compile-time attributes (`_ngcontent-*`, `_nghost-*`,
  * `ng-version`, `ng-reflect-*`), the Angular component's attribute selector
  * (`mol-*` attributes such as `mol-button`), and the harness's own
  * `data-parity-unwrap` scaffolding elements. Generated ids (`useId`, Vue/Svelte
  * counters) are renumbered in order of appearance, together with every
- * attribute that references them, so `:r1:` and `v-0` compare equal.
+ * attribute that references them, so `:r1:` and `v-0` compare equal. A
+ * generated reference to an id no element carries (an inactive tab's
+ * `aria-controls`) is renumbered too, as `#ref<n>` in order of appearance, so
+ * it still differs from a reference that resolves. A dangling reference the
+ * caller wrote itself (`keepReferences`, such as a Label's `htmlFor`) stays
+ * verbatim, so a component that mangles it still differs.
+ *
+ * Adjacent text nodes are merged before comparison (comments and scaffolding
+ * between them are transparent): `'One'`+`'Two'` renders exactly like
+ * `'OneTwo'`, and `'Hello '`+`'Ada'` like `'Hello Ada'`. Whitespace is then kept
+ * exactly where CSS draws it, read from the document's computed style (the
+ * case runner loads the reference stylesheet, see `stylesheet.ts`): inside
+ * a flex or grid container every text run is trimmed (each run is its own
+ * item); elsewhere whitespace is dropped at the start and end of the parent's
+ * content and next to a block-level sibling, and kept, collapsed to one space,
+ * between text and an inline-level element (`<strong>12</strong> unread`) or
+ * between two inline-level elements. Text under `white-space: pre*` is kept
+ * verbatim.
  *
  * Everything else is kept and canonicalized: attributes sorted by name,
  * class tokens sorted and de-duplicated (class ORDER never affects CSS),
@@ -98,6 +115,17 @@ const normalizeClass = (value: string, hash: boolean): string =>
 export interface NormalizeOptions {
   /** Replace each class token with {@link hashClassToken}. */
   hashClasses?: boolean
+  /**
+   * Strings the caller supplied (a case's props): a reference to one of these
+   * that no element carries is kept verbatim instead of renumbered.
+   */
+  keepReferences?: ReadonlySet<string>
+  /**
+   * Computed style of an element, deciding which whitespace draws. Defaults to
+   * the document's own `getComputedStyle`; the case runner passes the
+   * reference stylesheet's (`referenceStyles` in `stylesheet.ts`).
+   */
+  computedStyle?: (el: Element) => CSSStyleDeclaration | undefined
 }
 
 /** Elements whose children are not rendered text (keep their text verbatim). */
@@ -106,6 +134,52 @@ const RAW_TEXT = new Set(['script', 'style', 'textarea', 'pre'])
 interface IdMap {
   map: Map<string, string>
   next: number
+  /** References to ids that no element in the subtree carries. */
+  dangling: Map<string, string>
+  nextDangling: number
+  /** Dangling references kept verbatim ({@link NormalizeOptions.keepReferences}). */
+  keep: ReadonlySet<string>
+}
+
+const referenceToken = (ids: IdMap, id: string): string => {
+  const resolved = ids.map.get(id)
+  if (resolved) return resolved
+  if (ids.keep.has(id)) return id
+  let token = ids.dangling.get(id)
+  if (!token) {
+    token = `#ref${ids.nextDangling++}`
+    ids.dangling.set(id, token)
+  }
+  return token
+}
+
+/**
+ * Flattens a node list into what renders: comments dropped, scaffolding
+ * (`data-parity-unwrap`) and fragments expanded, adjacent text merged.
+ *
+ * @param nodes - Child nodes in document order.
+ * @param out - Receives elements and merged text strings.
+ * @returns The same `out` array.
+ */
+const renderedChildren = (
+  nodes: Iterable<Node>,
+  out: (Element | string)[] = [],
+): (Element | string)[] => {
+  for (const node of nodes) {
+    if (node.nodeType === 3) {
+      const text = node.textContent ?? ''
+      const last = out.length - 1
+      if (last >= 0 && typeof out[last] === 'string') out[last] += text
+      else out.push(text)
+    } else if (node.nodeType === 11) {
+      renderedChildren(Array.from(node.childNodes), out)
+    } else if (node.nodeType === 1) {
+      const el = node as Element
+      if (el.hasAttribute('data-parity-unwrap')) renderedChildren(Array.from(el.childNodes), out)
+      else out.push(el)
+    }
+  }
+  return out
 }
 
 const collectIds = (root: Node, ids: IdMap): void => {
@@ -119,34 +193,70 @@ const collectIds = (root: Node, ids: IdMap): void => {
   }
 }
 
-const serializeNode = (
-  node: Node,
+const documentStyle = (el: Element): CSSStyleDeclaration | undefined =>
+  el.ownerDocument.defaultView?.getComputedStyle(el)
+
+/** The computed-style source for the normalization in progress (synchronous, so one at a time). */
+let computed = documentStyle
+
+/** `flex`, `inline-flex`, `grid`, `inline-grid`: each text run is its own item. */
+const isItemContainer = (el: Element | null): boolean =>
+  !!el && /^(inline-)?(flex|grid)$/.test(computed(el)?.display ?? '')
+
+/** A block-level sibling ends the line: whitespace next to it does not draw. */
+const isBlockLevel = (el: Element): boolean => {
+  const display = computed(el)?.display || 'inline'
+  return !display.startsWith('inline') && display !== 'contents' && display !== 'none'
+}
+
+/** `white-space: pre`, `pre-wrap` or `break-spaces` keeps every space and newline. */
+const preservesWhitespace = (el: Element): boolean =>
+  /^(pre|pre-wrap|break-spaces)$/.test(computed(el)?.whiteSpace ?? '')
+
+const serializeChildren = (
+  parent: Element | null,
+  nodes: Iterable<Node>,
   ids: IdMap,
   inRaw: boolean,
   out: string[],
   hash: boolean,
 ): void => {
-  if (node.nodeType === 8) return // comment
-  if (node.nodeType === 3) {
-    const text = node.textContent ?? ''
-    if (inRaw) {
-      out.push(escapeText(text))
+  const children = renderedChildren(nodes)
+  children.forEach((child, i) => {
+    if (typeof child !== 'string') {
+      serializeElement(child, ids, inRaw, out, hash)
       return
     }
-    if (!text.trim()) return
-    out.push(escapeText(text.replace(/\s+/g, ' ')))
-    return
-  }
-  if (node.nodeType === 11) {
-    for (const child of Array.from(node.childNodes)) serializeNode(child, ids, inRaw, out, hash)
-    return
-  }
-  if (node.nodeType !== 1) return
-  const el = node as Element
-  if (el.hasAttribute('data-parity-unwrap')) {
-    for (const child of Array.from(el.childNodes)) serializeNode(child, ids, inRaw, out, hash)
-    return
-  }
+    if (inRaw) {
+      out.push(escapeText(child))
+      return
+    }
+    let text = child
+    // Computed style is read only when the edge whitespace of this run is in question.
+    if (/^\s|\s$/.test(text)) {
+      if (isItemContainer(parent)) {
+        text = text.trim()
+      } else {
+        const before = children[i - 1]
+        const after = children[i + 1]
+        if (before === undefined || (typeof before !== 'string' && isBlockLevel(before)))
+          text = text.trimStart()
+        if (after === undefined || (typeof after !== 'string' && isBlockLevel(after)))
+          text = text.trimEnd()
+      }
+    }
+    // A whitespace-only run left between two inline-level elements draws one space.
+    if (text) out.push(escapeText(text.replace(/\s+/g, ' ')))
+  })
+}
+
+const serializeElement = (
+  el: Element,
+  ids: IdMap,
+  inRaw: boolean,
+  out: string[],
+  hash: boolean,
+): void => {
   const tag = el.tagName.toLowerCase()
   const attrs: string[] = []
   for (const attr of Array.from(el.attributes).sort((a, b) => a.name.localeCompare(b.name))) {
@@ -165,7 +275,7 @@ const serializeNode = (
       value = value
         .split(/\s+/)
         .filter(Boolean)
-        .map((v) => ids.map.get(v) ?? v)
+        .map((v) => referenceToken(ids, v))
         .join(' ')
     }
     attrs.push(value === '' ? name : `${name}="${escapeAttr(value)}"`)
@@ -188,8 +298,11 @@ const serializeNode = (
     out.push(`</${tag}>`)
     return
   }
-  const raw = inRaw || RAW_TEXT.has(tag)
-  for (const child of Array.from(el.childNodes)) serializeNode(child, ids, raw, out, hash)
+  const raw =
+    inRaw ||
+    RAW_TEXT.has(tag) ||
+    (/\s\s|[\n\t]/.test(el.textContent ?? '') && preservesWhitespace(el))
+  serializeChildren(el, Array.from(el.childNodes), ids, raw, out, hash)
   out.push(`</${tag}>`)
 }
 
@@ -202,11 +315,32 @@ const serializeNode = (
  * @returns Canonical, line-per-tag serialization.
  */
 export function normalizeDom(root: Node, options: NormalizeOptions = {}): string {
-  const ids: IdMap = { map: new Map(), next: 0 }
+  computed = options.computedStyle ?? documentStyle
+  try {
+    return serializeRoot(root, options)
+  } finally {
+    computed = documentStyle
+  }
+}
+
+const serializeRoot = (root: Node, options: NormalizeOptions): string => {
+  const ids: IdMap = {
+    map: new Map(),
+    next: 0,
+    dangling: new Map(),
+    nextDangling: 0,
+    keep: options.keepReferences ?? new Set(),
+  }
   collectIds(root, ids)
   const out: string[] = []
-  for (const child of Array.from(root.childNodes))
-    serializeNode(child, ids, false, out, options.hashClasses ?? false)
+  serializeChildren(
+    root.nodeType === 1 ? (root as Element) : null,
+    Array.from(root.childNodes),
+    ids,
+    false,
+    out,
+    options.hashClasses ?? false,
+  )
   return out.join('\n')
 }
 

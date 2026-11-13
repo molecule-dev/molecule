@@ -55,11 +55,25 @@ element (`@focus body>div:0>button:1`), plus every callback call and every servi
 Equal normalized DOM means equal pixels: the same elements, attributes, class tokens,
 inline styles and text, styled by the same ClassMap stylesheet, with no framework wrapper
 elements and no framework-injected styles. The normalizer removes only what cannot change
-rendering: comment anchors, whitespace-only text nodes, Angular compile-time attributes
-(`_ngcontent-*`, `_nghost-*`, `ng-reflect-*`, `ng-version`, the `mol-*` selector
-attribute) and the harness's own `data-parity-unwrap` scaffolding. Generated ids are
-renumbered consistently, class tokens and style declarations are sorted (order never
-affects CSS), and class tokens are stored hashed so the goldens hold no class names.
+rendering: comment anchors, Angular compile-time attributes (`_ngcontent-*`, `_nghost-*`,
+`ng-reflect-*`, `ng-version`, the `mol-*` selector attribute), the harness's own
+`data-parity-unwrap` scaffolding, and whitespace that does not draw. Class tokens and
+style declarations are sorted (order never affects CSS), and class tokens are stored hashed
+so the goldens hold no class names.
+
+- **Text** is compared as it renders: adjacent text nodes are merged (`'One'` + `'Two'`
+  is `'OneTwo'`), and whitespace is kept exactly where CSS draws it, read from computed
+  style under the reference stylesheet (`@import 'tailwindcss'` plus
+  `@molecule/app-ui-tailwind/base.css`, compiled for the classes in the DOM,
+  `src/ui/stylesheet.ts`). Inside a flex or grid container every text run is trimmed;
+  elsewhere whitespace is dropped at the start and end of an element's content and next to
+  a block-level sibling, and kept as one space between text and an inline element
+  (`<strong>12</strong> unread`) or between two inline elements. The stylesheet is in the
+  document only while a snapshot is normalized, so components never see it.
+- **Ids**: generated ids are renumbered in order of appearance (`#id0`), together with
+  every attribute that references them, so `:r1:` and `v-0` compare equal. A reference
+  to an id no element carries (an inactive tab's `aria-controls`) becomes `#ref0`, unless
+  the case wrote that id itself (a Label's `htmlFor`), which stays verbatim.
 
 ## The contract, per framework
 

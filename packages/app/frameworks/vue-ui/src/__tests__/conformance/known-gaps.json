@@ -305,7 +305,6 @@
     "half",
     "indeterminate",
     "indeterminate hides value",
-    "label with value",
     "negative value clamps",
     "showValue",
     "size lg",
@@ -314,7 +313,6 @@
     "size xl",
     "size xs",
     "value above max clamps",
-    "value updates on re-render",
     "zero"
   ],
   "PromptDialog": [
