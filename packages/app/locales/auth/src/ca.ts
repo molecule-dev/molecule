@@ -6,4 +6,9 @@ export const ca: Partial<AuthTranslations> = {
   'auth.error.registrationFailed': 'El registre ha fallat',
   'auth.error.loginFailed': "Error d'inici de sessió",
   'auth.error.noRefreshToken': "No hi ha cap testimoni d'actualització disponible",
+  'auth.error.profileRequiresSignIn': "Inicia la sessió abans d'actualitzar un perfil",
+  'auth.error.profileSessionChanged': "La sessió del perfil ha canviat abans de l'enviament",
+  'auth.error.passwordRequiresSignIn': 'Inicia la sessió abans de canviar una contrasenya',
+  'auth.error.passwordSessionChanged':
+    "La contrasenya de la sessió ha canviat abans de l'enviament",
 }

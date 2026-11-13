@@ -1532,7 +1532,7 @@ export const createJWTAuthClient = <
         const profileUser = state.user
         if (typeof profileEndpoint === 'function' && !profileUser)
           throw new I18nError(
-            'auth.error.unauthorized',
+            'auth.error.profileRequiresSignIn',
             undefined,
             'Sign in before updating a profile',
           )
@@ -1549,7 +1549,7 @@ export const createJWTAuthClient = <
         const serializedBody = JSON.stringify(body)
         if (revision !== sessionRevision)
           throw new I18nError(
-            'auth.error.unauthorized',
+            'auth.error.profileSessionChanged',
             undefined,
             'The profile session changed before submission',
           )
@@ -1597,7 +1597,7 @@ export const createJWTAuthClient = <
         const user = state.user
         if (typeof changePasswordEndpoint === 'function' && !user)
           throw new I18nError(
-            'auth.error.unauthorized',
+            'auth.error.passwordRequiresSignIn',
             undefined,
             'Sign in before changing a password',
           )
@@ -1612,7 +1612,7 @@ export const createJWTAuthClient = <
           throw new TypeError('changePasswordEndpoint must resolve to a nonempty route')
         if (revision !== sessionRevision)
           throw new I18nError(
-            'auth.error.unauthorized',
+            'auth.error.passwordSessionChanged',
             undefined,
             'The password session changed before submission',
           )

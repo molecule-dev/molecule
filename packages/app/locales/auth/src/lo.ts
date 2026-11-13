@@ -6,4 +6,8 @@ export const lo: AuthTranslations = {
   'auth.error.loginFailed': 'ການເຂົ້າສູ່ລະບົບລົ້ມເຫຼວ',
   'auth.error.registrationFailed': 'ການລົງທະບຽນລົ້ມເຫຼວ',
   'auth.error.noRefreshToken': 'ບໍ່ມີ refresh token ທີ່ພ້ອມໃຊ້ງານ',
+  'auth.error.profileRequiresSignIn': 'ເຂົ້າສູ່ລະບົບກ່ອນອັບເດດໂປຣໄຟລ໌',
+  'auth.error.profileSessionChanged': 'ການປ່ຽນເຊດຊັນໂປຣໄຟລ໌ກ່ອນການສົ່ງ',
+  'auth.error.passwordRequiresSignIn': 'ເຂົ້າສູ່ລະບົບກ່ອນປ່ຽນລະຫັດຜ່ານ',
+  'auth.error.passwordSessionChanged': 'ລະຫັດຜ່ານໄດ້ຖືກປ່ຽນແປງກ່ອນການສົ່ງຂໍ້ມູນ',
 }

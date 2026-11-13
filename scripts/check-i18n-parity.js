@@ -55,8 +55,21 @@ const BASELINE_PATH = join(ROOT, 'scripts', 'i18n-parity-baseline.json')
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.turbo', '__tests__'])
 
 /**
+ * Whether `dir` is the root of a package its manifest marks `private`.
+ *
+ * @param dir - A directory under packages/.
+ * @returns True for a private package root.
+ */
+function isPrivatePackage(dir) {
+  const manifest = join(dir, 'package.json')
+  if (!existsSync(manifest)) return false
+  return JSON.parse(readFileSync(manifest, 'utf8')).private === true
+}
+
+/**
  * Recursively collect `.ts`/`.tsx` source files under a dir, skipping build
- * output, tests, and the locale bonds themselves (those are data, not usage).
+ * output, tests, the locale bonds themselves (those are data, not usage) and
+ * private packages.
  */
 function collectSourceFiles(dir, out = []) {
   let entries
@@ -72,6 +85,9 @@ function collectSourceFiles(dir, out = []) {
       if (SKIP_DIRS.has(e.name)) continue
       const p = join(dir, e.name)
       if (p.includes('/locales/')) continue
+      // A private package is never published, so no app ever runs its keys: the framework
+      // conformance harness builds its cases from placeholder keys on purpose.
+      if (isPrivatePackage(p)) continue
       collectSourceFiles(p, out)
     } else if (
       /\.(tsx?|svelte|vue)$/.test(e.name) &&
@@ -147,7 +163,8 @@ function loadUsage(root) {
     const files = collectSourceFiles(join(root, 'packages', stack))
     for (const f of files) {
       const txt = codeLines(readFileSync(f, 'utf8'))
-      for (const m of txt.matchAll(/\bt\(\s*['"]([^'"]+)['"]/g)) {
+      // `new I18nError('key', values, 'English')` is how a package throws a translatable error.
+      for (const m of txt.matchAll(/\b(?:t|new I18nError)\(\s*['"]([^'"]+)['"]/g)) {
         if (KEY_RE.test(m[1])) {
           if (!literals.has(m[1])) literals.set(m[1], new Set())
           literals.get(m[1]).add(stack)

@@ -6,4 +6,8 @@ export const am: AuthTranslations = {
   'auth.error.loginFailed': 'መግባት አልተሳካም',
   'auth.error.registrationFailed': 'ምዝገባ አልተሳካም',
   'auth.error.noRefreshToken': 'ምንም የማደስ ቶከን የለም',
+  'auth.error.profileRequiresSignIn': 'መገለጫ ከማዘመንዎ በፊት ይግቡ',
+  'auth.error.profileSessionChanged': 'የመገለጫው ክፍለ ጊዜ ከማስገባቱ በፊት ተቀይሯል',
+  'auth.error.passwordRequiresSignIn': 'የይለፍ ቃል ከመቀየርዎ በፊት ይግቡ',
+  'auth.error.passwordSessionChanged': 'የይለፍ ቃል ክፍለ ጊዜ ከማስገባትዎ በፊት ተቀይሯል',
 }

@@ -6,4 +6,8 @@ export const cy: AuthTranslations = {
   'auth.error.loginFailed': 'Mewngofnodi wedi methu',
   'auth.error.registrationFailed': 'Cofrestru wedi methu',
   'auth.error.noRefreshToken': 'Dim tocyn adnewyddu ar gael',
+  'auth.error.profileRequiresSignIn': 'Mewngofnodi cyn diweddaru proffil',
+  'auth.error.profileSessionChanged': 'Newidiwyd y sesiwn proffil cyn ei chyflwyno',
+  'auth.error.passwordRequiresSignIn': 'Mewngofnodi cyn newid cyfrinair',
+  'auth.error.passwordSessionChanged': 'Newidiwyd y sesiwn cyfrinair cyn ei chyflwyno',
 }

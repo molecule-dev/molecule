@@ -107,6 +107,36 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
       expect(missing).toEqual(['app/owned::owned.subtitle'])
     })
 
+    it('counts a key thrown through new I18nError as a use', () => {
+      // A package throws a translatable error as `new I18nError(key, values, English)`; the
+      // key was never counted, so one used only there read as an orphan and a missing one as fine.
+      const root = fixture()
+      write(
+        root,
+        'packages/app/core/thrower/src/client.ts',
+        ['throw new I18nError(', "  'owned.thrown',", '  undefined,', "  'Thrown',", ')', ''].join(
+          '\n',
+        ),
+      )
+      expect(analyzeParity(root).missing).toEqual([
+        'app/owned::owned.subtitle',
+        'app/owned::owned.thrown',
+      ])
+    })
+
+    it('ignores a private package, whose keys never reach an app', () => {
+      const root = fixture()
+      write(root, 'packages/app/frameworks/harness/package.json', '{ "private": true }\n')
+      write(
+        root,
+        'packages/app/frameworks/harness/src/cases.ts',
+        "t('owned.placeholder')\nt('bondless.placeholder')\n",
+      )
+      const { missing, unowned } = analyzeParity(root)
+      expect(missing).toEqual(['app/owned::owned.subtitle'])
+      expect(unowned).toEqual(['app::bondless.label'])
+    })
+
     it('does not count a key in a documentation comment as usage', () => {
       const root = fixture()
       write(

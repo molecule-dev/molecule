@@ -6,4 +6,8 @@ export const sw: AuthTranslations = {
   'auth.error.loginFailed': 'Kuingia kumeshindwa',
   'auth.error.registrationFailed': 'Usajili umeshindwa',
   'auth.error.noRefreshToken': 'Hakuna tokeni ya kuonyesha upya inayopatikana',
+  'auth.error.profileRequiresSignIn': 'Ingia kabla ya kusasisha wasifu',
+  'auth.error.profileSessionChanged': 'Kipindi cha wasifu kilibadilika kabla ya kuwasilisha',
+  'auth.error.passwordRequiresSignIn': 'Ingia kabla ya kubadilisha nenosiri',
+  'auth.error.passwordSessionChanged': 'Kipindi cha nenosiri kilibadilika kabla ya kuwasilisha',
 }

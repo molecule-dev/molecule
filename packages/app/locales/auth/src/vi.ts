@@ -6,4 +6,8 @@ export const vi: Partial<AuthTranslations> = {
   'auth.error.requestFailed': 'Yêu cầu không thành công',
   'auth.error.registrationFailed': 'Đăng ký thất bại',
   'auth.error.noRefreshToken': 'Không có mã thông báo làm mới nào khả dụng',
+  'auth.error.profileRequiresSignIn': 'Đăng nhập trước khi cập nhật hồ sơ',
+  'auth.error.profileSessionChanged': 'Phiên hồ sơ đã được thay đổi trước khi gửi.',
+  'auth.error.passwordRequiresSignIn': 'Đăng nhập trước khi thay đổi mật khẩu.',
+  'auth.error.passwordSessionChanged': 'Phiên mật khẩu đã được thay đổi trước khi gửi.',
 }

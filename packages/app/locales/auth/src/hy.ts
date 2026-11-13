@@ -6,4 +6,8 @@ export const hy: AuthTranslations = {
   'auth.error.loginFailed': 'Mutqy dzakhogvec',
   'auth.error.registrationFailed': 'Grantsumy dzakhogvec',
   'auth.error.noRefreshToken': 'Tarmatsnovany token hasa che',
+  'auth.error.profileRequiresSignIn': 'Մուտք գործեք պրոֆիլը թարմացնելուց առաջ',
+  'auth.error.profileSessionChanged': 'Պրոֆիլի սեսիան փոխվել է ուղարկումից առաջ',
+  'auth.error.passwordRequiresSignIn': 'Մուտք գործեք գաղտնաբառ փոխելուց առաջ',
+  'auth.error.passwordSessionChanged': 'Գաղտնաբառի սեսիան փոխվել է ուղարկումից առաջ',
 }

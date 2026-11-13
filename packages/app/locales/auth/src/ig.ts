@@ -6,4 +6,8 @@ export const ig: AuthTranslations = {
   'auth.error.loginFailed': 'Ịbanye agaghị',
   'auth.error.registrationFailed': 'Ndebanye aha agaghị',
   'auth.error.noRefreshToken': 'Enweghị token nweghachite',
+  'auth.error.profileRequiresSignIn': 'Banye tupu imelite profaịlụ',
+  'auth.error.profileSessionChanged': 'Oge profaịlụ gbanwere tupu e nyefee ya',
+  'auth.error.passwordRequiresSignIn': 'Banye tupu ị gbanwee paswọọdụ',
+  'auth.error.passwordSessionChanged': 'Oge okwuntughe agbanweela tupu e nyefee ya',
 }

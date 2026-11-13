@@ -6,4 +6,8 @@ export const id: Partial<AuthTranslations> = {
   'auth.error.requestFailed': 'Permintaan gagal',
   'auth.error.registrationFailed': 'Pendaftaran gagal',
   'auth.error.noRefreshToken': 'Token penyegaran tidak tersedia.',
+  'auth.error.profileRequiresSignIn': 'Masuk terlebih dahulu sebelum memperbarui profil.',
+  'auth.error.profileSessionChanged': 'Sesi profil berubah sebelum pengiriman.',
+  'auth.error.passwordRequiresSignIn': 'Masuk terlebih dahulu sebelum mengubah kata sandi.',
+  'auth.error.passwordSessionChanged': 'Sesi kata sandi diubah sebelum pengiriman.',
 }
