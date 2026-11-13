@@ -3,6 +3,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createFetchClient } from '@molecule/app-http'
 import { useForm } from '@molecule/app-react'
 import type { UIClassMap } from '@molecule/app-ui'
 import { setClassMap } from '@molecule/app-ui'
@@ -12,7 +13,10 @@ import { Form } from '../components/Form.js'
 beforeEach(() => {
   setClassMap({ formError: 'error', formFieldsetContents: 'contents' } as UIClassMap)
 })
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+})
 
 describe('Form submission error defaults', () => {
   it('catches an async onFormSubmit failure, renders it, and allows a successful retry', async () => {
@@ -110,5 +114,37 @@ describe('Form submission error defaults', () => {
     )
     fireEvent.submit(view.container.querySelector('form')!)
     expect((await screen.findByRole('alert')).textContent).toBe('Data rejected')
+  })
+
+  it('renders a real HTTP client 400 response without a caller-owned error adapter', async () => {
+    const request = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            errors: { email: ['is already taken'], displayName: ['is too short'] },
+          }),
+          { status: 400, headers: { 'content-type': 'application/json' } },
+        ),
+    )
+    vi.stubGlobal('fetch', request)
+    const http = createFetchClient({ baseURL: 'https://accounts.example/api' })
+    const view = render(
+      <Form
+        onFormSubmit={async (data) => {
+          await http.post('/registrations', data)
+        }}
+      >
+        <input name="email" defaultValue="reader@example.test" />
+        <button>Register</button>
+      </Form>,
+    )
+    fireEvent.submit(view.container.querySelector('form')!)
+    expect((await screen.findByRole('alert')).textContent).toContain('email is already taken')
+    expect(screen.getAllByRole('listitem').map((node) => node.textContent)).toEqual([
+      'email is already taken',
+      'displayName is too short',
+    ])
+    expect(request).toHaveBeenCalledOnce()
+    expect(view.container.querySelector('fieldset')!.disabled).toBe(false)
   })
 })
