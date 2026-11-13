@@ -107,7 +107,9 @@ export interface FieldState<T = unknown> {
   valid: boolean
 
   /**
-   * Whether the field is currently being validated.
+   * Whether the field is currently being validated: true while the latest
+   * validation that covers it (the field's own, the whole form's, or a
+   * submission's) is still running.
    */
   validating: boolean
 }
@@ -376,7 +378,9 @@ export interface FormController<T extends FormValuesConstraint<T> = Record<strin
   getFieldState<K extends keyof T>(name: K): FieldState<T[K]>
 
   /**
-   * Registers a field for form management.
+   * Registers a field for form management. A `defaultValue` that fills an
+   * empty field is announced to subscribers once, in a microtask, so a field
+   * registered during a render does not update other components mid-render.
    */
   register(nameOrOptions: string | RegisterOptions, options?: RegisterOptions): FieldRegistration
 

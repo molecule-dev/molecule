@@ -69,6 +69,8 @@ export const createNativeFormProvider = (): FormProvider => {
       const fieldSchemas = new Map<string, ValidationSchema>()
       const fieldValueRevisions = new Map<string, number>()
       const fieldValidationOwners = new Map<string, number>()
+      // A field is validating while the validation that owns it is still running.
+      const runningValidations = new Set<number>()
       const fieldRefs = new Map<string, HTMLElement>()
       const listeners = new Set<(state: FormState<T>) => void>()
 
@@ -115,7 +117,21 @@ export const createNativeFormProvider = (): FormProvider => {
       const beginValidation = (fields: Iterable<string>): number => {
         const validation = ++validationOrder
         for (const name of fields) fieldValidationOwners.set(name, validation)
+        runningValidations.add(validation)
         return validation
+      }
+      const isValidating = (name: string): boolean => {
+        const owner = fieldValidationOwners.get(name)
+        return owner !== undefined && runningValidations.has(owner)
+      }
+      // Ends a validation (idempotent). True while it still owns a field, so its
+      // end flips that field's `validating` and subscribers must hear it.
+      const endValidation = (validation: number): boolean => {
+        runningValidations.delete(validation)
+        for (const owner of fieldValidationOwners.values()) {
+          if (owner === validation) return true
+        }
+        return false
       }
       const publishValidationErrors = (
         fields: Set<string>,
@@ -171,6 +187,18 @@ export const createNativeFormProvider = (): FormProvider => {
         listeners.forEach((callback) => callback(state))
       }
 
+      // A field registered during a render must not update other components
+      // mid-render, so a default it fills in is announced once, in a microtask.
+      let registerNotifyQueued = false
+      const queueRegisterNotify = (): void => {
+        if (registerNotifyQueued) return
+        registerNotifyQueued = true
+        queueMicrotask(() => {
+          registerNotifyQueued = false
+          if (!destroyed) notify()
+        })
+      }
+
       const shouldValidate = (event: 'change' | 'blur' | 'submit'): boolean => {
         if (mode === 'all') return true
         if (mode === 'onSubmit') return event === 'submit'
@@ -209,6 +237,73 @@ export const createNativeFormProvider = (): FormProvider => {
         return { isValid, errors: newErrors }
       }
 
+      // `announce` notifies when the validation starts, for a direct call; the
+      // controller's own callers notify right after starting one.
+      const runFieldValidation = async (key: string, announce: boolean): Promise<boolean> => {
+        const schema = fieldSchemas.get(key)
+        if (!schema) return true
+
+        const revision = fieldValueRevisions.get(key) ?? 0
+        const replacement = replacementRevision
+        const validation = beginValidation([key])
+        const current = (): boolean => isFieldCurrent(key, revision, replacement, validation)
+        const snapshot = snapshotFormValue(values[key])
+        if (announce) notify()
+        let error: string | undefined
+        try {
+          error = await validateValue(snapshot, schema, t)
+        } catch (thrown) {
+          // A throwing validator still ends its validation; show that, then rethrow.
+          if (endValidation(validation)) notify()
+          throw thrown
+        }
+        const owned = endValidation(validation)
+        if (!current()) {
+          if (owned) notify()
+          return false
+        }
+        if (error) {
+          errors = { ...errors, [key as keyof T]: error }
+        } else {
+          const newErrors = { ...errors }
+          delete newErrors[key as keyof T]
+          errors = newErrors
+        }
+        notify()
+        return current() && !error
+      }
+
+      const runFormValidation = async (announce: boolean): Promise<boolean> => {
+        const replacement = replacementRevision
+        const snapshot = snapshotFormValue(values)
+        const fields = validationFields(snapshot)
+        const revisions = new Map(
+          [...fields].map((name) => [name, fieldValueRevisions.get(name) ?? 0]),
+        )
+        const fieldValidation = beginValidation(fields)
+        if (announce && fields.size > 0) notify()
+        let result: Awaited<ReturnType<typeof validateSnapshot>>
+        try {
+          result = await validateSnapshot(snapshot, () => !destroyed)
+        } catch (thrown) {
+          // A throwing validator still ends its validation; show that, then rethrow.
+          if (endValidation(fieldValidation)) notify()
+          throw thrown
+        }
+        const owned = endValidation(fieldValidation)
+        if (!result || destroyed) return false
+
+        const publication = publishValidationErrors(
+          fields,
+          revisions,
+          replacement,
+          fieldValidation,
+          result.errors,
+        )
+        if (publication.didPublish || owned) notify()
+        return result.isValid
+      }
+
       const controller: FormController<T> = {
         getState(): FormState<T> {
           return {
@@ -244,7 +339,7 @@ export const createNativeFormProvider = (): FormProvider => {
           }
 
           if (opts.shouldValidate && shouldValidate('change')) {
-            this.validateField(name as keyof T)
+            runFieldValidation(name, false)
           }
 
           notify()
@@ -255,7 +350,7 @@ export const createNativeFormProvider = (): FormProvider => {
           values = { ...values, ...snapshotFormValue(newValues as Record<string, unknown>) }
 
           if (opts.shouldValidate) {
-            this.validate()
+            runFormValidation(false)
           }
 
           notify()
@@ -290,11 +385,16 @@ export const createNativeFormProvider = (): FormProvider => {
             touched: touched[name] || false,
             dirty: !formValuesEqual(values[name as string], defaultValues[name as string]),
             valid: !errors[name],
-            validating: false,
+            validating: isValidating(name as string),
           }
         },
 
-        register(opts: RegisterOptions): FieldRegistration {
+        register(
+          nameOrOptions: string | RegisterOptions,
+          options?: RegisterOptions,
+        ): FieldRegistration {
+          const opts =
+            typeof nameOrOptions === 'string' ? { ...options, name: nameOrOptions } : nameOrOptions
           const { name, defaultValue, transform, ...schema } = opts
 
           // Store validation schema
@@ -312,6 +412,7 @@ export const createNativeFormProvider = (): FormProvider => {
             if (values[name] === undefined) {
               advanceValueRevision([name])
               values = { ...values, [name]: snapshotFormValue(defaultValue) }
+              queueRegisterNotify()
             }
           }
 
@@ -338,7 +439,7 @@ export const createNativeFormProvider = (): FormProvider => {
             onBlur: () => {
               touched = { ...touched, [name]: true }
               if (shouldValidate('blur')) {
-                this.validateField(name as keyof T)
+                runFieldValidation(name, false)
               }
               notify()
             },
@@ -368,49 +469,12 @@ export const createNativeFormProvider = (): FormProvider => {
           notify()
         },
 
-        async validateField<K extends keyof T>(name: K): Promise<boolean> {
-          const key = name as string
-          const schema = fieldSchemas.get(key)
-          if (!schema) return true
-
-          const revision = fieldValueRevisions.get(key) ?? 0
-          const replacement = replacementRevision
-          const validation = beginValidation([key])
-          const current = (): boolean => isFieldCurrent(key, revision, replacement, validation)
-          const snapshot = snapshotFormValue(values[key])
-          const error = await validateValue(snapshot, schema, t)
-          if (!current()) return false
-          if (error) {
-            errors = { ...errors, [name]: error }
-          } else {
-            const newErrors = { ...errors }
-            delete newErrors[name]
-            errors = newErrors
-          }
-          notify()
-          return current() && !error
+        validateField<K extends keyof T>(name: K): Promise<boolean> {
+          return runFieldValidation(name as string, true)
         },
 
-        async validate(): Promise<boolean> {
-          const replacement = replacementRevision
-          const snapshot = snapshotFormValue(values)
-          const fields = validationFields(snapshot)
-          const revisions = new Map(
-            [...fields].map((name) => [name, fieldValueRevisions.get(name) ?? 0]),
-          )
-          const fieldValidation = beginValidation(fields)
-          const result = await validateSnapshot(snapshot, () => !destroyed)
-          if (!result || destroyed) return false
-
-          const publication = publishValidationErrors(
-            fields,
-            revisions,
-            replacement,
-            fieldValidation,
-            result.errors,
-          )
-          if (publication.didPublish) notify()
-          return result.isValid
+        validate(): Promise<boolean> {
+          return runFormValidation(true)
         },
 
         updateValues(newValues: Partial<T>, resetOptions: FormResetOptions = {}): void {
@@ -505,6 +569,7 @@ export const createNativeFormProvider = (): FormProvider => {
               notify()
               if (!currentSubmission()) return
               const result = await validateSnapshot(submissionValues, currentSubmission)
+              endValidation(fieldValidation)
               if (!result || !currentSubmission()) return
 
               const publication = publishValidationErrors(
@@ -548,8 +613,12 @@ export const createNativeFormProvider = (): FormProvider => {
               }
               throw error
             } finally {
+              // Every exit ends the submission's validation (idempotent).
+              const owned = endValidation(fieldValidation)
               if (submission === submissionVersion) {
                 isSubmitting = false
+                notify()
+              } else if (owned) {
                 notify()
               }
             }
