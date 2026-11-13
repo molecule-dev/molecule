@@ -247,7 +247,9 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           failing.delete(spec.path)
         }
         if (stopped || abort.signal.aborted || version !== revision) return []
-        changed.clear()
+        // A partial checkpoint verified only known failures. Keep the pending source paths
+        // so release resumes the remaining background inventory instead of losing it.
+        if (!checkOptions.failedOnly) changed.clear()
         return results
       } finally {
         running = undefined

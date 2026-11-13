@@ -78,7 +78,8 @@ export interface PlaywrightFeedbackOptions {
 export interface PlaywrightFeedbackCheckOptions {
   /**
    * Re-run only the spec files in {@link PlaywrightFeedback.failingSpecs}. With none, the
-   * checkpoint loads and runs nothing and returns no results.
+   * checkpoint loads and runs nothing and returns no results. Pending background diagnosis
+   * of the other files resumes after foreground work releases its pause.
    */
   failedOnly?: boolean
 }

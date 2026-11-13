@@ -29,19 +29,22 @@
  *   when a caller needs filesystem inventory and `runPlaywrightFeedback` to run each
  *   project spec through its native command. Its incremental reporter supplies native
  *   errors, locators and the failure-time page snapshot. Healthy runs emit no note;
- *   no suite schedules no runner. Previously failing files run first, then inventory order.
+ *   no suite schedules no runner. Background passes visit the least recently finished file
+ *   first; explicit checkpoints visit previously failing files first, then inventory order.
  *   Application and test source text never determine selection or a verdict.
  *   Pass the runner's cancellation signal to
  *   `runPlaywrightFeedback` in its options and call `pause()` before foreground tools,
  *   then invoke its returned release function afterwards. Speculation yields to
  *   independent native CLI tests/builds and uses OS idle CPU/I/O priority. Its
  *   private temporary reports are not a user test result or something to poll.
- *   New writes cancel stale native work. `settled()`/`close()` are for tests and shutdown,
+ *   New writes let a started background file finish, retaining its outcome as a known failure
+ *   when it fails, while withholding its stale diagnostic. `settled()`/`close()` are for tests and shutdown,
  *   never a deployment barrier. Diagnoses are not whole-suite completion proof.
  *   A spec whose every test skips itself (`test.skip(condition)`) is `skipped`: neither a
  *   pass nor an outage. `check()` verifies the current revision before an explicit action;
  *   `check({ failedOnly: true })` re-runs only `failingSpecs()` (files whose latest native
- *   outcome failed) and does nothing when none is known.
+ *   outcome failed) and does nothing when none is known. This partial checkpoint preserves
+ *   pending background work on other files, which resumes after foreground work releases it.
  * - **Opaque command plans:** prepare each logical step with `streamingBackgroundCommand`,
  *   call `createCommandPlan`, and attach it to the executed wrapper with `commandWithPlan`.
  *   The launcher prints each step's `startMarker` and `endMarker` on their own lines around
