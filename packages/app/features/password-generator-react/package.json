@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-password-generator-react",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Configurable secure password generator UI with length slider + character class toggles + regenerate + copy-to-clipboard",
   "homepage": "https://www.molecule.dev/packages/app-password-generator-react",
   "type": "module",
@@ -42,10 +42,10 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.1.2",
-    "@molecule/app-react": "4.1.2",
+    "@molecule/app-react": "4.2.0",
     "@molecule/app-ui": "1.3.11",
-    "@molecule/app-ui-react": "4.1.0",
-    "@molecule/app-ui-tailwind": "1.2.11",
+    "@molecule/app-ui-react": "4.1.1",
+    "@molecule/app-ui-tailwind": "1.2.12",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

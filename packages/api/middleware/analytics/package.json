@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-middleware-analytics",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Analytics middleware that tracks API request metrics via molecule analytics",
   "type": "module",
   "main": "dist/index.js",

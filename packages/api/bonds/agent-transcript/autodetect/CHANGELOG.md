@@ -1,5 +1,11 @@
 # @molecule/api-agent-transcript-autodetect
 
+## 1.2.6
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 1.2.5
 
 ### Patch Changes

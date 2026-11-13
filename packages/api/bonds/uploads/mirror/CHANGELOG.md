@@ -1,5 +1,13 @@
 # @molecule/api-uploads-mirror
 
+## 1.1.6
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+- Updated dependencies
+  - @molecule/api-analytics@1.1.2
+
 ## 1.1.5
 
 ### Patch Changes

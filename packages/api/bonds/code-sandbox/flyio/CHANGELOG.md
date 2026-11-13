@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.5.3
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 1.5.2
 
 ### Patch Changes

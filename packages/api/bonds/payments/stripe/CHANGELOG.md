@@ -1,5 +1,12 @@
 # @molecule/api-payments-stripe
 
+## 1.2.11
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-analytics@1.1.2
+
 ## 1.2.10
 
 ### Patch Changes

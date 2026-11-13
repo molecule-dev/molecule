@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-uptime-fetch",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "In-process uptime provider for molecule.dev — probe an http(s) URL with verified public dialing, status assertions and TLS inspection",
   "type": "module",
   "main": "dist/index.js",

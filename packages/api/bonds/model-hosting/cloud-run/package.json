@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-model-hosting-cloud-run",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Google Cloud Run model hosting for molecule.dev — run a model server container on CPU or an NVIDIA L4, scale to zero, and call it with a Google-signed ID token",
   "type": "module",
   "main": "dist/index.js",

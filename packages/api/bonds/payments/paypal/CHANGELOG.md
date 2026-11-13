@@ -1,5 +1,11 @@
 # @molecule/api-payments-paypal
 
+## 1.0.8
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 1.0.7
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @molecule/api-emails-ses
 
+## 1.0.10
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-analytics@1.1.2
+
 ## 1.0.9
 
 ### Patch Changes

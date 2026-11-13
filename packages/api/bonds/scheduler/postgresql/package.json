@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-scheduler-postgresql",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "PostgreSQL-coordinated scheduler provider for @molecule/api-scheduler: in-process timers that take a per-task advisory lock so a scheduled task runs ONCE across every API instance.",
   "type": "module",
   "main": "dist/index.js",

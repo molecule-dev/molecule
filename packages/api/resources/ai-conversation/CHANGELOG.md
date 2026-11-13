@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-conversation
 
+## 1.0.7
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 1.0.6
 
 ### Patch Changes

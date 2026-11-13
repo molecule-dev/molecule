@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.3.7
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 3.3.6
 
 ### Patch Changes

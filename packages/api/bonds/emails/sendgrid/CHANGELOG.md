@@ -1,5 +1,12 @@
 # @molecule/api-emails-sendgrid
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-analytics@1.1.2
+
 ## 1.0.6
 
 ### Patch Changes

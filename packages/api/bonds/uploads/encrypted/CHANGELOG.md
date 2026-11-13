@@ -1,5 +1,12 @@
 # @molecule/api-uploads-encrypted
 
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-analytics@1.1.2
+
 ## 1.1.1
 
 ### Patch Changes

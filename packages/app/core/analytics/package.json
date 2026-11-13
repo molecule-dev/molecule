@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-analytics",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Frontend analytics interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.18.2
+
+### Patch Changes
+
+- Resume pending background test files after a checkpoint rechecks only known failures.
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 1.18.1
 
 ### Patch Changes

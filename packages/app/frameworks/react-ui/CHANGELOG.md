@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 4.1.0
 
 ### Minor Changes

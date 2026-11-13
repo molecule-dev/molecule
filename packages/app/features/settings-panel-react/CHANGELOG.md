@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 4.0.1
 
 ### Patch Changes

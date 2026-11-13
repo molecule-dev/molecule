@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.4.2
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 1.4.1
 
 ### Patch Changes

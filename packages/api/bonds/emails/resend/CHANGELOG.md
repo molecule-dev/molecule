@@ -1,5 +1,12 @@
 # @molecule/api-emails-resend
 
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-analytics@1.1.2
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-model-hosting-koyeb",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Koyeb model hosting for molecule.dev — run a model server container on CPU or an RTX 4000 / L4 GPU in the EU or US, with sleep when idle",
   "type": "module",
   "main": "dist/index.js",

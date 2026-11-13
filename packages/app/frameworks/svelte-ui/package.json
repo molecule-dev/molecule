@@ -35,7 +35,7 @@
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.1.2",
     "@molecule/app-icons": "1.0.3",
-    "@molecule/app-svelte": "3.2.4",
+    "@molecule/app-svelte": "3.2.5",
     "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@types/node": "26.6.5",
     "jsdom": "30.1.3",

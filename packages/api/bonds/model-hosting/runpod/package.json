@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-model-hosting-runpod",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "RunPod Serverless model hosting for molecule.dev — run a model server container on a load-balancing GPU endpoint that scales to zero",
   "type": "module",
   "main": "dist/index.js",

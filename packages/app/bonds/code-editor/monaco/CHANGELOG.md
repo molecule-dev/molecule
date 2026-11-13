@@ -1,5 +1,12 @@
 # @molecule/app-code-editor-monaco
 
+## 1.0.7
+
+### Patch Changes
+
+- Declares `@molecule/app-logger` as a required peer, since the provider loads it on start-up.
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 1.0.6
 
 ### Patch Changes

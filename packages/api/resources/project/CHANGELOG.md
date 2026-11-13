@@ -1,5 +1,11 @@
 # @molecule/api-resource-project
 
+## 1.0.12
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 1.0.11
 
 ### Patch Changes

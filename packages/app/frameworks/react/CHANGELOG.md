@@ -1,5 +1,16 @@
 # @molecule/app-react
 
+## 4.2.0
+
+### Minor Changes
+
+- `useOAuth` accepts a `navigate` option that receives the provider URL for the full-page redirect and the blocked-popup fallback, for an in-app browser on native.
+
+### Patch Changes
+
+- `useOAuth` and `useVerifyPaymentReturn` no longer call their callbacks or rewrite the URL after the component unmounts; the session and profile still update.
+- `useEditor` reads `activeFile` from the provider's tab list at mount and after every tab action, including `openDiff` and `closeDiff`.
+
 ## 4.1.2
 
 ### Patch Changes

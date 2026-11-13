@@ -1,5 +1,11 @@
 # @molecule/api-ai-decisions-intern-decision
 
+## 1.1.3
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 1.1.2
 
 ### Patch Changes

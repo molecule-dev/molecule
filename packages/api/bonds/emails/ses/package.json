@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-emails-ses",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "AWS SES email provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
@@ -31,7 +31,7 @@
   "dependencies": {
     "@aws-sdk/client-sesv2": "3.1156.0",
     "@aws-sdk/credential-provider-node": "3.972.88",
-    "@molecule/api-analytics": "1.1.1",
+    "@molecule/api-analytics": "1.1.2",
     "@molecule/api-proxy-agent": "1.1.2",
     "nodemailer": "10.2.1"
   },

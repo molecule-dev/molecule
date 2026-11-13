@@ -1,5 +1,11 @@
 # @molecule/app-angular
 
+## 3.2.4
+
+### Patch Changes
+
+- Rejections that were discarded silently are now logged, or kept as commented no-ops where ignoring them is correct.
+
 ## 3.2.3
 
 ### Patch Changes

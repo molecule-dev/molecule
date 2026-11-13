@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.2.12
+
+### Patch Changes
+
+- `base.css` defines the `dark` variant on `[data-mol-mode='dark']`, so `dark:` utilities follow the active theme instead of the browser's color-scheme preference.
+
 ## 1.2.11
 
 ### Patch Changes
