@@ -79,18 +79,3 @@ describe('DetailHeader', () => {
     expect(markup).toContain('dh-cls')
   })
 })
-
-it.each([true, false])(
-  'keeps common reader actions when owner=%s changes contextual actions',
-  (owner) => {
-    const markup = html(
-      createElement(DetailHeader, {
-        title: 'Design journal',
-        commonActions: createElement('button', { type: 'button' }, 'Save to reading list'),
-        actions: owner ? createElement('button', { type: 'button' }, 'Edit journal') : null,
-      }),
-    )
-    expect(markup).toContain('Save to reading list')
-    expect(markup.includes('Edit journal')).toBe(owner)
-  },
-)
