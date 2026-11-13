@@ -2,8 +2,8 @@
  * Run the project's real Playwright files while an agent keeps writing.
  *
  * The native runner, JSON reporter and error-context snapshot already answer what
- * failed and what rendered. The small scheduler only coalesces writes, runs the file that ran
- * longest ago first, one at a time, lets a started file finish, keeps every finished failure
+ * failed and what rendered. The small scheduler only coalesces writes, runs the least recently
+ * attempted file first, one at a time, lets a started file finish, keeps every finished failure
  * known, and reports only results with no write during them.
  * Explicit checkpoints finish native verification before an action; background writes stay nonblocking.
  * @module
@@ -80,10 +80,10 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   const completed = new Set<string>()
   const outcomes = new Map<string, PlaywrightFeedbackResult>()
   const revisionSources = new Set<string>()
-  // Completion order of each spec's latest finished run, so a pass after a write starts with the
-  // spec that has waited longest instead of the first file in the inventory.
-  const lastRun = new Map<string, number>()
-  let finishedRuns = 0
+  // Attempts determine fairness, not coverage. A foreground tool may interrupt a long file
+  // every time; repeating it first on every release would starve every later file forever.
+  const lastAttempt = new Map<string, number>()
+  let attemptedRuns = 0
   let checking: Promise<PlaywrightFeedbackResult[]> | undefined
   const start = (): void => {
     if (active || stopped || paused || changed.size === 0) return
@@ -105,12 +105,12 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       }
       if (!current()) return
       const sourcePaths = project.root ? paths.map((p) => posix.resolve(project.root!, p)) : paths
-      // The spec whose latest run finished longest ago goes first (never-run specs first, in
-      // inventory order). A write mid-pass ends the pass, so under steady writes every spec still
-      // gets its turn; a known failure waits its turn too, and the deploy check re-runs it anyway.
+      // Never-attempted specs go first in inventory order, then the oldest attempt. Both source
+      // writes and foreground interruptions therefore leave the other files their turn. A known
+      // failure waits its turn too, and the deploy check re-runs it anyway.
       const selected = selectFeedbackSpecs(project, sourcePaths)
         .filter(({ spec }) => !completed.has(spec.path))
-        .sort((a, b) => (lastRun.get(a.spec.path) ?? -1) - (lastRun.get(b.spec.path) ?? -1))
+        .sort((a, b) => (lastAttempt.get(a.spec.path) ?? -1) - (lastAttempt.get(b.spec.path) ?? -1))
       for (const { spec, sourceFiles } of selected) {
         if (!current()) break
         const emit = (result: PlaywrightFeedbackResult): void => {
@@ -134,6 +134,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           options.onFailures?.(fresh)
         }
         let result: PlaywrightFeedbackResult
+        lastAttempt.set(spec.path, ++attemptedRuns)
         try {
           running = options.run(spec, sourceFiles, version, emit, abort.signal)
           result = await running
@@ -152,7 +153,6 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         // A finished run is that spec's latest native outcome even when a write landed while it
         // ran: a failure stays known (the deploy check re-runs it on current source), a pass or
         // self-skip clears it. Only a run with no write during it is reused or reported.
-        lastRun.set(spec.path, ++finishedRuns)
         if (settledClean(result)) failing.delete(spec.path)
         else if (result.status === 'failed') failing.add(spec.path)
         if (!current()) break
@@ -234,6 +234,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           // Reuse passes and self-skipped specs only. A restart, fixture repair or
           // transient failure can change a failed outcome without changing application source.
           if (!result || !settledClean(result)) {
+            lastAttempt.set(spec.path, ++attemptedRuns)
             running = options.run(spec, sourceFiles, version, () => {}, abort.signal, 'foreground')
             result = await running
             running = undefined
@@ -293,7 +294,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       if (stopped || at !== revision) return
       for (const result of results) {
         if (!settledClean(result)) continue
-        lastRun.set(result.spec, ++finishedRuns)
+        lastAttempt.set(result.spec, ++attemptedRuns)
         failing.delete(result.spec)
         completed.add(result.spec)
         outcomes.set(result.spec, { ...result, revision })

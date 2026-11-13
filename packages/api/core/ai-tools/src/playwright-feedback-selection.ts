@@ -6,7 +6,7 @@ import type { FeedbackProject, FeedbackSpec } from './playwright-feedback-types.
 
 /**
  * Keep the caller's test inventory order and attach the paths that triggered this run.
- * Background passes run the file whose latest run finished longest ago first; an explicit
+ * Background passes run the least recently attempted file first; an explicit
  * checkpoint runs files that actually failed first. Source syntax, route names and spec prose
  * never decide which test runs or what it should report.
  * @param project - The caller's runnable test inventory.

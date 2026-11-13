@@ -10,7 +10,7 @@ import type {
 const controllers: PlaywrightFeedback[] = []
 afterEach(async () => Promise.all(controllers.splice(0).map((c) => c.close())))
 
-it('resumes an interrupted revision after completed files instead of starving later specs', async () => {
+it('resumes an interrupted revision with unvisited files before retrying its interrupted file', async () => {
   const visits: string[] = []
   const results: PlaywrightFeedbackResult[] = []
   let interrupted = false
@@ -53,8 +53,8 @@ it('resumes an interrupted revision after completed files instead of starving la
   expect(visits).toEqual([
     '/app/e2e/account.spec.ts',
     '/app/e2e/preferences.spec.ts',
-    '/app/e2e/preferences.spec.ts',
     '/app/e2e/navigation.spec.ts',
+    '/app/e2e/preferences.spec.ts',
   ])
   expect(watcher.takeFailures()).toEqual([])
 })

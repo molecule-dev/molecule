@@ -29,8 +29,10 @@
  *   when a caller needs filesystem inventory and `runPlaywrightFeedback` to run each
  *   project spec through its native command. Its incremental reporter supplies native
  *   errors, locators and the failure-time page snapshot. Healthy runs emit no note;
- *   no suite schedules no runner. Background passes visit the least recently finished file
+ *   no suite schedules no runner. Background passes visit the least recently attempted file
  *   first; explicit checkpoints visit previously failing files first, then inventory order.
+ *   Interrupted attempts rotate too, so frequent foreground tools cannot starve later files;
+ *   cancellation supplies no reusable coverage or failure of its own.
  *   Application and test source text never determine selection or a verdict.
  *   Pass the runner's cancellation signal to
  *   `runPlaywrightFeedback` in its options and call `pause()` before foreground tools,
