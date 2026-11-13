@@ -1,5 +1,11 @@
 # @molecule/app-locales-auth
 
+## 1.0.4
+
+### Patch Changes
+
+- The four profile and password session errors each have their own translation key, so each message is translated as written.
+
 ## 1.0.3
 
 ### Patch Changes

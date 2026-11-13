@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.18.6
+
+### Patch Changes
+
+- A test a later stopped background run saw pass is no longer re-run as a known failure before a deploy.
+- Background feedback resumes a stopped spec file at the tests it never finished, and every test-id record re-runs whole serial groups.
+
 ## 1.18.5
 
 ### Patch Changes

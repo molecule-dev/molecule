@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-conversation
 
+## 1.0.8
+
+### Patch Changes
+
+- Every error message the conversation, project and user resources return is now translated in all supported languages, with one English default per key.
+
 ## 1.0.7
 
 ### Patch Changes

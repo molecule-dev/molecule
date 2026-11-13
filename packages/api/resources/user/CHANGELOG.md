@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.10.2
+
+### Patch Changes
+
+- Every error message the conversation, project and user resources return is now translated in all supported languages, with one English default per key.
+
 ## 1.10.1
 
 ### Patch Changes

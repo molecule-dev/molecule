@@ -1,5 +1,11 @@
 # @molecule/app-angular
 
+## 3.3.1
+
+### Patch Changes
+
+- The `@angular/*` peer ranges now accept every Angular 22 release, including the 22.2.3 these packages are tested with, and `createChangePasswordState` / `createPasswordResetState` accept the client `AUTH_CLIENT` provides.
+
 ## 3.3.0
 
 ### Minor Changes

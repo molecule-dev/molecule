@@ -1,5 +1,11 @@
 # @molecule/api-locales-project
 
+## 1.0.3
+
+### Patch Changes
+
+- Every error message the conversation, project and user resources return is now translated in all supported languages, with one English default per key.
+
 ## 1.0.1
 
 ### Patch Changes

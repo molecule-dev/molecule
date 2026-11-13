@@ -51,7 +51,7 @@
   "devDependencies": {
     "@molecule/app-ai-chat": "1.8.0",
     "@molecule/app-ai-models": "1.4.4",
-    "@molecule/app-auth": "3.4.0",
+    "@molecule/app-auth": "3.4.1",
     "@molecule/app-bond": "1.0.5",
     "@molecule/app-code-editor": "1.0.3",
     "@molecule/app-device": "1.0.3",
