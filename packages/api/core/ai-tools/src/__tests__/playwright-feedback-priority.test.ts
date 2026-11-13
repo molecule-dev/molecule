@@ -358,11 +358,13 @@ it('cleans up Chromium descendants even when the browser creates its own process
   await writeFile(join(f.root, 'package.json'), '{"type":"module"}')
   await writeFile(
     join(f.root, 'playwright.config.mjs'),
-    `export default {testDir:'.',workers:1,timeout:6000}`,
+    `export default {testDir:'.',workers:1,timeout:60000}`,
   )
+  // The run is cancelled once the browser is up, so the long wait only has to outlast a slow
+  // browser start on a loaded host (6 s was not enough at three times the CPU count).
   await writeFile(
     f.spec.path,
-    `import {test} from '@playwright/test';import{writeFileSync}from'node:fs';test('open catalog',async({page})=>{await page.setContent('<p>Catalog</p>');writeFileSync('browser-ready','yes');await page.waitForTimeout(5000)})`,
+    `import {test} from '@playwright/test';import{writeFileSync}from'node:fs';test('open catalog',async({page})=>{await page.setContent('<p>Catalog</p>');writeFileSync('browser-ready','yes');await page.waitForTimeout(50000)})`,
   )
   const command = `${shellQuote(process.execPath)} ${shellQuote(cli)} test --config playwright.config.mjs`
   const run = runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
@@ -372,7 +374,7 @@ it('cleans up Chromium descendants even when the browser creates its own process
   try {
     await vi.waitFor(
       async () => expect(await readFile(join(f.root, 'browser-ready'), 'utf8')).toBe('yes'),
-      { timeout: 6000 },
+      { timeout: 40_000 },
     )
     const pids: number[] = []
     for (const pid of await readdir('/proc')) {
@@ -391,7 +393,7 @@ it('cleans up Chromium descendants even when the browser creates its own process
     abort.abort()
     await run
   }
-}, 12_000)
+}, 60_000)
 
 it('recognizes npm process titles before the package script launches its native runner', async () => {
   const f = await fixture()

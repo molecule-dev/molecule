@@ -49,11 +49,12 @@ it('doubles the wait after each consecutive yield, up to sixteen times the first
   await vi.waitFor(() => expect(f.starts.length).toBeGreaterThanOrEqual(7), { timeout: 4000 })
   await f.controller.close()
   const g = gaps(f.starts)
-  expect(g[0]).toBeGreaterThanOrEqual(BASE * 0.9)
-  for (let i = 1; i < 4; i++) expect(g[i]).toBeGreaterThanOrEqual(g[i - 1] * 1.6)
-  // Capped: the fifth and sixth waits are both the cap, never 32 or 64 times the first.
-  expect(g[4]).toBeGreaterThanOrEqual(BASE * 16 * 0.9)
-  expect(g[5]).toBeLessThan(BASE * 16 * 1.9)
+  // Lower bounds come from the schedule itself, never from the previous gap: a loaded machine
+  // only makes a timer late, and one late wait must not raise the bar for the next.
+  for (let i = 0; i < 5; i++) expect(g[i]).toBeGreaterThanOrEqual(BASE * 2 ** i * 0.9)
+  // Capped: the sixth wait is the cap again (640 ms), never 32 times the first (1280 ms).
+  expect(g[5]).toBeGreaterThanOrEqual(BASE * 16 * 0.9)
+  expect(g[5]).toBeLessThan(BASE * 32 * 0.95)
 }, 10_000)
 
 it('starts the next yield at the first wait again after a run that finished', async () => {
@@ -67,8 +68,9 @@ it('starts the next yield at the first wait again after a run that finished', as
   await vi.waitFor(() => expect(f.starts.length).toBeGreaterThanOrEqual(6), { timeout: 4000 })
   await f.controller.close()
   const g = gaps(f.starts)
-  // The yield after the pass waits the first interval, not the fourth (320 ms).
-  expect(g[4]).toBeLessThan(BASE * 4)
+  // The yield after the pass waits the first interval (40 ms), not the fourth (320 ms); the bound
+  // leaves 200 ms for a late timer on a loaded machine.
+  expect(g[4]).toBeLessThan(BASE * 6)
 }, 10_000)
 
 it('still tries again at once when a source write lands during a long wait', async () => {
@@ -80,5 +82,6 @@ it('still tries again at once when a source write lands during a long wait', asy
   f.controller.changed(['/shop/src/Checkout.tsx'])
   await vi.waitFor(() => expect(f.starts.length).toBe(6), { timeout: 4000 })
   await f.controller.close()
-  expect(f.starts[5] - wroteAt).toBeLessThan(BASE * 4)
+  // At once, not after the cap (640 ms); the bound leaves room for a late timer under load.
+  expect(f.starts[5] - wroteAt).toBeLessThan(BASE * 8)
 }, 10_000)
