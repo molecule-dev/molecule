@@ -6,7 +6,5 @@
   "tabWidth": 2,
   "arrowParens": "always",
   "endOfLine": "lf",
-  "plugins": [
-    "prettier-plugin-svelte"
-  ]
+  "plugins": ["prettier-plugin-svelte"]
 }

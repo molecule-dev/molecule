@@ -26,6 +26,7 @@
     "node": ">=20"
   },
   "peerDependencies": {
+    "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
     "@molecule/app-angular": "^3.3.1",

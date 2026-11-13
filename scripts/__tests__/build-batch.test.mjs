@@ -192,6 +192,32 @@ it('keeps ngc as a distinct package command', () => {
   )
   expect(r.trace.some((a) => path.basename(a[0]) === 'ngc')).toBe(true)
 }, 30_000)
+it('runs a compound build script the way the package runs it itself', () => {
+  const root = fixture()
+  write(root + '/packages/sv/package.json', {
+    name: '@molecule/sv',
+    version: '1.0.0',
+    scripts: { build: 'check-step --strict && package-step --output dist' },
+  })
+  write(root + '/packages/sv/src/index.ts', 'export const native = true\n')
+  for (const [bin, marker] of [
+    ['check-step', 'checked'],
+    ['package-step', 'packaged'],
+  ]) {
+    write(
+      root + '/node_modules/.bin/' + bin,
+      "#!/usr/bin/env node\nconst fs=require('fs');fs.mkdirSync('dist',{recursive:true});fs.appendFileSync('dist/steps'," +
+        JSON.stringify(marker) +
+        "+' '+process.argv.slice(2).join(' ')+'\\n')\n",
+    )
+    fs.chmodSync(root + '/node_modules/.bin/' + bin, 0o755)
+  }
+  const r = run(root)
+  expect(r.status, r.stdout + r.stderr).toBe(0)
+  expect(fs.readFileSync(root + '/packages/sv/dist/steps', 'utf8')).toBe(
+    'checked --strict\npackaged --output dist\n',
+  )
+}, 30_000)
 it('does not change local compiler selection or delete preexisting build state', () => {
   const root = fixture()
   fs.mkdirSync(root + '/packages/a/node_modules/.bin', { recursive: true })

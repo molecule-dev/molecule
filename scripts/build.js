@@ -111,17 +111,19 @@ function isUpToDate(pkgDir) {
 }
 
 /**
- * Build a single package using its configured build command (tsc, ngc, etc.).
+ * Build a single package by running its own `build` script (tsc, ngc, a compound
+ * `svelte-check … && svelte-package …`, etc.). `npm run` executes the script in a
+ * shell with the package's and its ancestors' `node_modules/.bin` on PATH, so any
+ * script a package can run by itself runs here too; `scan` only registers packages
+ * that have one.
  *
  * @param name - Package name.
  * @param pkgDir - Package root directory.
  * @returns Promise that resolves on success, rejects on failure.
  */
 function buildOne(name, pkgDir) {
-  const pkg = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf-8'))
-  const cmd = pkg.scripts?.build || 'tsc'
   return new Promise((resolve, reject) => {
-    const child = spawn('npx', [cmd], {
+    const child = spawn('npm', ['run', 'build', '--silent'], {
       cwd: pkgDir,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env },
