@@ -143,7 +143,12 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
             userId: id,
             properties: { provider: providerName },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('payment.verification_failed analytics track failed', {
+              error,
+              userId: id,
+            })
+          })
         return {
           statusCode: 400,
           body: {
@@ -182,7 +187,12 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
               userId: ownerId,
               properties: { provider: providerName },
             })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug('payment.verification_ownership_rejected analytics track failed', {
+                error,
+                userId: ownerId,
+              })
+            })
           return {
             statusCode: 403,
             body: {
@@ -216,7 +226,12 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
               userId: ownerId,
               properties: { provider: providerName, reason: 'missing_transaction_id' },
             })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug('payment.verification_failed analytics track failed', {
+                error,
+                userId: ownerId,
+              })
+            })
           return {
             statusCode: 400,
             body: {
@@ -236,7 +251,12 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
               userId: ownerId,
               properties: { provider: providerName },
             })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug('payment.verification_ownership_rejected analytics track failed', {
+                error,
+                userId: ownerId,
+              })
+            })
           return {
             statusCode: 403,
             body: {
@@ -268,7 +288,12 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
               userId: ownerId,
               properties: { provider: providerName, reason: 'missing_transaction_id' },
             })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug('payment.verification_failed analytics track failed', {
+                error,
+                userId: ownerId,
+              })
+            })
           return {
             statusCode: 400,
             body: {
@@ -289,7 +314,12 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
               userId: ownerId,
               properties: { provider: providerName },
             })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug('payment.verification_ownership_rejected analytics track failed', {
+                error,
+                userId: ownerId,
+              })
+            })
           return {
             statusCode: 403,
             body: {
@@ -355,7 +385,12 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
                 userId: id,
                 properties: { provider: providerName },
               })
-              .catch(() => {})
+              .catch((error) => {
+                logger.debug('payment.verification_ownership_rejected analytics track failed', {
+                  error,
+                  userId: id,
+                })
+              })
             return {
               statusCode: 403,
               body: {
@@ -407,7 +442,9 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
             planKey: plan.planKey,
           },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('payment.verified analytics track failed', { error, userId: id })
+        })
 
       // Both flows now bind their payment record BEFORE granting (above), so
       // there is no post-grant store here — a swallowed conflict after a grant

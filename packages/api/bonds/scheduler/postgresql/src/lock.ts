@@ -169,7 +169,10 @@ export function createPostgresTaskRunLock(options: {
         locked = rows[0]?.locked === true
       } catch (error) {
         if (client === connection) client = null
-        void connection.end().catch(() => undefined)
+        // The connection is being closed BECAUSE its lock query failed; an
+        // end() that also fails changes nothing — the lock failure itself is
+        // warned or rethrown below.
+        void connection.end().catch((_error) => undefined)
         if (options.runUncoordinatedOnLockError) {
           logger.warn(`Scheduler task '${taskName}' ran without a lock (lock query failed)`, {
             error,

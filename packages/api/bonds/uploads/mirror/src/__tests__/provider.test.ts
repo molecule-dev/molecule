@@ -80,7 +80,9 @@ const fake = (name: string, options: FakeOptions = {}): Fake => {
         })
         stream.pipe(sink)
       })
-      uploadPromise.catch(() => undefined)
+      // Mark the mock's floating promise handled; failures reach the test
+      // through the onError callback the tests assert on.
+      uploadPromise.catch((_error) => undefined)
       const file: UploadedFile & { abort?: () => void } = {
         id,
         fieldname,
@@ -658,7 +660,8 @@ describe('R94: two in-flight uploads whose targets answer empty ids', () => {
     const first = mirror.upload('f', Readable.from([Buffer.alloc(64, 1)]), info, vi.fn())
     const second = mirror.upload('f', Readable.from([Buffer.alloc(64, 2)]), info, vi.fn())
     const secondOutcome = second.uploadPromise!
-    first.uploadPromise!.catch(() => undefined)
+    // Marked handled; the rejection itself is asserted right below.
+    first.uploadPromise!.catch((_error) => undefined)
     await mirror.abortUpload(first)
     await expect(
       first.uploadPromise ?? Promise.reject(new UploadAbortedError()),

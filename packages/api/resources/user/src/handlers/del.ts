@@ -65,7 +65,9 @@ export const del = ({ name: _name, tableName, schema: _schema }: types.HandlerRe
         },
       )
 
-      analytics.track({ name: 'user.deleted', userId: id }).catch(() => {})
+      analytics.track({ name: 'user.deleted', userId: id }).catch((error) => {
+        logger.debug('user.deleted analytics track failed', { error, userId: id })
+      })
 
       return { statusCode: 200, body: { props: { id } } }
     } catch (error) {

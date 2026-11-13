@@ -176,8 +176,10 @@ describe.runIf(!!REDIS_URL)('@molecule/api-cache-redis — LIVE server', () => {
       // Bounded regardless of how the underlying ioredis client's own
       // reconnect/quit bookkeeping behaves for a connection that never
       // succeeded — this suite must never hang on cleanup.
+      // close() may reject on a client that never connected; the rejection is
+      // irrelevant to this suite (the reads/writes above are what is asserted).
       await Promise.race([
-        unreachable.close().catch(() => undefined),
+        unreachable.close().catch((_error) => undefined),
         new Promise<void>((resolve) => setTimeout(resolve, 2000)),
       ])
     })

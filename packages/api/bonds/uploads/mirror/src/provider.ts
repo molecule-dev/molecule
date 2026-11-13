@@ -185,8 +185,9 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
         reject(new Error(`uploads-mirror: target "${target.name}" returned no uploadPromise`))
       })
       // A failed target stops reading its branch; keep draining it so the
-      // remaining targets are not stalled by its full buffer.
-      done.catch(() => {
+      // remaining targets are not stalled by its full buffer. The failure
+      // itself is reported through the mirror's own onError/await path.
+      done.catch((_error) => {
         stream.unpipe(branch as unknown as NodeJS.WritableStream)
         branch.resume()
       })
@@ -306,7 +307,7 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
     inFlightByFile.set(file, { copies, files: targetFiles })
     // Marked handled: a caller that relies on `onError` alone must not trigger
     // an unhandled rejection (R93-B10); the rejection still reaches whoever awaits.
-    uploadPromise.catch(() => undefined)
+    uploadPromise.catch((_error) => undefined)
 
     stream.on('data', (chunk: Buffer | string) => {
       file.size += chunk.length

@@ -50,7 +50,9 @@ export const deviceService: DeviceService = {
 
       analytics
         .track({ name: 'device.registered', userId, properties: { deviceId } })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('device.registered analytics track failed', { error, userId, deviceId })
+        })
       return deviceId
     } catch (error) {
       logger.error(error)

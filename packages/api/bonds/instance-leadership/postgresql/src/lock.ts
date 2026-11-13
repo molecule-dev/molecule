@@ -75,7 +75,9 @@ export class PgLeaderLockSession implements LeaderLockSession {
       return await this.client.query<R>(config)
     } catch (error) {
       this.markLost()
-      void this.client.end().catch(() => undefined)
+      // The client is being closed BECAUSE it just failed; an end() that also
+      // fails changes nothing — the query error is rethrown below.
+      void this.client.end().catch((_error) => undefined)
       throw error
     }
   }

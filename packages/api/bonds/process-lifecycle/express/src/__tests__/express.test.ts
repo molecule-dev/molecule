@@ -306,7 +306,9 @@ describe('graceful shutdown', () => {
 
     // Hold the drain open with a request that never finishes before the timeout.
     app.get('/stuck', () => {})
-    const stuck = fetch(`http://127.0.0.1:${portOf(server)}/stuck`).catch(() => undefined)
+    // The stuck request rejects when the test closes the server — that is the
+    // scenario under test, not a failure to assert.
+    const stuck = fetch(`http://127.0.0.1:${portOf(server)}/stuck`).catch((_error) => undefined)
     await waitFor(() => lifecycle.provider.inFlightRequests() === 1)
 
     const first = lifecycle.stop('SIGTERM')

@@ -336,7 +336,9 @@ export async function postSystemOne(opts: PostOptions): Promise<WireResponse> {
       await sleepAbortable(waitMs, signal)
       continue
     }
-    const text = await response.text().catch(() => '')
+    // Best-effort error body: if the body cannot be read at all, the error
+    // thrown below still carries the HTTP status.
+    const text = await response.text().catch((_error) => '')
     let detail = text.length > 0 && text.length < 300 ? text : `HTTP ${response.status}`
     try {
       const parsed = JSON.parse(text) as { detail?: unknown; error?: { message?: unknown } }

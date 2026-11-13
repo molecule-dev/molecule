@@ -373,7 +373,9 @@ export async function withTransientRetry<T>(
         )
       if (!transient || attempt === attempts) break
       if (opts.onRetry) {
-        const adopted = await opts.onRetry().catch(() => null)
+        // A failed recovery attempt falls through to the retry below: the
+        // underlying failure is warned right after and rethrown at exhaustion.
+        const adopted = await opts.onRetry().catch((_error) => null)
         if (adopted != null) return adopted
       }
       opts.log?.warn(
@@ -1476,7 +1478,9 @@ class DockerSandboxProvider implements SandboxProvider {
             await new Promise((r) => setTimeout(r, 2000))
           }
         }
-        poll().catch(() => {})
+        // Floating watcher promise: the sleep loop cannot reject, but an
+        // unhandled rejection must never escape it either.
+        poll().catch((_error) => {})
         return () => {
           active = false
         }

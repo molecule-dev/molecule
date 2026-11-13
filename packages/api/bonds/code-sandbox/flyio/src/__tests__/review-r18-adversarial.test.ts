@@ -486,9 +486,10 @@ describe('round-eighteen adversarial retirement', () => {
       if (method === 'DELETE' && path === `/apps/${otherApp}`) return { status: 202 }
       throw new Error(`Unexpected ${method} ${path}`)
     })
-    await makeProvider(double, journal)
-      .destroyApp(PROJECT_ID, APP, new AbortController().signal)
-      .catch(() => {})
+    // The refused destroyApp rejects; the surviving attempt is asserted below.
+    await expect(
+      makeProvider(double, journal).destroyApp(PROJECT_ID, APP, new AbortController().signal),
+    ).rejects.toThrow()
     expect({
       originalAlive,
       originalState: journal.attempts.get('attempt-A')?.state,

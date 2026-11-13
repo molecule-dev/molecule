@@ -98,7 +98,7 @@ export function createAnimationRenderHandler(
 
     // Surface unhandled rejection on the job's `done` promise so Node
     // doesn't crash the process — the status handler will report failures.
-    job.done.catch(() => undefined)
+    job.done.catch((_error) => undefined)
 
     res.setStatus(202)
     res.sendJson({

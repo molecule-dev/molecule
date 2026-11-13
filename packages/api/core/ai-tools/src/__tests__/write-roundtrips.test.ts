@@ -117,7 +117,8 @@ describe('write/edit sandbox round trips and exact results', () => {
           onFileChange: (e) => events.push(['change', e]),
         })
         .execute(input)
-      const final = await readFile(path, 'utf8').catch(() => null)
+      // An absent file reads as null — that value is compared across runs.
+      const final = await readFile(path, 'utf8').catch((_error) => null)
       return { json: JSON.stringify(result), events, final }
     }
     const legacy = await run(false)

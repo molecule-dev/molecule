@@ -376,7 +376,9 @@ describe('round-nineteen authority regressions', () => {
       const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
       expect(await provider.reconcileCreateAttempts()).toEqual({ deleted: 0, failed: 1 })
       expect(alive).toBe(true)
-      await provider.destroyAttempt('observer', new AbortController().signal).catch(() => {})
+      // The refusal's promise outcome varies by variant (rejects only when the
+      // other owner is journaled); retention is asserted below either way.
+      await provider.destroyAttempt('observer', new AbortController().signal).catch((_error) => {})
       expect({
         alive,
         serving: journal.attempts.get('new-owner')?.state,
@@ -455,9 +457,11 @@ describe('round-nineteen authority regressions', () => {
         if (method === 'DELETE' && path === `/apps/${APP}`) return { status: 202 }
         throw new Error(`Unexpected ${method} ${path}`)
       })
+      // The refusal's promise outcome varies by variant (rejects only with
+      // copied metadata); the route's survival is asserted below either way.
       await makeProvider(double, journal)
         .destroy(`${APP}:clone-machine`, new AbortController().signal)
-        .catch(() => {})
+        .catch((_error) => {})
       expect({ routeAlive, source: journal.attempts.get('source-attempt') }).toMatchObject(
         copied
           ? {
@@ -579,7 +583,10 @@ describe('round-nineteen authority boundaries', () => {
       throw new Error(`Unexpected ${method} ${path}`)
     })
     const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
-    await provider.destroyAttempt('observer', new AbortController().signal).catch(() => {})
+    // Refused destroy rejects; retention is asserted below.
+    await expect(
+      provider.destroyAttempt('observer', new AbortController().signal),
+    ).rejects.toThrow()
     expect({ alive, retained: journal.attempts.has('observer') }).toEqual({
       alive: true,
       retained: true,

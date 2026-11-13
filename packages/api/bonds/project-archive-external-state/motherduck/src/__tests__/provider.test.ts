@@ -52,7 +52,11 @@ beforeEach(() => {
   })
 })
 afterEach(async () => {
-  await rm(join(tmpdir(), 'mol-motherduck-'), { recursive: true, force: true }).catch(() => {})
+  // Cleanup between tests: force:true already tolerates absence; any other
+  // failure must not fail unrelated tests' cleanup.
+  await rm(join(tmpdir(), 'mol-motherduck-'), { recursive: true, force: true }).catch(
+    (_error) => {},
+  )
 })
 
 describe('capture', () => {

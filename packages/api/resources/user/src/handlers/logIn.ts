@@ -179,7 +179,9 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
         if (body.password) await compareDummyHash(body.password)
         analytics
           .track({ name: 'user.login_failed', properties: { reason: 'invalid_credentials' } })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('user.login_failed analytics track failed', { error })
+          })
         return {
           statusCode: 403,
           body: {
@@ -203,7 +205,9 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
         if (body.password) await compareDummyHash(body.password)
         analytics
           .track({ name: 'user.login_failed', properties: { reason: 'invalid_credentials' } })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('user.login_failed analytics track failed', { error })
+          })
         return {
           statusCode: 403,
           body: {
@@ -269,7 +273,9 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
         if (body.password && !ranPasswordCompare) await compareDummyHash(body.password)
         analytics
           .track({ name: 'user.login_failed', properties: { reason: 'invalid_credentials' } })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('user.login_failed analytics track failed', { error })
+          })
         return {
           statusCode: 403,
           body: {
@@ -304,7 +310,12 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
           }
         }
         if (!body.twoFactorToken) {
-          analytics.track({ name: 'user.two_factor_required', userId: user.id }).catch(() => {})
+          analytics.track({ name: 'user.two_factor_required', userId: user.id }).catch((error) => {
+            logger.debug('user.two_factor_required analytics track failed', {
+              error,
+              userId: user.id,
+            })
+          })
           return { statusCode: 206, body: { twoFactorRequired: true } }
         }
 
@@ -318,7 +329,12 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
           })
 
           if (!verifyResult.valid) {
-            analytics.track({ name: 'user.two_factor_failed', userId: user.id }).catch(() => {})
+            analytics.track({ name: 'user.two_factor_failed', userId: user.id }).catch((error) => {
+              logger.debug('user.two_factor_failed analytics track failed', {
+                error,
+                userId: user.id,
+              })
+            })
             return {
               statusCode: 403,
               body: {
@@ -355,7 +371,14 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
               lastTwoFactorTimeStep: verifyResult.timeStep,
             })
             if (consumed.affected !== 1) {
-              analytics.track({ name: 'user.two_factor_failed', userId: user.id }).catch(() => {})
+              analytics
+                .track({ name: 'user.two_factor_failed', userId: user.id })
+                .catch((error) => {
+                  logger.debug('user.two_factor_failed analytics track failed', {
+                    error,
+                    userId: user.id,
+                  })
+                })
               return {
                 statusCode: 403,
                 body: {
@@ -399,7 +422,9 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
         if (consumed.affected !== 1) {
           analytics
             .track({ name: 'user.login_failed', properties: { reason: 'invalid_credentials' } })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug('user.login_failed analytics track failed', { error })
+            })
           return {
             statusCode: 403,
             body: {
@@ -447,7 +472,10 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
           { locale: ((user as Record<string, unknown>)?.locale as string) || 'en' },
         ),
         bodyKey: 'user.notification.newLoginBody',
-      }).catch(() => {})
+      }).catch((_error) => {
+        // notify() already logs its own failures internally; this only keeps
+        // the floating promise from reporting an unhandled rejection.
+      })
 
       analytics
         .track({
@@ -459,7 +487,9 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
           // the event lie about which credential is still live.
           properties: { method: authenticatedByResetToken ? 'reset_token' : 'password' },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('user.login analytics track failed', { error, userId: user.id })
+        })
 
       // `user` is a `SELECT *` row — strip secret columns (email-confirmation /
       // reset tokens, OAuth material, app-added secrets) exactly like a self-read.

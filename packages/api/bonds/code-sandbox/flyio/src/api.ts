@@ -242,7 +242,9 @@ function paceFlyRequest(sleep: (ms: number) => Promise<void>): Promise<void> {
     if (wait > 0) await sleep(wait)
     flyLastRequestAt = Date.now()
   })
-  flyPacerTail = mine.catch(() => {})
+  // The tail must never reject (one failed wait must not wedge the queue for
+  // every later request); the rejection itself is returned to the caller.
+  flyPacerTail = mine.catch((_error) => {})
   return mine
 }
 

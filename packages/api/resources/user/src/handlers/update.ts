@@ -293,7 +293,9 @@ export const update = ({ name, tableName }: types.HandlerResource) => {
           userId: id,
           properties: { fields: Object.keys(props) },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('user.profile_updated analytics track failed', { error, userId: id })
+        })
       return result
     } catch (error) {
       logger.error(error)

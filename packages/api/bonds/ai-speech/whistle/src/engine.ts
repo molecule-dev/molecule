@@ -494,9 +494,10 @@ export function loadWhistleEngine(
     }
   })()
 
-  // A failed load must not poison the cache — evict so the next call retries
-  // (the caller already receives the rejection).
-  promise.catch(() => {
+  // A failed load must not poison the cache — evict so the next call retries.
+  // The rejection itself is not logged here: the caller already receives it
+  // from the returned promise, this handler only does the cache cleanup.
+  promise.catch((_error) => {
     onProgress?.({ status: 'error' })
     engineCache.delete(key)
   })

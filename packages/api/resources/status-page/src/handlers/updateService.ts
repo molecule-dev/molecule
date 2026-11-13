@@ -76,7 +76,9 @@ export const updateService = ({ tableName }: { tableName: string }) => {
       const result = await updateById<types.ServiceProps>(tableName, id, data)
 
       logger.debug('Service updated', { id })
-      analytics.track({ name: 'service.updated', properties: { serviceId: id } }).catch(() => {})
+      analytics.track({ name: 'service.updated', properties: { serviceId: id } }).catch((error) => {
+        logger.debug('service.updated analytics track failed', { error, serviceId: id })
+      })
       return { statusCode: 200, body: { props: result.data } }
     } catch (error) {
       logger.error(error)

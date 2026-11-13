@@ -69,7 +69,9 @@ const createMemoryInner = (): UploadProvider & {
           reject(e)
         })
       })
-      file.uploadPromise.catch(() => undefined)
+      // Mark the mock's floating promise handled; failures reach the test
+      // through the onError callback the tests assert on.
+      file.uploadPromise.catch((_error) => undefined)
       return file
     },
     async abortUpload(file: UploadedFile) {

@@ -4010,9 +4010,11 @@ class FlyioSandboxProvider implements SandboxProvider {
     try {
       await this.client.request(`/apps/${app}/machines/${machineId}/start`, { method: 'POST' })
     } catch (error) {
+      // A failed state re-read leaves machine null, which falls through to
+      // rethrowing the original start error below.
       const machine = await this.client
         .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, { nullOn: [404] })
-        .catch(() => null)
+        .catch((_error) => null)
       if (machine?.state === 'started') {
         logger.debug('Fly Machine start rejected but the Machine is already running', {
           app,
@@ -4084,13 +4086,15 @@ class FlyioSandboxProvider implements SandboxProvider {
         if (owner?.signal.aborted) throw owner.signal.reason
         lastError = error
         // The wait endpoint returning an error is not itself proof the Machine
-        // failed — re-read the authoritative state before deciding.
+        // failed — re-read the authoritative state before deciding. A failed
+        // re-read leaves the state unknown, which breaks the loop into the
+        // timeout error below carrying the wait failure as its cause.
         const machine = await this.client
           .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, {
             nullOn: [404],
             signal: owner?.signal,
           })
-          .catch(() => null)
+          .catch((_error) => null)
         if (machine?.state === 'started') {
           if (owner) {
             await this.config.createAttemptJournal?.assertGeneration(

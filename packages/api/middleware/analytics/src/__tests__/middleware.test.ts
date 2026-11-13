@@ -14,6 +14,12 @@ vi.mock('@molecule/api-bond', () => ({
     track: mockTrack,
     page: vi.fn().mockResolvedValue(undefined),
   }),
+  getLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  }),
 }))
 
 import { createAnalyticsMiddleware } from '../middleware.js'

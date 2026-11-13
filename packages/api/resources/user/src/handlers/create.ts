@@ -263,14 +263,18 @@ export const create = ({ name, tableName, schema = propsSchema }: types.HandlerR
         const accessToken = authorization.set(req, res, { userId: id, deviceId })
         analytics
           .track({ name: 'user.signup', userId: id, properties: { method: 'password' } })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('user.signup analytics track failed', { error, userId: id })
+          })
         analytics
           .identify({
             userId: id,
             email: props.email || undefined,
             name: props.name || undefined,
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('user.signup analytics identify failed', { error, userId: id })
+          })
 
         // Include accessToken and user in the response body so the frontend
         // auth client can store them (it expects { accessToken, user }).

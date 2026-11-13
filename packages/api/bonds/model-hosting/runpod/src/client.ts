@@ -121,7 +121,9 @@ export class RunPodClient {
       headers: { authorization: `Bearer ${this.apiKey()}`, 'content-type': 'application/json' },
       body: JSON.stringify({ query }),
     })
-    const json = (await res.json().catch(() => ({}))) as {
+    // Unparseable response body: fall back to {} — the !res.ok check below
+    // still throws with the HTTP status.
+    const json = (await res.json().catch((_error) => ({}))) as {
       data?: T
       errors?: Array<{ message?: string }>
     }

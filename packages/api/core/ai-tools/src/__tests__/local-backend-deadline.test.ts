@@ -19,7 +19,8 @@ it('enforces the caller budget and stops native descendants before they write af
     })
     await delay(400)
     expect(result.exitCode).toBe(124)
-    expect(await readFile(marker, 'utf8').catch(() => null)).toBeNull()
+    // ENOENT/null is exactly the asserted outcome: the late write never landed.
+    expect(await readFile(marker, 'utf8').catch((_error) => null)).toBeNull()
   } finally {
     await rm(root, { recursive: true, force: true })
   }
@@ -32,7 +33,8 @@ it('the outer timeout stops the native child, not only its wrapper shell', async
     const code = `setTimeout(()=>require('node:fs').writeFileSync(${JSON.stringify(marker)},'late'),350)`
     await createLocalBackend(root).run(`node -e ${shellQuote(code)}`, { timeout: 60 })
     await delay(400)
-    expect(await readFile(marker, 'utf8').catch(() => null)).toBeNull()
+    // ENOENT/null is exactly the asserted outcome: the late write never landed.
+    expect(await readFile(marker, 'utf8').catch((_error) => null)).toBeNull()
   } finally {
     await rm(root, { recursive: true, force: true })
   }

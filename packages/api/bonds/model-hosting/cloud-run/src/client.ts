@@ -172,7 +172,9 @@ export class GoogleTokenSource {
         assertion,
       }).toString(),
     })
-    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>
+    // Unparseable token-endpoint body: fall back to {} — the !res.ok/missing-
+    // token check below throws with the HTTP status either way.
+    const body = (await res.json().catch((_error) => ({}))) as Record<string, unknown>
     const token = body[field]
     if (!res.ok || typeof token !== 'string') {
       throw new CloudRunApiError(
@@ -213,7 +215,9 @@ export class CloudRunClient {
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     })
     if (res.status === 404) return null
-    const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
+    // Unparseable error body: fall back to {} — the throw below still carries
+    // the HTTP status.
+    const json = (await res.json().catch((_error) => ({}))) as Record<string, unknown>
     if (!res.ok) {
       const err = (json.error ?? {}) as { message?: string; status?: string }
       throw new CloudRunApiError(

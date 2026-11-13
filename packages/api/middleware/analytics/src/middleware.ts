@@ -6,7 +6,7 @@
  * @module
  */
 
-import { getAnalytics } from '@molecule/api-bond'
+import { getAnalytics, getLogger } from '@molecule/api-bond'
 
 import type { AnalyticsMiddlewareOptions } from './types.js'
 
@@ -44,6 +44,7 @@ interface Res {
 export const createAnalyticsMiddleware = (options?: AnalyticsMiddlewareOptions) => {
   const excludePaths = options?.excludePaths ?? ['/health']
   const analytics = getAnalytics()
+  const logger = getLogger()
 
   return (req: unknown, res: unknown, next: (err?: unknown) => void): void => {
     const request = req as Req
@@ -68,7 +69,15 @@ export const createAnalyticsMiddleware = (options?: AnalyticsMiddlewareOptions) 
             duration_ms: Date.now() - start,
           },
         })
-        .catch(() => {})
+        .catch((error) => {
+          // Best-effort telemetry: it must never break the response path, but
+          // a silently dropped event is worth a debug line.
+          logger.debug('api.request analytics track failed', {
+            error,
+            method: request.method,
+            path,
+          })
+        })
     })
 
     next()

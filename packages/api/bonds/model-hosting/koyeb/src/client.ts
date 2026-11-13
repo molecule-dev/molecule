@@ -75,7 +75,9 @@ export class KoyebClient {
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     })
     if (res.status === 404) return null
-    const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
+    // Unparseable error body: fall back to {} — the throw below still carries
+    // the HTTP status.
+    const json = (await res.json().catch((_error) => ({}))) as Record<string, unknown>
     if (!res.ok) {
       throw new KoyebApiError(
         `Koyeb ${method} ${path} failed (${res.status}): ${String(json.message ?? json.error ?? 'no message')}`,

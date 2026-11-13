@@ -11,7 +11,9 @@ describe('node-cron provider', () => {
     for (const p of createdProviders) {
       const jobs = await p.list()
       for (const job of jobs) {
-        await p.cancel(job.id).catch(() => {})
+        // Cleanup only: a job may already be cancelled/stopped by the test
+        // above; nothing about cancel is asserted here.
+        await p.cancel(job.id).catch((_error) => {})
       }
     }
     createdProviders.length = 0

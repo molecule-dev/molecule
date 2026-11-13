@@ -137,8 +137,9 @@ describeOrSkip('Stripe live integration', () => {
     expect(item).toBeDefined()
     expect(item?.price.product).toBe(testProduct.id)
 
-    await stripe.subscriptions.cancel(subscription.id).catch(() => {
-      // cleanup best-effort
+    await stripe.subscriptions.cancel(subscription.id).catch((_error) => {
+      // Cleanup best-effort: the subscription assertions above already passed;
+      // a failed cancel surfaces in Stripe's own test-workspace hygiene.
     })
   }, 30_000)
 

@@ -69,7 +69,13 @@ export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise
       name: 'conversation.message_sent',
       properties: { projectId, conversationId: conversation.id },
     })
-    .catch(() => {})
+    .catch((error) => {
+      logger.debug('conversation.message_sent analytics track failed', {
+        error,
+        projectId,
+        conversationId: conversation.id,
+      })
+    })
 
   // SSE streaming
   res.setHeader('Content-Type', 'text/event-stream')
@@ -166,7 +172,12 @@ export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise
     logger.error('AI streaming error', { conversationId: conversation.id, error: message })
     analytics
       .track({ name: 'conversation.ai_error', properties: { conversationId: conversation.id } })
-      .catch(() => {})
+      .catch((error) => {
+        logger.debug('conversation.ai_error analytics track failed', {
+          error,
+          conversationId: conversation.id,
+        })
+      })
     if (!aborted) {
       res.write(`data: ${JSON.stringify({ type: 'error', message, errorKey })}\n\n`)
     }
@@ -186,7 +197,13 @@ export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise
           toolCallCount: toolCalls!.length,
         },
       })
-      .catch(() => {})
+      .catch((error) => {
+        logger.debug('conversation.ai_response analytics track failed', {
+          error,
+          projectId,
+          conversationId: conversation.id,
+        })
+      })
   }
 
   // Save assistant message to conversation

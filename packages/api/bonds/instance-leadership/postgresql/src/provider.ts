@@ -154,7 +154,9 @@ export function createProvider(
       })
       const stale = session
       session = null
-      void stale?.release().catch(() => undefined)
+      // The stale session is half-open by construction; its release failing
+      // is expected and the underlying failure is already warned above.
+      void stale?.release().catch((_error) => undefined)
       scheduleRetry()
     } finally {
       attemptInFlight = false

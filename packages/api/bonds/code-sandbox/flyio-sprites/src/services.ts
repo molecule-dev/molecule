@@ -78,11 +78,11 @@ export async function ensureService(sprite: SpriteLike, spec: ServiceSpec): Prom
 
   if (existing && !definitionMatches) {
     // Stop first — a PUT while running is silently ignored (see module docs).
-    await sprite.stopService(spec.name).catch(() => {
+    await sprite.stopService(spec.name).catch((_error) => {
       // Explicit, documented noop: stopping a service that is not running
       // fails, and "not running" is exactly the state the upsert needs.
     })
-    await sprite.deleteService(spec.name).catch(() => {
+    await sprite.deleteService(spec.name).catch((_error) => {
       // Same: deletion is best-effort clearance for the re-create below; the
       // create surfaces any real failure.
     })

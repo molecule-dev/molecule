@@ -631,8 +631,9 @@ export const createProvider = (config: PolygonEquityPricesConfig = {}): EquityPr
         (q) => {
           latestPrice = q.price
         },
-        () => {
-          /* swallow: fundamentals must still resolve if the quote 404s */
+        (_error) => {
+          /* quote 404s are an expected condition (no quote for this ticker):
+             fundamentals must still resolve, just without `peRatio` */
         },
       )
       const [details, financials] = await Promise.all([

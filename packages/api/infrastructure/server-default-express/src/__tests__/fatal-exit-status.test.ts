@@ -37,7 +37,8 @@ const create = createServerFactory({
   getRouter: async () => { throw new Error('router unavailable') },
   ${options}
 })
-create()${handled ? '.catch(() => {})' : ''}
+// The child's rejection is asserted via its exit status and error log below.
+create()${handled ? '.catch((_error) => {})' : ''}
 `,
     )
     const result = spawnSync(process.execPath, [join(root, 'entry.mjs')], {
@@ -45,7 +46,8 @@ create()${handled ? '.catch(() => {})' : ''}
       timeout: 5000,
       env: { ...process.env, NODE_OPTIONS: '' },
     })
-    return { ...result, errorLog: await readFile(log, 'utf8').catch(() => '') }
+    // The child may die before writing any log; absence reads as empty.
+    return { ...result, errorLog: await readFile(log, 'utf8').catch((_error) => '') }
   } finally {
     await rm(root, { recursive: true, force: true })
   }

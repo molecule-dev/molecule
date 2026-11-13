@@ -200,7 +200,9 @@ export const resetPassword = ({
         logger.warn('Failed to invalidate sessions after password reset', { userId, error })
       }
 
-      analytics.track({ name: 'user.password_reset_completed', userId }).catch(() => {})
+      analytics.track({ name: 'user.password_reset_completed', userId }).catch((error) => {
+        logger.debug('user.password_reset_completed analytics track failed', { error, userId })
+      })
 
       return { statusCode: 200, body: { success: true } }
     } catch (error) {

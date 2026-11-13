@@ -25,7 +25,9 @@ export const del = ({ name: _name, tableName }: { name: string; tableName: strin
         }
       }
 
-      analytics.track({ name: 'device.deleted', properties: { deviceId: id } }).catch(() => {})
+      analytics.track({ name: 'device.deleted', properties: { deviceId: id } }).catch((error) => {
+        logger.debug('device.deleted analytics track failed', { error, deviceId: id })
+      })
       return { statusCode: 200, body: { props: { id } } }
     } catch (error) {
       logger.error(error)

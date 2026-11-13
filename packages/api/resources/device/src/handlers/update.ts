@@ -41,7 +41,9 @@ export const update = ({ name: _name, tableName }: { name: string; tableName: st
             name: 'device.push_subscribed',
             properties: { deviceId: id, hasPushSubscription: props.hasPushSubscription },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('device.push_subscribed analytics track failed', { error, deviceId: id })
+          })
       }
 
       return { statusCode: 200, body: { props } }

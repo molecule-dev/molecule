@@ -125,7 +125,9 @@ export const getAccessToken = async (): Promise<string> => {
     body: 'grant_type=client_credentials',
   })
   if (!res.ok) {
-    const body = (await res.json().catch(() => undefined)) as
+    // Best-effort error body: if it cannot be parsed, the PayPalApiError
+    // below still carries the HTTP status.
+    const body = (await res.json().catch((_error) => undefined)) as
       { error?: string; error_description?: string } | undefined
     throw new PayPalApiError(
       res.status,
@@ -170,7 +172,9 @@ const apiRequest = async <T>(
   if (res.status === 204) {
     return undefined as T
   }
-  const body = (await res.json().catch(() => undefined)) as
+  // Best-effort body: a non-JSON body falls back to undefined and the
+  // !res.ok handling below still throws with the HTTP status.
+  const body = (await res.json().catch((_error) => undefined)) as
     | (Record<string, unknown> & {
         name?: string
         message?: string

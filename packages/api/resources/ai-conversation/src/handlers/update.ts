@@ -47,7 +47,13 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
         name: 'conversation.context_updated',
         properties: { projectId, conversationId: conversation.id },
       })
-      .catch(() => {})
+      .catch((error) => {
+        logger.debug('conversation.context_updated analytics track failed', {
+          error,
+          projectId,
+          conversationId: conversation.id,
+        })
+      })
     res.json(result.data)
   } catch (error) {
     logger.error('Failed to update conversation', { projectId, error })

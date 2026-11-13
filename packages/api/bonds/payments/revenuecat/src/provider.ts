@@ -150,7 +150,9 @@ export const getSubscriber = async (appUserId: string): Promise<RevenueCatSubscr
     throw error
   }
 
-  const body = (await response.json().catch(() => undefined)) as
+  // Best-effort body: a non-JSON body falls back to undefined and the
+  // !response.ok handling below still reports the HTTP status.
+  const body = (await response.json().catch((_error) => undefined)) as
     (RevenueCatSubscriberResponse & { code?: number | string; message?: string }) | undefined
 
   if (!response.ok) {

@@ -30,7 +30,11 @@ export const notify = async ({
   bodyKey?: string
 }): Promise<void> => {
   try {
-    const pushNotifications = await import('@molecule/api-push-notifications').catch(() => null)
+    // Optional module: absence is the designed degradation path (the
+    // no-op below), not a failure to report.
+    const pushNotifications = await import('@molecule/api-push-notifications').catch(
+      (_error) => null,
+    )
     if (!pushNotifications) return
 
     const deviceService = get<{

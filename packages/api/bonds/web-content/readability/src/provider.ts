@@ -157,7 +157,9 @@ export const createProvider = (config?: ReadabilityWebContentConfig): WebContent
       if (done) break
       size += value.byteLength
       if (size > maxFetchBytes) {
-        await reader.cancel().catch(() => {})
+        // Cancel is cleanup on the way to the size-cap throw below; whether
+        // the cancel itself succeeded cannot change that error.
+        await reader.cancel().catch((_error) => {})
         throw new Error(
           `The page is over ${(maxFetchBytes / (1024 * 1024)).toFixed(0)} MB — refused rather than read into memory.`,
         )

@@ -50,7 +50,8 @@ async function until<T>(read: () => Promise<T | null>, ms = 5000): Promise<T> {
 }
 
 const pidIn = (file: string) => async (): Promise<number | null> => {
-  const text = await readFile(file, 'utf8').catch(() => '')
+  // ENOENT until the script writes the pid — the poll retries on empty text.
+  const text = await readFile(file, 'utf8').catch((_error) => '')
   return /^\d+\s*$/.test(text) ? Number(text) : null
 }
 

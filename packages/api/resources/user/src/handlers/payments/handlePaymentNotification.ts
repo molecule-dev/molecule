@@ -126,7 +126,12 @@ export const handlePaymentNotification = ({
             userId: payment.userId,
             properties: { provider: providerName, type: event.type },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('payment.notification_received analytics track failed', {
+              error,
+              userId: payment.userId,
+            })
+          })
 
         if (cancelTypes.includes(event.type)) {
           await updateUser({
@@ -145,7 +150,12 @@ export const handlePaymentNotification = ({
               userId: payment.userId,
               properties: { provider: providerName, type: event.type },
             })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug('payment.subscription_canceled analytics track failed', {
+                error,
+                userId: payment.userId,
+              })
+            })
         } else if (plan && webhookSubscriptionGrantsEntitlement(subscription)) {
           await updateUser({
             id: payment.userId,
@@ -164,7 +174,12 @@ export const handlePaymentNotification = ({
               userId: payment.userId,
               properties: { provider: providerName, planKey: plan.planKey },
             })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug('payment.subscription_renewed analytics track failed', {
+                error,
+                userId: payment.userId,
+              })
+            })
         } else if (plan) {
           // A plan exists but the subscription is not in a granting state
           // (past_due/unpaid/incomplete/incomplete_expired) — e.g. a renewal
@@ -199,7 +214,12 @@ export const handlePaymentNotification = ({
           userId: existingPayment.userId,
           properties: { provider: providerName, type: notification.type },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('payment.notification_received analytics track failed', {
+            error,
+            userId: existingPayment.userId,
+          })
+        })
 
       const plan = notification.productId ? plans.findPlanByProductId(notification.productId) : null
 
@@ -220,7 +240,12 @@ export const handlePaymentNotification = ({
             userId: existingPayment.userId,
             properties: { provider: providerName, type: notification.type },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('payment.subscription_canceled analytics track failed', {
+              error,
+              userId: existingPayment.userId,
+            })
+          })
       } else if (plan && notification.expiresAt) {
         await updateUser({
           id: existingPayment.userId,
@@ -239,7 +264,12 @@ export const handlePaymentNotification = ({
             userId: existingPayment.userId,
             properties: { provider: providerName, planKey: plan.planKey },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('payment.subscription_renewed analytics track failed', {
+              error,
+              userId: existingPayment.userId,
+            })
+          })
       }
 
       return okResponse

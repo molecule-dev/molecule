@@ -192,8 +192,9 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
     if (timer) clearTimeout(timer)
     timer = undefined
     cancellation?.abort()
-    // Metadata loads do not delay ordinary foreground tools.
-    await running?.catch(() => undefined)
+    // Metadata loads do not delay ordinary foreground tools, and one that is
+    // failing has nothing to add to the pause — its result is optional.
+    await running?.catch((_error) => undefined)
     let released = false
     return () => {
       if (released) return
@@ -405,7 +406,9 @@ export async function runPlaywrightFeedback(
   const command = `export MOL_TEST_INTERNAL=1 PLAYWRIGHT_JSON_OUTPUT_FILE=${shellQuote(reportPath)} MOL_TEST_FEEDBACK_EVENTS=${shellQuote(eventsPath)}; node ${shellQuote(posix.join(dir, 'run.cjs'))}`
   let cancelling: Promise<void> | undefined
   const cancel = (): void => {
-    cancelling ??= backend.writeFile(posix.join(dir, 'stop'), '').catch(() => undefined)
+    // Best-effort stop signal: if it cannot be written there is no other
+    // lever — the run's own global timeout bounds it.
+    cancelling ??= backend.writeFile(posix.join(dir, 'stop'), '').catch((_error) => undefined)
   }
   const cancelled = (): PlaywrightFeedbackResult => ({
     ...base,
@@ -571,11 +574,13 @@ export async function runPlaywrightFeedback(
     if (poll) clearTimeout(poll)
     if (reading) await reading
     // Only this run's private generated files; the supplied suite and its outputs stay untouched.
+    // Cleanup is best-effort: a failed rm leaves scratch behind but nothing
+    // else in this run depends on its outcome.
     await backend
       .run(
         `node -e ${shellQuote(`require('node:fs').rmSync(${JSON.stringify(dir)},{recursive:true,force:true})`)}`,
         { timeout: 5_000 },
       )
-      .catch(() => undefined)
+      .catch((_error) => undefined)
   }
 }

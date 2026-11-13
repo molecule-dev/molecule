@@ -1255,7 +1255,7 @@ export async function installedPackageWriteRefusal(
   if (/(?:^|\/)\.mol-scratch(?:\/|$)/.test(path)) return null
   // No probe, or a probe that could not answer: keep the old, conservative
   // reading (everything under node_modules is an install).
-  const facts = probe ? await probe(path).catch(() => null) : null
+  const facts = probe ? await probe(path).catch((_error) => null) : null
   const symlink = facts?.symlink ?? false
   const installed = facts?.installed ?? true
   // The entry itself — the link (or a tree with nothing in it) the run may take
@@ -1498,9 +1498,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     if (!command) return {}
     const result =
       checked ??
+      // The check run is optional diagnostics on an already-successful write;
+      // a check that cannot run simply reports no problem.
       (await backend
         .run(command, { cwd: path.slice(0, path.lastIndexOf('/')) || '/', timeout: 15_000 })
-        .catch(() => null))
+        .catch((_error) => null))
     const problem = result ? parseCheckProblem(result) : null
     // JSX in a `.ts` file parses as a type assertion and fails on the first
     // attribute — `Expected ">" but found "className"` — which does not say the
@@ -2432,7 +2434,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
 
         const checked = await writeAndCheck(path, content)
-        if (onAfterWrite) await onAfterWrite(path).catch(() => {})
+        // The after-write hook (a formatter) is best-effort on top of a
+        // successful write; its failure must not fail the write.
+        if (onAfterWrite) await onAfterWrite(path).catch((_error) => {})
 
         // The text on disk is the text just written unless an after-write hook (a formatter)
         // may have rewritten it. Without one, the re-read is a whole sandbox round trip per
@@ -2440,7 +2444,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // own timings (x0 fast-file-writes: four sandbox calls per write, one of them this
         // re-read, and the excerpt it feeds is identical either way).
         const finalContent = onAfterWrite
-          ? await backend.readFile(path).catch(() => content)
+          ? // A failed re-read falls back to what was just written.
+            await backend.readFile(path).catch((_error) => content)
           : content
         const diff = computeDiff(oldContent, finalContent)
 
@@ -2932,7 +2937,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
 
         const checked = await writeAndCheck(path, content)
-        if (onAfterWrite) await onAfterWrite(path).catch(() => {})
+        // The after-write hook (a formatter) is best-effort on top of a
+        // successful write; its failure must not fail the write.
+        if (onAfterWrite) await onAfterWrite(path).catch((_error) => {})
 
         if (onFileChange) onFileChange({ type: 'modified', path })
 
@@ -2943,7 +2950,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         let finalContent = content
         if (onAfterWrite) {
           // A failed re-read just means the excerpt shows what was written.
-          const reread = await backend.readFile(path).catch(() => null)
+          const reread = await backend.readFile(path).catch((_error) => null)
           if (typeof reread === 'string' && reread !== '' && reread !== content) {
             finalContent = reread
             const whole = changedSpan(oldContent, reread)

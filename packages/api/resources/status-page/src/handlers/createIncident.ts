@@ -65,7 +65,12 @@ export const createIncident = ({ tableName: _tableName }: { tableName: string })
           name: 'incident.created',
           properties: { incidentId: result.data?.id, serviceId: parsed.data.serviceId },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('incident.created analytics track failed', {
+            error,
+            incidentId: result.data?.id,
+          })
+        })
       return { statusCode: 201, body: { props: result.data } }
     } catch (error) {
       logger.error(error)

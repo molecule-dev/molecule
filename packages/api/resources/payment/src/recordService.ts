@@ -81,7 +81,13 @@ export const paymentRecordService: PaymentRecordService = {
           userId: record.userId,
           properties: { platformKey: record.platformKey, productId: record.productId },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('payment.record_stored analytics track failed', {
+            error,
+            userId: record.userId,
+            platformKey: record.platformKey,
+          })
+        })
     } catch (error) {
       // A UNIQUE(platformKey, transactionId) violation means this transaction is
       // already bound to an account. Surface it (do NOT swallow) so callers can
@@ -94,7 +100,13 @@ export const paymentRecordService: PaymentRecordService = {
             userId: record.userId,
             properties: { platformKey: record.platformKey, productId: record.productId },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('payment.record_store_conflict analytics track failed', {
+              error,
+              userId: record.userId,
+              platformKey: record.platformKey,
+            })
+          })
         throw new PaymentRecordConflictError(record.platformKey, record.transactionId, {
           cause: error,
         })
@@ -108,7 +120,13 @@ export const paymentRecordService: PaymentRecordService = {
           userId: record.userId,
           properties: { platformKey: record.platformKey, productId: record.productId },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('payment.record_store_failed analytics track failed', {
+            error,
+            userId: record.userId,
+            platformKey: record.platformKey,
+          })
+        })
     }
   },
 

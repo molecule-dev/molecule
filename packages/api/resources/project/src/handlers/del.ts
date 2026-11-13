@@ -32,7 +32,9 @@ export async function del(req: MoleculeRequest, res: MoleculeResponse): Promise<
     logger.debug('Project deleted', { id })
     analytics
       .track({ name: 'project.deleted', properties: { projectId: id }, userId: project.userId })
-      .catch(() => {})
+      .catch((error) => {
+        logger.debug('project.deleted analytics track failed', { error, projectId: id })
+      })
     res.status(204).end()
   } catch (error) {
     logger.error('Failed to delete project', { id, error })

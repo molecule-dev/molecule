@@ -181,8 +181,11 @@ export function createProvider(config: UptimeFetchConfig = {}): UptimeProvider {
         if (allowPrivate) {
           host = current.hostname.replace(/^\[(.*)\]$/, '$1')
         } else {
+          // A resolve failure is itself the answer for a uptime checker: the
+          // host is reported "down" with the message below, so there is
+          // nothing left to log or rethrow here.
           const verified = await resolveHost(current.hostname.replace(/^\[(.*)\]$/, '$1')).catch(
-            () => null,
+            (_error) => null,
           )
           if (!verified) {
             return {

@@ -29,7 +29,9 @@ import { provider as opencode } from '@molecule/api-agent-transcript-opencode'
 const pi: AgentTranscriptReader | undefined =
   await import('@molecule/api-agent-transcript-pi').then(
     (m) => m.provider,
-    () => undefined,
+    // A rejection here just means the consuming project does not ship the
+    // optional pi peer (see note above) — the reader list simply omits it.
+    (_error) => undefined,
   )
 
 /**

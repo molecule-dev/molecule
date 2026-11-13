@@ -80,7 +80,9 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
           packages: (input.packages ?? []).slice(0, 10).join(','),
         },
       })
-      .catch(() => {})
+      .catch((error) => {
+        logger.debug('project.created analytics track failed', { error, userId, slug })
+      })
     res.status(201).json(result.data)
   } catch (error) {
     logger.error('Failed to create project', { userId, slug, error })

@@ -192,7 +192,7 @@ describe('@molecule/api-uploads-filesystem × REAL fs', () => {
     // disk side-effect only) aren't reported as an unhandled rejection.
     const uploadPromise = file.uploadPromise
     mod.provider.abortUpload(file)
-    await uploadPromise!.catch(() => {})
+    await uploadPromise!.catch((_error) => {})
 
     // unlink is async inside abortUpload — poll deterministically until it lands.
     await vi.waitFor(() => {

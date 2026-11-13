@@ -81,7 +81,9 @@ export const updateIncident = ({ tableName: _tableName }: { tableName: string })
           name: 'incident.updated',
           properties: { incidentId: id, status: parsed.data.status },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('incident.updated analytics track failed', { error, incidentId: id })
+        })
       return { statusCode: 200, body: { props: result.data } }
     } catch (error) {
       logger.error(error)

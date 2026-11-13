@@ -62,7 +62,12 @@ export const createService = ({ tableName }: { tableName: string }) => {
       logger.debug('Service created', { serviceId: result.data?.id })
       analytics
         .track({ name: 'service.created', properties: { serviceId: result.data?.id } })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('service.created analytics track failed', {
+            error,
+            serviceId: result.data?.id,
+          })
+        })
       return { statusCode: 201, body: { props: result.data } }
     } catch (error) {
       logger.error(error)

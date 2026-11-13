@@ -93,7 +93,9 @@ export const billingPortal = () => {
           userId: id,
           properties: { provider: providerName },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug('payment.portal_opened analytics track failed', { error, userId: id })
+        })
 
       return { statusCode: 200, body: { id: session.id, url: session.url } }
     } catch (error) {

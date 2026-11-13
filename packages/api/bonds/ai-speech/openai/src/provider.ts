@@ -315,7 +315,9 @@ class OpenaiSpeechProvider implements AISpeechProvider {
     if (!response!.ok) {
       let detail = `HTTP ${response!.status}`
 
-      const errorBody = await response!.text().catch(() => '')
+      // Best-effort error body: if it cannot be read at all, the thrown
+      // error below still carries the HTTP status.
+      const errorBody = await response!.text().catch((_error) => '')
       try {
         const parsed = JSON.parse(errorBody) as OpenAIErrorResponse
         if (parsed.error?.message) {

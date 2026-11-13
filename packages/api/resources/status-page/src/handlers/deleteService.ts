@@ -56,7 +56,9 @@ export const deleteService = ({ tableName }: { tableName: string }) => {
       await deleteById(tableName, id)
 
       logger.debug('Service deleted', { id })
-      analytics.track({ name: 'service.deleted', properties: { serviceId: id } }).catch(() => {})
+      analytics.track({ name: 'service.deleted', properties: { serviceId: id } }).catch((error) => {
+        logger.debug('service.deleted analytics track failed', { error, serviceId: id })
+      })
       return { statusCode: 200, body: { props: { id } } }
     } catch (error) {
       logger.error(error)

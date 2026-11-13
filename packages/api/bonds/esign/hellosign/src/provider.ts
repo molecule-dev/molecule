@@ -288,7 +288,9 @@ const postJson = async (path: string, body: Record<string, unknown>): Promise<un
     body: JSON.stringify(body),
   })
   if (!res.ok) {
-    const text = await res.text().catch(() => '')
+    // Best-effort error body: if it cannot be read, the thrown error right
+    // below still carries the HTTP status.
+    const text = await res.text().catch((_error) => '')
     throw new Error(`HelloSign ${path} failed: ${res.status} ${text}`)
   }
   return res.json()
@@ -311,7 +313,9 @@ const postMultipart = async (path: string, form: FormData): Promise<unknown> => 
     body: form,
   })
   if (!res.ok) {
-    const text = await res.text().catch(() => '')
+    // Best-effort error body: if it cannot be read, the thrown error right
+    // below still carries the HTTP status.
+    const text = await res.text().catch((_error) => '')
     throw new Error(`HelloSign ${path} failed: ${res.status} ${text}`)
   }
   return res.json()
@@ -453,7 +457,9 @@ export const getSignatureRequest = async (id: string): Promise<SignatureRequest>
       headers: { Authorization: authHeader() },
     })
     if (!res.ok) {
-      const text = await res.text().catch(() => '')
+      // Best-effort error body: if it cannot be read, the thrown error right
+      // below still carries the HTTP status.
+      const text = await res.text().catch((_error) => '')
       throw new Error(`HelloSign get signature_request failed: ${res.status} ${text}`)
     }
     const json = (await res.json()) as { signature_request: HelloSignSignatureRequestRaw }
@@ -476,7 +482,9 @@ export const cancelSignatureRequest = async (id: string): Promise<void> => {
       headers: { Authorization: authHeader() },
     })
     if (!res.ok) {
-      const text = await res.text().catch(() => '')
+      // Best-effort error body: if it cannot be read, the thrown error right
+      // below still carries the HTTP status.
+      const text = await res.text().catch((_error) => '')
       throw new Error(`HelloSign cancel failed: ${res.status} ${text}`)
     }
   } catch (err) {
@@ -498,7 +506,9 @@ export const getSignedDocument = async (id: string): Promise<Buffer> => {
       { headers: { Authorization: authHeader() } },
     )
     if (!res.ok) {
-      const text = await res.text().catch(() => '')
+      // Best-effort error body: if it cannot be read, the thrown error right
+      // below still carries the HTTP status.
+      const text = await res.text().catch((_error) => '')
       throw new Error(`HelloSign download failed: ${res.status} ${text}`)
     }
     const arrayBuffer = await res.arrayBuffer()

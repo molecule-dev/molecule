@@ -48,7 +48,9 @@ export const verifyTwoFactor = ({
         }
       }
 
-      const twoFactor = await import('@molecule/api-two-factor').catch(() => null)
+      // Optional module: absence is the designed degradation path (handled
+      // right below), not a failure to report.
+      const twoFactor = await import('@molecule/api-two-factor').catch((_error) => null)
       if (!twoFactor) {
         return {
           statusCode: 500,
@@ -139,7 +141,9 @@ export const verifyTwoFactor = ({
             lastTwoFactorTimeStep: verifyResult.timeStep,
           })
           if (consumed.affected !== 1) {
-            analytics.track({ name: 'user.two_factor_failed', userId: id }).catch(() => {})
+            analytics.track({ name: 'user.two_factor_failed', userId: id }).catch((error) => {
+              logger.debug('user.two_factor_failed analytics track failed', { error, userId: id })
+            })
             return {
               statusCode: 403,
               body: { error: t('user.error.invalidToken'), errorKey: 'user.error.invalidToken' },
@@ -158,7 +162,9 @@ export const verifyTwoFactor = ({
           updatedAt: new Date().toISOString(),
         })
 
-        analytics.track({ name: 'user.two_factor_enabled', userId: id }).catch(() => {})
+        analytics.track({ name: 'user.two_factor_enabled', userId: id }).catch((error) => {
+          logger.debug('user.two_factor_enabled analytics track failed', { error, userId: id })
+        })
 
         return { statusCode: 200, body: { twoFactorEnabled: true } }
       }
@@ -224,7 +230,9 @@ export const verifyTwoFactor = ({
             lastTwoFactorTimeStep: verifyResult.timeStep,
           })
           if (consumed.affected !== 1) {
-            analytics.track({ name: 'user.two_factor_failed', userId: id }).catch(() => {})
+            analytics.track({ name: 'user.two_factor_failed', userId: id }).catch((error) => {
+              logger.debug('user.two_factor_failed analytics track failed', { error, userId: id })
+            })
             return {
               statusCode: 403,
               body: { error: t('user.error.invalidToken'), errorKey: 'user.error.invalidToken' },
@@ -243,7 +251,9 @@ export const verifyTwoFactor = ({
           updatedAt: new Date().toISOString(),
         })
 
-        analytics.track({ name: 'user.two_factor_disabled', userId: id }).catch(() => {})
+        analytics.track({ name: 'user.two_factor_disabled', userId: id }).catch((error) => {
+          logger.debug('user.two_factor_disabled analytics track failed', { error, userId: id })
+        })
 
         return { statusCode: 200, body: { twoFactorEnabled: false } }
       }

@@ -60,7 +60,13 @@ export async function clear(req: MoleculeRequest, res: MoleculeResponse): Promis
         name: 'conversation.cleared',
         properties: { projectId, conversationId: conversation.id },
       })
-      .catch(() => {})
+      .catch((error) => {
+        logger.debug('conversation.cleared analytics track failed', {
+          error,
+          projectId,
+          conversationId: conversation.id,
+        })
+      })
     res.status(204).end()
   } catch (error) {
     logger.error('Failed to clear conversation', { projectId, error })

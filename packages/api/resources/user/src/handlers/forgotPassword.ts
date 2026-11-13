@@ -155,7 +155,12 @@ export const forgotPassword = ({
         logger.error('Failed to send password reset email:', error)
       }
 
-      analytics.track({ name: 'user.password_reset_requested', userId: user.id }).catch(() => {})
+      analytics.track({ name: 'user.password_reset_requested', userId: user.id }).catch((error) => {
+        logger.debug('user.password_reset_requested analytics track failed', {
+          error,
+          userId: user.id,
+        })
+      })
 
       return { statusCode: 200, body: { success: true } }
     } catch (error) {

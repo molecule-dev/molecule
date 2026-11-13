@@ -350,9 +350,11 @@ async function probeHostPort(ctx: EgressProbeContext, timeoutMs: number): Promis
     const readyBudget = intEnv(process.env.SANDBOX_EGRESS_LISTENER_READY_MS, 5_000, 100, 30_000)
     let ready = false
     for (let waited = 0; waited < readyBudget && !ready; waited += 100) {
+      // A failed log poll just means "not ready yet" — the loop retries in
+      // 100ms, and a listener that is never ready is reported as inconclusive.
       const logs = await ctx
         .request(`/containers/${listener.id}/logs?stdout=1&stderr=1`)
-        .catch(() => '')
+        .catch((_error) => '')
       if (String(logs).includes(LISTENER_READY_MARKER)) {
         ready = true
         break

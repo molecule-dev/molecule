@@ -2567,7 +2567,11 @@ describe('round-sixteen accepted provenance and retirement', () => {
     })
     const provider = makeProvider(double, journal)
 
-    await provider.destroy(`${APP}:old-machine`, new AbortController().signal).catch(() => {})
+    // The refused destroy must reject (app delete got a 409) — the assertions
+    // below cover its side effects only.
+    await expect(
+      provider.destroy(`${APP}:old-machine`, new AbortController().signal),
+    ).rejects.toThrow()
     expect(raced).toBe(true)
     expect(newMachine).not.toBe(null)
     expect(journal.attempts.get('old-attempt')?.state).toBe('abandoned')
@@ -2697,7 +2701,11 @@ describe('round-seventeen authoritative retirement', () => {
     const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
 
     await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
-    await provider.destroyAttempt('legacy:retained', new AbortController().signal).catch(() => {})
+    // Unresolved identity refuses the destroy quietly (the promise resolves);
+    // retention — not the promise outcome — is asserted below.
+    await provider
+      .destroyAttempt('legacy:retained', new AbortController().signal)
+      .catch((_error) => {})
 
     expect({
       orphaned: alive && !journal.attempts.has('legacy:retained'),
@@ -2887,7 +2895,9 @@ describe('round-seventeen authoritative retirement', () => {
     })
     const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
 
-    await provider.destroy(`${APP}:stale-copy`, new AbortController().signal).catch(() => {})
+    // The refusal keeps the clone alive and resolves quietly; survival of the
+    // original is asserted below.
+    await provider.destroy(`${APP}:stale-copy`, new AbortController().signal).catch((_error) => {})
 
     expect({
       originalAlive,

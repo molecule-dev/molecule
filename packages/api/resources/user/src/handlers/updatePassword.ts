@@ -148,7 +148,9 @@ export const updatePassword = ({
         logger.warn('Failed to invalidate sessions after password change', { error, userId: id })
       }
 
-      analytics.track({ name: 'user.password_changed', userId: id }).catch(() => {})
+      analytics.track({ name: 'user.password_changed', userId: id }).catch((error) => {
+        logger.debug('user.password_changed analytics track failed', { error, userId: id })
+      })
 
       return { statusCode: 200, body: { success: true } }
     } catch (error) {

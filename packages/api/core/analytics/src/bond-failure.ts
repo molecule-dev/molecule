@@ -129,7 +129,7 @@ export function trackBondFailure(args: {
         ...(message ? { message } : {}),
         ...(detail ? { detail: detail.slice(0, MAX_MESSAGE_LEN) } : {}),
       },
-    }).catch(() => {
+    }).catch((_error) => {
       // Intentional noop — analytics is best-effort; the bond's own error
       // path continues whether or not the provider accepts the event.
     })

@@ -243,7 +243,9 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
             name: 'user.login_failed',
             properties: { reason: 'oauth_verification_failed', provider: body.server },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('user.login_failed analytics track failed', { error })
+          })
         return {
           statusCode: 403,
           body: {
@@ -519,14 +521,18 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
             userId: user.id,
             properties: { method: 'oauth', provider: oauthProps.oauthServer },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('user.signup analytics track failed', { error, userId: user?.id })
+          })
         analytics
           .identify({
             userId: user.id,
             email: oauthProps.email || undefined,
             name: displayName,
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('user.signup analytics identify failed', { error, userId: id })
+          })
       } else {
         // Backfill a BLANK display name/bio/avatar from the provider profile
         // (accounts created before profile capture existed, or whose provider
@@ -588,7 +594,9 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
             userId: user.id,
             properties: { method: 'oauth', provider: oauthProps.oauthServer },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug('user.login analytics track failed', { error, userId: user?.id })
+          })
       }
 
       // SECURITY (M4): if the account has two-factor enabled, an OAuth login must
