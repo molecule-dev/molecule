@@ -353,9 +353,26 @@
  *   mount. Which key and which scope is the app's decision: the cache does not
  *   infer it from auth or form state.
  *
+ * Render resource-dependent lists and controls through {@link QueryContent}. Its child function
+ * receives only loaded, non-null data; loading and error content never mount item actions.
+ * It renders cached content during refresh and treats an empty list, false and zero as data.
+ * Put the list inside the child and the status outside it:
+ *
+ * ```tsx
+ * <QueryContent query={query} pending={<p role="status">{loadingLabel}</p>}
+ *   missing={<p>{missingLabel}</p>} error={() => <p role="alert">{errorLabel}</p>}>
+ *   {(record) => <RecordActions record={record} />}
+ * </QueryContent>
+ * ```
+ *
+ * Keep every resource identity in the query key. A boundary cannot correct a query that supplies
+ * another record's cached data. For a list, map real rows inside the child; never style a status
+ * placeholder as a row. QueryContent is headless and owns no translations or styling.
+ *
  * @module
  */
 
+export * from './query-content.js'
 export * from './resource.js'
 export * from './types.js'
 export * from './usePrefetch.js'
