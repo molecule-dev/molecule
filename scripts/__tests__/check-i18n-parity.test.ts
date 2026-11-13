@@ -1,10 +1,11 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
-import { newMissing } from '../check-i18n-parity.js'
+import { analyzeParity, newMissing, newUnowned } from '../check-i18n-parity.js'
 
 const SCRIPTS_DIR = dirname(dirname(fileURLToPath(import.meta.url))) // .../scripts
 const ROOT = join(SCRIPTS_DIR, '..')
@@ -39,6 +40,66 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
     // defaultValue without ever being added to its companion locale bond, so
     // every non-English locale is silently stuck on English for that surface.
     expect(newMissing()).toEqual([])
+  })
+
+  it('reports no NEW unowned keys: every literal t() namespace has a locale bond', () => {
+    // newUnowned() = literal `t('ns.key')` keys whose namespace NO locale bond
+    // defines at all, minus the accepted-debt baseline. The missing check above
+    // cannot see these (it needs an owner bond to look in), so without this a
+    // package can ship text with no companion bond and every non-English locale
+    // shows English for it.
+    expect(newUnowned()).toEqual([])
+  })
+
+  describe('on a fixture tree', () => {
+    const roots: string[] = []
+    afterEach(() => {
+      for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
+    })
+
+    /** Writes a file under a fresh fixture root, creating its directories. */
+    const write = (root: string, path: string, text: string): void => {
+      mkdirSync(dirname(join(root, path)), { recursive: true })
+      writeFileSync(join(root, path), text)
+    }
+
+    /** A repo with one bond owning `owned.*` and one package using both namespaces. */
+    const fixture = (): string => {
+      const root = mkdtempSync(join(tmpdir(), 'i18n-parity-'))
+      roots.push(root)
+      write(
+        root,
+        'packages/app/locales/owned/src/en.ts',
+        "export const en = {\n  'owned.title': 'Title',\n}\n",
+      )
+      write(
+        root,
+        'packages/app/features/widget/src/widget.ts',
+        [
+          "t('owned.title', undefined, { defaultValue: 'Title' })",
+          "t('owned.subtitle', undefined, { defaultValue: 'Subtitle' })",
+          "t('bondless.label', undefined, { defaultValue: 'Label' })",
+          '',
+        ].join('\n'),
+      )
+      return root
+    }
+
+    it('reports a namespace no bond owns as unowned, and an owned one as missing', () => {
+      const { missing, unowned } = analyzeParity(fixture())
+      expect(unowned).toEqual(['bondless.label'])
+      expect(missing).toEqual(['app/owned::owned.subtitle'])
+    })
+
+    it('stops reporting the namespace once a bond defines it', () => {
+      const root = fixture()
+      write(
+        root,
+        'packages/app/locales/bondless/src/en.ts',
+        "export const en = {\n  'bondless.label': 'Label',\n}\n",
+      )
+      expect(analyzeParity(root).unowned).toEqual([])
+    })
   })
 
   it('is actually invoked by the CI build job — not merely defined as an npm script', () => {

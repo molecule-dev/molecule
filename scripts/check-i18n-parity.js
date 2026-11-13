@@ -19,6 +19,11 @@
  *   - MISSING (enforced): a literal `t('ns.key')` whose namespace `ns` is owned
  *     by exactly one locale bond, but the key is absent from that bond's en.ts.
  *     Literal keys are unambiguous, so this direction is false-positive free.
+ *   - UNOWNED (enforced): a literal `t('ns.key')` whose namespace NO locale bond
+ *     owns. The MISSING check cannot see these (it needs an owner to look in), so
+ *     a package that shipped text without ever getting a companion bond — or a new
+ *     namespace nobody added to one — left every non-English locale on English
+ *     with nothing reporting it.
  *   - ORPHAN (report-only): an en.ts key referenced by no literal `t()`, no
  *     `key:`/`labelKey:` config value, and no dynamic ``t(`ns.${x}`)`` prefix.
  *     Dynamic key construction + cross-repo (molecule-dev) usage make this
@@ -83,10 +88,10 @@ function readEnKeys(enPath) {
 }
 
 /** Discover every locale bond and the keys its `en.ts` defines. */
-function loadBonds() {
+function loadBonds(root) {
   const bonds = []
   for (const stack of ['app', 'api']) {
-    const locDir = join(ROOT, 'packages', stack, 'locales')
+    const locDir = join(root, 'packages', stack, 'locales')
     if (!existsSync(locDir)) continue
     for (const name of readdirSync(locDir)) {
       const enPath = join(locDir, name, 'src', 'en.ts')
@@ -113,12 +118,12 @@ function definesKey(keys, key) {
 }
 
 /** Scan all package source for translation-key usage signals. */
-function loadUsage() {
+function loadUsage(root) {
   const literals = new Set() // keys passed to t('…')
   const referenced = new Set() // literals ∪ key:/labelKey: config string values
   const dynamicPrefixes = new Set() // ``ns.${x}`` template prefixes
   for (const stack of ['app', 'api']) {
-    const files = collectSourceFiles(join(ROOT, 'packages', stack))
+    const files = collectSourceFiles(join(root, 'packages', stack))
     for (const f of files) {
       const txt = readFileSync(f, 'utf8')
       for (const m of txt.matchAll(/\bt\(\s*['"]([^'"]+)['"]/g)) {
@@ -138,10 +143,15 @@ function loadUsage() {
   return { literals, referenced, dynamicPrefixes }
 }
 
-/** Compute missing (used-but-undefined) and orphan (defined-but-unused) keys. */
-export function analyzeParity() {
-  const bonds = loadBonds()
-  const { literals, referenced, dynamicPrefixes } = loadUsage()
+/**
+ * Compute missing (used-but-undefined), unowned (no bond owns the namespace) and
+ * orphan (defined-but-unused) keys.
+ *
+ * @param root - The molecule repo root (a fixture tree in tests).
+ */
+export function analyzeParity(root = ROOT) {
+  const bonds = loadBonds(root)
+  const { literals, referenced, dynamicPrefixes } = loadUsage(root)
 
   // namespace (first segment) → set of bonds that define keys under it
   const nsOwners = new Map()
@@ -155,10 +165,16 @@ export function analyzeParity() {
   const definedByBond = new Map(bonds.map((b) => [b.id, b.keys]))
 
   // MISSING: literal t() key, namespace owned by exactly one bond, not defined there.
+  // UNOWNED: literal t() key whose namespace no bond owns at all.
   const missing = []
+  const unowned = []
   for (const k of literals) {
     const owners = nsOwners.get(k.split('.')[0])
-    if (!owners || owners.size !== 1) continue
+    if (!owners) {
+      unowned.push(k)
+      continue
+    }
+    if (owners.size !== 1) continue
     const bondId = [...owners][0]
     if (!definesKey(definedByBond.get(bondId), k)) missing.push(`${bondId}::${k}`)
   }
@@ -179,14 +195,16 @@ export function analyzeParity() {
   }
 
   missing.sort()
+  unowned.sort()
   orphans.sort()
-  return { missing, orphans }
+  return { missing, unowned, orphans }
 }
 
 /** Load the accepted-debt baseline (missing keys allowed to remain for now). */
 export function loadBaseline() {
-  if (!existsSync(BASELINE_PATH)) return { missing: [] }
-  return JSON.parse(readFileSync(BASELINE_PATH, 'utf8'))
+  if (!existsSync(BASELINE_PATH)) return { missing: [], unowned: [] }
+  const baseline = JSON.parse(readFileSync(BASELINE_PATH, 'utf8'))
+  return { missing: baseline.missing ?? [], unowned: baseline.unowned ?? [] }
 }
 
 /** Missing keys present now but NOT in the baseline — i.e. regressions. */
@@ -194,6 +212,13 @@ export function newMissing() {
   const { missing } = analyzeParity()
   const allowed = new Set(loadBaseline().missing)
   return missing.filter((m) => !allowed.has(m))
+}
+
+/** Unowned keys present now but NOT in the baseline — a namespace no bond covers. */
+export function newUnowned() {
+  const { unowned } = analyzeParity()
+  const allowed = new Set(loadBaseline().unowned)
+  return unowned.filter((k) => !allowed.has(k))
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
@@ -204,36 +229,58 @@ if (isMain) {
     : process.argv.includes('--update-baseline')
       ? 'update'
       : 'report'
-  const { missing, orphans } = analyzeParity()
+  const { missing, unowned, orphans } = analyzeParity()
 
   if (mode === 'update') {
-    writeFileSync(BASELINE_PATH, `${JSON.stringify({ missing }, null, 2)}\n`)
-    console.log(`✓ wrote baseline with ${missing.length} known-missing key(s) → ${BASELINE_PATH}`)
+    writeFileSync(BASELINE_PATH, `${JSON.stringify({ missing, unowned }, null, 2)}\n`)
+    console.log(
+      `✓ wrote baseline with ${missing.length} known-missing and ${unowned.length} unowned key(s) → ${BASELINE_PATH}`,
+    )
     process.exit(0)
   }
 
-  const regressions = (() => {
-    const allowed = new Set(loadBaseline().missing)
-    return missing.filter((m) => !allowed.has(m))
-  })()
+  const baseline = loadBaseline()
+  const regressions = missing.filter((m) => !new Set(baseline.missing).has(m))
+  const unownedRegressions = unowned.filter((k) => !new Set(baseline.unowned).has(k))
 
   if (mode === 'check') {
-    if (regressions.length === 0) {
+    if (regressions.length === 0 && unownedRegressions.length === 0) {
       console.log(
-        `✓ i18n parity: no NEW missing keys (${missing.length} baselined, ${orphans.length} orphans reported)`,
+        `✓ i18n parity: no NEW missing or unowned keys (${missing.length} + ${unowned.length} baselined, ${orphans.length} orphans reported)`,
       )
       process.exit(0)
     }
-    console.error(`✗ ${regressions.length} NEW translation key(s) used by code but absent from the`)
-    console.error("  owning locale bond. Add each to the bond's en.ts + types.ts and fan out, or")
-    console.error("  (if truly app-level) move it to the app's own locale. Offenders:")
-    for (const m of regressions) console.error(`  - ${m}`)
+    if (regressions.length > 0) {
+      console.error(
+        `✗ ${regressions.length} NEW translation key(s) used by code but absent from the`,
+      )
+      console.error("  owning locale bond. Add each to the bond's en.ts + types.ts and fan out, or")
+      console.error("  (if truly app-level) move it to the app's own locale. Offenders:")
+      for (const m of regressions) console.error(`  - ${m}`)
+    }
+    if (unownedRegressions.length > 0) {
+      console.error(
+        `✗ ${unownedRegressions.length} NEW translation key(s) in a namespace NO locale bond owns, so`,
+      )
+      console.error(
+        "  no locale but English can ever show them. Use the namespace of the package's",
+      )
+      console.error(
+        '  companion bond (@molecule/{stack}-locales-{name}), or create that bond (en.ts,',
+      )
+      console.error('  types.ts and the other 78 languages). Offenders:')
+      for (const k of unownedRegressions) console.error(`  - ${k}`)
+    }
     process.exit(1)
   }
 
   // report
-  console.log(`Locale bonds scanned. Missing: ${missing.length} | Orphans: ${orphans.length}`)
-  console.log(`Baselined-accepted missing: ${loadBaseline().missing.length}`)
+  console.log(
+    `Locale bonds scanned. Missing: ${missing.length} | Unowned: ${unowned.length} | Orphans: ${orphans.length}`,
+  )
+  console.log(
+    `Baselined-accepted missing: ${baseline.missing.length} | unowned: ${baseline.unowned.length}`,
+  )
   console.log(`\n=== MISSING (used in code, absent from owning bond's en.ts) ===`)
   const byBond = {}
   for (const m of missing) {
@@ -241,6 +288,8 @@ if (isMain) {
     ;(byBond[b] ??= []).push(k)
   }
   for (const b of Object.keys(byBond).sort()) console.log(`  [${b}] ${byBond[b].join(', ')}`)
+  console.log(`\n=== UNOWNED (used in code, namespace owned by no bond) ===`)
+  for (const k of unowned) console.log(`  ${k}`)
   console.log(`\n=== ORPHAN (defined in bond, no literal/dynamic usage — heuristic) ===`)
   const oByBond = {}
   for (const o of orphans) {
