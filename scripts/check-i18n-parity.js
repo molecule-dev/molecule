@@ -19,6 +19,8 @@
  *   - MISSING (enforced): a literal `t('ns.key')` whose namespace `ns` is owned
  *     by exactly one locale bond, but the key is absent from that bond's en.ts.
  *     Literal keys are unambiguous, so this direction is false-positive free.
+ *     Comment lines are not usage: a JSDoc example's `t('welcome.title')` shows
+ *     how to call `t`, it is not text the package renders.
  *   - UNOWNED (enforced): a literal `t('ns.key')` whose namespace NO locale bond
  *     owns. The MISSING check cannot see these (it needs an owner to look in), so
  *     a package that shipped text without ever getting a companion bond — or a new
@@ -117,6 +119,19 @@ function definesKey(keys, key) {
   return keys.has(key) || keys.has(`${key}_other`)
 }
 
+/**
+ * The source with its comment lines blanked: lines that start (after
+ * indentation) with `//`, `/*` or `*` — JSDoc blocks and line comments. A
+ * documentation example that calls `t('welcome.title')` is not text the
+ * package renders. Code with a trailing comment keeps the line.
+ */
+function codeLines(txt) {
+  return txt
+    .split('\n')
+    .map((line) => (/^\s*(\/\/|\/\*|\*)/.test(line) ? '' : line))
+    .join('\n')
+}
+
 /** Scan all package source for translation-key usage signals. */
 function loadUsage(root) {
   const literals = new Set() // keys passed to t('…')
@@ -125,7 +140,7 @@ function loadUsage(root) {
   for (const stack of ['app', 'api']) {
     const files = collectSourceFiles(join(root, 'packages', stack))
     for (const f of files) {
-      const txt = readFileSync(f, 'utf8')
+      const txt = codeLines(readFileSync(f, 'utf8'))
       for (const m of txt.matchAll(/\bt\(\s*['"]([^'"]+)['"]/g)) {
         if (KEY_RE.test(m[1])) {
           literals.add(m[1])

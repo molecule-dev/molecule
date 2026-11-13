@@ -91,6 +91,25 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
       expect(missing).toEqual(['app/owned::owned.subtitle'])
     })
 
+    it('does not count a key in a documentation comment as usage', () => {
+      const root = fixture()
+      write(
+        root,
+        'packages/app/frameworks/binding/src/translate.ts',
+        [
+          '/**',
+          ' * @example',
+          " * <h1>{{ t('welcome.title', { name: 'User' }) }}</h1>",
+          ' */',
+          "// t('greeting.hello')",
+          "export const label = t('bondless.other')",
+          '',
+        ].join('\n'),
+      )
+      // The code line in the same file still counts.
+      expect(analyzeParity(root).unowned).toEqual(['bondless.label', 'bondless.other'])
+    })
+
     it('stops reporting the namespace once a bond defines it', () => {
       const root = fixture()
       write(
