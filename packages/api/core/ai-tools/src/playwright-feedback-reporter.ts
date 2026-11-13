@@ -18,10 +18,23 @@ export function feedbackReporterSource(): string {
   return String.raw`
 const fs = require('node:fs');
 module.exports = class FeedbackReporter {
+  onBegin(config, suite) {
+    if (!process.env.MOL_TEST_FEEDBACK_EVENTS) return;
+    // The selected tests, and the tests of each outermost serial group (describe.serial or
+    // describe.configure({mode:'serial'})): those depend on each other and only run together.
+    const serial = [];
+    const walk = (s) => { if (s._parallelMode === 'serial') { serial.push(s.allTests().map((t) => t.id)); return; } s.suites.forEach(walk); };
+    walk(suite);
+    fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS, JSON.stringify({selected: suite.allTests().map((t) => t.id), serial}) + '\n');
+  }
   onTestEnd(test, result) {
     if (!process.env.MOL_TEST_FEEDBACK_EVENTS) return;
     if (result.status === 'passed' && test.expectedStatus === 'passed') {
       fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS, JSON.stringify({id: test.id, passed: true}) + '\n');
+      return;
+    }
+    if (result.status === 'skipped') {
+      fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS, JSON.stringify({id: test.id, skipped: true}) + '\n');
       return;
     }
     if (result.status === test.expectedStatus || !['failed','timedOut'].includes(result.status)) return;
@@ -46,28 +59,72 @@ module.exports = class FeedbackReporter {
 };`
 }
 
+/** What the reporter saw of one run, by test id (`TestCase.id`, the form `--last-failed` reads). */
+export interface NativeTestOutcomes {
+  /** Tests that ended failed, in the order they ended. */
+  failed: string[]
+  /** Tests that ended passed, in the order they ended. */
+  passed: string[]
+  /** Tests that ended skipped: self-skipped, or not run after a serial group's failure. */
+  skipped: string[]
+  /** Every test the run selected, once it started; undefined before that. */
+  selected?: string[]
+  /** Each outermost serial group the run selected: its tests run only together. */
+  serial: string[][]
+}
+
+const testId = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0 && value.length <= 200
+
 /**
  * The ids of the tests the reporter saw end, by outcome, in the form Playwright's own last-run
  * record (`.last-run.json` `failedTests`) uses, so a run stopped before it finished still says
- * which tests failed and which passed.
+ * which tests failed and which passed, and which of its selected tests never ended.
  * @param text - Reporter JSONL; an incomplete final line waits for the next read.
- * @returns Distinct test ids per outcome, in the order the tests ended.
+ * @returns Distinct test ids per outcome, in the order the tests ended, and the run's selection.
  */
-export function nativeTestOutcomes(text: string): { failed: string[]; passed: string[] } {
+export function nativeTestOutcomes(text: string): NativeTestOutcomes {
   const failed = new Set<string>()
   const passed = new Set<string>()
-  if (text.length > 1_000_000) return { failed: [], passed: [] }
+  const skipped = new Set<string>()
+  let selected: string[] | undefined
+  let serial: string[][] = []
+  if (text.length > 1_000_000) return { failed: [], passed: [], skipped: [], serial: [] }
   for (const line of text.split('\n').slice(0, -1)) {
     try {
-      const event = JSON.parse(line) as { id?: unknown; passed?: unknown; error?: unknown }
-      if (typeof event.id !== 'string' || !event.id || event.id.length > 200) continue
+      const event = JSON.parse(line) as {
+        id?: unknown
+        passed?: unknown
+        skipped?: unknown
+        error?: unknown
+        selected?: unknown
+        serial?: unknown
+      }
+      if (Array.isArray(event.selected)) {
+        selected = event.selected.filter(testId).slice(0, 1000)
+        serial = Array.isArray(event.serial)
+          ? event.serial
+              .filter((group): group is unknown[] => Array.isArray(group))
+              .map((group) => group.filter(testId).slice(0, 1000))
+              .filter((group) => group.length > 1)
+          : []
+        continue
+      }
+      if (!testId(event.id)) continue
       if (event.passed === true) passed.add(event.id)
+      else if (event.skipped === true) skipped.add(event.id)
       else if (typeof event.error === 'string') failed.add(event.id)
     } catch (_error) {
       /* not a completed native event */
     }
   }
-  return { failed: [...failed], passed: [...passed] }
+  return {
+    failed: [...failed],
+    passed: [...passed],
+    skipped: [...skipped],
+    ...(selected ? { selected } : {}),
+    serial,
+  }
 }
 
 /**

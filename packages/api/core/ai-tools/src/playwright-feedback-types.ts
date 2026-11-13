@@ -62,11 +62,25 @@ export interface PlaywrightFeedbackResult {
   /**
    * The ids of the tests a `cancelled` run saw pass before it stopped, in the same form as
    * {@link lastRun}'s. They leave the spec's known failures; tests it never reached stay as known.
+   * A finished `last-failed` run names the tests it passed the same way.
    */
   passedTests?: string[]
   /**
+   * The ids of the tests a `cancelled` run selected but never finished, with the whole serial
+   * group of any of them, when the run got as far as selecting its tests. The next background
+   * run of the file resumes with only these, so tests that already finished are not run again.
+   */
+  unfinishedTests?: string[]
+  /**
+   * Each outermost serial group (`test.describe.serial`, `describe.configure({ mode: 'serial' })`)
+   * the run selected, by test id. Its tests depend on each other, so a record that names one of
+   * them names all of them: `--last-failed` would otherwise run a later test without the ones it
+   * needs. Records this run returns ({@link lastRun}, {@link unfinishedTests}) already do.
+   */
+  serialGroups?: string[][]
+  /**
    * `last-failed` when the run selected only the tests an earlier run's record names. Its pass
-   * clears those failures; it never stands for the whole file.
+   * clears those failures; on its own it never stands for the whole file.
    */
   selection?: 'last-failed'
 }
@@ -84,9 +98,10 @@ export interface PlaywrightFeedbackOptions {
     /** A checkpoint is explicit verification and must not yield to its caller's deploy/build. */
     mode?: 'background' | 'foreground',
     /**
-     * The spec's last failed run record ({@link PlaywrightFeedbackResult.lastRun}), passed on a
-     * known-failures checkpoint. Hand it to `runPlaywrightFeedback` as `lastFailed` so only
-     * those tests run; a host that ignores it runs the whole file, as before.
+     * A record of the tests to run, in the last-run shape: the spec's known failures on a
+     * known-failures checkpoint, or the tests a stopped background run of the file never
+     * finished when the background resumes it. Hand it to `runPlaywrightFeedback` as
+     * `lastFailed` so only those tests run; a host that ignores it runs the whole file.
      */
     lastRun?: string,
   ) => Promise<PlaywrightFeedbackResult>

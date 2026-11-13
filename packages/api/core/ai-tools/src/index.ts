@@ -31,8 +31,12 @@
  *   errors, locators and the failure-time page snapshot. Healthy runs emit no note;
  *   no suite schedules no runner. Background passes visit the least recently attempted file
  *   first; explicit checkpoints visit previously failing files first, then inventory order.
- *   Interrupted attempts rotate too, so frequent foreground tools cannot starve later files;
- *   cancellation supplies no reusable coverage or failure of its own.
+ *   Interrupted attempts rotate too, so frequent foreground tools cannot starve later files.
+ *   A file stopped by foreground work keeps the failures it saw, and its next background run
+ *   selects only the tests it never finished (Playwright's `--last-failed` record), so frequent
+ *   foreground work still lets long files finish; editing the spec file runs it whole again.
+ *   Every record names whole serial groups (`test.describe.serial`): a group's later test never
+ *   runs without the earlier ones it depends on.
  *   Application and test source text never determine selection or a verdict.
  *   Pass the runner's cancellation signal to
  *   `runPlaywrightFeedback` in its options and call `pause()` before foreground tools,
