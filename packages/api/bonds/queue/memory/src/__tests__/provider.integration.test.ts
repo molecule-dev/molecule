@@ -104,6 +104,9 @@ describe('@molecule/api-queue-memory × REAL @molecule/api-queue core', () => {
   })
 
   it('FAILURE DISAMBIGUATION: a redelivery is distinguishable from a first delivery (receiveCount)', async () => {
+    // The default 1s handler-failure redelivery delay is driven by fake timers: a 2s wall-clock
+    // wait left about one second of margin, which a loaded CI runner can use up.
+    vi.useFakeTimers()
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     const q = getQueue('transient')
     const seenCounts: Array<number | undefined> = []
@@ -113,18 +116,24 @@ describe('@molecule/api-queue-memory × REAL @molecule/api-queue core', () => {
         throw new Error('transient failure — e.g. downstream 503')
       }
     })
+    try {
+      await q.send({ body: { attempt: 'me' } })
+      await vi.advanceTimersByTimeAsync(0)
+      expect(seenCounts).toEqual([1])
+      await vi.advanceTimersByTimeAsync(1000)
 
-    await q.send({ body: { attempt: 'me' } })
-    await waitFor(() => seenCounts.length === 2)
-
-    // The consumer-facing idempotency/dedupe signal: attempt 1 vs attempt 2
-    // are labeled, so a handler can tell "first run" from "retry of a crash".
-    expect(seenCounts).toEqual([1, 2])
-    unsubscribe()
-    vi.restoreAllMocks()
+      // The consumer-facing idempotency/dedupe signal: attempt 1 vs attempt 2
+      // are labeled, so a handler can tell "first run" from "retry of a crash".
+      expect(seenCounts).toEqual([1, 2])
+    } finally {
+      unsubscribe()
+      vi.useRealTimers()
+      vi.restoreAllMocks()
+    }
   })
 
   it('FAILURE DISAMBIGUATION: a poison message lands on the DLQ with its original id + body (not silently lost)', async () => {
+    vi.useFakeTimers()
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     const work = await providerInstance.createQueue!('work', {
       deadLetterQueue: { name: 'work-dlq', maxReceiveCount: 2 },
@@ -136,17 +145,27 @@ describe('@molecule/api-queue-memory × REAL @molecule/api-queue core', () => {
       attempts += 1
       throw new Error('permanently failing handler')
     })
+    try {
+      const id = await work.send({ body: { poison: true } })
+      await vi.advanceTimersByTimeAsync(0)
+      expect(attempts).toBe(1)
+      // Each uncaught failure waits the 1s default before the next delivery.
+      await vi.advanceTimersByTimeAsync(1000)
+      expect(attempts).toBe(2)
+      // The capped message moves to the DLQ when it would be delivered a third time.
+      await vi.advanceTimersByTimeAsync(1000)
+      expect(attempts).toBe(2)
 
-    const id = await work.send({ body: { poison: true } })
-    await waitFor(() => attempts === 2)
-
-    await waitFor(async () => (await dlq.size!()) > 0)
-    const [deadLettered] = await dlq.receive()
-    expect(deadLettered.id).toBe(id) // traceable back to the original send
-    expect(deadLettered.body).toEqual({ poison: true })
-    expect(await work.size!()).toBe(0)
-    unsubscribe()
-    vi.restoreAllMocks()
+      expect(await dlq.size!()).toBe(1)
+      const [deadLettered] = await dlq.receive()
+      expect(deadLettered.id).toBe(id) // traceable back to the original send
+      expect(deadLettered.body).toEqual({ poison: true })
+      expect(await work.size!()).toBe(0)
+    } finally {
+      unsubscribe()
+      vi.useRealTimers()
+      vi.restoreAllMocks()
+    }
   })
 
   it('FAILURE DISAMBIGUATION: sending to a deleted queue says "closed" — not "not configured"', async () => {

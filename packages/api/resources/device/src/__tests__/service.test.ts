@@ -10,8 +10,10 @@ const {
   mockGetAnalytics,
   mockTrack,
   mockLoggerError,
+  mockLoggerDebug,
 } = vi.hoisted(() => {
   const loggerError = vi.fn()
+  const loggerDebug = vi.fn()
   const track = vi.fn().mockResolvedValue(undefined)
   return {
     mockCreate: vi.fn(),
@@ -21,10 +23,11 @@ const {
     mockFindMany: vi.fn(),
     mockFindOne: vi.fn(),
     mockUpdateById: vi.fn(),
-    mockGetLogger: vi.fn().mockReturnValue({ error: loggerError }),
+    mockGetLogger: vi.fn().mockReturnValue({ error: loggerError, debug: loggerDebug }),
     mockGetAnalytics: vi.fn().mockReturnValue({ track }),
     mockTrack: track,
     mockLoggerError: loggerError,
+    mockLoggerDebug: loggerDebug,
   }
 })
 
@@ -66,6 +69,7 @@ beforeEach(() => {
   mockTrack.mockClear()
   mockTrack.mockResolvedValue(undefined)
   mockLoggerError.mockClear()
+  mockLoggerDebug.mockClear()
 })
 
 describe('createOrUpdate', () => {
@@ -116,6 +120,14 @@ describe('createOrUpdate', () => {
     mockTrack.mockRejectedValue(new Error('analytics down'))
     const out = await deviceService.createOrUpdate('user-1', 'iPhone')
     expect(out).toBe('fixed-uuid-v4') // not null — analytics failure doesn't break create
+    // The rejection is logged with its error, never left unhandled.
+    await vi.waitFor(() =>
+      expect(mockLoggerDebug).toHaveBeenCalledWith('device.registered analytics track failed', {
+        error: expect.objectContaining({ message: 'analytics down' }),
+        userId: 'user-1',
+        deviceId: 'fixed-uuid-v4',
+      }),
+    )
   })
 
   it('returns null + logs error when DB throws', async () => {
