@@ -376,7 +376,7 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Komit automatik pada: komit {{seconds}} s selepas perubahan fail terakhir.\nTetapkan kepada 0 untuk melumpuhkan autokomit.',
   'ide.chat.autoCommit.usage':
-    'Penggunaan: /autocommit <seconds> — komit automatik beberapa saat selepas perubahan fail terakhir. /autocommit 0 membatalkan.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Gagal mengemas kini usaha penaakulan.',
   'ide.chat.effort.fixedForModel':
     'Usaha penaakulan ditetapkan pada {{model}} ({{mode}} mode) — tiada apa yang perlu ditetapkan.',
@@ -389,7 +389,7 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Usaha penaakulan untuk {{mode}} ditetapkan kepada {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Penggunaan: /effort <level> (mod semasa), /effort --plan|--execute <level>, /effort ? untuk status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -454,7 +454,7 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Gunakan /compact untuk memampatkan konteks apabila perbualan menjadi panjang.',
   'ide.chat.help.tipMention':
-    '• Taip @namafail untuk melampirkan fail projek sebagai konteks (atau seret & lepas mana-mana fail).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Gunakan /plan untuk menjalankan kajian {{agentName}} sebelum membuat perubahan.',
   'ide.chat.help.tipSlash': '• Taip / untuk menyemak imbas setiap arahan di atas.',
@@ -500,8 +500,7 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Gagal menjalankan skrip.',
   'ide.chat.scripts.runNone': 'Tiada skrip yang disimpan lagi. Buka /scripts untuk menciptanya.',
   'ide.chat.scripts.runNotFound': 'Tiada skrip bernama “ {{name}} ”. Tersedia: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Penggunaan: /run <name> — jalankan skrip yang disimpan. Gunakan /scripts untuk melihatnya.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} keluar dengan kod {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -554,10 +553,10 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Tiada kemahiran yang sepadan dengan “ {{query}} ”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Berfikir selama 1 saat',
-  'ide.chat.thoughtForSeconds': 'Berfikir selama {{count}} saat',
-  'ide.chat.thoughtForMinute': 'Berfikir selama 1 minit',
-  'ide.chat.thoughtForMinutes': 'Berfikir selama {{count}} minit',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -570,7 +569,7 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Penggunaan: {{usage}} ([…] pilihan, <…> diperlukan)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Tidak dapat menghantar laporan anda. Sila cuba lagi.',
   'ide.chat.report.submitted':
     'Terima kasih! Laporan anda telah dihantar kepada pasukan {{productName}}.',

@@ -379,7 +379,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Awto-kommissjoni fuq: impenn ta {{seconds}} s wara l-aħħar bidla fil-fajl.\nIssettja għal 0 biex tiddiżattiva l-awtokommit.',
   'ide.chat.autoCommit.usage':
-    "Użu: /autocommit <seconds> — awto-kommetti dak l-ammont ta' sekondi wara l-aħħar bidla fil-fajl. /autocommit 0 jikkanċella.",
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': "Ma rnexxiex naġġorna l-isforz ta' raġunament.",
   'ide.chat.effort.fixedForModel':
     "L-isforz tar-raġunament huwa ffissat fuq {{model}} (modalità {{mode}} ) — m'hemm xejn x'jiġi ssettjat.",
@@ -392,7 +392,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': "L-isforz ta' raġunament għal {{mode}} issettjat għal {{level}}.",
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Użu: /effort <level> (modalità kurrenti), /effort --plan|--execute <level>, /effort ? għall-istatus.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -458,7 +458,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Uża /compact biex tikkompressa l-kuntest meta l-konverżazzjoni ssir twila.',
   'ide.chat.help.tipMention':
-    "• Ittajpja @isem tal-fajl biex tehmeż fajl ta' proġett bħala kuntest (jew drag & drop kwalunkwe fajl).",
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Uża /plan biex {{agentName}} jagħmel riċerka qabel ma tagħmel bidliet.',
   'ide.chat.help.tipSlash': '• Ittajpja / biex tfittex kull kmand ta’ hawn fuq.',
@@ -505,7 +505,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     "Għad m'hemm l-ebda skript salvat. Iftaħ /scripts biex toħloq wieħed.",
   'ide.chat.scripts.runNotFound': 'L-ebda skript bl-isem “ {{name}} ”. Disponibbli: {{names}}',
-  'ide.chat.scripts.runUsage': 'Użu: /run <name> — mexxi skript salvat. Uża /scripts biex tarahom.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} ħareġ bil-kodiċi {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -558,10 +558,10 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'L-ebda ħila ma taqbel ma\' " {{query}} ".',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Ħsibt għal sekonda waħda',
-  'ide.chat.thoughtForSeconds': 'Ħsieb għal {{count}} sekondi',
-  'ide.chat.thoughtForMinute': 'Ħsibt għal minuta',
-  'ide.chat.thoughtForMinutes': 'Ħsieb għal {{count}} minuti',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -574,7 +574,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Użu: {{usage}} ([…] mhux obbligatorju, <…> meħtieġ)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed':
     "Ma stajtx nissottometti r-rapport tiegħek. Jekk jogħġbok erġa' pprova.",
   'ide.chat.report.submitted':

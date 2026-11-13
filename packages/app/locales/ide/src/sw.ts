@@ -373,7 +373,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Kujitoa kiotomatiki: kutekeleza {{seconds}} s baada ya mabadiliko ya mwisho ya faili.\nWeka hadi 0 ili kuzima otomatiki.',
   'ide.chat.autoCommit.usage':
-    'Matumizi: /autocommit <seconds> — jitoe kiotomatiki sekunde nyingi baada ya mabadiliko ya mwisho ya faili. /autocommit 0 hughairi.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Imeshindwa kusasisha juhudi za hoja.',
   'ide.chat.effort.fixedForModel':
     'Jitihada za kutafakari zimerekebishwa kwenye {{model}} ({{mode}} modi) — hakuna cha kuweka.',
@@ -385,7 +385,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Jitihada za kujadili {{mode}} zimewekwa kuwa {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Matumizi: /effort <level> (hali ya sasa), /effort --plan|--execute <level>, /effort ? kwa hadhi.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -451,7 +451,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Tumia /compact ili kubana muktadha mazungumzo yanapoendelea kuwa marefu.',
   'ide.chat.help.tipMention':
-    '• Andika @filename ili kuambatisha faili ya mradi kama muktadha (au buruta na uangushe faili yoyote).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Tumia /plan kufanya utafiti wa {{agentName}} kabla ya kufanya mabadiliko.',
   'ide.chat.help.tipSlash': '• Andika / ili kuvinjari kila amri hapo juu.',
@@ -497,8 +497,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Imeshindwa kuendesha hati.',
   'ide.chat.scripts.runNone': 'Hakuna hati zilizohifadhiwa bado. Fungua /scripts ili kuunda moja.',
   'ide.chat.scripts.runNotFound': 'Hakuna hati inayoitwa “ {{name}} ”. Inapatikana: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Matumizi: /run <name> — endesha hati iliyohifadhiwa. Tumia /scripts kuziona.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} imetoka na msimbo {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -551,10 +550,10 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Hakuna ujuzi unaolingana na “ {{query}} ”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Wazo kwa sekunde 1',
-  'ide.chat.thoughtForSeconds': 'Wazo kwa sekunde {{count}}',
-  'ide.chat.thoughtForMinute': 'Wazo kwa dakika 1',
-  'ide.chat.thoughtForMinutes': 'Wazo kwa dakika {{count}}',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -567,7 +566,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Matumizi: {{usage}} ([…] hiari, <…> inahitajika)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Haikuweza kuwasilisha ripoti yako. Tafadhali jaribu tena.',
   'ide.chat.report.submitted': 'Asante! Ripoti yako iliwasilishwa kwa timu ya {{productName}}.',
   'ide.chat.report.submittedWithLink':

@@ -377,7 +377,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     "Ymrwymo'n awtomatig ymlaen: ymrwymo {{seconds}} eiliad ar ôl y newid ffeil diwethaf.\nGosodwch i 0 i analluogi awto-ymrwymo.",
   'ide.chat.autoCommit.usage':
-    "Defnydd: /autocommit <seconds> — awto-ymrwymo'r nifer hwnnw o eiliadau ar ôl y newid ffeil diwethaf. /autocommit 0 yn canslo.",
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': "Methwyd diweddaru'r ymdrech resymu.",
   'ide.chat.effort.fixedForModel':
     "Mae ymdrech rhesymu wedi'i gosod ar {{model}} (modd {{mode}} ) — dim byd i'w osod.",
@@ -390,7 +390,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': "Ymdrech resymu ar gyfer {{mode}} wedi'i gosod i {{level}}.",
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Defnydd: /effort <level> (modd cyfredol), /effort --plan|--execute <level>, /effort ? am statws.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -457,7 +457,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Defnyddiwch /compact i gywasgu cyd-destun pan fydd y sgwrs yn mynd yn hir.',
   'ide.chat.help.tipMention':
-    '• Teipiwch @filename i atodi ffeil prosiect fel cyd-destun (neu llusgwch a gollwng unrhyw ffeil).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Defnyddiwch /plan i gael {{agentName}} i ymchwilio cyn gwneud newidiadau.',
   'ide.chat.help.tipSlash': '• Teipiwch / i bori pob gorchymyn uchod.',
@@ -503,8 +503,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Methwyd rhedeg y sgript.',
   'ide.chat.scripts.runNone': "Dim sgriptiau wedi'u cadw eto. Agorwch /scripts i greu un.",
   'ide.chat.scripts.runNotFound': "Dim sgript o'r enw “ {{name}} ”. Ar gael: {{names}}",
-  'ide.chat.scripts.runUsage':
-    "Defnydd: /run <name> — rhedeg sgript wedi'i gadw. Defnyddiwch /scripts i'w gweld.",
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': "Gadawodd {{name}} gyda'r cod {{code}}",
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -558,10 +557,10 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Dim sgiliau yn cyfateb i “ {{query}} ”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Meddyliodd am 1 eiliad',
-  'ide.chat.thoughtForSeconds': 'Meddyliais am {{count}} eiliad',
-  'ide.chat.thoughtForMinute': 'Meddyliodd am 1 funud',
-  'ide.chat.thoughtForMinutes': 'Meddyliais am {{count}} munud',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -574,7 +573,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Defnydd: {{usage}} ([…] dewisol, <…> yn ofynnol)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Methwyd cyflwyno eich adroddiad. Rhowch gynnig arall arni.',
   'ide.chat.report.submitted': 'Diolch! Cyflwynwyd eich adroddiad i dîm {{productName}}.',
   'ide.chat.report.submittedWithLink':

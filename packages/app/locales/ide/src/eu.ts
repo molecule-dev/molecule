@@ -375,7 +375,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Automatikoki konfirmatzea: azken fitxategi aldaketaren ondoren {{seconds}} s konfirmatzen.\nEzarri 0ra autocommit desgaitzeko.',
   'ide.chat.autoCommit.usage':
-    'Erabilera: /autocommit <seconds> — azken fitxategi aldaketaren ondorengo segundo kopuru hori automatikoki konfirmatu. /autocommit 0-k ezeztatu egiten du.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Arrazoiketa ahalegina eguneratzea huts egin da.',
   'ide.chat.effort.fixedForModel':
     'Arrazoiketa ahalegina {{model}} n finkatuta dago ({{mode}} modua) — ez dago ezer ezartzeko.',
@@ -388,7 +388,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} rako arrazoiketa-ahalegina {{level}} ra ezarrita.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Erabilera: /effort <level> (uneko modua), /effort --plan|--execute <level>, /effort ? egoera lortzeko.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -454,7 +454,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Erabili /compact testuingurua konprimitzeko elkarrizketa luzea denean.',
   'ide.chat.help.tipMention':
-    '• Idatzi @filename proiektu-fitxategi bat testuinguru gisa eransteko (edo arrastatu eta jaregin edozein fitxategi).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Erabili /plan {{agentName}} k aldaketak egin aurretik ikerketa egin dezan.',
   'ide.chat.help.tipSlash': '• Idatzi / goiko komando guztiak arakatzeko.',
@@ -500,8 +500,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Ezin izan da scripta exekutatu.',
   'ide.chat.scripts.runNone': 'Ez dago gordetako scriptik oraindik. Ireki /scripts bat sortzeko.',
   'ide.chat.scripts.runNotFound': 'Ez dago “ {{name}} ” izeneko gidoirik. Eskuragarri: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Erabilera: /run <name> — gordetako script bat exekutatu. Erabili /scripts horiek ikusteko.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} kodearekin irten da',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -555,10 +554,10 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Ez dago " {{query}} "rekin bat datorren trebetasunik.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Segundo batez pentsatu nuen',
-  'ide.chat.thoughtForSeconds': 'Pentsatu nuen {{count}} segundoz',
-  'ide.chat.thoughtForMinute': 'Minutu 1ez pentsatu.',
-  'ide.chat.thoughtForMinutes': '{{count}} minutuz pentsatu dut',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -571,7 +570,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Erabilera: {{usage}} ([…] aukerakoa, <…> beharrezkoa)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Ezin izan da txostena bidali. Saiatu berriro.',
   'ide.chat.report.submitted':
     'Eskerrik asko! Zure txostena {{productName}}-ren taldeari bidali zaio.',

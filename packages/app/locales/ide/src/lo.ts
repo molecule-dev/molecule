@@ -374,7 +374,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ຢືນຢັນອັດຕະໂນມັດໃນ: ຢືນຢັນ {{seconds}} ຫຼັງຈາກການປ່ຽນແປງໄຟລ໌ຄັ້ງສຸດທ້າຍ.\nຕັ້ງເປັນ 0 ເພື່ອປິດການໃຊ້ງານ autocommit.',
   'ide.chat.autoCommit.usage':
-    'ການນໍາໃຊ້: /autocommit <seconds> — ອັດຕະໂນມັດສົ່ງຕໍ່ຫຼາຍວິນາທີຫຼັງຈາກການປ່ຽນແປງໄຟລ໌ຄັ້ງສຸດທ້າຍ. /autocommit 0 ຍົກເລີກ.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'ອັບເດດຄວາມພະຍາຍາມໃນການຫາເຫດຜົນບໍ່ສຳເລັດ.',
   'ide.chat.effort.fixedForModel':
     'ຄວາມພະຍາຍາມໃນການຫາເຫດຜົນແມ່ນຄົງທີ່ກັບ {{model}} ({{mode}} ໂໝດ) — ບໍ່ມີຫຍັງໃຫ້ຕັ້ງຄ່າ.',
@@ -387,7 +387,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'ຄວາມພະຍາຍາມໃນການຫາເຫດຜົນສຳລັບ {{mode}} ຕັ້ງເປັນ {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'ການນຳໃຊ້: /effort <level> (ໂໝດປັດຈຸບັນ), /effort --plan|--execute <level>, /effort ? ເພື່ອສະຖານະພາບ.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -450,7 +450,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.help.shortcuts': 'ກົດ Cmd+/ (Ctrl+/ ໃນ Windows/Linux) ເພື່ອເບິ່ງທາງລັດແປ້ນພິມທັງໝົດ.',
   'ide.chat.help.tipCompact': '• ໃຊ້ /compact ເພື່ອບີບອັດສະພາບການເມື່ອການສົນທະນາຍາວຂຶ້ນ.',
   'ide.chat.help.tipMention':
-    '• ພິມ @filename ເພື່ອແນບໄຟລ໌ໂຄງການເປັນບໍລິບົດ (ຫຼືລາກແລະວາງໄຟລ໌ໃດກໍໄດ້).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• ໃຊ້ /plan ເພື່ອໃຫ້ {{agentName}} ຄົ້ນຄວ້າກ່ອນທີ່ຈະເຮັດການປ່ຽນແປງ.',
   'ide.chat.help.tipSlash': '• ພິມ / ເພື່ອເລືອກເບິ່ງທຸກໆຄຳສັ່ງຂ້າງເທິງ.',
   'ide.chat.help.tipSpecific':
@@ -495,8 +495,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'ລົ້ມເຫລວໃນການເປີດໃຊ້ສະຄຣິບ.',
   'ide.chat.scripts.runNone': 'ຍັງບໍ່ມີສະຄຣິບທີ່ບັນທຶກໄວ້ເທື່ອ. ເປີດ /scripts ເພື່ອສ້າງອັນໜຶ່ງ.',
   'ide.chat.scripts.runNotFound': 'ບໍ່ມີສະຄຣິບທີ່ມີຊື່ວ່າ “ {{name}} ”. ມີໃຫ້ໃຊ້: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'ການນຳໃຊ້: /run <name> — ແລ່ນສະຄຣິບທີ່ບັນທຶກໄວ້. ໃຊ້ /scripts ເພື່ອເບິ່ງພວກມັນ.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} ອອກດ້ວຍລະຫັດ {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -548,10 +547,10 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'ບໍ່ມີທັກສະໃດທີ່ກົງກັບ “ {{query}} ”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'ຄິດເປັນເວລາ 1 ວິນາທີ',
-  'ide.chat.thoughtForSeconds': 'ຄິດເປັນເວລາ {{count}} ວິນາທີ',
-  'ide.chat.thoughtForMinute': 'ຄິດເປັນເວລາ 1 ນາທີ',
-  'ide.chat.thoughtForMinutes': 'ຄິດເປັນເວລາ {{count}} ນາທີ',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -564,7 +563,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'ການນຳໃຊ້: {{usage}} ([…] ທາງເລືອກ, <…> ຕ້ອງໃສ່)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'ບໍ່ສາມາດສົ່ງລາຍງານຂອງທ່ານໄດ້. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ.',
   'ide.chat.report.submitted':
     'ຂອບໃຈ! ບົດລາຍງານຂອງທ່ານໄດ້ຖືກສົ່ງໄປຫາທີມງານຂອງ {{productName}} ແລ້ວ.',

@@ -360,7 +360,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'በራስ-ሰር ቁርጠኝነት በ፦ የመጨረሻው የፋይል ለውጥ ከተደረገ በኋላ {{seconds}} s።\nራስ-ሰር commitን ለማሰናከል ወደ 0 ያቀናብሩ።',
   'ide.chat.autoCommit.usage':
-    'አጠቃቀም: /autocommit <seconds> — የመጨረሻው የፋይል ለውጥ ከተደረገ በኋላ ለብዙ ሰከንዶች በራስ-ሰር ቃል መግባት። /autocommit 0 ይሰረዛል።',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'የማመዛዘን ጥረትን ማዘመን አልተሳካም።',
   'ide.chat.effort.fixedForModel':
     'የማመዛዘን ጥረት በ {{model}} ({{mode}} ሁነታ) ላይ ተስተካክሏል - ምንም የሚዘጋጅ ነገር የለም።',
@@ -371,7 +371,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'የ {{mode}} የማመዛዘን ጥረት ወደ {{level}} ተቀናብሯል።',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'አጠቃቀም: /effort <level> (የአሁኑ ሁነታ), /effort --plan|--execute <level>, /effort ? ለሁኔታ።',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -430,7 +430,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.help.shortcuts': 'ሁሉንም የቁልፍ ሰሌዳ አቋራጮች ለማየት Cmd+/ (በዊንዶውስ/ሊኑክስ ላይ Ctrl+/) ይጫኑ።',
   'ide.chat.help.tipCompact': '• ውይይቱ ረጅም በሚሆንበት ጊዜ አውዱን ለመጭመቅ /compact ይጠቀሙ።',
   'ide.chat.help.tipMention':
-    '• የፕሮጀክት ፋይልን እንደ አውድ ለማያያዝ @filename ብለው ይተይቡ (ወይም ማንኛውንም ፋይል ጎትተው ይጣሉ)።',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• ለውጦችን ከማድረግዎ በፊት {{agentName}} ምርምር ለማድረግ /plan ።',
   'ide.chat.help.tipSlash': '• ከላይ ያለውን እያንዳንዱን ትዕዛዝ ለማሰስ / ይተይቡ።',
   'ide.chat.help.tipSpecific':
@@ -474,7 +474,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'ስክሪፕቱን ማስኬድ አልተሳካም።',
   'ide.chat.scripts.runNone': 'እስካሁን ምንም የተቀመጡ ስክሪፕቶች የሉም። አንድ ለመፍጠር /scripts ይክፈቱ።',
   'ide.chat.scripts.runNotFound': '" {{name}} " የሚል ስክሪፕት የለም። ይገኛል፦ {{names}}',
-  'ide.chat.scripts.runUsage': 'አጠቃቀም: /run <name> — የተቀመጠ ስክሪፕት ያሂዱ። እነሱን ለማየት /scripts ይጠቀሙ።',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} በኮድ {{code}} ወጥቷል',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -525,10 +525,10 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'ከ" {{query}} " ጋር የሚዛመድ ምንም ክህሎት የለም።',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'ለአንድ ሰከንድ አስቤ ነበር',
-  'ide.chat.thoughtForSeconds': 'ለ {{count}} ሰከንዶች የታሰበ',
-  'ide.chat.thoughtForMinute': 'ለአንድ ደቂቃ አስብ',
-  'ide.chat.thoughtForMinutes': 'ለ {{count}} ደቂቃዎች የታሰበ',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -541,7 +541,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'አጠቃቀም {{usage}} ([…] አማራጭ፣ <…> ያስፈልጋል)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'ሪፖርትዎን ማስገባት አልተቻለም። እባክዎ እንደገና ይሞክሩ።',
   'ide.chat.report.submitted': 'አመሰግናለሁ! ሪፖርትዎ ለ {{productName}} ቡድን ቀርቧል።',
   'ide.chat.report.submittedWithLink': 'አመሰግናለሁ! ሪፖርትዎ ገብቷል - የተገናኘውን ጉዳይ ይከታተሉት።',

@@ -377,7 +377,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Yi alƙawarin atomatik akan: aiwatarwa {{seconds}} s bayan canjin fayil na ƙarshe.\nSaita zuwa 0 don kashe aiwatarwa ta atomatik.',
   'ide.chat.autoCommit.usage':
-    'Amfani: /autocommit <seconds> - yi alƙawarin atomatik bayan daƙiƙa da yawa bayan canjin fayil na ƙarshe. /autocommit 0 ya soke.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'An kasa sabunta ƙoƙarin yin tunani.',
   'ide.chat.effort.fixedForModel':
     'An gyara ƙoƙarin tunani a kan yanayin {{model}} ({{mode}} ) — babu abin da za a saita.',
@@ -389,7 +389,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'An saita ƙoƙarin tunani don {{mode}} zuwa {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Amfani: /effort <level> (yanayin yanzu), /effort --plan|--execute <level>, /effort ? don matsayi.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -454,7 +454,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Yi amfani da /compact don matse mahallin idan tattaunawar ta yi tsawo.',
   'ide.chat.help.tipMention':
-    '• Rubuta @filename don haɗa fayil ɗin aiki a matsayin mahallin (ko ja & sauke kowane fayil).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Yi amfani da /plan don yin bincike kan {{agentName}} kafin yin canje-canje.',
   'ide.chat.help.tipSlash': '• Rubuta / don bincika kowace umarni da ke sama.',
@@ -501,8 +501,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone': 'Babu rubutun da aka ajiye tukuna. Buɗe /scripts don ƙirƙirar ɗaya.',
   'ide.chat.scripts.runNotFound':
     'Babu rubutun da aka sanya wa suna “ {{name}} ”. Akwai: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Amfani: /run <name> — gudanar da rubutun da aka adana. Yi amfani da /scripts don ganin su.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': 'An fita {{name}} da lambar {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -557,10 +556,10 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Babu ƙwarewa da ta dace da " {{query}} ".',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Tunani na daƙiƙa 1',
-  'ide.chat.thoughtForSeconds': 'Tunani na daƙiƙa {{count}}',
-  'ide.chat.thoughtForMinute': 'Tunani na minti 1',
-  'ide.chat.thoughtForMinutes': 'Tunani na mintuna {{count}}',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -573,7 +572,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Amfani: {{usage}} ([…] zaɓi ne, <…> ana buƙata)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Ban iya gabatar da rahotonka ba. Da fatan za a sake gwadawa.',
   'ide.chat.report.submitted': 'Na gode! An gabatar da rahotonka ga ƙungiyar {{productName}}.',
   'ide.chat.report.submittedWithLink':

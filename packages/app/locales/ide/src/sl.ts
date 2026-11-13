@@ -546,19 +546,18 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.skills.empty': 'Za ta projekt ni bilo najdenih nobenih veščin v mapi .agents/skills/.',
   'ide.chat.skills.noMatch': 'Ni nobenega znanja, ki bi ustrezalo »{{query}}«.',
   'ide.chat.autoCommit.usage':
-    'Uporaba: /autocommit <seconds> — samodejno potrjitev toliko sekund po zadnji spremembi datoteke. /autocommit 0 prekliče.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Uporaba: /effort <level> (trenutni način), /effort --plan|--execute <level>, /effort ? za status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Vnesite @filename, da priložite datoteko projekta kot kontekst (ali pa povlečete in spustite katero koli datoteko).',
-  'ide.chat.scripts.runUsage':
-    'Uporaba: /run <name> — zaženite shranjeno skripto. Za ogled uporabite /scripts .',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Pomislil sem 1 sekundo',
-  'ide.chat.thoughtForSeconds': 'Razmišljal {{count}} sekund',
-  'ide.chat.thoughtForMinute': 'Razmišljal 1 minuto',
-  'ide.chat.thoughtForMinutes': 'Razmišljal sem {{count}} minut',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Razmišljam...',
   'ide.chat.streaming.analyzing': 'Analiziranje...',
   'ide.chat.streaming.reasoning': 'Razlogi...',
@@ -571,7 +570,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Ukazi',
   'ide.chat.help.card.modesTitle': 'Načini',
   'ide.chat.help.card.tipsTitle': 'Nasveti',
-  'ide.chat.help.card.usageHint': 'Uporaba: {{usage}} ([…] neobvezno, <…> obvezno)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Poročila ni bilo mogoče poslati. Poskusite znova.',
   'ide.chat.report.submitted':
     'Hvala! Vaše poročilo je bilo posredovano ekipi spletne strani {{productName}}.',

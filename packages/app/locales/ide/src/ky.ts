@@ -378,7 +378,7 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Автоматтык түрдө коммиттөө: файлды акыркы жолу өзгөрткөндөн кийин {{seconds}} секунддарды коммитациялоо.\nАвтоматтык түрдө буйрук берүүнү өчүрүү үчүн 0гө коюңуз.',
   'ide.chat.autoCommit.usage':
-    'Колдонулушу: /autocommit <seconds> — файлды акыркы жолу өзгөрткөндөн бир нече секунддан кийин автоматтык түрдө коммитациялоо. /autocommit 0 жокко чыгарат.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Ой жүгүртүү аракети жаңыртылган жок.',
   'ide.chat.effort.fixedForModel':
     'Ой жүгүртүү аракети {{model}} ({{mode}} режиминде) бекитилген — эч нерсе орнотулбайт.',
@@ -390,7 +390,7 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} үчүн ой жүгүртүү аракети {{level}} деп коюлду.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Колдонулушу: /effort <level> (учурдагы режим), /effort --plan|--execute <level>, /effort ? статус үчүн.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -456,7 +456,7 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Сүйлөшүү узакка созулганда контекстти кысуу үчүн /compact колдонуңуз.',
   'ide.chat.help.tipMention':
-    '• Долбоор файлын контекст катары тиркөө үчүн @filename териңиз (же каалаган файлды сүйрөп таштаңыз).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Өзгөртүүлөрдү киргизүүдөн мурун {{agentName}} изилдөө жүргүзүү үчүн /plan колдонуңуз.',
   'ide.chat.help.tipSlash': '• Жогорудагы ар бир буйрукту карап чыгуу үчүн / деп териңиз.',
@@ -502,8 +502,7 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Скриптти иштетүү ишке ашкан жок.',
   'ide.chat.scripts.runNone': 'Сакталган скрипттер жок. Бирди түзүү үчүн /scripts файлын ачыңыз.',
   'ide.chat.scripts.runNotFound': '" {{name}} " деген скрипт жок. Жеткиликтүү: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Колдонулушу: /run <name> — сакталган скриптти иштетүү. Аларды көрүү үчүн /scripts колдонуңуз.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} коду менен чыкты',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -557,10 +556,10 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ” менен эч кандай көндүмдөр дал келбейт.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1 секунд ойлондум',
-  'ide.chat.thoughtForSeconds': '{{count}} секунд ойлондум',
-  'ide.chat.thoughtForMinute': '1 мүнөт ойлондум',
-  'ide.chat.thoughtForMinutes': '{{count}} мүнөт ойлондум',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -573,7 +572,7 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Колдонулушу: {{usage}} ([…] милдеттүү эмес, <…> талап кылынат)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Отчетуңузду тапшыра алган жок. Кайра аракет кылып көрүңүз.',
   'ide.chat.report.submitted': 'Рахмат! Сиздин отчетуңуз {{productName}} командасына тапшырылды.',
   'ide.chat.report.submittedWithLink':

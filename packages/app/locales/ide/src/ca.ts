@@ -379,7 +379,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     "Confirmació automàtica: confirmació {{seconds}} s després de l'últim canvi de fitxer.\nEstabliu-ho a 0 per desactivar la confirmació automàtica.",
   'ide.chat.autoCommit.usage':
-    "Ús: /autocommit <seconds> — confirmació automàtica aquest nombre de segons després de l'últim canvi de fitxer. /autocommit 0 cancel·la.",
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': "No s'ha pogut actualitzar l'esforç de raonament.",
   'ide.chat.effort.fixedForModel':
     "L'esforç de raonament està fixat a {{model}} (mode {{mode}} ): no hi ha res per definir.",
@@ -391,7 +391,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Esforç de raonament per a {{mode}} establert a {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    "Ús: /effort <level> (mode actual), /effort --plan|--execute <level>, /effort ? per l'estatus.",
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -456,7 +456,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     "• Feu servir /compact per comprimir el context quan la conversa s'allarga.",
   'ide.chat.help.tipMention':
-    '• Escriviu @nom_fitxer per adjuntar un fitxer de projecte com a context (o arrossegueu i deixeu anar qualsevol fitxer).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Feu servir /plan perquè {{agentName}} investigui abans de fer canvis.',
   'ide.chat.help.tipSlash': '• Escriviu / per navegar per totes les ordres anteriors.',
@@ -503,8 +503,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone': 'Encara no hi ha cap script desat. Obre /scripts per crear-ne un.',
   'ide.chat.scripts.runNotFound':
     'No hi ha cap script anomenat " {{name}} ". Disponible: {{names}}',
-  'ide.chat.scripts.runUsage':
-    "Ús: /run <name> — executa un script desat. Fes servir /scripts per veure'ls.",
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} ha sortit amb el codi {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -558,10 +557,10 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'No hi ha cap habilitat que coincideixi amb « {{query}} ».',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Pensament durant 1 segon',
-  'ide.chat.thoughtForSeconds': 'Pensament durant {{count}} segons',
-  'ide.chat.thoughtForMinute': 'Pensament durant 1 minut',
-  'ide.chat.thoughtForMinutes': 'Pensament durant {{count}} minuts',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -574,7 +573,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Ús: {{usage}} ([…] opcional, <…> obligatori)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': "No s'ha pogut enviar l'informe. Torna-ho a intentar.",
   'ide.chat.report.submitted':
     "Gràcies! El vostre informe s'ha enviat a l'equip de {{productName}}.",

@@ -522,19 +522,18 @@ export const ko: Partial<IdeTranslations> = {
     '이 프로젝트의 .agents/skills/ 디렉토리에서 해당 스킬을 찾을 수 없습니다.',
   'ide.chat.skills.noMatch': '“{{query}}”과 일치하는 기술이 없습니다.',
   'ide.chat.autoCommit.usage':
-    '사용법: /autocommit <seconds> — 마지막 파일 변경 후 지정된 초 후에 자동 커밋합니다. /autocommit 0은 취소합니다.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    '사용법: /effort <level> (현재 모드), /effort --plan|--execute <level> /effort ? 상태를 확인하세요.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• @filename을 입력하여 프로젝트 파일을 컨텍스트로 첨부하거나 파일을 드래그 앤 드롭하세요.',
-  'ide.chat.scripts.runUsage':
-    '사용법: /run <name> 저장된 스크립트를 실행합니다. 저장된 스크립트를 보려면 /scripts 사용하세요.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1초 동안 생각했다',
-  'ide.chat.thoughtForSeconds': '{{count}} 초 동안 생각했습니다',
-  'ide.chat.thoughtForMinute': '1분간 생각함',
-  'ide.chat.thoughtForMinutes': '{{count}} 분 동안 생각했습니다',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': '생각 중...',
   'ide.chat.streaming.analyzing': '분석 중...',
   'ide.chat.streaming.reasoning': '추론...',
@@ -547,7 +546,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': '명령어',
   'ide.chat.help.card.modesTitle': '모드',
   'ide.chat.help.card.tipsTitle': '팁',
-  'ide.chat.help.card.usageHint': '사용법: {{usage}} ([…]는 선택 사항, <…>는 필수 사항)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': '보고서를 제출할 수 없습니다. 다시 시도해 주세요.',
   'ide.chat.report.submitted': '감사합니다! 귀하의 제보가 {{productName}} 팀에 전달되었습니다.',
   'ide.chat.report.submittedWithLink':

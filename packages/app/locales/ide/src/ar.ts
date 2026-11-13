@@ -544,18 +544,18 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.empty': 'لم يتم العثور على أي مهارات في المجلد .agents/skills/ لهذا المشروع.',
   'ide.chat.skills.noMatch': 'لا توجد مهارات مطابقة لـ "{{query}}".',
   'ide.chat.autoCommit.usage':
-    'طريقة الاستخدام: /autocommit <seconds> — يتم الالتزام التلقائي بعد مرور عدد معين من الثواني من آخر تغيير في الملف. /autocommit 0 يلغي التغييرات.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'طريقة الاستخدام: /effort <level> (الوضع الحالي)، /effort --plan|--execute <level> ، /effort ? للحالة.',
-  'ide.chat.help.tipMention': '• اكتب @filename لإرفاق ملف المشروع كسياق (أو اسحب وأفلت أي ملف).',
-  'ide.chat.scripts.runUsage':
-    'طريقة الاستخدام: /run <name> — قم بتشغيل نص برمجي محفوظ. استخدم /scripts لعرضها.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'فكر لمدة ثانية واحدة',
-  'ide.chat.thoughtForSeconds': 'فكر لمدة {{count}} ثانية',
-  'ide.chat.thoughtForMinute': 'فكر لمدة دقيقة واحدة',
-  'ide.chat.thoughtForMinutes': 'فكر لمدة {{count}} دقيقة',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'أفكر...',
   'ide.chat.streaming.analyzing': 'جاري التحليل...',
   'ide.chat.streaming.reasoning': 'التفكير المنطقي...',
@@ -568,7 +568,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'الأوامر',
   'ide.chat.help.card.modesTitle': 'الأوضاع',
   'ide.chat.help.card.tipsTitle': 'نصائح',
-  'ide.chat.help.card.usageHint': 'طريقة الاستخدام: {{usage}} ([…] اختياري، <…> مطلوب)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'تعذر إرسال تقريرك. يرجى المحاولة مرة أخرى.',
   'ide.chat.report.submitted': 'شكرًا! تم إرسال تقريرك إلى فريق موقع {{productName}}.',
   'ide.chat.report.submittedWithLink':

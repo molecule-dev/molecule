@@ -553,19 +553,18 @@ export const ro: Partial<IdeTranslations> = {
     'Nu s-au găsit competențe în directorul .agents/skills/ pentru acest proiect.',
   'ide.chat.skills.noMatch': 'Nu există abilități care să corespundă cu „{{query}}”.',
   'ide.chat.autoCommit.usage':
-    'Utilizare: /autocommit <seconds> — autocommit la același număr de secunde după ultima modificare a fișierului. /autocommit 0 anulează.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Utilizare: /effort <level> (modul curent), /effort --plan|--execute <level>, /effort ? pentru statut.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Tastați @filename pentru a atașa un fișier de proiect ca și context (sau glisați și plasați orice fișier).',
-  'ide.chat.scripts.runUsage':
-    'Utilizare: /run <name> — rulează un script salvat. Folosește /scripts pentru a le vedea.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'M-am gândit timp de o secundă',
-  'ide.chat.thoughtForSeconds': 'M-am gândit timp de {{count}} secunde',
-  'ide.chat.thoughtForMinute': 'M-am gândit timp de 1 minut',
-  'ide.chat.thoughtForMinutes': 'M-am gândit timp de {{count}} minute',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Mă gândesc...',
   'ide.chat.streaming.analyzing': 'Se analizează...',
   'ide.chat.streaming.reasoning': 'Raționament...',
@@ -578,7 +577,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Comenzi',
   'ide.chat.help.card.modesTitle': 'Moduri',
   'ide.chat.help.card.tipsTitle': 'Sfaturi',
-  'ide.chat.help.card.usageHint': 'Utilizare: {{usage}} ([…] opțional, <…> obligatoriu)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Nu s-a putut trimite raportul. Vă rugăm să încercați din nou.',
   'ide.chat.report.submitted': 'Mulțumim! Raportul tău a fost transmis echipei {{productName}}.',
   'ide.chat.report.submittedWithLink':

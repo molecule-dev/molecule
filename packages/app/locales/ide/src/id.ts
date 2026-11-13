@@ -537,19 +537,18 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.skills.empty': 'Tidak ditemukan keterampilan di .agents/skills/ untuk proyek ini.',
   'ide.chat.skills.noMatch': 'Tidak ada keterampilan yang cocok dengan "{{query}}".',
   'ide.chat.autoCommit.usage':
-    'Penggunaan: /autocommit <seconds> — melakukan auto-commit beberapa detik setelah perubahan file terakhir. /autocommit 0 membatalkan.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Penggunaan: /effort <level> (mode saat ini), /effort --plan|--execute <level>, /effort ? untuk status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Ketik @filename untuk melampirkan file proyek sebagai konteks (atau seret & lepas file apa pun).',
-  'ide.chat.scripts.runUsage':
-    'Penggunaan: /run <name> — Jalankan skrip yang tersimpan. Gunakan /scripts untuk melihatnya.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Berpikir sejenak',
-  'ide.chat.thoughtForSeconds': 'Berpikir selama {{count}} detik',
-  'ide.chat.thoughtForMinute': 'Berpikir selama 1 menit',
-  'ide.chat.thoughtForMinutes': 'Berpikir selama {{count}} menit',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Sedang berpikir...',
   'ide.chat.streaming.analyzing': 'Sedang menganalisis...',
   'ide.chat.streaming.reasoning': 'Berpikir...',
@@ -562,7 +561,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Perintah',
   'ide.chat.help.card.modesTitle': 'Mode',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Penggunaan: {{usage}} ([…] opsional, <…> wajib)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Laporan Anda tidak dapat dikirim. Silakan coba lagi.',
   'ide.chat.report.submitted':
     'Terima kasih! Laporan Anda telah diteruskan ke tim {{productName}}.',

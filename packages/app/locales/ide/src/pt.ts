@@ -531,19 +531,18 @@ export const pt: Partial<IdeTranslations> = {
     'Não foram encontradas habilidades em .agents/skills/ para este projeto.',
   'ide.chat.skills.noMatch': 'Nenhuma habilidade corresponde a “{{query}}”.',
   'ide.chat.autoCommit.usage':
-    'Utilização: /autocommit <seconds> — Confirma automaticamente as alterações tantos segundos após a última alteração do arquivo. /autocommit 0 cancela.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Uso: /effort <level> (modo atual), /effort --plan|--execute <level>, /effort ? para status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Digite @nome_do_arquivo para anexar um arquivo de projeto como contexto (ou arraste e solte qualquer arquivo).',
-  'ide.chat.scripts.runUsage':
-    'Utilização: /run <name> — execute um script salvo. Use /scripts para visualizá-los.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Pensei por 1 segundo',
-  'ide.chat.thoughtForSeconds': 'Pensamento por {{count}} segundos',
-  'ide.chat.thoughtForMinute': 'Reflexão por 1 minuto',
-  'ide.chat.thoughtForMinutes': 'Reflexão por {{count}} minutos',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Pensando...',
   'ide.chat.streaming.analyzing': 'Analisando...',
   'ide.chat.streaming.reasoning': 'Raciocínio...',
@@ -556,7 +555,7 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Comandos',
   'ide.chat.help.card.modesTitle': 'Modos',
   'ide.chat.help.card.tipsTitle': 'Dicas',
-  'ide.chat.help.card.usageHint': 'Uso: {{usage}} ([…] opcional, <…> obrigatório)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Não foi possível enviar sua denúncia. Tente novamente.',
   'ide.chat.report.submitted':
     'Obrigado! Seu relatório foi enviado para a equipe de {{productName}}.',

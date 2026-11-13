@@ -377,7 +377,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Confirmación automática o: confirmando {{seconds}} s despois do último cambio no ficheiro.\nEstablecer en 0 para desactivar a confirmación automática.',
   'ide.chat.autoCommit.usage':
-    'Uso: /autocommit <seconds> — confirmación automática ese número de segundos despois do último cambio no ficheiro. /autocommit 0 cancela.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Non se puido actualizar o esforzo de razoamento.',
   'ide.chat.effort.fixedForModel':
     'O esforzo de razoamento está fixo en {{model}} (modo {{mode}} ): non hai nada que definir.',
@@ -390,7 +390,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Esforzo de razoamento para {{mode}} definido en {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Uso: /effort <level> (modo actual), /effort --plan|--execute <level>, /effort ? por status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -455,7 +455,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Usa /compact para comprimir o contexto cando a conversa se fai longa.',
   'ide.chat.help.tipMention':
-    '• Escribe @nome_do_ficheiro para anexar un ficheiro de proxecto como contexto (ou arrastra e solta calquera ficheiro).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• Usa /plan para que {{agentName}} investigue antes de facer cambios.',
   'ide.chat.help.tipSlash': '• Escribe / para explorar todos os comandos anteriores.',
   'ide.chat.help.tipSpecific':
@@ -501,8 +501,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone': 'Aínda non hai scripts gardados. Abre /scripts para crear un.',
   'ide.chat.scripts.runNotFound':
     'Non hai ningún script chamado “ {{name}} ”. Dispoñible: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Uso: /run <name> — executar un script gardado. Usar /scripts para velos.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} saíu co código {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -555,10 +554,10 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Non hai ningunha habilidade que coincida con " {{query}} ".',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Pensei durante 1 segundo',
-  'ide.chat.thoughtForSeconds': 'Pensei durante {{count}} segundos',
-  'ide.chat.thoughtForMinute': 'Pensei durante 1 minuto',
-  'ide.chat.thoughtForMinutes': 'Pensou durante {{count}} minutos',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -571,7 +570,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Uso: {{usage}} ([…] opcional, <…> obrigatorio)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Non se puido enviar o informe. Téntao de novo.',
   'ide.chat.report.submitted': 'Grazas! O teu informe foi enviado ao equipo de {{productName}}.',
   'ide.chat.report.submittedWithLink':

@@ -374,7 +374,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ઓટો-કમિટ ઓન: છેલ્લા ફાઇલ ફેરફાર પછી {{seconds}} સેકન્ડ કમિટ કરવું.\nઓટોકમિટ નિષ્ક્રિય કરવા માટે 0 પર સેટ કરો.',
   'ide.chat.autoCommit.usage':
-    'ઉપયોગ: /autocommit <seconds> — છેલ્લી ફાઇલ ફેરફાર પછી આટલી સેકંડમાં ઓટો-કમિટ. /autocommit 0 રદ કરે છે.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'તર્કના પ્રયાસને અપડેટ કરવામાં નિષ્ફળ ગયા.',
   'ide.chat.effort.fixedForModel':
     'તર્કનો પ્રયાસ {{model}} ({{mode}} મોડ) પર નિશ્ચિત છે — સેટ કરવા માટે કંઈ નથી.',
@@ -385,7 +385,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} ને {{level}} પર સેટ કરવા માટે તર્કસંગત પ્રયાસ.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'ઉપયોગ: /effort <level> (વર્તમાન સ્થિતિ), /effort --plan|--execute <level>, /effort ? સ્થિતિ માટે.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -449,7 +449,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• વાતચીત લાંબી થાય ત્યારે સંદર્ભને સંકુચિત કરવા માટે /compact નો ઉપયોગ કરો.',
   'ide.chat.help.tipMention':
-    '• પ્રોજેક્ટ ફાઇલને સંદર્ભ તરીકે જોડવા માટે @filename લખો (અથવા કોઈપણ ફાઇલને ખેંચો અને છોડો).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• ફેરફારો કરતા પહેલા /plan નો ઉપયોગ કરીને {{agentName}} સંશોધન કરો.',
   'ide.chat.help.tipSlash': '• ઉપરના દરેક આદેશને બ્રાઉઝ કરવા માટે / ટાઈપ કરો.',
   'ide.chat.help.tipSpecific':
@@ -494,8 +494,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'સ્ક્રિપ્ટ ચલાવવામાં નિષ્ફળ.',
   'ide.chat.scripts.runNone': 'હજુ સુધી કોઈ સાચવેલી સ્ક્રિપ્ટ નથી. એક બનાવવા માટે /scripts ખોલો.',
   'ide.chat.scripts.runNotFound': '“ {{name}} ” નામની કોઈ સ્ક્રિપ્ટ નથી. ઉપલબ્ધ: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'ઉપયોગ: /run <name> — સેવ કરેલી સ્ક્રિપ્ટ ચલાવો. તેમને જોવા માટે /scripts ઉપયોગ કરો.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} કોડ {{code}} સાથે બહાર નીકળ્યા.',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -547,10 +546,10 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'કોઈ કુશળતા “ {{query}} ” સાથે મેળ ખાતી નથી.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '૧ સેકન્ડ માટે વિચાર્યું',
-  'ide.chat.thoughtForSeconds': '{{count}} સેકન્ડ માટે વિચાર્યું',
-  'ide.chat.thoughtForMinute': '૧ મિનિટ વિચાર્યું',
-  'ide.chat.thoughtForMinutes': '{{count}} મિનિટ માટે વિચાર્યું',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -563,7 +562,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'ઉપયોગ: {{usage}} ([…] વૈકલ્પિક, <…> જરૂરી)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'તમારો રિપોર્ટ સબમિટ કરી શકાયો નથી. કૃપા કરીને ફરી પ્રયાસ કરો.',
   'ide.chat.report.submitted':
     'આભાર! તમારો રિપોર્ટ {{productName}} ની ટીમને સબમિટ કરવામાં આવ્યો હતો.',

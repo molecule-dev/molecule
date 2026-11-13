@@ -552,19 +552,18 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.empty': 'Δεν βρέθηκαν δεξιότητες στο φάκελο .agents/skills/ για αυτό το έργο.',
   'ide.chat.skills.noMatch': 'Δεν υπάρχουν αποτελέσματα που να ταιριάζουν με το «{{query}}».',
   'ide.chat.autoCommit.usage':
-    'Χρήση: /autocommit <seconds> — αυτόματη ολοκλήρωση τόσα δευτερόλεπτα μετά την τελευταία αλλαγή αρχείου. /autocommit 0 ακυρώνει.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Χρήση: /effort <level> (τρέχουσα λειτουργία), /effort --plan|--execute <level>, /effort ? για την κατάσταση.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Πληκτρολογήστε @όνομααρχείου για να επισυνάψετε ένα αρχείο έργου ως περιβάλλον (ή σύρετε και αποθέστε οποιοδήποτε αρχείο).',
-  'ide.chat.scripts.runUsage':
-    'Χρήση: /run <name> — εκτελέστε ένα αποθηκευμένο σενάριο. Χρησιμοποιήστε το /scripts για να τα δείτε.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Σκέφτηκα για 1 δευτερόλεπτο',
-  'ide.chat.thoughtForSeconds': 'Σκέφτηκα για {{count}} δευτερόλεπτα',
-  'ide.chat.thoughtForMinute': 'Σκέφτηκα για 1 λεπτό',
-  'ide.chat.thoughtForMinutes': 'Σκέφτηκα για {{count}} λεπτά',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Σκέφτομαι...',
   'ide.chat.streaming.analyzing': 'Ανάλυση...',
   'ide.chat.streaming.reasoning': 'Σκέψη...',
@@ -577,7 +576,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Εντολές',
   'ide.chat.help.card.modesTitle': 'Λειτουργίες',
   'ide.chat.help.card.tipsTitle': 'Συμβουλές',
-  'ide.chat.help.card.usageHint': 'Χρήση: {{usage}} ([…] προαιρετικό, <…> απαιτείται)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Δεν ήταν δυνατή η αποστολή της αναφοράς σας. Παρακαλώ δοκιμάστε ξανά.',
   'ide.chat.report.submitted':
     'Ευχαριστούμε! Η αναφορά σας διαβιβάστηκε στην ομάδα του {{productName}}.',

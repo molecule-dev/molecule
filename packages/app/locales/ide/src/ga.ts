@@ -379,7 +379,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Uath-thiomnadh ar: ag tiomnú {{seconds}} s tar éis an athraithe comhaid dheireanaigh.\nSocraigh go 0 chun uath-thiomantas a dhíchumasú.',
   'ide.chat.autoCommit.usage':
-    'Úsáid: /autocommit <seconds> — uath-thiomnadh an líon sin soicindí tar éis an athraithe comhaid dheireanaigh. /autocommit 0 cealaíonn.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Theip ar an iarracht réasúnaíochta a nuashonrú.',
   'ide.chat.effort.fixedForModel':
     'Tá an iarracht réasúnaíochta socraithe ar {{model}} (mód {{mode}} ) — níl aon rud le socrú.',
@@ -392,7 +392,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Iarracht réasúnaíochta do {{mode}} socraithe go {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Úsáid: /effort <level> (mód reatha), /effort --plan|--execute <level>, /effort ? le haghaidh stádais.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -459,7 +459,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Úsáid /compact chun comhthéacs a chomhbhrú nuair a bhíonn an comhrá fada.',
   'ide.chat.help.tipMention':
-    '• Clóscríobh @filename chun comhad tionscadail a cheangal mar chomhthéacs (nó tarraing & scaoil aon chomhad).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Bain úsáid as /plan chun go ndéanfadh {{agentName}} taighde sula ndéantar athruithe.',
   'ide.chat.help.tipSlash': '• Clóscríobh / chun gach ordú thuas a bhrabhsáil.',
@@ -506,8 +506,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'Níl aon scripteanna sábháilte fós. Oscail /scripts chun ceann a chruthú.',
   'ide.chat.scripts.runNotFound': 'Níl aon script darb ainm “ {{name}} ” ar fáil: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Úsáid: /run <name> — rith script sábháilte. Úsáid /scripts chun iad a fheiceáil.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': 'D’imigh {{name}} leis an gcód {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -560,10 +559,10 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Níl aon scileanna ag teacht le “ {{query}} ”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Smaoinigh mé ar feadh soicind amháin',
-  'ide.chat.thoughtForSeconds': 'Smaoinigh ar feadh {{count}} soicind',
-  'ide.chat.thoughtForMinute': 'Smaoinigh mé ar feadh nóiméid',
-  'ide.chat.thoughtForMinutes': 'Smaoinigh ar feadh {{count}} nóiméad',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -576,7 +575,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Úsáid: {{usage}} ([…] roghnach, <…> riachtanach)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Níorbh fhéidir do thuairisc a chur isteach. Déan iarracht arís.',
   'ide.chat.report.submitted':
     'Go raibh maith agat! Cuireadh do thuairisc faoi bhráid fhoireann {{productName}}.',

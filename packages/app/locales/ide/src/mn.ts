@@ -378,7 +378,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Файлын сүүлийн өөрчлөлтийн дараа {{seconds}}-г автоматаар commit хийх:\nАвтоматаар тохируулахыг идэвхгүй болгохын тулд 0 болгож тохируулна уу.',
   'ide.chat.autoCommit.usage':
-    'Хэрэглээ: /autocommit <seconds> — файлын сүүлийн өөрчлөлтөөс хойш олон секундын дараа автоматаар коммит хийнэ. /autocommit 0 цуцална.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Үндэслэлийн хүчин чармайлтыг шинэчилж чадсангүй.',
   'ide.chat.effort.fixedForModel':
     'Сэтгэцийн хүчин чармайлт нь {{model}} ({{mode}} mode) дээр тогтсон — тохируулах зүйл алга.',
@@ -392,7 +392,7 @@ export const mn: Partial<IdeTranslations> = {
     '{{mode}}-н үндэслэлийн хүчин чармайлтыг {{level}} болгож тохируулсан.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Хэрэглээ: /effort <level> (одоогийн горим), /effort --plan|--execute <level>, /effort ? .',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -457,7 +457,7 @@ export const mn: Partial<IdeTranslations> = {
     'Бүх гарын товчлолуудыг харахын тулд Cmd+/ (Windows/Linux дээр Ctrl+/) дарна уу.',
   'ide.chat.help.tipCompact': '• Яриа уртсах үед хам сэдвийг шахахын тулд /compact ашиглана уу.',
   'ide.chat.help.tipMention':
-    '• Төслийн файлыг контекст болгон хавсаргахын тулд @filename гэж бичнэ үү (эсвэл дурын файлыг чирж буулгана уу).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Өөрчлөлт хийхээсээ өмнө {{agentName}} судалгаа хийхийн тулд /plan ашиглана уу.',
   'ide.chat.help.tipSlash': '• Дээрх бүх командыг үзэхийн тулд / гэж бичнэ үү.',
@@ -504,8 +504,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'Хадгалсан скрипт хараахан алга. Нэгийг үүсгэхийн тулд /scripts нээнэ үү.',
   'ide.chat.scripts.runNotFound': '“ {{name}} ” нэртэй скрипт байхгүй байна. Боломжтой: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Хэрэглээ: /run <name> — хадгалсан скриптийг ажиллуулах. Тэдгээрийг харахын тулд /scripts ашиглана уу.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} нь {{code}} кодтой гарсан',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -558,10 +557,10 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ”-тэй тохирох чадвар алга.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1 секундын турш бодов',
-  'ide.chat.thoughtForSeconds': '{{count}} секундын турш бодсон',
-  'ide.chat.thoughtForMinute': '1 минут бодсон',
-  'ide.chat.thoughtForMinutes': '{{count}} минут бодсон',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -574,7 +573,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Хэрэглээ: {{usage}} ([…] заавал биш, <…> шаардлагатай)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Таны тайланг илгээж чадсангүй. Дахин оролдоно уу.',
   'ide.chat.report.submitted': 'Баярлалаа! Таны тайланг {{productName}}-н багт илгээлээ.',
   'ide.chat.report.submittedWithLink':

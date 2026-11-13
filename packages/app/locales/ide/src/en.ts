@@ -18,9 +18,13 @@ export const en: IdeTranslations = {
   // Thinking duration. Singular/plural split (count supplied by the call site);
   // the plural form interpolates {{count}} so the bond value never overrides a
   // JS-literal default.
+  // keep-english: an elliptical past-tense fragment machine translation turns into an instruction
   'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  // keep-english: an elliptical past-tense fragment machine translation turns into an instruction
   'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  // keep-english: an elliptical past-tense fragment machine translation turns into an instruction
   'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  // keep-english: an elliptical past-tense fragment machine translation turns into an instruction
   'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   // Streaming indicator — molecule-themed rotating status while the AI responds (the
   // agent Synthase is named after ATP synthase; the phrases read as a reaction).
@@ -427,6 +431,7 @@ export const en: IdeTranslations = {
   'ide.chat.autoCommit.cancelled': 'Auto-commit cancelled.',
   'ide.chat.autoCommit.enabled':
     'Auto-commit on: committing {{seconds}}s after the last file change.\nSet to 0 to disable autocommit.',
+  // keep-english: command help: its argument names are typed syntax a machine translation rewrites
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   // Reasoning effort (/effort). Effort is PER MODE (plan/execute) and shown in
@@ -440,6 +445,7 @@ export const en: IdeTranslations = {
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
   'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
+  // keep-english: command help: its argument names are typed syntax a machine translation rewrites
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   // Per-model effort availability (P2-10) — only the target mode model's supported
@@ -526,6 +532,7 @@ export const en: IdeTranslations = {
   'ide.chat.help.shortcuts':
     'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
   'ide.chat.help.tipCompact': '• Use /compact to compress context when the conversation gets long.',
+  // keep-english: command help: its argument names are typed syntax a machine translation rewrites
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• Use /plan to have {{agentName}} research before making changes.',
@@ -541,6 +548,7 @@ export const en: IdeTranslations = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
+  // keep-english: command help: its argument names are typed syntax a machine translation rewrites
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   // Bug report modal (/report, /bug).
   'ide.chat.report.heading': 'Report a bug',
@@ -593,6 +601,7 @@ export const en: IdeTranslations = {
   'ide.chat.scripts.runError': 'Failed to run the script.',
   'ide.chat.scripts.runNone': 'No saved scripts yet. Open /scripts to create one.',
   'ide.chat.scripts.runNotFound': 'No script named “{{name}}”. Available: {{names}}',
+  // keep-english: command help: its argument names are typed syntax a machine translation rewrites
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} exited with code {{code}}',

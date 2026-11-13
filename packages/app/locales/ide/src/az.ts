@@ -374,7 +374,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Avtomatik olaraq commit edilir: son fayl dəyişikliyindən sonra {{seconds}} s əmri commit edilir.\nAvtomatik komutasiyanı deaktiv etmək üçün 0-a təyin edin.',
   'ide.chat.autoCommit.usage':
-    'İstifadə: /autocommit <seconds> — son fayl dəyişikliyindən bir neçə saniyə sonra avtomatik olaraq əlaqələndirir. /autocommit 0 ləğv edir.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Məntiqi əsaslandırma səyini yeniləmək alınmadı.',
   'ide.chat.effort.fixedForModel':
     'Mülahizə səyi {{model}} ({{mode}} rejimində) sabitdir — təyin ediləcək heç nə yoxdur.',
@@ -387,7 +387,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} üçün əsaslandırma səyi {{level}} olaraq təyin edildi.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'İstifadə: /effort <level> (cari rejim), /effort --plan|--execute <level>, /effort ? status üçün.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -451,7 +451,7 @@ export const az: Partial<IdeTranslations> = {
     'Bütün klaviatura qısayollarını görmək üçün Cmd+/ (Windows/Linux-da Ctrl+/) düymələrini basın.',
   'ide.chat.help.tipCompact': '• Söhbət uzandıqda konteksti sıxmaq üçün /compact istifadə edin.',
   'ide.chat.help.tipMention':
-    '• Layihə faylını kontekst kimi əlavə etmək üçün @filename yazın (və ya istənilən faylı sürüşdürüb buraxın).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Dəyişikliklər etməzdən əvvəl {{agentName}} araşdırması aparmaq üçün /plan istifadə edin.',
   'ide.chat.help.tipSlash': '• Yuxarıdakı hər bir əmrə baxmaq üçün / yazın.',
@@ -499,8 +499,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'Hələ ki, yadda saxlanılan skript yoxdur. Birini yaratmaq üçün /scripts faylını açın.',
   'ide.chat.scripts.runNotFound': '“ {{name}} ” adlı skript yoxdur. Mövcuddur: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'İstifadə: /run <name> — yadda saxlanılan skripti işlədin. Onları görmək üçün /scripts istifadə edin.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} kodu ilə çıxış etdi',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -554,10 +553,10 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ” ilə uyğun gələn bacarıq yoxdur.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1 saniyə düşündüm',
-  'ide.chat.thoughtForSeconds': '{{count}} saniyə düşündüm',
-  'ide.chat.thoughtForMinute': '1 dəqiqə düşündüm',
-  'ide.chat.thoughtForMinutes': '{{count}} dəqiqə düşündüm',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -570,7 +569,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'İstifadə: {{usage}} ([…] isteğe bağlıdır, <…> tələb olunur)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Hesabatınızı təqdim etmək mümkün olmadı. Yenidən cəhd edin.',
   'ide.chat.report.submitted':
     'Təşəkkürlər! Hesabatınız {{productName}} komandasına təqdim edildi.',

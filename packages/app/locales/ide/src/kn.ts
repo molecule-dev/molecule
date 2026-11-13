@@ -381,7 +381,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ಆಟೋ-ಕಮಿಟ್ ಆನ್: ಕೊನೆಯ ಫೈಲ್ ಬದಲಾವಣೆಯ ನಂತರ {{seconds}} ಸೆಕೆಂಡುಗಳನ್ನು ಬದ್ಧಗೊಳಿಸುವುದು.\nಆಟೋಕಮಿಟ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲು 0 ಗೆ ಹೊಂದಿಸಿ.',
   'ide.chat.autoCommit.usage':
-    'ಬಳಕೆ: /autocommit <seconds> — ಕೊನೆಯ ಫೈಲ್ ಬದಲಾವಣೆಯ ನಂತರ ಹಲವಾರು ಸೆಕೆಂಡುಗಳ ನಂತರ ಸ್ವಯಂ-ಬದ್ಧತೆ. /autocommit 0 ರದ್ದುಗೊಳ್ಳುತ್ತದೆ.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'ತಾರ್ಕಿಕ ಪ್ರಯತ್ನವನ್ನು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ.',
   'ide.chat.effort.fixedForModel':
     'ತಾರ್ಕಿಕ ಪ್ರಯತ್ನವನ್ನು {{model}} ({{mode}} ಮೋಡ್) ನಲ್ಲಿ ನಿಗದಿಪಡಿಸಲಾಗಿದೆ - ಹೊಂದಿಸಲು ಏನೂ ಇಲ್ಲ.',
@@ -394,7 +394,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} ಗಾಗಿ ತಾರ್ಕಿಕ ಪ್ರಯತ್ನವನ್ನು {{level}} ಗೆ ಹೊಂದಿಸಲಾಗಿದೆ.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'ಬಳಕೆ: /effort <level> (ಪ್ರಸ್ತುತ ಮೋಡ್), /effort --plan|--execute <level>, /effort ? ಸ್ಥಾನಮಾನಕ್ಕಾಗಿ.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -460,7 +460,7 @@ export const kn: Partial<IdeTranslations> = {
     'ಎಲ್ಲಾ ಕೀಬೋರ್ಡ್ ಶಾರ್ಟ್‌ಕಟ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಲು Cmd+/ (Windows/Linux ನಲ್ಲಿ Ctrl+/) ಒತ್ತಿರಿ.',
   'ide.chat.help.tipCompact': '• ಸಂಭಾಷಣೆ ದೀರ್ಘವಾದಾಗ ಸಂದರ್ಭವನ್ನು ಸಂಕುಚಿತಗೊಳಿಸಲು /compact ಬಳಸಿ.',
   'ide.chat.help.tipMention':
-    '• ಪ್ರಾಜೆಕ್ಟ್ ಫೈಲ್ ಅನ್ನು ಸಂದರ್ಭಕ್ಕೆ ತಕ್ಕಂತೆ ಲಗತ್ತಿಸಲು @filename ಎಂದು ಟೈಪ್ ಮಾಡಿ (ಅಥವಾ ಯಾವುದೇ ಫೈಲ್ ಅನ್ನು ಎಳೆಯಿರಿ ಮತ್ತು ಬಿಡಿ).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• ಬದಲಾವಣೆಗಳನ್ನು ಮಾಡುವ ಮೊದಲು /plan ಬಳಸಿ {{agentName}} ಸಂಶೋಧನೆ ಮಾಡಿ.',
   'ide.chat.help.tipSlash': '• ಮೇಲಿನ ಪ್ರತಿಯೊಂದು ಆಜ್ಞೆಯನ್ನು ಬ್ರೌಸ್ ಮಾಡಲು / ಎಂದು ಟೈಪ್ ಮಾಡಿ.',
   'ide.chat.help.tipSpecific':
@@ -506,8 +506,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'ಇನ್ನೂ ಯಾವುದೇ ಉಳಿಸಿದ ಸ್ಕ್ರಿಪ್ಟ್‌ಗಳಿಲ್ಲ. ಒಂದನ್ನು ರಚಿಸಲು /scripts ತೆರೆಯಿರಿ.',
   'ide.chat.scripts.runNotFound': '" {{name}} " ಎಂಬ ಹೆಸರಿನ ಸ್ಕ್ರಿಪ್ಟ್ ಇಲ್ಲ. ಲಭ್ಯವಿದೆ: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'ಬಳಕೆ: /run <name> — ಉಳಿಸಿದ ಸ್ಕ್ರಿಪ್ಟ್ ಅನ್ನು ರನ್ ಮಾಡಿ. ಅವುಗಳನ್ನು ನೋಡಲು /scripts ಬಳಸಿ.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} ಕೋಡ್ {{code}} ನೊಂದಿಗೆ ನಿರ್ಗಮಿಸಿದ್ದಾರೆ',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -561,10 +560,10 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ” ಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಯಾವುದೇ ಕೌಶಲ್ಯಗಳಿಲ್ಲ.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1 ಸೆಕೆಂಡ್ ಯೋಚಿಸಿದೆ',
-  'ide.chat.thoughtForSeconds': '{{count}} ಸೆಕೆಂಡುಗಳ ಕಾಲ ಯೋಚಿಸಿದೆ',
-  'ide.chat.thoughtForMinute': '1 ನಿಮಿಷ ಯೋಚಿಸಿದೆ',
-  'ide.chat.thoughtForMinutes': '{{count}} ನಿಮಿಷಗಳ ಕಾಲ ಯೋಚಿಸಿದೆ',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -577,7 +576,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'ಬಳಕೆ: {{usage}} ([…] ಐಚ್ಛಿಕ, <…> ಅಗತ್ಯವಿದೆ)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'ನಿಮ್ಮ ವರದಿಯನ್ನು ಸಲ್ಲಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
   'ide.chat.report.submitted': 'ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ವರದಿಯನ್ನು {{productName}} ತಂಡಕ್ಕೆ ಸಲ್ಲಿಸಲಾಗಿದೆ.',
   'ide.chat.report.submittedWithLink':

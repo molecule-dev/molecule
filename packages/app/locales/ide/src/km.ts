@@ -380,7 +380,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ប្រព្រឹត្តដោយស្វ័យប្រវត្តិលើ៖ ប្រព្រឹត្ត {{seconds}} s បន្ទាប់ពីការផ្លាស់ប្តូរឯកសារចុងក្រោយ។\nកំណត់​ទៅ 0 ដើម្បី​បិទ​ការ​បញ្ជូន​ស្វ័យប្រវត្តិ។',
   'ide.chat.autoCommit.usage':
-    'ការប្រើប្រាស់៖ /autocommit <seconds> — បញ្ជូនដោយស្វ័យប្រវត្តិក្នុងរយៈពេលប៉ុន្មានវិនាទីបន្ទាប់ពីការផ្លាស់ប្ដូរឯកសារចុងក្រោយ។ /autocommit 0 លុបចោល។',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពកិច្ចខិតខំប្រឹងប្រែងវែកញែក។',
   'ide.chat.effort.fixedForModel':
     'ការខិតខំប្រឹងប្រែងវែកញែកត្រូវបានជួសជុលនៅលើ {{model}} ({{mode}} mode) — គ្មានអ្វីត្រូវកំណត់ទេ។',
@@ -392,7 +392,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'ការខិតខំប្រឹងប្រែងវែកញែកសម្រាប់ {{mode}} កំណត់ទៅ {{level}} ។',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'ការប្រើប្រាស់៖ /effort <level> (របៀបបច្ចុប្បន្ន), /effort --plan|--execute <level>, /effort ? ដើម្បីឋានៈ។',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -456,7 +456,7 @@ export const km: Partial<IdeTranslations> = {
     'ចុច Cmd+/ (Ctrl+/ នៅលើ Windows/Linux) ដើម្បីមើលផ្លូវកាត់ក្តារចុចទាំងអស់។',
   'ide.chat.help.tipCompact': '• ប្រើ /compact ដើម្បីបង្រួមបរិបទនៅពេលដែលការសន្ទនាវែង។',
   'ide.chat.help.tipMention':
-    '• វាយ @filename ដើម្បីភ្ជាប់ឯកសារគម្រោងជាបរិបទ (ឬអូស និងទម្លាក់ឯកសារណាមួយ)។',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• ប្រើ /plan ដើម្បីឱ្យ {{agentName}} ស្រាវជ្រាវមុនពេលធ្វើការផ្លាស់ប្តូរ។',
   'ide.chat.help.tipSlash': '• វាយ / ដើម្បីរកមើលពាក្យបញ្ជានីមួយៗខាងលើ។',
@@ -503,8 +503,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'មិនទាន់មានស្គ្រីបដែលបានរក្សាទុកនៅឡើយទេ។ សូមបើក /scripts ដើម្បីបង្កើតមួយ។',
   'ide.chat.scripts.runNotFound': 'គ្មានស្គ្រីបដែលមានឈ្មោះថា “ {{name}} ” ទេ។ មាន៖ {{names}}',
-  'ide.chat.scripts.runUsage':
-    'ការប្រើប្រាស់៖ /run <name> — ដំណើរការស្គ្រីបដែលបានរក្សាទុក។ ប្រើ /scripts ដើម្បីមើលពួកវា។',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': 'បានចេញដោយប្រើប្រាស់លេខ {{name}} {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -557,10 +556,10 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'គ្មានជំនាញណាមួយដែលត្រូវគ្នានឹង “ {{query}} ” ទេ។',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'គិតរយៈពេល 1 វិនាទី',
-  'ide.chat.thoughtForSeconds': 'គិតរយៈពេល {{count}} វិនាទី',
-  'ide.chat.thoughtForMinute': 'គិតរយៈពេល ១ នាទី',
-  'ide.chat.thoughtForMinutes': 'គិតសម្រាប់ {{count}} នាទី',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -573,7 +572,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'ការប្រើប្រាស់៖ {{usage}} ([…] ជាជម្រើស, <…> តម្រូវឲ្យមាន)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'មិនអាចដាក់ស្នើរបាយការណ៍របស់អ្នកបានទេ។ សូមព្យាយាមម្តងទៀត។',
   'ide.chat.report.submitted':
     'អរគុណ! របាយការណ៍របស់អ្នកត្រូវបានដាក់ជូនទៅក្រុមរបស់ {{productName}} ហើយ។',

@@ -378,7 +378,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Ավտոմատ հաստատում. հաստատվում է ֆայլի վերջին փոփոխությունից {{seconds}} վայրկյան անց։\nԱվտոմատ հաստատումն անջատելու համար դրեք 0։',
   'ide.chat.autoCommit.usage':
-    'Օգտագործումը՝ /autocommit <seconds> — ավտոմատ կերպով հաստատվում է ֆայլի վերջին փոփոխությունից այդքան վայրկյան անց։ /autocommit 0-ը չեղարկում է։',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Չհաջողվեց թարմացնել դատողությունների ջանքը։',
   'ide.chat.effort.fixedForModel':
     'Ռացիոնալացման ջանքերը ֆիքսված են {{model}} ({{mode}} ռեժիմ) ռեժիմում — ոչինչ սահմանելու համար։',
@@ -391,7 +391,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} ի համար դատողության ջանքը սահմանված է {{level}} ի վրա։',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Օգտագործումը՝ /effort <level> (ընթացիկ ռեժիմ), /effort --plan|--execute <level>, /effort ? կարգավիճակի համար։',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -457,7 +457,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Օգտագործեք /compact ՝ համատեքստը սեղմելու համար, երբ զրույցը երկար է դառնում։',
   'ide.chat.help.tipMention':
-    '• Մուտքագրեք @ֆայլի անուն՝ նախագծի ֆայլը որպես համատեքստ կցելու համար (կամ քաշեք և գցեք ցանկացած ֆայլ):',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Փոփոխություններ կատարելուց առաջ օգտագործեք /plan ՝ {{agentName}} ը հետազոտելու համար։',
   'ide.chat.help.tipSlash': '• Մուտքագրեք /՝ վերևում նշված բոլոր հրամանները դիտելու համար։',
@@ -503,8 +503,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Սկրիպտը չհաջողվեց գործարկել։',
   'ide.chat.scripts.runNone': 'Պահպանված սկրիպտներ դեռ չկան: Բացեք /scripts մեկը ստեղծելու համար:',
   'ide.chat.scripts.runNotFound': '« {{name}} » անունով սկրիպտ չկա։ Հասանելի է՝ {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Օգտագործումը՝ /run <name> — գործարկել պահպանված սկրիպտը։ Օգտագործեք /scripts դրանք տեսնելու համար։',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} ը դուրս եկավ {{code}} կոդով',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -557,10 +556,10 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '« {{query}} » հարցմանը համապատասխանող հմտություններ չկան։',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Մտածեց 1 վայրկյան',
-  'ide.chat.thoughtForSeconds': 'Մտածեցի {{count}} վայրկյան',
-  'ide.chat.thoughtForMinute': 'Մտածեց 1 րոպե',
-  'ide.chat.thoughtForMinutes': 'Մտածեցի {{count}} րոպե',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -573,7 +572,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Օգտագործում՝ {{usage}} ([…] ըստ ցանկության, <…> պարտադիր)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Հնարավոր չէ ուղարկել ձեր հաղորդումը։ Խնդրում ենք կրկին փորձել։',
   'ide.chat.report.submitted':
     'Շնորհակալություն։ Ձեր հաղորդումը ուղարկվել է {{productName}}-ի թիմին։',

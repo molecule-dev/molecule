@@ -404,7 +404,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Fi ara ẹni ṣe àdéhùn lórí: ṣíṣe {{seconds}} lẹ́yìn ìyípadà fáìlì tó kẹ́yìn.\nṢètò sí 0 láti mú ìfọwọ́sowọ́pọ̀ kúrò.',
   'ide.chat.autoCommit.usage':
-    'Lilo: /autocommit <seconds> — ṣe àdéhùn-láìfọwọ́sí ní ọ̀pọ̀ ìṣẹ́jú-àáyá lẹ́yìn ìyípadà fáìlì tó kẹ́yìn. /autocommit 0 fagilé.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Kò ṣeé ṣe láti ṣe àtúnṣe sí ìsapá ìrònú.',
   'ide.chat.effort.fixedForModel':
     'Igbiyanju ero inu ni a ti pinnu lori {{model}} ({{mode}} mode) — ko si nkankan lati ṣeto.',
@@ -415,7 +415,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Igbiyanju ero fun {{mode}} ti a ṣeto si {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Lilo: /effort <level> (ipo lọwọlọwọ), /effort --plan|--execute <level>, /effort ? fún ipò.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -479,7 +479,7 @@ export const yo: Partial<IdeTranslations> = {
     'Tẹ Cmd+/ (Ctrl+/ lórí Windows/Linux) láti wo gbogbo àwọn ọ̀nà àbájáde keyboard.',
   'ide.chat.help.tipCompact': '• Lo /compact lati fun pọ ọrọ naa nigbati ibaraẹnisọrọ ba gun.',
   'ide.chat.help.tipMention':
-    '• Tẹ @filename láti so fáìlì iṣẹ́ àgbékalẹ̀ mọ́ gẹ́gẹ́ bí ìtumọ̀ (tàbí fa & ju fáìlì èyíkéyìí sílẹ̀).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• Lo /plan lati ni iwadi {{agentName}} ṣaaju ṣiṣe awọn ayipada.',
   'ide.chat.help.tipSlash': '• Tẹ / lati wo gbogbo aṣẹ loke.',
   'ide.chat.help.tipSpecific':
@@ -525,8 +525,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'Kò sí àwọn ìwé àkọsílẹ̀ tí a fipamọ́ síbẹ̀. Ṣí /scripts láti ṣẹ̀dá ọ̀kan.',
   'ide.chat.scripts.runNotFound': 'Kò sí ìwé àkọsílẹ̀ tí a pè ní “ {{name}} ”. Ó wà: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Lilo: /run <name> — ṣiṣẹ́ ìwé àfọwọ́kọ tí a fipamọ́. Lo /scripts láti rí wọn.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} jáde pẹ̀lú kódì {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -579,10 +578,10 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Kò sí ọgbọ́n tó bá “ {{query}} ” mu.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Ronú fún ìṣẹ́jú-àáyá kan',
-  'ide.chat.thoughtForSeconds': 'Ìrònú fún {{count}} ìṣẹ́jú-àáyá',
-  'ide.chat.thoughtForMinute': 'Ronu fun iseju kan',
-  'ide.chat.thoughtForMinutes': 'Ìrònú fún ìṣẹ́jú {{count}}',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -595,7 +594,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Lilo: {{usage}} ([…] aṣayan, <…> nilo)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Kò le fi ìròyìn rẹ sílẹ̀. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan síi.',
   'ide.chat.report.submitted': 'Ẹ ṣeun! Wọ́n fi ìròyìn rẹ ránṣẹ́ sí ẹgbẹ́ {{productName}}.',
   'ide.chat.report.submittedWithLink':

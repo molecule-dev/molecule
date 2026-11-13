@@ -379,7 +379,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ഓട്ടോ-കമ്മിറ്റ് ഓൺ: അവസാന ഫയൽ മാറ്റത്തിന് ശേഷം {{seconds}} സെക്കൻഡ് കമ്മിറ്റ് ചെയ്യുന്നു.\nഓട്ടോകമ്മിറ്റ് പ്രവർത്തനരഹിതമാക്കാൻ 0 ആയി സജ്ജമാക്കുക.',
   'ide.chat.autoCommit.usage':
-    'ഉപയോഗം: /autocommit <seconds> — അവസാന ഫയൽ മാറ്റത്തിന് ശേഷം അത്രയും സെക്കൻഡുകൾക്ക് ശേഷം ഓട്ടോ-കമ്മിറ്റ് ചെയ്യുക. /autocommit 0 റദ്ദാക്കുന്നു.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'യുക്തിസഹമായ ശ്രമം അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
   'ide.chat.effort.fixedForModel':
     'റീസണിങ് എഫർട്ട് {{model}} ({{mode}} മോഡ്)-ൽ ഉറപ്പിച്ചിരിക്കുന്നു — സജ്ജീകരിക്കാൻ ഒന്നുമില്ല.',
@@ -393,7 +393,7 @@ export const ml: Partial<IdeTranslations> = {
     '{{mode}} നുള്ള റീസണിംഗ് എഫർട്ട് {{level}} ആയി സജ്ജീകരിച്ചിരിക്കുന്നു.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'ഉപയോഗം: /effort <level> (നിലവിലെ മോഡ്), /effort --plan|--execute <level>, /effort ? പദവിക്ക് വേണ്ടി.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -459,7 +459,7 @@ export const ml: Partial<IdeTranslations> = {
     'എല്ലാ കീബോർഡ് കുറുക്കുവഴികളും കാണാൻ Cmd+/ (Windows/Linux-ൽ Ctrl+/) അമർത്തുക.',
   'ide.chat.help.tipCompact': '• സംഭാഷണം നീണ്ടുപോകുമ്പോൾ സന്ദർഭം ചുരുക്കാൻ /compact ഉപയോഗിക്കുക.',
   'ide.chat.help.tipMention':
-    '• ഒരു പ്രോജക്റ്റ് ഫയൽ കോൺടെക്സ്റ്റ് ആയി അറ്റാച്ചുചെയ്യാൻ @filename എന്ന് ടൈപ്പ് ചെയ്യുക (അല്ലെങ്കിൽ ഏതെങ്കിലും ഫയൽ വലിച്ചിടുക).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• മാറ്റങ്ങൾ വരുത്തുന്നതിന് മുമ്പ് {{agentName}} ഗവേഷണം നടത്താൻ /plan ഉപയോഗിക്കുക.',
   'ide.chat.help.tipSlash': '• മുകളിലുള്ള എല്ലാ കമാൻഡുകളും ബ്രൗസ് ചെയ്യാൻ / എന്ന് ടൈപ്പ് ചെയ്യുക.',
@@ -507,8 +507,7 @@ export const ml: Partial<IdeTranslations> = {
     'ഇതുവരെ സംരക്ഷിച്ച സ്ക്രിപ്റ്റുകളൊന്നുമില്ല. ഒരെണ്ണം സൃഷ്ടിക്കാൻ /scripts തുറക്കുക.',
   'ide.chat.scripts.runNotFound':
     '“ {{name}} ” എന്ന പേരിൽ ഒരു സ്ക്രിപ്റ്റും ഇല്ല. ലഭ്യമാണ്: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'ഉപയോഗം: /run <name> — സേവ് ചെയ്ത ഒരു സ്ക്രിപ്റ്റ് പ്രവർത്തിപ്പിക്കുക. അവ കാണാൻ /scripts ഉപയോഗിക്കുക.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} എന്ന കോഡ് {{code}} ഉപയോഗിച്ച് പുറത്തുകടന്നു.',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -561,10 +560,10 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ” എന്നതിന് സമാനമായ കഴിവുകളൊന്നുമില്ല.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'ഒരു സെക്കൻഡ് ആലോചിച്ചു',
-  'ide.chat.thoughtForSeconds': '{{count}} സെക്കൻഡ് ആലോചിച്ചു',
-  'ide.chat.thoughtForMinute': 'ഒരു മിനിറ്റ് ആലോചിച്ചു',
-  'ide.chat.thoughtForMinutes': '{{count}} മിനിറ്റ് ആലോചിച്ചു',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -577,7 +576,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'ഉപയോഗം: {{usage}} ([…] ഓപ്ഷണൽ, <…> ആവശ്യമാണ്)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'നിങ്ങളുടെ റിപ്പോർട്ട് സമർപ്പിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
   'ide.chat.report.submitted':
     'നന്ദി! നിങ്ങളുടെ റിപ്പോർട്ട് {{productName}} ന്റെ ടീമിന് സമർപ്പിച്ചു.',

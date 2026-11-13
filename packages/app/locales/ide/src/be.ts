@@ -380,7 +380,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Аўтаматычная фіксацыя: фіксацыя праз {{seconds}} с пасля апошняга змянення файла.\nУсталюйце значэнне 0, каб адключыць аўтаматычную фіксацыю.',
   'ide.chat.autoCommit.usage':
-    'Выкарыстанне: /autocommit <seconds> — аўтаматычна зафіксаваць праз столькі секунд пасля апошняга змянення файла. /autocommit 0 адмяняе змяненне.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Не атрымалася абнавіць спробу разважання.',
   'ide.chat.effort.fixedForModel':
     'Намаганні па разважанні фіксаваныя на {{model}} ({{mode}} mode) — няма чаго ўсталёўваць.',
@@ -393,7 +393,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Намаганні па разважанні для {{mode}} устаноўлены на {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Выкарыстанне: /effort <level> (бягучы рэжым), /effort --plan|--execute <level>, /effort ? для статусу.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -459,7 +459,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Выкарыстоўвайце /compact для сціскання кантэксту, калі размова становіцца доўгай.',
   'ide.chat.help.tipMention':
-    '• Увядзіце @filename, каб далучыць файл праекта ў якасці кантэксту (або перацягніце любы файл).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Перад унясеннем змяненняў скарыстайцеся /plan правядзення даследавання {{agentName}} .',
   'ide.chat.help.tipSlash': '• Увядзіце /, каб праглядзець усе каманды вышэй.',
@@ -506,8 +506,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'Пакуль няма захаваных скрыптоў. Адкрыйце /scripts, каб стварыць адзін.',
   'ide.chat.scripts.runNotFound': 'Няма скрыпта з назвай « {{name}} ». Даступны: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Выкарыстанне: /run <name> — запусціць захаваны скрыпт. Каб праглядзець іх, выкарыстоўвайце /scripts .',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} скончылася з кодам {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -561,10 +560,10 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Няма адпаведных навыкаў для " {{query}} ".',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Падумаў 1 секунду',
-  'ide.chat.thoughtForSeconds': 'Думаў {{count}} секунд',
-  'ide.chat.thoughtForMinute': 'Падумаў 1 хвіліну',
-  'ide.chat.thoughtForMinutes': 'Думаў {{count}} хвілін',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -577,7 +576,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Выкарыстанне: {{usage}} ([…] неабавязкова, <…> абавязкова)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Не атрымалася адправіць справаздачу. Паўтарыце спробу.',
   'ide.chat.report.submitted': 'Дзякуй! Ваша скарга была адпраўлена камандзе {{productName}}.',
   'ide.chat.report.submittedWithLink':

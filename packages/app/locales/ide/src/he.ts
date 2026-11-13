@@ -366,7 +366,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ביצוע אוטומטי ב: ביצוע {{seconds}} שניות לאחר שינוי הקובץ האחרון.\nהגדר ל-0 כדי להשבית את הפעולה האוטומטית.',
   'ide.chat.autoCommit.usage':
-    'שימוש: /autocommit <seconds> — לבצע commit אוטומטית במספר השניות הזה לאחר שינוי הקובץ האחרון. /autocommit 0 מבטל.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'נכשל בעדכון מאמץ ההיגיון.',
   'ide.chat.effort.fixedForModel':
     'מאמץ ההיגיון קבוע על {{model}} ({{mode}} mode) — אין צורך להגדיר.',
@@ -377,7 +377,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'מאמץ ההיגיון עבור {{mode}} מוגדר ל- {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'שימוש: /effort <level> (מצב נוכחי), /effort --plan|--execute <level>, /effort ? עבור סטטוס.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -437,7 +437,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.help.shortcuts': 'לחץ על Cmd+/ (Ctrl+/ ב-Windows/Linux) כדי להציג את כל קיצורי המקשים.',
   'ide.chat.help.tipCompact': '• השתמשו בפונקציה /compact כדי לדחוס את ההקשר כאשר השיחה מתארכת.',
   'ide.chat.help.tipMention':
-    '• הקלד @filename כדי לצרף קובץ פרויקט כהקשר (או גרור ושחרר כל קובץ).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• השתמשו ב- /plan כדי ש- {{agentName}} יעשו מחקר לפני ביצוע שינויים.',
   'ide.chat.help.tipSlash': '• הקלד / כדי לעיין בכל פקודה לעיל.',
   'ide.chat.help.tipSpecific':
@@ -482,8 +482,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'הפעלת הסקריפט נכשלה.',
   'ide.chat.scripts.runNone': 'עדיין לא נשמרו סקריפטים. פתח את /scripts כדי ליצור אחד.',
   'ide.chat.scripts.runNotFound': 'אין סקריפט בשם " {{name}} ". זמין: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'שימוש: /run <name> — הפעל סקריפט שמור. השתמש ב- /scripts כדי לראות אותם.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} יצא עם קוד {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -535,10 +534,10 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'אין כישורים תואמים ל-" {{query}} ".',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'חשבתי לרגע',
-  'ide.chat.thoughtForSeconds': 'חשבתי במשך {{count}} שניות',
-  'ide.chat.thoughtForMinute': 'חשבתי לרגע',
-  'ide.chat.thoughtForMinutes': 'חשבתי במשך {{count}} דקות',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -551,7 +550,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'שימוש: {{usage}} ([…] אופציונלי, <…> נדרש)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'לא ניתן היה לשלוח את הדוח שלך. אנא נסה שוב.',
   'ide.chat.report.submitted': 'תודה! הדוח שלך נשלח לצוות של {{productName}}.',
   'ide.chat.report.submittedWithLink': 'תודה! הדוח שלך נשלח - עקוב אחריו בבעיה המקושרת.',

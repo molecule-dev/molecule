@@ -377,7 +377,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Automatsko potvrđivanje: potvrđivanje {{seconds}} s nakon zadnje promjene datoteke.\nPostavite na 0 za onemogućavanje automatskog potvrđivanja.',
   'ide.chat.autoCommit.usage':
-    'Upotreba: /autocommit <seconds> — automatsko potvrđivanje (commit) onoliko sekundi nakon zadnje promjene datoteke. /autocommit 0 prekida.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Nije uspjelo ažuriranje napora zaključivanja.',
   'ide.chat.effort.fixedForModel':
     'Napor razmišljanja je fiksan na {{model}} ({{mode}} mode) — nema se što postaviti.',
@@ -390,7 +390,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Napor razmišljanja za {{mode}} postavljen na {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Upotreba: /effort <level> (trenutni način rada), /effort --plan|--execute <level>, /effort ? za status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -454,7 +454,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Koristite /compact za komprimiranje konteksta kada razgovor postane dugačak.',
   'ide.chat.help.tipMention':
-    '• Upišite @filename da biste priložili datoteku projekta kao kontekst (ili povucite i ispustite bilo koju datoteku).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Koristite /plan istraživanje {{agentName}} prije nego što napravite promjene.',
   'ide.chat.help.tipSlash': '• Upišite / za pregledavanje svake gore navedene naredbe.',
@@ -501,8 +501,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'Još nema spremljenih skripti. Otvorite /scripts da biste jednu stvorili.',
   'ide.chat.scripts.runNotFound': 'Nema skripte pod nazivom „ {{name}} “. Dostupno: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Upotreba: /run <name> — pokrenite spremljenu skriptu. Koristite /scripts da biste ih vidjeli.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} je završio s kodom {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -555,10 +554,10 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Nema odgovarajućih vještina za " {{query}} ".',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Razmišljao 1 sekundu',
-  'ide.chat.thoughtForSeconds': 'Razmišljao sam {{count}} sekundi',
-  'ide.chat.thoughtForMinute': 'Razmišljao 1 minutu',
-  'ide.chat.thoughtForMinutes': 'Razmišljao sam {{count}} minuta',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -571,7 +570,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Upotreba: {{usage}} ([…] neobavezno, <…> obavezno)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Nije moguće poslati vaše izvješće. Pokušajte ponovno.',
   'ide.chat.report.submitted': 'Hvala! Vaše je izvješće poslano timu {{productName}}.',
   'ide.chat.report.submittedWithLink':

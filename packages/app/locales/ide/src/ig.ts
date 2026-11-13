@@ -373,7 +373,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Nkwenye onwe gị na: itinye {{seconds}} s mgbe mgbanwe faịlụ ikpeazụ gasịrị.\nTọọ ka ọ bụrụ 0 iji gbanyụọ akpaaka.',
   'ide.chat.autoCommit.usage':
-    'Ojiji: /autocommit <seconds> — na-ekwe nkwa na akpaghị aka ọtụtụ sekọnd mgbe mgbanwe faịlụ ikpeazụ gasịrị. /autocommit 0 kagburu.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Emeliteghị mgbalị iche echiche.',
   'ide.chat.effort.fixedForModel':
     'A na-edozi mbọ iche echiche na {{model}} ({{mode}} mode) — ọ dịghị ihe a ga-edozi.',
@@ -385,7 +385,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Mgbalị iche echiche maka {{mode}} ka edobere na {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Ojiji: /effort <level> (ụdị ugbu a), /effort --plan|--execute <level>, /effort ? maka ọkwa.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -449,7 +449,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     "• Jiri /compact mee ka ihe dị n'ime ya dịgide mgbe mkparịta ụka ahụ dị ogologo.",
   'ide.chat.help.tipMention':
-    '• Pịa @filename iji tinye faịlụ ọrụ dịka ihe dị na ya (maọbụ dọkpụrụ & dobe faịlụ ọ bụla).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• Jiri /plan ka {{agentName}} mee nchọpụta tupu ịme mgbanwe.',
   'ide.chat.help.tipSlash': "• Pịnye / iji lelee iwu ọ bụla dị n'elu.",
   'ide.chat.help.tipSpecific':
@@ -494,7 +494,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Ọ gaghị ekwe omume ịgba ọsọ edemede ahụ.',
   'ide.chat.scripts.runNone': 'Enwebeghị edemede echekwara. Mepee /scripts iji mepụta otu.',
   'ide.chat.scripts.runNotFound': 'Enweghị edemede aha ya bụ " {{name}} ". Dị: {{names}}',
-  'ide.chat.scripts.runUsage': 'Ojiji: /run <name> — gbaa edemede echekwara. Jiri /scripts hụ ha.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} pụọ na koodu {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -546,10 +546,10 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Ọ dịghị nkà ọ bụla dabara na " {{query}} ".',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Echere m maka otu sekọnd',
-  'ide.chat.thoughtForSeconds': 'Echiche maka {{count}} sekọnd',
-  'ide.chat.thoughtForMinute': 'Chee echiche maka otu nkeji',
-  'ide.chat.thoughtForMinutes': 'Echiche maka nkeji {{count}}',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -562,7 +562,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Ojiji: {{usage}} ([…] nhọrọ, <…> achọrọ)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Enweghị m ike izipu akụkọ gị. Biko nwaa ọzọ.',
   'ide.chat.report.submitted': "Daalụ! E zigara akụkọ gị n'aka ndị otu {{productName}}.",
   'ide.chat.report.submittedWithLink': 'Daalụ! E zigara akụkọ gị — soro ya na nsogbu ejikọtara.',

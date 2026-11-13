@@ -372,7 +372,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Outomatiese toewyding aan: toewyding van {{seconds}} s na die laaste lêerverandering.\nStel op 0 om outotoewyding te deaktiveer.',
   'ide.chat.autoCommit.usage':
-    'Gebruik: /autocommit <seconds> — outomatiese toewyding van daardie aantal sekondes na die laaste lêerverandering. /autocommit 0 kanselleer.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Kon nie redenasiepoging opdateer nie.',
   'ide.chat.effort.fixedForModel':
     'Redeneringspoging is vasgestel op {{model}} ({{mode}} modus) — niks om te stel nie.',
@@ -384,7 +384,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Redeneringspoging vir {{mode}} gestel op {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Gebruik: /effort <level> (huidige modus), /effort --plan|--execute <level>, /effort ? vir status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -449,7 +449,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Gebruik /compact om konteks saam te pers wanneer die gesprek lank raak.',
   'ide.chat.help.tipMention':
-    "• Tik @lêernaam om 'n projeklêer as konteks aan te heg (of sleep en los enige lêer).",
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Gebruik /plan om {{agentName}} navorsing te laat doen voordat veranderinge aangebring word.',
   'ide.chat.help.tipSlash': '• Tik / om deur elke opdrag hierbo te blaai.',
@@ -495,8 +495,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Kon nie die skrip uitvoer nie.',
   'ide.chat.scripts.runNone': 'Geen gestoorde skrifte nog nie. Maak /scripts oop om een te skep.',
   'ide.chat.scripts.runNotFound': 'Geen skrip met die naam “ {{name}} ” nie. Beskikbaar: {{names}}',
-  'ide.chat.scripts.runUsage':
-    "Gebruik: /run <name> — voer 'n gestoorde skrip uit. Gebruik /scripts om hulle te sien.",
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} het met kode {{code}} afgesluit',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -548,10 +547,10 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Geen vaardighede stem ooreen met “ {{query}} ” nie.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Het vir 1 sekonde gedink',
-  'ide.chat.thoughtForSeconds': 'Gedink vir {{count}} sekondes',
-  'ide.chat.thoughtForMinute': 'Het vir 1 minuut gedink',
-  'ide.chat.thoughtForMinutes': 'Gedink vir {{count}} minute',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -564,7 +563,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Gebruik: {{usage}} ([…] opsioneel, <…> vereis)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Kon nie jou verslag indien nie. Probeer asseblief weer.',
   'ide.chat.report.submitted': 'Dankie! Jou verslag is aan {{productName}} se span voorgelê.',
   'ide.chat.report.submittedWithLink':

@@ -378,7 +378,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     "Avtomatik ravishda bajarish: oxirgi fayl o'zgarishidan keyin {{seconds}} s ni bajarish.\nAvtomatik topshirishni o'chirish uchun 0 ga sozlang.",
   'ide.chat.autoCommit.usage':
-    "Foydalanish: /autocommit <seconds> — oxirgi fayl o'zgarganidan bir necha soniya o'tgach, avtomatik ravishda bajarish. /autocommit 0 bekor qiladi.",
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Fikrlash harakatlarini yangilashda xatolik yuz berdi.',
   'ide.chat.effort.fixedForModel':
     "Fikrlash harakati {{model}} ({{mode}} rejimi) ga o'rnatildi — o'rnatish uchun hech narsa yo'q.",
@@ -391,7 +391,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': "{{mode}} uchun mantiqiy harakat {{level}} ga o'rnatildi.",
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Foydalanish: /effort <level> (joriy rejim), /effort --plan|--execute <level>, /effort ? holat uchun.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -457,7 +457,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     "• Suhbat cho'zilib ketganda kontekstni siqish uchun /compact dan foydalaning.",
   'ide.chat.help.tipMention':
-    '• Loyiha faylini kontekst sifatida biriktirish uchun @filename ni kiriting (yoki istalgan faylni sudrab tashlang).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     "• O'zgartirishlar kiritishdan oldin {{agentName}} tadqiqotini o'tkazish uchun /plan dan foydalaning.",
   'ide.chat.help.tipSlash': "• Yuqoridagi har bir buyruqni ko'rib chiqish uchun / ni kiriting.",
@@ -504,8 +504,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     "Hali saqlangan skriptlar yo'q. Yangisini yaratish uchun /scripts faylini oching.",
   'ide.chat.scripts.runNotFound': "“ {{name}} ” nomli skript yo'q. Mavjud: {{names}}",
-  'ide.chat.scripts.runUsage':
-    "Foydalanish: /run <name> — saqlangan skriptni ishga tushiring. Ularni ko'rish uchun /scripts foydalaning.",
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} kodi bilan chiqdi',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -558,10 +557,10 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': "“ {{query}} ” ga mos keladigan ko'nikmalar topilmadi.",
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': "1 soniya o'ylanib qoldim",
-  'ide.chat.thoughtForSeconds': "{{count}} soniya o'yladi",
-  'ide.chat.thoughtForMinute': "1 daqiqa o'ylanib qoldim",
-  'ide.chat.thoughtForMinutes': "{{count}} daqiqa o'yladi",
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -574,7 +573,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Foydalanish: {{usage}} ([…] ixtiyoriy, <…> talab qilinadi)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': "Hisobotingizni yuborib bo'lmadi. Qaytadan urinib ko'ring.",
   'ide.chat.report.submitted': 'Rahmat! Hisobotingiz {{productName}} jamoasiga yuborildi.',
   'ide.chat.report.submittedWithLink':

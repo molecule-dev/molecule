@@ -553,19 +553,18 @@ export const pl: Partial<IdeTranslations> = {
     'W katalogu .agents/skills/ nie znaleziono żadnych umiejętności dla tego projektu.',
   'ide.chat.skills.noMatch': 'Nie znaleziono wyników pasujących do hasła „{{query}}”.',
   'ide.chat.autoCommit.usage':
-    'Użycie: /autocommit <seconds> — automatyczne zatwierdzenie określonej liczby sekund po ostatniej zmianie pliku. /autocommit 0 anuluje.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Użycie: /effort <level> (tryb bieżący), /effort --plan|--execute <level>, /effort ? dla statusu.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Wpisz @filename, aby dołączyć plik projektu jako kontekst (lub przeciągnij i upuść dowolny plik).',
-  'ide.chat.scripts.runUsage':
-    'Użycie: /run <name> — uruchom zapisany skrypt. Użyj /scripts , aby go zobaczyć.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Myśl przez 1 sekundę',
-  'ide.chat.thoughtForSeconds': 'Myślałem przez {{count}} sekund',
-  'ide.chat.thoughtForMinute': 'Myśl przez 1 minutę',
-  'ide.chat.thoughtForMinutes': 'Myśl przez {{count}} minut',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Zastanawiam się...',
   'ide.chat.streaming.analyzing': 'Analiza w toku...',
   'ide.chat.streaming.reasoning': 'Rozumowanie...',
@@ -578,7 +577,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Polecenia',
   'ide.chat.help.card.modesTitle': 'Tryby',
   'ide.chat.help.card.tipsTitle': 'Porady',
-  'ide.chat.help.card.usageHint': 'Użycie: {{usage}} ([…] opcjonalne, <…> wymagane)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Nie udało się przesłać zgłoszenia. Spróbuj ponownie.',
   'ide.chat.report.submitted':
     'Dziękujemy! Twoje zgłoszenie zostało przekazane zespołowi serwisu „{{productName}}”.',

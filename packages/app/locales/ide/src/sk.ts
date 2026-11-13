@@ -548,19 +548,18 @@ export const sk: Partial<IdeTranslations> = {
     'V adresári .agents/skills/ neboli pre tento projekt nájdené žiadne zručnosti.',
   'ide.chat.skills.noMatch': 'Žiadna zručnosť nezodpovedá položke „{{query}}“.',
   'ide.chat.autoCommit.usage':
-    'Použitie: /autocommit <seconds> — automaticky potvrdiť požadovaný počet sekúnd po poslednej zmene súboru. /autocommit 0 zruší.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Použitie: /effort <level> (aktuálny režim), /effort --plan|--execute <level>, /effort ? pre stav.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Zadajte @názovsúboru pre pripojenie súboru projektu ako kontextu (alebo presuňte ľubovoľný súbor myšou).',
-  'ide.chat.scripts.runUsage':
-    'Použitie: /run <name> — spustiť uložený skript. Na ich zobrazenie použite /scripts .',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Zamyslel som sa na 1 sekundu',
-  'ide.chat.thoughtForSeconds': 'Premýšľal {{count}} sekúnd',
-  'ide.chat.thoughtForMinute': 'Premýšľal som 1 minútu',
-  'ide.chat.thoughtForMinutes': 'Premýšľal som {{count}} minút',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Premýšľam...',
   'ide.chat.streaming.analyzing': 'Analyzujem...',
   'ide.chat.streaming.reasoning': 'Úvaha...',
@@ -573,7 +572,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Príkazy',
   'ide.chat.help.card.modesTitle': 'Režimy',
   'ide.chat.help.card.tipsTitle': 'Tipy',
-  'ide.chat.help.card.usageHint': 'Použitie: {{usage}} ([…] voliteľné, <…> povinné)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Vaše hlásenie sa nepodarilo odoslať. Skúste to prosím znova.',
   'ide.chat.report.submitted': 'Ďakujeme! Vaše hlásenie bolo odoslané tímu {{productName}}.',
   'ide.chat.report.submittedWithLink':

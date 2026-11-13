@@ -557,19 +557,18 @@ export const uk: Partial<IdeTranslations> = {
     'У каталозі .agents/skills/ для цього проєкту не знайдено жодних навичок.',
   'ide.chat.skills.noMatch': 'Не знайдено відповідних навичок для «{{query}}».',
   'ide.chat.autoCommit.usage':
-    'Використання: /autocommit <seconds> — автоматично зафіксувати зміну через певну кількість секунд після останньої зміни файлу. /autocommit 0 скасовує.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Використання: /effort <level> (поточний режим), /effort --plan|--execute <level>, /effort ? для статусу.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Введіть @filename, щоб додати файл проєкту як контекст (або перетягніть будь-який файл).',
-  'ide.chat.scripts.runUsage':
-    'Використання: /run <name> — запустити збережений скрипт. Використайте /scripts , щоб переглянути їх.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Подумав 1 секунду',
-  'ide.chat.thoughtForSeconds': 'Думав протягом {{count}} секунд',
-  'ide.chat.thoughtForMinute': 'Думав 1 хвилину',
-  'ide.chat.thoughtForMinutes': 'Розмірковував протягом {{count}} хвилин',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Думаю...',
   'ide.chat.streaming.analyzing': 'Аналізується...',
   'ide.chat.streaming.reasoning': 'Міркування...',
@@ -582,7 +581,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Команди',
   'ide.chat.help.card.modesTitle': 'Режими',
   'ide.chat.help.card.tipsTitle': 'Поради',
-  'ide.chat.help.card.usageHint': "Використання: {{usage}} ([…] необов'язково, <…> обов'язково)",
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Не вдалося надіслати звіт. Спробуйте ще раз.',
   'ide.chat.report.submitted': 'Дякуємо! Ваше повідомлення надіслано команді {{productName}}.',
   'ide.chat.report.submittedWithLink':

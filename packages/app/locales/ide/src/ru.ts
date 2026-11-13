@@ -557,19 +557,18 @@ export const ru: Partial<IdeTranslations> = {
     'В каталоге .agents/skills/ для этого проекта не найдено ни одного навыка.',
   'ide.chat.skills.noMatch': 'Нет результатов, соответствующих запросу «{{query}}».',
   'ide.chat.autoCommit.usage':
-    'Использование: /autocommit <seconds> — Автоматическая фиксация через указанное количество секунд после последнего изменения файла. /autocommit 0 отменяет действие.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Использование: /effort <level> (текущий режим), /effort --plan|--execute <level>, /effort ? для статуса.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Введите @filename, чтобы прикрепить файл проекта в качестве контекста (или перетащите любой файл).',
-  'ide.chat.scripts.runUsage':
-    'Использование: /run <name> — Запустите сохранённый скрипт. Используйте /scripts , чтобы просмотреть их.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Мысль длилась 1 секунду.',
-  'ide.chat.thoughtForSeconds': 'Мысль длилась {{count}} секунд',
-  'ide.chat.thoughtForMinute': 'Мысль длилась 1 минуту.',
-  'ide.chat.thoughtForMinutes': 'Мысли длились {{count}} минут',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Думаю...',
   'ide.chat.streaming.analyzing': 'Анализ...',
   'ide.chat.streaming.reasoning': 'Рассуждения...',
@@ -582,7 +581,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Команды',
   'ide.chat.help.card.modesTitle': 'Режимы',
   'ide.chat.help.card.tipsTitle': 'Советы',
-  'ide.chat.help.card.usageHint': 'Использование: {{usage}} ([…] необязательно, <…> обязательно)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Не удалось отправить отчет. Пожалуйста, попробуйте ещё раз.',
   'ide.chat.report.submitted': 'Спасибо! Ваше сообщение отправлено команде {{productName}}.',
   'ide.chat.report.submittedWithLink':

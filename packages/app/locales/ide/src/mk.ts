@@ -377,7 +377,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Автоматско прикачување на: прикачување {{seconds}} секунди по последната промена на датотеката.\nПоставете на 0 за да го оневозможите автоматското извршување.',
   'ide.chat.autoCommit.usage':
-    'Употреба: /autocommit <seconds> — автоматско извршување толку секунди по последната промена на датотеката. /autocommit 0 откажува.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Неуспешно ажурирање на напорот за расудување.',
   'ide.chat.effort.fixedForModel':
     'Напорот за расудување е фиксиран на {{model}} (режим {{mode}} ) — нема ништо за поставување.',
@@ -390,7 +390,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Напорот за расудување за {{mode}} е поставен на {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Употреба: /effort <level> (тековен режим), /effort --plan|--execute <level>, /effort ? за статус.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -454,7 +454,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Користете /compact за компресирање на контекстот кога разговорот станува долг.',
   'ide.chat.help.tipMention':
-    '• Внесете @именадатотека за да прикачите проектна датотека како контекст (или повлечете и пуштете која било датотека).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Користете /plan за да се направи истражување за {{agentName}} пред да направите промени.',
   'ide.chat.help.tipSlash': '• Внесете / за да ги прелистате сите команди погоре.',
@@ -501,8 +501,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'Сè уште нема зачувани скрипти. Отворете /scripts за да креирате една.',
   'ide.chat.scripts.runNotFound': 'Нема скрипта со име „ {{name}} “. Достапно: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Употреба: /run <name> — стартувај зачувана скрипта. Користете /scripts за да ги видите.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} излезе со код {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -555,10 +554,10 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Нема вештини што се совпаѓаат со „ {{query}} “.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Размислив 1 секунда',
-  'ide.chat.thoughtForSeconds': 'Мислев {{count}} секунди',
-  'ide.chat.thoughtForMinute': 'Размислував 1 минута',
-  'ide.chat.thoughtForMinutes': 'Размислував {{count}} минути',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -571,7 +570,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Употреба: {{usage}} ([…] опционално, <…> задолжително)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Не може да се поднесе вашиот извештај. Обидете се повторно.',
   'ide.chat.report.submitted':
     'Ви благодариме! Вашиот извештај е доставен до тимот на {{productName}}.',

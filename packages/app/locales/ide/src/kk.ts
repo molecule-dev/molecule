@@ -377,7 +377,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Автоматты түрде коммиттеу: файлды соңғы өзгерткеннен кейін {{seconds}} секундтарды коммитациялау.\nАвтоматты түрде қосуды өшіру үшін 0 мәніне орнатыңыз.',
   'ide.chat.autoCommit.usage':
-    'Қолданылуы: /autocommit <seconds> — файлды соңғы өзгерткеннен кейін бірнеше секундтан кейін автоматты түрде коммитациялау. /autocommit 0 болдырмайды.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Талдау әрекетін жаңарту сәтсіз аяқталды.',
   'ide.chat.effort.fixedForModel':
     'Ойлау күші {{model}} ({{mode}} режимінде) бекітілген — орнататын ештеңе жоқ.',
@@ -389,7 +389,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} үшін ойлау күші {{level}} мәніне орнатылды.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Қолданылуы: /effort <level> (ағымдағы режим), /effort --plan|--execute <level>, /effort ? мәртебе үшін.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -455,7 +455,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Әңгіме ұзаққа созылған кезде контексті қысу үшін /compact пайдаланыңыз.',
   'ide.chat.help.tipMention':
-    '• Жоба файлын контекст ретінде тіркеу үшін @filename теріңіз (немесе кез келген файлды сүйреп апарыңыз).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Өзгерістер енгізбес бұрын {{agentName}} зерттеуін жүргізу үшін /plan пайдаланыңыз.',
   'ide.chat.help.tipSlash': '• Жоғарыдағы әрбір пәрменді шолу үшін / пернесін теріңіз.',
@@ -502,8 +502,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'Әлі сақталған скрипттер жоқ. Біреуін жасау үшін /scripts файлын ашыңыз.',
   'ide.chat.scripts.runNotFound': '« {{name}} » деп аталатын скрипт жоқ. Қолжетімді: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Қолданылуы: /run <name> — сақталған скриптті іске қосыңыз. Оларды көру үшін /scripts пайдаланыңыз.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} кодымен шықты',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -555,10 +554,10 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '« {{query}} » сөзіне сәйкес келетін дағды жоқ.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1 секунд ойландым',
-  'ide.chat.thoughtForSeconds': '{{count}} секунд ойландым',
-  'ide.chat.thoughtForMinute': '1 минут ойландым',
-  'ide.chat.thoughtForMinutes': '{{count}} минут ойландым',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -571,7 +570,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Қолданылуы: {{usage}} ([…] міндетті емес, <…> міндетті)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Есепті жіберу мүмкін болмады. Қайталап көріңіз.',
   'ide.chat.report.submitted': 'Рақмет! Сіздің есебіңіз {{productName}} командасына жіберілді.',
   'ide.chat.report.submittedWithLink':

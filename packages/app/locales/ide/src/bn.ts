@@ -374,7 +374,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'স্বয়ংক্রিয় কমিট চালু: ফাইলের শেষ পরিবর্তনের {{seconds}} সেকেন্ড পরে কমিট করা হচ্ছে।\nঅটোকমিট নিষ্ক্রিয় করতে 0 সেট করুন।',
   'ide.chat.autoCommit.usage':
-    'ব্যবহার: /autocommit <seconds> — শেষ ফাইল পরিবর্তনের পর নির্দিষ্ট সংখ্যক সেকেন্ড পরে স্বয়ংক্রিয়ভাবে কমিট হবে। /autocommit 0 বাতিল করে।',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'যুক্তির প্রচেষ্টা হালনাগাদ করতে ব্যর্থ হয়েছে।',
   'ide.chat.effort.fixedForModel':
     'যুক্তির প্রচেষ্টা {{model}} ({{mode}} মোড)-এ স্থির করা হয়েছে — সেট করার কিছু নেই।',
@@ -387,7 +387,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} এর জন্য যুক্তির প্রচেষ্টা {{level}} এ সেট করা হয়েছে।',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'ব্যবহার: /effort <level> (বর্তমান মোড), /effort --plan|--execute <level> অবস্থা জানতে /effort ? ব্যবহার করুন।',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -451,7 +451,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• কথোপকথন দীর্ঘ হয়ে গেলে বিষয়বস্তু সংকুচিত করতে /compact ব্যবহার করুন।',
   'ide.chat.help.tipMention':
-    '• প্রজেক্ট ফাইলটিকে কনটেক্সট হিসেবে সংযুক্ত করতে @filename টাইপ করুন (অথবা যেকোনো ফাইল ড্র্যাগ অ্যান্ড ড্রপ করুন)।',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     'পরিবর্তন করার আগে {{agentName}} কে দিয়ে গবেষণা করানোর জন্য /plan ব্যবহার করুন।',
   'ide.chat.help.tipSlash': 'উপরের প্রতিটি কমান্ড ব্রাউজ করতে / টাইপ করুন।',
@@ -498,8 +498,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'এখনো কোনো স্ক্রিপ্ট সংরক্ষণ করা হয়নি। একটি তৈরি করতে /scripts খুলুন।',
   'ide.chat.scripts.runNotFound': '“ {{name}} ” নামের কোনো স্ক্রিপ্ট নেই। উপলব্ধ: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'ব্যবহার: /run <name> সংরক্ষিত স্ক্রিপ্ট চালান। সেগুলো দেখতে /scripts ব্যবহার করুন।',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} কোড সহ প্রস্থান করেছে।',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -553,10 +552,10 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ”-এর সাথে কোনো দক্ষতা মেলে না।',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '১ সেকেন্ডের জন্য চিন্তা',
-  'ide.chat.thoughtForSeconds': '{{count}} সেকেন্ডের জন্য চিন্তা',
-  'ide.chat.thoughtForMinute': '১ মিনিটের জন্য চিন্তা',
-  'ide.chat.thoughtForMinutes': '{{count}} মিনিট ধরে চিন্তা করা হয়েছে',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -569,7 +568,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'ব্যবহারবিধি: {{usage}} ([…] ঐচ্ছিক, <…> আবশ্যক)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'আপনার প্রতিবেদনটি জমা দেওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।',
   'ide.chat.report.submitted':
     'ধন্যবাদ! আপনার রিপোর্টটি {{productName}} এর টিমের কাছে জমা দেওয়া হয়েছে।',

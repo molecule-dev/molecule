@@ -561,19 +561,18 @@ export const fr: Partial<IdeTranslations> = {
     "Aucune compétence n'a été trouvée dans le répertoire .agents/skills/ pour ce projet.",
   'ide.chat.skills.noMatch': 'Aucune compétence ne correspond à « {{query}} ».',
   'ide.chat.autoCommit.usage':
-    'Utilisation : /autocommit <seconds> — Valider automatiquement les modifications × 0 secondes après la dernière modification du fichier. /autocommit 0 annule.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Utilisation : /effort <level> (mode actuel), /effort --plan|--execute <level>, /effort ? pour le statut.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    "• Tapez @nom_du_fichier pour joindre un fichier de projet comme contexte (ou glissez-déposez n'importe quel fichier).",
-  'ide.chat.scripts.runUsage':
-    'Utilisation : /run <name> — Exécuter un script enregistré. Utilisez /scripts pour les consulter.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Réfléchir pendant une seconde',
-  'ide.chat.thoughtForSeconds': 'Réflexion pendant {{count}} secondes',
-  'ide.chat.thoughtForMinute': 'Réflexion pendant 1 minute',
-  'ide.chat.thoughtForMinutes': 'Réflexion pendant {{count}} minutes',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Je réfléchis...',
   'ide.chat.streaming.analyzing': 'Analyse en cours...',
   'ide.chat.streaming.reasoning': 'Raisonnement...',
@@ -586,7 +585,7 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commandes',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Conseils',
-  'ide.chat.help.card.usageHint': 'Utilisation : {{usage}} ([…] facultatif, <…> obligatoire)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': "Nous n'avons pas pu envoyer votre rapport. Veuillez réessayer.",
   'ide.chat.report.submitted':
     "Merci ! Votre signalement a été transmis à l'équipe d'{{productName}}.",

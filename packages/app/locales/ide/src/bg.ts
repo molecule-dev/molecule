@@ -551,19 +551,18 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.skills.empty': 'За този проект не бяха открити умения в .agents/skills/.',
   'ide.chat.skills.noMatch': 'Няма умения, които да съответстват на „{{query}}“.',
   'ide.chat.autoCommit.usage':
-    'Употреба: /autocommit <seconds> — автоматично записване на определен брой секунди след последната промяна на файла. /autocommit 0 отменя.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Употреба: /effort <level> (текущ режим), /effort --plan|--execute <level>, /effort ? за статус.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Въведете @filename, за да прикачите файл на проект като контекст (или плъзнете и пуснете произволен файл).',
-  'ide.chat.scripts.runUsage':
-    'Употреба: /run <name> — стартирайте запазен скрипт. Използвайте /scripts , за да ги видите.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Замисли се за 1 секунда',
-  'ide.chat.thoughtForSeconds': 'Мисли за {{count}} секунди',
-  'ide.chat.thoughtForMinute': 'Мислих 1 минута',
-  'ide.chat.thoughtForMinutes': 'Мислил в продължение на {{count}} минути',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Мисля...',
   'ide.chat.streaming.analyzing': 'Анализиране...',
   'ide.chat.streaming.reasoning': 'Разумни съображения...',
@@ -576,7 +575,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Команди',
   'ide.chat.help.card.modesTitle': 'Режими',
   'ide.chat.help.card.tipsTitle': 'Съвети',
-  'ide.chat.help.card.usageHint': 'Употреба: {{usage}} ([…] по избор, <…> задължително)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Не успяхме да изпратим Вашия сигнал. Моля, опитайте отново.',
   'ide.chat.report.submitted':
     'Благодаря! Вашето съобщение беше изпратено до екипа на „{{productName}}“.',

@@ -556,19 +556,18 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.empty': 'Šiame projekte kataloge .agents/skills/ nerasta jokių įgūdžių.',
   'ide.chat.skills.noMatch': 'Nėra įgūdžių, atitinkančių „{{query}}“.',
   'ide.chat.autoCommit.usage':
-    'Naudojimas: /autocommit <seconds> — automatiškai įregistruoti tiek sekundžių po paskutinio failo pakeitimo. /autocommit 0 atšaukia.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Naudojimas: /effort <level> (dabartinis režimas), /effort --plan|--execute <level>, /effort ? dėl būsenos.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Įveskite @filename, kad pridėtumėte projekto failą kaip kontekstą (arba nuvilkite bet kurį failą).',
-  'ide.chat.scripts.runUsage':
-    'Naudojimas: /run <name> — paleisti išsaugotą scenarijų. Norėdami juos pamatyti, naudokite /scripts .',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Pagalvojau 1 sekundę',
-  'ide.chat.thoughtForSeconds': 'Galvojau {{count}} sekundes',
-  'ide.chat.thoughtForMinute': 'Pagalvojau 1 minutę',
-  'ide.chat.thoughtForMinutes': 'Galvojau {{count}} minutes',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Mąstau...',
   'ide.chat.streaming.analyzing': 'Analizuojama...',
   'ide.chat.streaming.reasoning': 'Motyvacija...',
@@ -581,7 +580,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Komandos',
   'ide.chat.help.card.modesTitle': 'Režimai',
   'ide.chat.help.card.tipsTitle': 'Patarimai',
-  'ide.chat.help.card.usageHint': 'Naudojimas: {{usage}} ([…] neprivaloma, <…> privaloma)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Nepavyko išsiųsti pranešimo. Prašome bandyti dar kartą.',
   'ide.chat.report.submitted': 'Ačiū! Jūsų pranešimas buvo perduotas „{{productName}}“ komandai.',
   'ide.chat.report.submittedWithLink':

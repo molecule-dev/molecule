@@ -546,19 +546,18 @@ export const ja: Partial<IdeTranslations> = {
     'このプロジェクトの .agents/skills/ ディレクトリにはスキルが見つかりませんでした。',
   'ide.chat.skills.noMatch': '「{{query}}」に一致するスキルはありません。',
   'ide.chat.autoCommit.usage':
-    '使用方法: /autocommit <seconds> — 最後のファイル変更から指定した秒数後に自動的にコミットします。/autocommit 0 /autocommitキャンセルします。',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    '使用方法: /effort <level>（現在のモード）、/effort --plan|--execute <level>、/effort ?ステータスを確認してください。',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• プロジェクトファイルをコンテキストとして添付するには、「@ファイル名」と入力します（または任意のファイルをドラッグ＆ドロップします）。',
-  'ide.chat.scripts.runUsage':
-    '使用方法: /run <name>保存済みのスクリプトを実行します。スクリプトを表示するには/scriptsを使用してください。',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1秒間考えた',
-  'ide.chat.thoughtForSeconds': '{{count}}秒間考えた',
-  'ide.chat.thoughtForMinute': '1分間考えた',
-  'ide.chat.thoughtForMinutes': '{{count}}分間の考察',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': '考え中……',
   'ide.chat.streaming.analyzing': '分析中...',
   'ide.chat.streaming.reasoning': '推論……',
@@ -571,7 +570,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'コマンド',
   'ide.chat.help.card.modesTitle': 'モード',
   'ide.chat.help.card.tipsTitle': 'ヒント',
-  'ide.chat.help.card.usageHint': '使用方法: {{usage}} ([…] オプション、<…> 必須)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'レポートを送信できませんでした。もう一度お試しください。',
   'ide.chat.report.submitted':
     'ありがとうございます！ご報告は{{productName}}のチームに送信されました。',

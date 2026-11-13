@@ -549,19 +549,18 @@ export const tr: Partial<IdeTranslations> = {
     'Bu proje için .agents/skills/ dizininde herhangi bir beceri bulunamadı.',
   'ide.chat.skills.noMatch': '"{{query}}" ile eşleşen beceri bulunamadı.',
   'ide.chat.autoCommit.usage':
-    'Kullanım: /autocommit <seconds> — Son dosya değişikliğinden o kadar saniye sonra otomatik olarak commit işlemini gerçekleştir. /autocommit 0 komutu iptal eder.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Kullanım: /effort <level> (mevcut mod), /effort --plan|--execute <level> /effort ? durum için.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Proje dosyasını bağlam olarak eklemek için @dosyaadı yazın (veya herhangi bir dosyayı sürükleyip bırakın).',
-  'ide.chat.scripts.runUsage':
-    'Kullanım: /run <name> — Kaydedilmiş bir komut dosyasını çalıştırın. Komut dosyalarını görmek için /scripts komutunu kullanın.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1 saniye düşündüm',
-  'ide.chat.thoughtForSeconds': '{{count}} saniye boyunca düşündüm',
-  'ide.chat.thoughtForMinute': '1 dakika düşündüm',
-  'ide.chat.thoughtForMinutes': '{{count}} dakika boyunca düşündüm',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Düşünüyorum...',
   'ide.chat.streaming.analyzing': 'Analiz ediliyor...',
   'ide.chat.streaming.reasoning': 'Gerekçe...',
@@ -574,7 +573,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Komutlar',
   'ide.chat.help.card.modesTitle': 'Modlar',
   'ide.chat.help.card.tipsTitle': 'İpuçları',
-  'ide.chat.help.card.usageHint': 'Kullanım: {{usage}} ([…] isteğe bağlı, <…> gerekli)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Raporunuz gönderilemedi. Lütfen tekrar deneyin.',
   'ide.chat.report.submitted': 'Teşekkürler! Bildiriminiz {{productName}} ekibine iletildi.',
   'ide.chat.report.submittedWithLink':

@@ -550,19 +550,18 @@ export const nl: Partial<IdeTranslations> = {
     'Er zijn geen vaardigheden gevonden in .agents/skills/ voor dit project.',
   'ide.chat.skills.noMatch': 'Er zijn geen vaardigheden die overeenkomen met "{{query}}".',
   'ide.chat.autoCommit.usage':
-    'Gebruik: /autocommit <seconds> — Autocommit zoveel seconden na de laatste bestandswijziging. /autocommit 0 annuleert.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Gebruik: /effort <level> (huidige modus), /effort --plan|--execute <level>, /effort ? voor status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Typ @bestandsnaam om een projectbestand als context toe te voegen (of sleep een willekeurig bestand).',
-  'ide.chat.scripts.runUsage':
-    'Gebruik: /run <name> — Voer een opgeslagen script uit. Gebruik /scripts om ze te bekijken.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Nagedacht gedurende 1 seconde',
-  'ide.chat.thoughtForSeconds': 'Gedachte gedurende {{count}} seconden',
-  'ide.chat.thoughtForMinute': 'Denk 1 minuut na',
-  'ide.chat.thoughtForMinutes': 'Nagedacht gedurende {{count}} minuten',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Even nadenken...',
   'ide.chat.streaming.analyzing': 'Bezig met analyseren...',
   'ide.chat.streaming.reasoning': 'Redenering...',
@@ -575,7 +574,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': "Commando's",
   'ide.chat.help.card.modesTitle': 'Modi',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Gebruik: {{usage}} ([…] optioneel, <…> vereist)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Je melding kon niet worden verzonden. Probeer het nog eens.',
   'ide.chat.report.submitted':
     'Bedankt! Je melding is doorgestuurd naar het team van {{productName}}.',

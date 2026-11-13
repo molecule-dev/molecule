@@ -381,7 +381,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Ukuzibophezela ngokuzenzakalela: ukwenza {{seconds}} s ngemva kokushintsha kwefayela kokugcina.\nSetha ku-0 ukuze ukhubaze i-autocommit.',
   'ide.chat.autoCommit.usage':
-    'Ukusetshenziswa: /autocommit <seconds> — zenze ngokuzenzakalelayo imizuzwana eminingi ngemva kokushintsha kwefayela kokugcina. /autocommit 0 iyakhansela.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Yehlulekile ukubuyekeza umzamo wokucabanga.',
   'ide.chat.effort.fixedForModel':
     'Umzamo wokucabanga ugxile kumodi {{model}} ({{mode}} ) — akukho lutho oluzosethwa.',
@@ -393,7 +393,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Umzamo wokucabanga we- {{mode}} usethwe ku- {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Ukusetshenziswa: /effort <level> (imodi yamanje), /effort --plan|--execute <level>, /effort ? wesimo.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -458,7 +458,7 @@ export const zu: Partial<IdeTranslations> = {
     'Cindezela i-Cmd+/ (Ctrl+/ ku-Windows/Linux) ukuze ubuke zonke izinqamuleli zekhibhodi.',
   'ide.chat.help.tipCompact': '• Sebenzisa /compact ukucindezela umongo lapho ingxoxo iba yinde.',
   'ide.chat.help.tipMention':
-    '• Thayipha i-@filename ukuze unamathisele ifayela lephrojekthi njengomongo (noma uhudule bese uphonsa noma yiliphi ifayela).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Sebenzisa /plan ukuze ube nocwaningo lwe {{agentName}} ngaphambi kokwenza izinguquko.',
   'ide.chat.help.tipSlash': '• Thayipha / ukuze uphequlule yonke imiyalo engenhla.',
@@ -506,8 +506,7 @@ export const zu: Partial<IdeTranslations> = {
     'Azikho izikripthi ezigciniwe okwamanje. Vula /scripts ukuze udale eyodwa.',
   'ide.chat.scripts.runNotFound':
     'Akukho iskripthi esibizwa ngokuthi “ {{name}} ”. Siyatholakala: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Ukusetshenziswa: /run <name> — sebenzisa iskripthi esigciniwe. Sebenzisa /scripts ukuze uzibone.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} uphume nekhodi ethi {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -560,10 +559,10 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Awekho amakhono afanayo “ {{query}} ”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Umcabango wesekhondi elilodwa',
-  'ide.chat.thoughtForSeconds': 'Umcabango wemizuzwana engu {{count}}',
-  'ide.chat.thoughtForMinute': 'Umcabango umzuzu owodwa',
-  'ide.chat.thoughtForMinutes': 'Umcabango wemizuzu engu {{count}}',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -576,7 +575,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Ukusetshenziswa: {{usage}} ([…] kuyakhethwa, <…> kuyadingeka)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Ayikwazanga ukuthumela umbiko wakho. Sicela uzame futhi.',
   'ide.chat.report.submitted': 'Ngiyabonga! Umbiko wakho uthunyelwe eqenjini lika {{productName}}.',
   'ide.chat.report.submittedWithLink':

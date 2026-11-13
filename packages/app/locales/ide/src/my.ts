@@ -385,7 +385,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ဖိုင်နောက်ဆုံးပြောင်းလဲမှုပြီးနောက် {{seconds}} s ကို commit လုပ်သည့် auto-commit on။\nအလိုအလျောက် commit ကို ပိတ်ရန် 0 သို့ သတ်မှတ်ပါ။',
   'ide.chat.autoCommit.usage':
-    'အသုံးပြုမှု: /autocommit <seconds> — နောက်ဆုံးဖိုင်ပြောင်းလဲမှုပြီးနောက် စက္ကန့်အနည်းငယ်အကြာတွင် auto-commit လုပ်ပါ။ /autocommit 0 သည် ပယ်ဖျက်သည်။',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'ကျိုးကြောင်းဆင်ခြင်အားထုတ်မှုကို အပ်ဒိတ်လုပ်၍မရပါ။',
   'ide.chat.effort.fixedForModel':
     'ကျိုးကြောင်းဆင်ခြင်အားထုတ်မှုကို {{model}} ({{mode}} mode) တွင် သတ်မှတ်ထားသည် — သတ်မှတ်ရန် ဘာမှမရှိပါ။',
@@ -399,7 +399,7 @@ export const my: Partial<IdeTranslations> = {
     '{{mode}} အတွက် ကျိုးကြောင်းဆင်ခြင်အားထုတ်မှုကို {{level}} သို့ သတ်မှတ်ထားသည်။',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'အသုံးပြုပုံ: /effort <level> (လက်ရှိမုဒ်)၊ /effort --plan|--execute <level> ရာထူးအတွက် /effort ?',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -466,7 +466,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• စကားပြောဆိုမှု ရှည်လျားလာသည့်အခါ ဆက်စပ်အကြောင်းအရာကို ချုံ့ရန် /compact ကို အသုံးပြုပါ။',
   'ide.chat.help.tipMention':
-    '• ပရောဂျက်ဖိုင်တစ်ခုကို အကြောင်းအရာအဖြစ် ပူးတွဲရန် (သို့မဟုတ် မည်သည့်ဖိုင်ကိုမဆို ဆွဲယူ၍ချရန်) @filename ဟု ရိုက်ထည့်ပါ။',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• ပြောင်းလဲမှုများမပြုလုပ်မီ {{agentName}} သုတေသနပြုလုပ်ရန် /plan ကို အသုံးပြုပါ။',
   'ide.chat.help.tipSlash': '• အထက်ပါ command တိုင်းကို ကြည့်ရှုရန် / ဟု ရိုက်ထည့်ပါ။',
@@ -514,8 +514,7 @@ export const my: Partial<IdeTranslations> = {
     'သိမ်းဆည်းထားသော script များ မရှိသေးပါ။ တစ်ခုဖန်တီးရန် /scripts ကိုဖွင့်ပါ။',
   'ide.chat.scripts.runNotFound':
     '“ {{name}} ” အမည်ရှိ script မရှိပါ။ ရရှိနိုင်သော script: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'အသုံးပြုပုံ: /run <name> — သိမ်းဆည်းထားသော script တစ်ခုကို run ပါ။ ၎င်းတို့ကိုကြည့်ရှုရန် /scripts သုံးပါ။',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} သည် {{code}} ကုဒ်ဖြင့် ထွက်သွားသည်။',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -568,10 +567,10 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ” နှင့် ကိုက်ညီသော ကျွမ်းကျင်မှု မရှိပါ။',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '၁ စက္ကန့်လောက် စဉ်းစားပြီး',
-  'ide.chat.thoughtForSeconds': 'စက္ကန့် {{count}} အတွက် တွေးတောခြင်း',
-  'ide.chat.thoughtForMinute': '၁ မိနစ်လောက် စဉ်းစားပြီး',
-  'ide.chat.thoughtForMinutes': 'မိနစ် {{count}} အတွက် တွေးတောဆင်ခြင်ခြင်း',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -584,7 +583,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'အသုံးပြုမှု: {{usage}} ([…] ရွေးချယ်နိုင်သည်၊ <…> လိုအပ်သည်)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'သင့်အစီရင်ခံစာကို တင်သွင်း၍မရပါ။ ကျေးဇူးပြု၍ ထပ်မံကြိုးစားပါ။',
   'ide.chat.report.submitted':
     'ကျေးဇူးတင်ပါတယ်။ သင့်အစီရင်ခံစာကို {{productName}} အဖွဲ့ထံ တင်သွင်းပြီးပါပြီ။',

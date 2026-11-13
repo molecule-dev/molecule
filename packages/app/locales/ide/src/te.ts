@@ -380,7 +380,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ఆటో-కమిట్ ఆన్: చివరి ఫైల్ మార్పు తర్వాత {{seconds}} సెకన్లకు కమిట్ అవుతుంది.\nఆటోకమిట్‌ను నిలిపివేయడానికి 0కి సెట్ చేయండి.',
   'ide.chat.autoCommit.usage':
-    'వాడుక: /autocommit <seconds> చివరి ఫైల్ మార్పు జరిగిన అన్ని సెకన్ల తర్వాత ఆటో-కమిట్ చేయండి. /autocommit 0 రద్దు చేస్తుంది.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'తార్కిక ప్రయత్నాన్ని నవీకరించడంలో విఫలమైంది.',
   'ide.chat.effort.fixedForModel':
     'తార్కిక ప్రయత్నం {{model}} ({{mode}} మోడ్) పై స్థిరంగా ఉంటుంది — సెట్ చేయడానికి ఏమీ లేదు.',
@@ -393,7 +393,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} కోసం తార్కిక ప్రయత్నం {{level}} కు సెట్ చేయబడింది.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'వాడుక: /effort <level> (ప్రస్తుత మోడ్), /effort --plan|--execute <level>, /effort ? హోదా కోసం.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -459,7 +459,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• సంభాషణ సుదీర్ఘంగా సాగినప్పుడు, సందర్భాన్ని కుదించడానికి /compact ను ఉపయోగించండి.',
   'ide.chat.help.tipMention':
-    '• ప్రాజెక్ట్ ఫైల్‌ను కాంటెక్స్ట్‌గా జోడించడానికి @filename అని టైప్ చేయండి (లేదా ఏదైనా ఫైల్‌ను డ్రాగ్ & డ్రాప్ చేయండి).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• మార్పులు చేసే ముందు {{agentName}} పరిశోధన చేసేలా /plan వేసుకోండి.',
   'ide.chat.help.tipSlash': '• పైన ఉన్న ప్రతి ఆదేశాన్ని బ్రౌజ్ చేయడానికి / అని టైప్ చేయండి.',
   'ide.chat.help.tipSpecific':
@@ -506,8 +506,7 @@ export const te: Partial<IdeTranslations> = {
     'ఇంకా ఏ స్క్రిప్ట్‌లు సేవ్ చేయబడలేదు. ఒకదాన్ని సృష్టించడానికి /scripts ను తెరవండి.',
   'ide.chat.scripts.runNotFound':
     '“ {{name}} ” అనే పేరు గల స్క్రిప్ట్ లేదు. అందుబాటులో ఉన్నవి: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'వాడుక: /run <name> — సేవ్ చేసిన స్క్రిప్ట్‌ను అమలు చేయండి. వాటిని చూడటానికి /scripts ఉపయోగించండి.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} కోడ్‌తో నిష్క్రమించింది',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -560,10 +559,10 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ” కు సరిపోలే నైపుణ్యాలు లేవు.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'ఒక్క క్షణం ఆలోచన',
-  'ide.chat.thoughtForSeconds': '{{count}} సెకన్ల పాటు ఆలోచన',
-  'ide.chat.thoughtForMinute': '1 నిమిషం పాటు ఆలోచన',
-  'ide.chat.thoughtForMinutes': '{{count}} నిమిషాల పాటు ఆలోచన',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -576,7 +575,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'వాడుక: {{usage}} ([…] ఐచ్ఛికం, <…> తప్పనిసరి)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'మీ నివేదికను సమర్పించలేకపోయాము. దయచేసి మళ్ళీ ప్రయత్నించండి.',
   'ide.chat.report.submitted':
     'ధన్యవాదాలు! మీ నివేదిక {{productName}} గారి బృందానికి సమర్పించబడింది.',

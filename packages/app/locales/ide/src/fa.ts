@@ -377,7 +377,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ثبت خودکار در: ثبت {{seconds}} ثانیه پس از آخرین تغییر فایل.\nبرای غیرفعال کردن autocommit، روی ۰ تنظیم کنید.',
   'ide.chat.autoCommit.usage':
-    'کاربرد: /autocommit <seconds> — به طور خودکار چند ثانیه پس از آخرین تغییر فایل، commit انجام می‌شود. /autocommit 0 لغو می‌شود.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'تلاش برای استدلال به روز رسانی نشد.',
   'ide.chat.effort.fixedForModel':
     'تلاش استدلال روی {{model}} (حالت {{mode}} ) ثابت شده است — چیزی برای تنظیم وجود ندارد.',
@@ -388,7 +388,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'تلاش استدلال برای {{mode}} روی {{level}} تنظیم شده است.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'کاربرد: /effort <level> (حالت فعلی)، /effort --plan|--execute <level> ، /effort ? برای کسب مقام.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -453,7 +453,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• وقتی مکالمه طولانی می‌شود، از /compact برای فشرده‌سازی متن استفاده کنید.',
   'ide.chat.help.tipMention':
-    '• برای پیوست کردن یک فایل پروژه به عنوان متن، @filename را تایپ کنید (یا هر فایلی را بکشید و رها کنید).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• قبل از اعمال تغییرات، از /plan استفاده کنید تا {{agentName}} تحقیق انجام شود.',
   'ide.chat.help.tipSlash': '• برای مرور هر دستور بالا، / را تایپ کنید.',
@@ -499,8 +499,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'اجرای اسکریپت ناموفق بود.',
   'ide.chat.scripts.runNone': 'هنوز اسکریپتی ذخیره نشده است. برای ایجاد آن، /scripts باز کنید.',
   'ide.chat.scripts.runNotFound': 'اسکریپتی با نام « {{name}} » وجود ندارد. موجود: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'کاربرد: /run <name> — اجرای یک اسکریپت ذخیره شده. برای مشاهده آنها از /scripts ‎ استفاده کنید.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} با کد {{code}} خارج شد',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -552,10 +551,10 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'هیچ مهارتی با « {{query}} » مطابقت ندارد.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '۱ ثانیه فکر کرد',
-  'ide.chat.thoughtForSeconds': 'فکر کردم به مدت {{count}} ثانیه',
-  'ide.chat.thoughtForMinute': '۱ دقیقه فکر کرد',
-  'ide.chat.thoughtForMinutes': 'فکر کردم به مدت {{count}} دقیقه',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -568,7 +567,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'کاربرد: {{usage}} ([…] اختیاری، <…> الزامی)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'گزارش شما ارسال نشد. لطفا دوباره امتحان کنید.',
   'ide.chat.report.submitted': 'متشکرم! گزارش شما به تیم {{productName}} ارسال شد.',
   'ide.chat.report.submittedWithLink':

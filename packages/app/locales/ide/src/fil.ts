@@ -379,7 +379,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Awtomatikong pag-commit sa: pag-commit ng {{seconds}} pagkatapos ng huling pagbabago ng file.\nItakda sa 0 para i-disable ang autocommit.',
   'ide.chat.autoCommit.usage':
-    'Paggamit: /autocommit <seconds> — awtomatikong iko-commit nang ilang segundo pagkatapos ng huling pagbabago ng file. /autocommit 0 ay magkakansela.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Nabigong i-update ang pagsisikap sa pangangatwiran.',
   'ide.chat.effort.fixedForModel':
     'Ang pagsisikap sa pangangatwiran ay nakatakda sa {{model}} ({{mode}} mode) — walang itatakda.',
@@ -393,7 +393,7 @@ export const fil: Partial<IdeTranslations> = {
     'Ang pagsisikap sa pangangatwiran para sa {{mode}} ay nakatakda sa {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Paggamit: /effort <level> (kasalukuyang mode), /effort --plan|--execute <level>, /effort ? para sa katayuan.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -459,7 +459,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Gamitin ang /compact upang paikliin ang konteksto kapag humaba na ang usapan.',
   'ide.chat.help.tipMention':
-    '• I-type ang @filename para maglakip ng project file bilang konteksto (o i-drag & drop ang anumang file).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Gamitin ang /plan para magkaroon ng pananaliksik {{agentName}} bago gumawa ng mga pagbabago.',
   'ide.chat.help.tipSlash': '• I-type ang / para i-browse ang bawat utos sa itaas.',
@@ -508,8 +508,7 @@ export const fil: Partial<IdeTranslations> = {
     'Wala pang naka-save na script. Buksan ang /scripts para gumawa ng isa.',
   'ide.chat.scripts.runNotFound':
     'Walang script na pinangalanang “ {{name}} ”. Magagamit: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Paggamit: /run <name> — magpatakbo ng naka-save na script. Gamitin ang /scripts para makita ang mga ito.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': 'Lumabas {{name}} gamit ang code na {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -562,10 +561,10 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Walang kasanayang tumutugma sa “ {{query}} ”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Nag-isip nang isang segundo',
-  'ide.chat.thoughtForSeconds': 'Nag-isip nang {{count}} segundo',
-  'ide.chat.thoughtForMinute': 'Nag-isip ng 1 minuto',
-  'ide.chat.thoughtForMinutes': 'Nag-isip nang {{count}} minuto',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -578,7 +577,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Paggamit: {{usage}} ([…] opsyonal, <…> kinakailangan)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Hindi maisumite ang iyong ulat. Pakisubukang muli.',
   'ide.chat.report.submitted':
     'Salamat! Ang iyong ulat ay isinumite na sa pangkat ni {{productName}}.',

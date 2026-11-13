@@ -372,7 +372,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ස්වයංක්‍රීයව කැපවීම සක්‍රීය කිරීම: අවසාන ගොනු වෙනස් කිරීමෙන් පසු තත්පර {{seconds}} ක් කැප කිරීම.\nස්වයංක්‍රීය කැපවීම අක්‍රිය කිරීමට 0 ලෙස සකසන්න.',
   'ide.chat.autoCommit.usage':
-    'භාවිතය: /autocommit <seconds> — අවසාන ගොනු වෙනස් වීමෙන් තත්පර ගණනාවකට පසු ස්වයංක්‍රීයව කැපවන්න. /autocommit 0 අවලංගු වේ.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'තර්ක කිරීමේ උත්සාහය යාවත්කාලීන කිරීමට අසමත් විය.',
   'ide.chat.effort.fixedForModel':
     'තර්ක කිරීමේ උත්සාහය {{model}} ({{mode}} මාදිලිය) මත සවි කර ඇත — සැකසීමට කිසිවක් නැත.',
@@ -384,7 +384,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} සඳහා තර්ක කිරීමේ උත්සාහය {{level}} ලෙස සකසා ඇත.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'භාවිතය: /effort <level> (වත්මන් මාදිලිය), /effort --plan|--execute <level>, /effort ? තත්ත්වය සඳහා.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -448,7 +448,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• සංවාදය දිගු වන විට සන්දර්භය සම්පීඩනය කිරීමට /compact භාවිතා කරන්න.',
   'ide.chat.help.tipMention':
-    '• ව්‍යාපෘති ගොනුවක් සන්දර්භය ලෙස ඇමිණීමට @filename ටයිප් කරන්න (නැතහොත් ඕනෑම ගොනුවක් ඇද දමන්න).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• වෙනස්කම් කිරීමට පෙර {{agentName}} පර්යේෂණ කිරීමට /plan භාවිතා කරන්න.',
   'ide.chat.help.tipSlash': '• ඉහත සෑම විධානයක්ම බ්‍රවුස් කිරීමට / ටයිප් කරන්න.',
   'ide.chat.help.tipSpecific':
@@ -494,8 +494,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone': 'තවමත් සුරැකි ස්ක්‍රිප්ට් නොමැත. එකක් සෑදීමට /scripts විවෘත කරන්න.',
   'ide.chat.scripts.runNotFound':
     '“ {{name}} ” ලෙස නම් කර ඇති ස්ක්‍රිප්ට් එකක් නොමැත. ලබා ගත හැකිය: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'භාවිතය: /run <name> — සුරකින ලද ස්ක්‍රිප්ට් එකක් ධාවනය කරන්න. ඒවා බැලීමට /scripts භාවිතා කරන්න.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} කේතය සමඟ පිටව ගියා',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -549,10 +548,10 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ” ට ගැලපෙන කුසලතා නොමැත.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'තත්පර 1ක් හිතුවා',
-  'ide.chat.thoughtForSeconds': 'තත්පර {{count}} ක් කල්පනා කළා',
-  'ide.chat.thoughtForMinute': 'විනාඩි 1ක් හිතුවා',
-  'ide.chat.thoughtForMinutes': 'මිනිත්තු {{count}} ක් සිතුවා',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -565,7 +564,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'භාවිතය: {{usage}} ([…] විකල්ප, <…> අවශ්‍යයි)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'ඔබගේ වාර්තාව ඉදිරිපත් කිරීමට නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.',
   'ide.chat.report.submitted': 'ස්තූතියි! ඔබගේ වාර්තාව {{productName}} කණ්ඩායමට ඉදිරිපත් කරන ලදී.',
   'ide.chat.report.submittedWithLink':

@@ -542,19 +542,18 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.skills.empty': 'Inga färdigheter hittades i .agents/skills/ för detta projekt.',
   'ide.chat.skills.noMatch': 'Inga färdigheter matchar ”{{query}}”.',
   'ide.chat.autoCommit.usage':
-    'Användning: /autocommit <seconds> — autocommit det antalet sekunder efter den senaste filändringen. /autocommit 0 avbryter.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Användning: /effort <level> (nuvarande läge), /effort --plan|--execute <level>, /effort ? för status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Skriv @filnamn för att bifoga en projektfil som kontext (eller dra och släpp valfri fil).',
-  'ide.chat.scripts.runUsage':
-    'Användning: /run <name> — kör ett sparat skript. Använd /scripts för att se dem.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Tänkte i 1 sekund',
-  'ide.chat.thoughtForSeconds': 'Tänkte i {{count}} sekunder',
-  'ide.chat.thoughtForMinute': 'Tänkte i 1 minut',
-  'ide.chat.thoughtForMinutes': 'Tänkte i {{count}} minuter',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Funderar...',
   'ide.chat.streaming.analyzing': 'Analyserar...',
   'ide.chat.streaming.reasoning': 'Resonemang...',
@@ -567,7 +566,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Kommandon',
   'ide.chat.help.card.modesTitle': 'Lägen',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Användning: {{usage}} ([…] valfritt, <…> obligatoriskt)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Det gick inte att skicka in din rapport. Försök igen.',
   'ide.chat.report.submitted':
     'Tack! Din rapport har skickats vidare till teamet på {{productName}}.',

@@ -19,10 +19,12 @@ import { describe, expect, it } from 'vitest'
 
 import {
   analyzeLocalePlaceholders,
+  checkValue,
   classify,
   commandSpans,
   countPluralForms,
   isUntranslatedCopy,
+  keptInEnglish,
   localePackages,
   missingPluralForms,
   placeholders,
@@ -218,6 +220,54 @@ describe('classify', () => {
     expect(
       classify('{{count}} results in {{files}} files', '{{count}} wyników w `{{files}}` plikach'),
     ).toMatchObject({ klass: 'CODE', detail: expect.stringContaining('gains `{{files}}`') })
+  })
+})
+
+describe('keep-english', () => {
+  const EN = [
+    'export const en = {',
+    "  'a.label': 'Thought briefly',",
+    '  // Thinking duration (count supplied by the call site).',
+    '  // keep-english: an elliptical fragment',
+    '  // a second comment line between the marker and its key',
+    "  'a.thought': 'Thought for {{count}} seconds',",
+    '  // keep-english: command help',
+    "  'a.usage':",
+    "    'Usage: /run <name> — run a saved script.',",
+    "  'a.after': 'Not marked, and long enough to count as English',",
+    '}',
+  ].join('\n')
+
+  it('applies each marker to the next key below it, over other comment lines', () => {
+    const { kept, problems } = keptInEnglish(EN)
+    expect([...kept]).toEqual([
+      ['a.thought', 'an elliptical fragment'],
+      ['a.usage', 'command help'],
+    ])
+    expect(problems).toEqual([])
+  })
+
+  it('refuses a marker with no reason, and one with no key below it', () => {
+    expect(keptInEnglish("  // keep-english:\n  'k': 'v',").problems).toEqual([
+      'line 1: keep-english needs a reason',
+    ])
+    expect(keptInEnglish("  // keep-english: why\n}\n  'k': 'v',").problems).toEqual([
+      'line 1: keep-english has no key below it',
+    ])
+    expect(keptInEnglish("'k': 'v',\n  // keep-english: why").problems).toEqual([
+      'line 2: keep-english has no key below it',
+    ])
+  })
+
+  it('requires a marked key to hold the English value, and accepts it there', () => {
+    const english = 'Thought for {{count}} seconds'
+    expect(checkValue(english, english, 'an elliptical fragment')).toBeNull()
+    // The 2026-11-13 pass: a correct-looking token set, a wrong grammatical form.
+    expect(
+      checkValue(english, 'Réflexion pendant {{count}} secondes', 'an elliptical fragment'),
+    ).toMatchObject({ klass: 'KEPT' })
+    // An unmarked key is still refused for reading English.
+    expect(checkValue(english, english, undefined)).toMatchObject({ klass: 'ENGLISH' })
   })
 })
 

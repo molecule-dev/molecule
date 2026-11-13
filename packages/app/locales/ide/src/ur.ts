@@ -375,7 +375,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'از خود کمٹ آن: فائل کی آخری تبدیلی کے بعد {{seconds}} کا ارتکاب کرنا۔\nآٹوکمیٹ کو غیر فعال کرنے کے لیے 0 پر سیٹ کریں۔',
   'ide.chat.autoCommit.usage':
-    'استعمال: /autocommit <seconds> - آخری فائل کی تبدیلی کے کئی سیکنڈ بعد خودکار عہد کریں۔ /autocommit 0 منسوخ کرتا ہے۔',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'استدلال کی کوشش کو اپ ڈیٹ کرنے میں ناکام۔',
   'ide.chat.effort.fixedForModel':
     'استدلال کی کوشش {{model}} ({{mode}} mode) پر فکس ہے — سیٹ کرنے کے لیے کچھ نہیں۔',
@@ -387,7 +387,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} کے لیے استدلال کی کوشش کو {{level}} پر سیٹ کر دیا گیا ہے۔',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'استعمال: /effort <level> (موجودہ موڈ)، /effort --plan|--execute <level> ، /effort ? حیثیت کے لئے.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -451,7 +451,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• جب بات چیت طویل ہو جائے تو سیاق و سباق کو کمپریس کرنے کے لیے /compact کا استعمال کریں۔',
   'ide.chat.help.tipMention':
-    '• کسی پروجیکٹ فائل کو سیاق و سباق کے طور پر منسلک کرنے کے لیے @filename ٹائپ کریں (یا کسی بھی فائل کو گھسیٹ کر چھوڑیں)۔',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• تبدیلیاں کرنے سے پہلے {{agentName}} تحقیق کرنے کے لیے /plan کا استعمال کریں۔',
   'ide.chat.help.tipSlash': 'مندرجہ بالا ہر کمانڈ کو براؤز کرنے کے لیے ٹائپ کریں۔',
@@ -498,8 +498,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'ابھی تک کوئی محفوظ شدہ اسکرپٹ نہیں ہے۔ ایک بنانے کے لیے /scripts کھولیں۔',
   'ide.chat.scripts.runNotFound': '" {{name}} " نام کا کوئی اسکرپٹ نہیں ہے۔ دستیاب: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'استعمال: /run <name> - ایک محفوظ شدہ اسکرپٹ چلائیں۔ انہیں دیکھنے کے لیے /scripts استعمال کریں۔',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} کوڈ {{code}} کے ساتھ باہر نکلا',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -551,10 +550,10 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'کوئی ہنر " {{query}} " سے مماثل نہیں ہے۔',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1 سیکنڈ کے لیے سوچا۔',
-  'ide.chat.thoughtForSeconds': '{{count}} سیکنڈ تک سوچا۔',
-  'ide.chat.thoughtForMinute': '1 منٹ کے لیے سوچا۔',
-  'ide.chat.thoughtForMinutes': '{{count}} منٹ تک سوچا۔',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -567,7 +566,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'استعمال: {{usage}} ([…] اختیاری، <…> درکار)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'آپ کی رپورٹ پیش نہیں کی جا سکی۔ براہ کرم دوبارہ کوشش کریں۔',
   'ide.chat.report.submitted': 'شکریہ! آپ کی رپورٹ {{productName}} کی ٹیم کو جمع کرائی گئی تھی۔',
   'ide.chat.report.submittedWithLink':

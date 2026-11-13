@@ -556,19 +556,18 @@ export const it: Partial<IdeTranslations> = {
     'Non sono state trovate competenze in .agents/skills/ per questo progetto.',
   'ide.chat.skills.noMatch': 'Non ci sono competenze corrispondenti a "{{query}}".',
   'ide.chat.autoCommit.usage':
-    "Utilizzo: /autocommit <seconds> — Esegue il commit automatico dopo quel numero di secondi dall'ultima modifica del file. /autocommit 0 annulla.",
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Utilizzo: /effort <level> (modalità corrente), /effort --plan|--execute <level>, /effort ? per lo stato.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Digita @nomefile per allegare un file di progetto come contesto (oppure trascina e rilascia un file qualsiasi).',
-  'ide.chat.scripts.runUsage':
-    'Utilizzo: /run <name> — Esegui uno script salvato. Usa /scripts per visualizzarli.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Pensaci per 1 secondo',
-  'ide.chat.thoughtForSeconds': 'Pensiero per {{count}} secondi',
-  'ide.chat.thoughtForMinute': 'Rifletti per 1 minuto',
-  'ide.chat.thoughtForMinutes': 'Pensiero per {{count}} minuti',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Sto riflettendo...',
   'ide.chat.streaming.analyzing': 'Analisi in corso...',
   'ide.chat.streaming.reasoning': 'Ragionamento...',
@@ -581,7 +580,7 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Comandi',
   'ide.chat.help.card.modesTitle': 'Modalità',
   'ide.chat.help.card.tipsTitle': 'Consigli',
-  'ide.chat.help.card.usageHint': 'Utilizzo: {{usage}} ([…] facoltativo, <…> obbligatorio)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Impossibile inviare la segnalazione. Riprova.',
   'ide.chat.report.submitted':
     'Grazie! La tua segnalazione è stata inoltrata al team di {{productName}}.',

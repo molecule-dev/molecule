@@ -375,7 +375,7 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Аутоматско потврђивање: потврђивање {{seconds}} s након последње измене датотеке.\nПоставите на 0 да бисте онемогућили аутоматско потврђивање.',
   'ide.chat.autoCommit.usage':
-    'Употреба: /autocommit <seconds> — аутоматско потврђивање (commit) онолико секунди након последње измене датотеке. /autocommit 0 отказује.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Ажурирање напора за расуђивање није успело.',
   'ide.chat.effort.fixedForModel':
     'Напор за расуђивање је фиксиран на {{model}} ({{mode}} mode) — нема шта да се подеси.',
@@ -387,7 +387,7 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Напор за образложење за {{mode}} постављен на {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Употреба: /effort <level> (тренутни режим), /effort --plan|--execute <level>, /effort ? за статус.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -451,7 +451,7 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Користите /compact да бисте компресовали контекст када разговор постане дугачак.',
   'ide.chat.help.tipMention':
-    '• Укуцајте @filename да бисте приложили датотеку пројекта као контекст (или превуците и испустите било коју датотеку).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Користите /plan истраживање за {{agentName}} пре него што направите измене.',
   'ide.chat.help.tipSlash': '• Укуцајте / да бисте прегледали сваку команду изнад.',
@@ -498,8 +498,7 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone':
     'Још увек нема сачуваних скрипти. Отворите /scripts да бисте је креирали.',
   'ide.chat.scripts.runNotFound': 'Нема скрипте под називом „ {{name}} “. Доступно: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Употреба: /run <name> — покрените сачувану скрипту. Користите /scripts да бисте их видели.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} је изашао са кодом {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -552,10 +551,10 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Нема одговарајућих вештина за „ {{query}} “.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Размишљао 1 секунду',
-  'ide.chat.thoughtForSeconds': 'Размишљао/ла сам {{count}} секунди',
-  'ide.chat.thoughtForMinute': 'Размишљао 1 минут',
-  'ide.chat.thoughtForMinutes': 'Размишљао сам {{count}} минута',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -568,7 +567,7 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Употреба: {{usage}} ([…] опционо, <…> обавезно)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Није могуће послати ваш извештај. Молимо вас покушајте поново.',
   'ide.chat.report.submitted': 'Хвала! Ваш извештај је послат тиму {{productName}}.',
   'ide.chat.report.submittedWithLink':

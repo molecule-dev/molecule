@@ -385,7 +385,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'கடைசி கோப்பு மாற்றத்திற்குப் பிறகு {{seconds}} நேரத்தில் கமிட் செய்யப்படும்.\nதானியங்கு உறுதிப்படுத்தலை முடக்க 0 என அமைக்கவும்.',
   'ide.chat.autoCommit.usage':
-    'பயன்பாடு: /autocommit <seconds> — கடைசி கோப்பு மாற்றத்திற்குப் பிறகு அத்தனை வினாடிகள் கழித்து தானாகவே கமிட் செய்யும். /autocommit 0 ரத்துசெய்யும்.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'பகுப்பாய்வு முயற்சியைப் புதுப்பிக்க முடியவில்லை.',
   'ide.chat.effort.fixedForModel':
     'பகுத்தறிவு முயற்சி {{model}} ({{mode}} பயன்முறை) இல் நிலைநிறுத்தப்பட்டுள்ளது — அமைக்க எதுவும் இல்லை.',
@@ -398,7 +398,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} க்கான பகுத்தறிவு முயற்சி {{level}} க்கு அமைக்கப்பட்டது.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'பயன்பாடு: /effort <level> (தற்போதைய முறை), /effort --plan|--execute <level> நிலைக்கான /effort ?',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -466,7 +466,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• உரையாடல் நீளமாகும்போது, உள்ளடக்கத்தைச் சுருக்க /compact கட்டளையைப் பயன்படுத்தவும்.',
   'ide.chat.help.tipMention':
-    '• ஒரு திட்டக் கோப்பை சூழலாக இணைக்க @filename எனத் தட்டச்சு செய்யவும் (அல்லது எந்தக் கோப்பையும் இழுத்து விடவும்).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• மாற்றங்களைச் செய்வதற்கு முன், {{agentName}} ஆய்வு செய்வதற்கு /plan பயன்படுத்தவும்.',
   'ide.chat.help.tipSlash': '• மேலே உள்ள ஒவ்வொரு கட்டளையையும் உலாவ / எனத் தட்டச்சு செய்யவும்.',
@@ -514,8 +514,7 @@ export const ta: Partial<IdeTranslations> = {
     'இன்னும் சேமிக்கப்பட்ட ஸ்கிரிப்டுகள் எதுவும் இல்லை. புதிய ஸ்கிரிப்டை உருவாக்க, /scripts கோப்பைத் திறக்கவும்.',
   'ide.chat.scripts.runNotFound':
     '“ {{name}} ” என்ற பெயரில் ஸ்கிரிப்ட் இல்லை. கிடைக்கப்பெறுபவை: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'பயன்பாடு: /run <name> — சேமிக்கப்பட்ட ஸ்கிரிப்டை இயக்கவும். அவற்றைக் காண /scripts பயன்படுத்தவும்.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} வெளியேறியது',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -569,10 +568,10 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“ {{query}} ” உடன் எந்தத் திறன்களும் பொருந்தவில்லை.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'ஒரு வினாடிக்கு யோசித்தார்',
-  'ide.chat.thoughtForSeconds': '{{count}} வினாடிகளுக்கு யோசித்தேன்',
-  'ide.chat.thoughtForMinute': 'ஒரு நிமிடம் சிந்தித்தேன்',
-  'ide.chat.thoughtForMinutes': '{{count}} நிமிடங்களுக்கான சிந்தனை',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -585,7 +584,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'பயன்பாடு: {{usage}} ([…] விருப்பத்திற்குரியது, <…> கட்டாயமானது)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'உங்கள் அறிக்கையைச் சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
   'ide.chat.report.submitted':
     'நன்றி! உங்கள் அறிக்கை {{productName}} குழுவிடம் சமர்ப்பிக்கப்பட்டது.',

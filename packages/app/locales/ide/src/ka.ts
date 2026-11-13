@@ -376,7 +376,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ავტომატური კომიტირება: ფაილის ბოლო შეცვლიდან {{seconds}} წამის შემდეგ კომიტირება.\nავტომატური ჩაწერის გამოსართავად დააყენეთ 0-ზე.',
   'ide.chat.autoCommit.usage':
-    'გამოყენება: /autocommit <seconds> — ავტომატური დადასტურება ფაილის ბოლო ცვლილებიდან ამდენი წამის შემდეგ. /autocommit 0 აუქმებს.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'მსჯელობის ძალისხმევის განახლება ვერ მოხერხდა.',
   'ide.chat.effort.fixedForModel':
     'მსჯელობის ძალისხმევა დაფიქსირებულია {{model}} ზე ({{mode}} რეჟიმი) — დასაყენებელი არაფერია.',
@@ -389,7 +389,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': '{{mode}} ისთვის მსჯელობის ძალისხმევა დაყენებულია {{level}}-ზე.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'გამოყენება: /effort <level> (მიმდინარე რეჟიმი), /effort --plan|--execute <level>, /effort ? სტატუსისთვის.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -455,7 +455,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• როდესაც საუბარი გრძელი ხდება, კონტექსტის შესაკუმშად გამოიყენეთ /compact.',
   'ide.chat.help.tipMention':
-    '• პროექტის ფაილის კონტექსტის სახით მისამაგრებლად აკრიფეთ @filename (ან გადაათრიეთ და ჩააგდეთ ნებისმიერი ფაილი).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• ცვლილებების შეტანამდე გამოიყენეთ /plan, რათა {{agentName}} კვლევა ჩატარდეს.',
   'ide.chat.help.tipSlash': '• ზემოთ მოცემული ყველა ბრძანების დასათვალიერებლად აკრიფეთ /.',
@@ -502,8 +502,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone': 'შენახული სკრიპტები ჯერ არ არის. გახსენით /scripts მის შესაქმნელად.',
   'ide.chat.scripts.runNotFound':
     '„ {{name}} “ სახელწოდების სკრიპტი არ არსებობს. ხელმისაწვდომია: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'გამოყენება: /run <name> — შენახული სკრიპტის გაშვება. მათ სანახავად გამოიყენეთ /scripts .',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} გამოვიდა კოდით {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -556,10 +555,10 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '„ {{query}} “-ს ვერცერთი უნარი ვერ ემთხვევა.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1 წამით დაფიქრდა',
-  'ide.chat.thoughtForSeconds': '{{count}} წამით ვფიქრობდი',
-  'ide.chat.thoughtForMinute': '1 წუთით დაფიქრდა',
-  'ide.chat.thoughtForMinutes': '{{count}} წუთი ვიფიქრე',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -572,7 +571,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'გამოყენება: {{usage}} ([…] არასავალდებულო, <…> სავალდებულო)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'თქვენი ანგარიშის გაგზავნა ვერ მოხერხდა. გთხოვთ, სცადოთ ხელახლა.',
   'ide.chat.report.submitted': 'გმადლობთ! თქვენი ანგარიში გადაეგზავნა {{productName}}-ის გუნდს.',
   'ide.chat.report.submittedWithLink':

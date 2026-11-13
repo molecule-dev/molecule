@@ -542,19 +542,18 @@ export const da: Partial<IdeTranslations> = {
     'Der blev ikke fundet nogen færdigheder i mappen .agents/skills/ for dette projekt.',
   'ide.chat.skills.noMatch': 'Der findes ingen kompetencer, der matcher »{{query}}«.',
   'ide.chat.autoCommit.usage':
-    'Brug: /autocommit <seconds> — autocommit det antal sekunder efter den sidste filændring. /autocommit 0 annullerer.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Brug: /effort <level> (nuværende tilstand), /effort --plan|--execute <level>, /effort ? for status.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Skriv @filnavn for at vedhæfte en projektfil som kontekst (eller træk og slip en hvilken som helst fil).',
-  'ide.chat.scripts.runUsage':
-    'Brug: /run <name> — kør et gemt script. Brug /scripts til at se dem.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Tænkte i 1 sekund',
-  'ide.chat.thoughtForSeconds': 'Tænkte i {{count}} sekunder',
-  'ide.chat.thoughtForMinute': 'Tænkte i 1 minut',
-  'ide.chat.thoughtForMinutes': 'Tænkte i {{count}} minutter',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Tænker...',
   'ide.chat.streaming.analyzing': 'Analyserer...',
   'ide.chat.streaming.reasoning': 'Begrundelse...',
@@ -567,7 +566,7 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Kommandoer',
   'ide.chat.help.card.modesTitle': 'Indstillinger',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Anvendelse: {{usage}} ([…] valgfri, <…> påkrævet)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Det var ikke muligt at indsende din rapport. Prøv venligst igen.',
   'ide.chat.report.submitted':
     'Tak! Din rapport er blevet videresendt til teamet bag »{{productName}}«.',

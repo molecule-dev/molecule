@@ -41,6 +41,9 @@
  * `docs/locale-placeholder-drift.md`. The baseline is GONE on purpose: a gate
  * with an append-only exception list is a gate that stops failing (AGENTS.md
  * Rule 23). Repair the value or fix the generator — do not re-add a baseline.
+ * A `// keep-english: <reason>` marker in `en.ts` ({@link keptInEnglish}) is not
+ * one: it lets nothing through, it makes the gate require the English value of
+ * that key in every language.
  *
  * ## Usage
  *
@@ -303,6 +306,70 @@ export function classify(englishValue, value) {
   return null
 }
 
+/** The comment that keeps the key below it in English: `// keep-english: <reason>`. */
+const KEEP_ENGLISH_RE = /^\s*\/\/\s*keep-english:(.*)$/
+
+/**
+ * The keys an `en.ts` keeps in English in every language, each with its reason.
+ *
+ * A `// keep-english: <reason>` line comment applies to the next key below it
+ * (other comment lines may sit between them). The gate then requires every
+ * language to hold exactly the English value, and the translator writes the
+ * English value instead of asking a provider. It is for text a machine
+ * translation cannot get right and no one has translated by hand: an
+ * elliptical fragment ("Thought for 5 seconds") or command help whose argument
+ * names are part of the syntax. English is readable there; a confident wrong
+ * translation is not (2026-11-13: a pass gave French "Réfléchir pendant une
+ * seconde", the infinitive, and "× 0 secondes" for "that many seconds").
+ *
+ * @param source - The text of an `en.ts`.
+ * @returns `{ kept, problems }`: `kept` maps each key to its reason; `problems`
+ *   names each marker with no reason or no key below it.
+ */
+export function keptInEnglish(source) {
+  const kept = new Map()
+  const problems = []
+  let pending = null
+  for (const [index, line] of source.split('\n').entries()) {
+    const marker = KEEP_ENGLISH_RE.exec(line)
+    if (marker) {
+      if (pending) problems.push(`line ${pending.line}: keep-english has no key below it`)
+      pending = { line: index + 1, reason: marker[1].trim() }
+      if (!pending.reason) problems.push(`line ${index + 1}: keep-english needs a reason`)
+      continue
+    }
+    if (!pending || /^\s*(\/\/|\/\*|\*)/.test(line)) continue
+    const key = /^\s*(['"])(.+?)\1\s*:/.exec(line)
+    if (!key) {
+      problems.push(`line ${pending.line}: keep-english has no key below it`)
+      pending = null
+      continue
+    }
+    kept.set(key[2], pending.reason)
+    pending = null
+  }
+  if (pending) problems.push(`line ${pending.line}: keep-english has no key below it`)
+  return { kept, problems }
+}
+
+/**
+ * Classify one translated value, honouring a `// keep-english` marker on its key.
+ *
+ * @param englishValue - The `en.ts` value for the same key.
+ * @param value - The translated value.
+ * @param keepReason - The key's `keep-english` reason, or undefined when unmarked.
+ * @returns `null` when the value is acceptable, a `KEPT` verdict when a marked
+ *   key holds anything but its English value, else {@link classify}'s verdict.
+ */
+export function checkValue(englishValue, value, keepReason) {
+  if (keepReason === undefined) return classify(englishValue, value)
+  if (value === englishValue) return null
+  return {
+    klass: 'KEPT',
+    detail: `en.ts keeps this key in English (${keepReason}); write the English value`,
+  }
+}
+
 /**
  * A slash command (or an absolute path) and the argument syntax written after
  * it: `<name>`, `[on | off]`, `--plan|--execute`, `?`. It cannot follow an ASCII
@@ -457,7 +524,11 @@ export function analyzeLocalePlaceholders() {
   for (const pkg of localePackages()) {
     packagesScanned += 1
     const src = join(pkg, 'src')
-    const englishByKey = valuesByKey(readFileSync(join(src, 'en.ts'), 'utf8'))
+    const englishSource = readFileSync(join(src, 'en.ts'), 'utf8')
+    const englishByKey = valuesByKey(englishSource)
+    const { kept, problems: markerProblems } = keptInEnglish(englishSource)
+    for (const problem of markerProblems)
+      problems.push(`${pkg.slice(ROOT.length + 1)}/src/en.ts: ${problem}`)
     const known = new Set()
     for (const value of englishByKey.values())
       for (const name of placeholders(value)) known.add(name)
@@ -503,7 +574,7 @@ export function analyzeLocalePlaceholders() {
           }
           continue
         }
-        const verdict = classify(englishValue, value)
+        const verdict = checkValue(englishValue, value, kept.get(key))
         if (!verdict) continue
         drifts.push({
           where,
@@ -536,6 +607,8 @@ if (isMain) {
       console.error(
         `\nA placeholder name is a VARIABLE, not prose: it must match en.ts byte for byte\n` +
           `in every language, or the value never substitutes and the UI shows the raw token.\n` +
+          `A KEPT value translates a key en.ts marks \`// keep-english: <reason>\`: restore the\n` +
+          `English value (the translator below writes it).\n` +
           `An ENGLISH value is a key that was never translated. Translate the bond (in the\n` +
           `workspace: node scripts/translate-bond-gaps.mjs --apply --pkg=<bond>, which fills\n` +
           `missing keys and plural forms and retranslates every value this check refuses)\n` +

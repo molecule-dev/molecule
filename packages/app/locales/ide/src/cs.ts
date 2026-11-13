@@ -540,19 +540,18 @@ export const cs: Partial<IdeTranslations> = {
     'V adresáři .agents/skills/ nebyly pro tento projekt nalezeny žádné dovednosti.',
   'ide.chat.skills.noMatch': 'Žádná dovednost neodpovídá položce „{{query}}“.',
   'ide.chat.autoCommit.usage':
-    'Použití: /autocommit <seconds> — automaticky potvrdit zadaný počet sekund po poslední změně souboru. /autocommit 0 zruší.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Použití: /effort <level> (aktuální režim), /effort --plan|--execute <level>, /effort ? pro stav.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Zadejte @název_souboru pro připojení souboru projektu jako kontextu (nebo přetáhněte libovolný soubor).',
-  'ide.chat.scripts.runUsage':
-    'Použití: /run <name> — spustit uložený skript. Pro jejich zobrazení použijte /scripts .',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Přemýšlel jsem 1 vteřinu',
-  'ide.chat.thoughtForSeconds': 'Přemýšlel jsem {{count}} sekund',
-  'ide.chat.thoughtForMinute': 'Přemýšlel jsem 1 minutu',
-  'ide.chat.thoughtForMinutes': 'Přemýšlel jsem {{count}} minut',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Přemýšlím...',
   'ide.chat.streaming.analyzing': 'Probíhá analýza...',
   'ide.chat.streaming.reasoning': 'Úvaha...',
@@ -565,7 +564,7 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Příkazy',
   'ide.chat.help.card.modesTitle': 'Režimy',
   'ide.chat.help.card.tipsTitle': 'Tipy',
-  'ide.chat.help.card.usageHint': 'Použití: {{usage}} ([…] volitelné, <…> povinné)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Hlášení se nepodařilo odeslat. Zkuste to prosím znovu.',
   'ide.chat.report.submitted': 'Děkujeme! Vaše hlášení bylo předáno týmu {{productName}}.',
   'ide.chat.report.submittedWithLink':

@@ -378,7 +378,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Tự động commit sau: commit {{seconds}} giây kể từ lần thay đổi tệp cuối cùng.\nĐặt thành 0 để tắt tính năng tự động lưu.',
   'ide.chat.autoCommit.usage':
-    'Cách sử dụng: /autocommit <seconds> — Tự động lưu lại file sau ngần ấy giây kể từ lần thay đổi cuối cùng. /autocommit 0 sẽ hủy bỏ.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Không thể cập nhật nỗ lực suy luận.',
   'ide.chat.effort.fixedForModel':
     'Nỗ lực suy luận được cố định trên {{model}} ({{mode}} mode) — không có gì để thiết lập.',
@@ -390,7 +390,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Nỗ lực suy luận cho {{mode}} được đặt thành {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Cách sử dụng: /effort <level> (chế độ hiện tại), /effort --plan|--execute <level>, /effort ? để xem trạng thái.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -454,7 +454,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Sử dụng lệnh /compact để rút gọn ngữ cảnh khi cuộc hội thoại trở nên dài.',
   'ide.chat.help.tipMention':
-    '• Gõ @filename để đính kèm tệp dự án làm ngữ cảnh (hoặc kéo và thả bất kỳ tệp nào).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Sử dụng lệnh /plan để {{agentName}} nghiên cứu trước khi thực hiện thay đổi.',
   'ide.chat.help.tipSlash': '• Gõ / để xem tất cả các lệnh ở trên.',
@@ -500,8 +500,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Không thể chạy tập lệnh.',
   'ide.chat.scripts.runNone': 'Chưa có tập lệnh nào được lưu. Mở /scripts để tạo một tập lệnh.',
   'ide.chat.scripts.runNotFound': 'Không có kịch bản nào có tên “ {{name}} ”. Có sẵn: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Cách sử dụng: /run <name> — Chạy một tập lệnh đã lưu. Sử dụng /scripts để xem chúng.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} đã thoát với mã {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -555,10 +554,10 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Không có kỹ năng nào phù hợp với “ {{query}} ”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Suy nghĩ trong 1 giây',
-  'ide.chat.thoughtForSeconds': 'Suy nghĩ trong {{count}} giây',
-  'ide.chat.thoughtForMinute': 'Suy nghĩ trong 1 phút',
-  'ide.chat.thoughtForMinutes': 'Suy nghĩ trong {{count}} phút',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -571,7 +570,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Cách sử dụng: {{usage}} ([…] tùy chọn, <…> bắt buộc)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Không thể gửi báo cáo của bạn. Vui lòng thử lại.',
   'ide.chat.report.submitted': 'Cảm ơn! Báo cáo của bạn đã được gửi đến nhóm của {{productName}}.',
   'ide.chat.report.submittedWithLink':

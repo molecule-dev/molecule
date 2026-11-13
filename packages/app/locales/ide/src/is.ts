@@ -373,7 +373,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'Sjálfvirk staðfesting: staðfesting {{seconds}} sekúndum eftir síðustu skráarbreytingu.\nStilltu á 0 til að slökkva á sjálfvirkri staðfestingu.',
   'ide.chat.autoCommit.usage':
-    'Notkun: /autocommit <seconds> — sjálfvirkt framkvæma það fjölda sekúndna eftir síðustu skráarbreytingu. /autocommit 0 hættir við.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Mistókst að uppfæra rökhugsun.',
   'ide.chat.effort.fixedForModel':
     'Rökhugsunaráreynsla er föst á {{model}} ({{mode}} mode) — ekkert að stilla.',
@@ -385,7 +385,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.setting.effort': 'Rökhugsunaráreynsla fyrir {{mode}} stillt á {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'Notkun: /effort <level> (núverandi stilling), /effort --plan|--execute <level>, /effort ? fyrir stöðu.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -448,7 +448,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.help.tipCompact':
     '• Notið /compact til að þjappa samhengi þegar samtalið verður langt.',
   'ide.chat.help.tipMention':
-    '• Sláðu inn @skráarnafn til að hengja við verkefnisskrá sem samhengi (eða dragðu og slepptu hvaða skrá sem er).',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• Notið /plan til að láta {{agentName}} rannsaka áður en breytingar eru gerðar.',
   'ide.chat.help.tipSlash': '• Sláðu inn / til að skoða allar skipanirnar hér að ofan.',
@@ -494,8 +494,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'Mistókst að keyra handritið.',
   'ide.chat.scripts.runNone': 'Engin vistuð forskrift ennþá. Opnaðu /scripts til að búa til eitt.',
   'ide.chat.scripts.runNotFound': 'Ekkert handrit með nafninu „ {{name}} “. Tiltækt: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'Notkun: /run <name> — keyra vistað handrit. Notið /scripts til að sjá þau.',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} hætti með kóðanum {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -548,10 +547,10 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Engin færni passar við „ {{query}} “.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Hugsaði í eina sekúndu',
-  'ide.chat.thoughtForSeconds': 'Hugsaði í {{count}} sekúndur',
-  'ide.chat.thoughtForMinute': 'Hugsaði í eina mínútu',
-  'ide.chat.thoughtForMinutes': 'Hugsaði í {{count}} mínútur',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -564,7 +563,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'Notkun: {{usage}} ([…] valfrjálst, <…> nauðsynlegt)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Ekki tókst að senda inn skýrsluna. Reyndu aftur.',
   'ide.chat.report.submitted': 'Takk! Skýrslan þín var send til teymisins hjá {{productName}}.',
   'ide.chat.report.submittedWithLink':

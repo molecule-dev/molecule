@@ -375,7 +375,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.enabled':
     'ยืนยันการเปลี่ยนแปลงอัตโนมัติเมื่อ: ยืนยันการเปลี่ยนแปลง {{seconds}} วินาทีหลังจากมีการเปลี่ยนแปลงไฟล์ครั้งล่าสุด\nตั้งค่าเป็น 0 เพื่อปิดใช้งานการยืนยันอัตโนมัติ',
   'ide.chat.autoCommit.usage':
-    'วิธีใช้งาน: /autocommit <seconds> — ยืนยันการเปลี่ยนแปลงไฟล์โดยอัตโนมัติหลังจากแก้ไขครั้งล่าสุดเป็นเวลาหลายวินาที /autocommit 0 จะยกเลิก',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'ไม่สามารถอัปเดตความพยายามในการให้เหตุผลได้',
   'ide.chat.effort.fixedForModel':
     'ความพยายามในการให้เหตุผลถูกกำหนดไว้ที่ {{model}} ({{mode}} mode) — ไม่ต้องตั้งค่าอะไรเพิ่มเติม',
@@ -389,7 +389,7 @@ export const th: Partial<IdeTranslations> = {
     'ระดับความพยายามในการให้เหตุผลสำหรับ {{mode}} ถูกตั้งค่าเป็น {{level}}',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.effort.usage':
-    'วิธีใช้งาน: /effort <level> (โหมดปัจจุบัน), /effort --plan|--execute <level> /effort ? สำหรับสถานะ',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -452,7 +452,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.help.shortcuts': 'กด Cmd+/ (Ctrl+/ บน Windows/Linux) เพื่อดูแป้นพิมพ์ลัดทั้งหมด',
   'ide.chat.help.tipCompact': '• ใช้คำสั่ง /compact เพื่อย่อเนื้อหาเมื่อบทสนทนายาวเกินไป',
   'ide.chat.help.tipMention':
-    '• พิมพ์ @ชื่อไฟล์ เพื่อแนบไฟล์โปรเจ็กต์เป็นบริบท (หรือลากและวางไฟล์ใดก็ได้)',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan':
     '• ใช้คำสั่ง /plan เพื่อให้ {{agentName}} ทำการวิจัยก่อนทำการเปลี่ยนแปลง',
   'ide.chat.help.tipSlash': '• พิมพ์ / เพื่อดูคำสั่งทั้งหมดด้านบน',
@@ -498,8 +498,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.scripts.runError': 'ไม่สามารถเรียกใช้สคริปต์ได้',
   'ide.chat.scripts.runNone': 'ยังไม่มีสคริปต์ที่บันทึกไว้ เปิด /scripts เพื่อสร้างสคริปต์',
   'ide.chat.scripts.runNotFound': 'ไม่มีสคริปต์ชื่อ “ {{name}} ” สคริปต์ที่ใช้งานได้: {{names}}',
-  'ide.chat.scripts.runUsage':
-    'วิธีใช้งาน: /run <name> — เรียกใช้สคริปต์ที่บันทึกไว้ ใช้ /scripts เพื่อดูสคริปต์เหล่านั้น',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.scripts.cmdExitOk': '{{name}} exited 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} ออกจากระบบด้วยรหัส {{code}}',
   'ide.chat.scripts.exitOk': 'Exited 0',
@@ -551,10 +550,10 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'ไม่มีทักษะใดตรงกับ “ {{query}} ”',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'คิดอยู่ 1 วินาที',
-  'ide.chat.thoughtForSeconds': 'คิดอยู่นาน {{count}} วินาที',
-  'ide.chat.thoughtForMinute': 'คิดสัก 1 นาที',
-  'ide.chat.thoughtForMinutes': 'คิดเป็นเวลา {{count}} นาที',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Thinking...',
   'ide.chat.streaming.analyzing': 'Analyzing...',
   'ide.chat.streaming.reasoning': 'Reasoning...',
@@ -567,7 +566,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Commands',
   'ide.chat.help.card.modesTitle': 'Modes',
   'ide.chat.help.card.tipsTitle': 'Tips',
-  'ide.chat.help.card.usageHint': 'วิธีใช้งาน: {{usage}} ([…] ไม่บังคับ, <…> จำเป็น)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'ไม่สามารถส่งรายงานของคุณได้ โปรดลองอีกครั้ง',
   'ide.chat.report.submitted': 'ขอบคุณ! รายงานของคุณถูกส่งต่อไปยังทีมของ {{productName}} แล้ว',
   'ide.chat.report.submittedWithLink':

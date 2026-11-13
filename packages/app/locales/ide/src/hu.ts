@@ -548,19 +548,18 @@ export const hu: Partial<IdeTranslations> = {
     'Ehhez a projekthez nem találhatóak készségek az .agents/skills/ mappában.',
   'ide.chat.skills.noMatch': 'Nincs olyan képesség, amely megfelelne a „{{query}}” kifejezésnek.',
   'ide.chat.autoCommit.usage':
-    'Használat: /autocommit <seconds> — automatikus véglegesítés ennyi másodperccel az utolsó fájlmódosítás után. /autocommit 0 megszakítja.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Használat: /effort <level> (jelenlegi mód), /effort --plan|--execute <level>, /effort ? az állapothoz.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Írd be a @fájlnév parancsot egy projektfájl kontextusként való csatolásához (vagy húzd át és vidd el bármelyik fájlt).',
-  'ide.chat.scripts.runUsage':
-    'Használat: /run <name> — futtasson egy mentett szkriptet. A megtekintéshez használja /scripts .',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': '1 másodpercig gondolkodtam',
-  'ide.chat.thoughtForSeconds': '{{count}} másodpercig gondolkodtam',
-  'ide.chat.thoughtForMinute': '1 percig gondolkodtam',
-  'ide.chat.thoughtForMinutes': '{{count}} percig gondolkodtam',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Gondolkodom...',
   'ide.chat.streaming.analyzing': 'Elemzés folyamatban...',
   'ide.chat.streaming.reasoning': 'Érvelés...',
@@ -573,7 +572,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Parancsok',
   'ide.chat.help.card.modesTitle': 'Módok',
   'ide.chat.help.card.tipsTitle': 'Tippek',
-  'ide.chat.help.card.usageHint': 'Használat: {{usage}} ([…] opcionális, <…> kötelező)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'A jelentés elküldése nem sikerült. Kérjük, próbálja meg újra.',
   'ide.chat.report.submitted':
     'Köszönjük! Bejelentésedet továbbítottuk az {{productName}} csapatának.',

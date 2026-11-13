@@ -547,19 +547,18 @@ export const et: Partial<IdeTranslations> = {
     'Selle projekti jaoks ei leitud kataloogist .agents/skills/ ühtegi oskust.',
   'ide.chat.skills.noMatch': 'Ühtegi oskust ei leitud, mis vastaks otsingule „{{query}}“.',
   'ide.chat.autoCommit.usage':
-    'Kasutamine: /autocommit <seconds> — automaatne kinnitamine nii mitu sekundit pärast viimast failimuudatust. /autocommit 0 tühistab.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Kasutamine: /effort <level> (praegune režiim), /effort --plan|--execute <level>, /effort ? staatuse jaoks.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Projektifaili kontekstina lisamiseks tippige @failinimi (või lohistage suvaline fail).',
-  'ide.chat.scripts.runUsage':
-    'Kasutamine: /run <name> — käivitage salvestatud skript. Nende nägemiseks kasutage /scripts .',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Mõtlesin 1 sekundi',
-  'ide.chat.thoughtForSeconds': 'Mõtlesin {{count}} sekundit',
-  'ide.chat.thoughtForMinute': 'Mõtlesin 1 minuti',
-  'ide.chat.thoughtForMinutes': 'Mõtlesin {{count}} minutit',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Mõtlen...',
   'ide.chat.streaming.analyzing': 'Analüüsitakse...',
   'ide.chat.streaming.reasoning': 'Põhjendused...',
@@ -572,7 +571,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Käsud',
   'ide.chat.help.card.modesTitle': 'Režiimid',
   'ide.chat.help.card.tipsTitle': 'Nõuanded',
-  'ide.chat.help.card.usageHint': 'Kasutus: {{usage}} ([…] valikuline, <…> kohustuslik)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Teie aruannet ei õnnestunud saata. Palun proovige uuesti.',
   'ide.chat.report.submitted': 'Täname! Teie teade on edastatud „{{productName}}” meeskonnale.',
   'ide.chat.report.submittedWithLink':

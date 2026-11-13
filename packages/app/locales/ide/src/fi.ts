@@ -549,19 +549,18 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.empty': 'Tälle projektille ei löytynyt taitoja kansiosta .agents/skills/.',
   'ide.chat.skills.noMatch': 'Mitään hakutulosta ei löytynyt hakusanalle ”{{query}}”.',
   'ide.chat.autoCommit.usage':
-    'Käyttö: /autocommit <seconds> — tekee automaattisen vahvistuksen niin monen sekunnin kuluttua viimeisimmästä tiedostomuutoksesta. /autocommit 0 peruuttaa.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Käyttö: /effort <level> (nykyinen tila), /effort --plan|--execute <level>, /effort ? tilan määrittämiseksi.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Kirjoita @tiedostonimi liittääksesi projektitiedoston kontekstina (tai vedä ja pudota mikä tahansa tiedosto).',
-  'ide.chat.scripts.runUsage':
-    'Käyttö: /run <name> — suorita tallennettu skripti. Käytä /scripts valitsinta nähdäksesi ne.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Mietin 1 sekunnin',
-  'ide.chat.thoughtForSeconds': 'Mietin {{count}} sekuntia',
-  'ide.chat.thoughtForMinute': 'Mietin 1 minuutin',
-  'ide.chat.thoughtForMinutes': 'Mietin {{count}} minuuttia',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Mietin...',
   'ide.chat.streaming.analyzing': 'Analysoidaan...',
   'ide.chat.streaming.reasoning': 'Perustelut...',
@@ -574,7 +573,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Komennot',
   'ide.chat.help.card.modesTitle': 'Tilat',
   'ide.chat.help.card.tipsTitle': 'Vinkkejä',
-  'ide.chat.help.card.usageHint': 'Käyttö: {{usage}} ([…] valinnainen, <…> pakollinen)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Ilmoitusta ei voitu lähettää. Yritä uudelleen.',
   'ide.chat.report.submitted':
     'Kiitos! Ilmoituksesi on välitetty {{productName}}-sivuston tiimille.',

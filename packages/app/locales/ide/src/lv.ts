@@ -549,19 +549,18 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.skills.empty': 'Šim projektam mapē .agents/skills/ nav atrastas nekādas prasmes.',
   'ide.chat.skills.noMatch': 'Nav atbilstošu prasmju meklējumam „{{query}}“.',
   'ide.chat.autoCommit.usage':
-    'Lietojums: /autocommit <seconds> — automātiski apstiprināt tik sekundes pēc pēdējām faila izmaiņām. /autocommit 0 atceļ.',
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.usage':
-    'Lietojums: /effort <level> (pašreizējais režīms), /effort --plan|--execute <level>, /effort ? statusa iegūšanai.',
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
-    '• Ievadiet @filename, lai pievienotu projekta failu kā kontekstu (vai velciet un nometiet jebkuru failu).',
-  'ide.chat.scripts.runUsage':
-    'Lietojums: /run <name> — palaist saglabātu skriptu. Izmantojiet /scripts , lai tos skatītu.',
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
-  'ide.chat.thoughtForSecond': 'Domāju 1 sekundi',
-  'ide.chat.thoughtForSeconds': 'Domāju {{count}} sekundes',
-  'ide.chat.thoughtForMinute': 'Domāju 1 minūti',
-  'ide.chat.thoughtForMinutes': 'Domāju {{count}} minūtes',
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
   'ide.chat.streaming.thinking': 'Domāju...',
   'ide.chat.streaming.analyzing': 'Analizē...',
   'ide.chat.streaming.reasoning': 'Argumentācija...',
@@ -574,7 +573,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.help.card.commandsTitle': 'Komandas',
   'ide.chat.help.card.modesTitle': 'Režīmi',
   'ide.chat.help.card.tipsTitle': 'Padomi',
-  'ide.chat.help.card.usageHint': 'Lietojums: {{usage}} ([…] neobligāts, <…> obligāts)',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Ziņojumu neizdevās nosūtīt. Lūdzu, mēģiniet vēlreiz.',
   'ide.chat.report.submitted': 'Paldies! Jūsu ziņojums ir nosūtīts „{{productName}}“ komandai.',
   'ide.chat.report.submittedWithLink':
