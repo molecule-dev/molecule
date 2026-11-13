@@ -9,4 +9,6 @@ export const lv: ChatTranslations = {
   'chat.error.sendFailed': 'Neizdevās nosūtīt ziņojumu',
   'chat.error.stalled':
     '{{agentName}} pārstāja reaģēt. Iespējams, ka tas joprojām pabeidz darbu fonā — ielādējiet lapu atkārtoti, lai skatītu jaunāko informāciju, vai nosūtiet jaunu ziņojumu.',
+  'aiChat.error.noProvider':
+    'Mākslīgā intelekta tērzēšanas pakalpojumu sniedzējs nav konfigurēts. Vispirms piesaistiet mākslīgā intelekta tērzēšanas pakalpojumu sniedzēju.',
 }

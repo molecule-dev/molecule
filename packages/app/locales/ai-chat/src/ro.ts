@@ -9,4 +9,6 @@ export const ro: ChatTranslations = {
   'chat.error.sendFailed': 'Mesajul nu a fost trimis',
   'chat.error.stalled':
     '{{agentName}} nu a mai răspuns. Este posibil să se finalizeze încă în fundal — reîncărcați pentru a vedea cele mai recente sau trimiteți un mesaj nou.',
+  'aiChat.error.noProvider':
+    'Furnizorul de chat cu inteligență artificială nu este configurat. Mai întâi conectați un furnizor de chat cu inteligență artificială.',
 }

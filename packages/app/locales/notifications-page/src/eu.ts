@@ -14,7 +14,7 @@ export const eu: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Guztiz harrapatuta zaude.',
   'notificationsPage.emptyBody': 'Jakinarazpen berriak hemen agertuko dira.',
   'notificationsPage.paginationAriaLabel': 'Orrialde-kopurua',
-  'notificationsPage.pageOf': 'Orria {{current}} -ren {{total}}',
+  'notificationsPage.pageOf': 'Orria {{current}}-ren {{total}}',
   'notificationsPage.prev': 'Aurrekoa',
   'notificationsPage.next': 'Hurrengoa',
 }

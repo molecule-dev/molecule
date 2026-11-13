@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const nl: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Code-editor provider is niet geconfigureerd. Verbind eerst een code-editor provider.',
+  'codeEditor.askAI': 'Vraag het aan AI',
+  'codeEditor.fixWithAI': 'Repareer met AI',
 }

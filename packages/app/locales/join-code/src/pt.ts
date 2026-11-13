@@ -4,6 +4,6 @@ import type { JoinCodeTranslations } from './types.js'
 export const pt: Partial<JoinCodeTranslations> = {
   'joinCode.label': 'Código de acesso',
   'joinCode.slotAriaLabel': 'Caractere de código de junção {{position}}',
-  'joinCode.help': 'Entre no {{length}} -código de caracteres.',
+  'joinCode.help': 'Insira o código de {{length}} caracteres.',
   'joinCode.errorAlphabet': 'Caractere inválido.',
 }

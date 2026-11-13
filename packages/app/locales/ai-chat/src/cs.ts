@@ -9,4 +9,6 @@ export const cs: ChatTranslations = {
   'chat.error.sendFailed': 'Zprávu se nepodařilo odeslat',
   'chat.error.stalled':
     '{{agentName}} přestal odpovídat. Je možné, že stále dokončuje načítání na pozadí – znovu načtěte pro zobrazení nejnovějších informací nebo odešlete novou zprávu.',
+  'aiChat.error.noProvider':
+    'Poskytovatel chatu s umělou inteligencí není nakonfigurován. Nejprve propojte poskytovatele chatu s umělou inteligencí.',
 }

@@ -9,4 +9,6 @@ export const sq: ChatTranslations = {
   'chat.error.sendFailed': 'Dërgimi i mesazhit dështoi',
   'chat.error.stalled':
     '{{agentName}} ndaloi së përgjigjuri. Mund të jetë ende duke përfunduar në sfond — ringarkojeni për të parë të rejat më të fundit ose dërgoni një mesazh të ri.',
+  'aiChat.error.noProvider':
+    'Ofruesi i bisedës me inteligjencë artificiale nuk është konfiguruar. Lidhni së pari një ofrues bisede me inteligjencë artificiale.',
 }

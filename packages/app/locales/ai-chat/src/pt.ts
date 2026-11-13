@@ -9,4 +9,6 @@ export const pt: ChatTranslations = {
   'chat.error.sendFailed': 'Falha ao enviar mensagem',
   'chat.error.stalled':
     '{{agentName}} parou de responder. Ele pode ainda estar sendo processado em segundo plano — atualize a página para ver as informações mais recentes ou envie uma nova mensagem.',
+  'aiChat.error.noProvider':
+    'Provedor de bate-papo por IA não configurado. Primeiro, vincule um provedor de bate-papo por IA.',
 }

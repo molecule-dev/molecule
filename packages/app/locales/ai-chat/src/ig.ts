@@ -9,4 +9,6 @@ export const ig: ChatTranslations = {
   'chat.error.sendFailed': 'Izipu ozi agaghị adị',
   'chat.error.stalled':
     "{{agentName}} kwụsịrị ịza. O nwere ike ọ ka na-agwụ n'azụ — bugharịa ya iji hụ nke kachasị ọhụrụ, ma ọ bụ ziga ozi ọhụrụ.",
+  'aiChat.error.noProvider':
+    'Emebeghị ka onye na-enye nkata AI kọọ ya. Buru ụzọ jikọọ onye na-enye nkata AI.',
 }

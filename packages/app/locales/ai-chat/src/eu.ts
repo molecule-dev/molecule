@@ -9,4 +9,6 @@ export const eu: ChatTranslations = {
   'chat.error.sendFailed': 'Mezua bidaltzea huts egin da',
   'chat.error.stalled':
     '{{agentName}} k erantzuteari utzi dio. Baliteke oraindik atzeko planoan amaitzen ari izatea — berriro kargatu azkenak ikusteko edo bidali mezu berri bat.',
+  'aiChat.error.noProvider':
+    'IA txat hornitzailea ez dago konfiguratuta. Lehenik IA txat hornitzaile batekin lotu.',
 }

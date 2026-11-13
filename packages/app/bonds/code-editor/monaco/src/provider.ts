@@ -1682,8 +1682,8 @@ export class MonacoEditorProvider implements EditorProvider {
     this.fixWithAIDisposables = []
     if (!this.editor) return
 
-    const fixLabel = t('editor.fixWithAI', undefined, { defaultValue: 'Fix with AI' })
-    const askLabel = t('editor.askAI', undefined, { defaultValue: 'Ask AI' })
+    const fixLabel = t('codeEditor.fixWithAI', undefined, { defaultValue: 'Fix with AI' })
+    const askLabel = t('codeEditor.askAI', undefined, { defaultValue: 'Ask AI' })
 
     // Register a command that the code action provider can reference.
     // addCommand returns the command ID; handler receives (accessor, ...args).

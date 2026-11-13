@@ -9,4 +9,6 @@ export const gl: ChatTranslations = {
   'chat.error.sendFailed': 'Non se puido enviar a mensaxe',
   'chat.error.stalled':
     '{{agentName}} deixou de responder. Pode que aínda estea a finalizar en segundo plano. Volva cargar a páxina para ver as últimas novidades ou envíe unha nova mensaxe.',
+  'aiChat.error.noProvider':
+    'O provedor de chat de IA non está configurado. Primeiro, conecta un provedor de chat de IA.',
 }

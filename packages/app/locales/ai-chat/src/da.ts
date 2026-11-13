@@ -9,4 +9,6 @@ export const da: ChatTranslations = {
   'chat.error.sendFailed': 'Kunne ikke sende beskeden',
   'chat.error.stalled':
     '{{agentName}} svarede ikke længere. Den afslutter muligvis stadig i baggrunden — genindlæs for at se det seneste, eller send en ny besked.',
+  'aiChat.error.noProvider':
+    'AI-chatudbyder er ikke konfigureret. Forbind først en AI-chatudbyder.',
 }

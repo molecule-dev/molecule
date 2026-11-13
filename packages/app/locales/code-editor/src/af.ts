@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const af: Partial<CodeEditorTranslations> = {
   'codeEditor.error.noProvider':
     "Kode-redigeerderverskaffer nie gekonfigureer nie. Koppel eers 'n kode-redigeerderverskaffer.",
+  'codeEditor.askAI': 'Vra KI',
+  'codeEditor.fixWithAI': 'Herstel met KI',
 }

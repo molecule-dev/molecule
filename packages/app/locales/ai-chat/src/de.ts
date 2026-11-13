@@ -9,4 +9,6 @@ export const de: ChatTranslations = {
   'chat.error.sendFailed': 'Nachricht konnte nicht gesendet werden',
   'chat.error.stalled':
     '{{agentName}} reagiert nicht mehr. Die Verarbeitung läuft möglicherweise noch im Hintergrund – aktualisieren Sie die Seite, um den aktuellen Status anzuzeigen, oder senden Sie eine neue Nachricht.',
+  'aiChat.error.noProvider':
+    'Der KI-Chat-Anbieter ist nicht konfiguriert. Verbinden Sie zuerst einen KI-Chat-Anbieter.',
 }

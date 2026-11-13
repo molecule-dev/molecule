@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const cy: Partial<CodeEditorTranslations> = {
   'codeEditor.error.noProvider':
     'Darparwr golygydd cod heb ei ffurfweddu. Cysylltwch ddarparwr golygydd cod yn gyntaf.',
+  'codeEditor.askAI': 'Gofynnwch i AI',
+  'codeEditor.fixWithAI': 'Trwsio gyda AI',
 }

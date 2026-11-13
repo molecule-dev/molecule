@@ -9,4 +9,5 @@ export const zh: ChatTranslations = {
   'chat.error.sendFailed': '消息发送失败',
   'chat.error.stalled':
     '{{agentName}}已停止响应。它可能仍在后台完成操作——请重新加载页面以查看最新信息，或发送新消息。',
+  'aiChat.error.noProvider': 'AI聊天服务提供商尚未配置。请先绑定AI聊天服务提供商。',
 }

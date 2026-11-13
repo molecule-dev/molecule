@@ -26,8 +26,8 @@
  *   NOT plain Enter; it trims and clears on submit and blocks empty sends.
  * - Composer strings route through `t()` (`composer.placeholder`,
  *   `composer.send`) with the `@molecule/app-locales-message-bubble` companion
- *   bond; `ThreadIndicator` uses `thread.replies`, which that bond does not yet
- *   ship — it falls back to English.
+ *   bond; `ThreadIndicator` uses `thread.replies`, pluralized by `count`
+ *   (`thread.replies_one` / `thread.replies_other`) in the same bond.
  * - `MessageReactions` marks the viewer's own reaction with `aria-pressed` only —
  *   no visual highlight ships.
  * - Requires wired i18n (`useTranslation`) and a ClassMap bond; Avatar/Button/

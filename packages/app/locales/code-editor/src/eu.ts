@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const eu: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Kode-editorearen hornitzailea ez dago konfiguratuta. Lotu lehenik kode-editore hornitzaile bat.',
+  'codeEditor.askAI': 'Galdetu AIri',
+  'codeEditor.fixWithAI': 'Konpondu AIarekin',
 }

@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const lv: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Koda redaktora nodrošinātājs nav konfigurēts. Vispirms pievienojiet koda redaktora nodrošinātāju.',
+  'codeEditor.askAI': 'Jautājiet mākslīgajam intelektam',
+  'codeEditor.fixWithAI': 'Labot ar mākslīgo intelektu',
 }

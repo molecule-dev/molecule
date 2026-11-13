@@ -9,4 +9,6 @@ export const af: ChatTranslations = {
   'chat.error.sendFailed': 'Kon nie boodskap stuur nie',
   'chat.error.stalled':
     "{{agentName}} het opgehou reageer. Dit mag dalk steeds in die agtergrond klaar wees — herlaai om die nuutste te sien, of stuur 'n nuwe boodskap.",
+  'aiChat.error.noProvider':
+    "KI-kletsverskaffer nie gekonfigureer nie. Koppel eers 'n KI-kletsverskaffer.",
 }

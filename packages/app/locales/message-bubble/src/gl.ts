@@ -4,4 +4,6 @@ import type { MessageBubbleTranslations } from './types.js'
 export const gl: Partial<MessageBubbleTranslations> = {
   'composer.placeholder': 'Escribe unha mensaxe…',
   'composer.send': 'Enviar',
+  'thread.replies_one': '{{count}} resposta',
+  'thread.replies_other': '{{count}} respostas',
 }

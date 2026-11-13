@@ -5,7 +5,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.commitBuildInProgress':
     'Odota koontiversion valmistumista ennen Git-commitin luomista.',
   'ide.chat.showChangedFiles': 'Näytä muuttuneet tiedostot',
-  'ide.chat.commitFileCount_one': 'Commit {{count}} -tiedosto',
+  'ide.chat.commitFileCount_one': 'Vahvista {{count}} tiedosto',
   'ide.chat.commitFileCount_other': 'Vahvista {{count}} tiedostoa',
   'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',

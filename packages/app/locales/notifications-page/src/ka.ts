@@ -14,7 +14,7 @@ export const ka: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'ყველაფერი გასაგებია',
   'notificationsPage.emptyBody': 'ახალი შეტყობინებები აქ გამოჩნდება.',
   'notificationsPage.paginationAriaLabel': 'გვერდების დახარისხება',
-  'notificationsPage.pageOf': 'გვერდი {{current}} -ის {{total}}',
+  'notificationsPage.pageOf': 'გვერდი {{current}}-ის {{total}}',
   'notificationsPage.prev': 'წინა',
   'notificationsPage.next': 'შემდეგი',
 }

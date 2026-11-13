@@ -9,4 +9,6 @@ export const hu: ChatTranslations = {
   'chat.error.sendFailed': 'Nem sikerült elküldeni az üzenetet',
   'chat.error.stalled':
     '{{agentName}} nem válaszolt. Lehetséges, hogy a háttérben még befejeződik – töltse be újra az oldalt a legújabbak megtekintéséhez, vagy küldjön új üzenetet.',
+  'aiChat.error.noProvider':
+    'AI chat szolgáltató nincs konfigurálva. Először köss össze egy AI chat szolgáltatót.',
 }

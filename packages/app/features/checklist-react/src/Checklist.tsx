@@ -56,7 +56,7 @@ export function Checklist({
               {t(
                 'checklist.progress',
                 { done, total },
-                { defaultValue: `${done} of ${total} complete` },
+                { defaultValue: '{{done}} of {{total}} complete' },
               )}
             </span>
             <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{pct}%</span>

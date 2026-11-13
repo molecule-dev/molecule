@@ -19,8 +19,9 @@
  *
  * @remarks
  * The "Earned"/"Locked" state labels flow through `t()` with English
- * `defaultValue` fallbacks under the `achievementCard.*` keys, so a wired
- * locale bond (or the host app's own locale) can translate them. Each is also
+ * `defaultValue` fallbacks under the `achievementCard.*` keys, so the
+ * `@molecule/app-locales-achievement-card` companion bond (or the host app's
+ * own locale) can translate them. Each is also
  * overridable per-instance via the `earnedLabel` / `lockedLabel` props
  * (prop > `t()` > default).
  *

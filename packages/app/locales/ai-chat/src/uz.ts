@@ -9,4 +9,6 @@ export const uz: Partial<ChatTranslations> = {
   'chat.error.sendFailed': 'Xabar yuborilmadi',
   'chat.error.stalled':
     "{{agentName}} javob berishni to'xtatdi. U hali ham orqa fonda tugallanayotgan bo'lishi mumkin — eng so'nggi xabarlarni ko'rish uchun qayta yuklang yoki yangi xabar yuboring.",
+  'aiChat.error.noProvider':
+    "Sun'iy intellekt chat provayderi sozlanmagan. Avval sun'iy intellekt chat provayderini bog'lang.",
 }

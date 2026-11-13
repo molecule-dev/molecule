@@ -4,5 +4,5 @@ import type { FilterBarTranslations } from './types.js'
 export const eu: Partial<FilterBarTranslations> = {
   'filterBar.clear': 'Garbitu iragazkiak',
   'filterBar.from': '{{label}} hemendik',
-  'filterBar.to': '{{label}} -ra',
+  'filterBar.to': '{{label}}-ra',
 }

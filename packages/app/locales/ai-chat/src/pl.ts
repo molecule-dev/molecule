@@ -9,4 +9,6 @@ export const pl: ChatTranslations = {
   'chat.error.sendFailed': 'Nie udało się wysłać wiadomości',
   'chat.error.stalled':
     '{{agentName}} przestał odpowiadać. Możliwe, że nadal kończy działanie w tle — odśwież stronę, aby zobaczyć najnowsze informacje, lub wyślij nową wiadomość.',
+  'aiChat.error.noProvider':
+    'Dostawca czatu AI nie został skonfigurowany. Najpierw połącz dostawcę czatu AI.',
 }

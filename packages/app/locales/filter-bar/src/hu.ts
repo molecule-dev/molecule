@@ -4,5 +4,5 @@ import type { FilterBarTranslations } from './types.js'
 export const hu: Partial<FilterBarTranslations> = {
   'filterBar.clear': 'Szűrők törlése',
   'filterBar.from': '{{label}} innen:',
-  'filterBar.to': '{{label}} -nak/-nek',
+  'filterBar.to': '{{label}}-nak/-nek',
 }

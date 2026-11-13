@@ -132,7 +132,7 @@ export function WebhookInspector({
               {d.requestBody !== undefined && (
                 <div className={cm.stack(1 as const)}>
                   <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-                    Request
+                    {t('webhookInspector.request', undefined, { defaultValue: 'Request' })}
                   </span>
                   <pre className={cm.textSize('xs')} style={{ overflowX: 'auto' }}>
                     {stringify(d.requestBody)}
@@ -142,7 +142,7 @@ export function WebhookInspector({
               {d.responseBody !== undefined && (
                 <div className={cm.stack(1 as const)}>
                   <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
-                    Response
+                    {t('webhookInspector.response', undefined, { defaultValue: 'Response' })}
                   </span>
                   <pre className={cm.textSize('xs')} style={{ overflowX: 'auto' }}>
                     {stringify(d.responseBody)}

@@ -9,4 +9,5 @@ export const am: ChatTranslations = {
   'chat.error.sendFailed': 'መልእክት መላክ አልተሳካም',
   'chat.error.stalled':
     '{{agentName}} ምላሽ መስጠት አቁሟል። አሁንም ከበስተጀርባ እየተጠናቀቀ ሊሆን ይችላል — የቅርብ ጊዜውን ለማየት እንደገና ይጫኑ ወይም አዲስ መልእክት ይላኩ።',
+  'aiChat.error.noProvider': 'የAI ውይይት አቅራቢ አልተዋቀረም። መጀመሪያ የAI ውይይት አቅራቢን ያስምሩ።',
 }

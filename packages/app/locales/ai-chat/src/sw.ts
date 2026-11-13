@@ -9,4 +9,6 @@ export const sw: ChatTranslations = {
   'chat.error.sendFailed': 'Imeshindwa kutuma ujumbe',
   'chat.error.stalled':
     '{{agentName}} iliacha kujibu. Huenda bado inaisha chinichini — pakia upya ili kuona ya hivi punde, au tuma ujumbe mpya.',
+  'aiChat.error.noProvider':
+    'Mtoa huduma wa gumzo la AI hajasanidiwa. Weka mshirika wa mtoa huduma wa gumzo la AI kwanza.',
 }

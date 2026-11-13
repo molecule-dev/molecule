@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const si: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'කේත සංස්කාරක සපයන්නා වින්‍යාස කර නැත. පළමුව කේත සංස්කාරක සපයන්නෙකු බැඳ ගන්න.',
+  'codeEditor.askAI': 'AI අහන්න',
+  'codeEditor.fixWithAI': 'AI සමඟ නිවැරදි කරන්න',
 }

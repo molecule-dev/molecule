@@ -9,4 +9,6 @@ export const es: ChatTranslations = {
   'chat.error.sendFailed': 'No se pudo enviar el mensaje.',
   'chat.error.stalled':
     '{{agentName}} dejó de responder. Es posible que aún esté finalizando en segundo plano; actualice la página para ver la última versión o envíe un nuevo mensaje.',
+  'aiChat.error.noProvider':
+    'El proveedor de chat con IA no está configurado. Primero, regístrese con un proveedor de chat con IA.',
 }

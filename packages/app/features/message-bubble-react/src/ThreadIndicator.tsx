@@ -44,6 +44,7 @@ export function ThreadIndicator({
           'thread.replies',
           { count: replyCount },
           {
+            count: replyCount,
             defaultValue: replyCount === 1 ? '1 reply' : `${replyCount} replies`,
           },
         )}

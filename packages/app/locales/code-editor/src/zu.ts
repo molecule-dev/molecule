@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const zu: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Umhlinzeki wohlelo lokushintsha ikhodi awulungiselelwanga. Hlanganisa umhlinzeki wohlelo lokushintsha ikhodi kuqala.',
+  'codeEditor.askAI': 'Buza i-AI',
+  'codeEditor.fixWithAI': 'Lungisa nge-AI',
 }

@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const et: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Koodiredaktori pakkuja pole seadistatud. Siduge esmalt koodiredaktori pakkuja.',
+  'codeEditor.askAI': 'Küsi tehisintellektilt',
+  'codeEditor.fixWithAI': 'Paranda tehisintellektiga',
 }

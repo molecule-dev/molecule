@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const nb: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Kodeeditor-leverandør er ikke konfigurert. Koble til en kodeeditor-leverandør først.',
+  'codeEditor.askAI': 'Spør AI',
+  'codeEditor.fixWithAI': 'Fiks med AI',
 }

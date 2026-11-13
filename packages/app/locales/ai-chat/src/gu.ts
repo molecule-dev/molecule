@@ -9,4 +9,5 @@ export const gu: ChatTranslations = {
   'chat.error.sendFailed': 'સંદેશ મોકલવામાં નિષ્ફળ થયાં',
   'chat.error.stalled':
     '{{agentName}} એ જવાબ આપવાનું બંધ કરી દીધું. તે હજુ પણ પૃષ્ઠભૂમિમાં સમાપ્ત થઈ રહ્યું હોઈ શકે છે — નવીનતમ જોવા માટે ફરીથી લોડ કરો, અથવા નવો સંદેશ મોકલો.',
+  'aiChat.error.noProvider': 'AI ચેટ પ્રદાતા ગોઠવેલ નથી. પહેલા AI ચેટ પ્રદાતાને બોન્ડ કરો.',
 }

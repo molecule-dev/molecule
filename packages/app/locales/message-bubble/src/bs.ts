@@ -4,4 +4,6 @@ import type { MessageBubbleTranslations } from './types.js'
 export const bs: Partial<MessageBubbleTranslations> = {
   'composer.placeholder': 'Napišite poruku…',
   'composer.send': 'Pošalji',
+  'thread.replies_one': '{{count}} odgovor',
+  'thread.replies_other': '{{count}} odgovora',
 }

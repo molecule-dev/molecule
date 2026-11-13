@@ -14,7 +14,7 @@ export const mn: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Та бүгдийг нь дуусгалаа',
   'notificationsPage.emptyBody': 'Шинэ мэдэгдэл энд гарч ирнэ.',
   'notificationsPage.paginationAriaLabel': 'Хуудаслалт',
-  'notificationsPage.pageOf': 'Хуудас {{current}} -ын {{total}}',
+  'notificationsPage.pageOf': 'Хуудас {{current}}-ын {{total}}',
   'notificationsPage.prev': 'Өмнөх',
   'notificationsPage.next': 'Дараагийнх',
 }

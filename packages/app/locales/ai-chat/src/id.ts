@@ -9,4 +9,6 @@ export const id: ChatTranslations = {
   'chat.error.sendFailed': 'Pesan gagal terkirim',
   'chat.error.stalled':
     '{{agentName}} berhenti merespons. Mungkin masih dalam proses penyelesaian di latar belakang — muat ulang untuk melihat status terbaru, atau kirim pesan baru.',
+  'aiChat.error.noProvider':
+    'Penyedia obrolan AI belum dikonfigurasi. Hubungkan penyedia obrolan AI terlebih dahulu.',
 }

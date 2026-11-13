@@ -9,4 +9,6 @@ export const yo: ChatTranslations = {
   'chat.error.sendFailed': 'Kò lè fi ìránṣẹ́ ránṣẹ́',
   'chat.error.stalled':
     '{{agentName}} dẹ́kun dídáhùn. Ó lè máa parí ní ẹ̀yìn — tún gbé e kalẹ̀ láti wo tuntun, tàbí kí o fi ìránṣẹ́ tuntun ránṣẹ́.',
+  'aiChat.error.noProvider':
+    'A ko ṣeto olupese iwiregbe AI. Ṣe asopọ olupese iwiregbe AI kan ni akọkọ.',
 }

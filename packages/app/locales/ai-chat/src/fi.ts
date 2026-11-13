@@ -9,4 +9,6 @@ export const fi: ChatTranslations = {
   'chat.error.sendFailed': 'Viestin lähettäminen epäonnistui',
   'chat.error.stalled':
     '{{agentName}} lakkasi vastaamasta. Se saattaa olla vielä viimeistelemässä taustalla – lataa sivu uudelleen nähdäksesi uusimmat tai lähetä uusi viesti.',
+  'aiChat.error.noProvider':
+    'Tekoälychat-palveluntarjoajaa ei ole määritetty. Luo ensin sidonta tekoälychat-palveluntarjoajalle.',
 }

@@ -9,4 +9,6 @@ export const az: ChatTranslations = {
   'chat.error.sendFailed': 'Mesaj göndərmək alınmadı',
   'chat.error.stalled':
     '{{agentName}} cavab verməyi dayandırdı. Hələ də arxa planda tamamlana bilər — ən son xəbəri görmək üçün yenidən yükləyin və ya yeni mesaj göndərin.',
+  'aiChat.error.noProvider':
+    'Süni intellekt çat provayderi konfiqurasiya edilməyib. Əvvəlcə süni intellekt çat provayderini bağlayın.',
 }

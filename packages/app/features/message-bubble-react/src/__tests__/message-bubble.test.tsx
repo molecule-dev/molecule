@@ -26,12 +26,16 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-// `t(key, values, opts)` echoes the supplied `defaultValue`.
-vi.mock('@molecule/app-react', () => ({
-  useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
+// `t(key, values, opts)` echoes the supplied `defaultValue`; a spy, so a test can
+// read the options a component passed.
+const { t } = vi.hoisted(() => ({
+  t: vi.fn(
+    (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,
-  }),
+  ),
+}))
+vi.mock('@molecule/app-react', () => ({
+  useTranslation: () => ({ t }),
 }))
 
 vi.mock('@molecule/app-ui-react', () => ({
@@ -169,6 +173,17 @@ describe('ThreadIndicator', () => {
   it('renders the plural "N replies" label for replyCount > 1', () => {
     const markup = html(createElement(ThreadIndicator, { replyCount: 4 }))
     expect(markup).toContain('4 replies')
+  })
+
+  it('passes replyCount as the plural count, so the locale bond picks thread.replies_one/_other', () => {
+    // The i18n core resolves `key_<form>` only from `options.count`, not from the
+    // interpolation values.
+    html(createElement(ThreadIndicator, { replyCount: 3 }))
+    expect(t).toHaveBeenCalledWith(
+      'thread.replies',
+      { count: 3 },
+      expect.objectContaining({ count: 3 }),
+    )
   })
 
   it('renders lastReplyAt when present and omits it otherwise', () => {

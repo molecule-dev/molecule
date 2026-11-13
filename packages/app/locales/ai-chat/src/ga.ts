@@ -9,4 +9,6 @@ export const ga: ChatTranslations = {
   'chat.error.sendFailed': 'Theip ar an teachtaireacht a sheoladh',
   'chat.error.stalled':
     'Stop {{agentName}} ag freagairt. B’fhéidir go bhfuil sé fós ag críochnú sa chúlra — athlódáil chun an ceann is déanaí a fheiceáil, nó seol teachtaireacht nua.',
+  'aiChat.error.noProvider':
+    'Níl an soláthraí comhrá AI cumraithe. Ceangail soláthraí comhrá AI ar dtús.',
 }

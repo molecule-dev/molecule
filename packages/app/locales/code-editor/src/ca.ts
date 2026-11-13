@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const ca: Partial<CodeEditorTranslations> = {
   'codeEditor.error.noProvider':
     "Proveïdor d'editor de codi no configurat. Primer, vincula un proveïdor d'editor de codi.",
+  'codeEditor.askAI': 'Pregunta a la IA',
+  'codeEditor.fixWithAI': 'Corregir amb IA',
 }

@@ -22,10 +22,20 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
+// `t(key, values, opts)` interpolates `{{name}}` into the supplied `defaultValue`,
+// as the i18n core does.
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (
+      _key: string,
+      values: Record<string, unknown> | undefined,
+      opts?: { defaultValue?: string },
+    ) => {
+      let out = opts?.defaultValue ?? _key
+      if (values)
+        for (const [k, v] of Object.entries(values)) out = out.replace(`{{${k}}}`, String(v))
+      return out
+    },
   }),
 }))
 

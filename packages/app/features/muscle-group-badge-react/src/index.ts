@@ -15,10 +15,10 @@
  * Requires a wired ClassMap bond and a React `I18nProvider` ancestor —
  * `getClassMap()` and `useTranslation()` both throw before wiring.
  *
- * Labels resolve through `t('muscleGroupBadge.group.<group>')` but no
- * companion locale bond ships these keys yet — without app-registered
- * translations the built-in English labels render. Pass `label` to
- * override per-instance.
+ * Labels resolve through `t('muscleGroupBadge.group.<group>')` and the
+ * badge's accessible name through `t('muscleGroupBadge.group')`, translated by
+ * the `@molecule/app-locales-muscle-group-badge` companion bond. Pass `label`
+ * to override per-instance.
  *
  * The pill background / text colors read the optional
  * `--mol-color-surface-variant` / `--mol-color-on-surface` CSS custom

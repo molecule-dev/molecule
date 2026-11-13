@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const fa: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'ارائه‌دهنده ویرایشگر کد پیکربندی نشده است. ابتدا یک ارائه‌دهنده ویرایشگر کد را متصل کنید.',
+  'codeEditor.askAI': 'از هوش مصنوعی بپرسید',
+  'codeEditor.fixWithAI': 'با هوش مصنوعی رفع کنید',
 }

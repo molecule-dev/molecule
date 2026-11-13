@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const ru: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Провайдер редактора кода не настроен. Сначала привяжите провайдер редактора кода.',
+  'codeEditor.askAI': 'Спросите ИИ',
+  'codeEditor.fixWithAI': 'Исправить с помощью ИИ',
 }

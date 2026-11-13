@@ -9,4 +9,5 @@ export const en: ChatTranslations = {
   'chat.error.sendFailed': 'Failed to send message',
   'chat.error.stalled':
     '{{agentName}} stopped responding. It may still be finishing in the background — reload to see the latest, or send a new message.',
+  'aiChat.error.noProvider': 'AI chat provider not configured. Bond an AI chat provider first.',
 }

@@ -4,4 +4,6 @@ import type { MessageBubbleTranslations } from './types.js'
 export const ig: Partial<MessageBubbleTranslations> = {
   'composer.placeholder': 'Dee ozi…',
   'composer.send': 'Zipu',
+  'thread.replies_one': '{{count}} zaghachi',
+  'thread.replies_other': 'Azịza {{count}}',
 }

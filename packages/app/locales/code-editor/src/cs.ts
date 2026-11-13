@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const cs: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Poskytovatel editoru kódu není nakonfigurován. Nejprve připojte poskytovatele editoru kódu.',
+  'codeEditor.askAI': 'Zeptejte se umělé inteligence',
+  'codeEditor.fixWithAI': 'Oprava pomocí umělé inteligence',
 }

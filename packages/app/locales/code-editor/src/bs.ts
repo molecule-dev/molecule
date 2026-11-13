@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const bs: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Provajder uređivača koda nije konfigurisan. Prvo povežite provajder uređivača koda.',
+  'codeEditor.askAI': 'Pitajte vještačku inteligenciju',
+  'codeEditor.fixWithAI': 'Popravi pomoću umjetne inteligencije',
 }

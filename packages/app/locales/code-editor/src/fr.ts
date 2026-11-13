@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const fr: Partial<CodeEditorTranslations> = {
   'codeEditor.error.noProvider':
     "L'éditeur de code n'est pas configuré. Veuillez d'abord associer un éditeur de code.",
+  'codeEditor.askAI': "Demandez à l'IA",
+  'codeEditor.fixWithAI': "Réparer avec l'IA",
 }

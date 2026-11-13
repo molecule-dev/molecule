@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const tr: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Kod editörü sağlayıcısı yapılandırılmamış. Önce bir kod editörü sağlayıcısı bağlayın.',
+  'codeEditor.askAI': 'Yapay zekaya sor',
+  'codeEditor.fixWithAI': 'Yapay zeka ile düzeltin',
 }

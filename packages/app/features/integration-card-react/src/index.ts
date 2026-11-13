@@ -11,10 +11,9 @@
  * Use for OAuth/API integrations, bank-connect CTAs, webhook setup cards.
  *
  * @remarks
- * - The status label text ('Connected', 'Connecting…', 'Error', 'Not connected') is
- *   hardcoded English — there is no i18n hook and no override prop. In a non-English
- *   app, render your own translated status next to the card (or hide it via CSS)
- *   until the package routes these through `t()`.
+ * - The status label text ('Connected', 'Connecting…', 'Error', 'Not connected') routes
+ *   through `t()` under `integrationCard.status.*`, translated by the
+ *   `@molecule/app-locales-integration-card` companion bond. There is no override prop.
  * - `variant="cta"` paints an inline `linear-gradient` background over the Card using
  *   `var(--color-primary)` (falls back to a fixed blue when the theme token is
  *   missing). Inline styles beat ClassMap classes, so this overrides the themed card

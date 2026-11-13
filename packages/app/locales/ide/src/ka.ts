@@ -6,7 +6,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.showChangedFiles': 'შეცვლილი ფაილების ჩვენება',
   'ide.chat.commitFileCount_one': '{{count}} ფაილის დაფიქსირება',
   'ide.chat.commitFileCount_other': '{{count}} ფაილის დაფიქსირება',
-  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}} -ში',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}-ში',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':

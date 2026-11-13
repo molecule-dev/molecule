@@ -9,4 +9,6 @@ export const zu: ChatTranslations = {
   'chat.error.sendFailed': 'Yehlulekile ukuthumela umlayezo',
   'chat.error.stalled':
     '{{agentName}} iyeke ukuphendula. Kungase kusaphela ngemuva — layisha kabusha ukuze ubone okwakamuva, noma uthumele umlayezo omusha.',
+  'aiChat.error.noProvider':
+    'Umhlinzeki wengxoxo ye-AI akalungiselelwe. Bopha umhlinzeki wengxoxo ye-AI kuqala.',
 }

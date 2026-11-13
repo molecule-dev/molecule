@@ -4,4 +4,6 @@ import type { MessageBubbleTranslations } from './types.js'
 export const ka: Partial<MessageBubbleTranslations> = {
   'composer.placeholder': 'დაწერეთ შეტყობინება…',
   'composer.send': 'გაგზავნა',
+  'thread.replies_one': '{{count}} პასუხი',
+  'thread.replies_other': '{{count}} პასუხი',
 }

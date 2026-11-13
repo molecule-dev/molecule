@@ -4,4 +4,6 @@ import type { MessageBubbleTranslations } from './types.js'
 export const lv: Partial<MessageBubbleTranslations> = {
   'composer.placeholder': 'Uzrakstiet ziņojumu…',
   'composer.send': 'Sūtīt',
+  'thread.replies_one': '{{count}} atbilde',
+  'thread.replies_other': '{{count}} atbildes',
 }

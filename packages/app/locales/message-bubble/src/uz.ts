@@ -4,4 +4,6 @@ import type { MessageBubbleTranslations } from './types.js'
 export const uz: Partial<MessageBubbleTranslations> = {
   'composer.placeholder': 'Xabar yozing…',
   'composer.send': 'Yuborish',
+  'thread.replies_one': '{{count}} javob',
+  'thread.replies_other': '{{count}} ta javob',
 }

@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const yo: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Olupese olootu koodu ko ti ni iṣeto. So olupese olootu koodu ni akọkọ.',
+  'codeEditor.askAI': 'Beere lọwọ AI',
+  'codeEditor.fixWithAI': 'Ṣe atunṣe pẹlu AI',
 }

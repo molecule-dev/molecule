@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const pt: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'O fornecedor do editor de código não está configurado. Vincule primeiro um fornecedor de editor de código.',
+  'codeEditor.askAI': 'Pergunte à IA',
+  'codeEditor.fixWithAI': 'Corrigir com IA',
 }

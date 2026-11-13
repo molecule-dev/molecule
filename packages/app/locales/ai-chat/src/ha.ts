@@ -9,4 +9,6 @@ export const ha: ChatTranslations = {
   'chat.error.sendFailed': 'An kasa aika saƙo',
   'chat.error.stalled':
     '{{agentName}} ya daina amsawa. Yana iya zama har yanzu yana ƙarewa a bango — sake cikawa don ganin sabon abu, ko aika sabon saƙo.',
+  'aiChat.error.noProvider':
+    'Ba a saita mai bada sabis na hira ta AI ba. Da farko haɗa mai bada sabis na hira ta AI.',
 }

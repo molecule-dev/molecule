@@ -9,4 +9,6 @@ export const et: ChatTranslations = {
   'chat.error.sendFailed': 'Sõnumi saatmine ebaõnnestus',
   'chat.error.stalled':
     '{{agentName}} ei reageeri enam. See võib taustal veel lõpetada – laadige uuesti, et näha uusimat või saatke uus sõnum.',
+  'aiChat.error.noProvider':
+    'Tehisintellektiga vestlusteenuse pakkujat pole konfigureeritud. Looge esmalt tehisintellektiga vestlusteenuse pakkuja ühendus.',
 }

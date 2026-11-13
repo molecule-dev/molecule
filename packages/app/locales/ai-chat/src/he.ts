@@ -9,4 +9,6 @@ export const he: ChatTranslations = {
   'chat.error.sendFailed': 'שליחת ההודעה נכשלה',
   'chat.error.stalled':
     '{{agentName}} הפסיק להגיב. ייתכן שהוא עדיין מסתיים ברקע - טען מחדש כדי לראות את העדכונים האחרונים, או שלח הודעה חדשה.',
+  'aiChat.error.noProvider':
+    "ספק צ'אט של בינה מלאכותית לא הוגדר. חבר תחילה ספק צ'אט של בינה מלאכותית.",
 }

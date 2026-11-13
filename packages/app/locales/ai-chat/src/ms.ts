@@ -9,4 +9,6 @@ export const ms: ChatTranslations = {
   'chat.error.sendFailed': 'Gagal menghantar mesej',
   'chat.error.stalled':
     '{{agentName}} berhenti membalas. Ia mungkin masih selesai di latar belakang — muat semula untuk melihat yang terkini atau hantar mesej baharu.',
+  'aiChat.error.noProvider':
+    'Pembekal sembang AI tidak dikonfigurasikan. Hubungi pembekal sembang AI terlebih dahulu.',
 }

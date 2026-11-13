@@ -14,7 +14,7 @@ export const kk: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Барлық жаңалықтарды қарап шықтыңыз',
   'notificationsPage.emptyBody': 'Жаңа хабарландырулар осында пайда болады.',
   'notificationsPage.paginationAriaLabel': 'Беттеу',
-  'notificationsPage.pageOf': 'Бет {{current}} -ның {{total}}',
+  'notificationsPage.pageOf': 'Бет {{current}}-ның {{total}}',
   'notificationsPage.prev': 'Алдыңғы',
   'notificationsPage.next': 'Келесі',
 }

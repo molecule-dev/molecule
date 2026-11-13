@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const ms: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Pembekal editor kod tidak dikonfigurasikan. Ikat pembekal editor kod terlebih dahulu.',
+  'codeEditor.askAI': 'Tanya AI',
+  'codeEditor.fixWithAI': 'Betulkan dengan AI',
 }

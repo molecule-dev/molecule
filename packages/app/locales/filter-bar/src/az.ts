@@ -4,5 +4,5 @@ import type { FilterBarTranslations } from './types.js'
 export const az: Partial<FilterBarTranslations> = {
   'filterBar.clear': 'Filtrləri təmizləyin',
   'filterBar.from': '{{label}} dən',
-  'filterBar.to': '{{label}} -ə',
+  'filterBar.to': '{{label}}-ə',
 }

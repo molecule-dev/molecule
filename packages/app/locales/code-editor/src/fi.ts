@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const fi: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Koodieditorin tarjoajaa ei ole määritetty. Yhdistä ensin koodieditorin tarjoaja.',
+  'codeEditor.askAI': 'Kysy tekoälystä',
+  'codeEditor.fixWithAI': 'Korjaa tekoälyn avulla',
 }

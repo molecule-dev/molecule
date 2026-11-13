@@ -4,4 +4,6 @@ import type { MessageBubbleTranslations } from './types.js'
 export const ga: Partial<MessageBubbleTranslations> = {
   'composer.placeholder': 'Scríobh teachtaireacht…',
   'composer.send': 'Seol',
+  'thread.replies_one': 'freagra {{count}}',
+  'thread.replies_other': '{{count}} freagraí',
 }

@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const te: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'కోడ్ ఎడిటర్ ప్రొవైడర్ కాన్ఫిగర్ చేయబడలేదు. ముందుగా కోడ్ ఎడిటర్ ప్రొవైడర్‌ను బాండ్ చేయండి.',
+  'codeEditor.askAI': 'AIని అడగండి',
+  'codeEditor.fixWithAI': 'AIతో పరిష్కరించండి',
 }

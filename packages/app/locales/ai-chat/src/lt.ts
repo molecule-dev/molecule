@@ -9,4 +9,6 @@ export const lt: ChatTranslations = {
   'chat.error.sendFailed': 'Nepavyko išsiųsti pranešimo',
   'chat.error.stalled':
     '{{agentName}} nebereaguoja. Gali būti, kad jis vis dar baigia darbą fone – įkelkite iš naujo, kad pamatytumėte naujausius duomenis, arba išsiųskite naują pranešimą.',
+  'aiChat.error.noProvider':
+    'Dirbtinio intelekto pokalbių paslaugų teikėjas nesukonfigūruotas. Pirmiausia susiekite dirbtinio intelekto pokalbių paslaugų teikėją.',
 }

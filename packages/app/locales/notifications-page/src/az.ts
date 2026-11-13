@@ -14,7 +14,7 @@ export const az: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Hamınız məlumatlısınız',
   'notificationsPage.emptyBody': 'Yeni bildirişlər burada görünəcək.',
   'notificationsPage.paginationAriaLabel': 'Səhifələmə',
-  'notificationsPage.pageOf': 'Səhifə {{current}} -ın {{total}}',
+  'notificationsPage.pageOf': 'Səhifə {{current}}-ın {{total}}',
   'notificationsPage.prev': 'Əvvəlki',
   'notificationsPage.next': 'Növbəti',
 }

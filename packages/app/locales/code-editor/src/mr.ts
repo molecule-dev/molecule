@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const mr: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'कोड एडिटर प्रोव्हायडर कॉन्फिगर केलेला नाही. प्रथम कोड एडिटर प्रोव्हायडर बाँड करा.',
+  'codeEditor.askAI': 'एआयला विचारा',
+  'codeEditor.fixWithAI': 'एआयने दुरुस्त करा',
 }

@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const fil: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Hindi na-configure ang code editor provider. I-bond muna ang isang code editor provider.',
+  'codeEditor.askAI': 'Magtanong sa AI',
+  'codeEditor.fixWithAI': 'Ayusin gamit ang AI',
 }

@@ -25,8 +25,9 @@
  * Presentation-only: fetch and store deliveries yourself and pass them in —
  * there is no server contract beyond the `WebhookDelivery` shape, and
  * `onRetry` only invokes your callback (the button renders per-row when
- * `status === 'failure'`). The 'Retry', 'Request' and 'Response' labels are
- * hardcoded English with no locale bond. Status pills use hardcoded hex
+ * `status === 'failure'`). The 'Retry', 'Request' and 'Response' labels route
+ * through `t()` under `webhookInspector.*`, translated by the
+ * `@molecule/app-locales-webhook-inspector` companion bond. Status pills use hardcoded hex
  * (#22c55e success / #ef4444 failure / #eab308 pending) with white text,
  * independent of theme. Rows are native `<details>` elements and `onSelect`
  * fires on EVERY toggle — opening and closing alike. Non-string

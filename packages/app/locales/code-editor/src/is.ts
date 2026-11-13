@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const is: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Kóðaritill veitandi er ekki stilltur. Tengdu kóðaritils veitanda fyrst.',
+  'codeEditor.askAI': 'Spyrðu gervigreind',
+  'codeEditor.fixWithAI': 'Lagfæring með gervigreind',
 }

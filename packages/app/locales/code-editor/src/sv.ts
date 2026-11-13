@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const sv: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Kodredigeringsleverantör är inte konfigurerad. Anslut en kodredigeringsleverantör först.',
+  'codeEditor.askAI': 'Fråga AI',
+  'codeEditor.fixWithAI': 'Fixa med AI',
 }

@@ -4,6 +4,6 @@ import type { JoinCodeTranslations } from './types.js'
 export const zh: Partial<JoinCodeTranslations> = {
   'joinCode.label': '加入码',
   'joinCode.slotAriaLabel': '加入代码字符{{position}}',
-  'joinCode.help': '进入{{length}}字符代码。',
+  'joinCode.help': '请输入{{length}}位代码。',
   'joinCode.errorAlphabet': '无效字符。',
 }

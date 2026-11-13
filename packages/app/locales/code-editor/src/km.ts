@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const km: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'អ្នកផ្តល់កម្មវិធីកែកូដមិនត្រូវបានកំណត់រចនាសម្ព័ន្ធទេ។ សូមភ្ជាប់អ្នកផ្តល់កម្មវិធីកែកូដជាមុនសិន។',
+  'codeEditor.askAI': 'សួរ AI',
+  'codeEditor.fixWithAI': 'ជួសជុលជាមួយ AI',
 }

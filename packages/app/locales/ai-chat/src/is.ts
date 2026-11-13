@@ -9,4 +9,6 @@ export const is: ChatTranslations = {
   'chat.error.sendFailed': 'Mistókst að senda skilaboð',
   'chat.error.stalled':
     '{{agentName}} hætti að svara. Það gæti enn verið að klára í bakgrunni — endurhlaðið til að sjá nýjustu fréttirnar eða sendið ný skilaboð.',
+  'aiChat.error.noProvider':
+    'Spjallveita fyrir gervigreind er ekki stillt. Tengdu fyrst við spjallveitu fyrir gervigreind.',
 }

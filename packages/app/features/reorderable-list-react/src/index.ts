@@ -44,8 +44,8 @@
  *   `<I18nProvider>` (for the control labels) or rendering throws.
  * - Item `id`s must be unique — drop resolution matches by id.
  * - Control labels ("Move up/down", "Drag to reorder", row position) render
- *   through `t(...)` with English defaults; no companion locale bond ships yet,
- *   so translate them by wiring a `reorderableList.*` bond when needed.
+ *   through `t(...)` under `reorderableList.*`, translated by the
+ *   `@molecule/app-locales-reorderable-list` companion bond.
  *
  * @module
  */

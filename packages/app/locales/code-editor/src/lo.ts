@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const lo: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'ຜູ້ໃຫ້ບໍລິການແກ້ໄຂໂຄ້ດຍັງບໍ່ທັນຖືກຕັ້ງຄ່າ. ກະລຸນາເຊື່ອມຕໍ່ຜູ້ໃຫ້ບໍລິການແກ້ໄຂໂຄ້ດກ່ອນ.',
+  'codeEditor.askAI': 'ຖາມ AI',
+  'codeEditor.fixWithAI': 'ແກ້ໄຂດ້ວຍ AI',
 }

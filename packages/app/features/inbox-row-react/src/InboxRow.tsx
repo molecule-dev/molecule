@@ -57,7 +57,10 @@ export function InboxRow({
   className,
 }: InboxRowProps): React.JSX.Element {
   const cm = getClassMap()
-  const senderName = typeof sender === 'string' ? sender : 'Sender'
+  const senderName =
+    typeof sender === 'string'
+      ? sender
+      : t('inboxRow.sender', undefined, { defaultValue: 'Sender' })
   return (
     <div
       onClick={onClick}
@@ -118,7 +121,13 @@ export function InboxRow({
           )}
         </div>
       </div>
-      {hasAttachment && <span aria-label="Has attachment">📎</span>}
+      {hasAttachment && (
+        <span
+          aria-label={t('inboxRow.hasAttachment', undefined, { defaultValue: 'Has attachment' })}
+        >
+          📎
+        </span>
+      )}
       {unread && (
         <span
           aria-hidden

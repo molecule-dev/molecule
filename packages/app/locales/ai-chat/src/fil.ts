@@ -9,4 +9,6 @@ export const fil: ChatTranslations = {
   'chat.error.sendFailed': 'Nabigong magpadala ng mensahe',
   'chat.error.stalled':
     'Tumigil sa pagtugon {{agentName}} . Maaaring natatapos pa rin ito sa background — i-reload para makita ang pinakabago, o magpadala ng bagong mensahe.',
+  'aiChat.error.noProvider':
+    'Hindi na-configure ang AI chat provider. Mag-bonding muna sa isang AI chat provider.',
 }

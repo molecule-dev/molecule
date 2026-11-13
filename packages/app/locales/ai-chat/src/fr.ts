@@ -9,4 +9,6 @@ export const fr: ChatTranslations = {
   'chat.error.sendFailed': "Échec de l'envoi du message",
   'chat.error.stalled':
     '{{agentName}} ne répond plus. Le traitement est peut-être toujours en cours en arrière-plan ; actualisez la page pour afficher les dernières informations ou envoyez un nouveau message.',
+  'aiChat.error.noProvider':
+    "Le fournisseur de chat IA n'est pas configuré. Veuillez d'abord connecter un fournisseur de chat IA.",
 }

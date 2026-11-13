@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const sq: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Ofruesi i redaktorit të kodit nuk është konfiguruar. Lidhni fillimisht një ofrues të redaktorit të kodit.',
+  'codeEditor.askAI': 'Pyete IA-në',
+  'codeEditor.fixWithAI': 'Rregullo me inteligjencën artificiale',
 }

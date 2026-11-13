@@ -9,4 +9,6 @@ export const sv: ChatTranslations = {
   'chat.error.sendFailed': 'Misslyckades med att skicka meddelandet',
   'chat.error.stalled':
     '{{agentName}} har slutat svara. Den kan fortfarande slutföras i bakgrunden — ladda om för att se det senaste eller skicka ett nytt meddelande.',
+  'aiChat.error.noProvider':
+    'AI-chattleverantören är inte konfigurerad. Koppla först till en AI-chattleverantör.',
 }

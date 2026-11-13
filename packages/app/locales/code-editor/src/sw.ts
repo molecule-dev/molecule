@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const sw: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Mtoa huduma wa kihariri cha msimbo haujasanidiwa. Unganisha mtoa huduma wa kihariri cha msimbo kwanza.',
+  'codeEditor.askAI': 'Uliza AI',
+  'codeEditor.fixWithAI': 'Rekebisha kwa kutumia akili bandia (AI)',
 }

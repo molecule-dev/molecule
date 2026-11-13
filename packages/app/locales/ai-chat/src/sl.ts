@@ -9,4 +9,6 @@ export const sl: ChatTranslations = {
   'chat.error.sendFailed': 'Sporočila ni bilo mogoče poslati',
   'chat.error.stalled':
     '{{agentName}} se je nehal odzivati. Morda se še vedno nalaga v ozadju – znova naložite, da si ogledate najnovejše podatke, ali pošljite novo sporočilo.',
+  'aiChat.error.noProvider':
+    'Ponudnik klepeta z umetno inteligenco ni konfiguriran. Najprej povežite ponudnika klepeta z umetno inteligenco.',
 }

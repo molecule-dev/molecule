@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const mt: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Il-fornitur tal-editur tal-kodiċi mhux ikkonfigurat. L-ewwel irbit fornitur tal-editur tal-kodiċi.',
+  'codeEditor.askAI': 'Staqsi lill-AI',
+  'codeEditor.fixWithAI': 'Irranġa bl-AI',
 }

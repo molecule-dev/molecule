@@ -9,4 +9,6 @@ export const tr: ChatTranslations = {
   'chat.error.sendFailed': 'Mesaj gönderilemedi.',
   'chat.error.stalled':
     '{{agentName}} yanıt vermeyi durdurdu. Arka planda işlem hala devam ediyor olabilir — en son durumu görmek için sayfayı yeniden yükleyin veya yeni bir mesaj gönderin.',
+  'aiChat.error.noProvider':
+    'Yapay zeka sohbet sağlayıcısı yapılandırılmamış. Öncelikle bir yapay zeka sohbet sağlayıcısı bağlayın.',
 }

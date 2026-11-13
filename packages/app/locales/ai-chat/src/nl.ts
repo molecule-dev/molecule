@@ -9,4 +9,6 @@ export const nl: ChatTranslations = {
   'chat.error.sendFailed': 'Het verzenden van het bericht is mislukt.',
   'chat.error.stalled':
     '{{agentName}} reageert niet meer. Het proces wordt mogelijk nog op de achtergrond afgerond. Vernieuw de pagina om de laatste updates te zien of stuur een nieuw bericht.',
+  'aiChat.error.noProvider':
+    'De AI-chatprovider is niet geconfigureerd. Koppel eerst een AI-chatprovider.',
 }

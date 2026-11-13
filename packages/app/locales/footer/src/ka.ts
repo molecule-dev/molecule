@@ -10,5 +10,5 @@ export const ka: Partial<FooterTranslations> = {
   'content.termsOfService': '',
   'footer.legalNotConfigured':
     'ეს კონტენტი ჯერ არ არის კონფიგურირებული. ის აპლიკაციის მფლობელმა უნდა მოგვაწოდოს.',
-  'footer.about': '{{appName}} -ის შესახებ',
+  'footer.about': '{{appName}}-ის შესახებ',
 }

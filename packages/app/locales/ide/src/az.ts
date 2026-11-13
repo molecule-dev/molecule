@@ -7,7 +7,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.showChangedFiles': 'Dəyişdirilmiş faylları göstər',
   'ide.chat.commitFileCount_one': '{{count}} faylı commit edin',
   'ide.chat.commitFileCount_other': '{{count}} faylı ötürün',
-  'ide.chat.autoCommit.countedBadge': '{{commit}} -da {{countdown}}',
+  'ide.chat.autoCommit.countedBadge': '{{commit}}-da {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':

@@ -24,9 +24,8 @@
  * the queue (they won't appear in `getFiles()`). `timeout` defaults to 0
  * (no timeout). Every error/validation message routes through `t()` under the
  * `fileUpload.error.*` namespace with an English `defaultValue`, so English
- * works out of the box. There is no dedicated companion locale bond yet —
- * to translate these, register `fileUpload.error.*` keys with your i18n
- * provider (e.g. `addTranslations('fr', { 'fileUpload.error.timedOut': '…' })`).
+ * works out of the box; the `@molecule/app-locales-file-upload` companion bond
+ * translates them.
  * Interpolated messages expose `{{maxSize}}`, `{{minSize}}`, `{{type}}`,
  * `{{extension}}`, `{{maxFiles}}`, and `{{status}}`.
  *

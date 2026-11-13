@@ -4,4 +4,6 @@ import type { CodeEditorTranslations } from './types.js'
 export const sk: CodeEditorTranslations = {
   'codeEditor.error.noProvider':
     'Poskytovateľ editora kódu nie je nakonfigurovaný. Najprv pripojte poskytovateľa editora kódu.',
+  'codeEditor.askAI': 'Opýtajte sa umelej inteligencie',
+  'codeEditor.fixWithAI': 'Oprava pomocou umelej inteligencie',
 }
