@@ -206,6 +206,12 @@ export interface HookCases {
    * hook. See {@link MountOptions.render}.
    */
   render?: 'text'
+  /**
+   * `true` when the hook's first argument (its options) changes between
+   * renders without a remount, the way an app re-renders `useChat` with a new
+   * `endpoint` to switch conversation. See {@link MountOptions.reactiveArgs}.
+   */
+  reactiveArgs?: boolean
   cases: HookCase[]
 }
 
@@ -218,6 +224,14 @@ export interface MountOptions {
    * (`''` when it renders nothing).
    */
   render?: 'text'
+  /**
+   * `true`: pass `args[0]` as the framework's reactive value (Vue a ref,
+   * Solid an accessor, Svelte a readable store, Angular a signal), and make
+   * `setArgs` set it to the new `args[0]` on the SAME mount instead of
+   * re-mounting the host. React re-renders the hook with the new options; the
+   * binding follows the reactive value the same way.
+   */
+  reactiveArgs?: boolean
 }
 
 /**

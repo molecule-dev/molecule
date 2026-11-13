@@ -13,4 +13,5 @@ export const am: SolidTranslations = {
   'solid.error.loggerOutsideProvider': 'getLoggerProvider በMoleculeProvider ውስጥ ከመዝገብ ጋር መዋቀር አለበት',
   'solid.error.useAccordionOutsideProvider': 'Accordion ክፍሎች በAccordion ውስጥ መጠቀም አለባቸው',
   'solid.error.useToastOutsideProvider': 'useToast በToastProvider ውስጥ መጠቀም አለበት',
+  'solid.error.useChatOutsideProvider': 'useChatProvider በChatProvider ውስጥ መጠቀም አለበት',
 }

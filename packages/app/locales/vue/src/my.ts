@@ -15,4 +15,5 @@ export const my: VueTranslations = {
     'useLoggerProvider ကို LoggerProvider အတွင်းတွင် အသုံးပြုရမည်',
   'vue.error.useToastOutsideProvider': 'useToast ကို ToastProvider အတွင်းတွင် အသုံးပြုရမည်',
   'vue.error.unsupportedMethod': 'ပံ့ပိုးမထားသော နည်းလမ်း: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider ကို ChatProvider အတွင်းတွင် အသုံးပြုရပါမည်',
 }

@@ -17,4 +17,5 @@ export const he: SolidTranslations = {
     'getLoggerProvider יש להשתמש בתוך MoleculeProvider עם רישום מוגדר',
   'solid.error.useAccordionOutsideProvider': 'רכיבי Accordion חייבים לשמש בתוך Accordion',
   'solid.error.useToastOutsideProvider': 'useToast יש להשתמש בתוך ToastProvider',
+  'solid.error.useChatOutsideProvider': 'יש להשתמש ב-useChatProvider בתוך ChatProvider',
 }

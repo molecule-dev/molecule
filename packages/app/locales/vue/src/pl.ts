@@ -21,4 +21,5 @@ export const pl: VueTranslations = {
   'vue.error.useToastOutsideProvider':
     'useToast musi by\u0107 u\u017cywany wewn\u0105trz ToastProvider',
   'vue.error.unsupportedMethod': 'Nieobs\u0142ugiwana metoda: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider musi być używany wewnątrz ChatProvider',
 }

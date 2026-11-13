@@ -21,4 +21,6 @@ export const fi: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Accordion-komponentteja on käytettävä Accordion-komponentin sisällä',
   'solid.error.useToastOutsideProvider': 'useToast on käytettävä ToastProvider-komponentin sisällä',
+  'solid.error.useChatOutsideProvider':
+    'useChatProvider on käytettävä ChatProvider-komponentin sisällä',
 }

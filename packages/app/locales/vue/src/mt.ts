@@ -12,4 +12,5 @@ export const mt: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider irid jintuza gewwa LoggerProvider',
   'vue.error.useToastOutsideProvider': 'useToast irid jintuza gewwa ToastProvider',
   'vue.error.unsupportedMethod': 'Metodu mhux supportjat: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider irid jintuża ġewwa ChatProvider',
 }

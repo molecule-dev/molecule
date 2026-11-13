@@ -20,4 +20,5 @@ export const mr: SolidTranslations = {
     'getLoggerProvider स्टेट कॉन्फिगर केलेल्या MoleculeProvider मध्ये वापरणे आवश्यक आहे लॉगर',
   'solid.error.useAccordionOutsideProvider': 'Accordion घटक Accordion मध्ये वापरणे आवश्यक आहे',
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider मध्ये वापरणे आवश्यक आहे',
+  'solid.error.useChatOutsideProvider': 'useChatProvider हे ChatProvider मध्ये वापरले पाहिजे',
 }

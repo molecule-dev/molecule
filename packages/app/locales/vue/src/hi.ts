@@ -18,4 +18,6 @@ export const hi: VueTranslations = {
     'useLoggerProvider का उपयोग LoggerProvider के अंदर किया जाना चाहिए',
   'vue.error.useToastOutsideProvider': 'useToast का उपयोग ToastProvider के अंदर किया जाना चाहिए',
   'vue.error.unsupportedMethod': 'असमर्थित विधि: {{method}}',
+  'vue.error.useChatOutsideProvider':
+    'useChatProvider का उपयोग ChatProvider के अंदर किया जाना चाहिए',
 }

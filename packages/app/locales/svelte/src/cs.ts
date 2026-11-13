@@ -11,4 +11,5 @@ export const cs: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Poskytovatel úložiště nebyl nalezen v kontextu',
   'svelte.error.noLoggerProvider': 'Poskytovatel loggeru nebyl nalezen v kontextu',
   'svelte.error.unknownPaginationDirection': 'Neznámý směr stránkování: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider musí být použit uvnitř ChatProvider',
 }

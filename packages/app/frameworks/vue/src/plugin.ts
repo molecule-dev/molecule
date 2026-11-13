@@ -6,6 +6,7 @@
 
 import type { App, Plugin } from 'vue'
 
+import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -17,6 +18,7 @@ import type { ThemeProvider } from '@molecule/app-theme'
 
 import {
   AuthKey,
+  ChatKey,
   HttpKey,
   I18nKey,
   LoggerKey,
@@ -38,6 +40,8 @@ export interface MoleculePluginOptions {
   http?: HttpClient
   storage?: StorageProvider
   logger?: LoggerProvider
+  /** The AI chat provider `useChat` and `useChatProvider` use. */
+  chat?: ChatProvider
 }
 
 /**
@@ -62,7 +66,7 @@ export interface MoleculePluginOptions {
  */
 export const moleculePlugin: Plugin<MoleculePluginOptions> = {
   install(app: App, options: MoleculePluginOptions = {}) {
-    const { state, auth, theme, router, i18n, http, storage, logger } = options
+    const { state, auth, theme, router, i18n, http, storage, logger, chat } = options
 
     if (state) {
       app.provide(StateKey, state)
@@ -94,6 +98,10 @@ export const moleculePlugin: Plugin<MoleculePluginOptions> = {
 
     if (logger) {
       app.provide(LoggerKey, logger)
+    }
+
+    if (chat) {
+      app.provide(ChatKey, chat)
     }
   },
 }
@@ -199,6 +207,19 @@ export function createLoggerPlugin(provider: LoggerProvider): Plugin {
   return {
     install(app: App) {
       app.provide(LoggerKey, provider)
+    },
+  }
+}
+
+/**
+ * Creates a Vue plugin that provides an AI chat provider via dependency injection.
+ * @param provider - The chat provider to inject into the Vue application.
+ * @returns A Vue plugin that provides the chat provider to all descendant components.
+ */
+export function createChatPlugin(provider: ChatProvider): Plugin {
+  return {
+    install(app: App) {
+      app.provide(ChatKey, provider)
     },
   }
 }

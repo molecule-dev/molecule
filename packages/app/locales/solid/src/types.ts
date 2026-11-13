@@ -10,6 +10,7 @@ export type SolidTranslationKey =
   | 'solid.error.loggerOutsideProvider'
   | 'solid.error.useAccordionOutsideProvider'
   | 'solid.error.useToastOutsideProvider'
+  | 'solid.error.useChatOutsideProvider'
 
 /** Translation record mapping solid keys to translated strings. */
 export type SolidTranslations = Record<SolidTranslationKey, string>

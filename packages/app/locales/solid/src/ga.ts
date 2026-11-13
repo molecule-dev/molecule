@@ -21,4 +21,5 @@ export const ga: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Ní mór comhpháirteanna Accordion a úsáid laistigh de Accordion',
   'solid.error.useToastOutsideProvider': 'Ní mór useToast a úsáid laistigh de ToastProvider',
+  'solid.error.useChatOutsideProvider': 'Ní mór useChatProvider a úsáid laistigh de ChatProvider',
 }

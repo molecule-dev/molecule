@@ -21,4 +21,5 @@ export const ko: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Accordion 컴포넌트는 Accordion 내에서 사용해야 합니다',
   'solid.error.useToastOutsideProvider': 'useToast는 ToastProvider 내에서 사용해야 합니다',
+  'solid.error.useChatOutsideProvider': 'useChatProvider는 ChatProvider 내에서 사용해야 합니다',
 }

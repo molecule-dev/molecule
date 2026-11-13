@@ -12,4 +12,5 @@ export const si: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider LoggerProvider තුළ භාවිතා කළ යුතුය',
   'vue.error.useToastOutsideProvider': 'useToast ToastProvider තුළ භාවිතා කළ යුතුය',
   'vue.error.unsupportedMethod': 'සහාය නොදක්වන ක්\u200dරමය: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider ChatProvider තුළ භාවිතා කළ යුතුය',
 }

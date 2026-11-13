@@ -11,4 +11,6 @@ export const bn: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'স্টোরেজ প্রোভাইডার কনটেক্সটে পাওয়া যায়নি',
   'svelte.error.noLoggerProvider': 'লগার প্রোভাইডার কনটেক্সটে পাওয়া যায়নি',
   'svelte.error.unknownPaginationDirection': 'অজানা পেজিনেশন দিক: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider অবশ্যই একটি ChatProvider এর মধ্যে ব্যবহার করতে হবে',
 }

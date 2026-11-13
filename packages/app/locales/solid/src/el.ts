@@ -22,4 +22,6 @@ export const el: SolidTranslations = {
     'Τα στοιχεία Accordion πρέπει να χρησιμοποιούνται εντός ενός Accordion',
   'solid.error.useToastOutsideProvider':
     'useToast πρέπει να χρησιμοποιείται εντός ενός ToastProvider',
+  'solid.error.useChatOutsideProvider':
+    'Το useChatProvider πρέπει να χρησιμοποιείται εντός ενός ChatProvider',
 }

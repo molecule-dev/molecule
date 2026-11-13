@@ -12,4 +12,5 @@ export const yo: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'A ko rii olupese ak\u00f3s\u00edl\u00e8 ninu ipo-\u00f2r\u00f2',
   'svelte.error.unknownPaginationDirection':
     '\u00cct\u00f2s\u00f3n\u00e0 \u00ecwak\u00e0 oj\u00fa-\u00ecw\u00e9 a\u00ecm\u00f2: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider gbodo lo laarin ChatProvider',
 }

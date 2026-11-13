@@ -11,4 +11,5 @@ export const gl: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Provedor de almacenamento non atopado no contexto',
   'svelte.error.noLoggerProvider': 'Provedor de rexistro non atopado no contexto',
   'svelte.error.unknownPaginationDirection': 'Dirección de paxinación descoñecida: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider debe usarse dentro dun ChatProvider',
 }

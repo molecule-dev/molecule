@@ -21,4 +21,5 @@ export const sq: VueTranslations = {
   'vue.error.useToastOutsideProvider':
     'useToast duhet t\u00eb p\u00ebrdoret brenda nj\u00eb ToastProvider',
   'vue.error.unsupportedMethod': 'Metod\u00eb e pambur\u00ebshme: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider duhet të përdoret brenda një ChatProvider',
 }

@@ -6,13 +6,23 @@
  * - Services arrive through `moleculePlugin` (Vue's composition root).
  * - A value field may be a ref (read through `unref`); a method is a plain function.
  * - An `args` step re-mounts the host with the new arguments: a composable runs once per setup.
+ *   A `reactiveArgs` hook (`useChat`) gets its options as a ref instead, set on the same mount.
  * - A component export (`SessionReady`) takes React's string props as slots of the same name
  *   (`children` is the default slot).
  *
  * @module
  */
 
-import { type App, type Component, createApp, defineComponent, h, isRef, nextTick } from 'vue'
+import {
+  type App,
+  type Component,
+  createApp,
+  defineComponent,
+  h,
+  isRef,
+  nextTick,
+  shallowRef,
+} from 'vue'
 
 import {
   type BindingAdapter,
@@ -28,12 +38,17 @@ const exportsOf = VueBindings as unknown as Record<string, unknown>
 /** The Vue binding adapter. */
 export const vueBindingAdapter: BindingAdapter = {
   name: 'vue',
+  reset: () => {
+    VueBindings.resetChatStoresForTests()
+  },
   has: (name) => typeof exportsOf[name] !== 'undefined',
   async mount(hook, args, services, _shape, options = {}): Promise<MountedHook> {
     const container = document.createElement('div')
     document.body.appendChild(container)
     let result: unknown
     let app: App | null = null
+    // A reactiveArgs hook reads its options from this ref for the life of one mount.
+    const reactiveOptions = shallowRef<unknown>(args[0])
     const start = (current: unknown[]): void => {
       const Host =
         options.render === 'text'
@@ -54,7 +69,10 @@ export const vueBindingAdapter: BindingAdapter = {
             })
           : defineComponent({
               setup() {
-                result = callHook(exportsOf[hook], current)
+                result = callHook(
+                  exportsOf[hook],
+                  options.reactiveArgs ? [reactiveOptions, ...current.slice(1)] : current,
+                )
                 return () => null
               },
             })
@@ -72,8 +90,12 @@ export const vueBindingAdapter: BindingAdapter = {
       result: () => (options.render === 'text' ? (container.textContent ?? '') : result),
       read: (value) => (isRef(value) ? value.value : value),
       setArgs: async (next) => {
-        app?.unmount()
-        start(next)
+        if (options.reactiveArgs) {
+          reactiveOptions.value = next[0]
+        } else {
+          app?.unmount()
+          start(next)
+        }
         await flush()
       },
       flush,

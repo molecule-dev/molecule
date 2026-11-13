@@ -25,6 +25,7 @@ import type {
   HookCases,
   HookStep,
   MountedHook,
+  MountOptions,
   ResultShape,
 } from './spec.js'
 import {
@@ -143,7 +144,14 @@ export async function runHookCase(
   // at mount.
   recorder.calls.length = 0
   const snapshots: unknown[] = []
-  const render = bindingCaseFamilies.find((f) => f.hook === hook)?.render
+  const family = bindingCaseFamilies.find((f) => f.hook === hook)
+  const mountOptions: MountOptions | undefined =
+    family?.render || family?.reactiveArgs
+      ? {
+          ...(family.render ? { render: family.render } : {}),
+          ...(family.reactiveArgs ? { reactiveArgs: true } : {}),
+        }
+      : undefined
   // The composition root gets every service but those the case omits; the runner keeps them all.
   const given: Partial<BindingServices> = { ...services }
   for (const name of testCase.context?.omitServices ?? []) delete given[name]
@@ -153,7 +161,7 @@ export async function runHookCase(
       materializeArgs(args, recorder, fns, controls.refs),
       given,
       shape,
-      render ? { render } : undefined,
+      mountOptions,
     )
   const state: RunState = { mounted: await mountHost(testCase.args ?? []), unmounted: false }
   let resolvedShape = shape

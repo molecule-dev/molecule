@@ -20,4 +20,5 @@ export const kn: SolidTranslations = {
     'getLoggerProvider ಕನ್ಫಿಗರ್ ಮಾಡಿದ MoleculeProvider ಒಳಗೆ ಬಳಸಬೇಕು ಲಾಗರ್',
   'solid.error.useAccordionOutsideProvider': 'Accordion ಘಟಕಗಳನ್ನು Accordion ಒಳಗೆ ಬಳಸಬೇಕು',
   'solid.error.useToastOutsideProvider': 'useToast ಅನ್ನು ToastProvider ಒಳಗೆ ಬಳಸಬೇಕು',
+  'solid.error.useChatOutsideProvider': 'useChatProvider ಅನ್ನು ChatProvider ಒಳಗೆ ಬಳಸಬೇಕು',
 }

@@ -13,4 +13,5 @@ export const lv: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider j\u0101izmanto LoggerProvider ietvaros',
   'vue.error.useToastOutsideProvider': 'useToast j\u0101izmanto ToastProvider ietvaros',
   'vue.error.unsupportedMethod': 'Neatbalst\u012bta metode: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider jāizmanto ChatProvider ietvaros',
 }

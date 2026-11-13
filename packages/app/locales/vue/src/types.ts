@@ -10,6 +10,7 @@ export type VueTranslationKey =
   | 'vue.error.useLoggerOutsideProvider'
   | 'vue.error.useToastOutsideProvider'
   | 'vue.error.unsupportedMethod'
+  | 'vue.error.useChatOutsideProvider'
 
 /** Translation record mapping vue keys to translated strings. */
 export type VueTranslations = Record<VueTranslationKey, string>

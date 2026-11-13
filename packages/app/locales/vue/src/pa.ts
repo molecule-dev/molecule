@@ -18,4 +18,6 @@ export const pa: VueTranslations = {
     'useLoggerProvider ਨੂੰ LoggerProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'vue.error.useToastOutsideProvider': 'useToast ਨੂੰ ToastProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'vue.error.unsupportedMethod': 'ਅਸਮਰਥਿਤ ਵਿਧੀ: {{method}}',
+  'vue.error.useChatOutsideProvider':
+    'useChatProvider ਨੂੰ ChatProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
 }

@@ -11,4 +11,6 @@ export const el: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Πάροχος αποθήκευσης δεν βρέθηκε στο πλαίσιο',
   'svelte.error.noLoggerProvider': 'Πάροχος καταγραφέα δεν βρέθηκε στο πλαίσιο',
   'svelte.error.unknownPaginationDirection': 'Άγνωστη κατεύθυνση σελιδοποίησης: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'Το useChatProvider πρέπει να χρησιμοποιείται εντός ενός ChatProvider',
 }

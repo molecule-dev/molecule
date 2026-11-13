@@ -20,4 +20,5 @@ export const ko: SvelteTranslations = {
     '\ucee8\ud14d\uc2a4\ud2b8\uc5d0\uc11c \ub85c\uac70 \ud504\ub85c\ubc14\uc774\ub354\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4',
   'svelte.error.unknownPaginationDirection':
     '\uc54c \uc218 \uc5c6\ub294 \ud398\uc774\uc9c0\ub124\uc774\uc158 \ubc29\ud5a5: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider는 ChatProvider 내에서 사용해야 합니다',
 }

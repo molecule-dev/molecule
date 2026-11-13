@@ -11,4 +11,5 @@ export const gu: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'સ્ટોરેજ પ્રોવાઇડર કોન્ટેક્સ્ટમાં મળ્યું નથી',
   'svelte.error.noLoggerProvider': 'લોગર પ્રોવાઇડર કોન્ટેક્સ્ટમાં મળ્યું નથી',
   'svelte.error.unknownPaginationDirection': 'અજાણી પેજિનેશન દિશા: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider એ ChatProvider ની અંદર વાપરવું આવશ્યક છે',
 }

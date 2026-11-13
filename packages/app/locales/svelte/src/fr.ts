@@ -11,4 +11,6 @@ export const fr: Partial<SvelteTranslations> = {
   'svelte.error.unknownPaginationDirection': 'Direction de pagination inconnue : "{{direction}}"',
   'svelte.error.noStateProvider': "Fournisseur d'État introuvable dans le contexte",
   'svelte.error.noAuthClient': "Client d'authentification introuvable dans le contexte",
+  'svelte.error.useChatOutsideProvider':
+    "La fonction useChatProvider doit être utilisée au sein d'un ChatProvider.",
 }

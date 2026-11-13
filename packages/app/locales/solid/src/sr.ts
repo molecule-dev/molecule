@@ -21,4 +21,5 @@ export const sr: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Accordion компоненте морају се користити унутар Accordion-а',
   'solid.error.useToastOutsideProvider': 'useToast мора се користити унутар ToastProvider-а',
+  'solid.error.useChatOutsideProvider': 'useChatProvider мора да се користи унутар ChatProvider-а',
 }

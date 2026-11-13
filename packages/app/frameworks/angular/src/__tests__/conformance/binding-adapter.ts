@@ -6,6 +6,8 @@
  *   context (a component field initializer) under `provideMolecule` (Angular's composition root).
  * - A value field may be a signal (read by calling it); a method is a plain function.
  * - An `args` step re-creates the host with the new arguments: a field initializer runs once.
+ *   A `reactiveArgs` hook (`useChat`) gets its options as a signal instead, set on the same
+ *   host.
  * - A component export (`SessionReady`) is a standalone component; React's `children` text is
  *   its default `<ng-content>` and any other string prop `foo` is content selected by
  *   `[slot=foo]`.
@@ -22,6 +24,7 @@ import {
   isSignal,
   provideZonelessChangeDetection,
   reflectComponentType,
+  signal,
   type Type,
 } from '@angular/core'
 import { createApplication } from '@angular/platform-browser'
@@ -61,12 +64,17 @@ const projectableNodes = (target: Type<unknown>, props: Record<string, unknown>)
 /** The Angular binding adapter. */
 export const angularBindingAdapter: BindingAdapter = {
   name: 'angular',
+  reset: () => {
+    AngularBindings.resetChatStoresForTests()
+  },
   has: (name) => typeof exportsOf[name] !== 'undefined',
   async mount(hook, args, services, _shape, options = {}): Promise<MountedHook> {
     const container = document.createElement('div')
     document.body.appendChild(container)
     let result: unknown
     let appRef: ApplicationRef | null = null
+    // A reactiveArgs hook reads its options from this signal for the life of one host.
+    const reactiveOptions = signal<unknown>(args[0])
     const start = async (current: unknown[]): Promise<void> => {
       appRef = await createApplication({
         providers: [provideZonelessChangeDetection(), provideMolecule({ ...services })],
@@ -87,7 +95,10 @@ export const angularBindingAdapter: BindingAdapter = {
         })(
           class BindingHost {
             // A field initializer runs in the component's injection context.
-            readonly result = (result = callHook(exportsOf[hook], current))
+            readonly result = (result = callHook(
+              exportsOf[hook],
+              options.reactiveArgs ? [reactiveOptions.asReadonly(), ...current.slice(1)] : current,
+            ))
           },
         ) as Type<unknown>
         ref = createComponent(Host, { environmentInjector: appRef.injector })
@@ -112,8 +123,12 @@ export const angularBindingAdapter: BindingAdapter = {
       result: () => (options.render === 'text' ? (container.textContent ?? '') : result),
       read: (value) => (isSignal(value) ? value() : value),
       setArgs: async (next) => {
-        stop()
-        await start(next)
+        if (options.reactiveArgs) {
+          reactiveOptions.set(next[0])
+        } else {
+          stop()
+          await start(next)
+        }
         await flush()
       },
       flush,

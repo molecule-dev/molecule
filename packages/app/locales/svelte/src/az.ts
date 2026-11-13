@@ -11,4 +11,6 @@ export const az: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Saxlama provayderi kontekstdə tapılmadı',
   'svelte.error.noLoggerProvider': 'Loger provayderi kontekstdə tapılmadı',
   'svelte.error.unknownPaginationDirection': 'Naməlum səhifələmə istiqaməti: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider ChatProvider daxilində istifadə edilməlidir',
 }

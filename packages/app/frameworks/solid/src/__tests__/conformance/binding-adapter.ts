@@ -7,13 +7,15 @@
  * - A value field may be an accessor (a function returning the value); a method is a plain
  *   function. React's result shape tells which is which, so an accessor is never a method.
  * - An `args` step re-mounts the host with the new arguments: a component body runs once.
+ *   A `reactiveArgs` hook (`useChat`) gets its options as an accessor instead, set on the
+ *   same mount.
  * - A component export (`SessionReady`) takes React's string props as the same props
  *   (`children`, `fallback`).
  *
  * @module
  */
 
-import { type Component, createComponent, type JSX } from 'solid-js'
+import { type Component, createComponent, createSignal, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 
 import {
@@ -31,12 +33,19 @@ const exportsOf = SolidBindings as unknown as Record<string, unknown>
 /** The Solid binding adapter. */
 export const solidBindingAdapter: BindingAdapter = {
   name: 'solid',
+  reset: () => {
+    SolidBindings.resetChatStoresForTests()
+  },
   has: (name) => typeof exportsOf[name] !== 'undefined',
   async mount(hook, args, services, _shape, options = {}): Promise<MountedHook> {
     const container = document.createElement('div')
     document.body.appendChild(container)
     let result: unknown
     let dispose: (() => void) | null = null
+    // A reactiveArgs hook reads its options from this signal for the life of one mount.
+    const [reactiveOptions, setReactiveOptions] = createSignal<unknown>(args[0], {
+      equals: false,
+    })
     const start = (current: unknown[]): void => {
       const Host: Component = () => {
         const target = exportsOf[hook]
@@ -45,7 +54,10 @@ export const solidBindingAdapter: BindingAdapter = {
             ...(current[0] as Record<string, unknown>),
           })
         }
-        result = callHook(target, current)
+        result = callHook(
+          target,
+          options.reactiveArgs ? [reactiveOptions, ...current.slice(1)] : current,
+        )
         return null
       }
       const config: MoleculeConfig = { ...services }
@@ -69,8 +81,13 @@ export const solidBindingAdapter: BindingAdapter = {
       // Solid's reactive value is an accessor; the shape only asks `read` for value fields.
       read: (value) => (typeof value === 'function' ? (value as () => unknown)() : value),
       setArgs: async (next) => {
-        dispose?.()
-        start(next)
+        if (options.reactiveArgs) {
+          // A function value would be read as an updater; the options are an object.
+          setReactiveOptions(() => next[0])
+        } else {
+          dispose?.()
+          start(next)
+        }
         await flush()
       },
       flush,

@@ -14,4 +14,5 @@ export const zhTW: SolidTranslations = {
     'getLoggerProvider 必須在配置了日誌的 MoleculeProvider 內使用',
   'solid.error.useAccordionOutsideProvider': 'Accordion 元件必須在 Accordion 內使用',
   'solid.error.useToastOutsideProvider': 'useToast 必須在 ToastProvider 內使用',
+  'solid.error.useChatOutsideProvider': 'useChatProvider 必須在 ChatProvider 內使用',
 }

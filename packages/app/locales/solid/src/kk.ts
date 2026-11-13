@@ -21,4 +21,5 @@ export const kk: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Accordion компоненттері Accordion ішінде пайдаланылуы керек',
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider ішінде пайдаланылуы керек',
+  'solid.error.useChatOutsideProvider': 'useChatProvider ChatProvider ішінде пайдаланылуы керек',
 }

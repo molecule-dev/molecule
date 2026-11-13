@@ -22,4 +22,6 @@ export const zu: SolidTranslations = {
     'Izingxenye ze-Accordion kumele zisetshenziswe ngaphakathi kwe-Accordion',
   'solid.error.useToastOutsideProvider':
     'useToast kumele kusetshenziswe ngaphakathi kwe-ToastProvider',
+  'solid.error.useChatOutsideProvider':
+    'useChatProvider kumele kusetshenziswe ngaphakathi kwe-ChatProvider',
 }

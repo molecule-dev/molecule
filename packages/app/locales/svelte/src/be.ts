@@ -11,4 +11,6 @@ export const be: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Пастаўшчык сховішча не знойдзены ў кантэксце',
   'svelte.error.noLoggerProvider': 'Пастаўшчык лагера не знойдзены ў кантэксце',
   'svelte.error.unknownPaginationDirection': 'Невядомы кірунак пагінацыі: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider павінен выкарыстоўвацца ўнутры ChatProvider',
 }

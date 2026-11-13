@@ -11,4 +11,6 @@ export const fi: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Tallennuspalveluntarjoajaa ei löytynyt kontekstista',
   'svelte.error.noLoggerProvider': 'Lokipalveluntarjoajaa ei löytynyt kontekstista',
   'svelte.error.unknownPaginationDirection': 'Tuntematon sivutussuunta: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider on käytettävä ChatProvider-komponentin sisällä',
 }

@@ -20,4 +20,5 @@ export const te: SolidTranslations = {
     'getLoggerProvider కన్ఫిగర్ చేయబడిన MoleculeProvider లోపల ఉపయోగించాలి లాగర్',
   'solid.error.useAccordionOutsideProvider': 'Accordion భాగాలు Accordion లోపల ఉపయోగించాలి',
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider లోపల ఉపయోగించాలి',
+  'solid.error.useChatOutsideProvider': 'useChatProvider ChatProvider లోపల ఉపయోగించాలి',
 }

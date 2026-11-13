@@ -21,4 +21,6 @@ export const pa: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Accordion ਕੰਪੋਨੈਂਟ Accordion ਦੇ ਅੰਦਰ ਵਰਤੇ ਜਾਣੇ ਚਾਹੀਦੇ ਹਨ',
   'solid.error.useToastOutsideProvider': 'useToast ਨੂੰ ToastProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+  'solid.error.useChatOutsideProvider':
+    'useChatProvider ਨੂੰ ChatProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
 }

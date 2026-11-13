@@ -21,4 +21,6 @@ export const zu: VueTranslations = {
   'vue.error.useToastOutsideProvider':
     'useToast kumele isetshenziswe ngaphakathi kwe-ToastProvider',
   'vue.error.unsupportedMethod': 'Indlela engasekelwe: {{method}}',
+  'vue.error.useChatOutsideProvider':
+    'useChatProvider kumele kusetshenziswe ngaphakathi kwe-ChatProvider',
 }

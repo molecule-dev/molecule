@@ -13,4 +13,6 @@ export const ro: SvelteTranslations = {
     'Furnizorul de \u00eenregistr\u0103ri nu a fost g\u0103sit \u00een context',
   'svelte.error.unknownPaginationDirection':
     'Direc\u021bie de paginare necunoscut\u0103: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider trebuie utilizat în interiorul unui ChatProvider',
 }

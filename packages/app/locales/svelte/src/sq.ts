@@ -11,4 +11,6 @@ export const sq: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Ofruesi i ruajtjes nuk u gjet n\u00eb kontekst',
   'svelte.error.noLoggerProvider': 'Ofruesi i regjistrimit nuk u gjet n\u00eb kontekst',
   'svelte.error.unknownPaginationDirection': 'Drejtim i panjohur i faqosjes: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider duhet të përdoret brenda një ChatProvider',
 }

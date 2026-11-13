@@ -15,4 +15,5 @@ export const hu: VueTranslations = {
     'A useLoggerProvider-t LoggerProvider-en belül kell használni',
   'vue.error.useToastOutsideProvider': 'A useToast-ot ToastProvider-en belül kell használni',
   'vue.error.unsupportedMethod': 'Nem támogatott metódus: {{method}}',
+  'vue.error.useChatOutsideProvider': 'A useChatProvider-t ChatProvider-en belül kell használni',
 }

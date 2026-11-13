@@ -8,6 +8,8 @@
  *   current value); a method is a plain function. The adapter keeps each store of the result
  *   subscribed while the host is mounted, as a component's `$store` read does.
  * - An `args` step re-mounts the host with the new arguments: component init runs once.
+ *   A `reactiveArgs` hook (`useChat`) gets its options as a writable store instead, set on
+ *   the same mount.
  * - A component export (`SessionReady`) takes React's string props as snippets of the same
  *   name (`children`, `fallback`).
  *
@@ -15,6 +17,7 @@
  */
 
 import { type Component, createRawSnippet, flushSync, mount, unmount } from 'svelte'
+import { writable } from 'svelte/store'
 
 import {
   type BindingAdapter,
@@ -113,12 +116,17 @@ class StoreReader {
 /** The Svelte binding adapter. */
 export const svelteBindingAdapter: BindingAdapter = {
   name: 'svelte',
+  reset: () => {
+    SvelteBindings.resetChatStoresForTests()
+  },
   has: (name) => typeof exportsOf[name] !== 'undefined',
   async mount(hook, args, services, _shape, options = {}): Promise<MountedHook> {
     const container = document.createElement('div')
     document.body.appendChild(container)
     let result: unknown
     let instance: Record<string, unknown> | null = null
+    // A reactiveArgs hook reads its options from this store for the life of one mount.
+    const reactiveOptions = writable<unknown>(args[0])
     let stores = new StoreReader()
     const config = { ...services }
     const start = (current: unknown[]): void => {
@@ -144,7 +152,10 @@ export const svelteBindingAdapter: BindingAdapter = {
           props: {
             config,
             run: () => {
-              result = callHook(exportsOf[hook], current)
+              result = callHook(
+                exportsOf[hook],
+                options.reactiveArgs ? [reactiveOptions, ...current.slice(1)] : current,
+              )
               stores.trackResult(result)
             },
           },
@@ -167,8 +178,12 @@ export const svelteBindingAdapter: BindingAdapter = {
       result: () => (options.render === 'text' ? (container.textContent ?? '') : result),
       read: (value) => stores.read(value),
       setArgs: async (next) => {
-        await stop()
-        start(next)
+        if (options.reactiveArgs) {
+          reactiveOptions.set(next[0])
+        } else {
+          await stop()
+          start(next)
+        }
         await flush()
       },
       flush,

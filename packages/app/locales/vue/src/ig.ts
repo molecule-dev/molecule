@@ -14,4 +14,5 @@ export const ig: Partial<VueTranslations> = {
   'vue.error.useHttpOutsideProvider': "A ga-eji useHttpClient mee ihe n'ime HttpProvider",
   'vue.error.useLoggerOutsideProvider': "A ga-eji useLoggerProvider n'ime LoggerProvider",
   'vue.error.useToastOutsideProvider': "A ga-eji Toast mee ihe n'ime Onye Na-enye Toast",
+  'vue.error.useChatOutsideProvider': "A ga-eji useChatProvider n'ime ChatProvider",
 }

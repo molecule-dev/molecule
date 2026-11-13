@@ -21,4 +21,5 @@ export const lt: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Accordion komponentai turi būti naudojami Accordion viduje',
   'solid.error.useToastOutsideProvider': 'useToast turi būti naudojamas ToastProvider viduje',
+  'solid.error.useChatOutsideProvider': 'useChatProvider turi būti naudojamas ChatProvider viduje',
 }

@@ -76,6 +76,9 @@ export const useChatProviderCases: HookCases = {
 /** `useChat()`: message state, streaming, errors, queueing and the controls. */
 export const useChatCases: HookCases = {
   hook: 'useChat',
+  // An app switches conversation by re-rendering with a new endpoint, so every
+  // binding follows reactive options on the same mount (see MountOptions).
+  reactiveArgs: true,
   cases: [
     // ── Mount and history ────────────────────────────────────────────────────
     {
@@ -1599,8 +1602,6 @@ export const useChatCases: HookCases = {
     },
     {
       name: 'switching conversation mid-stream stops the old stream from writing',
-      // The store is module-level and shared across hosts, so a framework that
-      // re-mounts on `args` sees the same cleared transcript as React.
       args: [
         { endpoint: '/projects/p1/chat?conversationId=c1', projectId: 'p1', loadOnMount: false },
       ],
@@ -1635,9 +1636,8 @@ export const useChatCases: HookCases = {
     },
     {
       name: 'changing projectId swaps to a fresh store without reloading history',
-      // React's history effect depends on the endpoint only, so a projectId
-      // change re-subscribes to a new (empty) store but issues no new load.
-      // Frameworks that re-mount the host on `args` must guard the same way.
+      // The history load follows the endpoint only, so a projectId change
+      // re-subscribes to a new (empty) store but issues no new load.
       args: [{ endpoint: '/chat', projectId: 'p1' }],
       context: chatArea({ history: [[hmsg('s1', 'user', 'hello')]] }),
       steps: [{ type: 'args', args: [{ endpoint: '/chat', projectId: 'p2' }] }],

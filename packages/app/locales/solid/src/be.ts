@@ -21,4 +21,6 @@ export const be: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Кампаненты Accordion павінны выкарыстоўвацца ўнутры Accordion',
   'solid.error.useToastOutsideProvider': 'useToast павінен выкарыстоўвацца ўнутры ToastProvider',
+  'solid.error.useChatOutsideProvider':
+    'useChatProvider павінен выкарыстоўвацца ўнутры ChatProvider',
 }

@@ -12,4 +12,5 @@ export const is: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Skr\u00e1ningarveita fannst ekki \u00ed samhengi',
   'svelte.error.unknownPaginationDirection':
     '\u00d3\u00feekkt s\u00ed\u00f0u\u00e1tt: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider verður að nota innan ChatProvider',
 }

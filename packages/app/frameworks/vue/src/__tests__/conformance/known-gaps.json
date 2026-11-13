@@ -1,23 +1,5 @@
 {
-  "convergeHistory": [
-    "(export)"
-  ],
-  "DEFAULT_AGENT_IDENTITY": [
-    "(export)"
-  ],
-  "DEFAULT_AGENT_NAME": [
-    "(export)"
-  ],
-  "DEFAULT_PRODUCT_NAME": [
-    "(export)"
-  ],
-  "localOnlyMessages": [
-    "(export)"
-  ],
   "resetAIModelsCache": [
-    "(export)"
-  ],
-  "resetChatStoresForTests": [
     "(export)"
   ],
   "useAIModels": [
@@ -62,12 +44,6 @@
     "unavailable keeps the candidate user for retry",
     "unmount unsubscribes from the session",
     "updateProfile merges the profile"
-  ],
-  "useChat": [
-    "(export)"
-  ],
-  "useChatProvider": [
-    "(export)"
   ],
   "useEditor": [
     "(export)"

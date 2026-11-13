@@ -12,4 +12,5 @@ export const km: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider ត្រូវតែប្រើនៅក្នុង LoggerProvider',
   'vue.error.useToastOutsideProvider': 'useToast ត្រូវតែប្រើនៅក្នុង ToastProvider',
   'vue.error.unsupportedMethod': 'វិធីសាស្រ្តដែលមិនគាំទ្រ: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider ត្រូវតែប្រើនៅក្នុង ChatProvider',
 }

@@ -21,4 +21,5 @@ export const sw: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Vipengele vya Accordion lazima vitumike ndani ya Accordion',
   'solid.error.useToastOutsideProvider': 'useToast lazima itumike ndani ya ToastProvider',
+  'solid.error.useChatOutsideProvider': 'useChatProvider lazima utumike ndani ya ChatProvider',
 }

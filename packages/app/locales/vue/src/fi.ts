@@ -12,4 +12,6 @@ export const fi: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider tulee käyttää LoggerProvider sisällä',
   'vue.error.useToastOutsideProvider': 'useToast tulee käyttää ToastProvider sisällä',
   'vue.error.unsupportedMethod': 'Ei-tuettu menetelmä: {{method}}',
+  'vue.error.useChatOutsideProvider':
+    'useChatProvider on käytettävä ChatProvider-komponentin sisällä',
 }

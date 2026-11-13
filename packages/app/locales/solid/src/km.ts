@@ -20,4 +20,5 @@ export const km: SolidTranslations = {
     'getLoggerProvider ត្រូវតែប្រើនៅក្នុង MoleculeProvider ដែលបានកំណត់រចនាសម្ព័ន្ធ ការកត់ត្រា',
   'solid.error.useAccordionOutsideProvider': 'សមាសភាគ Accordion ត្រូវតែប្រើនៅក្នុង Accordion',
   'solid.error.useToastOutsideProvider': 'useToast ត្រូវតែប្រើនៅក្នុង ToastProvider',
+  'solid.error.useChatOutsideProvider': 'useChatProvider ត្រូវតែប្រើនៅក្នុង ChatProvider',
 }

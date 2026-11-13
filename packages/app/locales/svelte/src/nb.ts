@@ -11,4 +11,5 @@ export const nb: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Lagringsleverand\u00f8r ikke funnet i kontekst',
   'svelte.error.noLoggerProvider': 'Loggleverand\u00f8r ikke funnet i kontekst',
   'svelte.error.unknownPaginationDirection': 'Ukjent pagineringsretning: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider må brukes innenfor en ChatProvider',
 }

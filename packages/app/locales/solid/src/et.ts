@@ -20,4 +20,5 @@ export const et: SolidTranslations = {
     'getLoggerProvider tuleb kasutada MoleculeProvider sees koos konfigureeritud logijaga',
   'solid.error.useAccordionOutsideProvider': 'Accordion komponente tuleb kasutada Accordion sees',
   'solid.error.useToastOutsideProvider': 'useToast tuleb kasutada ToastProvider sees',
+  'solid.error.useChatOutsideProvider': 'useChatProvider tuleb kasutada ChatProvider sees',
 }

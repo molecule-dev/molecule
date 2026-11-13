@@ -21,4 +21,6 @@ export const hi: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Accordion घटकों को Accordion के अंदर उपयोग किया जाना चाहिए',
   'solid.error.useToastOutsideProvider': 'useToast को ToastProvider के अंदर उपयोग किया जाना चाहिए',
+  'solid.error.useChatOutsideProvider':
+    'useChatProvider का उपयोग ChatProvider के अंदर किया जाना चाहिए',
 }

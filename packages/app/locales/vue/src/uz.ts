@@ -15,4 +15,5 @@ export const uz: Partial<VueTranslations> = {
     'useLoggerProvider LoggerProvider ichida ishlatilishi kerak',
   'vue.error.useToastOutsideProvider': 'useToast ToastProvider ichida ishlatilishi kerak',
   'vue.error.unsupportedMethod': "Qo'llab-quvvatlanmaydigan usul: {{method}}",
+  'vue.error.useChatOutsideProvider': 'useChatProvider ChatProvider ichida ishlatilishi kerak',
 }

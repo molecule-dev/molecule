@@ -20,4 +20,5 @@ export const ar: SolidTranslations = {
     'يجب استخدام getLoggerProvider داخل MoleculeProvider مع تكوين السجل',
   'solid.error.useAccordionOutsideProvider': 'يجب استخدام مكونات Accordion داخل Accordion',
   'solid.error.useToastOutsideProvider': 'يجب استخدام useToast داخل ToastProvider',
+  'solid.error.useChatOutsideProvider': 'يجب استخدام useChatProvider داخل ChatProvider',
 }

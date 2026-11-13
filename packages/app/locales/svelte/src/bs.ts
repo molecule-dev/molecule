@@ -11,4 +11,5 @@ export const bs: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Provajder skladištenja nije pronađen u kontekstu',
   'svelte.error.noLoggerProvider': 'Provajder logera nije pronađen u kontekstu',
   'svelte.error.unknownPaginationDirection': 'Nepoznat smjer paginacije: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider se mora koristiti unutar ChatProvider-a',
 }

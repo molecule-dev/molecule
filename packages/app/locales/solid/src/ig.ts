@@ -20,4 +20,5 @@ export const ig: Partial<SolidTranslations> = {
     "A ga-eji getLoggerProvider mee ihe n'ime MoleculeProvider nke nwere nhazi logger ahaziri ya",
   'solid.error.useAccordionOutsideProvider': "A ga-eji ihe ndị dị na Accordion mee ihe n'ime otu",
   'solid.error.useToastOutsideProvider': "A ga-eji Toast mee ihe n'ime Onye Na-enye Toast",
+  'solid.error.useChatOutsideProvider': "A ga-eji useChatProvider n'ime ChatProvider",
 }

@@ -6,6 +6,7 @@
 
 import { createContext, useContext } from 'solid-js'
 
+import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, RegisterExtraShape } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -27,6 +28,7 @@ const I18nContext = createContext<I18nProvider>()
 const HttpContext = createContext<HttpClient>()
 const StorageContext = createContext<StorageProvider>()
 const LoggerContext = createContext<LoggerProvider>()
+const ChatContext = createContext<ChatProvider>()
 
 /**
  * Get the state provider from context.
@@ -186,6 +188,7 @@ export function getLoggerProvider(): LoggerProvider {
 // Export contexts for advanced use cases
 export {
   AuthContext,
+  ChatContext,
   HttpContext,
   I18nContext,
   LoggerContext,

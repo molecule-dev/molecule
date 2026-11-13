@@ -20,4 +20,5 @@ export const ml: SvelteTranslations = {
     '\u0d32\u0d4b\u0d17\u0d7c \u0d2a\u0d4d\u0d30\u0d4a\u0d35\u0d48\u0d21\u0d7c \u0d15\u0d23\u0d4d\u0d1f\u0d15\u0d4d\u0d38\u0d4d\u0d31\u0d4d\u0d31\u0d3f\u0d7d \u0d15\u0d23\u0d4d\u0d1f\u0d46\u0d24\u0d4d\u0d24\u0d3f\u0d2f\u0d3f\u0d32\u0d4d\u0d32',
   'svelte.error.unknownPaginationDirection':
     '\u0d05\u0d1c\u0d4d\u0d1e\u0d3e\u0d24\u0d2e\u0d3e\u0d2f \u0d2a\u0d47\u0d1c\u0d3f\u0d28\u0d47\u0d37\u0d7b \u0d26\u0d3f\u0d36: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider ഒരു ChatProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
 }

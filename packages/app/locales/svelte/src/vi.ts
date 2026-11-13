@@ -20,4 +20,5 @@ export const vi: SvelteTranslations = {
     'Kh\u00f4ng t\u00ecm th\u1ea5y nh\u00e0 cung c\u1ea5p ghi nh\u1eadt k\u00fd trong ng\u1eef c\u1ea3nh',
   'svelte.error.unknownPaginationDirection':
     'H\u01b0\u1edbng ph\u00e2n trang kh\u00f4ng x\u00e1c \u0111\u1ecbnh: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider phải được sử dụng bên trong ChatProvider',
 }

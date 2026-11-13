@@ -20,4 +20,5 @@ export const lv: SolidTranslations = {
     'getLoggerProvider jāizmanto MoleculeProvider iekšienē ar konfigurētu reģistrēšanu',
   'solid.error.useAccordionOutsideProvider': 'Accordion komponenti jāizmanto Accordion iekšienē',
   'solid.error.useToastOutsideProvider': 'useToast jāizmanto ToastProvider iekšienē',
+  'solid.error.useChatOutsideProvider': 'useChatProvider jāizmanto ChatProvider ietvaros',
 }

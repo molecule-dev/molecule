@@ -10,7 +10,7 @@ vi.mock('@angular/core', () => ({
       this._desc = desc
     }
   },
-  ENVIRONMENT_INITIALIZER: Symbol('ENVIRONMENT_INITIALIZER'),
+  provideEnvironmentInitializer: (initializer: () => void) => ({ _initializer: initializer }),
   makeEnvironmentProviders: function mockMakeEnvProviders(providers: unknown[]): unknown {
     makeEnvProvidersCalls.push(providers)
     return { _providers: providers, ɵproviders: providers }
@@ -177,7 +177,7 @@ describe('providers', () => {
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
       const providersArg = makeEnvProvidersCalls[0]
-      // 8 value providers + 1 ENVIRONMENT_INITIALIZER for i18n locale reactivity
+      // 8 value providers + 1 environment initializer for i18n locale reactivity
       expect(providersArg).toHaveLength(9)
       expect(providersArg).toContainEqual({ provide: STATE_PROVIDER, useValue: config.state })
       expect(providersArg).toContainEqual({ provide: AUTH_CLIENT, useValue: config.auth })

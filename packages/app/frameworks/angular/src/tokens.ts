@@ -6,6 +6,7 @@
 
 import { InjectionToken } from '@angular/core'
 
+import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -54,3 +55,8 @@ export const STORAGE_PROVIDER = new InjectionToken<StorageProvider>('molecule-st
  * Injection token for logger provider.
  */
 export const LOGGER_PROVIDER = new InjectionToken<LoggerProvider>('molecule-logger-provider')
+
+/**
+ * Injection token for the AI chat provider.
+ */
+export const CHAT_PROVIDER = new InjectionToken<ChatProvider>('molecule-chat-provider')

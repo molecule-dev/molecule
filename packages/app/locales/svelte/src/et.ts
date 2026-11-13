@@ -11,4 +11,5 @@ export const et: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Salvestuspakkujat ei leitud kontekstis',
   'svelte.error.noLoggerProvider': 'Logipakkujat ei leitud kontekstis',
   'svelte.error.unknownPaginationDirection': 'Tundmatu lehekülgede suund: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider tuleb kasutada ChatProvider sees',
 }

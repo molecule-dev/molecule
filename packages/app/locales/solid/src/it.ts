@@ -22,4 +22,6 @@ export const it: Partial<SolidTranslations> = {
     "I componenti della fisarmonica devono essere utilizzati all'interno di una fisarmonica",
   'solid.error.useToastOutsideProvider':
     "useToast deve essere utilizzato all'interno di un ToastProvider",
+  'solid.error.useChatOutsideProvider':
+    "useChatProvider deve essere utilizzato all'interno di un ChatProvider",
 }

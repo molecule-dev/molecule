@@ -12,4 +12,6 @@ export const it: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Provider di logging non trovato nel contesto',
   'svelte.error.unknownPaginationDirection':
     'Direzione di paginazione sconosciuta: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    "useChatProvider deve essere utilizzato all'interno di un ChatProvider",
 }

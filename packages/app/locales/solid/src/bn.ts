@@ -22,4 +22,6 @@ export const bn: SolidTranslations = {
     'Accordion কম্পোনেন্টগুলি অবশ্যই একটি Accordion-এর মধ্যে ব্যবহার করতে হবে',
   'solid.error.useToastOutsideProvider':
     'useToast অবশ্যই একটি ToastProvider-এর মধ্যে ব্যবহার করতে হবে',
+  'solid.error.useChatOutsideProvider':
+    'useChatProvider অবশ্যই একটি ChatProvider এর মধ্যে ব্যবহার করতে হবে',
 }

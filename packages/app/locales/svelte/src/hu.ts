@@ -11,4 +11,5 @@ export const hu: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Tárolószolgáltató nem található a kontextusban',
   'svelte.error.noLoggerProvider': 'Naplózó szolgáltató nem található a kontextusban',
   'svelte.error.unknownPaginationDirection': 'Ismeretlen lapozási irány: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'A useChatProvider-t ChatProvider-en belül kell használni',
 }

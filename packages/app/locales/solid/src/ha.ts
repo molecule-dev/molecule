@@ -22,4 +22,6 @@ export const ha: Partial<SolidTranslations> = {
     'useToast dole ne a yi amfani da shi a cikin ToastProvider',
   'solid.error.routerOutsideProvider':
     "Dole ne a yi amfani da getRouter a cikin MoleculeProvider tare da na'urar sadarwa da aka saita",
+  'solid.error.useChatOutsideProvider':
+    'Dole ne a yi amfani da useChatProvider a cikin ChatProvider',
 }

@@ -12,4 +12,6 @@ export const fil: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Hindi nahanap ang logger provider sa konteksto',
   'svelte.error.unknownPaginationDirection':
     'Hindi kilalang direksyon ng pagination: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'Ang useChatProvider ay dapat gamitin sa loob ng ChatProvider',
 }

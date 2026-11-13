@@ -1,23 +1,5 @@
 {
-  "convergeHistory": [
-    "(export)"
-  ],
-  "DEFAULT_AGENT_IDENTITY": [
-    "(export)"
-  ],
-  "DEFAULT_AGENT_NAME": [
-    "(export)"
-  ],
-  "DEFAULT_PRODUCT_NAME": [
-    "(export)"
-  ],
-  "localOnlyMessages": [
-    "(export)"
-  ],
   "resetAIModelsCache": [
-    "(export)"
-  ],
-  "resetChatStoresForTests": [
     "(export)"
   ],
   "SessionReady": [
@@ -39,12 +21,6 @@
     "(export)"
   ],
   "useChangePassword": [
-    "(export)"
-  ],
-  "useChat": [
-    "(export)"
-  ],
-  "useChatProvider": [
     "(export)"
   ],
   "useChildLogger": [

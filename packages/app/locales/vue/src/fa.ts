@@ -12,4 +12,5 @@ export const fa: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider باید درون LoggerProvider استفاده شود',
   'vue.error.useToastOutsideProvider': 'useToast باید درون ToastProvider استفاده شود',
   'vue.error.unsupportedMethod': 'روش پشتیبانی نشده: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider باید درون ChatProvider استفاده شود',
 }

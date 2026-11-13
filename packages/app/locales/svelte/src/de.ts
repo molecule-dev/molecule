@@ -11,4 +11,6 @@ export const de: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Speicheranbieter nicht im Kontext gefunden',
   'svelte.error.noLoggerProvider': 'Logger-Anbieter nicht im Kontext gefunden',
   'svelte.error.unknownPaginationDirection': 'Unbekannte Paginierungsrichtung: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider muss innerhalb eines ChatProvider verwendet werden',
 }

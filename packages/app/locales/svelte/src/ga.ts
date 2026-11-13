@@ -11,4 +11,5 @@ export const ga: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Níor aimsíodh soláthraí stórála sa chomhthéacs',
   'svelte.error.noLoggerProvider': 'Níor aimsíodh soláthraí logálaí sa chomhthéacs',
   'svelte.error.unknownPaginationDirection': 'Treo anaithnid leathanaigh: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'Ní mór useChatProvider a úsáid laistigh de ChatProvider',
 }

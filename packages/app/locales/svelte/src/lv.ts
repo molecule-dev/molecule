@@ -16,4 +16,5 @@ export const lv: SvelteTranslations = {
     'Re\u0123istr\u0113\u0161anas nodro\u0161in\u0101t\u0101js nav atrasts kontekst\u0101',
   'svelte.error.unknownPaginationDirection':
     'Nezin\u0101ms lapo\u0161anas virziens: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider jāizmanto ChatProvider ietvaros',
 }

@@ -20,4 +20,5 @@ export const gu: SolidTranslations = {
     'getLoggerProvider એ કોન્ફિગર કરેલ MoleculeProvider ની અંદર વાપરવું આવશ્યક છે લોગર',
   'solid.error.useAccordionOutsideProvider': 'Accordion ઘટકો Accordion ની અંદર વાપરવા આવશ્યક છે',
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider ની અંદર વાપરવું આવશ્યક છે',
+  'solid.error.useChatOutsideProvider': 'useChatProvider એ ChatProvider ની અંદર વાપરવું આવશ્યક છે',
 }

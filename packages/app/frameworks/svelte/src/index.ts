@@ -55,6 +55,7 @@
  * @module
  */
 
+export * from './agent-identity.js'
 export * from './context.js'
 export * from './stores/index.js'
 export * from './types.js'

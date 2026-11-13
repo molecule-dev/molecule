@@ -20,4 +20,5 @@ export const ml: SolidTranslations = {
     'getLoggerProvider കോൺഫിഗർ ചെയ്ത MoleculeProvider-ന്റെ അകത്ത് ഉപയോഗിക്കണം ലോഗർ',
   'solid.error.useAccordionOutsideProvider': 'Accordion ഘടകങ്ങൾ Accordion-ന്റെ അകത്ത് ഉപയോഗിക്കണം',
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider-ന്റെ അകത്ത് ഉപയോഗിക്കണം',
+  'solid.error.useChatOutsideProvider': 'useChatProvider ഒരു ChatProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
 }

@@ -20,4 +20,5 @@ export const cy: Partial<SolidTranslations> = {
     "Rhaid defnyddio getStorageProvider o fewn MoleculeProvider gyda storfa wedi'i ffurfweddu",
   'solid.error.loggerOutsideProvider':
     "Rhaid defnyddio getLoggerProvider o fewn MoleculeProvider gyda chofnodwr wedi'i ffurfweddu",
+  'solid.error.useChatOutsideProvider': 'Rhaid defnyddio useChatProvider o fewn ChatProvider',
 }

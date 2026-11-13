@@ -20,4 +20,5 @@ export const lo: SolidTranslations = {
     'getLoggerProvider ຕ້ອງໃຊ້ພາຍໃນ MoleculeProvider ທີ່ມີການຕັ້ງຄ່າ ບັນທຶກ',
   'solid.error.useAccordionOutsideProvider': 'ສ່ວນປະກອບ Accordion ຕ້ອງໃຊ້ພາຍໃນ Accordion',
   'solid.error.useToastOutsideProvider': 'useToast ຕ້ອງໃຊ້ພາຍໃນ ToastProvider',
+  'solid.error.useChatOutsideProvider': 'useChatProvider ຕ້ອງໃຊ້ພາຍໃນ ChatProvider',
 }

@@ -22,11 +22,16 @@
   },
   "peerDependencies": {
     "@angular/core": "22.0.0",
+    "@molecule/app-ai-chat": "^1.8.0",
+    "@molecule/app-ai-models": "^1.0.1",
     "@molecule/app-auth": "^3.0.0",
+    "@molecule/app-code-editor": "^1.0.1",
     "@molecule/app-device": "^1.0.1",
     "@molecule/app-forms": "^2.0.0",
     "@molecule/app-http": "^1.0.1",
     "@molecule/app-i18n": "^1.0.1",
+    "@molecule/app-ide": "^1.0.1",
+    "@molecule/app-live-preview": "^1.0.1",
     "@molecule/app-logger": "^1.0.1",
     "@molecule/app-platform": "^1.0.1",
     "@molecule/app-push": "^1.0.1",
@@ -39,11 +44,24 @@
     "@molecule/app-version": "^1.0.1",
     "rxjs": "^7.8.0"
   },
+  "peerDependenciesMeta": {
+    "@molecule/app-code-editor": {
+      "optional": true
+    },
+    "@molecule/app-ide": {
+      "optional": true
+    },
+    "@molecule/app-live-preview": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@angular/compiler": "22.2.3",
     "@angular/compiler-cli": "22.2.3",
     "@angular/core": "22.2.3",
     "@angular/platform-browser": "22.2.3",
+    "@molecule/app-ai-chat": "1.8.0",
+    "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-utilities": "1.0.6",
     "@types/node": "26.6.5",

@@ -12,4 +12,5 @@ export const am: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider በ LoggerProvider ውስጥ ጥቅም ላይ መዋል አለበት',
   'vue.error.useToastOutsideProvider': 'useToast በ ToastProvider ውስጥ ጥቅም ላይ መዋል አለበት',
   'vue.error.unsupportedMethod': 'ያልተደገፈ ዘዴ: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider በChatProvider ውስጥ መጠቀም አለበት',
 }

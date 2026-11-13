@@ -19,4 +19,5 @@ export const th: SolidTranslations = {
     'getLoggerProvider ต้องใช้ภายใน MoleculeProvider ที่กำหนดค่า การบันทึก',
   'solid.error.useAccordionOutsideProvider': 'คอมโพเนนต์ Accordion ต้องใช้ภายใน Accordion',
   'solid.error.useToastOutsideProvider': 'useToast ต้องใช้ภายใน ToastProvider',
+  'solid.error.useChatOutsideProvider': 'useChatProvider ต้องใช้ภายใน ChatProvider',
 }

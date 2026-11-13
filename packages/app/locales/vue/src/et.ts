@@ -12,4 +12,5 @@ export const et: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider tuleb kasutada LoggerProvider sees',
   'vue.error.useToastOutsideProvider': 'useToast tuleb kasutada ToastProvider sees',
   'vue.error.unsupportedMethod': 'Toetamata meetod: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider tuleb kasutada ChatProvider sees',
 }

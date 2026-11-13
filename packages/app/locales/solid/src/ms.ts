@@ -20,4 +20,5 @@ export const ms: SolidTranslations = {
     'getLoggerProvider mesti digunakan dalam MoleculeProvider dengan logger dikonfigurasi',
   'solid.error.useAccordionOutsideProvider': 'Komponen Accordion mesti digunakan dalam Accordion',
   'solid.error.useToastOutsideProvider': 'useToast mesti digunakan dalam ToastProvider',
+  'solid.error.useChatOutsideProvider': 'useChatProvider mesti digunakan dalam ChatProvider',
 }

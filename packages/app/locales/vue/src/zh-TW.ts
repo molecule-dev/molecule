@@ -12,4 +12,5 @@ export const zhTW: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider 必須在 LoggerProvider 內使用',
   'vue.error.useToastOutsideProvider': 'useToast 必須在 ToastProvider 內使用',
   'vue.error.unsupportedMethod': '不支援的方法: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider 必須在 ChatProvider 內使用',
 }

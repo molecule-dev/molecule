@@ -21,4 +21,5 @@ export const vi: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Các thành phần Accordion phải được sử dụng bên trong Accordion',
   'solid.error.useToastOutsideProvider': 'useToast phải được sử dụng bên trong ToastProvider',
+  'solid.error.useChatOutsideProvider': 'useChatProvider phải được sử dụng bên trong ChatProvider',
 }

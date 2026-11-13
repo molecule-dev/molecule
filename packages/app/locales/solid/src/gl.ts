@@ -21,4 +21,5 @@ export const gl: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Os compoñentes de Accordion deben usarse dentro dun Accordion',
   'solid.error.useToastOutsideProvider': 'useToast debe usarse dentro dun ToastProvider',
+  'solid.error.useChatOutsideProvider': 'useChatProvider debe usarse dentro dun ChatProvider',
 }

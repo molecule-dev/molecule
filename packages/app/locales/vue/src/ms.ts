@@ -12,4 +12,5 @@ export const ms: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider mesti digunakan dalam LoggerProvider',
   'vue.error.useToastOutsideProvider': 'useToast mesti digunakan dalam ToastProvider',
   'vue.error.unsupportedMethod': 'Kaedah tidak disokong: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider mesti digunakan dalam ChatProvider',
 }

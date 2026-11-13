@@ -15,4 +15,5 @@ export const ka: VueTranslations = {
     'useLoggerProvider უნდა გამოიყენოთ LoggerProvider-ის შიგნით',
   'vue.error.useToastOutsideProvider': 'useToast უნდა გამოიყენოთ ToastProvider-ის შიგნით',
   'vue.error.unsupportedMethod': 'მხარდაუჭერელი მეთოდი: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider უნდა გამოიყენოთ ChatProvider-ის შიგნით',
 }

@@ -14,4 +14,5 @@ export const zh: SolidTranslations = {
     'getLoggerProvider 必须在配置了日志的 MoleculeProvider 内使用',
   'solid.error.useAccordionOutsideProvider': 'Accordion 组件必须在 Accordion 内使用',
   'solid.error.useToastOutsideProvider': 'useToast 必须在 ToastProvider 内使用',
+  'solid.error.useChatOutsideProvider': 'useChatProvider 必须在 ChatProvider 内使用',
 }

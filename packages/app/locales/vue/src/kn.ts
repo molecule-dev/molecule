@@ -12,4 +12,5 @@ export const kn: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider ಅನ್ನು LoggerProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'vue.error.useToastOutsideProvider': 'useToast ಅನ್ನು ToastProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'vue.error.unsupportedMethod': 'ಬೆಂಬಲಿಸದ ವಿಧಾನ: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider ಅನ್ನು ChatProvider ಒಳಗೆ ಬಳಸಬೇಕು',
 }

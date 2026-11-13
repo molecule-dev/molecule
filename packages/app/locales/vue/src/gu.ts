@@ -15,4 +15,5 @@ export const gu: VueTranslations = {
     'useLoggerProvider LoggerProvider ની અંદર વાપરવું આવશ્યક છે',
   'vue.error.useToastOutsideProvider': 'useToast ToastProvider ની અંદર વાપરવું આવશ્યક છે',
   'vue.error.unsupportedMethod': 'અસમર્થિત પદ્ધતિ: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider એ ChatProvider ની અંદર વાપરવું આવશ્યક છે',
 }

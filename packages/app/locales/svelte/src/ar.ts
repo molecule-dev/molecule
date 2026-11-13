@@ -11,4 +11,5 @@ export const ar: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'لم يتم العثور على مزود التخزين في السياق',
   'svelte.error.noLoggerProvider': 'لم يتم العثور على مزود السجل في السياق',
   'svelte.error.unknownPaginationDirection': 'اتجاه ترقيم صفحات غير معروف: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'يجب استخدام useChatProvider داخل ChatProvider',
 }

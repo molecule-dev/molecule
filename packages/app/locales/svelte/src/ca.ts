@@ -11,4 +11,5 @@ export const ca: Partial<SvelteTranslations> = {
   'svelte.error.noHttpClient': 'Client HTTP no trobat en context',
   'svelte.error.noStorageProvider': "Proveïdor d'emmagatzematge no trobat en context",
   'svelte.error.noLoggerProvider': 'Proveïdor del registrador no trobat en context',
+  'svelte.error.useChatOutsideProvider': "useChatProvider s'ha d'utilitzar dins d'un ChatProvider.",
 }

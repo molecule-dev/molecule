@@ -6,11 +6,14 @@
 
 import type { EnvironmentProviders, Provider } from '@angular/core'
 import {
-  ENVIRONMENT_INITIALIZER,
+  DestroyRef,
+  inject,
   makeEnvironmentProviders,
   provideAppInitializer,
+  provideEnvironmentInitializer,
 } from '@angular/core'
 
+import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -23,6 +26,7 @@ import type { ThemeProvider } from '@molecule/app-theme'
 import { bumpLocaleVersion } from './i18n-reactive.js'
 import {
   AUTH_CLIENT,
+  CHAT_PROVIDER,
   HTTP_CLIENT,
   I18N_PROVIDER,
   LOGGER_PROVIDER,
@@ -114,6 +118,16 @@ export function provideLogger(provider: LoggerProvider): EnvironmentProviders {
 }
 
 /**
+ * Registers the AI chat provider useChat and useChatProvider use.
+ *
+ * @param provider - Chat provider
+ * @returns Environment providers
+ */
+export function provideChat(provider: ChatProvider): EnvironmentProviders {
+  return makeEnvironmentProviders([{ provide: CHAT_PROVIDER, useValue: provider }])
+}
+
+/**
  * Provide all molecule services at once.
  *
  * @param config - Configuration with all providers
@@ -156,15 +170,15 @@ export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProvid
     // Bump the reactive locale signal on locale changes so that Angular
     // template bindings using the signal-aware `t()` from this package
     // automatically re-evaluate. No zone or tick hacks needed — signals
-    // handle change detection scheduling natively.
+    // handle change detection scheduling natively. The listener ends with the
+    // environment (the app), so a destroyed app leaves no subscription behind.
     const i18nProvider = config.i18n
-    providers.push({
-      provide: ENVIRONMENT_INITIALIZER,
-      multi: true,
-      useValue: () => {
-        i18nProvider.onLocaleChange(() => bumpLocaleVersion())
-      },
-    })
+    providers.push(
+      provideEnvironmentInitializer(() => {
+        const stop = i18nProvider.onLocaleChange(() => bumpLocaleVersion())
+        inject(DestroyRef).onDestroy(stop)
+      }),
+    )
   }
   if (config.http) {
     providers.push({ provide: HTTP_CLIENT, useValue: config.http })
@@ -174,6 +188,9 @@ export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProvid
   }
   if (config.logger) {
     providers.push({ provide: LOGGER_PROVIDER, useValue: config.logger })
+  }
+  if (config.chat) {
+    providers.push({ provide: CHAT_PROVIDER, useValue: config.chat })
   }
   if (config.awaitSession && config.auth) {
     const client = config.auth

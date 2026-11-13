@@ -20,4 +20,6 @@ export const ur: VueTranslations = {
     'useLoggerProvider کو LoggerProvider کے اندر استعمال کیا جانا چاہیے',
   'vue.error.useToastOutsideProvider': 'useToast کو ToastProvider کے اندر استعمال کیا جانا چاہیے',
   'vue.error.unsupportedMethod': 'غیر تعاون یافتہ طریقہ: {{method}}',
+  'vue.error.useChatOutsideProvider':
+    'useChatProvider کو ChatProvider کے اندر استعمال کیا جانا چاہیے',
 }

@@ -20,4 +20,6 @@ export const ta: VueTranslations = {
     'useLoggerProvider ஒரு LoggerProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'vue.error.useToastOutsideProvider': 'useToast ஒரு ToastProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'vue.error.unsupportedMethod': 'ஆதரிக்கப்படாத முறை: {{method}}',
+  'vue.error.useChatOutsideProvider':
+    'useChatProvider ஒரு ChatProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
 }

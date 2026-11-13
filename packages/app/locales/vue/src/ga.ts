@@ -15,4 +15,5 @@ export const ga: VueTranslations = {
     'Ní mór useLoggerProvider a úsáid laistigh de LoggerProvider',
   'vue.error.useToastOutsideProvider': 'Ní mór useToast a úsáid laistigh de ToastProvider',
   'vue.error.unsupportedMethod': 'Modh nach dtacaítear leis: {{method}}',
+  'vue.error.useChatOutsideProvider': 'Ní mór useChatProvider a úsáid laistigh de ChatProvider',
 }

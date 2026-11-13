@@ -18,4 +18,6 @@ export const fil: VueTranslations = {
     'Ang useLoggerProvider ay dapat gamitin sa loob ng LoggerProvider',
   'vue.error.useToastOutsideProvider': 'Ang useToast ay dapat gamitin sa loob ng ToastProvider',
   'vue.error.unsupportedMethod': 'Hindi sinusuportahang paraan: {{method}}',
+  'vue.error.useChatOutsideProvider':
+    'Ang useChatProvider ay dapat gamitin sa loob ng ChatProvider',
 }

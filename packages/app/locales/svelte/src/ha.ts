@@ -12,4 +12,6 @@ export const ha: Partial<SvelteTranslations> = {
   'svelte.error.unknownPaginationDirection': 'Alkiblar shafin da ba a sani ba: "{{direction}}"',
   'svelte.error.noRouter':
     "Ba a sami na'ura mai ba da hanya tsakanin hanyoyin sadarwa a cikin mahallin ba",
+  'svelte.error.useChatOutsideProvider':
+    'Dole ne a yi amfani da useChatProvider a cikin ChatProvider',
 }

@@ -21,4 +21,5 @@ export const ca: Partial<SolidTranslations> = {
   'solid.error.useAccordionOutsideProvider':
     "Els components de l'acordió s'han d'utilitzar dins d'un acordió.",
   'solid.error.useToastOutsideProvider': "useToast s'ha d'utilitzar dins d'un ToastProvider.",
+  'solid.error.useChatOutsideProvider': "useChatProvider s'ha d'utilitzar dins d'un ChatProvider.",
 }

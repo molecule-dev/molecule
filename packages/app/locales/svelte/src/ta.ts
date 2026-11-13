@@ -20,4 +20,6 @@ export const ta: SvelteTranslations = {
     '\u0baa\u0ba4\u0bbf\u0bb5\u0bbe\u0bb3\u0bb0\u0bcd \u0bb5\u0bb4\u0b99\u0bcd\u0b95\u0bc1\u0ba8\u0bb0\u0bcd \u0b9a\u0bc2\u0bb4\u0bb2\u0bbf\u0bb2\u0bcd \u0b95\u0ba3\u0bcd\u0b9f\u0bb1\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8',
   'svelte.error.unknownPaginationDirection':
     '\u0ba4\u0bc6\u0bb0\u0bbf\u0baf\u0bbe\u0ba4 \u0baa\u0b95\u0bcd\u0b95 \u0ba4\u0bbf\u0b9a\u0bc8: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider ஒரு ChatProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
 }

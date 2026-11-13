@@ -13,4 +13,5 @@ export const bg: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider трябва да се използва в LoggerProvider',
   'vue.error.useToastOutsideProvider': 'useToast трябва да се използва в ToastProvider',
   'vue.error.unsupportedMethod': 'Неподдържан метод: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider трябва да се използва в ChatProvider',
 }

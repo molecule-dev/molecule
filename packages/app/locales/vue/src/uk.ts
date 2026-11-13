@@ -20,4 +20,6 @@ export const uk: VueTranslations = {
     'useLoggerProvider повинен використовуватися всередині LoggerProvider',
   'vue.error.useToastOutsideProvider': 'useToast повинен використовуватися всередині ToastProvider',
   'vue.error.unsupportedMethod': 'Непідтримуваний метод: {{method}}',
+  'vue.error.useChatOutsideProvider':
+    'useChatProvider повинен використовуватися всередині ChatProvider',
 }

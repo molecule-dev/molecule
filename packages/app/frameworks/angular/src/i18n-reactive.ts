@@ -23,7 +23,7 @@ const localeVersion = signal(0)
  * Bump the locale version signal, causing all template bindings that use
  * the reactive `t()` to re-evaluate on the next change detection cycle.
  *
- * Called automatically by the `ENVIRONMENT_INITIALIZER` in `provideMolecule`.
+ * Called automatically by the environment initializer `provideMolecule` registers.
  */
 export function bumpLocaleVersion(): void {
   localeVersion.update((v) => v + 1)

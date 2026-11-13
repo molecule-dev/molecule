@@ -13,4 +13,5 @@ export const cy: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'Rhaid defnyddio useLoggerProvider o fewn LoggerProvider',
   'vue.error.useToastOutsideProvider': 'Rhaid defnyddio useToast o fewn ToastProvider',
   'vue.error.unsupportedMethod': 'Dull heb ei gefnogi: {{method}}',
+  'vue.error.useChatOutsideProvider': 'Rhaid defnyddio useChatProvider o fewn ChatProvider',
 }

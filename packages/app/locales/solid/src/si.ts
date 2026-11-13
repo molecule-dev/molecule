@@ -20,4 +20,5 @@ export const si: SolidTranslations = {
     'getLoggerProvider සාමාන්යයෙන් සජ්ජිත MoleculeProvider එකක් අතුළත භාවිතා කල යුතුය ලොගරය',
   'solid.error.useAccordionOutsideProvider': 'Accordion සංරචක Accordion එකක් අතුළත භාවිතා කල යුතුය',
   'solid.error.useToastOutsideProvider': 'useToast ToastProvider එකක් අතුළත භාවිතා කල යුතුය',
+  'solid.error.useChatOutsideProvider': 'useChatProvider ChatProvider තුළ භාවිතා කළ යුතුය',
 }

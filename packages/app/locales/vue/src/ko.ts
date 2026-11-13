@@ -13,4 +13,5 @@ export const ko: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider는 LoggerProvider 내에서 사용해야 합니다',
   'vue.error.useToastOutsideProvider': 'useToast는 ToastProvider 내에서 사용해야 합니다',
   'vue.error.unsupportedMethod': '지원되지 않는 메서드: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider는 ChatProvider 내에서 사용해야 합니다',
 }

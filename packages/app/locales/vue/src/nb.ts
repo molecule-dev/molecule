@@ -15,4 +15,5 @@ export const nb: VueTranslations = {
     'useLoggerProvider m\u00e5 brukes innenfor en LoggerProvider',
   'vue.error.useToastOutsideProvider': 'useToast m\u00e5 brukes innenfor en ToastProvider',
   'vue.error.unsupportedMethod': 'Ikke-st\u00f8ttet metode: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider må brukes innenfor en ChatProvider',
 }

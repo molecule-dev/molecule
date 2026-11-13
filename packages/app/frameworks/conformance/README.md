@@ -176,7 +176,11 @@ The same contract holds the framework bindings (`@molecule/app-vue`, `-solid`, `
 | component `SessionReady`         | component, slots `default`, `fallback` | component, props `children`, `fallback` | component, snippets `children`, `fallback` | component, default `<ng-content>`, `[slot=fallback]` |
 
 An `args` step re-renders React with new arguments; the other adapters re-mount the host,
-since a composable, primitive or injection runs once per mount.
+since a composable, primitive or injection runs once per mount. A family marked
+`reactiveArgs` (`useChat`, whose app re-renders it with a new `endpoint` to switch
+conversation) is the exception: its options arrive as the framework's reactive value (Vue a
+ref, Solid an accessor, Svelte a readable store, Angular a signal), the binding follows it,
+and an `args` step sets it on the same mount.
 
 Writing binding cases (`HookCase`, `src/bindings/spec.ts`):
 

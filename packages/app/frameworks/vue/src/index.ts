@@ -53,6 +53,7 @@
  * @module
  */
 
+export * from './agent-identity.js'
 export * from './composables/index.js'
 export * from './injection-keys.js'
 export * from './plugin.js'

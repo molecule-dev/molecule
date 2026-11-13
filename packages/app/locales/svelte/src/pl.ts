@@ -13,4 +13,5 @@ export const pl: SvelteTranslations = {
     'Dostawca pami\u0119ci nie zosta\u0142 znaleziony w kontek\u015bcie',
   'svelte.error.noLoggerProvider': 'Dostawca loggera nie zosta\u0142 znaleziony w kontek\u015bcie',
   'svelte.error.unknownPaginationDirection': 'Nieznany kierunek paginacji: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider musi być używany wewnątrz ChatProvider',
 }

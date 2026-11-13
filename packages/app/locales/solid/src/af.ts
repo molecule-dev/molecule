@@ -21,4 +21,5 @@ export const af: Partial<SolidTranslations> = {
   'solid.error.useAccordionOutsideProvider':
     "Trekklavierkomponente moet binne 'n trekklavier gebruik word",
   'solid.error.useToastOutsideProvider': "useToast moet binne 'n ToastProvider gebruik word",
+  'solid.error.useChatOutsideProvider': "useChatProvider moet binne 'n ChatProvider gebruik word.",
 }

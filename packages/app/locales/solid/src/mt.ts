@@ -21,4 +21,5 @@ export const mt: Partial<SolidTranslations> = {
   'solid.error.useAccordionOutsideProvider':
     'Il-komponenti tal-akkordjun għandhom jintużaw fi ħdan l-akkordjun',
   'solid.error.useToastOutsideProvider': 'useToast irid jintuża fi ħdan ToastProvider',
+  'solid.error.useChatOutsideProvider': 'useChatProvider irid jintuża ġewwa ChatProvider',
 }

@@ -20,4 +20,5 @@ export const ja: SvelteTranslations = {
     '\u30b3\u30f3\u30c6\u30ad\u30b9\u30c8\u306b\u30ed\u30ac\u30fc\u30d7\u30ed\u30d0\u30a4\u30c0\u30fc\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093',
   'svelte.error.unknownPaginationDirection':
     '\u4e0d\u660e\u306a\u30da\u30fc\u30b8\u30cd\u30fc\u30b7\u30e7\u30f3\u65b9\u5411: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProviderはChatProvider内で使用する必要があります',
 }

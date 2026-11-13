@@ -20,4 +20,5 @@ export const yo: SolidTranslations = {
     'getLoggerProvider gbọdọ làti lo nínú MoleculeProvider pẹlú akósílè tí a ŝàtò',
   'solid.error.useAccordionOutsideProvider': 'Àwọn ẹya Accordion gbọdọ làti lo nínú Accordion',
   'solid.error.useToastOutsideProvider': 'useToast gbọdọ làti lo nínú ToastProvider',
+  'solid.error.useChatOutsideProvider': 'useChatProvider gbodo lo laarin ChatProvider',
 }

@@ -11,4 +11,6 @@ export const hi: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'स्टोरेज प्रोवाइडर कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.noLoggerProvider': 'लॉगर प्रोवाइडर कॉन्टेक्स्ट में नहीं मिला',
   'svelte.error.unknownPaginationDirection': 'अज्ञात पेजिनेशन दिशा: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider का उपयोग ChatProvider के अंदर किया जाना चाहिए',
 }

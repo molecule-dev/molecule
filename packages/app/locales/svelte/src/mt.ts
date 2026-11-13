@@ -12,4 +12,5 @@ export const mt: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Il-fornitur tal-logger ma nstabx fil-kuntest',
   'svelte.error.unknownPaginationDirection':
     'Direzzjoni tal-paginazzjoni mhux maghrufa: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider irid jintuża ġewwa ChatProvider',
 }

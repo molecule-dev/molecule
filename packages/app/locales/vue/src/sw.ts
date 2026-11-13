@@ -13,4 +13,5 @@ export const sw: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider lazima itumike ndani ya LoggerProvider',
   'vue.error.useToastOutsideProvider': 'useToast lazima itumike ndani ya ToastProvider',
   'vue.error.unsupportedMethod': 'Njia isiyoungwa mkono: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider lazima utumike ndani ya ChatProvider',
 }

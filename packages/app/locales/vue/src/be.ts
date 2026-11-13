@@ -17,4 +17,5 @@ export const be: VueTranslations = {
     'useLoggerProvider павінен выкарыстоўвацца ўнутры LoggerProvider',
   'vue.error.useToastOutsideProvider': 'useToast павінен выкарыстоўвацца ўнутры ToastProvider',
   'vue.error.unsupportedMethod': 'Непадтрымліваемы метад: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider павінен выкарыстоўвацца ўнутры ChatProvider',
 }

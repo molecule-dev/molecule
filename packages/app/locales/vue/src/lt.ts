@@ -18,4 +18,5 @@ export const lt: VueTranslations = {
     'useLoggerProvider turi b\u016bti naudojamas LoggerProvider viduje',
   'vue.error.useToastOutsideProvider': 'useToast turi b\u016bti naudojamas ToastProvider viduje',
   'vue.error.unsupportedMethod': 'Nepalaikomas metodas: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider turi būti naudojamas ChatProvider viduje',
 }

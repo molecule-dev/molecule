@@ -15,4 +15,5 @@ export const ca: Partial<VueTranslations> = {
   'vue.error.useLoggerOutsideProvider':
     "useLoggerProvider s'ha d'utilitzar dins d'un LoggerProvider.",
   'vue.error.useToastOutsideProvider': "useToast s'ha d'utilitzar dins d'un ToastProvider.",
+  'vue.error.useChatOutsideProvider': "useChatProvider s'ha d'utilitzar dins d'un ChatProvider.",
 }

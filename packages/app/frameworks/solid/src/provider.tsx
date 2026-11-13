@@ -8,6 +8,7 @@ import { createComponent, type JSX, type ParentComponent } from 'solid-js'
 
 import {
   AuthContext,
+  ChatContext,
   HttpContext,
   I18nContext,
   LoggerContext,
@@ -62,6 +63,19 @@ export const MoleculeProvider: ParentComponent<{ config: MoleculeConfig }> = (pr
       createComponent(SessionReady, {
         get fallback() {
           return props.config.sessionFallback
+        },
+        get children() {
+          return inner()
+        },
+      })
+  }
+
+  if (props.config.chat) {
+    const inner = render
+    render = () =>
+      createComponent(ChatContext.Provider, {
+        get value() {
+          return props.config.chat!
         },
         get children() {
           return inner()

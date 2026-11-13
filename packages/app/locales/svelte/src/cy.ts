@@ -11,4 +11,5 @@ export const cy: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Darparwr storio heb ei ganfod yn y cyd-destun',
   'svelte.error.noLoggerProvider': 'Darparwr cofnodwr heb ei ganfod yn y cyd-destun',
   'svelte.error.unknownPaginationDirection': 'Cyfeiriad tudalennu anhysbys: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'Rhaid defnyddio useChatProvider o fewn ChatProvider',
 }

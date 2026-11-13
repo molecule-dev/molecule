@@ -11,4 +11,5 @@ export const id: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Penyedia penyimpanan tidak ditemukan dalam konteks',
   'svelte.error.noLoggerProvider': 'Penyedia logger tidak ditemukan dalam konteks',
   'svelte.error.unknownPaginationDirection': 'Arah paginasi tidak dikenal: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider harus digunakan di dalam ChatProvider',
 }

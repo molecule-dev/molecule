@@ -11,4 +11,5 @@ export const fa: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'ارائه‌دهنده ذخیره‌سازی در زمینه یافت نشد',
   'svelte.error.noLoggerProvider': 'ارائه‌دهنده ثبت‌کننده در زمینه یافت نشد',
   'svelte.error.unknownPaginationDirection': 'جهت صفحه‌بندی ناشناخته: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider باید درون ChatProvider استفاده شود',
 }

@@ -11,4 +11,5 @@ export const sl: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Ponudnik shranjevanja ni bil najden v kontekstu',
   'svelte.error.noLoggerProvider': 'Ponudnik bele\u017eenja ni bil najden v kontekstu',
   'svelte.error.unknownPaginationDirection': 'Neznana smer ostra\u0161evanja: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider je treba uporabiti znotraj ChatProvider',
 }

@@ -22,4 +22,5 @@ export const vi: VueTranslations = {
     'useToast ph\u1ea3i \u0111\u01b0\u1ee3c s\u1eed d\u1ee5ng b\u00ean trong ToastProvider',
   'vue.error.unsupportedMethod':
     'Ph\u01b0\u01a1ng th\u1ee9c kh\u00f4ng \u0111\u01b0\u1ee3c h\u1ed7 tr\u1ee3: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider phải được sử dụng bên trong ChatProvider',
 }

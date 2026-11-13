@@ -17,4 +17,5 @@ export const ha: VueTranslations = {
     'Dole ne a yi amfani da useLoggerProvider a cikin LoggerProvider',
   'vue.error.useToastOutsideProvider': 'Dole ne a yi amfani da useToast a cikin ToastProvider',
   'vue.error.unsupportedMethod': 'Hanyar da ba a tallafawa ba: {{method}}',
+  'vue.error.useChatOutsideProvider': 'Dole ne a yi amfani da useChatProvider a cikin ChatProvider',
 }

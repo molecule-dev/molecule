@@ -11,4 +11,6 @@ export const eu: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Biltegiratze-hornitzailea ez da aurkitu testuinguruan',
   'svelte.error.noLoggerProvider': 'Erregistro-hornitzailea ez da aurkitu testuinguruan',
   'svelte.error.unknownPaginationDirection': 'Orrikatze-norabide ezezaguna: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider ChatProvider baten barruan erabili behar da',
 }

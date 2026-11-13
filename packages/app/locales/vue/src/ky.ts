@@ -13,4 +13,5 @@ export const ky: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider LoggerProvider ичинде колдонулушу керек',
   'vue.error.useToastOutsideProvider': 'useToast ToastProvider ичинде колдонулушу керек',
   'vue.error.unsupportedMethod': 'Колдоого алынбаган ыкма: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider ChatProvider ичинде колдонулушу керек',
 }

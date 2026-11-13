@@ -6,6 +6,7 @@
 
 import type { Accessor, JSX, Setter } from 'solid-js'
 
+import type { ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
 import type { FormController, FormOptions } from '@molecule/app-forms'
 import type { HttpClient } from '@molecule/app-http'
@@ -41,6 +42,8 @@ export interface MoleculeConfig {
   http?: HttpClient
   storage?: StorageProvider
   logger?: LoggerProvider
+  /** The AI chat provider useChat and useChatProvider use. */
+  chat?: ChatProvider
 }
 
 /**

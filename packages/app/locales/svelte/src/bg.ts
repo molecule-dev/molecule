@@ -11,4 +11,5 @@ export const bg: SvelteTranslations = {
   'svelte.error.noStorageProvider': 'Доставчикът на хранилище не е намерен в контекста',
   'svelte.error.noLoggerProvider': 'Доставчикът на логер не е намерен в контекста',
   'svelte.error.unknownPaginationDirection': 'Неизвестна посока на страниране: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider': 'useChatProvider трябва да се използва в ChatProvider',
 }

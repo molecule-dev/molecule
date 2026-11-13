@@ -12,4 +12,5 @@ export const mn: VueTranslations = {
   'vue.error.useLoggerOutsideProvider': 'useLoggerProvider-г LoggerProvider дотор ашиглах ёстой',
   'vue.error.useToastOutsideProvider': 'useToast-г ToastProvider дотор ашиглах ёстой',
   'vue.error.unsupportedMethod': 'Дэмжигдэхгүй арга: {{method}}',
+  'vue.error.useChatOutsideProvider': 'useChatProvider-ийг ChatProvider дотор ашиглах ёстой',
 }

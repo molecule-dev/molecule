@@ -21,4 +21,6 @@ export const fr: Partial<SolidTranslations> = {
     "La méthode getStateProvider doit être utilisée au sein d'un MoleculeProvider dont l'état est configuré.",
   'solid.error.authOutsideProvider':
     "La méthode getAuthClient doit être utilisée au sein d'un MoleculeProvider avec l'authentification configurée.",
+  'solid.error.useChatOutsideProvider':
+    "La fonction useChatProvider doit être utilisée au sein d'un ChatProvider.",
 }

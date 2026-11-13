@@ -20,4 +20,6 @@ export const pa: SvelteTranslations = {
     '\u0a32\u0a4c\u0a17\u0a30 \u0a2a\u0a4d\u0a30\u0a4b\u0a35\u0a3e\u0a07\u0a21\u0a30 \u0a38\u0a70\u0a26\u0a30\u0a2d \u0a35\u0a3f\u0a71\u0a1a \u0a28\u0a39\u0a40\u0a02 \u0a2e\u0a3f\u0a32\u0a3f\u0a06',
   'svelte.error.unknownPaginationDirection':
     '\u0a05\u0a17\u0a3f\u0a06\u0a24 \u0a2a\u0a47\u0a1c\u0a3f\u0a28\u0a47\u0a36\u0a28 \u0a26\u0a3f\u0a36\u0a3e: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider ਨੂੰ ChatProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
 }

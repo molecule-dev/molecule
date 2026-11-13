@@ -12,4 +12,6 @@ export const zu: SvelteTranslations = {
   'svelte.error.noLoggerProvider': 'Umhlinzeki weloga awutholakalanga esimweni',
   'svelte.error.unknownPaginationDirection':
     'Indlela yokwehlukanisa amakhasi engaziwa: "{{direction}}"',
+  'svelte.error.useChatOutsideProvider':
+    'useChatProvider kumele kusetshenziswe ngaphakathi kwe-ChatProvider',
 }
