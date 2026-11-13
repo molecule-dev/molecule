@@ -1,5 +1,11 @@
 # @molecule/app-admin-table-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Feature components style through ClassMap tokens instead of raw class names, so a styling bond swap restyles them too; the Tailwind bond renders the same classes as before.
+
 ## 4.0.0
 
 ### Patch Changes

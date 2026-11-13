@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.2.11
+
+### Patch Changes
+
+- Feature components style through ClassMap tokens instead of raw class names, so a styling bond swap restyles them too; the Tailwind bond renders the same classes as before.
+
 ## 1.2.10
 
 ### Patch Changes

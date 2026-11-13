@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-auth-shell-react",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Auth-page layout shell — centered card with heading/subheading/form/footer + back-link below. Composable children for per-app decorative background + brand mark.",
   "homepage": "https://www.molecule.dev/packages/app-auth-shell-react",
   "type": "module",
@@ -44,9 +44,9 @@
   },
   "devDependencies": {
     "@molecule/app-logger": "1.0.6",
-    "@molecule/app-react": "4.1.1",
+    "@molecule/app-react": "4.1.2",
     "@molecule/app-storage": "1.1.0",
-    "@molecule/app-ui": "1.3.10",
+    "@molecule/app-ui": "1.3.11",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

@@ -1,5 +1,13 @@
 # @molecule/app-react
 
+## 4.1.2
+
+### Patch Changes
+
+- A chat stream that drops after the user switched conversations no longer merges the previous conversation's history into the new one.
+- `useChat` sends a message in a newly opened conversation while the previous conversation's reply is still streaming, instead of queueing it forever.
+- `UseTranslationResult` documents each field, including that `t` is a new function after a locale change while `useT()` keeps one.
+
 ## 4.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-forms
 
+## 2.3.1
+
+### Patch Changes
+
+- `FieldState.validating` reports a running validation, a default that `register` fills in reaches subscribers without another change, and the native controller accepts `register(name, options)`.
+
 ## 2.3.0
 
 ### Minor Changes
