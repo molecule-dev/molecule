@@ -1,5 +1,13 @@
 # @molecule/app-ui-react
 
+## 4.0.1
+
+### Patch Changes
+
+- `AuthGuard` renders its children on its own login path, so a guard around the whole route tree no longer redirects in a loop.
+- ClassMap tokens for truncated text, minimum width, `object-cover`, pointer events, a left-docked drawer and the user menu parts, with numeric sizes safelisted; the React and React Native components use them instead of raw class names.
+- `Switch` runs a caller's `onClick` before toggling (and skips the toggle when it calls `preventDefault()`) instead of letting it replace the toggle.
+
 ## 4.0.0
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.19
+
+### Patch Changes
+
+- Retain native failures from an in-progress older revision so deployment rechecks the current source before proceeding.
+
 ## 1.17.18
 
 ### Patch Changes

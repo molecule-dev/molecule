@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Preserve dirty fields during hydration by default, with form state tuples and explicit record identity resets.
+
 ## 4.0.0
 
 ### Major Changes

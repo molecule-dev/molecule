@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.2.4
+
+### Patch Changes
+
+- Declares an `exports` map with the `svelte` condition, so the Vite Svelte plugin resolves the package without a warning.
+
 ## 3.2.3
 
 ### Patch Changes
