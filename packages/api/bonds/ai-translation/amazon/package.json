@@ -1,0 +1,54 @@
+{
+  "name": "@molecule/api-ai-translation-amazon",
+  "version": "1.0.0",
+  "description": "Amazon Translate provider for molecule.dev — text translation via AWS Translate",
+  "homepage": "https://www.molecule.dev/packages/api-ai-translation-amazon",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "translation",
+    "amazon",
+    "aws",
+    "amazon-translate"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ai-translation/amazon"
+  },
+  "dependencies": {
+    "@aws-sdk/client-translate": "3.1156.0",
+    "@aws-sdk/credential-provider-node": "3.972.88",
+    "@molecule/api-analytics": "1.1.1",
+    "@molecule/api-proxy-agent": "1.1.2"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-translation": ">=1.0.1",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-ai-translation": "1.1.1",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  }
+}

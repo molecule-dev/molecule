@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/api-ocr-textract",
+  "version": "1.0.0",
+  "description": "AWS Textract OCR provider for molecule.dev — text extraction from images through Amazon Textract's DetectDocumentText",
+  "homepage": "https://www.molecule.dev/packages/api-ocr-textract",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ocr",
+    "textract",
+    "aws",
+    "text-recognition"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ocr/textract"
+  },
+  "dependencies": {
+    "@aws-sdk/client-textract": "3.1156.0",
+    "@aws-sdk/credential-provider-node": "3.972.88",
+    "@molecule/api-analytics": "1.1.1",
+    "@molecule/api-proxy-agent": "1.1.2"
+  },
+  "peerDependencies": {
+    "@molecule/api-ocr": ">=1.0.0",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-ocr": "1.1.1",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  }
+}
