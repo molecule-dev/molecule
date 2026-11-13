@@ -1,18 +1,5 @@
 {
   "packages": [
-    "@molecule/api-ai-translation-amazon",
-    "@molecule/api-analytics",
-    "@molecule/api-analytics-http",
-    "@molecule/api-emails-mailgun",
-    "@molecule/api-emails-resend",
-    "@molecule/api-emails-sendgrid",
-    "@molecule/api-emails-sendmail",
-    "@molecule/api-emails-ses",
-    "@molecule/api-ocr-textract",
-    "@molecule/api-payments-stripe",
-    "@molecule/api-uploads-encrypted",
-    "@molecule/api-uploads-mirror",
-    "@molecule/api-uploads-s3",
     "@molecule/app-locales-achievement-card",
     "@molecule/app-locales-ai-copilot",
     "@molecule/app-locales-ai-image-generator",
