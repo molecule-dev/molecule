@@ -46,7 +46,7 @@
     "vitest": "4.1.12"
   },
   "peerDependencies": {
-    "better-sqlite3": "^12.0.0",
+    "better-sqlite3": "^12.0.0 || ^13.0.0",
     "mysql2": "^3.0.0",
     "pg": "^8.0.0"
   },
