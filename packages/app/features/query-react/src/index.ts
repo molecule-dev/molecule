@@ -271,9 +271,18 @@
  * // and tickets.refresh('agent-1') refresh this page too.
  * // A second list can use tickets.listPage(viewer, params, readPage, '/tickets/open').
  * // Use one canonical page reader per path; list() still returns only its own rows.
+ * // For immediate deletion from an opaque page, add a fifth argument:
+ * // (page, id) => {
+ * //   const rows = page.tickets.filter((row) => String(row.id) !== id)
+ * //   return { ...page, tickets: rows, total: page.total - (page.tickets.length - rows.length) }
+ * // }
  * ```
  * A resource mutation also waits out a pre-mutation list request before fetching again;
  * joining that older in-flight read alone would leave the new record absent.
+ * Successful deletion removes a row immediately, including one just created through the
+ * resource. Stale reads cannot restore acknowledged deletions for that viewer; an explicit
+ * successful create can recreate the identity. Opaque listPage envelopes need their own
+ * removeFromPage adapter; no row or total property is guessed.
  *
  * @remarks
  * - **`useQuery` reads the cache synchronously on the first render.** A

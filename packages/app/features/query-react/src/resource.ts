@@ -63,12 +63,15 @@ export interface QueryResource<T, Create = Partial<T>, Update = Partial<T>> {
    * Options for a collection's whole page (rows plus totals), or a filtered collection path.
    * Reads share this resource's mutation refresh and viewer isolation. `readPage` reads the
    * canonical page response for `path`; row-only `list` reads keep a separate cache entry.
+   * Supply `removeFromPage` for opaque page envelopes to remove acknowledged deletions
+   * immediately and keep stale list responses from restoring them.
    */
   listPage<Page>(
     viewer: string,
     params: Record<string, unknown>,
     readPage: (response: ResourceResponse) => Page,
     path?: string,
+    removeFromPage?: (page: Page, id: string) => Page,
   ): QueryOptions<Page>
   /**
    * `useQuery` options for one record, or null while `id` is not known yet (`useQuery(null)`
@@ -79,7 +82,7 @@ export interface QueryResource<T, Create = Partial<T>, Update = Partial<T>> {
   create(viewer: string, input: Create): Promise<T>
   /** Updates a record, shows the saved record in the cache and refreshes the lists on screen. */
   update(viewer: string, id: string, input: Update): Promise<T>
-  /** Removes a record, drops it from the cache and refreshes the lists on screen. */
+  /** Removes a record from detail and tracked row lists, then refreshes those lists. */
   remove(viewer: string, id: string): Promise<void>
   /**
    * Switches a flag the API models as a sub-path: `POST path/id/action` turns it on and
@@ -122,12 +125,46 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
   const detailKey = (viewer: string, id: string): QueryKey => [config.name, viewer, 'detail', id]
   // The lists handed out most recently, newest last: the ones a write fetches again. A list
   // nobody reads any more costs one request and is then dropped by the next ones.
-  const recent = new Map<string, { viewer: string; options: QueryOptions<unknown> }>()
+  const recent = new Map<
+    string,
+    {
+      viewer: string
+      options: QueryOptions<unknown>
+      remove?: (page: unknown, id: string) => unknown
+    }
+  >()
+  const removed = new Map<string, Set<string>>()
+  const removals = (viewer: string): Set<string> => removed.get(viewer) ?? new Set()
+  const recordId = (record: T): string | undefined => {
+    const id = record != null ? (record as Record<string, unknown>)[idField] : undefined
+    return typeof id === 'string' || typeof id === 'number' ? String(id) : undefined
+  }
+  const withoutRemoved = (viewer: string, rows: T[]): T[] => {
+    const ids = removed.get(viewer)
+    return ids?.size ? rows.filter((record) => !ids.has(recordId(record) ?? '')) : rows
+  }
+  const projectPage = <Page>(
+    viewer: string,
+    page: Page,
+    remove?: (page: Page, id: string) => Page,
+  ): Page => {
+    if (!remove) return page
+    for (const id of removals(viewer)) page = remove(page, id)
+    return page
+  }
 
-  const track = <Page>(viewer: string, options: QueryOptions<Page>): QueryOptions<Page> => {
+  const track = <Page>(
+    viewer: string,
+    options: QueryOptions<Page>,
+    remove?: (page: Page, id: string) => Page,
+  ): QueryOptions<Page> => {
     const hash = hashQueryKey(options.key)
     recent.delete(hash)
-    recent.set(hash, { viewer, options })
+    recent.set(hash, {
+      viewer,
+      options,
+      ...(remove ? { remove: (page, id) => remove(page as Page, id) } : {}),
+    })
     for (const stale of [...recent.keys()].slice(0, -REFRESHED_LISTS)) recent.delete(stale)
     return options
   }
@@ -137,9 +174,10 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
       key: [config.name, viewer, 'list', params],
       principal: viewer,
       keepPreviousData: true,
-      fetch: async (signal) => readList(await config.http().get(base, { signal, params })),
+      fetch: async (signal) =>
+        withoutRemoved(viewer, readList(await config.http().get(base, { signal, params }))),
     }
-    return track(viewer, options)
+    return track(viewer, options, (rows) => withoutRemoved(viewer, rows))
   }
 
   const refresh = async (viewer: string): Promise<void> => {
@@ -165,25 +203,36 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
     )
   }
 
-  const saved = async (viewer: string, response: ResourceResponse): Promise<T> => {
+  const saved = async (viewer: string, response: ResourceResponse, created = false): Promise<T> => {
     const record = readOne(response)
     if (record == null) throw new Error(`${config.name}: the response held no record`)
-    const id = (record as Record<string, unknown>)[idField]
-    if (typeof id === 'string' || typeof id === 'number')
-      getQueryClient().set(detailKey(viewer, String(id)), record)
+    const id = recordId(record)
+    if (id !== undefined) {
+      if (created) removed.get(viewer)?.delete(id)
+      if (!removals(viewer).has(id)) getQueryClient().set(detailKey(viewer, id), record)
+    }
     await refresh(viewer)
     return record
   }
 
   return {
     list,
-    listPage: (viewer, params, readPage, path = base) =>
-      track(viewer, {
-        key: [config.name, viewer, 'list', 'page', path, params],
-        principal: viewer,
-        keepPreviousData: true,
-        fetch: async (signal) => readPage(await config.http().get(path, { signal, params })),
-      }),
+    listPage: (viewer, params, readPage, path = base, removeFromPage) =>
+      track(
+        viewer,
+        {
+          key: [config.name, viewer, 'list', 'page', path, params],
+          principal: viewer,
+          keepPreviousData: true,
+          fetch: async (signal) =>
+            projectPage(
+              viewer,
+              readPage(await config.http().get(path, { signal, params })),
+              removeFromPage,
+            ),
+        },
+        removeFromPage,
+      ),
     detail: (viewer, id) =>
       id == null || id === ''
         ? null
@@ -191,8 +240,10 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
             key: detailKey(viewer, id),
             principal: viewer,
             fetch: async (signal) => {
+              if (removals(viewer).has(id)) return null
               try {
-                return readOne(await config.http().get(one(id), { signal }))
+                const record = readOne(await config.http().get(one(id), { signal }))
+                return removals(viewer).has(id) ? null : record
               } catch (error) {
                 // A record that does not exist is an answer, not a failed load.
                 if ((error as { status?: unknown } | null)?.status === 404) return null
@@ -200,12 +251,21 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
               }
             },
           },
-    create: async (viewer, input) => saved(viewer, await config.http().post(base, input)),
+    create: async (viewer, input) => saved(viewer, await config.http().post(base, input), true),
     update: async (viewer, id, input) =>
       saved(viewer, await config.http()[config.updateMethod ?? 'put'](one(id), input)),
     remove: async (viewer, id) => {
       await config.http().delete(one(id))
-      getQueryClient().set<T | null>(detailKey(viewer, id), null)
+      const ids = removed.get(viewer) ?? new Set<string>()
+      ids.add(id)
+      removed.set(viewer, ids)
+      const client = getQueryClient()
+      client.set<T | null>(detailKey(viewer, id), null)
+      for (const entry of recent.values()) {
+        if (entry.viewer !== viewer || !entry.remove) continue
+        const page = client.getState(entry.options.key).data
+        if (page !== undefined) client.set(entry.options.key, entry.remove(page, id))
+      }
       await refresh(viewer)
     },
     toggle: async (viewer, id, action, on) => {
