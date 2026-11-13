@@ -1,0 +1,10 @@
+{
+  "packages": [
+    "@molecule/api-ai-translation-amazon",
+    "@molecule/api-ocr-textract",
+    "@molecule/app-locales-angular"
+  ],
+  "changesets": [
+    ".changeset/locales-angular.md"
+  ]
+}
