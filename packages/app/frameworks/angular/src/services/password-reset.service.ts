@@ -28,6 +28,9 @@ export interface PasswordResetStateManager {
 /**
  * Creates a password reset state manager with async state tracking.
  *
+ * Generic over the client's user type like `createLoginState`, so the client the
+ * `AUTH_CLIENT` token provides (`AuthClient<unknown>`) is accepted as it is.
+ *
  * @param client - Auth client
  * @returns Password reset state manager
  *
@@ -43,7 +46,9 @@ export interface PasswordResetStateManager {
  * await resetManager.confirmReset({ token: 'abc123', password: 'newpass' })
  * ```
  */
-export function createPasswordResetState(client: AuthClient): PasswordResetStateManager {
+export function createPasswordResetState<T = unknown>(
+  client: AuthClient<T>,
+): PasswordResetStateManager {
   const requestManager = createPromiseState((data: PasswordResetRequest) =>
     client.requestPasswordReset(data),
   )

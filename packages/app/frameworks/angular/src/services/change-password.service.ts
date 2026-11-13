@@ -25,6 +25,9 @@ export interface ChangePasswordStateManager {
 /**
  * Creates a change password state manager with async state tracking.
  *
+ * Generic over the client's user type like `createLoginState`, so the client the
+ * `AUTH_CLIENT` token provides (`AuthClient<unknown>`) is accepted as it is.
+ *
  * @param client - Auth client
  * @returns Change password state manager
  *
@@ -39,7 +42,9 @@ export interface ChangePasswordStateManager {
  * await changeManager.changePassword('oldpass', 'newpass')
  * ```
  */
-export function createChangePasswordState(client: AuthClient): ChangePasswordStateManager {
+export function createChangePasswordState<T = unknown>(
+  client: AuthClient<T>,
+): ChangePasswordStateManager {
   const manager = createPromiseState((oldPassword: string, newPassword: string) =>
     client.changePassword(oldPassword, newPassword),
   )
