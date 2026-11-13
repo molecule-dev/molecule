@@ -31,7 +31,7 @@
   "license": "Apache-2.0",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "peerDependencies": {
-    "@molecule/api-ai-decisions": "^1.0.0",
+    "@molecule/api-ai-decisions": "^1.1.2",
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {

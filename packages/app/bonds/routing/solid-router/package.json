@@ -21,7 +21,7 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@molecule/app-routing": "^1.0.1",
+    "@molecule/app-routing": "^1.1.0",
     "@solidjs/router": "^0.16.0",
     "solid-js": "^1.8.0"
   },

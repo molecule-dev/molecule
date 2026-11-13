@@ -133,6 +133,18 @@ jobs:
       # package.json. npm workspaces hoist everything, so an undeclared import
       # builds here and breaks for pnpm / Yarn PnP consumers.
       - run: npm run check:undeclared-imports
+      # Every name a package imports from a @molecule peer exists in the LOWEST
+      # version its peer range allows. Workspaces link the newest local source, so
+      # a bond importing an export its core gained this release builds green here
+      # and fails for a user whose install resolves an older core in that range.
+      # Published versions never change, so their tarballs and export lists are
+      # cached by lockfile with a prefix fallback; any restored entry stays valid.
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/molecule-check-peer-floors
+          key: mol-peer-floors-v1-${{ hashFiles('package-lock.json') }}
+          restore-keys: mol-peer-floors-v1-
+      - run: npm run check:peer-floors
       # Versioning is local and lands with the change. A changeset still under
       # .changeset/ must belong exclusively to packages in the committed
       # held.json review-hold record; every other pending changeset fails.

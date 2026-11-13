@@ -39,7 +39,7 @@
     ]
   },
   "peerDependencies": {
-    "@molecule/app-logger": "^1.0.1",
+    "@molecule/app-logger": "^1.0.6",
     "@molecule/app-realtime": ">=1.0.1"
   },
   "devDependencies": {

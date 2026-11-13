@@ -23,7 +23,7 @@
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-logger": "^1.0.1",
-    "@molecule/app-storage": "^1.0.1"
+    "@molecule/app-storage": "^1.1.1"
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.2.0",
