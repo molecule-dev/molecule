@@ -103,6 +103,10 @@ function ThreadTreeNode({
 
   const clampedDepth = Math.min(depth, MAX_INDENT_DEPTH)
   const indentRem = clampedDepth * INDENT_REM_PER_DEPTH
+  // Plain text is a paragraph. Rich children may already contain block elements,
+  // so preserve their container rather than creating invalid nested paragraphs.
+  const plainText = typeof comment.body === 'string'
+  const Body = plainText ? 'p' : 'div'
 
   return (
     <li
@@ -169,7 +173,12 @@ function ThreadTreeNode({
         </header>
         {!collapsed && (
           <>
-            <div className={cm.textSize('sm')}>{comment.body}</div>
+            <Body
+              className={cm.cn(cm.textSize('sm'), cm.sp('m', 0))}
+              style={plainText ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' } : undefined}
+            >
+              {comment.body}
+            </Body>
             <div className={cm.flex({ align: 'center', gap: 'sm' })}>
               {onUpvote && (
                 <button

@@ -6,6 +6,10 @@
  * podcast, video-streaming, ai-customer-service-bot, and rag-knowledge-base
  * apps.
  *
+ * Plain-string bodies render as complete paragraphs, preserve line breaks, and
+ * wrap long words. Strings stay escaped text. Rich React bodies keep a block
+ * container without an extra paragraph around their own block elements.
+ *
  * @example
  * ```tsx
  * import { ThreadTree } from '@molecule/app-feature-thread-tree-react'

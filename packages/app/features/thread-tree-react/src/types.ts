@@ -15,7 +15,11 @@ export interface Comment {
   id: string
   /** Author display name / handle. */
   author: ReactNode
-  /** Body content. Plain string, or pre-rendered ReactNode for rich-text. */
+  /**
+   * Plain strings render as complete, escaped paragraphs with line breaks and
+   * long-word wrapping. Rich React content keeps a block container, so callers
+   * can supply their own paragraphs, lists or other structured content.
+   */
   body: ReactNode
   /**
    * Timestamp string rendered VERBATIM in a `<time>` element — pass a
