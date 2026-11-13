@@ -72,7 +72,7 @@ export const lo: Partial<CommonTranslations> = {
   'forms.invalidUrl': 'URL ບໍ່ຖືກຕ້ອງ',
   'forms.invalidValue': 'ຄ່າບໍ່ຖືກຕ້ອງ',
   'forms.max': 'ຄ່າຕ້ອງບໍ່ເກີນ {{max}}',
-  'forms.maxLength': 'Must be at most {{maxLength}} characters',
+  'forms.maxLength': 'ຕ້ອງມີບໍ່ເກີນ {{maxLength}} ຕົວອັກສອນ',
   'forms.min': 'ຄ່າຕ້ອງເປັນຢ່າງໜ້ອຍ {{min}}',
   'forms.minLength': 'ຕ້ອງເປັນຢ່າງໜ້ອຍ {{minLength}} ຕົວລະຄອນ',
   'forms.required': 'ຕ້ອງຕື່ມຂໍ້ມູນໃສ່ຊ່ອງນີ້',
@@ -105,7 +105,7 @@ export const lo: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'ບໍ່ສາມາດອັບເດດໄດ້ {{name}} .',
   'resource.error.unauthorized': 'ບໍ່ໄດ້ຮັບອະນຸຍາດ.',
   'resource.error.unknownError': 'ຂໍ້ຜິດພາດທີ່ບໍ່ຮູ້ຈັກ.',
-  'routing.error.missingParam': 'Missing param "{{name}}" for path "{{pattern}}"',
+  'routing.error.missingParam': 'ຂາດພາລາມິເຕີ " {{name}} " ສຳລັບເສັ້ນທາງ " {{pattern}} "',
   'routing.error.routeNotFound': 'ເສັ້ນທາງ " {{name}} "ບໍ່ພົບ',
   'routing.error.useMoleculeRouterOutsideProvider':
     'ຕ້ອງໃຊ້ useMoleculeRouter ພາຍໃນ MoleculeRouterProvider',

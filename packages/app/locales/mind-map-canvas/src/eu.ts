@@ -2,10 +2,10 @@ import type { MindMapCanvasTranslations } from './types.js'
 
 /** Mind-map-canvas translations for Basque. */
 export const eu: MindMapCanvasTranslations = {
-  'mindMap.aria.canvas': 'Mind map canvas',
-  'mindMap.aria.edit': 'Edit node text',
+  'mindMap.aria.canvas': 'Mapa mentalaren mihisea',
+  'mindMap.aria.edit': 'Editatu nodoaren testua',
   'mindMap.action.collapse': 'Collapse subtree',
   'mindMap.action.expand': 'Expand subtree',
-  'mindMap.action.addChild': 'Add child node',
+  'mindMap.action.addChild': 'Gehitu haur nodoa',
   'mindMap.defaults.newChild': 'New idea',
 }

@@ -3,15 +3,15 @@ import type { ModerationQueueTranslations } from './types.js'
 /** Moderation-queue translations for Chinese (Traditional) (stub — falls back to English copy until translated). */
 export const zhTW: ModerationQueueTranslations = {
   'moderationQueue.aria.region': 'Moderation queue',
-  'moderationQueue.aria.bulkToolbar': 'Bulk moderation actions',
+  'moderationQueue.aria.bulkToolbar': '批量審核操作',
   'moderationQueue.aria.selectAll': 'Select all',
   'moderationQueue.aria.selectRow': 'Select item',
   'moderationQueue.aria.approve': 'Approve',
   'moderationQueue.aria.reject': 'Reject',
   'moderationQueue.aria.escalate': 'Escalate',
   'moderationQueue.aria.mute': 'Mute',
-  'moderationQueue.loading': 'Loading moderation queue…',
-  'moderationQueue.empty': 'No items awaiting moderation.',
+  'moderationQueue.loading': '正在載入審核佇列…',
+  'moderationQueue.empty': '沒有待審核的項目。',
   'moderationQueue.selectAll': 'Select all',
   'moderationQueue.selectedCount': '{{count}} selected',
   'moderationQueue.reportedBy': 'Reported by',

@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Estonian. Stub — uses English copy. */
 export const et: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'Valige oma pakett',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'Hinnakujundust ei õnnestunud laadida. Proovige hiljem uuesti.',
+  'pricingPage.checkoutError': 'Makseprotsessi ei õnnestunud alustada. Palun proovige uuesti.',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'Teie plaani on uuendatud',
+  'pricingPage.planUpdated.headingNamed': 'Oled nüüd {{planName}} paketi kasutaja',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'Täname uuendamise eest. Teie uus pakett on kohe aktiivne ja teile on e-postiga saadetud kviitung.',
 }

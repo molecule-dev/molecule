@@ -5,9 +5,9 @@ export const yo: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'Beere ibeere kan lati bẹrẹ.',
+  'embeddableChatWidget.panel.assistantTyping': 'Olùrànlọ́wọ́ ń tẹ̀…',
+  'embeddableChatWidget.composer.placeholder': 'Tẹ ifiranṣẹ rẹ…',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError': 'Nǹkan kan ṣe àṣìṣe. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan síi.',
 }

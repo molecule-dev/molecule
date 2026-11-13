@@ -2,7 +2,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 
 /** OAuth Buttons translations for Serbian. */
 export const sr: OAuthButtonsTranslations = {
-  'oauthButtons.groupLabel': 'Continue with another account',
+  'oauthButtons.groupLabel': 'Настави са другим налогом',
   'oauthButtons.continueWith': 'Continue with {{provider}}',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',

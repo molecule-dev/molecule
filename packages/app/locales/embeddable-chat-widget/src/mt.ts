@@ -5,9 +5,9 @@ export const mt: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'Saqsi mistoqsija biex tibda.',
+  'embeddableChatWidget.panel.assistantTyping': 'L-Assistent qed jittajpja…',
+  'embeddableChatWidget.composer.placeholder': 'Ittajpja l-messaġġ tiegħek…',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError': "Xi ħaġa marret ħażin. Jekk jogħġbok erġa' pprova.",
 }

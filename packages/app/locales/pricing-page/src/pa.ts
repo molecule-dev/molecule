@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Punjabi. Stub — uses English copy. */
 export const pa: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'ਆਪਣਾ ਪਲਾਨ ਚੁਣੋ',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'ਕੀਮਤ ਲੋਡ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕੀ। ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+  'pricingPage.checkoutError': 'ਚੈੱਕਆਉਟ ਸ਼ੁਰੂ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'ਤੁਹਾਡਾ ਪਲਾਨ ਅੱਪਡੇਟ ਕਰ ਦਿੱਤਾ ਗਿਆ ਹੈ।',
+  'pricingPage.planUpdated.headingNamed': "ਤੁਸੀਂ ਹੁਣ {{planName}} ਯੋਜਨਾ 'ਤੇ ਹੋ।",
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'ਅੱਪਗ੍ਰੇਡ ਕਰਨ ਲਈ ਧੰਨਵਾਦ। ਤੁਹਾਡਾ ਨਵਾਂ ਪਲਾਨ ਤੁਰੰਤ ਕਿਰਿਆਸ਼ੀਲ ਹੈ ਅਤੇ ਇੱਕ ਰਸੀਦ ਤੁਹਾਨੂੰ ਈਮੇਲ ਕਰ ਦਿੱਤੀ ਗਈ ਹੈ।',
 }

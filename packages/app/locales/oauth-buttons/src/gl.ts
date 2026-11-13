@@ -2,7 +2,7 @@ import type { OAuthButtonsTranslations } from './types.js'
 
 /** OAuth Buttons translations for Galician. */
 export const gl: OAuthButtonsTranslations = {
-  'oauthButtons.groupLabel': 'Continue with another account',
+  'oauthButtons.groupLabel': 'Continuar con outra conta',
   'oauthButtons.continueWith': 'Continue with {{provider}}',
   'oauthButtons.provider.github': 'GitHub',
   'oauthButtons.provider.gitlab': 'GitLab',

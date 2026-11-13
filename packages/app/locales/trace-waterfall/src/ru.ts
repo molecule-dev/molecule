@@ -2,8 +2,8 @@ import type { TraceWaterfallTranslations } from './types.js'
 
 /** Trace Waterfall translations for Russian. Stub — uses English copy. */
 export const ru: TraceWaterfallTranslations = {
-  'traceWaterfall.aria.label': 'Distributed trace waterfall',
-  'traceWaterfall.empty': 'No spans to display.',
+  'traceWaterfall.aria.label': 'Распределенная трассировка водопада',
+  'traceWaterfall.empty': 'Нет элементов для отображения.',
   'traceWaterfall.totalDuration': 'Total: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
 }

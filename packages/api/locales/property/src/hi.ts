@@ -3,7 +3,7 @@ import type { PropertyTranslations } from './types.js'
 /** Property translations for Hindi. */
 export const hi: PropertyTranslations = {
   'property.error.unauthorized': 'अनधिकृत।',
-  'property.error.forbidden': 'You do not have access to this property',
+  'property.error.forbidden': 'आपको इस संपत्ति तक पहुंच प्राप्त नहीं है।',
   'property.error.nameRequired': 'संपत्ति का नाम आवश्यक है',
   'property.error.invalidName': 'संपत्ति का नाम अमान्य है',
   'property.error.addressRequired': 'पता, शहर और देश कोड आवश्यक हैं',

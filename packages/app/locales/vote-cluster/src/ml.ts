@@ -7,5 +7,5 @@ export const ml: VoteClusterTranslations = {
   'vote-cluster.downvote': 'Downvote',
   'vote-cluster.removeDownvote': 'Remove downvote',
   'vote-cluster.score': 'Score: {{score}}',
-  'vote-cluster.group': 'Vote cluster, current score {{score}}',
+  'vote-cluster.group': 'വോട്ട് ക്ലസ്റ്റർ, നിലവിലെ സ്കോർ {{score}}',
 }

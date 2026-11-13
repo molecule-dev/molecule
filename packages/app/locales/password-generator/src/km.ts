@@ -13,6 +13,6 @@ export const km: PasswordGeneratorTranslations = {
   'password-generator.toggle.digits': 'Digits (0-9)',
   'password-generator.toggle.symbols': 'Symbols (!@#…)',
   'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
-  'password-generator.toggle.noAmbiguous': 'Skip ambiguous (space, quotes)',
-  'password-generator.pick': 'Use this password',
+  'password-generator.toggle.noAmbiguous': 'រំលង​ភាពមិនច្បាស់លាស់ (ចន្លោះ, សញ្ញាសម្រង់)',
+  'password-generator.pick': 'ប្រើពាក្យសម្ងាត់នេះ',
 }

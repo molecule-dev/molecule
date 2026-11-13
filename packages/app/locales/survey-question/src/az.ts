@@ -2,12 +2,12 @@ import type { SurveyQuestionTranslations } from './types.js'
 
 /** Survey-question translations for Azerbaijani. */
 export const az: SurveyQuestionTranslations = {
-  'surveyQuestion.required': 'This question requires an answer.',
+  'surveyQuestion.required': 'Bu sual cavab tələb edir.',
   'surveyQuestion.requiredIndicator': 'required',
   'surveyQuestion.submit': 'Submit',
   'surveyQuestion.trueFalse.true': 'True',
   'surveyQuestion.trueFalse.false': 'False',
-  'surveyQuestion.nps.low': 'Not at all likely',
+  'surveyQuestion.nps.low': 'Heç də ehtimal olunmur',
   'surveyQuestion.nps.high': 'Extremely likely',
-  'surveyQuestion.file.noFiles': 'No files selected.',
+  'surveyQuestion.file.noFiles': 'Heç bir fayl seçilməyib.',
 }

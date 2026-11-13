@@ -3,6 +3,6 @@ import type { CarouselTranslations } from './types.js'
 /** Carousel translations for my. */
 export const my: Partial<CarouselTranslations> = {
   'carousel.previous': 'ယခင်',
-  'carousel.goToSlide': 'Go to slide {{index}}',
+  'carousel.goToSlide': 'ဆလိုက် {{index}} သို့ သွားပါ',
   'carousel.next': 'နောက်တစ်ခု',
 }

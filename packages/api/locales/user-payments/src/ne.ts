@@ -7,8 +7,8 @@ export const ne: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt र planKey आवश्यक छन्।',
   'user.payment.verificationNotConfigured':
     '{{provider}} को लागि भुक्तानी प्रमाणीकरण कन्फिगर गरिएको छैन।',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': '{{provider}} को लागि अमान्य योजना।',
+  'user.payment.verificationFailed': '{{provider}} को लागि भुक्तानी प्रमाणीकरण असफल भयो।',
   'user.payment.unknownPlan': 'अज्ञात योजना।',
   'user.payment.invalidWebhookEvent': 'अमान्य वेबहुक इभेन्ट।',
 }

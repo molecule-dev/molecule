@@ -5,9 +5,9 @@ export const lo: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'ຖາມຄຳຖາມເພື່ອເລີ່ມຕົ້ນ.',
+  'embeddableChatWidget.panel.assistantTyping': 'ຜູ້ຊ່ວຍກຳລັງພິມຢູ່…',
+  'embeddableChatWidget.composer.placeholder': 'ພິມຂໍ້ຄວາມຂອງທ່ານ…',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError': 'ມີບາງຢ່າງຜິດພາດເກີດຂຶ້ນ. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ.',
 }

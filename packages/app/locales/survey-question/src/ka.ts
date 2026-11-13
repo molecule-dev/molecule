@@ -2,12 +2,12 @@ import type { SurveyQuestionTranslations } from './types.js'
 
 /** Survey-question translations for Georgian. */
 export const ka: SurveyQuestionTranslations = {
-  'surveyQuestion.required': 'This question requires an answer.',
+  'surveyQuestion.required': 'ამ კითხვას პასუხი სჭირდება.',
   'surveyQuestion.requiredIndicator': 'required',
   'surveyQuestion.submit': 'Submit',
   'surveyQuestion.trueFalse.true': 'True',
   'surveyQuestion.trueFalse.false': 'False',
-  'surveyQuestion.nps.low': 'Not at all likely',
+  'surveyQuestion.nps.low': 'სულაც არ არის სავარაუდო',
   'surveyQuestion.nps.high': 'Extremely likely',
-  'surveyQuestion.file.noFiles': 'No files selected.',
+  'surveyQuestion.file.noFiles': 'ფაილები არ არის არჩეული.',
 }

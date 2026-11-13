@@ -3,6 +3,6 @@ import type { CarouselTranslations } from './types.js'
 /** Carousel translations for he. */
 export const he: Partial<CarouselTranslations> = {
   'carousel.previous': 'קוֹדֵם',
-  'carousel.goToSlide': 'Go to slide {{index}}',
+  'carousel.goToSlide': 'עבור לשקופית {{index}}',
   'carousel.next': 'הַבָּא',
 }

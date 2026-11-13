@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Basque. Stub — uses English copy. */
 export const eu: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'Aukeratu zure plana',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'Ezin izan dira prezioak kargatu. Saiatu berriro geroago.',
+  'pricingPage.checkoutError': 'Ezin izan da ordainketa hasi. Saiatu berriro.',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'Zure plana eguneratu da',
+  'pricingPage.planUpdated.headingNamed': '{{planName}} planean zaude orain',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'Eskerrik asko bertsio-berritzeagatik. Zure plan berria berehala aktibo dago eta ordainagiria bidali dizugu posta elektronikoz.',
 }

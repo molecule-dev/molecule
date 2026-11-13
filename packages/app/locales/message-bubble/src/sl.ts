@@ -6,4 +6,6 @@ export const sl: Partial<MessageBubbleTranslations> = {
   'composer.send': 'Pošlji',
   'thread.replies_one': '{{count}} odgovor',
   'thread.replies_other': '{{count}} odgovorov',
+  'thread.replies_two': '{{count}} odgovora',
+  'thread.replies_few': '{{count}} odgovori',
 }

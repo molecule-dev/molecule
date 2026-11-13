@@ -5,9 +5,9 @@ export const mn: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'Эхлэхийн тулд асуулт асуугаарай.',
+  'embeddableChatWidget.panel.assistantTyping': 'Туслах бичиж байна...',
+  'embeddableChatWidget.composer.placeholder': 'Мессежээ бичнэ үү...',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError': 'Алдаа гарлаа. Дахин оролдоно уу.',
 }

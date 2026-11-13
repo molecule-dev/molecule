@@ -3,15 +3,15 @@ import type { ModerationQueueTranslations } from './types.js'
 /** Moderation-queue translations for Kyrgyz (stub — falls back to English copy until translated). */
 export const ky: ModerationQueueTranslations = {
   'moderationQueue.aria.region': 'Moderation queue',
-  'moderationQueue.aria.bulkToolbar': 'Bulk moderation actions',
+  'moderationQueue.aria.bulkToolbar': 'Жапырт модерациялоо аракеттери',
   'moderationQueue.aria.selectAll': 'Select all',
   'moderationQueue.aria.selectRow': 'Select item',
   'moderationQueue.aria.approve': 'Approve',
   'moderationQueue.aria.reject': 'Reject',
   'moderationQueue.aria.escalate': 'Escalate',
   'moderationQueue.aria.mute': 'Mute',
-  'moderationQueue.loading': 'Loading moderation queue…',
-  'moderationQueue.empty': 'No items awaiting moderation.',
+  'moderationQueue.loading': 'Модерация кезеги жүктөлүүдө…',
+  'moderationQueue.empty': 'Модерацияны күткөн эч нерсе жок.',
   'moderationQueue.selectAll': 'Select all',
   'moderationQueue.selectedCount': '{{count}} selected',
   'moderationQueue.reportedBy': 'Reported by',

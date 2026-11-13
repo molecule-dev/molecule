@@ -3,15 +3,15 @@ import type { ModerationQueueTranslations } from './types.js'
 /** Moderation-queue translations for Kannada (stub — falls back to English copy until translated). */
 export const kn: ModerationQueueTranslations = {
   'moderationQueue.aria.region': 'Moderation queue',
-  'moderationQueue.aria.bulkToolbar': 'Bulk moderation actions',
+  'moderationQueue.aria.bulkToolbar': 'ಬೃಹತ್ ಮಾಡರೇಶನ್ ಕ್ರಿಯೆಗಳು',
   'moderationQueue.aria.selectAll': 'Select all',
   'moderationQueue.aria.selectRow': 'Select item',
   'moderationQueue.aria.approve': 'Approve',
   'moderationQueue.aria.reject': 'Reject',
   'moderationQueue.aria.escalate': 'Escalate',
   'moderationQueue.aria.mute': 'Mute',
-  'moderationQueue.loading': 'Loading moderation queue…',
-  'moderationQueue.empty': 'No items awaiting moderation.',
+  'moderationQueue.loading': 'ಮಾಡರೇಶನ್ ಕ್ಯೂ ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
+  'moderationQueue.empty': 'ಯಾವುದೇ ಐಟಂಗಳು ಮಾಡರೇಶನ್‌ಗಾಗಿ ಕಾಯುತ್ತಿಲ್ಲ.',
   'moderationQueue.selectAll': 'Select all',
   'moderationQueue.selectedCount': '{{count}} selected',
   'moderationQueue.reportedBy': 'Reported by',

@@ -2,12 +2,12 @@ import type { SurveyQuestionTranslations } from './types.js'
 
 /** Survey-question translations for Welsh. */
 export const cy: SurveyQuestionTranslations = {
-  'surveyQuestion.required': 'This question requires an answer.',
+  'surveyQuestion.required': "Mae'r cwestiwn hwn yn gofyn am ateb.",
   'surveyQuestion.requiredIndicator': 'required',
   'surveyQuestion.submit': 'Submit',
   'surveyQuestion.trueFalse.true': 'True',
   'surveyQuestion.trueFalse.false': 'False',
-  'surveyQuestion.nps.low': 'Not at all likely',
+  'surveyQuestion.nps.low': 'Ddim yn debygol o gwbl',
   'surveyQuestion.nps.high': 'Extremely likely',
-  'surveyQuestion.file.noFiles': 'No files selected.',
+  'surveyQuestion.file.noFiles': "Dim ffeiliau wedi'u dewis.",
 }

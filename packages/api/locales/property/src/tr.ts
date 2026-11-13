@@ -3,7 +3,7 @@ import type { PropertyTranslations } from './types.js'
 /** Property translations for Turkish. */
 export const tr: PropertyTranslations = {
   'property.error.unauthorized': 'Yetkisiz.',
-  'property.error.forbidden': 'You do not have access to this property',
+  'property.error.forbidden': 'Bu mülke erişiminiz yok.',
   'property.error.nameRequired': 'Mülk adı gereklidir',
   'property.error.invalidName': 'Mülk adı geçersiz',
   'property.error.addressRequired': 'Adres, şehir ve ülke kodu gereklidir',

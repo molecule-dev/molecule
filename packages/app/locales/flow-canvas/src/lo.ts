@@ -3,5 +3,5 @@ import type { FlowCanvasTranslations } from './types.js'
 /** Flow-canvas translations for Lao. */
 export const lo: FlowCanvasTranslations = {
   'flowCanvas.aria.canvas': 'Flow canvas',
-  'flowCanvas.aria.sourceHandle': 'Drag to connect',
+  'flowCanvas.aria.sourceHandle': 'ລາກເພື່ອເຊື່ອມຕໍ່',
 }

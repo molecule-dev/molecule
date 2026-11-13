@@ -3,15 +3,15 @@ import type { ModerationQueueTranslations } from './types.js'
 /** Moderation-queue translations for Belarusian (stub — falls back to English copy until translated). */
 export const be: ModerationQueueTranslations = {
   'moderationQueue.aria.region': 'Moderation queue',
-  'moderationQueue.aria.bulkToolbar': 'Bulk moderation actions',
+  'moderationQueue.aria.bulkToolbar': 'Масавыя мадэрацыі',
   'moderationQueue.aria.selectAll': 'Select all',
   'moderationQueue.aria.selectRow': 'Select item',
   'moderationQueue.aria.approve': 'Approve',
   'moderationQueue.aria.reject': 'Reject',
   'moderationQueue.aria.escalate': 'Escalate',
   'moderationQueue.aria.mute': 'Mute',
-  'moderationQueue.loading': 'Loading moderation queue…',
-  'moderationQueue.empty': 'No items awaiting moderation.',
+  'moderationQueue.loading': 'Загрузка чаргі мадэрацыі…',
+  'moderationQueue.empty': 'Няма элементаў, якія чакаюць мадэрацыі.',
   'moderationQueue.selectAll': 'Select all',
   'moderationQueue.selectedCount': '{{count}} selected',
   'moderationQueue.reportedBy': 'Reported by',

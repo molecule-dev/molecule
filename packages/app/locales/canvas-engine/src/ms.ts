@@ -2,5 +2,5 @@ import type { CanvasEngineTranslations } from './types.js'
 
 /** Canvas-engine translations for Malay. Stub — falls back to English. */
 export const ms: CanvasEngineTranslations = {
-  'canvasEngine.aria.surface': 'Vector canvas editor',
+  'canvasEngine.aria.surface': 'Editor kanvas vektor',
 }

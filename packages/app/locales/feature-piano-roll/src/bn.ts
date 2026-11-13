@@ -7,5 +7,5 @@ export const bn: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'নোট গ্রিড',
   'pianoRoll.aria.resize': 'নোটের আকার পরিবর্তন করুন',
   'pianoRoll.aria.note':
-    'Note {{pitch}} starting at beat {{startBeat}} for {{durationBeats}} beats',
+    '{{startBeat}} বিট থেকে শুরু করে {{durationBeats}} বিট পর্যন্ত নোট {{pitch}}',
 }

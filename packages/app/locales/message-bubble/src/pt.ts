@@ -6,4 +6,5 @@ export const pt: Partial<MessageBubbleTranslations> = {
   'composer.send': 'Enviar',
   'thread.replies_one': '{{count}} resposta',
   'thread.replies_other': '{{count}} respostas',
+  'thread.replies_many': '{{count}} respostas',
 }

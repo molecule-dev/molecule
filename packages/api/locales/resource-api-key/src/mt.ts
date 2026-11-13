@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Maltese. */
 export const mt: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'Iċ-ċavetta tal-API ma nstabitx.',
+  'resourceApiKey.error.revoked': 'Iċ-ċavetta tal-API ġiet revokata.',
+  'resourceApiKey.error.expired': 'Iċ-ċavetta tal-API skadiet.',
+  'resourceApiKey.error.invalid': 'Ċavetta tal-API mhux valida.',
 }

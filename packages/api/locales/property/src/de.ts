@@ -3,7 +3,7 @@ import type { PropertyTranslations } from './types.js'
 /** Property translations for German. */
 export const de: PropertyTranslations = {
   'property.error.unauthorized': 'Nicht autorisiert.',
-  'property.error.forbidden': 'You do not have access to this property',
+  'property.error.forbidden': 'Sie haben keinen Zugang zu diesem Grundstück.',
   'property.error.nameRequired': 'Objektname ist erforderlich',
   'property.error.invalidName': 'Objektname ist ungültig',
   'property.error.addressRequired': 'Adresse, Stadt und Ländercode sind erforderlich',

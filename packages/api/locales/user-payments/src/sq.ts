@@ -7,8 +7,8 @@ export const sq: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'Kerkohet fatue dhe planKey.',
   'user.payment.verificationNotConfigured':
     'Verifikimi i pageses nuk eshte konfiguruar per {{provider}}.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Plan i pavlefshëm për {{provider}}.',
+  'user.payment.verificationFailed': 'Verifikimi i pagesës dështoi për {{provider}}.',
   'user.payment.unknownPlan': 'Plan i panjohur.',
   'user.payment.invalidWebhookEvent': 'Ngjarje webhook e pavlefshme.',
 }

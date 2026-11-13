@@ -2,10 +2,10 @@ import type { MindMapCanvasTranslations } from './types.js'
 
 /** Mind-map-canvas translations for Mongolian. */
 export const mn: MindMapCanvasTranslations = {
-  'mindMap.aria.canvas': 'Mind map canvas',
-  'mindMap.aria.edit': 'Edit node text',
+  'mindMap.aria.canvas': 'Оюун санааны газрын зургийн зураг',
+  'mindMap.aria.edit': 'Зангилааны текстийг засах',
   'mindMap.action.collapse': 'Collapse subtree',
   'mindMap.action.expand': 'Expand subtree',
-  'mindMap.action.addChild': 'Add child node',
+  'mindMap.action.addChild': 'Хүүхдийн зангилаа нэмэх',
   'mindMap.defaults.newChild': 'New idea',
 }

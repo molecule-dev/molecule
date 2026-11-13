@@ -4,5 +4,5 @@ import type { GraphViewTranslations } from './types.js'
 export const te: GraphViewTranslations = {
   'graphView.aria.canvas': 'Graph view',
   'graphView.aria.node': 'Node {{label}}',
-  'graphView.empty': 'No nodes to display',
+  'graphView.empty': 'ప్రదర్శించడానికి నోడ్‌లు లేవు',
 }

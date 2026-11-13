@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Lithuanian. */
 export const lt: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'API raktas nerastas.',
+  'resourceApiKey.error.revoked': 'API raktas buvo atšauktas.',
+  'resourceApiKey.error.expired': 'API raktas nebegalioja.',
+  'resourceApiKey.error.invalid': 'Neteisingas API raktas.',
 }

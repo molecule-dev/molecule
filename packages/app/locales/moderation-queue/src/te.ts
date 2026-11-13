@@ -3,15 +3,15 @@ import type { ModerationQueueTranslations } from './types.js'
 /** Moderation-queue translations for Telugu (stub — falls back to English copy until translated). */
 export const te: ModerationQueueTranslations = {
   'moderationQueue.aria.region': 'Moderation queue',
-  'moderationQueue.aria.bulkToolbar': 'Bulk moderation actions',
+  'moderationQueue.aria.bulkToolbar': 'సామూహిక నియంత్రణ చర్యలు',
   'moderationQueue.aria.selectAll': 'Select all',
   'moderationQueue.aria.selectRow': 'Select item',
   'moderationQueue.aria.approve': 'Approve',
   'moderationQueue.aria.reject': 'Reject',
   'moderationQueue.aria.escalate': 'Escalate',
   'moderationQueue.aria.mute': 'Mute',
-  'moderationQueue.loading': 'Loading moderation queue…',
-  'moderationQueue.empty': 'No items awaiting moderation.',
+  'moderationQueue.loading': 'మోడరేషన్ క్యూ లోడ్ అవుతోంది…',
+  'moderationQueue.empty': 'మోడరేషన్ కోసం వేచి ఉన్న అంశాలు ఏవీ లేవు.',
   'moderationQueue.selectAll': 'Select all',
   'moderationQueue.selectedCount': '{{count}} selected',
   'moderationQueue.reportedBy': 'Reported by',

@@ -6,4 +6,5 @@ export const hr: Partial<MessageBubbleTranslations> = {
   'composer.send': 'Poslati',
   'thread.replies_one': '{{count}} odgovor',
   'thread.replies_other': '{{count}} odgovora',
+  'thread.replies_few': '{{count}} odgovora',
 }

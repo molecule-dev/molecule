@@ -7,8 +7,8 @@ export const id: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt dan planKey diperlukan.',
   'user.payment.verificationNotConfigured':
     'Verifikasi pembayaran belum dikonfigurasi untuk {{provider}}.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Paket tidak valid untuk {{provider}}.',
+  'user.payment.verificationFailed': 'Verifikasi pembayaran gagal untuk {{provider}}.',
   'user.payment.unknownPlan': 'Paket tidak dikenal.',
   'user.payment.invalidWebhookEvent': 'Event webhook tidak valid.',
 }

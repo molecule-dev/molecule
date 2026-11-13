@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Arabic. */
 export const ar: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'لم يتم العثور على مفتاح API.',
+  'resourceApiKey.error.revoked': 'تم إلغاء مفتاح API.',
+  'resourceApiKey.error.expired': 'انتهت صلاحية مفتاح API.',
+  'resourceApiKey.error.invalid': 'مفتاح API غير صالح.',
 }

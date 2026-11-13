@@ -7,8 +7,8 @@ export const sk: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt a planKey sú povinné.',
   'user.payment.verificationNotConfigured':
     'Overenie platby nie je nakonfigurované pre {{provider}}.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Neplatný plán pre {{provider}}.',
+  'user.payment.verificationFailed': 'Overenie platby pre {{provider}} zlyhalo.',
   'user.payment.unknownPlan': 'Neznámy plán.',
   'user.payment.invalidWebhookEvent': 'Neplatná udalosť webhooku.',
 }

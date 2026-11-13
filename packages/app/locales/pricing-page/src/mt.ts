@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Maltese. Stub — uses English copy. */
 export const mt: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'Agħżel il-pjan tiegħek',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': "Ma setax jitgħabba l-prezzijiet. Erġa' pprova aktar tard.",
+  'pricingPage.checkoutError': "Ma stajtx nibda l-ħlas. Jekk jogħġbok erġa' pprova.",
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'Il-pjan tiegħek ġie aġġornat',
+  'pricingPage.planUpdated.headingNamed': 'Issa qiegħed fuq il-pjan {{planName}}',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'Grazzi talli aġġornajt. Il-pjan il-ġdid tiegħek huwa attiv immedjatament u rċevuta ntbagħtetlek bl-email.',
 }

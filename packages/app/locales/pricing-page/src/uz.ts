@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Uzbek. Stub — uses English copy. */
 export const uz: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'Rejangizni tanlang',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': "Narxlarni yuklab bo'lmadi. Keyinroq qayta urinib ko'ring.",
+  'pricingPage.checkoutError': "To'lovni boshlash imkoni bo'lmadi. Qaytadan urinib ko'ring.",
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'Rejangiz yangilandi',
+  'pricingPage.planUpdated.headingNamed': 'Siz endi {{planName}} tarifidasiz',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'Yangilaganingiz uchun tashakkur. Yangi rejangiz darhol faollashadi va sizga elektron pochta orqali kvitansiya yuborildi.',
 }

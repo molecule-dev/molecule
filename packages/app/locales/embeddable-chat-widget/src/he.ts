@@ -5,9 +5,9 @@ export const he: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'שאל שאלה כדי להתחיל.',
+  'embeddableChatWidget.panel.assistantTyping': 'העוזר מקליד...',
+  'embeddableChatWidget.composer.placeholder': 'הקלד את ההודעה שלך…',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError': 'משהו השתבש. אנא נסה שוב.',
 }

@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Hindi. */
 export const hi: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'एपीआई कुंजी नहीं मिली।',
+  'resourceApiKey.error.revoked': 'एपीआई कुंजी रद्द कर दी गई है।',
+  'resourceApiKey.error.expired': 'एपीआई कुंजी की समय सीमा समाप्त हो गई है।',
+  'resourceApiKey.error.invalid': 'अमान्य एपीआई कुंजी।',
 }

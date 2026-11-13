@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Sinhala. */
 export const si: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'API යතුර හමු නොවීය.',
+  'resourceApiKey.error.revoked': 'API යතුර අවලංගු කර ඇත.',
+  'resourceApiKey.error.expired': 'API යතුර කල් ඉකුත් වී ඇත.',
+  'resourceApiKey.error.invalid': 'අවලංගු API යතුර.',
 }

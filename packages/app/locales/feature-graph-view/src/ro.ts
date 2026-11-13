@@ -4,5 +4,5 @@ import type { GraphViewTranslations } from './types.js'
 export const ro: GraphViewTranslations = {
   'graphView.aria.canvas': 'Graph view',
   'graphView.aria.node': 'Node {{label}}',
-  'graphView.empty': 'No nodes to display',
+  'graphView.empty': 'Niciun nod de afișat',
 }

@@ -3,7 +3,7 @@ import type { JoinCodeTranslations } from './types.js'
 /** JoinCode translations for ha. */
 export const ha: Partial<JoinCodeTranslations> = {
   'joinCode.label': 'Join code',
-  'joinCode.slotAriaLabel': 'Join code character {{position}}',
-  'joinCode.help': 'Enter the {{length}}-character code.',
+  'joinCode.slotAriaLabel': 'Haɗa harafin lambar {{position}}',
+  'joinCode.help': 'Shigar da lambar harafi ta {{length}}.',
   'joinCode.errorAlphabet': 'Invalid character.',
 }

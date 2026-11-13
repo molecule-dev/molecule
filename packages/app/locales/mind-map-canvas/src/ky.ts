@@ -2,10 +2,10 @@ import type { MindMapCanvasTranslations } from './types.js'
 
 /** Mind-map-canvas translations for Kyrgyz. */
 export const ky: MindMapCanvasTranslations = {
-  'mindMap.aria.canvas': 'Mind map canvas',
-  'mindMap.aria.edit': 'Edit node text',
+  'mindMap.aria.canvas': 'Акыл картасынын сүрөтү',
+  'mindMap.aria.edit': 'Түйүндүн текстин түзөтүү',
   'mindMap.action.collapse': 'Collapse subtree',
   'mindMap.action.expand': 'Expand subtree',
-  'mindMap.action.addChild': 'Add child node',
+  'mindMap.action.addChild': 'Бала түйүнүн кошуу',
   'mindMap.defaults.newChild': 'New idea',
 }

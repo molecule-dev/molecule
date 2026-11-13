@@ -64,7 +64,7 @@ export const et: Partial<CommonTranslations> = {
   'forms.invalidFormat': 'Sobimatu vorming',
   'forms.invalidUrl': 'Kehtetu URL',
   'forms.invalidValue': 'Kehtetu väärtus',
-  'forms.max': 'Value must be at most {{max}}',
+  'forms.max': 'Väärtus peab olema maksimaalselt {{max}}',
   'forms.maxLength': 'Peab olema maksimaalselt {{maxLength}} tegelased',
   'forms.min': 'Väärtus peab olema vähemalt {{min}}',
   'forms.minLength': 'Peab olema vähemalt {{minLength}} tegelased',

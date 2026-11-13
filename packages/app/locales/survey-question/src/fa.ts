@@ -2,12 +2,12 @@ import type { SurveyQuestionTranslations } from './types.js'
 
 /** Survey-question translations for Persian. */
 export const fa: SurveyQuestionTranslations = {
-  'surveyQuestion.required': 'This question requires an answer.',
+  'surveyQuestion.required': 'این سوال پاسخی می‌طلبد.',
   'surveyQuestion.requiredIndicator': 'required',
   'surveyQuestion.submit': 'Submit',
   'surveyQuestion.trueFalse.true': 'True',
   'surveyQuestion.trueFalse.false': 'False',
-  'surveyQuestion.nps.low': 'Not at all likely',
+  'surveyQuestion.nps.low': 'به هیچ وجه محتمل نیست',
   'surveyQuestion.nps.high': 'Extremely likely',
-  'surveyQuestion.file.noFiles': 'No files selected.',
+  'surveyQuestion.file.noFiles': 'هیچ فایلی انتخاب نشده است.',
 }

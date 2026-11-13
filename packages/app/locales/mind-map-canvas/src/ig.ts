@@ -2,10 +2,10 @@ import type { MindMapCanvasTranslations } from './types.js'
 
 /** Mind-map-canvas translations for Igbo. */
 export const ig: MindMapCanvasTranslations = {
-  'mindMap.aria.canvas': 'Mind map canvas',
-  'mindMap.aria.edit': 'Edit node text',
+  'mindMap.aria.canvas': 'Kanvas Mind map kanvas',
+  'mindMap.aria.edit': 'Dezie ederede node',
   'mindMap.action.collapse': 'Collapse subtree',
   'mindMap.action.expand': 'Expand subtree',
-  'mindMap.action.addChild': 'Add child node',
+  'mindMap.action.addChild': 'Tinye node nwa',
   'mindMap.defaults.newChild': 'New idea',
 }

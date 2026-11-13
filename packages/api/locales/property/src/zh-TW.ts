@@ -3,7 +3,7 @@ import type { PropertyTranslations } from './types.js'
 /** Property translations for Chinese (Traditional). */
 export const zhTW: PropertyTranslations = {
   'property.error.unauthorized': '未授權。',
-  'property.error.forbidden': 'You do not have access to this property',
+  'property.error.forbidden': '您無權訪問此房產',
   'property.error.nameRequired': '物業名稱為必填項',
   'property.error.invalidName': '物業名稱無效',
   'property.error.addressRequired': '地址、城市和國家代碼為必填項',

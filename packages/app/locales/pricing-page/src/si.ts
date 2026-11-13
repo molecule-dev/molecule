@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Sinhala. Stub — uses English copy. */
 export const si: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'ඔබේ සැලැස්ම තෝරන්න',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'මිල ගණන් පූරණය කළ නොහැකි විය. පසුව නැවත උත්සාහ කරන්න.',
+  'pricingPage.checkoutError': 'පිටවීම ආරම්භ කළ නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'ඔබගේ සැලැස්ම යාවත්කාලීන කර ඇත.',
+  'pricingPage.planUpdated.headingNamed': 'ඔබ දැන් {{planName}} සැලැස්මේ සිටී.',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'උත්ශ්‍රේණි කිරීම ගැන ස්තූතියි. ඔබගේ නව සැලැස්ම වහාම ක්‍රියාත්මක වන අතර ඔබට රිසිට්පතක් විද්‍යුත් තැපෑලෙන් එවා ඇත.',
 }

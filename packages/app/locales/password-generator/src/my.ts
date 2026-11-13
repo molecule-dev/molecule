@@ -13,6 +13,7 @@ export const my: PasswordGeneratorTranslations = {
   'password-generator.toggle.digits': 'Digits (0-9)',
   'password-generator.toggle.symbols': 'Symbols (!@#…)',
   'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
-  'password-generator.toggle.noAmbiguous': 'Skip ambiguous (space, quotes)',
-  'password-generator.pick': 'Use this password',
+  'password-generator.toggle.noAmbiguous':
+    'မရှင်းလင်းသော အချက်အလက်များကို ကျော်သွားပါ (နေရာလွတ်၊ မျက်တောင်ကော့များ)',
+  'password-generator.pick': 'ဤစကားဝှက်ကို အသုံးပြုပါ',
 }

@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Icelandic. Stub — uses English copy. */
 export const is: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'Veldu áætlun þína',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'Ekki tókst að hlaða verðlagningu. Reyndu aftur síðar.',
+  'pricingPage.checkoutError': 'Gat ekki hafið greiðslu. Vinsamlegast reyndu aftur.',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'Áætlunin þín hefur verið uppfærð',
+  'pricingPage.planUpdated.headingNamed': 'Þú ert nú með áskrift að {{planName}}',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'Takk fyrir að uppfæra. Nýja áskriftin þín tekur gildi strax og þú hefur fengið kvittun senda í tölvupósti.',
 }

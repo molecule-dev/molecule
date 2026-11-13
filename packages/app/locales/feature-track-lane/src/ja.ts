@@ -4,6 +4,6 @@ import type { TrackLaneTranslations } from './types.js'
 export const ja: Partial<TrackLaneTranslations> = {
   'trackLane.header': '追跡',
   'trackLane.aria.lane': 'トラックレーン{{name}}',
-  'trackLane.aria.clip': 'Clip {{label}} starting at {{startTime}}s for {{duration}}s',
+  'trackLane.aria.clip': '{{label}}のクリップを{{startTime}}秒から{{duration}}秒間再生します。',
   'trackLane.aria.resize': 'クリップのサイズを変更する',
 }

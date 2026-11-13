@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Catalan. Stub — uses English copy. */
 export const ca: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'Tria el teu pla',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': "No s'han pogut carregar els preus. Torna-ho a provar més tard.",
+  'pricingPage.checkoutError': "No s'ha pogut iniciar el procés de compra. Torna-ho a provar.",
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': "El vostre pla s'ha actualitzat",
+  'pricingPage.planUpdated.headingNamed': 'Ara estàs al pla {{planName}}',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    "Gràcies per l'actualització. El teu nou pla està actiu immediatament i t'hem enviat un rebut per correu electrònic.",
 }

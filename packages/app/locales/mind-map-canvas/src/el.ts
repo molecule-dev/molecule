@@ -2,10 +2,10 @@ import type { MindMapCanvasTranslations } from './types.js'
 
 /** Mind-map-canvas translations for Greek. */
 export const el: MindMapCanvasTranslations = {
-  'mindMap.aria.canvas': 'Mind map canvas',
-  'mindMap.aria.edit': 'Edit node text',
+  'mindMap.aria.canvas': 'Καμβάς νοητικού χάρτη',
+  'mindMap.aria.edit': 'Επεξεργασία κειμένου κόμβου',
   'mindMap.action.collapse': 'Collapse subtree',
   'mindMap.action.expand': 'Expand subtree',
-  'mindMap.action.addChild': 'Add child node',
+  'mindMap.action.addChild': 'Προσθήκη θυγατρικού κόμβου',
   'mindMap.defaults.newChild': 'New idea',
 }

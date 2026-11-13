@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Telugu. */
 export const te: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'API కీ కనుగొనబడలేదు.',
+  'resourceApiKey.error.revoked': 'API కీ రద్దు చేయబడింది.',
+  'resourceApiKey.error.expired': 'API కీ గడువు ముగిసింది.',
+  'resourceApiKey.error.invalid': 'చెల్లని API కీ.',
 }

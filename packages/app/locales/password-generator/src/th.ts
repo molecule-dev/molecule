@@ -13,6 +13,6 @@ export const th: PasswordGeneratorTranslations = {
   'password-generator.toggle.digits': 'Digits (0-9)',
   'password-generator.toggle.symbols': 'Symbols (!@#…)',
   'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
-  'password-generator.toggle.noAmbiguous': 'Skip ambiguous (space, quotes)',
-  'password-generator.pick': 'Use this password',
+  'password-generator.toggle.noAmbiguous': 'ข้ามส่วนที่ไม่ชัดเจน (ช่องว่าง เครื่องหมายคำพูด)',
+  'password-generator.pick': 'ใช้รหัสผ่านนี้',
 }

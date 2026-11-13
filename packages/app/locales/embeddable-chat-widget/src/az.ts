@@ -5,9 +5,9 @@ export const az: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'Başlamaq üçün bir sual verin.',
+  'embeddableChatWidget.panel.assistantTyping': 'Assistent yazır...',
+  'embeddableChatWidget.composer.placeholder': 'Mesajınızı yazın...',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError': 'Xəta baş verdi. Zəhmət olmasa, yenidən cəhd edin.',
 }

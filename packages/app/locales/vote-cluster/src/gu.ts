@@ -7,5 +7,5 @@ export const gu: VoteClusterTranslations = {
   'vote-cluster.downvote': 'Downvote',
   'vote-cluster.removeDownvote': 'Remove downvote',
   'vote-cluster.score': 'Score: {{score}}',
-  'vote-cluster.group': 'Vote cluster, current score {{score}}',
+  'vote-cluster.group': 'વોટ ક્લસ્ટર, વર્તમાન સ્કોર {{score}}',
 }

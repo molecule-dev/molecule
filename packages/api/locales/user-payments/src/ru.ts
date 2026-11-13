@@ -6,8 +6,8 @@ export const ru: UserPaymentTranslations = {
   'user.payment.subscriptionIdRequired': 'subscriptionId обязателен.',
   'user.payment.receiptAndPlanRequired': 'receipt и planKey обязательны.',
   'user.payment.verificationNotConfigured': 'Верификация платежа не настроена для {{provider}}.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Недействительный план для {{provider}}.',
+  'user.payment.verificationFailed': 'Проверка платежа для {{provider}} завершилась неудачей.',
   'user.payment.unknownPlan': 'Неизвестный план.',
   'user.payment.invalidWebhookEvent': 'Недопустимое событие вебхука.',
 }

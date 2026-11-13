@@ -726,5 +726,20 @@ export type IdeTranslationKey =
   | 'ide.chat.context.category.attachments'
   | 'ide.chat.context.category.structuralOverhead'
 
+/**
+ * Plural forms only some languages use — the CLDR categories beyond the
+ * `one`/`other` pair, read by `t()` when the count selects them.
+ */
+export type IdePluralFormKey =
+  | 'ide.chat.commitFileCount_zero'
+  | 'ide.chat.commitFileCount_two'
+  | 'ide.chat.commitFileCount_few'
+  | 'ide.chat.commitFileCount_many'
+  | 'ide.testsBar.notRun_zero'
+  | 'ide.testsBar.notRun_two'
+  | 'ide.testsBar.notRun_few'
+  | 'ide.testsBar.notRun_many'
+
 /** Translation record mapping ide keys to translated strings. */
-export type IdeTranslations = Record<IdeTranslationKey, string>
+export type IdeTranslations = Record<IdeTranslationKey, string> &
+  Partial<Record<IdePluralFormKey, string>>

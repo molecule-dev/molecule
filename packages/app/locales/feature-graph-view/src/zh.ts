@@ -4,5 +4,5 @@ import type { GraphViewTranslations } from './types.js'
 export const zh: GraphViewTranslations = {
   'graphView.aria.canvas': 'Graph view',
   'graphView.aria.node': 'Node {{label}}',
-  'graphView.empty': 'No nodes to display',
+  'graphView.empty': '没有要显示的节点',
 }

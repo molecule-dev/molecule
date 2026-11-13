@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Nepali. */
 export const ne: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'API कुञ्जी फेला परेन।',
+  'resourceApiKey.error.revoked': 'API कुञ्जी खारेज गरिएको छ।',
+  'resourceApiKey.error.expired': 'API कुञ्जीको म्याद सकिएको छ।',
+  'resourceApiKey.error.invalid': 'अमान्य API कुञ्जी।',
 }

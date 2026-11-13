@@ -5,9 +5,9 @@ export const ka: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'დასაწყებად დასვით კითხვა.',
+  'embeddableChatWidget.panel.assistantTyping': 'ასისტენტი ბეჭდავს…',
+  'embeddableChatWidget.composer.placeholder': 'აკრიფეთ თქვენი შეტყობინება…',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError': 'რაღაც შეცდომა მოხდა. გთხოვთ, სცადოთ ხელახლა.',
 }

@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Mongolian. Stub — uses English copy. */
 export const mn: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'Төлөвлөгөөгөө сонгоно уу',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'Үнийг ачаалж чадсангүй. Дараа дахин оролдоно уу.',
+  'pricingPage.checkoutError': 'Төлбөр тооцоог эхлүүлж чадсангүй. Дахин оролдоно уу.',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'Таны төлөвлөгөө шинэчлэгдсэн',
+  'pricingPage.planUpdated.headingNamed': 'Та одоо {{planName}} төлөвлөгөөнд хамрагдсан байна',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'Шинэчилсэнд баярлалаа. Таны шинэ төлөвлөгөө шууд идэвхжиж, танд баримт имэйлээр илгээгдсэн.',
 }

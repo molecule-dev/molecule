@@ -13,6 +13,6 @@ export const ru: PasswordGeneratorTranslations = {
   'password-generator.toggle.digits': 'Digits (0-9)',
   'password-generator.toggle.symbols': 'Symbols (!@#…)',
   'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
-  'password-generator.toggle.noAmbiguous': 'Skip ambiguous (space, quotes)',
-  'password-generator.pick': 'Use this password',
+  'password-generator.toggle.noAmbiguous': 'Пропустить неоднозначные (пробел, кавычки)',
+  'password-generator.pick': 'Используйте этот пароль',
 }

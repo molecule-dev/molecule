@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Kazakh. */
 export const kk: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'API кілті табылмады.',
+  'resourceApiKey.error.revoked': 'API кілті қайтарып алынды.',
+  'resourceApiKey.error.expired': 'API кілтінің мерзімі бітті.',
+  'resourceApiKey.error.invalid': 'API кілті жарамсыз.',
 }

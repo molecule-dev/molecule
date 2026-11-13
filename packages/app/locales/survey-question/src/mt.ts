@@ -2,12 +2,12 @@ import type { SurveyQuestionTranslations } from './types.js'
 
 /** Survey-question translations for Maltese. */
 export const mt: SurveyQuestionTranslations = {
-  'surveyQuestion.required': 'This question requires an answer.',
+  'surveyQuestion.required': 'Din il-mistoqsija teħtieġ tweġiba.',
   'surveyQuestion.requiredIndicator': 'required',
   'surveyQuestion.submit': 'Submit',
   'surveyQuestion.trueFalse.true': 'True',
   'surveyQuestion.trueFalse.false': 'False',
-  'surveyQuestion.nps.low': 'Not at all likely',
+  'surveyQuestion.nps.low': 'Mhux probabbli xejn',
   'surveyQuestion.nps.high': 'Extremely likely',
-  'surveyQuestion.file.noFiles': 'No files selected.',
+  'surveyQuestion.file.noFiles': 'Ma ntgħażlu l-ebda fajls.',
 }

@@ -5,9 +5,10 @@ export const ky: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'Баштоо үчүн суроо бериңиз.',
+  'embeddableChatWidget.panel.assistantTyping': 'Жардамчы жазып жатат…',
+  'embeddableChatWidget.composer.placeholder': 'Билдирүүңүздү териңиз…',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError':
+    'Бир нерсе туура эмес кетти. Кайра аракет кылып көрүңүз.',
 }

@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Russian. */
 export const ru: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'Ключ API не найден.',
+  'resourceApiKey.error.revoked': 'API-ключ отозван.',
+  'resourceApiKey.error.expired': 'Срок действия API-ключа истек.',
+  'resourceApiKey.error.invalid': 'Неверный ключ API.',
 }

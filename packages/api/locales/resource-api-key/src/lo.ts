@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Lao. */
 export const lo: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'ບໍ່ພົບລະຫັດ API.',
+  'resourceApiKey.error.revoked': 'ລະຫັດ API ໄດ້ຖືກຍົກເລີກແລ້ວ.',
+  'resourceApiKey.error.expired': 'ລະຫັດ API ໝົດອາຍຸແລ້ວ.',
+  'resourceApiKey.error.invalid': 'ລະຫັດ API ບໍ່ຖືກຕ້ອງ.',
 }

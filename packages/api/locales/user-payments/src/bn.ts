@@ -7,8 +7,8 @@ export const bn: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt এবং planKey প্রয়োজন।',
   'user.payment.verificationNotConfigured':
     '{{provider}}-এর জন্য পেমেন্ট যাচাইকরণ কনফিগার করা হয়নি।',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': '{{provider}} এর জন্য প্ল্যানটি অবৈধ।',
+  'user.payment.verificationFailed': '{{provider}} এর জন্য পেমেন্ট যাচাইকরণ ব্যর্থ হয়েছে।',
   'user.payment.unknownPlan': 'অজানা প্ল্যান।',
   'user.payment.invalidWebhookEvent': 'অবৈধ ওয়েবহুক ইভেন্ট।',
 }

@@ -240,6 +240,12 @@ const sameMultiset = (a, b) =>
  *   `CODE` — a Markdown code span English carries is missing or changed (a
  *     command or identifier the reader would type no longer exists), or the
  *     translation adds one English does not have (the backticks render).
+ *   `COMMAND` — a slash command English names, with its argument syntax
+ *     ({@link commandSpans}), is missing or changed: the reader types
+ *     `/kompakteer`, which does not exist.
+ *   `NEWLINE` — the value has a different number of line breaks: the text
+ *     renders as one run-on line, or breaks where English does not.
+ *   `ENGLISH` — the value is still the English text ({@link isUntranslatedCopy}).
  */
 export function classify(englishValue, value) {
   const want = placeholders(englishValue)
@@ -279,7 +285,76 @@ export function classify(englishValue, value) {
         : `gains ${gained.join(', ')}, which en does not mark as code: UI text does not render Markdown, so the backticks show`,
     }
   }
+  const commands = commandSpans(englishValue)
+  const lostCommand = commands.find((span) => !commandSpans(value).includes(span))
+  if (lostCommand !== undefined) {
+    return { klass: 'COMMAND', detail: `${lostCommand} not kept verbatim` }
+  }
+  const breaks = (text) => text.split('\n').length - 1
+  if (breaks(englishValue) !== breaks(value)) {
+    return {
+      klass: 'NEWLINE',
+      detail: `${breaks(value)} line break(s) vs en's ${breaks(englishValue)}`,
+    }
+  }
+  if (isUntranslatedCopy(englishValue, value)) {
+    return { klass: 'ENGLISH', detail: 'still the English text' }
+  }
   return null
+}
+
+/**
+ * A slash command (or an absolute path) and the argument syntax written after
+ * it: `<name>`, `[on | off]`, `--plan|--execute`, `?`. It cannot follow an ASCII
+ * letter, digit or `. / < ~ -`, so `and/or`, `1/2`, `.agents/skills` and `</p>`
+ * are not commands; a CJK sentence puts one straight after a character
+ * (`用法：/timestamps`).
+ */
+export const COMMAND_RE =
+  /(?<![\w./<~-])\/[a-z][\w-]*(?:\/[\w.-]+)*(?:[ \t]+(?:<[\w-]+>|\[[^\]\n]{1,40}\]|--[a-z][\w-]*(?:\|--[a-z][\w-]*)*|\?(?![\w?])))*/g
+
+/**
+ * Every slash command in a value outside its code spans, with its argument
+ * syntax (`/effort --plan|--execute <level>`), in order.
+ *
+ * UI text does not render Markdown, so English names a command the reader types
+ * in plain text (`Usage: /timestamps [on | off]`). It must survive translation
+ * byte for byte, as a code span does: a machine translation gave Afrikaans
+ * `/tydstempels [aan | af]` and `/effort --plan|--uitvoer`, commands that do
+ * not exist.
+ *
+ * @param value - A string value.
+ * @returns The command spans.
+ */
+export function commandSpans(value) {
+  return value.replace(/`[^`\n]+`/g, ' ').match(COMMAND_RE) ?? []
+}
+
+/**
+ * Whether a translated value is its English source copied unchanged.
+ *
+ * A key added to `en.ts` used to be copied into every language file as English
+ * to satisfy the bond's types, and nothing translated it afterwards: 15,122
+ * values across 27 bonds read English in every locale (2026-11-13). Only a
+ * sentence counts — three or more words outside its `{{tokens}}`, code spans and
+ * slash commands, and not an email address or URL — so "OK", "Email", a product
+ * name or a script example (`#!/bin/sh\nnpm test`), which can legitimately read
+ * the same, do not.
+ *
+ * @param englishValue - The `en.ts` value for the same key.
+ * @param value - The translated value.
+ * @returns True when `value` is the untranslated English sentence.
+ */
+export function isUntranslatedCopy(englishValue, value) {
+  if (value !== englishValue) return false
+  if (/^\S+@\S+\.\S+$/.test(englishValue) || englishValue.includes('://')) return false
+  // Tokens, code spans and commands are not English: they read the same in every language.
+  const words =
+    englishValue
+      .replace(/\{\{[^{}]*\}\}|`[^`\n]+`/g, ' ')
+      .replace(COMMAND_RE, ' ')
+      .match(/\p{L}{2,}/gu) ?? []
+  return words.length >= 3
 }
 
 /**
@@ -295,6 +370,76 @@ export function classify(englishValue, value) {
  */
 export function codeSpans(value) {
   return value.match(/`[^`\n]+`/g) ?? []
+}
+
+/**
+ * Whole numbers a count can take, enough to reach every CLDR integer category.
+ * 0 comes after the small numbers: "5 файлов" is a more natural sentence to
+ * translate than "0 файлов", so 0 is the sample only for a category it alone
+ * selects (Arabic's `zero`).
+ */
+const SAMPLE_COUNTS = [
+  ...Array.from({ length: 200 }, (_, n) => n + 1),
+  0,
+  1_000,
+  10_000,
+  100_000,
+  1_000_000,
+  10_000_000,
+]
+
+/**
+ * The plural categories beyond `one`/`other` a language selects for a whole
+ * number, each with the first count in {@link SAMPLE_COUNTS} that selects it. Czech's `many`, for
+ * example, only ever applies to a fraction, which a count never is, so it is
+ * not listed; Spanish's `many` is (a million: "1 000 000 de archivos").
+ *
+ * @param lang - A language code.
+ * @returns category → sample count.
+ */
+export function countPluralForms(lang) {
+  const rules = new Intl.PluralRules(lang)
+  const forms = new Map()
+  for (const n of SAMPLE_COUNTS) {
+    const category = rules.select(n)
+    if (category !== 'one' && category !== 'other' && !forms.has(category)) forms.set(category, n)
+  }
+  return forms
+}
+
+/**
+ * The pluralized keys of a bond: each base `key` whose English defines
+ * `key_other`, which `t(key, values, { count })` resolves through.
+ *
+ * @param englishByKey - The bond's `en.ts` values.
+ * @returns The base keys, in `en.ts` order.
+ */
+export function pluralBases(englishByKey) {
+  return [...englishByKey.keys()].filter((k) => k.endsWith('_other')).map((k) => k.slice(0, -6))
+}
+
+/**
+ * The plural forms a language uses that its table lacks for a pluralized key.
+ *
+ * The i18n core picks `key_<category>` from `Intl.PluralRules(locale)` and falls
+ * back to `key_other` when that form is missing, so without `_few` Russian reads
+ * "2 файлов" where it says "2 файла". English only has `one` and `other`; every
+ * other CLDR category a language selects for a whole number (`zero`, `two`,
+ * `few`, `many` — {@link countPluralForms}) must be written for it.
+ *
+ * @param bases - The bond's pluralized keys ({@link pluralBases}).
+ * @param lang - The language code (the file name without `.ts`).
+ * @param translated - That language's values.
+ * @returns One `{ base, category }` per missing form.
+ */
+export function missingPluralForms(bases, lang, translated) {
+  if (bases.length === 0) return []
+  const categories = [...countPluralForms(lang).keys()]
+  const missing = []
+  for (const base of bases)
+    for (const category of categories)
+      if (!translated.has(`${base}_${category}`)) missing.push({ base, category })
+  return missing
 }
 
 /**
@@ -317,12 +462,24 @@ export function analyzeLocalePlaceholders() {
     for (const value of englishByKey.values())
       for (const name of placeholders(value)) known.add(name)
     const label = pkg.slice(ROOT.length + 1)
+    const plurals = pluralBases(englishByKey)
 
     for (const file of readdirSync(src)) {
       if (!file.endsWith('.ts') || SKIP.has(file)) continue
       filesScanned += 1
       const where = `${label}/src/${file}`
       const translated = valuesByKey(readFileSync(join(src, file), 'utf8'))
+
+      for (const { base, category } of missingPluralForms(
+        plurals,
+        file.slice(0, -'.ts'.length),
+        translated,
+      )) {
+        drifts.push({ where, key: `${base}_${category}`, klass: 'PLURAL' })
+        problems.push(
+          `${where}: '${base}' PLURAL — this language has a "${category}" form; add '${base}_${category}'`,
+        )
+      }
 
       // HTML entities — the same pipeline's earlier symptom, kept so a
       // regression cannot land silently a second time.
@@ -379,7 +536,10 @@ if (isMain) {
       console.error(
         `\nA placeholder name is a VARIABLE, not prose: it must match en.ts byte for byte\n` +
           `in every language, or the value never substitutes and the UI shows the raw token.\n` +
-          `Repair the value (or fall back to the English string, which interpolates) —\n` +
+          `An ENGLISH value is a key that was never translated. Translate the bond (in the\n` +
+          `workspace: node scripts/translate-bond-gaps.mjs --apply --pkg=<bond>, which fills\n` +
+          `missing keys and plural forms and retranslates every value this check refuses)\n` +
+          `and write by hand any value it still refuses —\n` +
           `there is no baseline to add it to. See docs/locale-placeholder-drift.md.\n`,
       )
     }

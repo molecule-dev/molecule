@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Swahili. Stub — uses English copy. */
 export const sw: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'Chagua mpango wako',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'Haikuweza kupakia bei. Jaribu tena baadaye.',
+  'pricingPage.checkoutError': 'Haikuweza kuanza kulipa. Tafadhali jaribu tena.',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'Mpango wako umesasishwa',
+  'pricingPage.planUpdated.headingNamed': 'Sasa uko kwenye mpango wa {{planName}}',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'Asante kwa kuboresha. Mpango wako mpya unafanya kazi mara moja na risiti imetumwa kwako kwa barua pepe.',
 }

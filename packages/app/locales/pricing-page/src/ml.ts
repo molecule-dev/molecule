@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Malayalam. Stub — uses English copy. */
 export const ml: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'നിങ്ങളുടെ പ്ലാൻ തിരഞ്ഞെടുക്കുക',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'വിലനിർണ്ണയം ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല. പിന്നീട് വീണ്ടും ശ്രമിക്കുക.',
+  'pricingPage.checkoutError': 'ചെക്ക്ഔട്ട് ആരംഭിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'നിങ്ങളുടെ പ്ലാൻ അപ്ഡേറ്റ് ചെയ്തിട്ടുണ്ട്.',
+  'pricingPage.planUpdated.headingNamed': 'നിങ്ങൾ ഇപ്പോൾ {{planName}} പ്ലാനിലാണ്.',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'അപ്‌ഗ്രേഡ് ചെയ്‌തതിന് നന്ദി. നിങ്ങളുടെ പുതിയ പ്ലാൻ ഉടനടി സജീവമാകും, രസീത് നിങ്ങൾക്ക് ഇമെയിൽ ചെയ്‌തിട്ടുണ്ട്.',
 }

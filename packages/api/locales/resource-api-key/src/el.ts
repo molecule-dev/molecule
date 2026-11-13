@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Greek. */
 export const el: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'Δεν βρέθηκε κλειδί API.',
+  'resourceApiKey.error.revoked': 'Το κλειδί API έχει ανακληθεί.',
+  'resourceApiKey.error.expired': 'Το κλειδί API έχει λήξει.',
+  'resourceApiKey.error.invalid': 'Μη έγκυρο κλειδί API.',
 }

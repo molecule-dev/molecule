@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Vietnamese. */
 export const vi: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'Không tìm thấy khóa API.',
+  'resourceApiKey.error.revoked': 'Khóa API đã bị thu hồi.',
+  'resourceApiKey.error.expired': 'Khóa API đã hết hạn.',
+  'resourceApiKey.error.invalid': 'Khóa API không hợp lệ.',
 }

@@ -7,5 +7,5 @@ export const sw: VoteClusterTranslations = {
   'vote-cluster.downvote': 'Downvote',
   'vote-cluster.removeDownvote': 'Remove downvote',
   'vote-cluster.score': 'Score: {{score}}',
-  'vote-cluster.group': 'Vote cluster, current score {{score}}',
+  'vote-cluster.group': 'Kundi la kura, alama ya sasa {{score}}',
 }

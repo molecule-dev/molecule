@@ -20,8 +20,13 @@ import { describe, expect, it } from 'vitest'
 import {
   analyzeLocalePlaceholders,
   classify,
+  commandSpans,
+  countPluralForms,
+  isUntranslatedCopy,
   localePackages,
+  missingPluralForms,
   placeholders,
+  pluralBases,
   valuesByKey,
 } from '../check-locale-placeholders.js'
 
@@ -131,11 +136,127 @@ describe('classify', () => {
     ).toBeNull()
   })
 
+  it('catches a sentence still in ENGLISH — a key stubbed into every language and never translated', () => {
+    expect(
+      classify(
+        'Team messaging is unavailable in this workspace.',
+        'Team messaging is unavailable in this workspace.',
+      ),
+    ).toMatchObject({ klass: 'ENGLISH' })
+    // Words are counted outside tokens and code spans.
+    expect(
+      classify('Value must be at most {{max}}', 'Value must be at most {{max}}'),
+    ).toMatchObject({ klass: 'ENGLISH' })
+  })
+
+  it('lets a short label, an address or a token-only value read the same as English', () => {
+    expect(isUntranslatedCopy('Email', 'Email')).toBe(false)
+    expect(isUntranslatedCopy('Sign in', 'Sign in')).toBe(false)
+    expect(isUntranslatedCopy('you@example.com', 'you@example.com')).toBe(false)
+    expect(
+      isUntranslatedCopy('See https://docs.example.com/a/b', 'See https://docs.example.com/a/b'),
+    ).toBe(false)
+    expect(
+      isUntranslatedCopy(
+        '{{count}} / {{total}} `npm run build`',
+        '{{count}} / {{total}} `npm run build`',
+      ),
+    ).toBe(false)
+    // A script example is code, whatever language the UI is in.
+    expect(isUntranslatedCopy('#!/bin/sh\nnpm test', '#!/bin/sh\nnpm test')).toBe(false)
+    expect(
+      isUntranslatedCopy('Value must be at most {{max}}', 'Der Wert darf höchstens {{max}} sein'),
+    ).toBe(false)
+  })
+
+  it('catches a slash COMMAND the translation changed — the reader types a command that does not exist', () => {
+    // Google's Afrikaans, 2026-11-13.
+    expect(
+      classify('Usage: /timestamps [on | off]', 'Gebruik: /tydstempels [aan | af]'),
+    ).toMatchObject({ klass: 'COMMAND', detail: '/timestamps [on | off] not kept verbatim' })
+    // Its argument syntax is part of it: a lost space or a translated flag is a
+    // different command.
+    expect(classify('Usage: /run <name>', 'Gebruik: /run<name>')).toMatchObject({
+      klass: 'COMMAND',
+    })
+    expect(
+      classify('/effort --plan|--execute <level>', '/effort --plan|--uitvoer <level>'),
+    ).toMatchObject({ klass: 'COMMAND' })
+    expect(classify('Usage: /run <name>', 'Gebruik: /run <name>')).toBeNull()
+  })
+
+  it('reads a command only where one can start, never inside a word, a path or a tag', () => {
+    expect(commandSpans('Read and/or write 1/2 of it at 5 km/h')).toEqual([])
+    expect(commandSpans('<p>See .agents/skills/ and ~/notes</p>')).toEqual([])
+    // CJK puts no space before it.
+    expect(
+      commandSpans('用法：/timestamps [on | off]，使用/undo撤销，/effort ?用于查看状态'),
+    ).toEqual(['/timestamps [on | off]', '/undo', '/effort ?'])
+    expect(commandSpans('Type /model to pick another (or “/plan”).')).toEqual(['/model', '/plan'])
+    expect(commandSpans('Usage: /effort ? for status')).toEqual(['/effort ?'])
+    // A command inside a code span is the CODE rule's.
+    expect(commandSpans('Run `/compact` now')).toEqual([])
+  })
+
+  it('catches a lost or added NEWLINE — the card renders as one run-on line', () => {
+    expect(
+      classify(
+        'Model: {{model}}\nInput: {{input}} tokens',
+        'Modell: {{model}} Eingabe: {{input}} Token',
+      ),
+    ).toMatchObject({ klass: 'NEWLINE', detail: "0 line break(s) vs en's 1" })
+    expect(
+      classify(
+        'Model: {{model}}\nInput: {{input}} tokens',
+        'Modell: {{model}}\nEingabe: {{input}} Token',
+      ),
+    ).toBeNull()
+  })
+
   it('catches a CODE span the translation added — UI text shows the backticks', () => {
     // A machine translation's Polish for '{{count}} results in {{files}} files'.
     expect(
       classify('{{count}} results in {{files}} files', '{{count}} wyników w `{{files}}` plikach'),
     ).toMatchObject({ klass: 'CODE', detail: expect.stringContaining('gains `{{files}}`') })
+  })
+})
+
+describe('plural forms', () => {
+  it('lists each category beyond one/other a whole number selects, with a count that selects it', () => {
+    expect([...countPluralForms('ru')]).toEqual([
+      ['few', 2],
+      ['many', 5],
+    ])
+    // Czech's `many` only applies to a fraction, which a count never is.
+    expect([...countPluralForms('cs')]).toEqual([['few', 2]])
+    // Spanish's applies to a million ("1 000 000 de archivos").
+    expect([...countPluralForms('es')]).toEqual([['many', 1_000_000]])
+    // 0 is the sample only where it alone selects the category.
+    expect(countPluralForms('ar').get('zero')).toBe(0)
+    expect(countPluralForms('lv').get('zero')).toBe(10)
+    expect([...countPluralForms('ja')]).toEqual([])
+  })
+
+  it('reports each form a pluralized key lacks in a language that has it', () => {
+    const en = new Map([
+      ['files_one', '{{count}} file'],
+      ['files_other', '{{count}} files'],
+      ['title', 'Files'],
+    ])
+    expect(pluralBases(en)).toEqual(['files'])
+    const ru = new Map([
+      ['files_one', '{{count}} файл'],
+      ['files_other', '{{count}} файлов'],
+    ])
+    // Without `_few` the i18n core falls back to `_other`: "2 файлов".
+    expect(missingPluralForms(['files'], 'ru', ru)).toEqual([
+      { base: 'files', category: 'few' },
+      { base: 'files', category: 'many' },
+    ])
+    ru.set('files_few', '{{count}} файла')
+    ru.set('files_many', '{{count}} файлов')
+    expect(missingPluralForms(['files'], 'ru', ru)).toEqual([])
+    expect(missingPluralForms(['files'], 'ja', new Map())).toEqual([])
   })
 })
 

@@ -3,7 +3,7 @@ import type { PropertyTranslations } from './types.js'
 /** Property translations for Japanese. */
 export const ja: PropertyTranslations = {
   'property.error.unauthorized': '認証されていません。',
-  'property.error.forbidden': 'You do not have access to this property',
+  'property.error.forbidden': 'この物件へのアクセス権はありません',
   'property.error.nameRequired': '物件名は必須です',
   'property.error.invalidName': '物件名が無効です',
   'property.error.addressRequired': '住所、市区町村、国コードは必須です',

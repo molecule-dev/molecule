@@ -2,10 +2,10 @@ import type { MindMapCanvasTranslations } from './types.js'
 
 /** Mind-map-canvas translations for Amharic. */
 export const am: MindMapCanvasTranslations = {
-  'mindMap.aria.canvas': 'Mind map canvas',
-  'mindMap.aria.edit': 'Edit node text',
+  'mindMap.aria.canvas': 'የአእምሮ ካርታ ሸራ',
+  'mindMap.aria.edit': 'የኖድ ጽሑፍን ያርትዑ',
   'mindMap.action.collapse': 'Collapse subtree',
   'mindMap.action.expand': 'Expand subtree',
-  'mindMap.action.addChild': 'Add child node',
+  'mindMap.action.addChild': 'የልጅ ኖድ ያክሉ',
   'mindMap.defaults.newChild': 'New idea',
 }

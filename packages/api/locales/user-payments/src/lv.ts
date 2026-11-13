@@ -7,8 +7,8 @@ export const lv: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'Nepieciešams kvīts un planKey.',
   'user.payment.verificationNotConfigured':
     'Maksājuma verifikācija nav konfigurēta priekš {{provider}}.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Nederīgs plāns pakalpojumam {{provider}}.',
+  'user.payment.verificationFailed': 'Maksājuma verifikācija pakalpojumam {{provider}} neizdevās.',
   'user.payment.unknownPlan': 'Nezināms plāns.',
   'user.payment.invalidWebhookEvent': 'Nederīgs webhook notikums.',
 }

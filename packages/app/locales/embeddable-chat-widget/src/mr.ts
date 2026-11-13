@@ -5,9 +5,9 @@ export const mr: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'सुरुवात करण्यासाठी प्रश्न विचारा.',
+  'embeddableChatWidget.panel.assistantTyping': 'सहाय्यक टाईप करत आहे…',
+  'embeddableChatWidget.composer.placeholder': 'तुमचा संदेश टाइप करा…',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError': 'काहीतरी चूक झाली आहे. कृपया पुन्हा प्रयत्न करा.',
 }

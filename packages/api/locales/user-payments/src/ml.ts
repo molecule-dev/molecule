@@ -7,8 +7,9 @@ export const ml: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt, planKey എന്നിവ ആവശ്യമാണ്.',
   'user.payment.verificationNotConfigured':
     '{{provider}}-ന് പേയ്‌മെന്റ് സ്ഥിരീകരണം കോൺഫിഗർ ചെയ്തിട്ടില്ല.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': '{{provider}} എന്നതിനുള്ള പ്ലാൻ അസാധുവാണ്.',
+  'user.payment.verificationFailed':
+    '{{provider}} എന്നതിനായുള്ള പേയ്‌മെന്റ് പരിശോധന പരാജയപ്പെട്ടു.',
   'user.payment.unknownPlan': 'അജ്ഞാത പ്ലാൻ.',
   'user.payment.invalidWebhookEvent': 'അസാധുവായ വെബ്‌ഹുക്ക് ഇവന്റ്.',
 }

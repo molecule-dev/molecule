@@ -6,4 +6,5 @@ export const he: Partial<MessageBubbleTranslations> = {
   'composer.send': 'לִשְׁלוֹחַ',
   'thread.replies_one': 'תשובה {{count}}',
   'thread.replies_other': '{{count}}',
+  'thread.replies_two': '{{count}} תגובות',
 }

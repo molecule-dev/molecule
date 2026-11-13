@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Romanian. */
 export const ro: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'Cheia API nu a fost găsită.',
+  'resourceApiKey.error.revoked': 'Cheia API a fost revocată.',
+  'resourceApiKey.error.expired': 'Cheia API a expirat.',
+  'resourceApiKey.error.invalid': 'Cheie API nevalidă.',
 }

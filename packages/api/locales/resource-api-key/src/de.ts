@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for German. */
 export const de: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'API-Schlüssel nicht gefunden.',
+  'resourceApiKey.error.revoked': 'Der API-Schlüssel wurde widerrufen.',
+  'resourceApiKey.error.expired': 'Der API-Schlüssel ist abgelaufen.',
+  'resourceApiKey.error.invalid': 'Ungültiger API-Schlüssel.',
 }

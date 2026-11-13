@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Albanian. */
 export const sq: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'Çelësi API nuk u gjet.',
+  'resourceApiKey.error.revoked': 'Çelësi API është revokuar.',
+  'resourceApiKey.error.expired': 'Çelësi API ka skaduar.',
+  'resourceApiKey.error.invalid': 'Çelës API i pavlefshëm.',
 }

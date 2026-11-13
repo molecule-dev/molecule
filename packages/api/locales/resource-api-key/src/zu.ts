@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Zulu. */
 export const zu: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'Ukhiye we-API awutholakalanga.',
+  'resourceApiKey.error.revoked': 'Ukhiye we-API uhoxisiwe.',
+  'resourceApiKey.error.expired': 'Ukhiye we-API uphelelwe yisikhathi.',
+  'resourceApiKey.error.invalid': 'Ukhiye we-API ongavumelekile.',
 }

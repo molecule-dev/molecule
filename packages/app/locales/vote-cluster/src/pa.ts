@@ -7,5 +7,5 @@ export const pa: VoteClusterTranslations = {
   'vote-cluster.downvote': 'Downvote',
   'vote-cluster.removeDownvote': 'Remove downvote',
   'vote-cluster.score': 'Score: {{score}}',
-  'vote-cluster.group': 'Vote cluster, current score {{score}}',
+  'vote-cluster.group': 'ਵੋਟ ਕਲੱਸਟਰ, ਮੌਜੂਦਾ ਸਕੋਰ {{score}}',
 }

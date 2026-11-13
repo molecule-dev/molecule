@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Belarusian. */
 export const be: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'Ключ API не знойдзены.',
+  'resourceApiKey.error.revoked': 'Ключ API быў адкліканы.',
+  'resourceApiKey.error.expired': 'Тэрмін дзеяння ключа API скончыўся.',
+  'resourceApiKey.error.invalid': 'Няправільны ключ API.',
 }

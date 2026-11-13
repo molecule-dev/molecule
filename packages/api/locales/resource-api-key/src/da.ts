@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Danish. */
 export const da: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'API-nøgle ikke fundet.',
+  'resourceApiKey.error.revoked': 'API-nøglen er blevet tilbagekaldt.',
+  'resourceApiKey.error.expired': 'API-nøglen er udløbet.',
+  'resourceApiKey.error.invalid': 'Ugyldig API-nøgle.',
 }

@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Urdu. Stub — uses English copy. */
 export const ur: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'اپنا منصوبہ منتخب کریں۔',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'قیمتوں کو لوڈ نہیں کیا جا سکا۔ بعد میں دوبارہ کوشش کریں۔',
+  'pricingPage.checkoutError': 'چیک آؤٹ شروع نہیں کیا جا سکا۔ براہ کرم دوبارہ کوشش کریں۔',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'آپ کا منصوبہ اپ ڈیٹ کر دیا گیا ہے۔',
+  'pricingPage.planUpdated.headingNamed': 'اب آپ {{planName}} پلان پر ہیں۔',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'اپ گریڈ کرنے کا شکریہ۔ آپ کا نیا منصوبہ فوری طور پر فعال ہے اور آپ کو ایک رسید ای میل کر دی گئی ہے۔',
 }

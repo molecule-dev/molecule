@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Belarusian. Stub — uses English copy. */
 export const be: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'Выберыце свой план',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'Не атрымалася загрузіць цэны. Паўтарыце спробу пазней.',
+  'pricingPage.checkoutError': 'Не атрымалася пачаць афармленне замовы. Паўтарыце спробу.',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'Ваш план абноўлены',
+  'pricingPage.planUpdated.headingNamed': 'Цяпер вы карыстаецеся тарыфным планам {{planName}}',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'Дзякуй за абнаўленне. Ваш новы план адразу ж актывуецца, і квітанцыя аб абнаўленні была адпраўлена вам па электроннай пошце.',
 }

@@ -3,7 +3,7 @@ import type { JoinCodeTranslations } from './types.js'
 /** JoinCode translations for gu. */
 export const gu: Partial<JoinCodeTranslations> = {
   'joinCode.label': 'Join code',
-  'joinCode.slotAriaLabel': 'Join code character {{position}}',
-  'joinCode.help': 'Enter the {{length}}-character code.',
+  'joinCode.slotAriaLabel': 'કોડ અક્ષર {{position}} માં જોડાઓ',
+  'joinCode.help': '{{length}}-અક્ષર કોડ દાખલ કરો.',
   'joinCode.errorAlphabet': 'Invalid character.',
 }

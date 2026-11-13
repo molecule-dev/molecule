@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Slovenian. */
 export const sl: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'Ključ API ni bil najden.',
+  'resourceApiKey.error.revoked': 'Ključ API je bil preklican.',
+  'resourceApiKey.error.expired': 'Ključ API je potekel.',
+  'resourceApiKey.error.invalid': 'Neveljaven ključ API-ja.',
 }

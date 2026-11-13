@@ -6,8 +6,8 @@ export const gu: UserPaymentTranslations = {
   'user.payment.subscriptionIdRequired': 'subscriptionId જરૂરી છે.',
   'user.payment.receiptAndPlanRequired': 'receipt અને planKey જરૂરી છે.',
   'user.payment.verificationNotConfigured': '{{provider}} માટે ચુકવણી ચકાસણી ગોઠવાયેલ નથી.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': '{{provider}} માટે અમાન્ય પ્લાન.',
+  'user.payment.verificationFailed': '{{provider}} માટે ચુકવણી ચકાસણી નિષ્ફળ ગઈ.',
   'user.payment.unknownPlan': 'અજ્ઞાત પ્લાન.',
   'user.payment.invalidWebhookEvent': 'અમાન્ય વેબહૂક ઇવેન્ટ.',
 }

@@ -5,7 +5,7 @@ export const fr: NpsDistributionTranslations = {
   'nps-distribution.tier.detractor': 'Detractor',
   'nps-distribution.tier.passive': 'Passive',
   'nps-distribution.tier.promoter': 'Promoter',
-  'nps-distribution.aria-label': 'NPS distribution chart, {{total}} responses',
+  'nps-distribution.aria-label': 'Graphique de répartition NPS, {{total}} réponses',
   'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
   'nps-distribution.score.responses': '{{total}} responses',

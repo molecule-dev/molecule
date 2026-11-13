@@ -2,10 +2,10 @@ import type { MindMapCanvasTranslations } from './types.js'
 
 /** Mind-map-canvas translations for Gujarati. */
 export const gu: MindMapCanvasTranslations = {
-  'mindMap.aria.canvas': 'Mind map canvas',
-  'mindMap.aria.edit': 'Edit node text',
+  'mindMap.aria.canvas': 'મન નકશા કેનવાસ',
+  'mindMap.aria.edit': 'નોડ ટેક્સ્ટ સંપાદિત કરો',
   'mindMap.action.collapse': 'Collapse subtree',
   'mindMap.action.expand': 'Expand subtree',
-  'mindMap.action.addChild': 'Add child node',
+  'mindMap.action.addChild': 'ચાઇલ્ડ નોડ ઉમેરો',
   'mindMap.defaults.newChild': 'New idea',
 }

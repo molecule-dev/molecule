@@ -13,6 +13,6 @@ export const bn: PasswordGeneratorTranslations = {
   'password-generator.toggle.digits': 'Digits (0-9)',
   'password-generator.toggle.symbols': 'Symbols (!@#…)',
   'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
-  'password-generator.toggle.noAmbiguous': 'Skip ambiguous (space, quotes)',
-  'password-generator.pick': 'Use this password',
+  'password-generator.toggle.noAmbiguous': 'অস্পষ্ট (স্পেস, উদ্ধৃতি) এড়িয়ে যান।',
+  'password-generator.pick': 'এই পাসওয়ার্ডটি ব্যবহার করুন',
 }

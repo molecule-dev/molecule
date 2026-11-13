@@ -2,18 +2,18 @@ import type { PricingPageTranslations } from './types.js'
 
 /** Pricing Page translations for Bengali. Stub — uses English copy. */
 export const bn: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
+  'pricingPage.heading': 'আপনার প্ল্যান বেছে নিন',
   'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
+  'pricingPage.error': 'মূল্যতালিকা লোড করা যায়নি। পরে আবার চেষ্টা করুন।',
+  'pricingPage.checkoutError': 'চেকআউট শুরু করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।',
   'pricingPage.perSeat': 'per seat',
   'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
   'pricingPage.currentCta': 'Current plan',
   'pricingPage.periodToggle.label': 'Billing period',
   'pricingPage.periodToggle.monthly': 'Monthly',
   'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
+  'pricingPage.planUpdated.heading': 'আপনার প্ল্যান আপডেট করা হয়েছে',
+  'pricingPage.planUpdated.headingNamed': 'আপনি এখন {{planName}} প্ল্যানে আছেন।',
   'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+    'আপগ্রেড করার জন্য ধন্যবাদ। আপনার নতুন প্ল্যানটি অবিলম্বে সক্রিয় হয়ে গেছে এবং আপনাকে একটি রসিদ ইমেল করা হয়েছে।',
 }

@@ -5,9 +5,10 @@ export const uz: EmbeddableChatWidgetTranslations = {
   'embeddableChatWidget.launcher.openLabel': 'Open chat',
   'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
+  'embeddableChatWidget.panel.emptyState': 'Boshlash uchun savol bering.',
+  'embeddableChatWidget.panel.assistantTyping': 'Yordamchi yozmoqda…',
+  'embeddableChatWidget.composer.placeholder': 'Xabaringizni yozing…',
   'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+  'embeddableChatWidget.error.streamError':
+    "Nimadir noto'g'ri ketdi. Iltimos, qaytadan urinib ko'ring.",
 }

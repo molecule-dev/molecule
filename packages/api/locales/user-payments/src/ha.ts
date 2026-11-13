@@ -6,8 +6,8 @@ export const ha: UserPaymentTranslations = {
   'user.payment.subscriptionIdRequired': 'Ana buƙatar subscriptionId.',
   'user.payment.receiptAndPlanRequired': 'Ana buƙatar rasit da planKey.',
   'user.payment.verificationNotConfigured': 'Ba a saita tabbatarwar biyan kuɗi ga {{provider}} ba.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Tsarin da ba shi da inganci ga {{provider}}.',
+  'user.payment.verificationFailed': 'An kasa tabbatar da biyan kuɗi ga {{provider}}.',
   'user.payment.unknownPlan': 'Shirin da ba a sani ba.',
   'user.payment.invalidWebhookEvent': 'Lamarin webhook mara inganci.',
 }

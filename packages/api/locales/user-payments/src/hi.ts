@@ -6,8 +6,8 @@ export const hi: UserPaymentTranslations = {
   'user.payment.subscriptionIdRequired': 'subscriptionId आवश्यक है।',
   'user.payment.receiptAndPlanRequired': 'receipt और planKey आवश्यक हैं।',
   'user.payment.verificationNotConfigured': '{{provider}} के लिए भुगतान सत्यापन कॉन्फ़िगर नहीं है।',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': '{{provider}} के लिए अमान्य योजना।',
+  'user.payment.verificationFailed': '{{provider}} के लिए भुगतान सत्यापन विफल रहा।',
   'user.payment.unknownPlan': 'अज्ञात प्लान।',
   'user.payment.invalidWebhookEvent': 'अमान्य वेबहुक इवेंट।',
 }

@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Thai. */
 export const th: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'ไม่พบคีย์ API',
+  'resourceApiKey.error.revoked': 'คีย์ API ถูกยกเลิกแล้ว',
+  'resourceApiKey.error.expired': 'คีย์ API หมดอายุแล้ว',
+  'resourceApiKey.error.invalid': 'รหัส API ไม่ถูกต้อง',
 }

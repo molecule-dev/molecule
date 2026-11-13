@@ -2,8 +2,8 @@ import type { ResourceApiKeyTranslations } from './types.js'
 
 /** API key resource translations for Uzbek. */
 export const uz: ResourceApiKeyTranslations = {
-  'resourceApiKey.error.notFound': 'API key not found.',
-  'resourceApiKey.error.revoked': 'API key has been revoked.',
-  'resourceApiKey.error.expired': 'API key has expired.',
-  'resourceApiKey.error.invalid': 'Invalid API key.',
+  'resourceApiKey.error.notFound': 'API kaliti topilmadi.',
+  'resourceApiKey.error.revoked': 'API kaliti bekor qilindi.',
+  'resourceApiKey.error.expired': 'API kalitining amal qilish muddati tugagan.',
+  'resourceApiKey.error.invalid': "API kaliti noto'g'ri.",
 }
