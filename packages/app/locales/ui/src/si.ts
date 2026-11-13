@@ -58,4 +58,6 @@ export const si: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap සකසා නොමැත. යෙදුම් ආරම්භයේදී ස්ටයිලිං පුස්තකාල ක්‍රියාත්මක කිරීමක් සමඟින් setClassMap() අමතන්න (උදා: @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` එකක් තුළ භාවිතා කළ යුතුය.',
+  'ui.pageShell.collapseSidebar': 'පැති තීරුව හකුළන්න',
+  'ui.pageShell.expandSidebar': 'පැති තීරුව දිග හරින්න',
 }

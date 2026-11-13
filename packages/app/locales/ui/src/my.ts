@@ -60,4 +60,6 @@ export const my: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap ကို မသတ်မှတ်ရသေးပါ။ အက်ပ်စတင်ချိန်တွင် styling library implementation (ဥပမာ၊ @molecule/app-ui-tailwind) ဖြင့် setClassMap() ကို ခေါ်ပါ။',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` အတွင်းတွင် အသုံးပြုရမည်',
+  'ui.pageShell.collapseSidebar': 'ဘေးဘက်ဘားကို ခေါက်ပါ',
+  'ui.pageShell.expandSidebar': 'ဘေးဘက်ဘားကို ချဲ့ထွင်ပါ',
 }

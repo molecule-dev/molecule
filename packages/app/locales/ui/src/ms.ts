@@ -53,4 +53,6 @@ export const ms: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Tiada UIClassMap telah ditetapkan. Panggil setClassMap() semasa permulaan aplikasi dengan pelaksanaan pustaka penggayaan (cth., @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` mesti digunakan dalam `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Lipat bar sisi',
+  'ui.pageShell.expandSidebar': 'Kembangkan bar sisi',
 }

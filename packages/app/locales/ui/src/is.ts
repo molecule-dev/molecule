@@ -53,4 +53,6 @@ export const is: UiTranslations = {
   'ui.error.noClassMap':
     'Engin UIClassMap hefur verið stillt. Kallaðu á setClassMap() við ræsingu forritsins með útfærslu á stílbókasafni (t.d. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` verður að vera notað innan `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Fella saman hliðarstiku',
+  'ui.pageShell.expandSidebar': 'Stækka hliðarstikuna',
 }

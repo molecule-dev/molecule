@@ -53,4 +53,6 @@ export const hr: UiTranslations = {
   'ui.error.noClassMap':
     'Nije postavljen UIClassMap. Pozovite setClassMap() pri pokretanju aplikacije s implementacijom biblioteke za stiliziranje (npr. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` se mora koristiti unutar `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Sažmi bočnu traku',
+  'ui.pageShell.expandSidebar': 'Proširi bočnu traku',
 }

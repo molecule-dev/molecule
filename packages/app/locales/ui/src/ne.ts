@@ -63,4 +63,6 @@ export const ne: UiTranslations = {
   'ui.error.noClassMap':
     'कुनै पनि UIClassMap सेट गरिएको छैन। स्टाइलिङ लाइब्रेरी कार्यान्वयन (जस्तै, @molecule/app-ui-tailwind) सँग एप स्टार्टअपमा setClassMap() लाई कल गर्नुहोस्।',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` भित्र प्रयोग गर्नुपर्छ।',
+  'ui.pageShell.collapseSidebar': 'साइडबार संक्षिप्त गर्नुहोस्',
+  'ui.pageShell.expandSidebar': 'साइडबार विस्तार गर्नुहोस्',
 }

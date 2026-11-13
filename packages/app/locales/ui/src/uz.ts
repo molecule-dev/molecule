@@ -53,4 +53,6 @@ export const uz: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap sozlanmagan. Ilova ishga tushirilganda styling kutubxonasi implementatsiyasi (masalan, @molecule/app-ui-tailwind) bilan setClassMap() ni chaqiring.',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` ichida ishlatilishi kerak',
+  'ui.pageShell.collapseSidebar': 'Yon panelni yopish',
+  'ui.pageShell.expandSidebar': 'Yon panelni kengaytirish',
 }

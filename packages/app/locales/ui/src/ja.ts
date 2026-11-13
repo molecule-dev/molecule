@@ -53,4 +53,6 @@ export const ja: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'UIClassMapが設定されていません。アプリ起動時に、スタイリングライブラリの実装（例：@molecule/app-ui-tailwind）を使用してsetClassMap()を呼び出してください。',
   'ui.toast.error.noProvider': '`useToast` は `ToastProvider` の内側で使用する必要があります。',
+  'ui.pageShell.collapseSidebar': 'サイドバーを折りたたむ',
+  'ui.pageShell.expandSidebar': 'サイドバーを展開する',
 }

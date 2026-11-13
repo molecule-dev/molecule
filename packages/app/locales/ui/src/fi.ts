@@ -53,4 +53,6 @@ export const fi: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'UIClassMapia ei ole asetettu. Kutsu setClassMap()-funktiota sovelluksen käynnistyksen yhteydessä tyylikirjaston toteutuksella (esim. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` on käytettävä `ToastProvider` kohteen sisällä.',
+  'ui.pageShell.collapseSidebar': 'Pienennä sivupalkki',
+  'ui.pageShell.expandSidebar': 'Laajenna sivupalkki',
 }

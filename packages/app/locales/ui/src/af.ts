@@ -53,4 +53,6 @@ export const af: UiTranslations = {
   'ui.error.noClassMap':
     "Geen UIClassMap is gestel nie. Roep setClassMap() aan tydens die opstart van die toepassing met 'n stileringsbiblioteekimplementering (bv. @molecule/app-ui-tailwind).",
   'ui.toast.error.noProvider': "`useToast` moet binne 'n `ToastProvider` gebruik word",
+  'ui.pageShell.collapseSidebar': 'Vou sybalk in',
+  'ui.pageShell.expandSidebar': 'Vou die sybalk uit',
 }

@@ -53,4 +53,6 @@ export const ar: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'لم يتم تعيين أي UIClassMap. قم باستدعاء setClassMap() عند بدء تشغيل التطبيق باستخدام تطبيق مكتبة التنسيق (على سبيل المثال، @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': 'يجب استخدام `useToast` داخل `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'طي الشريط الجانبي',
+  'ui.pageShell.expandSidebar': 'توسيع الشريط الجانبي',
 }

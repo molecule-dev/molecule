@@ -53,4 +53,6 @@ export const tr: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Hiçbir UIClassMap ayarlanmadı. Uygulama başlatılırken, bir stil kütüphanesi uygulamasıyla (örneğin, @molecule/app-ui-tailwind) setClassMap() işlevini çağırın.',
   'ui.toast.error.noProvider': '`useToast` mutlaka bir `ToastProvider` içinde kullanılmalıdır.',
+  'ui.pageShell.collapseSidebar': 'Kenar çubuğunu daralt',
+  'ui.pageShell.expandSidebar': 'Kenar çubuğunu genişlet',
 }

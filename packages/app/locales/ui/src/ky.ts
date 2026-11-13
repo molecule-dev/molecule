@@ -53,4 +53,6 @@ export const ky: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap коюлган эмес. Стилдөө китепканасын ишке ашыруу менен колдонмону ишке киргизүүдө setClassMap() функциясын чакырыңыз (мисалы, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` ичинде колдонулушу керек',
+  'ui.pageShell.collapseSidebar': 'Каптал тилкесин жыйыштыруу',
+  'ui.pageShell.expandSidebar': 'Каптал тилкесин жайып көрсөтүү',
 }

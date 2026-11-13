@@ -53,4 +53,6 @@ export const et: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap-i pole määratud. Rakenda rakenduse käivitamisel funktsiooni setClassMap() abil, kasutades stiiliteegi implementatsiooni (nt @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` peab olema kasutatud `ToastProvider` sees',
+  'ui.pageShell.collapseSidebar': 'Sulge külgriba',
+  'ui.pageShell.expandSidebar': 'Laienda külgriba',
 }

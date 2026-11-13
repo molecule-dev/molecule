@@ -59,4 +59,6 @@ export const mn: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap тохируулагдаагүй байна. Апп эхлүүлэх үед загварчлалын сангийн хэрэгжүүлэлттэй (жишээ нь, @molecule/app-ui-tailwind) setClassMap() функцийг дуудна уу.',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` дотор ашиглагдах ёстой',
+  'ui.pageShell.collapseSidebar': 'Хажуугийн цэсийг хумих',
+  'ui.pageShell.expandSidebar': 'Хажуугийн самбарыг дэлгэх',
 }

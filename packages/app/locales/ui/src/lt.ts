@@ -53,4 +53,6 @@ export const lt: UiTranslations = {
   'ui.error.noClassMap':
     'Nenustatytas UIClassMap. Paleidžiant programą, iškvieskite setClassMap() funkciją su stiliaus bibliotekos įgyvendinimu (pvz., @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` turi būti naudojamas `ToastProvider` viduje',
+  'ui.pageShell.collapseSidebar': 'Sutraukti šoninę juostą',
+  'ui.pageShell.expandSidebar': 'Išskleisti šoninę juostą',
 }

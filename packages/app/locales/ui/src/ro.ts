@@ -53,4 +53,6 @@ export const ro: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Nu a fost setată nicio UIClassMap. Apelați setClassMap() la pornirea aplicației cu o implementare a unei biblioteci de stiluri (de exemplu, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` trebuie utilizat în cadrul unui `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Restrângeți bara laterală',
+  'ui.pageShell.expandSidebar': 'Extinde bara laterală',
 }

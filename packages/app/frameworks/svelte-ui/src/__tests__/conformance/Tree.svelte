@@ -7,7 +7,11 @@
 <script lang="ts">
   import type { Component } from 'svelte'
 
-  import { isComponentSpec, isProbeSpec, type NodeSpec } from '@molecule/app-framework-conformance/ui'
+  import {
+    isComponentSpec,
+    isProbeSpec,
+    type NodeSpec,
+  } from '@molecule/app-framework-conformance/ui'
 
   import * as SvelteUI from '../../index.js'
   import Probe from './Probe.svelte'
@@ -33,6 +37,8 @@
     {@const Target = components[node.component]}
     <Target {...builders.propsOf(node)} />
   {:else}
-    <svelte:element this={node.tag} {...node.attrs ?? {}}><Tree nodes={node.children ?? []} /></svelte:element>
+    <svelte:element this={node.tag} {...node.attrs ?? {}}
+      ><Tree nodes={node.children ?? []} /></svelte:element
+    >
   {/if}
 {/each}

@@ -53,4 +53,6 @@ export const pt: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Nenhum UIClassMap foi definido. Chame setClassMap() na inicialização do aplicativo com uma implementação de biblioteca de estilo (por exemplo, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` deve ser usado dentro de um `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Recolher barra lateral',
+  'ui.pageShell.expandSidebar': 'Expandir barra lateral',
 }

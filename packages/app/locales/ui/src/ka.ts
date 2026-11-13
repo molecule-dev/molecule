@@ -60,4 +60,6 @@ export const ka: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap არ არის დაყენებული. აპლიკაციის გაშვებისას გამოიძახეთ setClassMap() სტილის ბიბლიოთეკის იმპლემენტაციით (მაგ., @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` უნდა იქნას გამოყენებული `ToastProvider` ში',
+  'ui.pageShell.collapseSidebar': 'გვერდითი ზოლის ჩაკეცვა',
+  'ui.pageShell.expandSidebar': 'გვერდითი ზოლის გაფართოება',
 }

@@ -53,4 +53,6 @@ export const ig: UiTranslations = {
   'ui.error.noClassMap':
     'E tinyebeghị UIClassMap ọ bụla. Kpọọ setClassMap() na mmalite ngwa site na iji usoro nhazi (dịka ọmụmaatụ, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': "A ga-eji `useToast` mee ihe n'ime `ToastProvider`",
+  'ui.pageShell.collapseSidebar': 'Gbadaa akụkụ aka nri',
+  'ui.pageShell.expandSidebar': 'Gbasaa akụkụ akụkụ aka nri',
 }

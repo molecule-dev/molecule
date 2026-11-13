@@ -59,4 +59,6 @@ export const te: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap ఏదీ సెట్ చేయబడలేదు. యాప్ ప్రారంభంలో స్టైలింగ్ లైబ్రరీ ఇంప్లిమెంటేషన్‌తో (ఉదా, @molecule/app-ui-tailwind) setClassMap()ని కాల్ చేయండి.',
   'ui.toast.error.noProvider': '`useToast` తప్పనిసరిగా `ToastProvider` లోపల ఉపయోగించాలి.',
+  'ui.pageShell.collapseSidebar': 'సైడ్‌బార్‌ను కుదించండి',
+  'ui.pageShell.expandSidebar': 'సైడ్‌బార్‌ను విస్తరించండి',
 }

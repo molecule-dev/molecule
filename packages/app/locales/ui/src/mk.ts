@@ -59,4 +59,6 @@ export const mk: UiTranslations = {
   'ui.error.noClassMap':
     'Не е поставена UIClassMap. Повикајте setClassMap() при стартување на апликацијата со имплементација на библиотека за стилизирање (на пр., @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` мора да се користи во рамките на `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Собери ја страничната лента',
+  'ui.pageShell.expandSidebar': 'Прошири ја страничната лента',
 }

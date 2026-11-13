@@ -53,4 +53,6 @@ export const sk: UiTranslations = {
   'ui.error.noClassMap':
     'Nebola nastavená žiadna premenná UIClassMap. Pri spustení aplikácie zavolajte funkciu setClassMap() s implementáciou knižnice štýlov (napr. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` musí byť použitý v rámci `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Zbaliť bočný panel',
+  'ui.pageShell.expandSidebar': 'Rozbaliť bočný panel',
 }

@@ -53,4 +53,6 @@ export const fil: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Walang naitakdang UIClassMap. Tawagin ang setClassMap() sa pagsisimula ng app gamit ang isang implementasyon ng styling library (hal., @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': 'Dapat gamitin `useToast` sa loob ng isang `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'I-collapse ang sidebar',
+  'ui.pageShell.expandSidebar': 'Palawakin ang sidebar',
 }

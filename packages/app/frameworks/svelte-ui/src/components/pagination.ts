@@ -125,7 +125,7 @@ export function getPaginationIconData(direction: string): IconData {
       t(
         'svelte.error.unknownPaginationDirection',
         { direction },
-        { defaultValue: `Unknown pagination direction: "${direction}"` },
+        { defaultValue: 'Unknown pagination direction: "{{direction}}"' },
       ),
     )
   }

@@ -53,4 +53,6 @@ export const nb: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Ingen UIClassMap er angitt. Kall setClassMap() ved oppstart av appen med en implementering av et stylingbibliotek (f.eks. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` må brukes i en `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Skjul sidefeltet',
+  'ui.pageShell.expandSidebar': 'Utvid sidefeltet',
 }

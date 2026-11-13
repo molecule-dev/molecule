@@ -1,5 +1,5 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [svelte({ compilerOptions: { dev: false }, emitCss: false })],
@@ -8,6 +8,8 @@ export default defineConfig({
     conditions: ['browser'],
   },
   test: {
+    // svelte-package copies every test into dist/ and stages its output under .svelte-kit/.
+    exclude: [...configDefaults.exclude, 'dist/**', '.svelte-kit/**'],
     globals: true,
     environment: 'node',
     testTimeout: 30000,

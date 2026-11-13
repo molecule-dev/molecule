@@ -58,4 +58,6 @@ export const hy: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap-ը սահմանված չէ: Կանչեք setClassMap() ֆունկցիան ծրագրի գործարկման ժամանակ՝ ոճավորման գրադարանի իրականացմամբ (օրինակ՝ @molecule/app-ui-tailwind):',
   'ui.toast.error.noProvider': '`useToast` պետք է օգտագործվի `ToastProvider` ի ներսում',
+  'ui.pageShell.collapseSidebar': 'Ծալել կողային վահանակը',
+  'ui.pageShell.expandSidebar': 'Ընդարձակել կողային վահանակը',
 }

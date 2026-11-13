@@ -39,10 +39,24 @@
     return out
   })
   const shown = $derived(builders.materialize(bag.props))
+
+  // Mirrors the React reference adapter's AuthProvider, which holds the case
+  // behind SessionReady (fallback null) until the auth client decides the
+  // session: while a case's auth status is 'loading' the component under test
+  // is not rendered at all. The fakes never transition out of 'loading'.
+  const authClient = untrack(() => config.auth)
+  const sessionDecided = !authClient || authClient.getState().status !== 'loading'
 </script>
 
 {#snippet tree(list: NodeSpec[])}
   <Tree nodes={list} />
 {/snippet}
 
-<Target {...shown} {...nodeProps} />
+<!-- Mirrors the React reference adapter, which renders the case inside its own
+     data-parity-unwrap div within the harness container; the normalizer drops
+     the wrapper, but the focused-element path sees the real DOM nesting. -->
+<div data-parity-unwrap>
+  {#if sessionDecided}
+    <Target {...shown} {...nodeProps} />
+  {/if}
+</div>

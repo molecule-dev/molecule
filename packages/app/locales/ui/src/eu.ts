@@ -53,4 +53,6 @@ export const eu: UiTranslations = {
   'ui.error.noClassMap':
     'Ez da UIClassMap-ik ezarri. Deitu setClassMap() aplikazioa abiaraztean estilo liburutegi baten inplementazio batekin (adibidez, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` baten barruan erabili behar da',
+  'ui.pageShell.collapseSidebar': 'Tolestu alboko barra',
+  'ui.pageShell.expandSidebar': 'Zabaldu alboko barra',
 }

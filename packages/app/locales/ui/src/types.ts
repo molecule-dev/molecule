@@ -50,6 +50,8 @@ export type UiTranslationKey =
   | 'ui.form.submitError'
   | 'userMenu.panelLabel'
   | 'ui.error.noClassMap'
+  | 'ui.pageShell.collapseSidebar'
+  | 'ui.pageShell.expandSidebar'
 
 /** Translation record mapping ui keys to translated strings. */
 export type UiTranslations = Record<UiTranslationKey, string>

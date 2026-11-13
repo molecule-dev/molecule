@@ -53,4 +53,6 @@ export const sq: UiTranslations = {
   'ui.error.noClassMap':
     'Nuk është vendosur UIClassMap. Thirrni setClassMap() në nisjen e aplikacionit me një implementim të bibliotekës së stilimit (p.sh., @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` duhet të përdoret brenda një `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Palos shiritin anësor',
+  'ui.pageShell.expandSidebar': 'Zgjero shiritin anësor',
 }

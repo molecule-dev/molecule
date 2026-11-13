@@ -53,4 +53,6 @@ export const am: UiTranslations = {
   'ui.error.noClassMap':
     'ምንም UIClassMap አልተዘጋጀም። በቅጥ ቤተ-መጽሐፍት ትግበራ (ለምሳሌ @molecule/app-ui-tailwind) በመተግበሪያ ጅምር ላይ setClassMap() ይደውሉ።',
   'ui.toast.error.noProvider': '`useToast` በ `ToastProvider` ውስጥ ጥቅም ላይ መዋል አለበት',
+  'ui.pageShell.collapseSidebar': 'የጎን አሞሌን ሰብስብ',
+  'ui.pageShell.expandSidebar': 'የጎን አሞሌን ዘርጋ',
 }

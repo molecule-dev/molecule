@@ -53,4 +53,6 @@ export const yo: UiTranslations = {
   'ui.error.noClassMap':
     'Kò sí UIClassMap tí a ti ṣètò. Pe setClassMap() ní ìbẹ̀rẹ̀ ìṣàfilọ́lẹ̀ àpù pẹ̀lú ìgbékalẹ̀ ìkàwé àṣà (fún àpẹẹrẹ, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': 'A gbọ́dọ̀ lo `useToast` nínú `ToastProvider` kan',
+  'ui.pageShell.collapseSidebar': 'Ṣe ìdìpọ̀ ẹ̀gbẹ́ ẹ̀gbẹ́',
+  'ui.pageShell.expandSidebar': 'Fẹ̀ ẹ̀gbẹ́ ẹ̀gbẹ́',
 }

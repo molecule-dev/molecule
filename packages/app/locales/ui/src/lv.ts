@@ -53,4 +53,6 @@ export const lv: UiTranslations = {
   'ui.error.noClassMap':
     'Nav iestatīts UIClassMap. Lietotnes startēšanas laikā izsauciet funkciju setClassMap() ar stila bibliotēkas ieviešanu (piemēram, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` ir jāizmanto `ToastProvider` ietvaros.',
+  'ui.pageShell.collapseSidebar': 'Sakļaut sānu joslu',
+  'ui.pageShell.expandSidebar': 'Izvērst sānu joslu',
 }

@@ -53,4 +53,6 @@ export const ha: UiTranslations = {
   'ui.error.noClassMap':
     'Ba a saita UIClassMap ba. Kira setClassMap() a farkon aikace-aikacen tare da aiwatar da ɗakin karatu mai salo (misali, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': 'Dole ne a yi amfani da `useToast` a cikin `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Rufe gefen gefe',
+  'ui.pageShell.expandSidebar': 'Faɗaɗa gefen gefe',
 }

@@ -57,4 +57,6 @@ export const th: UiTranslations = {
   'ui.error.noClassMap':
     'ยังไม่ได้ตั้งค่า UIClassMap โปรดเรียกใช้ setClassMap() เมื่อแอปเริ่มต้นทำงาน หากใช้ไลบรารีการจัดสไตล์ (เช่น @molecule/app-ui-tailwind)',
   'ui.toast.error.noProvider': '`useToast` ต้องใช้ภายใน `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'ยุบแถบด้านข้าง',
+  'ui.pageShell.expandSidebar': 'ขยายแถบด้านข้าง',
 }

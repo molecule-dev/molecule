@@ -53,4 +53,6 @@ export const cs: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Nebyla nastavena žádná proměnná UIClassMap. Při spuštění aplikace volejte funkci setClassMap() s implementací stylingové knihovny (např. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` musí být použit v rámci `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Sbalit postranní panel',
+  'ui.pageShell.expandSidebar': 'Rozbalit postranní panel',
 }

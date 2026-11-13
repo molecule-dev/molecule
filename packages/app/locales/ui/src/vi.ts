@@ -53,4 +53,6 @@ export const vi: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Chưa có UIClassMap nào được thiết lập. Hãy gọi setClassMap() khi khởi chạy ứng dụng với một thư viện tạo kiểu (ví dụ: @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` phải được sử dụng trong `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Thu gọn thanh bên',
+  'ui.pageShell.expandSidebar': 'Mở rộng thanh bên',
 }

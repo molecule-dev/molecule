@@ -53,4 +53,6 @@ export const de: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Es wurde keine UIClassMap festgelegt. Rufen Sie setClassMap() beim Start der Anwendung mit einer Styling-Bibliotheksimplementierung auf (z. B. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` muss innerhalb eines `ToastProvider` verwendet werden.',
+  'ui.pageShell.collapseSidebar': 'Seitenleiste ausklappen',
+  'ui.pageShell.expandSidebar': 'Seitenleiste erweitern',
 }

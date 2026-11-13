@@ -53,4 +53,6 @@ export const zh: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     '尚未设置 UIClassMap。请在应用启动时使用样式库实现（例如，@molecule/app-ui-tailwind）调用 setClassMap()。',
   'ui.toast.error.noProvider': '`useToast`必须在`ToastProvider`中使用。',
+  'ui.pageShell.collapseSidebar': '折叠侧边栏',
+  'ui.pageShell.expandSidebar': '展开侧边栏',
 }

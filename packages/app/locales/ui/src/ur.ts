@@ -59,4 +59,6 @@ export const ur: UiTranslations = {
   'ui.error.noClassMap':
     'کوئی UIClassMap سیٹ نہیں کیا گیا ہے۔ اسٹائلنگ لائبریری کے نفاذ کے ساتھ ایپ اسٹارٹ اپ پر setClassMap() کو کال کریں (جیسے @molecule/app-ui-tailwind)۔',
   'ui.toast.error.noProvider': '`useToast` استعمال `ToastProvider` کے اندر ہونا چاہئے۔',
+  'ui.pageShell.collapseSidebar': 'سائڈبار کو سکیڑیں۔',
+  'ui.pageShell.expandSidebar': 'سائڈبار کو پھیلائیں۔',
 }

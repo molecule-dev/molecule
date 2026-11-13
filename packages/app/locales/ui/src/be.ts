@@ -53,4 +53,6 @@ export const be: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap не быў зададзены. Выклікайце setClassMap() пры запуску праграмы з рэалізацыяй бібліятэкі стыляў (напрыклад, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` павінен выкарыстоўвацца ўнутры `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Згарнуць бакавую панэль',
+  'ui.pageShell.expandSidebar': 'Разгарнуць бакавую панэль',
 }

@@ -53,4 +53,6 @@ export const en: UiTranslations = {
   'userMenu.panelLabel': 'Account menu',
   'ui.error.noClassMap':
     'No UIClassMap has been set. Call setClassMap() at app startup with a styling library implementation (e.g., @molecule/app-ui-tailwind).',
+  'ui.pageShell.collapseSidebar': 'Collapse sidebar',
+  'ui.pageShell.expandSidebar': 'Expand sidebar',
 }

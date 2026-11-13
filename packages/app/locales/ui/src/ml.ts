@@ -62,4 +62,6 @@ export const ml: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap ഒന്നും സജ്ജീകരിച്ചിട്ടില്ല. ആപ്പ് സ്റ്റാർട്ടപ്പിൽ ഒരു സ്റ്റൈലിംഗ് ലൈബ്രറി ഇംപ്ലിമെന്റേഷൻ ഉപയോഗിച്ച് setClassMap() വിളിക്കുക (ഉദാ: @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` ഒരു `ToastProvider`-നുള്ളിൽ ഉപയോഗിക്കണം.',
+  'ui.pageShell.collapseSidebar': 'സൈഡ്‌ബാർ ചുരുക്കുക',
+  'ui.pageShell.expandSidebar': 'സൈഡ്‌ബാർ വികസിപ്പിക്കുക',
 }

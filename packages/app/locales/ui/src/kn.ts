@@ -60,4 +60,6 @@ export const kn: UiTranslations = {
   'ui.error.noClassMap':
     'ಯಾವುದೇ UIClassMap ಅನ್ನು ಹೊಂದಿಸಲಾಗಿಲ್ಲ. ಅಪ್ಲಿಕೇಶನ್ ಪ್ರಾರಂಭದಲ್ಲಿ ಸ್ಟೈಲಿಂಗ್ ಲೈಬ್ರರಿ ಅನುಷ್ಠಾನದೊಂದಿಗೆ (ಉದಾ, @molecule/app-ui-tailwind) setClassMap() ಗೆ ಕರೆ ಮಾಡಿ.',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` ಒಳಗೆ ಬಳಸಬೇಕು',
+  'ui.pageShell.collapseSidebar': 'ಸೈಡ್‌ಬಾರ್ ಅನ್ನು ಕುಗ್ಗಿಸಿ',
+  'ui.pageShell.expandSidebar': 'ಸೈಡ್‌ಬಾರ್ ವಿಸ್ತರಿಸಿ',
 }

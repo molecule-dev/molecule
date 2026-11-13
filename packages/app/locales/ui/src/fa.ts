@@ -53,4 +53,6 @@ export const fa: UiTranslations = {
   'ui.error.noClassMap':
     'هیچ UIClassMap تنظیم نشده است. در هنگام راه‌اندازی برنامه با پیاده‌سازی کتابخانه استایل‌بندی (مثلاً @molecule/app-ui-tailwind)، تابع setClassMap() را فراخوانی کنید.',
   'ui.toast.error.noProvider': '`useToast` باید درون یک `ToastProvider` استفاده شود.',
+  'ui.pageShell.collapseSidebar': 'نوار کناری را جمع کنید',
+  'ui.pageShell.expandSidebar': 'نوار کناری را گسترش دهید',
 }

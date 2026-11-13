@@ -60,4 +60,6 @@ export const ta: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap எதுவும் அமைக்கப்படவில்லை. செயலி தொடங்கும் போது, ஒரு ஸ்டைலிங் லைப்ரரி செயலாக்கத்தைப் (எ.கா., @molecule/app-ui-tailwind) பயன்படுத்தி setClassMap()-ஐ அழைக்கவும்.',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` க்குள் பயன்படுத்தப்பட வேண்டும்.',
+  'ui.pageShell.collapseSidebar': 'பக்கப் பட்டியைச் சுருக்கு',
+  'ui.pageShell.expandSidebar': 'பக்கப் பட்டியை விரிவாக்கு',
 }

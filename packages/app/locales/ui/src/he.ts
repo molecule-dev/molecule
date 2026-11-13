@@ -53,4 +53,6 @@ export const he: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'לא הוגדרה UIClassMap. קריאה לפונקציה setClassMap() בעת הפעלת האפליקציה באמצעות יישום ספריית עיצוב (למשל, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': 'יש להשתמש ב `useToast` בתוך `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'כווץ את סרגל הצד',
+  'ui.pageShell.expandSidebar': 'הרחב את הצד',
 }

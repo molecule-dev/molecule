@@ -53,4 +53,6 @@ export const sl: UiTranslations = {
   'ui.error.noClassMap':
     'UIClassMap ni bil nastavljen. Ob zagonu aplikacije pokličite setClassMap() z implementacijo knjižnice za oblikovanje (npr. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` mora biti uporabljen znotraj `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Strni stransko vrstico',
+  'ui.pageShell.expandSidebar': 'Razširi stransko vrstico',
 }

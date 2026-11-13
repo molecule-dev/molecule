@@ -53,4 +53,6 @@ export const el: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Δεν έχει οριστεί UIClassMap. Καλέστε την setClassMap() κατά την εκκίνηση της εφαρμογής με μια υλοποίηση βιβλιοθήκης στυλ (π.χ., @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` πρέπει να χρησιμοποιείται μέσα σε ένα `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Σύμπτυξη πλευρικής γραμμής',
+  'ui.pageShell.expandSidebar': 'Ανάπτυξη πλευρικής γραμμής',
 }

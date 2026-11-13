@@ -53,4 +53,6 @@ export const hu: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Nincs beállítva UIClassMap. Hívd meg a setClassMap() függvényt az alkalmazás indításakor egy stíluskönyvtár implementációjával (pl. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` egy `ToastProvider` belül kell használni.',
+  'ui.pageShell.collapseSidebar': 'Oldalsáv összecsukása',
+  'ui.pageShell.expandSidebar': 'Oldalsáv kibontása',
 }

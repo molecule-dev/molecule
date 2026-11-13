@@ -53,4 +53,6 @@ export const gl: UiTranslations = {
   'ui.error.noClassMap':
     'Non se estableceu ningún UIClassMap. Chama a setClassMap() ao iniciar a aplicación cunha implementación dunha biblioteca de estilos (por exemplo, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` debe usarse dentro de `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Contraer a barra lateral',
+  'ui.pageShell.expandSidebar': 'Expandir a barra lateral',
 }

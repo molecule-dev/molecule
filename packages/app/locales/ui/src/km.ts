@@ -56,4 +56,6 @@ export const km: UiTranslations = {
   'ui.error.noClassMap':
     'គ្មាន UIClassMap ត្រូវបានកំណត់ទេ។ ហៅ setClassMap() នៅពេលចាប់ផ្តើមកម្មវិធីជាមួយនឹងការអនុវត្តបណ្ណាល័យរចនាប័ទ្ម (ឧ. @molecule/app-ui-tailwind)។',
   'ui.toast.error.noProvider': '`useToast` ត្រូវតែប្រើនៅក្នុង `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'បង្រួមរបារចំហៀង',
+  'ui.pageShell.expandSidebar': 'ពង្រីករបារចំហៀង',
 }

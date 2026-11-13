@@ -53,4 +53,6 @@ export const ko: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'UIClassMap이 설정되지 않았습니다. 스타일링 라이브러리 구현체(예: @molecule/app-ui-tailwind)를 사용하여 앱 시작 시 setClassMap()을 호출하세요.',
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` 내에서 사용해야 합니다.',
+  'ui.pageShell.collapseSidebar': '사이드바 접기',
+  'ui.pageShell.expandSidebar': '사이드바 펼치기',
 }

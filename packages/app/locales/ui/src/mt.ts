@@ -53,4 +53,6 @@ export const mt: UiTranslations = {
   'ui.error.noClassMap':
     "Ma ġiex issettjat UIClassMap. Sejjaħ setClassMap() fil-bidu tal-app b'implimentazzjoni ta' librerija tal-istil (eż., @molecule/app-ui-tailwind).",
   'ui.toast.error.noProvider': '`useToast` irid jintuża fi ħdan `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Agħlaq il-menu tal-ġenb',
+  'ui.pageShell.expandSidebar': 'Espandi l-menu tal-ġenb',
 }

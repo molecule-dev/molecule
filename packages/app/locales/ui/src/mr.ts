@@ -58,4 +58,6 @@ export const mr: UiTranslations = {
   'ui.error.noClassMap':
     'कोणताही UIClassMap सेट केलेला नाही. अॅप सुरू होताना स्टायलिंग लायब्ररीच्या अंमलबजावणीसह (उदा., @molecule/app-ui-tailwind) setClassMap() ला कॉल करा.',
   'ui.toast.error.noProvider': '`useToast` वापर `ToastProvider` आतच केला पाहिजे.',
+  'ui.pageShell.collapseSidebar': 'साइडबार संकुचित करा',
+  'ui.pageShell.expandSidebar': 'साइडबारचा विस्तार करा',
 }

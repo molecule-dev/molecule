@@ -54,4 +54,6 @@ export const lo: UiTranslations = {
   'ui.error.noClassMap':
     'ບໍ່ມີການຕັ້ງຄ່າ UIClassMap. ໃຫ້ເອີ້ນໃຊ້ setClassMap() ເມື່ອເລີ່ມຕົ້ນແອັບດ້ວຍການຈັດຕັ້ງປະຕິບັດຫ້ອງສະໝຸດຮູບແບບ (ຕົວຢ່າງ, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': 'ຕ້ອງໃຊ້ `useToast` ພາຍໃນ `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'ຫຍໍ້ແຖບດ້ານຂ້າງ',
+  'ui.pageShell.expandSidebar': 'ຂະຫຍາຍແຖບດ້ານຂ້າງ',
 }

@@ -53,4 +53,6 @@ export const sw: UiTranslations = {
   'ui.error.noClassMap':
     'Hakuna UIClassMap iliyowekwa. Piga simu setClassMap() wakati programu inapoanza kwa kutumia usanidi wa maktaba (km, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` lazima itumike ndani ya `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Kunja upau wa pembeni',
+  'ui.pageShell.expandSidebar': 'Panua upau wa pembeni',
 }

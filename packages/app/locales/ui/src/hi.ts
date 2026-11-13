@@ -53,4 +53,6 @@ export const hi: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'कोई UIClassMap सेट नहीं किया गया है। ऐप स्टार्टअप पर स्टाइलिंग लाइब्रेरी इम्प्लीमेंटेशन (जैसे, @molecule/app-ui-tailwind) के साथ setClassMap() को कॉल करें।',
   'ui.toast.error.noProvider': '`useToast` उपयोग `ToastProvider` के भीतर ही किया जाना चाहिए।',
+  'ui.pageShell.collapseSidebar': 'साइडबार को छोटा करें',
+  'ui.pageShell.expandSidebar': 'साइडबार का विस्तार करें',
 }

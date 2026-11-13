@@ -621,7 +621,6 @@
     "app::storage.error.noProvider :: default differs from en.ts",
     "app::storage.error.quotaExceeded :: default built in JavaScript",
     "app::storage.error.setFailed :: default built in JavaScript",
-    "app::svelte.error.unknownPaginationDirection :: default built in JavaScript",
     "app::thread.replies :: default built in JavaScript",
     "app::traceWaterfall.row.aria :: default built in JavaScript",
     "app::trackLane.aria.lane :: default differs from en.ts",

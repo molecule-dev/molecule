@@ -53,4 +53,6 @@ export const cy: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     "Nid oes UIClassMap wedi'i osod. Galwch setClassMap() wrth gychwyn yr ap gyda gweithrediad llyfrgell steilio (e.e., @molecule/app-ui-tailwind).",
   'ui.toast.error.noProvider': 'Rhaid defnyddio `useToast` o fewn `ToastProvider`',
+  'ui.pageShell.collapseSidebar': "Plygu'r bar ochr",
+  'ui.pageShell.expandSidebar': "Ehangu'r bar ochr",
 }

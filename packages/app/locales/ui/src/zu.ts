@@ -53,4 +53,6 @@ export const zu: UiTranslations = {
   'ui.error.noClassMap':
     'Akukho UIClassMap esethiwe. Shayela i-setClassMap() ekuqaleni kohlelo lokusebenza ngokusetshenziswa kwelabhulali yesitayela (isb., @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` kumele isetshenziswe ngaphakathi kwe `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Goqa ibha eseceleni',
+  'ui.pageShell.expandSidebar': 'Nweba ibha eseceleni',
 }

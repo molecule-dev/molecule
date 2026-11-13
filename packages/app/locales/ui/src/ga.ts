@@ -53,4 +53,6 @@ export const ga: UiTranslations = {
   'ui.error.noClassMap':
     'Níl UIClassMap socraithe. Glaoigh ar setClassMap() ag am tosaithe aip le cur i bhfeidhm leabharlainne stíle (m.sh., @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': 'Ní mór `useToast` a úsáid laistigh de `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Laghdaigh an barra taoibh',
+  'ui.pageShell.expandSidebar': 'Leathnaigh an barra taoibh',
 }

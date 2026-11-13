@@ -53,4 +53,6 @@ export const uk: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'UIClassMap не встановлено. Викличте setClassMap() під час запуску програми з реалізацією бібліотеки стилів (наприклад, @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` має використовуватися всередині `ToastProvider`',
+  'ui.pageShell.collapseSidebar': 'Згорнути бічну панель',
+  'ui.pageShell.expandSidebar': 'Розгорнути бічну панель',
 }

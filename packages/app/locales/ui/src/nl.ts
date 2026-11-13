@@ -53,4 +53,6 @@ export const nl: Partial<UiTranslations> = {
   'ui.error.noClassMap':
     'Er is geen UIClassMap ingesteld. Roep setClassMap() aan bij het opstarten van de app met een implementatie van een stylingbibliotheek (bijv. @molecule/app-ui-tailwind).',
   'ui.toast.error.noProvider': '`useToast` moet binnen een `ToastProvider` worden gebruikt.',
+  'ui.pageShell.collapseSidebar': 'Zijbalk inklappen',
+  'ui.pageShell.expandSidebar': 'Zijbalk uitklappen',
 }
