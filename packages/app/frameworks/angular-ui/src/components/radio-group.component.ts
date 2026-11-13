@@ -6,7 +6,7 @@
 
 import { Component, ElementRef, EventEmitter, inject, Output } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -135,7 +135,9 @@ export class RadioGroup {
    * @returns The label text.
    */
   groupLabel(): string {
-    return this.label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })
+    return (
+      this.label ?? this.i18n.t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })
+    )
   }
 
   /**
@@ -166,6 +168,13 @@ export class RadioGroup {
 
   /** Fires the selected option's value. */
   @Output() readonly change = new EventEmitter<string>()
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
 
   private readonly host = inject(ElementRef)
 }

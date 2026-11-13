@@ -20,7 +20,6 @@ import {
 } from '@angular/core'
 
 import { useAuth, useRouter, useTranslation } from '@molecule/app-angular'
-import { t } from '@molecule/app-i18n'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -79,7 +78,10 @@ export class UserMenuPopover implements AfterViewInit, DoCheck, OnDestroy {
   readonly panelId = nextInstanceId()
   /** Auth state (identity defaults). */
   readonly auth = useAuth<AccountUser>()
-  /** Translation state. */
+  /**
+   * Translation state. Its `t` reads the locale, so the views that render it
+   * re-render on a locale switch (the static `t` does not follow a switch).
+   */
   readonly i18n = useTranslation()
   /** Router state: a route change closes the popover. */
   readonly router = useRouter()
@@ -136,7 +138,7 @@ export class UserMenuPopover implements AfterViewInit, DoCheck, OnDestroy {
       user?.name ??
       user?.email ??
       this.guestName ??
-      t('userMenuPopover.guest', {}, { defaultValue: 'Account' })
+      this.i18n.t('userMenuPopover.guest', {}, { defaultValue: 'Account' })
     )
   }
 
@@ -280,6 +282,13 @@ export class UserMenuPopoverTrigger {
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * The current class map.
    * @returns The UIClassMap.
    */
@@ -308,7 +317,7 @@ export class UserMenuPopoverTrigger {
    * @returns The label text.
    */
   ariaLabel(): string {
-    return t(
+    return this.i18n.t(
       this.ariaLabelKey ?? 'userMenu.open',
       {},
       {
@@ -435,6 +444,14 @@ export class UserMenuPopoverPanel implements AfterViewInit, DoCheck {
   @ViewChild('panel') panel?: ElementRef<HTMLDivElement>
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private panelParent: Node | null = null
   private panelAnchor: Node | null = null
   private lastOpen = false
@@ -483,7 +500,7 @@ export class UserMenuPopoverPanel implements AfterViewInit, DoCheck {
    * @returns The label text.
    */
   navLabel(): string {
-    return t(
+    return this.i18n.t(
       this.ariaLabelKey ?? 'userMenu.panelLabel',
       {},
       {
@@ -553,6 +570,13 @@ export class UserMenuPopoverSignOut {
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * The current class map.
    * @returns The UIClassMap.
    */
@@ -573,7 +597,7 @@ export class UserMenuPopoverSignOut {
    * @returns The label text.
    */
   label(): string {
-    return t(
+    return this.i18n.t(
       this.labelKey ?? 'userMenu.signOut',
       {},
       {

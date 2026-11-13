@@ -16,8 +16,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useRouter } from '@molecule/app-angular'
-import { t } from '@molecule/app-i18n'
+import { useRouter, useTranslation } from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -105,6 +104,13 @@ export class UserMenu implements AfterViewInit, OnDestroy {
   /** Router state: a route change closes the drawer (React's effect). */
   readonly router = useRouter()
 
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   /** The trigger button (adopted beside the host). */
   @ViewChild('trigger', { read: ElementRef }) trigger?: ElementRef<HTMLButtonElement>
 
@@ -130,7 +136,7 @@ export class UserMenu implements AfterViewInit, OnDestroy {
    * @returns The label text.
    */
   ariaLabel(): string {
-    return t(
+    return this.i18n.t(
       this.ariaLabelKey ?? 'userMenu.open',
       {},
       {
@@ -144,7 +150,7 @@ export class UserMenu implements AfterViewInit, OnDestroy {
    * @returns The label text.
    */
   panelLabel(): string {
-    return t('userMenu.panelLabel', {}, { defaultValue: 'Account menu' })
+    return this.i18n.t('userMenu.panelLabel', {}, { defaultValue: 'Account menu' })
   }
 
   /**

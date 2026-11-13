@@ -15,7 +15,7 @@ import {
   useContext,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -36,10 +36,12 @@ const AccordionContext = createContext<AccordionContextValue>()
 const useAccordionContext = (): AccordionContextValue => {
   const context = useContext(AccordionContext)
   if (!context) {
-    throw new Error(
-      t('solid.error.useAccordionOutsideProvider', undefined, {
-        defaultValue: 'Accordion components must be used within an Accordion',
-      }),
+    // Thrown outside rendering (a hook used outside its provider), so the
+    // message is the I18nError's own English fallback, not a render-time `t`.
+    throw new I18nError(
+      'solid.error.useAccordionOutsideProvider',
+      undefined,
+      'Accordion components must be used within an Accordion',
     )
   }
   return context

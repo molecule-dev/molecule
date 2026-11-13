@@ -20,10 +20,11 @@ import {
   watch,
 } from 'vue'
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -109,6 +110,7 @@ export const Toast = defineComponent({
   emits: ['dismiss'],
   setup(props, { attrs, emit, slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     const isVisible = ref(true)
 
     // WCAG 2.2.1 (Timing Adjustable): a countdown a slow reader or AT user
@@ -325,15 +327,17 @@ export const ToastProvider = defineComponent({
  * Composable to access the toast context for adding and removing toasts.
  *
  * @returns The toast context with toast management methods.
- * @throws {Error} When called outside a {@link ToastProvider}.
+ * @throws {I18nError} When called outside a {@link ToastProvider}.
  */
 export function useToast(): ToastContext {
   const context = inject(toastContextKey)
   if (!context) {
-    throw new Error(
-      t('vue.error.useToastOutsideProvider', undefined, {
-        defaultValue: 'useToast must be used within a ToastProvider',
-      }),
+    // Thrown outside rendering: I18nError keeps the key so a renderer can
+    // re-translate it at display time; message stays the English fallback.
+    throw new I18nError(
+      'vue.error.useToastOutsideProvider',
+      undefined,
+      'useToast must be used within a ToastProvider',
     )
   }
   return context

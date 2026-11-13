@@ -5,10 +5,9 @@
 <script lang="ts">
   import { getContext } from 'svelte'
 
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useAuth } from '../framework.js'
+  import { useAuth, useI18n } from '../framework.js'
   import type { UserMenuPopoverSignOutProps } from '../types.js'
   import {
     USER_MENU_POPOVER_CONTEXT,
@@ -22,6 +21,7 @@
     className,
   }: UserMenuPopoverSignOutProps = $props()
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
   const { client } = useAuth()
   const ctx = getContext<UserMenuPopoverContextValue>(USER_MENU_POPOVER_CONTEXT)
@@ -54,5 +54,5 @@
     className,
   )}
 >
-  {t(labelKey, {}, { defaultValue: labelDefault })}
+  {$t(labelKey, {}, { defaultValue: labelDefault })}
 </button>

@@ -5,9 +5,9 @@
   close itself on confirm.
 -->
 <script lang="ts">
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { useI18n } from '../framework.js'
   import type { ConfirmDialogProps } from '../types.js'
   import Button from './Button.svelte'
   import Modal from './Modal.svelte'
@@ -26,6 +26,7 @@
     loading,
   }: ConfirmDialogProps = $props()
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
 </script>
 
@@ -36,7 +37,7 @@
     {@render children?.()}
     <div class={cm.flex({ justify: 'end', gap: 'sm' })}>
       <Button variant="ghost" onClick={onClose} disabled={loading}>
-        {#if cancelLabel}<ReactNode node={cancelLabel} />{:else}{t(
+        {#if cancelLabel}<ReactNode node={cancelLabel} />{:else}{$t(
             'confirm.cancel',
             {},
             { defaultValue: 'Cancel' },
@@ -48,7 +49,7 @@
         onClick={() => void onConfirm()}
         disabled={loading}
       >
-        {#if loading}…{:else if confirmLabel}<ReactNode node={confirmLabel} />{:else}{t(
+        {#if loading}…{:else if confirmLabel}<ReactNode node={confirmLabel} />{:else}{$t(
             'confirm.confirm',
             {},
             { defaultValue: 'Confirm' },

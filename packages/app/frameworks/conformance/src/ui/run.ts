@@ -16,8 +16,9 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import * as allCases from './cases/index.js'
+import { PSEUDO_LOCALE } from './environment.js'
 import goldensJson from './goldens.json' with { type: 'json' }
-import type { CaseResult, FrameworkAdapter, UIComponentCases } from './spec.js'
+import type { CaseResult, FrameworkAdapter, UICase, UIComponentCases } from './spec.js'
 
 /** The React reference, recorded by the kit's goldens test. */
 export interface UIGoldens {
@@ -27,10 +28,28 @@ export interface UIGoldens {
   cases: Record<string, Record<string, CaseResult>>
 }
 
-/** Every case family, in a stable order. */
-export const uiCaseFamilies: UIComponentCases[] = (
-  Object.values(allCases) as UIComponentCases[]
-).sort((a, b) => a.component.localeCompare(b.component))
+/**
+ * A component's first case, then a locale switch: its translated text must change language
+ * at once, as React's does through `useTranslation()`.
+ *
+ * @param family - One component's cases.
+ * @returns The family with that case added.
+ */
+const withLocaleSwitch = (family: UIComponentCases): UIComponentCases => {
+  const [first] = family.cases
+  if (!first) return family
+  const switched: UICase = {
+    ...first,
+    name: `${first.name}, then a locale switch`,
+    interactions: [...(first.interactions ?? []), { type: 'locale', code: PSEUDO_LOCALE }],
+  }
+  return { ...family, cases: [...family.cases, switched] }
+}
+
+/** Every case family, in a stable order, each with its locale-switch case. */
+export const uiCaseFamilies: UIComponentCases[] = (Object.values(allCases) as UIComponentCases[])
+  .sort((a, b) => a.component.localeCompare(b.component))
+  .map(withLocaleSwitch)
 
 /** The React reference results every framework must reproduce. */
 export const uiGoldens = goldensJson as unknown as UIGoldens

@@ -16,7 +16,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -131,6 +131,13 @@ export class Alert implements AfterViewInit, DoCheck {
 
   private hasCustomIcon = false
 
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
 
   /**
@@ -188,7 +195,9 @@ export class Alert implements AfterViewInit, DoCheck {
    * @returns The label text.
    */
   dismissText(): string {
-    return this.dismissLabel ?? t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })
+    return (
+      this.dismissLabel ?? this.i18n.t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })
+    )
   }
 
   /**

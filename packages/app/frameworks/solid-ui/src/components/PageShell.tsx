@@ -6,7 +6,7 @@
 
 import { type Component, type JSX, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { PageShellProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -35,6 +35,7 @@ export const PageShell: Component<PageShellProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
 
   /**
    * Forwards the toggle's click to `onSidebarToggle`. The core type declares

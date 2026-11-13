@@ -17,7 +17,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -92,6 +92,13 @@ export class PageShell implements AfterViewInit, DoCheck {
   /** The top bar wrapper (always in the template; detached when unused). */
   @ViewChild('topbarSlot') topbarSlot?: ElementRef<HTMLElement>
 
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private hasSidebar = false
   private hasTopbar = false
@@ -140,8 +147,8 @@ export class PageShell implements AfterViewInit, DoCheck {
    */
   toggleLabel(): string {
     return this.sidebarCollapsed
-      ? t('ui.pageShell.expandSidebar', undefined, { defaultValue: 'Expand sidebar' })
-      : t('ui.pageShell.collapseSidebar', undefined, { defaultValue: 'Collapse sidebar' })
+      ? this.i18n.t('ui.pageShell.expandSidebar', undefined, { defaultValue: 'Expand sidebar' })
+      : this.i18n.t('ui.pageShell.collapseSidebar', undefined, { defaultValue: 'Collapse sidebar' })
   }
 
   /**

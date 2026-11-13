@@ -6,9 +6,9 @@
 
 import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { RadioGroupProps, RadioOption, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 
@@ -53,6 +53,7 @@ export const RadioGroup = defineComponent({
   emits: ['change'],
   setup(props, { attrs, emit }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     // Radios only form a native group (arrow-key navigation, exclusive native
     // checked state) when they share a `name` — and that name must be UNIQUE
     // per group. The visible `label` is deliberately NOT used as the name:

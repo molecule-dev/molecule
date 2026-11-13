@@ -6,9 +6,9 @@
 
 import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { PageShellProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 
@@ -49,6 +49,7 @@ export const PageShell = defineComponent({
   },
   setup(props, { attrs, slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     return () => {
       const sidebar = props.sidebar ?? slots.sidebar?.()

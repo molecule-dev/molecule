@@ -18,8 +18,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useRouter } from '@molecule/app-angular'
-import { t } from '@molecule/app-i18n'
+import { useRouter, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -277,6 +276,14 @@ export class ResponsiveAppShellTopBar implements AfterViewInit, DoCheck, OnDestr
   @ViewChild('actionsSlot') actionsSlot?: ElementRef<HTMLDivElement>
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly renderer = inject(Renderer2)
   private readonly sync = new SlotWrapper(this.host, this.renderer)
   private brandParent: HTMLElement | null = null
@@ -355,7 +362,7 @@ export class ResponsiveAppShellTopBar implements AfterViewInit, DoCheck, OnDestr
    * @returns The label text.
    */
   triggerLabel(): string {
-    return t('appShell.openMenu', {}, { defaultValue: 'Open navigation menu' })
+    return this.i18n.t('appShell.openMenu', {}, { defaultValue: 'Open navigation menu' })
   }
 
   /**
@@ -471,6 +478,14 @@ export class ResponsiveAppShellSidebar implements AfterViewInit, DoCheck, OnDest
   @ViewChild('footerSlot') footerSlot?: ElementRef<HTMLDivElement>
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly renderer = inject(Renderer2)
   private readonly sync = new SlotWrapper(this.host, this.renderer)
   private footerParent: HTMLElement | null = null
@@ -528,7 +543,10 @@ export class ResponsiveAppShellSidebar implements AfterViewInit, DoCheck, OnDest
    * @returns The label text.
    */
   navLabelText(): string {
-    return this.navLabel ?? t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' })
+    return (
+      this.navLabel ??
+      this.i18n.t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' })
+    )
   }
 
   /** Applies the initial mount condition and footer presence. */
@@ -695,6 +713,14 @@ export class ResponsiveAppShellDrawer implements AfterViewInit, DoCheck, OnDestr
   readonly headerPresent = signal(false)
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly renderer = inject(Renderer2)
   private readonly sync = new SlotWrapper(this.host, this.renderer)
   private readonly scrollLock = createScrollLock()
@@ -774,7 +800,10 @@ export class ResponsiveAppShellDrawer implements AfterViewInit, DoCheck, OnDestr
    * @returns The label text.
    */
   navLabelText(): string {
-    return this.navLabel ?? t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' })
+    return (
+      this.navLabel ??
+      this.i18n.t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' })
+    )
   }
 
   /**
@@ -782,7 +811,7 @@ export class ResponsiveAppShellDrawer implements AfterViewInit, DoCheck, OnDestr
    * @returns The label text.
    */
   closeLabel(): string {
-    return t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' })
+    return this.i18n.t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' })
   }
 
   /**

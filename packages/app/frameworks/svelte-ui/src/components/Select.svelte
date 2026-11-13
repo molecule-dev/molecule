@@ -4,11 +4,11 @@
   the native change event; onValueChange receives the selected value.
 -->
 <script lang="ts">
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents, useGeneratedId } from '../dom.js'
+  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { SelectProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -34,6 +34,7 @@
     ...rest
   }: SelectProps = $props()
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
   const generatedId = useGeneratedId()
   const selectId = $derived(id || name || generatedId)
@@ -122,7 +123,7 @@
     >
       {#if placeholder}<option value="" disabled>{placeholder}</option>{/if}
       {#if showClearOption}
-        <option value="">{t('ui.select.clear', undefined, { defaultValue: '--' })}</option>
+        <option value="">{$t('ui.select.clear', undefined, { defaultValue: '--' })}</option>
       {/if}
       {#each Object.entries(groupedOptions) as [group, groupOptions] (group)}
         {#if group === ''}

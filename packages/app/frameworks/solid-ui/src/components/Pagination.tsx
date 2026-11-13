@@ -6,7 +6,7 @@
 
 import { type Component, createMemo, For, type JSX, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { PaginationProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -101,6 +101,7 @@ export const Pagination: Component<PaginationProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
 
   const page = (): number => local.page
   const totalPages = (): number => local.totalPages

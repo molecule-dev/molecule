@@ -18,7 +18,6 @@ import {
 } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -125,7 +124,11 @@ export class LanguagePicker implements AfterViewInit, DoCheck {
   /** Whether the locale modal is open. */
   readonly isOpen = signal(false)
 
-  /** i18n state: locale, locale list and the async setter. */
+  /**
+   * i18n state: locale, locale list and the async setter. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
   readonly i18n = useTranslation()
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
@@ -145,7 +148,7 @@ export class LanguagePicker implements AfterViewInit, DoCheck {
    * @returns The label text.
    */
   ariaLabel(): string {
-    return t(
+    return this.i18n.t(
       this.labelKey ?? 'footer.language',
       {},
       {
@@ -159,7 +162,7 @@ export class LanguagePicker implements AfterViewInit, DoCheck {
    * @returns The title text.
    */
   modalTitle(): string {
-    return t(
+    return this.i18n.t(
       this.modalTitleKey ?? 'languagePicker.modalTitle',
       {},
       {

@@ -6,10 +6,10 @@
 
 import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -78,6 +78,8 @@ export const Alert = defineComponent({
   emits: ['dismiss'],
   setup(props, { attrs, slots, emit }) {
     const cm = getClassMap()
+    // Reactive t: text re-renders when the locale changes (parity with app-react).
+    const { t } = useTranslation()
 
     return () => {
       const alertVariant = statusVariantMap[props.status] || 'default'

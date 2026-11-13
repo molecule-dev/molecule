@@ -52,8 +52,9 @@ function useLocaleNotifications(provider: I18nProvider): Signal<number> {
 export interface UseTranslationResult {
   /**
    * The translation function. A plain function (a signal would be read as the
-   * method itself) that reads the provider on every call, so its text follows
-   * the active locale the way React's rebuilt-per-locale `t` does.
+   * method itself) that reads the provider on every call AND the locale
+   * notifications signal, so a template, `computed` or `effect` that calls it
+   * re-runs on a locale switch the way React re-renders on one.
    */
   readonly t: I18nProvider['t']
   /** The active locale code. */
@@ -97,14 +98,18 @@ export function useTranslation(): UseTranslationResult {
     return provider.getLocales()
   })
   // A plain function (never a signal: the conformance kit reads a method field
-  // by calling the value itself, and an Angular signal IS a function). It reads
-  // the provider on every CALL, so its text follows the active locale like
-  // React's rebuilt-per-locale `t` does.
+  // by calling the value itself, and an Angular signal IS a function). Reading
+  // the notifications signal inside it makes the CALLER depend on the locale, so
+  // a view that renders `t(…)` (directly or through a method) refreshes on a
+  // switch without reading `locale()` itself.
   const t: I18nProvider['t'] = (
     key: string,
     values?: InterpolationValues,
     options?: TranslateOptions,
-  ) => provider.t(key, values, options)
+  ) => {
+    void notifications()
+    return provider.t(key, values, options)
+  }
 
   // The provider's own promise is returned (a caller may await the switch, and
   // a rejected switch surfaces to the caller exactly like React's).
@@ -123,9 +128,8 @@ export function useTranslation(): UseTranslationResult {
  * The translation function alone. Call it in an injection context.
  *
  * The returned function keeps ONE identity for as long as the provider is
- * unchanged (unlike {@link useTranslation}'s `t`, which is rebuilt on a
- * locale change); it still reads the active locale on every CALL, so its text
- * is current.
+ * unchanged; it reads the active locale and the locale notifications on
+ * every CALL, so its text is current and its caller re-runs on a switch.
  *
  * Call it in either of two compatible forms:
  * - `t(key, values?, options?)` — the provider signature.
@@ -140,15 +144,18 @@ export function useT(): (
   options?: TranslateOptions,
 ) => string {
   const provider = useI18nProvider()
-  useLocaleNotifications(provider)
+  const notifications = useLocaleNotifications(provider)
   return (
     key: string,
     valuesOrDefault?: InterpolationValues | string,
     options?: TranslateOptions,
-  ): string =>
-    typeof valuesOrDefault === 'string'
+  ): string => {
+    // The caller depends on the locale through this read (see useTranslation).
+    void notifications()
+    return typeof valuesOrDefault === 'string'
       ? provider.t(key, undefined, { ...options, defaultValue: valuesOrDefault })
       : provider.t(key, valuesOrDefault, options)
+  }
 }
 
 /**

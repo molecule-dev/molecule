@@ -25,7 +25,7 @@ import {
   useContext,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { getInitials } from '../utilities/initials.js'
@@ -102,6 +102,7 @@ export interface UserMenuPopoverProps {
 export const UserMenuPopover: Component<UserMenuPopoverProps> = (props) => {
   const [local] = splitProps(props, ['children', 'guestName', 'className'])
   const cm = getClassMap()
+  const { t } = useTranslation()
   const { state } = createAuthState<AccountUser>()
   const { location } = createLocation()
   const [open, setOpen] = createSignal(false)
@@ -191,6 +192,7 @@ export interface UserMenuPopoverTriggerProps {
 export const UserMenuPopoverTrigger: Component<UserMenuPopoverTriggerProps> = (props) => {
   const [local] = splitProps(props, ['ariaLabelKey', 'ariaLabelDefault', 'dataMolId', 'className'])
   const cm = getClassMap()
+  const { t } = useTranslation()
   const context = usePopoverContext('UserMenuPopoverTrigger')
 
   return (
@@ -294,6 +296,7 @@ export const UserMenuPopoverPanel: Component<UserMenuPopoverPanelProps> = (props
     'dataMolId',
   ])
   const cm = getClassMap()
+  const { t } = useTranslation()
   const context = usePopoverContext('UserMenuPopoverPanel')
 
   return (
@@ -368,6 +371,7 @@ export interface UserMenuPopoverSignOutProps {
 export const UserMenuPopoverSignOut: Component<UserMenuPopoverSignOutProps> = (props) => {
   const [local] = splitProps(props, ['labelKey', 'labelDefault', 'dataMolId', 'className'])
   const cm = getClassMap()
+  const { t } = useTranslation()
   const { client } = createAuthState<AccountUser>()
   const context = usePopoverContext('UserMenuPopoverSignOut')
 

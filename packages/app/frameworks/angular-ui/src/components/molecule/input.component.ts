@@ -6,7 +6,7 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { InputType, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -110,6 +110,13 @@ export class MoleculeInput {
   @Output() handleClear = new EventEmitter<void>()
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * Retrieves the current UI class map.
    * @returns The UIClassMap instance for styling.
    */
@@ -122,7 +129,7 @@ export class MoleculeInput {
    * @returns The localized aria-label for the clear button.
    */
   get clearAriaLabel(): string {
-    return this.clearLabel || t('ui.input.clear', undefined, { defaultValue: 'Clear' })
+    return this.clearLabel || this.i18n.t('ui.input.clear', undefined, { defaultValue: 'Clear' })
   }
 
   /**

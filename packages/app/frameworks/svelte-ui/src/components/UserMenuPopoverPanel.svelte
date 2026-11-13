@@ -6,9 +6,9 @@
 <script lang="ts">
   import { getContext } from 'svelte'
 
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { useI18n } from '../framework.js'
   import type { UserMenuPopoverPanelProps } from '../types.js'
   import {
     USER_MENU_POPOVER_CONTEXT,
@@ -23,6 +23,7 @@
     dataMolId = 'user-menu-panel',
   }: UserMenuPopoverPanelProps = $props()
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
   const ctx = getContext<UserMenuPopoverContextValue>(USER_MENU_POPOVER_CONTEXT)
   if (!ctx) {
@@ -38,7 +39,7 @@
     </header>
     <nav
       class={cm.cn(cm.sp('mt', 4), cm.stack(1))}
-      aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
+      aria-label={$t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
     >
       {@render children?.()}
     </nav>

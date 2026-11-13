@@ -6,9 +6,9 @@
 
 import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { Size, TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -69,6 +69,7 @@ export const Table = defineComponent({
   },
   setup(props, { attrs, slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     const getRowKey = (row: Record<string, unknown>, index: number): string | number => {
       if (typeof props.rowKey === 'function') {

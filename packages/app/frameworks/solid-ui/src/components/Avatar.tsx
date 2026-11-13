@@ -6,7 +6,7 @@
 
 import { type Component, createSignal, type JSX, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { AvatarProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -35,6 +35,7 @@ export const Avatar: Component<AvatarProps> = (props) => {
   const [imageError, setImageError] = createSignal(false)
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const size = (): 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number => local.size ?? 'md'
   const rounded = (): boolean => local.rounded ?? true
   const showFallback = (): boolean => !local.src || imageError()

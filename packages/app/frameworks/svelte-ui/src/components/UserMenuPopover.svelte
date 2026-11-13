@@ -7,11 +7,10 @@
 <script lang="ts">
   import { setContext } from 'svelte'
 
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
   import { useGeneratedId } from '../dom.js'
-  import { useAuth, useLocation } from '../framework.js'
+  import { useAuth, useI18n, useLocation } from '../framework.js'
   import type { UserMenuPopoverProps } from '../types.js'
   import { USER_MENU_POPOVER_CONTEXT } from '../user-menu-popover.svelte.js'
 
@@ -19,6 +18,7 @@
 
   const cm = $derived(getClassMap())
   const { state: authState } = useAuth()
+  const { t } = useI18n()
   const location = useLocation()
   const panelId = useGeneratedId()
 
@@ -64,7 +64,7 @@
     ($authState.user ?? null) as { name?: string | null; email?: string | null } | null,
   )
   const resolvedGuest = $derived(
-    guestName ?? t('userMenuPopover.guest', {}, { defaultValue: 'Account' }),
+    guestName ?? $t('userMenuPopover.guest', {}, { defaultValue: 'Account' }),
   )
   const displayName = $derived(user?.name ?? user?.email ?? resolvedGuest)
   const email = $derived(user?.email ?? undefined)

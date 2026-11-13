@@ -6,9 +6,9 @@
 
 import { defineComponent, h, type PropType } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { BaseProps, ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 
@@ -89,6 +89,7 @@ export const Progress = defineComponent({
   },
   setup(props, { attrs }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     return () => {
       const percentage = Math.min(Math.max((props.value / props.max) * 100, 0), 100)

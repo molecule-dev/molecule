@@ -20,7 +20,8 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
+import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, ToastProps, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -169,6 +170,14 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy {
   readonly visible = signal(true)
 
   private readonly el = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly renderer = inject(Renderer2)
   private readonly host: HTMLElement = this.el.nativeElement
   private readonly sync = new SlotWrapper(this.el, this.renderer)
@@ -267,7 +276,7 @@ export class Toast implements AfterViewInit, DoCheck, OnDestroy {
    * @returns The label text.
    */
   closeText(): string {
-    return this.closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })
+    return this.closeLabel ?? this.i18n.t('ui.toast.close', undefined, { defaultValue: 'Close' })
   }
 
   /** Dismisses the toast and calls the callback (React's `handleDismiss`). */
@@ -621,10 +630,12 @@ export function useToast(): ToastContextValue {
   const resolve = (): ToastContextValue => {
     const found = findDomContext<ToastContextValue>(el?.nativeElement ?? null)
     if (!found) {
-      throw new Error(
-        t('react.error.useToastOutsideProvider', undefined, {
-          defaultValue: 'useToast must be used within a ToastProvider',
-        }),
+      // Thrown outside rendering (a hook used outside its provider), so the
+      // English fallback travels with the error instead of the static `t`.
+      throw new I18nError(
+        'react.error.useToastOutsideProvider',
+        undefined,
+        'useToast must be used within a ToastProvider',
       )
     }
     return found

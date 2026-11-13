@@ -27,8 +27,8 @@
 
 import { defineComponent, h, type PropType, ref, type VNodeChild } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { Alert } from './Alert.js'
@@ -63,6 +63,7 @@ export const LoadErrorBanner = defineComponent({
   },
   setup(props, { attrs, slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     const pending = ref(false)
 
     const handleRetry = (): void => {

@@ -16,7 +16,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -140,6 +140,13 @@ export class PromptDialog implements AfterViewInit, DoCheck {
   /** Whether a submit is in flight. */
   readonly pending = signal(false)
 
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private lastOpen = false
   private lastInitial = ''
 
@@ -156,7 +163,7 @@ export class PromptDialog implements AfterViewInit, DoCheck {
    * @returns The label text.
    */
   cancelText(): string {
-    return this.cancelLabel ?? t('prompt.cancel', {}, { defaultValue: 'Cancel' })
+    return this.cancelLabel ?? this.i18n.t('prompt.cancel', {}, { defaultValue: 'Cancel' })
   }
 
   /**
@@ -164,7 +171,7 @@ export class PromptDialog implements AfterViewInit, DoCheck {
    * @returns The label text.
    */
   confirmText(): string {
-    return this.confirmLabel ?? t('prompt.confirm', {}, { defaultValue: 'Confirm' })
+    return this.confirmLabel ?? this.i18n.t('prompt.confirm', {}, { defaultValue: 'Confirm' })
   }
 
   /**

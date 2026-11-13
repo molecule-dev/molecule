@@ -6,9 +6,9 @@
 <script lang="ts">
   import { getContext } from 'svelte'
 
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { useI18n } from '../framework.js'
   import { reactInitials } from '../initials.js'
   import { reactStyle } from '../style.js'
   import type { UserMenuPopoverTriggerProps } from '../types.js'
@@ -24,6 +24,7 @@
     className,
   }: UserMenuPopoverTriggerProps = $props()
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
   const ctx = getContext<UserMenuPopoverContextValue>(USER_MENU_POPOVER_CONTEXT)
   if (!ctx) {
@@ -36,7 +37,7 @@
   onclick={() => ctx.setOpen(!ctx.open)}
   aria-expanded={ctx.open}
   aria-controls={ctx.panelId}
-  aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
+  aria-label={$t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
   data-mol-id={dataMolId}
   class={cm.cn(
     cm.flex({ align: 'center', gap: 'sm' }),

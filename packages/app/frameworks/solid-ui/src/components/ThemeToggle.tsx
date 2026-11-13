@@ -1,8 +1,7 @@
 import { type Component, type JSX, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
-import { getThemeProvider } from '@molecule/app-solid'
+import { getThemeProvider, useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
@@ -66,6 +65,7 @@ export const ThemeToggle: Component<ThemeToggleProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const provider = getThemeProvider()
   const theme = createThemeState()
 

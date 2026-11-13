@@ -18,7 +18,7 @@ import {
 } from '@angular/core'
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { ModalSize, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -125,6 +125,13 @@ export class MoleculeModal implements OnInit, OnDestroy, OnChanges {
   @Output() close = new EventEmitter<void>()
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * Retrieves the current UI class map.
    * @returns The UIClassMap instance for styling.
    */
@@ -137,7 +144,7 @@ export class MoleculeModal implements OnInit, OnDestroy, OnChanges {
    * @returns The localized aria-label for the close button.
    */
   get closeAriaLabel(): string {
-    return this.closeLabel || t('ui.modal.close', undefined, { defaultValue: 'Close' })
+    return this.closeLabel || this.i18n.t('ui.modal.close', undefined, { defaultValue: 'Close' })
   }
 
   private boundEscapeHandler = this.handleEscape.bind(this)

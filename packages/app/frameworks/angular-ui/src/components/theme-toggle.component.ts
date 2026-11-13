@@ -6,8 +6,7 @@
 
 import { Component } from '@angular/core'
 
-import { useTheme } from '@molecule/app-angular'
-import { t } from '@molecule/app-i18n'
+import { useTheme, useTranslation } from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -63,6 +62,13 @@ export class ThemeToggle {
   readonly theme = useTheme()
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * The current theme mode.
    * @returns `'light'` or `'dark'`.
    */
@@ -75,7 +81,7 @@ export class ThemeToggle {
    * @returns The translated label text.
    */
   labelText(): string {
-    return t(
+    return this.i18n.t(
       this.ariaLabelKey ?? 'theme.toggle',
       {},
       {

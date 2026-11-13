@@ -28,7 +28,8 @@ export interface SpinnerClassOptions {
  * ```svelte
  * <script>
  *   import { getSpinnerClasses, getSpinnerColorStyle } from '@molecule/app-ui-svelte'
- *   import { t } from '@molecule/app-i18n'
+ *   import { useTranslation } from '@molecule/app-svelte'
+ *   const { t } = useTranslation()
  *   export let size = 'md'
  *   export let color = undefined
  *   $: classes = getSpinnerClasses({ size })

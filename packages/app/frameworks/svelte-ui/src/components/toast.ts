@@ -55,7 +55,8 @@ export interface ToastClassOptions {
  * ```svelte
  * <script>
  *   import { getToastClasses, getToastTitleClass, getToastDescriptionClass, getToastCloseClass } from '@molecule/app-ui-svelte'
- *   import { t } from '@molecule/app-i18n'
+ *   import { useTranslation } from '@molecule/app-svelte'
+ *   const { t } = useTranslation()
  *   export let status = 'info'
  *   $: classes = getToastClasses({ status })
  * </script>

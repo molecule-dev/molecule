@@ -16,9 +16,9 @@ import {
   type VNodeChild,
 } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { FormProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { formSubmitErrorMessages } from './formSubmitError.js'
@@ -79,6 +79,7 @@ export const Form = defineComponent({
   },
   setup(props, { attrs, slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     // React's `onFormSubmit` / `onSubmit` are named props its Form branches on
     // (no handlers at all means the submit event is left untouched), so the raw
     // handlers are read from the incoming `on*` attrs instead of declared

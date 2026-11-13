@@ -170,6 +170,12 @@ export type Interaction =
    * `selector` may be `window` or `document`.
    */
   | { type: 'event'; selector: string; event: string; bubbles?: boolean }
+  /**
+   * Switches the bonded i18n provider's locale, as a language picker elsewhere in the app
+   * would. Translated text must follow at once: React's components re-render through
+   * `useTranslation()`.
+   */
+  | { type: 'locale'; code: string }
 
 /** Framework-neutral app context a component may read (auth, theme, route, locale). */
 export interface CaseContext {

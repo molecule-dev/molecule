@@ -6,9 +6,9 @@
 
 import { defineComponent, h, type PropType } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 
@@ -39,6 +39,7 @@ export const Spinner = defineComponent({
   },
   setup(props, { attrs }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     return () => {
       const classes = cm.cn(cm.spinner({ size: props.size }), ...classOf(props.className, attrs))

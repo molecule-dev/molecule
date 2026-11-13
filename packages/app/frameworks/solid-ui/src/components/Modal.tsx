@@ -15,7 +15,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { ModalProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -131,6 +131,7 @@ export const Modal: Component<ModalProps & { 'data-mol-id'?: string }> = (props)
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   // Per-instance title id AND stack key. A hardcoded 'modal-title'
   // duplicated the id whenever two modals were mounted (stacked dialogs, a
   // drawer + a confirm) — aria-labelledby then resolved to the FIRST

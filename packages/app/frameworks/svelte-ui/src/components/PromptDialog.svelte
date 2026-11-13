@@ -8,9 +8,9 @@
 <script lang="ts">
   import { untrack } from 'svelte'
 
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { useI18n } from '../framework.js'
   import type { PromptDialogProps } from '../types.js'
   import Button from './Button.svelte'
   import Input from './Input.svelte'
@@ -34,6 +34,7 @@
     children,
   }: PromptDialogProps = $props()
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
   // Re-seed from initialValue each open so a reopened dialog shows the
   // CURRENT value, not whatever the user typed last time.
@@ -114,7 +115,7 @@
           disabled={pending}
           data-mol-id={cancelMolId}
         >
-          {#if cancelLabel}<ReactNode node={cancelLabel} />{:else}{t(
+          {#if cancelLabel}<ReactNode node={cancelLabel} />{:else}{$t(
               'prompt.cancel',
               {},
               { defaultValue: 'Cancel' },
@@ -127,7 +128,7 @@
           disabled={pending}
           data-mol-id={confirmMolId}
         >
-          {#if confirmLabel}<ReactNode node={confirmLabel} />{:else}{t(
+          {#if confirmLabel}<ReactNode node={confirmLabel} />{:else}{$t(
               'prompt.confirm',
               {},
               { defaultValue: 'Confirm' },

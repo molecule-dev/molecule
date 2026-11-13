@@ -26,7 +26,8 @@ export interface AvatarClassOptions {
  * <script>
  *   import { getAvatarClasses, getAvatarImageClass, getAvatarFallbackClass, getAvatarCustomSize } from '@molecule/app-ui-svelte'
  *   import { getInitials } from '@molecule/app-ui-svelte'
- *   import { t } from '@molecule/app-i18n'
+ *   import { useTranslation } from '@molecule/app-svelte'
+ *   const { t } = useTranslation()
  *   export let src = ''
  *   export let name = ''
  *   export let size = 'md'

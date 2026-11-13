@@ -6,10 +6,10 @@
 
 import { defineComponent, h, type PropType, ref, type VNode } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import { getIcon, type IconName } from '@molecule/app-icons'
 import type { AvatarProps, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 import { getInitials } from '../utilities/initials.js'
@@ -81,6 +81,7 @@ export const Avatar = defineComponent({
   },
   setup(props, { attrs, slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     const imageError = ref(false)
 
     return () => {

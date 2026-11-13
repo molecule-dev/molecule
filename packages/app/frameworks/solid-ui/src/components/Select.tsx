@@ -14,7 +14,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { SelectProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -64,6 +64,7 @@ export const Select: Component<SolidSelectProps<string>> = (props) => {
   let selectRef: HTMLSelectElement | undefined
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   // Fall back to a generated id so label htmlFor / aria-describedby never
   // point at `undefined-error` (which also collides across multiple
   // id-less selects on the same page).

@@ -14,8 +14,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useAuth, useRouter } from '@molecule/app-angular'
-import { t } from '@molecule/app-i18n'
+import { useAuth, useRouter, useTranslation } from '@molecule/app-angular'
 
 import { hasNodes, SlotWrapper } from './button.component.js'
 
@@ -81,6 +80,13 @@ export class AuthGuard implements AfterViewInit {
   readonly auth = useAuth()
   /** Router state and actions, read in the component's injection context. */
   readonly router = useRouter()
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
 
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private readonly host = inject(ElementRef)
@@ -175,7 +181,7 @@ export class AuthGuard implements AfterViewInit {
    * @returns The translated text.
    */
   loadingText(): string {
-    return t(
+    return this.i18n.t(
       this.loadingKey ?? 'common.loading',
       {},
       {

@@ -18,8 +18,9 @@ import {
   useContext,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { useTranslation } from '@molecule/app-solid'
 import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -82,6 +83,7 @@ export const Toast: Component<ToastProps> = (props) => {
 
   const [isVisible, setIsVisible] = createSignal(true)
   const cm = getClassMap()
+  const { t } = useTranslation()
   const status = (): NonNullable<ToastProps['status']> => local.status ?? 'info'
   const variant = (): 'default' | 'success' | 'warning' | 'error' | 'info' =>
     statusVariantMap[status()] || 'default'
@@ -247,10 +249,12 @@ const ToastContext = createContext<ToastContextValue>()
 export const useToast = (): ToastContextValue => {
   const context = useContext(ToastContext)
   if (!context) {
-    throw new Error(
-      t('solid.error.useToastOutsideProvider', undefined, {
-        defaultValue: 'useToast must be used within a ToastProvider',
-      }),
+    // Thrown outside rendering (a hook used outside its provider), so the
+    // message is the I18nError's own English fallback, not a render-time `t`.
+    throw new I18nError(
+      'solid.error.useToastOutsideProvider',
+      undefined,
+      'useToast must be used within a ToastProvider',
     )
   }
   return context

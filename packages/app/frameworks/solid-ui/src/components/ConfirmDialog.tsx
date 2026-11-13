@@ -9,7 +9,7 @@
 
 import { type Component, type JSX, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Button } from './Button.jsx'
@@ -62,6 +62,7 @@ export const ConfirmDialog: Component<ConfirmDialogProps> = (props) => {
     'loading',
   ])
   const cm = getClassMap()
+  const { t } = useTranslation()
 
   return (
     <Modal open={local.open} onClose={local.onClose}>

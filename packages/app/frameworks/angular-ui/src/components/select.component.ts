@@ -15,7 +15,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -169,6 +169,14 @@ export class Select implements AfterViewInit, AfterViewChecked {
   @ViewChild('selectEl') selectEl?: ElementRef<HTMLSelectElement>
 
   private readonly host = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   /** The `aria-describedby` the caller spread onto the host (React's rest). */
   private restDescribedBy: string | null = null
   /** Whether the rest-describedby value was captured. */
@@ -237,7 +245,7 @@ export class Select implements AfterViewInit, AfterViewChecked {
    * @returns The label text.
    */
   clearText(): string {
-    return t('ui.select.clear', undefined, { defaultValue: '--' })
+    return this.i18n.t('ui.select.clear', undefined, { defaultValue: '--' })
   }
 
   /**

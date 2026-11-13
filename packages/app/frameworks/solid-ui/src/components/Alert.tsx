@@ -6,8 +6,8 @@
 
 import { type Component, type JSX, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { useTranslation } from '@molecule/app-solid'
 import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -69,6 +69,7 @@ export const Alert: Component<AlertProps & { live?: boolean }> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const status = (): NonNullable<AlertProps['status']> => local.status ?? 'info'
   const alertVariant = (): 'default' | 'info' | 'success' | 'warning' | 'error' =>
     statusVariantMap[status()] || 'default'

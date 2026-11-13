@@ -6,7 +6,7 @@
 
 import { Component, EventEmitter, Output } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -76,6 +76,13 @@ export class ConfirmDialog {
   @Output() readonly confirm = new EventEmitter<void>()
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * The current class map.
    * @returns The UIClassMap.
    */
@@ -88,7 +95,7 @@ export class ConfirmDialog {
    * @returns The label text.
    */
   cancelText(): string {
-    return this.cancelLabel ?? t('confirm.cancel', {}, { defaultValue: 'Cancel' })
+    return this.cancelLabel ?? this.i18n.t('confirm.cancel', {}, { defaultValue: 'Cancel' })
   }
 
   /**
@@ -98,6 +105,6 @@ export class ConfirmDialog {
   confirmText(): string {
     return this.loading
       ? '…'
-      : (this.confirmLabel ?? t('confirm.confirm', {}, { defaultValue: 'Confirm' }))
+      : (this.confirmLabel ?? this.i18n.t('confirm.confirm', {}, { defaultValue: 'Confirm' }))
   }
 }

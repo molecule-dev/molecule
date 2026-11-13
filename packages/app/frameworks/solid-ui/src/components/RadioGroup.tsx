@@ -6,7 +6,7 @@
 
 import { type Component, createUniqueId, For, type JSX, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { RadioGroupProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -42,6 +42,7 @@ export const RadioGroup: Component<RadioGroupProps<string>> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const generatedName = createUniqueId()
   const groupName = (): string => local.name || generatedName
   const errorId = (): string => `${groupName()}-error`

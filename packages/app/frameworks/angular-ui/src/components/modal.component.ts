@@ -16,7 +16,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { ModalSize, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -179,6 +179,14 @@ export class Modal implements AfterViewInit, DoCheck, OnDestroy {
   private readonly stackId = modalInstance
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly sync = createScrollLock()
   private lastOpen = false
   private lastFooter = false
@@ -225,7 +233,7 @@ export class Modal implements AfterViewInit, DoCheck, OnDestroy {
    * @returns The label text.
    */
   closeText(): string {
-    return this.closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' })
+    return this.closeLabel ?? this.i18n.t('ui.modal.close', undefined, { defaultValue: 'Close' })
   }
 
   /**

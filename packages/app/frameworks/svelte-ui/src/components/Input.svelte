@@ -4,11 +4,11 @@
   error state; autoFocus focuses once on mount like React's autoFocus.
 -->
 <script lang="ts">
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { reactInputValue, spreadEvents, useGeneratedId } from '../dom.js'
+  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { InputProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -45,6 +45,7 @@
   const generatedId = useGeneratedId()
   const inputId = $derived(id || name || generatedId)
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
   const inputClasses = $derived(
     cm.cn(
@@ -108,7 +109,7 @@
             type="button"
             onclick={onClear}
             class={cm.inputClearButton}
-            aria-label={clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })}
+            aria-label={clearLabel ?? $t('ui.input.clear', undefined, { defaultValue: 'Clear' })}
           >
             <IconGlyph name="x-mark" className={cm.iconSm} />
           </button>

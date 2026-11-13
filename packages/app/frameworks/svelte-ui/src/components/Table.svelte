@@ -6,9 +6,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { TableColumnSpec, TableProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -32,6 +32,7 @@
     testId,
   }: TableProps = $props()
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
 
   /** The key a row keeps across re-renders, as React's `key={getRowKey(row, index)}`. */
@@ -106,7 +107,7 @@
       {#if data.length === 0}
         <tr>
           <td colspan={columns.length} class={cm.tableEmptyCell}>
-            {#if emptyContent}<ReactNode node={emptyContent} />{:else}{t(
+            {#if emptyContent}<ReactNode node={emptyContent} />{:else}{$t(
                 'ui.table.empty',
                 undefined,
                 { defaultValue: 'No data available' },

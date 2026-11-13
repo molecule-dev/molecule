@@ -6,7 +6,7 @@
 
 import { Component, EventEmitter, Output } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -197,6 +197,13 @@ export class Pagination {
   @Output() readonly change = new EventEmitter<number>()
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * The current class map.
    * @returns The UIClassMap.
    */
@@ -257,7 +264,10 @@ export class Pagination {
    * @returns The label.
    */
   navLabel(): string {
-    return this.labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })
+    return (
+      this.labels?.nav ??
+      this.i18n.t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })
+    )
   }
 
   /**
@@ -267,7 +277,7 @@ export class Pagination {
   firstLabel(): string {
     return (
       this.labels?.first ??
-      t('ui.pagination.first', undefined, { defaultValue: 'Go to first page' })
+      this.i18n.t('ui.pagination.first', undefined, { defaultValue: 'Go to first page' })
     )
   }
 
@@ -278,7 +288,7 @@ export class Pagination {
   previousLabel(): string {
     return (
       this.labels?.previous ??
-      t('ui.pagination.previous', undefined, { defaultValue: 'Go to previous page' })
+      this.i18n.t('ui.pagination.previous', undefined, { defaultValue: 'Go to previous page' })
     )
   }
 
@@ -288,7 +298,8 @@ export class Pagination {
    */
   nextLabel(): string {
     return (
-      this.labels?.next ?? t('ui.pagination.next', undefined, { defaultValue: 'Go to next page' })
+      this.labels?.next ??
+      this.i18n.t('ui.pagination.next', undefined, { defaultValue: 'Go to next page' })
     )
   }
 
@@ -298,7 +309,8 @@ export class Pagination {
    */
   lastLabel(): string {
     return (
-      this.labels?.last ?? t('ui.pagination.last', undefined, { defaultValue: 'Go to last page' })
+      this.labels?.last ??
+      this.i18n.t('ui.pagination.last', undefined, { defaultValue: 'Go to last page' })
     )
   }
 
@@ -312,7 +324,11 @@ export class Pagination {
   pageLabel(item: number): string {
     const custom = this.labels?.goToPage?.(item)
     if (custom !== undefined && custom !== null) return custom
-    return t('ui.pagination.goToPage', { page: item }, { defaultValue: 'Go to page {{page}}' })
+    return this.i18n.t(
+      'ui.pagination.goToPage',
+      { page: item },
+      { defaultValue: 'Go to page {{page}}' },
+    )
   }
 
   /**

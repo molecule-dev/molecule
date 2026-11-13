@@ -277,6 +277,7 @@ const runStep = async (
       if (step.type === 'advance') await vi.advanceTimersByTimeAsync(step.ms)
       else if (step.type === 'settle') recorder.settle(step.callback, step.value, step.error)
       else if (step.type === 'navigate') mounted.navigate(step.to)
+      else if (step.type === 'locale') await getI18nProvider().setLocale(step.code)
       else performDomInteraction(step)
     }
     await (mounted.wrap ? mounted.wrap(perform) : perform())

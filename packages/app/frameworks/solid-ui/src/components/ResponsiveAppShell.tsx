@@ -54,7 +54,7 @@ import {
   useContext,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
@@ -325,6 +325,7 @@ export const ResponsiveAppShellTopBar: Component<ResponsiveAppShellTopBarProps> 
     'testId',
   ])
   const cm = getClassMap()
+  const { t } = useTranslation()
   const shell = useShellContext('ResponsiveAppShell.TopBar')
 
   return (
@@ -423,6 +424,7 @@ export const ResponsiveAppShellSidebar: Component<ResponsiveAppShellSidebarProps
     'testId',
   ])
   const cm = getClassMap()
+  const { t } = useTranslation()
   const shell = useShellContext('ResponsiveAppShell.Sidebar')
 
   return (
@@ -522,6 +524,7 @@ export const ResponsiveAppShellDrawer: Component<ResponsiveAppShellDrawerProps> 
     'testId',
   ])
   const cm = getClassMap()
+  const { t } = useTranslation()
   const shell = useShellContext('ResponsiveAppShell.Drawer')
   let panelRef: HTMLDivElement | undefined
   let previouslyFocused: HTMLElement | null = null

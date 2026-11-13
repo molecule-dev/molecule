@@ -14,7 +14,7 @@ import {
   Output,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -101,6 +101,13 @@ export class MoleculeToast implements OnInit, OnDestroy {
   private timer?: ReturnType<typeof setTimeout>
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * Retrieves the current UI class map.
    * @returns The UIClassMap instance for styling.
    */
@@ -113,7 +120,7 @@ export class MoleculeToast implements OnInit, OnDestroy {
    * @returns The localized aria-label for the close button.
    */
   get closeAriaLabel(): string {
-    return this.closeLabel || t('ui.toast.close', undefined, { defaultValue: 'Close' })
+    return this.closeLabel || this.i18n.t('ui.toast.close', undefined, { defaultValue: 'Close' })
   }
 
   /**

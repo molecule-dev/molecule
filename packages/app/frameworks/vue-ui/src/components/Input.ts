@@ -6,9 +6,9 @@
 
 import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -95,6 +95,7 @@ export const Input = defineComponent({
   emits: ['change', 'clear', 'focus', 'blur'],
   setup(props, { attrs, slots, emit }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
     // id-less inputs on the same page). Allocated once per instance, like

@@ -6,8 +6,9 @@
 
 import { type Component, createSignal, For, type JSX, Show, splitProps } from 'solid-js'
 
-import { type LocaleConfig, t } from '@molecule/app-i18n'
+import type { LocaleConfig } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
@@ -74,6 +75,7 @@ export const LanguagePicker: Component<LanguagePickerProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const { locale, locales, provider } = createI18nState()
   const [open, setOpen] = createSignal(false)
 

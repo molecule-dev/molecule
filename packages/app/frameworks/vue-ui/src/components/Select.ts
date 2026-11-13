@@ -14,9 +14,9 @@ import {
   watch,
 } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { SelectOption, SelectProps, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -73,6 +73,7 @@ export const Select = defineComponent({
   emits: ['change', 'valueChange'],
   setup(props, { attrs, emit }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple
     // id-less selects on the same page).

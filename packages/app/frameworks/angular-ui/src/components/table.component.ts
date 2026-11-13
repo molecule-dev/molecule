@@ -16,7 +16,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { TableColumn, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -162,6 +162,14 @@ export class Table implements AfterViewInit, DoCheck {
   readonly hasEmpty = signal(false)
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly renderer = inject(Renderer2)
   private readonly sync = new SlotWrapper(this.host, this.renderer)
   private emptyParent: HTMLElement | null = null
@@ -268,7 +276,7 @@ export class Table implements AfterViewInit, DoCheck {
    * @returns The localized text.
    */
   emptyText(): string {
-    return t('ui.table.empty', undefined, { defaultValue: 'No data available' })
+    return this.i18n.t('ui.table.empty', undefined, { defaultValue: 'No data available' })
   }
 
   /**

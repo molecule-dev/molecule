@@ -7,7 +7,7 @@
 
 import { getContext } from 'svelte'
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 
 import type { ToastProps } from './types.js'
 
@@ -36,10 +36,12 @@ export const TOAST_CONTEXT = Symbol('molecule-toast')
 export function useToast(): ToastContextValue {
   const context = getContext<ToastContextValue>(TOAST_CONTEXT)
   if (!context) {
-    throw new Error(
-      t('svelte.error.useToastOutsideProvider', undefined, {
-        defaultValue: 'useToast must be used within a ToastProvider',
-      }),
+    // Thrown outside rendering (a hook used outside its provider), so the key
+    // is carried for re-translation instead of a frozen string.
+    throw new I18nError(
+      'svelte.error.useToastOutsideProvider',
+      undefined,
+      'useToast must be used within a ToastProvider',
     )
   }
   return context

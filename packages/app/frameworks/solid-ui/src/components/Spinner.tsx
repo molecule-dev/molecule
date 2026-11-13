@@ -6,7 +6,7 @@
 
 import { type Component, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { SpinnerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -32,6 +32,7 @@ export const Spinner: Component<SpinnerProps & { 'data-mol-id'?: string }> = (pr
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const classes = (): string => cm.cn(cm.spinner({ size: local.size }), local.className)
 
   const colorStyle = (): Record<string, string> | undefined => {

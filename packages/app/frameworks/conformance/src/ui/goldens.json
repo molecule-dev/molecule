@@ -224,6 +224,13 @@
      "<div class=\"cbf033fe8\">\n<div class=\"ce2ca5664\" data-state=\"open\">\n<button aria-controls=\"#id1\" aria-expanded=\"true\" class=\"c04c34dac c1477cccf c1e8176ab c2d7a5b64 c80b1c428 c937ba156 c93c94459 ca46eac0b cb5823274 cbf033fe8 ccae02ff2\" data-state=\"open\" id=\"#id0\" type=\"button\">\nDetails\n<svg aria-hidden=\"true\" class=\"c4905a0c6 c7e9e3f93 ca596e575 cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</button>\n<div aria-labelledby=\"#id0\" class=\"c04c34dac c445db9b9 c8f19053a ca475ce50 cd2aefcd1\" data-state=\"open\" id=\"#id1\" role=\"region\" style=\"display: block\">\n<div class=\"c378a0a9c cd23963ee\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nPanel action\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults (all collapsed), then a locale switch": {
+    "snapshots": [
+     "<div class=\"cbf033fe8\">\n<div class=\"ce2ca5664\" data-state=\"closed\">\n<button aria-controls=\"#id1\" aria-expanded=\"false\" class=\"c04c34dac c1477cccf c1e8176ab c2d7a5b64 c80b1c428 c937ba156 c93c94459 ca46eac0b cb5823274 cbf033fe8 ccae02ff2\" data-state=\"closed\" id=\"#id0\" type=\"button\">\nDetails\n<svg aria-hidden=\"true\" class=\"c4905a0c6 c7e9e3f93 ca596e575 cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</button>\n<div aria-labelledby=\"#id0\" class=\"c04c34dac c445db9b9 c8f19053a ca475ce50 cd2aefcd1\" data-state=\"closed\" id=\"#id1\" role=\"region\" style=\"display: none\">\n<div class=\"c378a0a9c cd23963ee\">\nDetails body\n</div>\n</div>\n</div>\n<div class=\"ce2ca5664\" data-state=\"closed\">\n<button aria-controls=\"#id3\" aria-expanded=\"false\" class=\"c04c34dac c1477cccf c1e8176ab c2d7a5b64 c80b1c428 c937ba156 c93c94459 ca46eac0b cb5823274 cbf033fe8 ccae02ff2\" data-state=\"closed\" id=\"#id2\" type=\"button\">\nShipping\n<svg aria-hidden=\"true\" class=\"c4905a0c6 c7e9e3f93 ca596e575 cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</button>\n<div aria-labelledby=\"#id2\" class=\"c04c34dac c445db9b9 c8f19053a ca475ce50 cd2aefcd1\" data-state=\"closed\" id=\"#id3\" role=\"region\" style=\"display: none\">\n<div class=\"c378a0a9c cd23963ee\">\nShipping body\n</div>\n</div>\n</div>\n<div class=\"ce2ca5664\" data-state=\"closed\">\n<button aria-controls=\"#id5\" aria-expanded=\"false\" class=\"c04c34dac c1477cccf c1e8176ab c2d7a5b64 c80b1c428 c937ba156 c93c94459 ca46eac0b cb5823274 cbf033fe8 ccae02ff2\" data-state=\"closed\" id=\"#id4\" type=\"button\">\nReturns\n<svg aria-hidden=\"true\" class=\"c4905a0c6 c7e9e3f93 ca596e575 cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</button>\n<div aria-labelledby=\"#id4\" class=\"c04c34dac c445db9b9 c8f19053a ca475ce50 cd2aefcd1\" data-state=\"closed\" id=\"#id5\" role=\"region\" style=\"display: none\">\n<div class=\"c378a0a9c cd23963ee\">\nReturns body\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"cbf033fe8\">\n<div class=\"ce2ca5664\" data-state=\"closed\">\n<button aria-controls=\"#id1\" aria-expanded=\"false\" class=\"c04c34dac c1477cccf c1e8176ab c2d7a5b64 c80b1c428 c937ba156 c93c94459 ca46eac0b cb5823274 cbf033fe8 ccae02ff2\" data-state=\"closed\" id=\"#id0\" type=\"button\">\nDetails\n<svg aria-hidden=\"true\" class=\"c4905a0c6 c7e9e3f93 ca596e575 cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</button>\n<div aria-labelledby=\"#id0\" class=\"c04c34dac c445db9b9 c8f19053a ca475ce50 cd2aefcd1\" data-state=\"closed\" id=\"#id1\" role=\"region\" style=\"display: none\">\n<div class=\"c378a0a9c cd23963ee\">\nDetails body\n</div>\n</div>\n</div>\n<div class=\"ce2ca5664\" data-state=\"closed\">\n<button aria-controls=\"#id3\" aria-expanded=\"false\" class=\"c04c34dac c1477cccf c1e8176ab c2d7a5b64 c80b1c428 c937ba156 c93c94459 ca46eac0b cb5823274 cbf033fe8 ccae02ff2\" data-state=\"closed\" id=\"#id2\" type=\"button\">\nShipping\n<svg aria-hidden=\"true\" class=\"c4905a0c6 c7e9e3f93 ca596e575 cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</button>\n<div aria-labelledby=\"#id2\" class=\"c04c34dac c445db9b9 c8f19053a ca475ce50 cd2aefcd1\" data-state=\"closed\" id=\"#id3\" role=\"region\" style=\"display: none\">\n<div class=\"c378a0a9c cd23963ee\">\nShipping body\n</div>\n</div>\n</div>\n<div class=\"ce2ca5664\" data-state=\"closed\">\n<button aria-controls=\"#id5\" aria-expanded=\"false\" class=\"c04c34dac c1477cccf c1e8176ab c2d7a5b64 c80b1c428 c937ba156 c93c94459 ca46eac0b cb5823274 cbf033fe8 ccae02ff2\" data-state=\"closed\" id=\"#id4\" type=\"button\">\nReturns\n<svg aria-hidden=\"true\" class=\"c4905a0c6 c7e9e3f93 ca596e575 cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</button>\n<div aria-labelledby=\"#id4\" class=\"c04c34dac c445db9b9 c8f19053a ca475ce50 cd2aefcd1\" data-state=\"closed\" id=\"#id5\" role=\"region\" style=\"display: none\">\n<div class=\"c378a0a9c cd23963ee\">\nReturns body\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Alert": {
@@ -362,6 +369,13 @@
      "<div class=\"c091d4479 c1f523237 c280f2aeb c311021b4 c3641138a c7cf3fc43 c99d61f16 ca14acf68 cbf033fe8 cd75bbd18 ce0c57bf6 cf4bfc7bb cf974fdf0 cfc82911d cfec96911\" data-testid=\"save-alert\" role=\"alert\" style=\"margin-top: 4px\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n</span>\n<div class=\"cb5823274\">\n<div class=\"c2395bd1c c445db9b9\">\nBody text\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c091d4479 c1f523237 c280f2aeb c311021b4 c3641138a c7cf3fc43 c99d61f16 ca14acf68 cbf033fe8 ce0c57bf6 cf4bfc7bb cf974fdf0 cfc82911d cfec96911\" role=\"alert\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n</span>\n<div class=\"cb5823274\">\n<div class=\"c2395bd1c c445db9b9\">\nSomething happened.\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c091d4479 c1f523237 c280f2aeb c311021b4 c3641138a c7cf3fc43 c99d61f16 ca14acf68 cbf033fe8 ce0c57bf6 cf4bfc7bb cf974fdf0 cfc82911d cfec96911\" role=\"alert\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n</span>\n<div class=\"cb5823274\">\n<div class=\"c2395bd1c c445db9b9\">\nSomething happened.\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "AuthGuard": {
@@ -452,6 +466,13 @@
    "onAuthenticated stays silent while loading": {
     "snapshots": [
      "\n@route /"
+    ],
+    "calls": []
+   },
+   "unauthenticated redirects to the login path, then a locale switch": {
+    "snapshots": [
+     "Routed content\n@route /login state={\"from\":{\"hash\":\"\",\"pathname\":\"/dashboard\",\"search\":\"\"}}",
+     "Routed content\n@route /login state={\"from\":{\"hash\":\"\",\"pathname\":\"/dashboard\",\"search\":\"\"}}"
     ],
     "calls": []
    }
@@ -591,6 +612,13 @@
      "<div class=\"c8f19053a c9052b18c c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<strong>\nAB\n</strong>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults icon fallback, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c8f19053a c9052b18c c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<svg aria-hidden=\"true\" class=\"cd7cb23cd cfe2c5a7c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</div>\n</div>\n@route /",
+     "<div class=\"c8f19053a c9052b18c c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<svg aria-hidden=\"true\" class=\"cd7cb23cd cfe2c5a7c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Badge": {
@@ -681,6 +709,13 @@
    "element children": {
     "snapshots": [
      "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\n<strong>\n12\n</strong>\nunread\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nNew\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nNew\n</span>\n@route /"
     ],
     "calls": []
    }
@@ -866,6 +901,13 @@
      "<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nSave\n</button>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nSave\n</button>\n@route /",
+     "<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nSave\n</button>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Card": {
@@ -999,6 +1041,13 @@
      "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\nClickable card\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\nBody text\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\nBody text\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "CardContent": {
@@ -1042,6 +1091,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c378a0a9c c97d61bf0\">\nContent\n</div>\n@route /",
+     "<div class=\"c378a0a9c c97d61bf0\">\nContent\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "CardDescription": {
@@ -1068,6 +1124,13 @@
      "<p class=\"c445db9b9 ce823b5bf\">\nRuns \n<em>\ndaily\n</em>\n.\n</p>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<p class=\"c445db9b9 ce823b5bf\">\nA short description.\n</p>\n@route /",
+     "<p class=\"c445db9b9 ce823b5bf\">\nA short description.\n</p>\n@route /"
+    ],
+    "calls": []
    }
   },
   "CardFooter": {
@@ -1092,6 +1155,13 @@
    "element children": {
     "snapshots": [
      "<div class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\n<span>\nSave\n</span>\n<span>\n·\n</span>\n<span>\nCancel\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\nFooter\n</div>\n@route /",
+     "<div class=\"c1e8176ab c378a0a9c c97d61bf0 ccae02ff2\">\nFooter\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -1137,6 +1207,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\nHeader\n</div>\n@route /",
+     "<div class=\"c97d61bf0 cbaac6b89 cbbe159e8 ccae02ff2\">\nHeader\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "CardTitle": {
@@ -1180,6 +1257,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<h3 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTitle\n</h3>\n@route /",
+     "<h3 class=\"c20e78aa5 c62c44ece c6a2a1a28 c7f74399a\">\nTitle\n</h3>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Checkbox": {
@@ -1306,6 +1390,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"cbaac6b89 ccae02ff2\">\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input aria-invalid=\"false\" class=\"c1af9479c c1f523237 c3a43c561 c4e17296e c660c0bfe c727c13ba c7371f437 c7bc25504 c7d370ab9 c8b197f7c ca596e575 cb8150f49 cbe9b7ae9 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" id=\"#id0\" name=\"agree\" type=\"checkbox\" {checked=false}>\n</input>\n</label>\n</div>\n@route /",
+     "<div class=\"cbaac6b89 ccae02ff2\">\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input aria-invalid=\"false\" class=\"c1af9479c c1f523237 c3a43c561 c4e17296e c660c0bfe c727c13ba c7371f437 c7bc25504 c7d370ab9 c8b197f7c ca596e575 cb8150f49 cbe9b7ae9 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" id=\"#id0\" name=\"agree\" type=\"checkbox\" {checked=false}>\n</input>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "ConfirmButton": {
@@ -1472,6 +1563,13 @@
       "args": []
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<button aria-live=\"polite\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-state=\"idle\" type=\"button\">\nDelete\n</button>\n@route /",
+     "<button aria-live=\"polite\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-state=\"idle\" type=\"button\">\nDelete\n</button>\n@route /"
+    ],
+    "calls": []
    }
   },
   "ConfirmDialog": {
@@ -1574,6 +1672,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-modal=\"true\" class=\"c311021b4 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cdb94fa1d cfba34ab6 cfbb6eaee cfc82911d\" role=\"dialog\" tabindex=\"-1\">\n<button aria-label=\"Close\" class=\"c0dd268bc c13d4ff0f c37109e1c c7552104c c7d370ab9 c86f9ad24 c92784b69 ce823b5bf cf78f34f1 cf9eca3d0\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h2 class=\"c0d99ed10 c6a2a1a28\">\nDelete vault?\n</h2>\n<p class=\"c445db9b9\">\nThis action cannot be undone.\n</p>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nCancel\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nConfirm\n</button>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>button:0",
+     "<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-modal=\"true\" class=\"c311021b4 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cdb94fa1d cfba34ab6 cfbb6eaee cfc82911d\" role=\"dialog\" tabindex=\"-1\">\n<button aria-label=\"⟦Close⟧\" class=\"c0dd268bc c13d4ff0f c37109e1c c7552104c c7d370ab9 c86f9ad24 c92784b69 ce823b5bf cf78f34f1 cf9eca3d0\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h2 class=\"c0d99ed10 c6a2a1a28\">\nDelete vault?\n</h2>\n<p class=\"c445db9b9\">\nThis action cannot be undone.\n</p>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\n⟦Cancel⟧\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\n⟦Confirm⟧\n</button>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>button:0"
+    ],
+    "calls": []
    }
   },
   "Container": {
@@ -1671,6 +1776,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c7207aab2 c8f3cd634 cbf033fe8 cd5d4be14\">\nContained\n</div>\n@route /",
+     "<div class=\"c7207aab2 c8f3cd634 cbf033fe8 cd5d4be14\">\nContained\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Dropdown": {
@@ -1939,6 +2051,13 @@
      "<button aria-expanded=\"false\" aria-haspopup=\"menu\" tabindex=\"0\" type=\"button\">\nOptions\n</button>\n@route /elsewhere"
     ],
     "calls": []
+   },
+   "defaults (closed), then a locale switch": {
+    "snapshots": [
+     "<button aria-expanded=\"false\" aria-haspopup=\"menu\" tabindex=\"0\" type=\"button\">\nOptions\n</button>\n@route /",
+     "<button aria-expanded=\"false\" aria-haspopup=\"menu\" tabindex=\"0\" type=\"button\">\nOptions\n</button>\n@route /"
+    ],
+    "calls": []
    }
   },
   "DropdownLabel": {
@@ -1959,6 +2078,13 @@
      "<div class=\"c445db9b9 c7f74399a c8d3cd30e c978a2871 cd75bbd18\">\nActions\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c445db9b9 c7f74399a c8d3cd30e c978a2871\">\nActions\n</div>\n@route /",
+     "<div class=\"c445db9b9 c7f74399a c8d3cd30e c978a2871\">\nActions\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "DropdownSeparator": {
@@ -1971,6 +2097,13 @@
    "className": {
     "snapshots": [
      "<div class=\"c0da89a5b c6cc022b1 cca0fc486 cd75bbd18 cfde19efb\" role=\"separator\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c0da89a5b c6cc022b1 cca0fc486 cfde19efb\" role=\"separator\">\n</div>\n@route /",
+     "<div class=\"c0da89a5b c6cc022b1 cca0fc486 cfde19efb\" role=\"separator\">\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -2015,6 +2148,13 @@
    "className, style and testId": {
     "snapshots": [
      "<div class=\"c16e96f28 c1e8176ab c85408cf6 c8f3cd634 c9773cd2b cbaac6b89 ccae02ff2 cd75bbd18\" data-testid=\"empty\" style=\"margin-top: 4px\">\n<h3 class=\"c3fe812c8 c6a2a1a28 c78cf77a8 c7f74399a c8d722291\">\nNo projects yet\n</h3>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c1e8176ab c85408cf6 c8f3cd634 c9773cd2b cbaac6b89 ccae02ff2\">\n<h3 class=\"c3fe812c8 c6a2a1a28 c78cf77a8 c7f74399a c8d722291\">\nNo projects yet\n</h3>\n</div>\n@route /",
+     "<div class=\"c16e96f28 c1e8176ab c85408cf6 c8f3cd634 c9773cd2b cbaac6b89 ccae02ff2\">\n<h3 class=\"c3fe812c8 c6a2a1a28 c78cf77a8 c7f74399a c8d722291\">\nNo projects yet\n</h3>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -2216,6 +2356,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\nOneTwo\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\nOneTwo\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "FloatingInput": {
@@ -2351,6 +2498,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<span class=\"c1b02b894 c89d31444 cbf033fe8 cfc82911d\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb8150f49 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Email address\" value {value=\"\"}>\n</input>\n<label class=\"c04c34dac c0dd268bc c265ec60b c2883f28d c315992d7 c3ca1413c c5b8ef7a8 c62c44ece c94199e05 cade4ab62 cbf033fe8 cc26cbf54 ccc192af5 cd6fe318b cf48f3038 cfceca889 cffc79a0b\" for=\"#id0\">\nEmail address\n</label>\n</span>\n@route /",
+     "<span class=\"c1b02b894 c89d31444 cbf033fe8 cfc82911d\">\n<input class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cb8150f49 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Email address\" value {value=\"\"}>\n</input>\n<label class=\"c04c34dac c0dd268bc c265ec60b c2883f28d c315992d7 c3ca1413c c5b8ef7a8 c62c44ece c94199e05 cade4ab62 cbf033fe8 cc26cbf54 ccc192af5 cd6fe318b cf48f3038 cfceca889 cffc79a0b\" for=\"#id0\">\nEmail address\n</label>\n</span>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Form": {
@@ -2511,6 +2665,13 @@
      "<form class=\"cd75bbd18\" data-testid=\"signup\" style=\"margin-top: 4px\">\n<fieldset class=\"c8d4e0fa3\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" name=\"email\" type=\"text\" {value=\"\"}>\n</input>\n</div>\n</div>\n</fieldset>\n</form>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<form>\n<fieldset class=\"c8d4e0fa3\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" name=\"email\" placeholder=\"Email\" type=\"text\" {value=\"\"}>\n</input>\n</div>\n</div>\n</fieldset>\n</form>\n@route /",
+     "<form>\n<fieldset class=\"c8d4e0fa3\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" name=\"email\" placeholder=\"Email\" type=\"text\" {value=\"\"}>\n</input>\n</div>\n</div>\n</fieldset>\n</form>\n@route /"
+    ],
+    "calls": []
    }
   },
   "FormField": {
@@ -2601,6 +2762,13 @@
    "className, style and testId": {
     "snapshots": [
      "<div class=\"c8f7225b7 cbf033fe8 cd75bbd18\" data-testid=\"field\" style=\"margin-top: 4px\">\n<label class=\"c0242682d c2001d955 c445db9b9 c62c44ece c80acfbf1 c80b1c428 ceb0cbd62\" for=\"#id0\">\nEmail\n</label>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"text\" {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "label and input child, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c8f7225b7 cbf033fe8\">\n<label class=\"c0242682d c2001d955 c445db9b9 c62c44ece c80acfbf1 c80b1c428 ceb0cbd62\" for=\"#id0\">\nEmail address\n</label>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"you@example.com\" type=\"text\" {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c8f7225b7 cbf033fe8\">\n<label class=\"c0242682d c2001d955 c445db9b9 c62c44ece c80acfbf1 c80b1c428 ceb0cbd62\" for=\"#id0\">\nEmail address\n</label>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"you@example.com\" type=\"text\" {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -2731,6 +2899,13 @@
      "<div aria-label=\"Results\" class=\"c9366def6 caf871a91\" data-mol-id=\"results\">\n<span>\nA\n</span>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /",
+     "<div class=\"c9366def6 caf871a91\">\n<span>\nA\n</span>\n<span>\nB\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Icon": {
@@ -2841,6 +3016,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n@route /",
+     "<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Input": {
@@ -3184,6 +3366,13 @@
      "<div class=\"cbf033fe8\">\n<label class=\"c0242682d c2001d955 c445db9b9 c62c44ece c80acfbf1 c80b1c428 ceb0cbd62\" for=\"#id0\">\nEmail\n</label>\n<div class=\"cfc82911d\">\n<input aria-describedby=\"#id1\" aria-invalid=\"true\" class=\"c04c34dac c0f311eb3 c1024996b c107b4ecd c16e96f28 c1f523237 c2e95a721 c33d4bf17 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c832ad608 c8771eca4 c892012e1 c89408c67 c8b197f7c cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" name=\"email\" type=\"text\" {value=\"\"}>\n</input>\n</div>\n<p class=\"c445db9b9 c99fc28ae cab1062ad\" id=\"#id1\">\nInvalid address.\n</p>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" name=\"plain\" type=\"text\" {value=\"\"}>\n</input>\n</div>\n</div>\n@route /",
+     "<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" name=\"plain\" type=\"text\" {value=\"\"}>\n</input>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Label": {
@@ -3222,6 +3411,13 @@
      "<label class=\"c0242682d c445db9b9 c62c44ece c80acfbf1 c80b1c428 cd75bbd18\" for=\"email-field\">\nEmail\n</label>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<label class=\"c0242682d c445db9b9 c62c44ece c80acfbf1 c80b1c428\">\nEmail address\n</label>\n@route /",
+     "<label class=\"c0242682d c445db9b9 c62c44ece c80acfbf1 c80b1c428\">\nEmail address\n</label>\n@route /"
+    ],
+    "calls": []
    }
   },
   "LanguagePicker": {
@@ -3252,7 +3448,7 @@
    "custom modal title key and default": {
     "snapshots": [
      "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n@route /",
-     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c3d1a3ff6 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cfba34ab6 cfbb6eaee cfc82911d\" data-mol-id=\"language-picker-modal\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nPick a language\n</h2>\n<button aria-label=\"Close\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c12eee6c8 c4abc022f c8ec4f977 c9566e21c c9bd6223c c9f16a0dc caf871a91 cd4bf1eb3\">\n<button aria-pressed=\"true\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c338aede8 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c80b1c428 c8e3cd4a1 caa6eb57d cda72d38d\" data-active=\"true\" data-mol-id=\"language-picker-option-en\" type=\"button\">\nEnglish\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1"
+     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c3d1a3ff6 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cfba34ab6 cfbb6eaee cfc82911d\" data-mol-id=\"language-picker-modal\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nPick a language\n</h2>\n<button aria-label=\"Close\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c12eee6c8 c4abc022f c8ec4f977 c9566e21c c9bd6223c c9f16a0dc caf871a91 cd4bf1eb3\">\n<button aria-pressed=\"true\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c338aede8 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c80b1c428 c8e3cd4a1 caa6eb57d cda72d38d\" data-active=\"true\" data-mol-id=\"language-picker-option-en\" type=\"button\">\nEnglish\n</button>\n<button aria-pressed=\"false\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c811bbdcb c8e3cd4a1 caa6eb57d\" data-mol-id=\"language-picker-option-en-XA\" type=\"button\">\nPseudo\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1"
     ],
     "calls": []
    },
@@ -3278,14 +3474,14 @@
    "click opens the locale modal": {
     "snapshots": [
      "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n@route /",
-     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c3d1a3ff6 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cfba34ab6 cfbb6eaee cfc82911d\" data-mol-id=\"language-picker-modal\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nChoose language\n</h2>\n<button aria-label=\"Close\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c12eee6c8 c4abc022f c8ec4f977 c9566e21c c9bd6223c c9f16a0dc caf871a91 cd4bf1eb3\">\n<button aria-pressed=\"true\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c338aede8 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c80b1c428 c8e3cd4a1 caa6eb57d cda72d38d\" data-active=\"true\" data-mol-id=\"language-picker-option-en\" type=\"button\">\nEnglish\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1"
+     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c3d1a3ff6 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cfba34ab6 cfbb6eaee cfc82911d\" data-mol-id=\"language-picker-modal\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nChoose language\n</h2>\n<button aria-label=\"Close\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c12eee6c8 c4abc022f c8ec4f977 c9566e21c c9bd6223c c9f16a0dc caf871a91 cd4bf1eb3\">\n<button aria-pressed=\"true\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c338aede8 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c80b1c428 c8e3cd4a1 caa6eb57d cda72d38d\" data-active=\"true\" data-mol-id=\"language-picker-option-en\" type=\"button\">\nEnglish\n</button>\n<button aria-pressed=\"false\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c811bbdcb c8e3cd4a1 caa6eb57d\" data-mol-id=\"language-picker-option-en-XA\" type=\"button\">\nPseudo\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1"
     ],
     "calls": []
    },
    "picking a locale closes the modal": {
     "snapshots": [
      "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n@route /",
-     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c3d1a3ff6 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cfba34ab6 cfbb6eaee cfc82911d\" data-mol-id=\"language-picker-modal\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nChoose language\n</h2>\n<button aria-label=\"Close\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c12eee6c8 c4abc022f c8ec4f977 c9566e21c c9bd6223c c9f16a0dc caf871a91 cd4bf1eb3\">\n<button aria-pressed=\"true\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c338aede8 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c80b1c428 c8e3cd4a1 caa6eb57d cda72d38d\" data-active=\"true\" data-mol-id=\"language-picker-option-en\" type=\"button\">\nEnglish\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1",
+     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c3d1a3ff6 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cfba34ab6 cfbb6eaee cfc82911d\" data-mol-id=\"language-picker-modal\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nChoose language\n</h2>\n<button aria-label=\"Close\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c12eee6c8 c4abc022f c8ec4f977 c9566e21c c9bd6223c c9f16a0dc caf871a91 cd4bf1eb3\">\n<button aria-pressed=\"true\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c338aede8 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c80b1c428 c8e3cd4a1 caa6eb57d cda72d38d\" data-active=\"true\" data-mol-id=\"language-picker-option-en\" type=\"button\">\nEnglish\n</button>\n<button aria-pressed=\"false\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c811bbdcb c8e3cd4a1 caa6eb57d\" data-mol-id=\"language-picker-option-en-XA\" type=\"button\">\nPseudo\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1",
      "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n@route /"
     ],
     "calls": []
@@ -3293,7 +3489,7 @@
    "close button closes the modal without changing locale": {
     "snapshots": [
      "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n@route /",
-     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c3d1a3ff6 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cfba34ab6 cfbb6eaee cfc82911d\" data-mol-id=\"language-picker-modal\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nChoose language\n</h2>\n<button aria-label=\"Close\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c12eee6c8 c4abc022f c8ec4f977 c9566e21c c9bd6223c c9f16a0dc caf871a91 cd4bf1eb3\">\n<button aria-pressed=\"true\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c338aede8 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c80b1c428 c8e3cd4a1 caa6eb57d cda72d38d\" data-active=\"true\" data-mol-id=\"language-picker-option-en\" type=\"button\">\nEnglish\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1",
+     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c3d1a3ff6 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cfba34ab6 cfbb6eaee cfc82911d\" data-mol-id=\"language-picker-modal\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nChoose language\n</h2>\n<button aria-label=\"Close\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<div class=\"c12eee6c8 c4abc022f c8ec4f977 c9566e21c c9bd6223c c9f16a0dc caf871a91 cd4bf1eb3\">\n<button aria-pressed=\"true\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c338aede8 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c80b1c428 c8e3cd4a1 caa6eb57d cda72d38d\" data-active=\"true\" data-mol-id=\"language-picker-option-en\" type=\"button\">\nEnglish\n</button>\n<button aria-pressed=\"false\" class=\"c0798fa1d c0e0dac04 c13d4ff0f c16e96f28 c224f09f4 c445db9b9 c4a6e980a c615f55a0 c7d370ab9 c811bbdcb c8e3cd4a1 caa6eb57d\" data-mol-id=\"language-picker-option-en-XA\" type=\"button\">\nPseudo\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1",
      "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n@route /"
     ],
     "calls": []
@@ -3307,6 +3503,13 @@
    "renderTrigger may render a component node": {
     "snapshots": [
      "<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nLanguage…\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults show the locale native name, then a locale switch": {
+    "snapshots": [
+     "<button aria-label=\"Language\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nEnglish\n</span>\n</button>\n@route /",
+     "<button aria-label=\"⟦Language⟧\" class=\"c0e0dac04 c107b4ecd c13d4ff0f c1e8176ab c1f523237 c445db9b9 c470d1c87 c7d370ab9 c80b1c428 c811bbdcb c86f9ad24 c8e3cd4a1 c9566e21c caa6eb57d cc06b624c ce823b5bf\" data-mol-id=\"language-picker-trigger\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"16\" viewbox=\"0 0 16 16\" width=\"16\">\n<path d=\"M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM5.78 8.75a9.64 9.64 0 0 0 1.363 4.177c.255.426.542.832.857 1.215.245-.296.551-.705.857-1.215A9.64 9.64 0 0 0 10.22 8.75Zm4.44-1.5a9.64 9.64 0 0 0-1.363-4.177c-.307-.51-.612-.919-.857-1.215a9.927 9.927 0 0 0-.857 1.215A9.64 9.64 0 0 0 5.78 7.25Zm-5.944 1.5H1.543a6.507 6.507 0 0 0 4.666 5.5c-.123-.181-.24-.365-.352-.552-.715-1.192-1.437-2.874-1.581-4.948Zm-2.733-1.5h2.733c.144-2.074.866-3.756 1.58-4.948.12-.197.237-.381.353-.552a6.507 6.507 0 0 0-4.666 5.5Zm10.181 1.5c-.144 2.074-.866 3.756-1.58 4.948-.12.197-.237.381-.353.552a6.507 6.507 0 0 0 4.666-5.5Zm2.733-1.5a6.507 6.507 0 0 0-4.666-5.5c.123.181.24.365.353.552.714 1.192 1.436 2.874 1.58 4.948Z\">\n</path>\n</svg>\n<span>\nPseudo\n</span>\n</button>\n@route /"
     ],
     "calls": []
    }
@@ -3409,6 +3612,13 @@
       "args": []
      }
     ]
+   },
+   "defaults (display only), then a locale switch": {
+    "snapshots": [
+     "<div>\n<div class=\"c1f523237 c280f2aeb c311021b4 c3641138a c7cf3fc43 c99d61f16 ca14acf68 cab1062ad cbbe0661c cbf033fe8 cd5bf648f ce0c57bf6 cf4bfc7bb cfc82911d\" role=\"status\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L8 6.94Z\">\n</path>\n</svg>\n</span>\n<div class=\"cb5823274\">\n<div class=\"c2395bd1c c445db9b9\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<p class=\"c445db9b9\">\nCould not load decks.\n</p>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div>\n<div class=\"c1f523237 c280f2aeb c311021b4 c3641138a c7cf3fc43 c99d61f16 ca14acf68 cab1062ad cbbe0661c cbf033fe8 cd5bf648f ce0c57bf6 cf4bfc7bb cfc82911d\" role=\"status\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L8 6.94Z\">\n</path>\n</svg>\n</span>\n<div class=\"cb5823274\">\n<div class=\"c2395bd1c c445db9b9\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<p class=\"c445db9b9\">\nCould not load decks.\n</p>\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Modal": {
@@ -3600,6 +3810,13 @@
      "\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cdb94fa1d cfba34ab6 cfbb6eaee cfc82911d\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nDelete item?\n</h2>\n<button aria-label=\"Close\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\nThis action cannot be undone.\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1",
+     "<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-labelledby=\"#id0\" aria-modal=\"true\" class=\"c311021b4 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cdb94fa1d cfba34ab6 cfbb6eaee cfc82911d\" role=\"dialog\" tabindex=\"-1\">\n<div class=\"c1e8176ab c3c3e366d c913cd95a c937ba156 caa6eb57d ccae02ff2\">\n<h2 class=\"c20e78aa5 c4547f4fd c7f74399a c80462518\" id=\"#id0\">\nDelete item?\n</h2>\n<button aria-label=\"⟦Close⟧\" class=\"c13d4ff0f c37109e1c c3c3e366d c7552104c c760a8915 c7d370ab9 c86f9ad24 ca210f89e ce823b5bf\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\nThis action cannot be undone.\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>div:0>button:1"
+    ],
+    "calls": []
    }
   },
   "OptimisticToggleButton": {
@@ -3771,6 +3988,13 @@
       ]
      }
     ]
+   },
+   "inactive value shows the inactive label, then a locale switch": {
+    "snapshots": [
+     "<button aria-busy=\"false\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"optimistic-toggle\" type=\"button\">\nStar\n</button>\n@route /",
+     "<button aria-busy=\"false\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" data-mol-id=\"optimistic-toggle\" type=\"button\">\nStar\n</button>\n@route /"
+    ],
+    "calls": []
    }
   },
   "PageHeader": {
@@ -3819,6 +4043,13 @@
    "automationId, className, style and testId": {
     "snapshots": [
      "<div class=\"c917228dd cd75bbd18\" data-mol-id=\"billing-header\" data-testid=\"billing-header\" style=\"margin-top: 4px\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<div>\n<h1 class=\"c0d99ed10 c201466f5 c3fe812c8 c78cf77a8\">\nBilling\n</h1>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c917228dd\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<div>\n<h1 class=\"c0d99ed10 c201466f5 c3fe812c8 c78cf77a8\">\nDashboard\n</h1>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c917228dd\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<div>\n<h1 class=\"c0d99ed10 c201466f5 c3fe812c8 c78cf77a8\">\nDashboard\n</h1>\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -3904,6 +4135,13 @@
    "element children": {
     "snapshots": [
      "<div class=\"c2f1a3c22 c8f19053a ccae02ff2\">\n<aside class=\"c04c34dac c3c3e366d c432f8f52 c53f830d8 c68fa99ed cc79d06f1 cca7e493f cd4bf1eb3 cf2ca6f94 cf59f8f3e\">\n<a href=\"/projects\">\nProjects\n</a>\n</aside>\n<div class=\"cb5823274\">\n<main class=\"cb5823274 cd4bf1eb3\">\n<p>\nSigned-in area\n</p>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "content only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2f1a3c22 c8f19053a ccae02ff2\">\n<div class=\"cb5823274\">\n<main class=\"cb5823274 cd4bf1eb3\">\nMain content\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2f1a3c22 c8f19053a ccae02ff2\">\n<div class=\"cb5823274\">\n<main class=\"cb5823274 cd4bf1eb3\">\nMain content\n</main>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -4119,6 +4357,13 @@
      "<nav aria-label=\"Seiten\" class=\"c9773cd2b cbf033fe8 ccae02ff2 cd5d4be14\" role=\"navigation\">\n<ul class=\"c1e8176ab c9866e6d5 ccae02ff2 cd9b20003\">\n<li>\n<button aria-label=\"Go to first page\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 20 20\" xmlns=\"http://www.w3.org/2000/svg\">\n<path clip-rule=\"evenodd\" d=\"M15.79 15.77a.75.75 0 0 1-1.06-.02l-5-5a.75.75 0 0 1 0-1.04l5-5.5a.75.75 0 1 1 1.12 1.04L11.414 10l4.436 4.75a.75.75 0 0 1-.06 1.02z\" fill-rule=\"evenodd\">\n</path>\n<path clip-rule=\"evenodd\" d=\"M9.79 15.77a.75.75 0 0 1-1.06-.02l-5-5a.75.75 0 0 1 0-1.04l5-5.5a.75.75 0 1 1 1.12 1.04L5.414 10l4.436 4.75a.75.75 0 0 1-.06 1.02z\" fill-rule=\"evenodd\">\n</path>\n</svg>\n</button>\n</li>\n<li>\n<button aria-label=\"Go to previous page\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M9.78 12.78a.75.75 0 0 1-1.06 0L4.47 8.53a.75.75 0 0 1 0-1.06l4.25-4.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L6.06 8l3.72 3.72a.75.75 0 0 1 0 1.06Z\">\n</path>\n</svg>\n</button>\n</li>\n<li>\n<button aria-label=\"Öffne Seite 1\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n1\n</button>\n</li>\n<li>\n<button aria-current=\"page\" aria-label=\"Öffne Seite 2\" class=\"c0e0dac04 c13d4ff0f c1af9479c c1e8176ab c1f523237 c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cf74bfc1b cfe89757b\" type=\"button\">\n2\n</button>\n</li>\n<li>\n<button aria-label=\"Öffne Seite 3\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n3\n</button>\n</li>\n<li>\n<button aria-label=\"Öffne Seite 4\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n4\n</button>\n</li>\n<li>\n<button aria-label=\"Go to next page\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</li>\n<li>\n<button aria-label=\"Go to last page\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 20 20\" xmlns=\"http://www.w3.org/2000/svg\">\n<path clip-rule=\"evenodd\" d=\"M10.21 4.23a.75.75 0 0 1 1.06.02l5 5a.75.75 0 0 1 0 1.04l-5 5.5a.75.75 0 1 1-1.12-1.04L14.586 10l-4.436-4.75a.75.75 0 0 1 .06-1.02z\" fill-rule=\"evenodd\">\n</path>\n<path clip-rule=\"evenodd\" d=\"M4.21 4.23a.75.75 0 0 1 1.06.02l5 5a.75.75 0 0 1 0 1.04l-5 5.5a.75.75 0 1 1-1.12-1.04L8.586 10 4.15 5.25a.75.75 0 0 1 .06-1.02z\" fill-rule=\"evenodd\">\n</path>\n</svg>\n</button>\n</li>\n</ul>\n</nav>\n@route /"
     ],
     "calls": []
+   },
+   "defaults (first page), then a locale switch": {
+    "snapshots": [
+     "<nav aria-label=\"Pagination\" class=\"c9773cd2b cbf033fe8 ccae02ff2 cd5d4be14\" role=\"navigation\">\n<ul class=\"c1e8176ab c9866e6d5 ccae02ff2 cd9b20003\">\n<li>\n<button aria-label=\"Go to previous page\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" disabled type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M9.78 12.78a.75.75 0 0 1-1.06 0L4.47 8.53a.75.75 0 0 1 0-1.06l4.25-4.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L6.06 8l3.72 3.72a.75.75 0 0 1 0 1.06Z\">\n</path>\n</svg>\n</button>\n</li>\n<li>\n<button aria-current=\"page\" aria-label=\"Go to page 1\" class=\"c0e0dac04 c13d4ff0f c1af9479c c1e8176ab c1f523237 c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cf74bfc1b cfe89757b\" type=\"button\">\n1\n</button>\n</li>\n<li>\n<button aria-label=\"Go to page 2\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n2\n</button>\n</li>\n<li>\n<span aria-hidden=\"true\" class=\"c1e8176ab c9773cd2b cc0672595 ccae02ff2 cd44f16a8\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M8 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM1.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm13 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z\">\n</path>\n</svg>\n</span>\n</li>\n<li>\n<button aria-label=\"Go to page 10\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n10\n</button>\n</li>\n<li>\n<button aria-label=\"Go to next page\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</li>\n</ul>\n</nav>\n@route /",
+     "<nav aria-label=\"⟦Pagination⟧\" class=\"c9773cd2b cbf033fe8 ccae02ff2 cd5d4be14\" role=\"navigation\">\n<ul class=\"c1e8176ab c9866e6d5 ccae02ff2 cd9b20003\">\n<li>\n<button aria-label=\"⟦Go to previous page⟧\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" disabled type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M9.78 12.78a.75.75 0 0 1-1.06 0L4.47 8.53a.75.75 0 0 1 0-1.06l4.25-4.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L6.06 8l3.72 3.72a.75.75 0 0 1 0 1.06Z\">\n</path>\n</svg>\n</button>\n</li>\n<li>\n<button aria-current=\"page\" aria-label=\"⟦Go to page 1⟧\" class=\"c0e0dac04 c13d4ff0f c1af9479c c1e8176ab c1f523237 c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cf74bfc1b cfe89757b\" type=\"button\">\n1\n</button>\n</li>\n<li>\n<button aria-label=\"⟦Go to page 2⟧\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n2\n</button>\n</li>\n<li>\n<span aria-hidden=\"true\" class=\"c1e8176ab c9773cd2b cc0672595 ccae02ff2 cd44f16a8\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M8 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM1.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm13 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z\">\n</path>\n</svg>\n</span>\n</li>\n<li>\n<button aria-label=\"⟦Go to page 10⟧\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n10\n</button>\n</li>\n<li>\n<button aria-label=\"⟦Go to next page⟧\" class=\"c0e0dac04 c13d4ff0f c1e8176ab c445db9b9 c5b8ef7a8 c7371f437 c7d370ab9 c7fa4cf55 c80b1c428 c811bbdcb c8b197f7c c9773cd2b cc0672595 cc06b624c cd44f16a8 cee061da5 cfe89757b\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</li>\n</ul>\n</nav>\n@route /"
+    ],
+    "calls": []
    }
   },
   "PanelCloseProvider": {
@@ -4149,6 +4394,13 @@
    "usePanelClose probe renders with no provider wrapper": {
     "snapshots": [
      "<button data-parity-probe=\"dismiss panel\" type=\"button\">\ndismiss panel\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders children without wrapper dom, then a locale switch": {
+    "snapshots": [
+     "<div data-mol-id=\"settings-panel\">\nPanel body\n</div>\n@route /",
+     "<div data-mol-id=\"settings-panel\">\nPanel body\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -4302,6 +4554,13 @@
    "className, style and testId": {
     "snapshots": [
      "<div class=\"cbf033fe8 cd75bbd18\" data-testid=\"bar\" style=\"margin-top: 4px\">\n<div aria-label=\"Progress\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"transform: translateX(-50%)\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero, then a locale switch": {
+    "snapshots": [
+     "<div class=\"cbf033fe8\">\n<div aria-label=\"Progress\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"0\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"transform: translateX(-100%)\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"cbf033fe8\">\n<div aria-label=\"⟦Progress⟧\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"0\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"transform: translateX(-100%)\">\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -4473,6 +4732,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-modal=\"true\" class=\"c311021b4 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cdb94fa1d cfba34ab6 cfbb6eaee cfc82911d\" role=\"dialog\" tabindex=\"-1\">\n<button aria-label=\"Close\" class=\"c0dd268bc c13d4ff0f c37109e1c c7552104c c7d370ab9 c86f9ad24 c92784b69 ce823b5bf cf78f34f1 cf9eca3d0\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<form>\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h2 class=\"c0d99ed10 c6a2a1a28\">\nRename board\n</h2>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Rename board\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nCancel\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"submit\">\nConfirm\n</button>\n</div>\n</div>\n</form>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>button:0",
+     "<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-modal=\"true\" class=\"c311021b4 c4b92e3a8 c880d622a c8f19053a c9bd6223c cbaac6b89 cbf033fe8 ccae02ff2 cdb94fa1d cfba34ab6 cfbb6eaee cfc82911d\" role=\"dialog\" tabindex=\"-1\">\n<button aria-label=\"⟦Close⟧\" class=\"c0dd268bc c13d4ff0f c37109e1c c7552104c c7d370ab9 c86f9ad24 c92784b69 ce823b5bf cf78f34f1 cf9eca3d0\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<form>\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h2 class=\"c0d99ed10 c6a2a1a28\">\nRename board\n</h2>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Rename board\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<div class=\"c117f3063 c2cbb8333 c42740ba6 c9566e21c ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\n⟦Cancel⟧\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"submit\">\n⟦Confirm⟧\n</button>\n</div>\n</div>\n</form>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>button:0"
+    ],
+    "calls": []
    }
   },
   "RadioGroup": {
@@ -4573,6 +4839,13 @@
    "className, style and testId": {
     "snapshots": [
      "<div aria-label=\"Radio group\" class=\"cd75bbd18\" data-testid=\"flavors\" role=\"radiogroup\" style=\"margin-top: 4px\">\n<div class=\"c9566e21c cbaac6b89 ccae02ff2\">\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input class=\"c13d4ff0f c1af9479c c1f523237 c3a43c561 c4e17296e c7371f437 c7bc25504 c7d370ab9 c8b197f7c c9052b18c cb3f945f3 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" name=\"flavor\" type=\"radio\" value=\"vanilla\" {checked=false}>\n</input>\n<span class=\"c445db9b9\">\nVanilla\n</span>\n</label>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input class=\"c13d4ff0f c1af9479c c1f523237 c3a43c561 c4e17296e c7371f437 c7bc25504 c7d370ab9 c8b197f7c c9052b18c cb3f945f3 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" name=\"flavor\" type=\"radio\" value=\"chocolate\" {checked=false}>\n</input>\n<span class=\"c445db9b9\">\nChocolate\n</span>\n</label>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input class=\"c13d4ff0f c1af9479c c1f523237 c3a43c561 c4e17296e c7371f437 c7bc25504 c7d370ab9 c8b197f7c c9052b18c cb3f945f3 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" name=\"flavor\" type=\"radio\" value=\"strawberry\" {checked=false}>\n</input>\n<span class=\"c445db9b9\">\nStrawberry\n</span>\n</label>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults vertical, then a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"Radio group\" role=\"radiogroup\">\n<div class=\"c9566e21c cbaac6b89 ccae02ff2\">\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input class=\"c13d4ff0f c1af9479c c1f523237 c3a43c561 c4e17296e c7371f437 c7bc25504 c7d370ab9 c8b197f7c c9052b18c cb3f945f3 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" name=\"flavor\" type=\"radio\" value=\"vanilla\" {checked=false}>\n</input>\n<span class=\"c445db9b9\">\nVanilla\n</span>\n</label>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input class=\"c13d4ff0f c1af9479c c1f523237 c3a43c561 c4e17296e c7371f437 c7bc25504 c7d370ab9 c8b197f7c c9052b18c cb3f945f3 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" name=\"flavor\" type=\"radio\" value=\"chocolate\" {checked=false}>\n</input>\n<span class=\"c445db9b9\">\nChocolate\n</span>\n</label>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input class=\"c13d4ff0f c1af9479c c1f523237 c3a43c561 c4e17296e c7371f437 c7bc25504 c7d370ab9 c8b197f7c c9052b18c cb3f945f3 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" name=\"flavor\" type=\"radio\" value=\"strawberry\" {checked=false}>\n</input>\n<span class=\"c445db9b9\">\nStrawberry\n</span>\n</label>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"⟦Radio group⟧\" role=\"radiogroup\">\n<div class=\"c9566e21c cbaac6b89 ccae02ff2\">\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input class=\"c13d4ff0f c1af9479c c1f523237 c3a43c561 c4e17296e c7371f437 c7bc25504 c7d370ab9 c8b197f7c c9052b18c cb3f945f3 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" name=\"flavor\" type=\"radio\" value=\"vanilla\" {checked=false}>\n</input>\n<span class=\"c445db9b9\">\nVanilla\n</span>\n</label>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input class=\"c13d4ff0f c1af9479c c1f523237 c3a43c561 c4e17296e c7371f437 c7bc25504 c7d370ab9 c8b197f7c c9052b18c cb3f945f3 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" name=\"flavor\" type=\"radio\" value=\"chocolate\" {checked=false}>\n</input>\n<span class=\"c445db9b9\">\nChocolate\n</span>\n</label>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<input class=\"c13d4ff0f c1af9479c c1f523237 c3a43c561 c4e17296e c7371f437 c7bc25504 c7d370ab9 c8b197f7c c9052b18c cb3f945f3 cc3672a4e cd14f11ef cee061da5 cfe89757b cfeafb93f\" data-state=\"unchecked\" name=\"flavor\" type=\"radio\" value=\"strawberry\" {checked=false}>\n</input>\n<span class=\"c445db9b9\">\nStrawberry\n</span>\n</label>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -4775,6 +5048,13 @@
      "<div class=\"c2cbb8333 c42740ba6 c521316b1 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cdde537c9\" data-mol-id=\"shell-root\" style=\"flex-direction: column\">\n<main class=\"cb5823274\" data-mol-id=\"shell-content\" style=\"min-width: 0px\">\n<button data-parity-probe=\"desktop?\" data-parity-value=\"false\" type=\"button\">\ndesktop?\n</button>\n</main>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "desktop full composition, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c42740ba6 c521316b1 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cdde537c9\" data-mol-id=\"shell-root\" style=\"flex-direction: row\">\n<header class=\"c1af9479c c1e8176ab c42740ba6 c4b92e3a8 c8f3cd634 c9373dd5b c937ba156 c9566e21c ccae02ff2 cd9b20003 ce2ca5664 ce3fd289a\" data-mol-id=\"shell-topbar\" style=\"top: 0px; z-index: 20\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" style=\"min-width: 0px\">\n<div style=\"min-width: 0px\">\nTimetrack\n</div>\n</div>\n</header>\n<aside class=\"c1af9479c c2cbb8333 c2f1a3c22 c42740ba6 c4b92e3a8 ca596e575 cbaac6b89 cc2d72006 ccae02ff2 ce3fd289a cf2ca6f94\" data-mol-id=\"shell-sidebar\" style=\"overflow-y: auto; top: 0px; width: 240px\">\n<nav aria-label=\"Primary navigation\" class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<a href=\"/dashboard\">\nDashboard\n</a>\n<a href=\"/projects\">\nProjects\n</a>\n</nav>\n</aside>\n<main class=\"cb5823274\" data-mol-id=\"shell-content\" style=\"min-width: 0px\">\nRouted page\n</main>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c42740ba6 c521316b1 cc26cbf54 cc2d72006 ccae02ff2 cd9b20003 cdde537c9\" data-mol-id=\"shell-root\" style=\"flex-direction: row\">\n<header class=\"c1af9479c c1e8176ab c42740ba6 c4b92e3a8 c8f3cd634 c9373dd5b c937ba156 c9566e21c ccae02ff2 cd9b20003 ce2ca5664 ce3fd289a\" data-mol-id=\"shell-topbar\" style=\"top: 0px; z-index: 20\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" style=\"min-width: 0px\">\n<div style=\"min-width: 0px\">\nTimetrack\n</div>\n</div>\n</header>\n<aside class=\"c1af9479c c2cbb8333 c2f1a3c22 c42740ba6 c4b92e3a8 ca596e575 cbaac6b89 cc2d72006 ccae02ff2 ce3fd289a cf2ca6f94\" data-mol-id=\"shell-sidebar\" style=\"overflow-y: auto; top: 0px; width: 240px\">\n<nav aria-label=\"⟦Primary navigation⟧\" class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<a href=\"/dashboard\">\nDashboard\n</a>\n<a href=\"/projects\">\nProjects\n</a>\n</nav>\n</aside>\n<main class=\"cb5823274\" data-mol-id=\"shell-content\" style=\"min-width: 0px\">\nRouted page\n</main>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Select": {
@@ -4974,6 +5254,13 @@
      "<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Subscription plan\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" data-mol-id=\"plan-select\" id=\"#id0\" name=\"plan\" {value=\"free\"}>\n<option value=\"free\">\nFree\n</option>\n<option value=\"pro\">\nPro\n</option>\n<option value=\"enterprise\">\nEnterprise\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id0\" name=\"plan\" {value=\"free\"}>\n<option value=\"free\">\nFree\n</option>\n<option value=\"pro\">\nPro\n</option>\n<option value=\"enterprise\">\nEnterprise\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id0\" name=\"plan\" {value=\"free\"}>\n<option value=\"free\">\nFree\n</option>\n<option value=\"pro\">\nPro\n</option>\n<option value=\"enterprise\">\nEnterprise\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Separator": {
@@ -5010,6 +5297,13 @@
    "className, style and testId": {
     "snapshots": [
      "<div class=\"c50e0565d ca596e575 cbf033fe8 cd75bbd18 cfde19efb\" data-testid=\"rule\" role=\"none\" style=\"margin-top: 4px\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults horizontal decorative, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c50e0565d ca596e575 cbf033fe8 cfde19efb\" role=\"none\">\n</div>\n@route /",
+     "<div class=\"c50e0565d ca596e575 cbf033fe8 cfde19efb\" role=\"none\">\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -5100,6 +5394,13 @@
      "<button aria-label=\"Open account menu\" class=\"c1e8176ab c2bf204c1 c2d7a5b64 c42740ba6 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"sidebar-user-card\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n@route /"
     ],
     "calls": []
+   },
+   "authenticated user with name and email, then a locale switch": {
+    "snapshots": [
+     "<button aria-label=\"Open account menu\" class=\"c1e8176ab c2bf204c1 c2d7a5b64 c42740ba6 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"sidebar-user-card\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n@route /",
+     "<button aria-label=\"⟦Open account menu⟧\" class=\"c1e8176ab c2bf204c1 c2d7a5b64 c42740ba6 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"sidebar-user-card\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Skeleton": {
@@ -5168,6 +5469,13 @@
      "<div class=\"c0e0dac04 cd75bbd18 cded75210 cf74bfc1b\" data-testid=\"bone\" style=\"margin-top: 4px\">\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c0e0dac04 cded75210 cf74bfc1b\">\n</div>\n@route /",
+     "<div class=\"c0e0dac04 cded75210 cf74bfc1b\">\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "SkeletonCircle": {
@@ -5186,6 +5494,13 @@
    "className": {
     "snapshots": [
      "<div class=\"c0e0dac04 c9052b18c cd75bbd18 cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /",
+     "<div class=\"c0e0dac04 c9052b18c cded75210 cf74bfc1b\" style=\"border-radius: 9999px; height: 40px; width: 40px\">\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -5212,6 +5527,13 @@
    "className": {
     "snapshots": [
      "<div class=\"cd75bbd18 cd766b2f8\">\n<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"height: 16px; width: 100%\">\n</div>\n<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"height: 16px; width: 100%\">\n</div>\n<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"height: 16px; width: 60%\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults three lines, then a locale switch": {
+    "snapshots": [
+     "<div class=\"cd766b2f8\">\n<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"height: 16px; width: 100%\">\n</div>\n<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"height: 16px; width: 100%\">\n</div>\n<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"height: 16px; width: 60%\">\n</div>\n</div>\n@route /",
+     "<div class=\"cd766b2f8\">\n<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"height: 16px; width: 100%\">\n</div>\n<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"height: 16px; width: 100%\">\n</div>\n<div class=\"c0e0dac04 cded75210 cf74bfc1b\" style=\"height: 16px; width: 60%\">\n</div>\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -5318,6 +5640,13 @@
      "<div aria-hidden=\"true\" class=\"cc3672a4e ceb0cbd62\" data-mol-id=\"section-gap\">\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"cc3672a4e ceb0cbd62\">\n</div>\n@route /",
+     "<div class=\"cc3672a4e ceb0cbd62\">\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Spinner": {
@@ -5384,6 +5713,13 @@
    "data and aria passthrough": {
     "snapshots": [
      "<div aria-label=\"Loading\" aria-live=\"polite\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" data-mol-id=\"page-spinner\" role=\"status\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"Loading\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n</div>\n@route /",
+     "<div aria-label=\"⟦Loading⟧\" class=\"c32cad454 c52893105 c7a36cfa7 c9052b18c cc1672728 cd34f1515 ce99acf9b\" role=\"status\">\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -5578,6 +5914,13 @@
       ]
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc1672728 cc16cf1f3 cc386cd15 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc4672be1 cd04f105c ceb0cbd62 ced369e4a cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n@route /",
+     "<input aria-hidden=\"true\" class=\"cb542d3c9\" tabindex=\"-1\" type=\"checkbox\" {checked=false}>\n</input>\n<label class=\"c13d4ff0f c1e8176ab c9566e21c ccae02ff2\">\n<button aria-checked=\"false\" class=\"c13d4ff0f c141d8a54 c1e8176ab c32cad454 c3a0ad6eb c3e7dcfd4 c4e17296e c5494c1c8 c6079f2c7 c6c0a5ed8 c7371f437 c7d370ab9 c8b197f7c c9052b18c c990a7ec2 ca171edb3 ca596e575 cb8150f49 cbe9b7ae9 cc06b624c cc1672728 cc16cf1f3 cc386cd15 cdccefb20 cee061da5 cf891dc93 cfc82911d cfe89757b cfeafb93f\" data-state=\"unchecked\" role=\"switch\" type=\"button\">\n<span class=\"c2883f28d c432f8f52 c5e7000ad c7e9e3f93 c9052b18c ca1dc886e cc4672be1 cd04f105c ceb0cbd62 ced369e4a cfa9c2026\" data-state=\"unchecked\">\n</span>\n</button>\n</label>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Table": {
@@ -5746,6 +6089,13 @@
    },
    "rowKey as a function": {
     "snapshots": [
+     "<div class=\"c9aca509d cbf033fe8 cfc82911d\">\n<table class=\"c445db9b9 cbd24cdab cbf033fe8\">\n<thead class=\"c4df9832d\">\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<th aria-sort=\"none\" class=\"c02c916cd c13d4ff0f c2d7a5b64 c80b1c428 c811bbdcb c89d31444 c8f3cd634 c9973e6cd ce0805772 ce823b5bf\">\n<div class=\"c1e8176ab c9866e6d5 ccae02ff2\">\nName\n</div>\n</th>\n<th class=\"c02c916cd c2d7a5b64 c80b1c428 c89d31444 c8f3cd634 c9973e6cd ce823b5bf\">\n<div class=\"c1e8176ab c9866e6d5 ccae02ff2\">\nRole\n</div>\n</th>\n</tr>\n</thead>\n<tbody class=\"c7e9307d0\">\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nAda Lovelace\n</td>\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nadmin\n</td>\n</tr>\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nGrace Hopper\n</td>\n<td class=\"c02c916cd c89d31444 c99d61f16\">\neditor\n</td>\n</tr>\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nAlan Turing\n</td>\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nviewer\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c9aca509d cbf033fe8 cfc82911d\">\n<table class=\"c445db9b9 cbd24cdab cbf033fe8\">\n<thead class=\"c4df9832d\">\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<th aria-sort=\"none\" class=\"c02c916cd c13d4ff0f c2d7a5b64 c80b1c428 c811bbdcb c89d31444 c8f3cd634 c9973e6cd ce0805772 ce823b5bf\">\n<div class=\"c1e8176ab c9866e6d5 ccae02ff2\">\nName\n</div>\n</th>\n<th class=\"c02c916cd c2d7a5b64 c80b1c428 c89d31444 c8f3cd634 c9973e6cd ce823b5bf\">\n<div class=\"c1e8176ab c9866e6d5 ccae02ff2\">\nRole\n</div>\n</th>\n</tr>\n</thead>\n<tbody class=\"c7e9307d0\">\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nAda Lovelace\n</td>\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nadmin\n</td>\n</tr>\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nGrace Hopper\n</td>\n<td class=\"c02c916cd c89d31444 c99d61f16\">\neditor\n</td>\n</tr>\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nAlan Turing\n</td>\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nviewer\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
      "<div class=\"c9aca509d cbf033fe8 cfc82911d\">\n<table class=\"c445db9b9 cbd24cdab cbf033fe8\">\n<thead class=\"c4df9832d\">\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<th aria-sort=\"none\" class=\"c02c916cd c13d4ff0f c2d7a5b64 c80b1c428 c811bbdcb c89d31444 c8f3cd634 c9973e6cd ce0805772 ce823b5bf\">\n<div class=\"c1e8176ab c9866e6d5 ccae02ff2\">\nName\n</div>\n</th>\n<th class=\"c02c916cd c2d7a5b64 c80b1c428 c89d31444 c8f3cd634 c9973e6cd ce823b5bf\">\n<div class=\"c1e8176ab c9866e6d5 ccae02ff2\">\nRole\n</div>\n</th>\n</tr>\n</thead>\n<tbody class=\"c7e9307d0\">\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nAda Lovelace\n</td>\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nadmin\n</td>\n</tr>\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nGrace Hopper\n</td>\n<td class=\"c02c916cd c89d31444 c99d61f16\">\neditor\n</td>\n</tr>\n<tr class=\"c62645c9d c7d370ab9 c811bbdcb ce2ca5664\">\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nAlan Turing\n</td>\n<td class=\"c02c916cd c89d31444 c99d61f16\">\nviewer\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
     ],
     "calls": []
@@ -5945,6 +6295,13 @@
      "<div>\n<div class=\"c0e0dac04 c1e8176ab c9773cd2b c9773e3a7 c9ed626f5 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-controls=\"#ref0\" aria-selected=\"false\" class=\"c04c34dac c1e8176ab c2ae0ba0d c445db9b9 c5b8ef7a8 c5cb7bb2e c61774fd3 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8e3cd4a1 c9773cd2b c978a2871 cc06b624c cced1c97c ccf339737 cee061da5 cfe89757b\" data-state=\"inactive\" id=\"#id0\" role=\"tab\" tabindex=\"-1\" type=\"button\">\nAccount\n</button>\n<button aria-controls=\"#ref1\" aria-selected=\"false\" class=\"c04c34dac c1e8176ab c2ae0ba0d c445db9b9 c5b8ef7a8 c5cb7bb2e c61774fd3 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8e3cd4a1 c9773cd2b c978a2871 cc06b624c cced1c97c ccf339737 cee061da5 cfe89757b\" data-state=\"inactive\" id=\"#id1\" role=\"tab\" tabindex=\"-1\" type=\"button\">\nProfile\n</button>\n<button aria-controls=\"#id3\" aria-selected=\"true\" class=\"c04c34dac c1e8176ab c2ae0ba0d c445db9b9 c5b8ef7a8 c5cb7bb2e c61774fd3 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8e3cd4a1 c9773cd2b c978a2871 cc06b624c cced1c97c ccf339737 cee061da5 cfe89757b\" data-state=\"active\" id=\"#id2\" role=\"tab\" tabindex=\"0\" type=\"button\">\nBilling\n</button>\n</div>\n<div aria-labelledby=\"#id2\" class=\"c7371f437 c98fc271b cced1c97c cee061da5 cfe89757b\" id=\"#id3\" role=\"tabpanel\">\nBilling settings\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>div:0>button:2"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div>\n<div class=\"c0e0dac04 c1e8176ab c9773cd2b c9773e3a7 c9ed626f5 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-controls=\"#id3\" aria-selected=\"true\" class=\"c04c34dac c1e8176ab c2ae0ba0d c445db9b9 c5b8ef7a8 c5cb7bb2e c61774fd3 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8e3cd4a1 c9773cd2b c978a2871 cc06b624c cced1c97c ccf339737 cee061da5 cfe89757b\" data-state=\"active\" id=\"#id0\" role=\"tab\" tabindex=\"0\" type=\"button\">\nAccount\n</button>\n<button aria-controls=\"#ref0\" aria-selected=\"false\" class=\"c04c34dac c1e8176ab c2ae0ba0d c445db9b9 c5b8ef7a8 c5cb7bb2e c61774fd3 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8e3cd4a1 c9773cd2b c978a2871 cc06b624c cced1c97c ccf339737 cee061da5 cfe89757b\" data-state=\"inactive\" id=\"#id1\" role=\"tab\" tabindex=\"-1\" type=\"button\">\nProfile\n</button>\n<button aria-controls=\"#ref1\" aria-selected=\"false\" class=\"c04c34dac c1e8176ab c2ae0ba0d c445db9b9 c5b8ef7a8 c5cb7bb2e c61774fd3 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8e3cd4a1 c9773cd2b c978a2871 cc06b624c cced1c97c ccf339737 cee061da5 cfe89757b\" data-state=\"inactive\" id=\"#id2\" role=\"tab\" tabindex=\"-1\" type=\"button\">\nBilling\n</button>\n</div>\n<div aria-labelledby=\"#id0\" class=\"c7371f437 c98fc271b cced1c97c cee061da5 cfe89757b\" id=\"#id3\" role=\"tabpanel\">\nAccount settings\n</div>\n</div>\n@route /",
+     "<div>\n<div class=\"c0e0dac04 c1e8176ab c9773cd2b c9773e3a7 c9ed626f5 cc06b624c ce823b5bf cf74bfc1b\" role=\"tablist\">\n<button aria-controls=\"#id3\" aria-selected=\"true\" class=\"c04c34dac c1e8176ab c2ae0ba0d c445db9b9 c5b8ef7a8 c5cb7bb2e c61774fd3 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8e3cd4a1 c9773cd2b c978a2871 cc06b624c cced1c97c ccf339737 cee061da5 cfe89757b\" data-state=\"active\" id=\"#id0\" role=\"tab\" tabindex=\"0\" type=\"button\">\nAccount\n</button>\n<button aria-controls=\"#ref0\" aria-selected=\"false\" class=\"c04c34dac c1e8176ab c2ae0ba0d c445db9b9 c5b8ef7a8 c5cb7bb2e c61774fd3 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8e3cd4a1 c9773cd2b c978a2871 cc06b624c cced1c97c ccf339737 cee061da5 cfe89757b\" data-state=\"inactive\" id=\"#id1\" role=\"tab\" tabindex=\"-1\" type=\"button\">\nProfile\n</button>\n<button aria-controls=\"#ref1\" aria-selected=\"false\" class=\"c04c34dac c1e8176ab c2ae0ba0d c445db9b9 c5b8ef7a8 c5cb7bb2e c61774fd3 c7371f437 c7fa4cf55 c80b1c428 c8b197f7c c8e3cd4a1 c9773cd2b c978a2871 cc06b624c cced1c97c ccf339737 cee061da5 cfe89757b\" data-state=\"inactive\" id=\"#id2\" role=\"tab\" tabindex=\"-1\" type=\"button\">\nBilling\n</button>\n</div>\n<div aria-labelledby=\"#id0\" class=\"c7371f437 c98fc271b cced1c97c cee061da5 cfe89757b\" id=\"#id3\" role=\"tabpanel\">\nAccount settings\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "Textarea": {
@@ -6137,6 +6494,13 @@
      "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" aria-label=\"Free-form notes\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"bio\" rows=\"3\" {value=\"\"}>\n</textarea>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"notes\" rows=\"3\" {value=\"\"}>\n</textarea>\n</div>\n@route /",
+     "<div class=\"cbf033fe8\">\n<textarea aria-invalid=\"false\" class=\"c04c34dac c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c456706e8 c4e17296e c4fb0a9fb c6e9c99d4 c8771eca4 c886487a6 c8b197f7c c8d5ed0df ca186c271 ca8689a02 cbf033fe8 cc26cbf54 cc96b2299 ccae02ff2 cd6fe318b cdb69c2f8 cdccefb20 ce793076d cee061da5 cf0915c40\" id=\"#id0\" name=\"notes\" rows=\"3\" {value=\"\"}>\n</textarea>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "ThemeToggle": {
@@ -6210,6 +6574,13 @@
     "snapshots": [
      "<button aria-label=\"Toggle theme\" aria-pressed=\"false\" class=\"c107b4ecd c13d4ff0f c1e8176ab c34cad77a c86f9ad24 c9773cd2b c9773e3a7 c9dd62562 cc06cf060 ccae02ff2 ce823b5bf\" data-mode=\"light\" data-mol-id=\"theme-toggle\" disabled type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm5.657-8.157a.75.75 0 0 1 0 1.061l-1.061 1.06a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734l1.06-1.06a.75.75 0 0 1 1.06 0Zm-9.193 9.193a.75.75 0 0 1 0 1.06l-1.06 1.061a.75.75 0 1 1-1.061-1.06l1.06-1.061a.75.75 0 0 1 1.061 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0ZM3 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm13 0a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 16 8Zm-8 5a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13Zm3.536-1.464a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.06 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM2.343 2.343a.75.75 0 0 1 1.061 0l1.06 1.061a.751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018l-1.06-1.06a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n@route /",
      "<button aria-label=\"Toggle theme\" aria-pressed=\"false\" class=\"c107b4ecd c13d4ff0f c1e8176ab c34cad77a c86f9ad24 c9773cd2b c9773e3a7 c9dd62562 cc06cf060 ccae02ff2 ce823b5bf\" data-mode=\"light\" data-mol-id=\"theme-toggle\" disabled type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm5.657-8.157a.75.75 0 0 1 0 1.061l-1.061 1.06a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734l1.06-1.06a.75.75 0 0 1 1.06 0Zm-9.193 9.193a.75.75 0 0 1 0 1.06l-1.06 1.061a.75.75 0 1 1-1.061-1.06l1.06-1.061a.75.75 0 0 1 1.061 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0ZM3 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm13 0a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 16 8Zm-8 5a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13Zm3.536-1.464a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.06 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM2.343 2.343a.75.75 0 0 1 1.061 0l1.06 1.061a.751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018l-1.06-1.06a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "light mode, then a locale switch": {
+    "snapshots": [
+     "<button aria-label=\"Toggle theme\" aria-pressed=\"false\" class=\"c107b4ecd c13d4ff0f c1e8176ab c34cad77a c86f9ad24 c9773cd2b c9773e3a7 c9dd62562 cc06cf060 ccae02ff2 ce823b5bf\" data-mode=\"light\" data-mol-id=\"theme-toggle\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm5.657-8.157a.75.75 0 0 1 0 1.061l-1.061 1.06a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734l1.06-1.06a.75.75 0 0 1 1.06 0Zm-9.193 9.193a.75.75 0 0 1 0 1.06l-1.06 1.061a.75.75 0 1 1-1.061-1.06l1.06-1.061a.75.75 0 0 1 1.061 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0ZM3 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm13 0a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 16 8Zm-8 5a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13Zm3.536-1.464a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.06 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM2.343 2.343a.75.75 0 0 1 1.061 0l1.06 1.061a.751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018l-1.06-1.06a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n@route /",
+     "<button aria-label=\"⟦Toggle theme⟧\" aria-pressed=\"false\" class=\"c107b4ecd c13d4ff0f c1e8176ab c34cad77a c86f9ad24 c9773cd2b c9773e3a7 c9dd62562 cc06cf060 ccae02ff2 ce823b5bf\" data-mode=\"light\" data-mol-id=\"theme-toggle\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm5.657-8.157a.75.75 0 0 1 0 1.061l-1.061 1.06a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734l1.06-1.06a.75.75 0 0 1 1.06 0Zm-9.193 9.193a.75.75 0 0 1 0 1.06l-1.06 1.061a.75.75 0 1 1-1.061-1.06l1.06-1.061a.75.75 0 0 1 1.061 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0ZM3 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm13 0a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 16 8Zm-8 5a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13Zm3.536-1.464a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.06 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM2.343 2.343a.75.75 0 0 1 1.061 0l1.06 1.061a.751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018l-1.06-1.06a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n@route /"
     ],
     "calls": []
    }
@@ -6375,6 +6746,13 @@
       "args": []
      }
     ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c04c34dac c072a0d46 c0e0dac04 c1e8176ab c1f523237 c3d0c82e3 c47324090 c5e7000ad c5fb91e8c c640638db c8aba5ee4 c8f19053a c937ba156 c99d61f16 c9ca45ff2 cbf033fe8 cc01b8cc4 ccae02ff2 ce284f159 cec50748c cec69975c cf974fdf0 cfc82911d cfec96911\" data-state=\"open\" role=\"status\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n</span>\n<div class=\"c9866e6d5 cb5823274\">\n<div class=\"c445db9b9 c7f74399a\">\nSaved\n</div>\n<div class=\"c445db9b9 cb16cf9d8\">\nYour changes are live.\n</div>\n</div>\n<button aria-label=\"Close\" class=\"c0dd268bc c0e0dac04 c4ff89af3 c7552104c c86f9ad24 c94aa499e c9ed626f5 cad178512 cb4209724 cd037ccc6 ceb327a82 cf68f335e cfaeca563\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n@route /",
+     "<div class=\"c04c34dac c072a0d46 c0e0dac04 c1e8176ab c1f523237 c3d0c82e3 c47324090 c5e7000ad c5fb91e8c c640638db c8aba5ee4 c8f19053a c937ba156 c99d61f16 c9ca45ff2 cbf033fe8 cc01b8cc4 ccae02ff2 ce284f159 cec50748c cec69975c cf974fdf0 cfc82911d cfec96911\" data-state=\"open\" role=\"status\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n</span>\n<div class=\"c9866e6d5 cb5823274\">\n<div class=\"c445db9b9 c7f74399a\">\nSaved\n</div>\n<div class=\"c445db9b9 cb16cf9d8\">\nYour changes are live.\n</div>\n</div>\n<button aria-label=\"⟦Close⟧\" class=\"c0dd268bc c0e0dac04 c4ff89af3 c7552104c c86f9ad24 c94aa499e c9ed626f5 cad178512 cb4209724 cd037ccc6 ceb327a82 cf68f335e cfaeca563\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "ToastContainer": {
@@ -6423,6 +6801,13 @@
    "className": {
     "snapshots": [
      "<div class=\"c04bc956a c1bba876f c51e7bc17 c58c1b6e4 c723716df c99d61f16 cb3f55bf9 cbf033fe8 ccae02ff2 cd75bbd18 cf48f3038\">\n<div class=\"c04c34dac c072a0d46 c0e0dac04 c1e8176ab c1f523237 c3d0c82e3 c47324090 c5e7000ad c5fb91e8c c640638db c8aba5ee4 c8f19053a c937ba156 c99d61f16 c9ca45ff2 cbf033fe8 cc01b8cc4 ccae02ff2 ce284f159 cec50748c cec69975c cf974fdf0 cfc82911d cfec96911\" data-state=\"open\" role=\"status\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n</span>\n<div class=\"c9866e6d5 cb5823274\">\n<div class=\"c445db9b9 c7f74399a\">\nSaved\n</div>\n</div>\n<button aria-label=\"Close\" class=\"c0dd268bc c0e0dac04 c4ff89af3 c7552104c c86f9ad24 c94aa499e c9ed626f5 cad178512 cb4209724 cd037ccc6 ceb327a82 cf68f335e cfaeca563\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults (empty), then a locale switch": {
+    "snapshots": [
+     "<div class=\"c04bc956a c1bba876f c51e7bc17 c58c1b6e4 c723716df c99d61f16 cb3f55bf9 cbf033fe8 ccae02ff2 cf48f3038\">\n</div>\n@route /",
+     "<div class=\"c04bc956a c1bba876f c51e7bc17 c58c1b6e4 c723716df c99d61f16 cb3f55bf9 cbf033fe8 ccae02ff2 cf48f3038\">\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -6523,6 +6908,13 @@
      "<button data-parity-probe=\"add fleeting\" type=\"button\">\nadd fleeting\n</button>\nPage content\n<div class=\"c04bc956a c1bba876f c51e7bc17 c58c1b6e4 c723716df c99d61f16 cb3f55bf9 cbf033fe8 ccae02ff2 cf48f3038\">\n<div class=\"c04c34dac c072a0d46 c0e0dac04 c1e8176ab c1f523237 c3d0c82e3 c47324090 c5e7000ad c5fb91e8c c640638db c8aba5ee4 c8f19053a c937ba156 c99d61f16 c9ca45ff2 cbf033fe8 cc01b8cc4 ccae02ff2 ce284f159 cec50748c cec69975c cf974fdf0 cfc82911d cfec96911\" data-state=\"open\" role=\"status\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n</span>\n<div class=\"c9866e6d5 cb5823274\">\n<div class=\"c445db9b9 c7f74399a\">\nBye soon\n</div>\n</div>\n<button aria-label=\"Close\" class=\"c0dd268bc c0e0dac04 c4ff89af3 c7552104c c86f9ad24 c94aa499e c9ed626f5 cad178512 cb4209724 cd037ccc6 ceb327a82 cf68f335e cfaeca563\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n@route /",
      "<button data-parity-probe=\"add fleeting\" type=\"button\">\nadd fleeting\n</button>\nPage content\n<div class=\"c04bc956a c1bba876f c51e7bc17 c58c1b6e4 c723716df c99d61f16 cb3f55bf9 cbf033fe8 ccae02ff2 cf48f3038\">\n<div class=\"c04c34dac c072a0d46 c0e0dac04 c1e8176ab c1f523237 c3d0c82e3 c47324090 c5e7000ad c5fb91e8c c640638db c8aba5ee4 c8f19053a c937ba156 c99d61f16 c9ca45ff2 cbf033fe8 cc01b8cc4 ccae02ff2 ce284f159 cec50748c cec69975c cf974fdf0 cfc82911d cfec96911\" data-state=\"open\" role=\"status\">\n<span class=\"c3c3e366d\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z\">\n</path>\n</svg>\n</span>\n<div class=\"c9866e6d5 cb5823274\">\n<div class=\"c445db9b9 c7f74399a\">\nBye soon\n</div>\n</div>\n<button aria-label=\"Close\" class=\"c0dd268bc c0e0dac04 c4ff89af3 c7552104c c86f9ad24 c94aa499e c9ed626f5 cad178512 cb4209724 cd037ccc6 ceb327a82 cf68f335e cfaeca563\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n@route /",
      "<button data-parity-probe=\"add fleeting\" type=\"button\">\nadd fleeting\n</button>\nPage content\n<div class=\"c04bc956a c1bba876f c51e7bc17 c58c1b6e4 c723716df c99d61f16 cb3f55bf9 cbf033fe8 ccae02ff2 cf48f3038\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "Page content\n<div class=\"c04bc956a c1bba876f c51e7bc17 c58c1b6e4 c723716df c99d61f16 cb3f55bf9 cbf033fe8 ccae02ff2 cf48f3038\">\n</div>\n@route /",
+     "Page content\n<div class=\"c04bc956a c1bba876f c51e7bc17 c58c1b6e4 c723716df c99d61f16 cb3f55bf9 cbf033fe8 ccae02ff2 cf48f3038\">\n</div>\n@route /"
     ],
     "calls": []
    }
@@ -6687,6 +7079,13 @@
      "<div class=\"c1b02b894\">\n<button aria-describedby=\"#id0\" type=\"button\">\nHover me\n</button>\n</div>\n<div style=\"left: 8px; position: absolute; top: 8px; z-index: 9999\">\n<div class=\"c0e0dac04 c1200412c c1f523237 c385aeaf8 c3f64b5fe c4172119d c445db9b9 c4b92e3a8 c5b8ef7a8 c8e3cd4a1 c8f19053a c978a2871 cc26cbf54 cd299eb1a cd75bbd18 cf63b9937\" data-testid=\"tip\" id=\"#id0\" role=\"tooltip\" style=\"margin-top: 4px\">\nHelpful text\n</div>\n</div>\n@route /"
     ],
     "calls": []
+   },
+   "defaults (hidden), then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1b02b894\">\n<button type=\"button\">\nHover me\n</button>\n</div>\n@route /",
+     "<div class=\"c1b02b894\">\n<button type=\"button\">\nHover me\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
    }
   },
   "UserMenu": {
@@ -6788,6 +7187,13 @@
      "<button aria-busy=\"false\" aria-label=\"Open user menu\" class=\"c04c34dac c0e303770 c13d4ff0f c13fdeedb c1549f5b8 c1a95ec2c c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"user-menu\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</button>\n@route /",
      "<button aria-busy=\"false\" aria-label=\"Open user menu\" class=\"c04c34dac c0e303770 c13d4ff0f c13fdeedb c1549f5b8 c1a95ec2c c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"user-menu\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</button>\n<div aria-hidden=\"true\" class=\"c0fa6e067 c2883f28d c361132cd c63a6bab3 cb3f55bf9\">\n</div>\n<div class=\"c1e8176ab c32136b18 c63a6bab3 c8218cd66 c8740901c c8f3cd634 c9773cd2b cb3f55bf9 ccae02ff2\">\n<div aria-label=\"Account menu\" aria-modal=\"true\" class=\"c02a3a0e9 c036363e3 c2575e436 c2a82350d c2c21c929 c311021b4 c3dd422de c4b92e3a8 c534064d7 c53a18c28 c772f8621 c7d75ca62 c880d622a c8f19053a c9816668a c9bd6223c c9e64ed62 ca734f651 cbaac6b89 cbf033fe8 ccae02ff2 cdb94fa1d cfba34ab6 cfbb6eaee cfc82911d\" role=\"dialog\" tabindex=\"-1\">\n<button aria-label=\"Close\" class=\"c0dd268bc c13d4ff0f c37109e1c c7552104c c7d370ab9 c86f9ad24 c92784b69 ce823b5bf cf78f34f1 cf9eca3d0\" data-mol-id=\"modal-close\" type=\"button\">\n<svg aria-hidden=\"true\" class=\"cc4672be1 cd04f105c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z\">\n</path>\n</svg>\n</button>\n<div class=\"c913cd95a ca66eaf31 cb5823274 cd4bf1eb3 cf351b027\">\n<button data-parity-probe=\"dismiss drawer\" type=\"button\">\ndismiss drawer\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:2>div:0>button:0",
      "<button aria-busy=\"false\" aria-label=\"Open user menu\" class=\"c04c34dac c0e303770 c13d4ff0f c13fdeedb c1549f5b8 c1a95ec2c c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"user-menu\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<button aria-busy=\"false\" aria-label=\"Open user menu\" class=\"c04c34dac c0e303770 c13d4ff0f c13fdeedb c1549f5b8 c1a95ec2c c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"user-menu\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</button>\n@route /",
+     "<button aria-busy=\"false\" aria-label=\"⟦Open user menu⟧\" class=\"c04c34dac c0e303770 c13d4ff0f c13fdeedb c1549f5b8 c1a95ec2c c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"user-menu\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" focusable=\"false\" height=\"20\" viewbox=\"0 0 16 16\" width=\"20\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</button>\n@route /"
     ],
     "calls": []
    }
@@ -6914,6 +7320,13 @@
      "<div class=\"cfc82911d\">\n<button aria-controls=\"#ref0\" aria-expanded=\"false\" aria-label=\"Open user menu\" class=\"c1e8176ab c1f523237 c2bf204c1 c2d7a5b64 c42740ba6 c470d1c87 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"user-menu\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n</div>\n@route /",
      "<div class=\"cfc82911d\">\n<button aria-controls=\"#id0\" aria-expanded=\"true\" aria-label=\"Open user menu\" class=\"c1e8176ab c1f523237 c2bf204c1 c2d7a5b64 c42740ba6 c470d1c87 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"user-menu\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n<div class=\"c0dd268bc c1f523237 c28ce3678 c2a82350d c2bf204c1 c8d722291 ce9321a7c\" data-mol-id=\"user-menu-panel\" id=\"#id0\">\n<header class=\"c28ce3678 cd23963ee ce2ca5664\">\n<p class=\"c445db9b9 c7f74399a\">\nAda Lovelace\n</p>\n<p class=\"c4647f690 ce823b5bf\">\nada@example.com\n</p>\n</header>\n<nav aria-label=\"Account menu\" class=\"c2cbb8333 c9866e6d5 c9efc308d cbaac6b89 ccae02ff2\">\n<a href=\"/settings\">\nSettings\n</a>\n<a href=\"/datasets\">\nMy datasets\n</a>\n<button data-parity-probe=\"dismiss popover\" type=\"button\">\ndismiss popover\n</button>\n</nav>\n</div>\n</div>\n@route /",
      "<div class=\"cfc82911d\">\n<button aria-controls=\"#ref0\" aria-expanded=\"false\" aria-label=\"Open user menu\" class=\"c1e8176ab c1f523237 c2bf204c1 c2d7a5b64 c42740ba6 c470d1c87 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"user-menu\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "closed by default, then a locale switch": {
+    "snapshots": [
+     "<div class=\"cfc82911d\">\n<button aria-controls=\"#ref0\" aria-expanded=\"false\" aria-label=\"Open user menu\" class=\"c1e8176ab c1f523237 c2bf204c1 c2d7a5b64 c42740ba6 c470d1c87 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"user-menu\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"cfc82911d\">\n<button aria-controls=\"#ref0\" aria-expanded=\"false\" aria-label=\"⟦Open user menu⟧\" class=\"c1e8176ab c1f523237 c2bf204c1 c2d7a5b64 c42740ba6 c470d1c87 c7d370ab9 c82d97ef1 c8e3cd4a1 c9566e21c ca96eb3ea cbf033fe8 cc2d72006 ccae02ff2 cd9b20003 cff192e8a\" data-mol-id=\"user-menu\" type=\"button\">\n<span aria-hidden=\"true\" class=\"c0d99ed10 c1e8176ab c42740ba6 c445db9b9 c9052b18c c9773cd2b c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cd9b20003\" style=\"background-color: var(--color-primary); color: var(--color-on-primary, #ffffff)\">\nAL\n</span>\n<span class=\"c71a5c916 cb5823274\">\n<span class=\"c423c87b7 c445db9b9 c7f74399a ceb0cbd62\">\nAda Lovelace\n</span>\n<span class=\"c423c87b7 c4647f690 ce823b5bf ceb0cbd62\">\nada@example.com\n</span>\n</span>\n</button>\n</div>\n@route /"
     ],
     "calls": []
    }

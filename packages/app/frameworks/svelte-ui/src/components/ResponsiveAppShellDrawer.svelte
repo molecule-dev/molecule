@@ -8,7 +8,6 @@
   navigation. Renders nothing on desktop or while closed.
 -->
 <script lang="ts">
-  import { t } from '@molecule/app-i18n'
   import { getClassMap } from '@molecule/app-ui'
 
   import {
@@ -18,6 +17,7 @@
     spreadEvents,
     unlockBodyScroll,
   } from '../dom.js'
+  import { useI18n } from '../framework.js'
   import { useShellContext } from '../shell-context.js'
   import { reactStyle } from '../style.js'
   import type { ResponsiveAppShellDrawerProps } from '../types.js'
@@ -36,12 +36,15 @@
     testId,
   }: ResponsiveAppShellDrawerProps = $props()
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
   const shell = useShellContext('ResponsiveAppShell.Drawer')
   const resolvedNavLabel = $derived(
-    navLabel ?? t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' }),
+    navLabel ?? $t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' }),
   )
-  const closeLabel = t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' })
+  const closeLabel = $derived(
+    $t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' }),
+  )
 
   let panelRef = $state<HTMLDivElement | null>(null)
   // The element to restore focus to on close (React's previouslyFocusedRef).

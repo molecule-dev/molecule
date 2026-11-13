@@ -59,17 +59,31 @@ export function useTranslation(): UseTranslationResult {
   const provider = useI18nProvider()
 
   const locale = ref<string>(provider.getLocale())
+  // Version counter incremented on every locale notification. Reading it inside
+  // `t` establishes a Vue reactive dependency, so a render function that calls
+  // `t` re-runs when the locale changes (same mechanism as `@molecule/app-vue`'s
+  // composable). Without it, text rendered through this hook stayed in the old
+  // language until something unrelated re-rendered the component.
+  const version = ref(0)
   let unsubscribe: (() => void) | null = null
   onMounted(() => {
-    unsubscribe = provider.onLocaleChange(() => {
+    const refresh = (): void => {
+      version.value++
       locale.value = provider.getLocale()
-    })
+    }
+    unsubscribe = provider.onLocaleChange(refresh)
+    // A locale change between setup and mount sends no notification this
+    // subscription could see — reconcile it now.
+    refresh()
   })
   onUnmounted(() => {
     unsubscribe?.()
   })
 
-  const t: UseTranslationResult['t'] = (key, values, options) => provider.t(key, values, options)
+  const t: UseTranslationResult['t'] = (key, values, options) => {
+    void version.value
+    return provider.t(key, values, options)
+  }
 
   return {
     t,

@@ -17,7 +17,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -88,6 +88,13 @@ export class LoadErrorBanner implements AfterViewInit, DoCheck, OnDestroy {
   /** The retry label capture point. */
   @ViewChild('retryLabelSlot') retryLabelSlot?: ElementRef<HTMLSpanElement>
 
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private hasDetail = false
   /** Whether the projected retry label exists (a signal: it is read after view init). */
@@ -125,8 +132,8 @@ export class LoadErrorBanner implements AfterViewInit, DoCheck, OnDestroy {
    */
   retryText(): string {
     return this.pending()
-      ? t('loadError.retrying', {}, { defaultValue: 'Retrying…' })
-      : t('loadError.retry', {}, { defaultValue: 'Retry' })
+      ? this.i18n.t('loadError.retrying', {}, { defaultValue: 'Retrying…' })
+      : this.i18n.t('loadError.retry', {}, { defaultValue: 'Retry' })
   }
 
   /**

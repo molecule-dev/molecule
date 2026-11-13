@@ -6,7 +6,7 @@
 
 import { Component, signal } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -93,6 +93,13 @@ export class Form {
   private attempt = 0
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * The current class map.
    * @returns The UIClassMap.
    */
@@ -120,7 +127,7 @@ export class Form {
     if (!error) return []
     return formSubmitErrorMessages(
       error.error,
-      t('ui.form.submitError', undefined, {
+      this.i18n.t('ui.form.submitError', undefined, {
         defaultValue: 'Unable to submit. Please try again.',
       }),
     )

@@ -14,7 +14,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
@@ -98,6 +98,7 @@ export const SidebarUserCard: Component<SidebarUserCardProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const { state } = createAuthState<AccountUserShape>()
   const { location } = createLocation()
   const [open, setOpen] = createSignal(false)

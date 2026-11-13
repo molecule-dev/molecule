@@ -4,10 +4,10 @@
   the polite role for static page content.
 -->
 <script lang="ts">
-  import { t } from '@molecule/app-i18n'
   import type { IconName } from '@molecule/app-icons'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { AlertProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -42,6 +42,7 @@
     testId,
   }: AlertProps = $props()
 
+  const { t } = useI18n()
   const cm = $derived(getClassMap())
   const alertVariant = $derived(statusVariantMap[status] || 'default')
   const iconName = $derived(statusIconMap[alertVariant])
@@ -73,7 +74,7 @@
       type="button"
       onclick={onDismiss}
       class={cm.alertDismiss}
-      aria-label={dismissLabel ?? t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })}
+      aria-label={dismissLabel ?? $t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })}
     >
       <IconGlyph name="x-mark" className={cm.iconSm} />
     </button>

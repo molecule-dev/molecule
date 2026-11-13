@@ -14,7 +14,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -81,6 +81,7 @@ export const ConfirmButton: Component<ConfirmButtonProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [phase, setPhase] = createSignal<'idle' | 'armed' | 'pending'>('idle')
   const disarmSeconds = (): number => local.disarmSeconds ?? 4
 

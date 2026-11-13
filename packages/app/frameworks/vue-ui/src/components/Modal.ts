@@ -16,9 +16,9 @@ import {
   watch,
 } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { ModalProps, ModalSize } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -154,6 +154,7 @@ export const Modal = defineComponent({
   emits: ['close'],
   setup(props, { attrs, emit, slots }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
     // Per-instance title id AND stack key. A hardcoded 'modal-title'
     // duplicated the id whenever two modals were mounted (stacked dialogs, a
     // drawer + a confirm) — aria-labelledby then resolved to the FIRST

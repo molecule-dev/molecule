@@ -14,7 +14,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -86,6 +86,13 @@ export class Avatar implements AfterViewChecked {
   /** The user glyph (detached unless the fallback branch picks it). */
   @ViewChild('userGlyph', { read: ElementRef }) userGlyph?: ElementRef<SVGSVGElement>
 
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
 
   /**
@@ -109,7 +116,9 @@ export class Avatar implements AfterViewChecked {
    * @returns The alt text.
    */
   altText(): string {
-    return this.alt || this.name || t('ui.avatar.alt', undefined, { defaultValue: 'Avatar' })
+    return (
+      this.alt || this.name || this.i18n.t('ui.avatar.alt', undefined, { defaultValue: 'Avatar' })
+    )
   }
 
   /**

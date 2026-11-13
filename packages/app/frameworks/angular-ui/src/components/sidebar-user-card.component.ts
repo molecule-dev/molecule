@@ -16,8 +16,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import { useAuth, useRouter } from '@molecule/app-angular'
-import { t } from '@molecule/app-i18n'
+import { useAuth, useRouter, useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -111,6 +110,13 @@ export class SidebarUserCard implements AfterViewInit, OnDestroy {
   /** Router state: a route change closes the drawer. */
   readonly router = useRouter()
 
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   /** The trigger button (adopted beside the host). */
   @ViewChild('trigger') trigger?: ElementRef<HTMLButtonElement>
 
@@ -133,7 +139,7 @@ export class SidebarUserCard implements AfterViewInit, OnDestroy {
 
   /** The trigger's accessible label. */
   ariaLabel(): string {
-    return t(
+    return this.i18n.t(
       this.ariaLabelKey ?? 'sidebarUserCard.open',
       {},
       {
@@ -151,7 +157,7 @@ export class SidebarUserCard implements AfterViewInit, OnDestroy {
       this.name ??
       this.auth.user()?.name ??
       this.auth.user()?.email ??
-      t('sidebarUserCard.guest', {}, { defaultValue: 'Guest' })
+      this.i18n.t('sidebarUserCard.guest', {}, { defaultValue: 'Guest' })
     )
   }
 

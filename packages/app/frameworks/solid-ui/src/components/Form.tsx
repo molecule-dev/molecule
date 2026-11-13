@@ -17,7 +17,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { FormFieldProps, FormProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -57,6 +57,7 @@ export const Form: Component<SolidFormProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [failure, setFailure] = createSignal<{ error: unknown } | null>(null)
   const [pending, setPending] = createSignal(false)
   let attempt = 0

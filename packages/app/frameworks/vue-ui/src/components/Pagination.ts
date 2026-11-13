@@ -6,9 +6,9 @@
 
 import { computed, defineComponent, h, type PropType } from 'vue'
 
-import { t } from '@molecule/app-i18n'
 import type { PaginationProps, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -200,6 +200,7 @@ export const Pagination = defineComponent({
   emits: ['change'],
   setup(props, { attrs, emit }) {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     const range = computed(() =>
       generatePaginationRange(props.page, props.totalPages, props.siblings, props.boundaries),

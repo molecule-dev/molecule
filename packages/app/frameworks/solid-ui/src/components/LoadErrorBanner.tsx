@@ -12,7 +12,7 @@
 
 import { type Component, createSignal, type JSX, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
@@ -65,6 +65,7 @@ export const LoadErrorBanner: Component<LoadErrorBannerProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [pending, setPending] = createSignal(false)
 
   /**

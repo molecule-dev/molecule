@@ -6,7 +6,11 @@
  * @module
  */
 
-import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
+import {
+  createSimpleI18nProvider,
+  type I18nProvider,
+  setProvider as setI18nProvider,
+} from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { iconSet } from '@molecule/app-icons-molecule'
 import { setClassMap } from '@molecule/app-ui'
@@ -15,6 +19,34 @@ import { classMap } from '@molecule/app-ui-tailwind'
 import type { Interaction, UICase } from './spec.js'
 
 let installed = false
+
+/**
+ * The locale a case's `locale` step switches to. Every string `t()` returns in it reads
+ * `⟦English⟧`, so a component that does not re-render on a switch keeps plain English and
+ * differs from React's recorded output.
+ */
+export const PSEUDO_LOCALE = 'en-XA'
+
+/**
+ * The simple provider with English and {@link PSEUDO_LOCALE}. Neither locale carries
+ * translations: a component's own English defaults are what it renders, bracketed in the
+ * pseudo-locale.
+ *
+ * @returns The provider.
+ */
+function createConformanceI18nProvider(): I18nProvider {
+  const base = createSimpleI18nProvider('en', [
+    { code: 'en', name: 'English', direction: 'ltr', translations: {} },
+    { code: PSEUDO_LOCALE, name: 'Pseudo', direction: 'ltr', translations: {} },
+  ])
+  return {
+    ...base,
+    t: (key, values, options) => {
+      const text = base.t(key, values, options)
+      return base.getLocale() === PSEUDO_LOCALE ? `⟦${text}⟧` : text
+    },
+  }
+}
 
 /**
  * Bonds the ClassMap, icon set and i18n provider once per test file. Every
@@ -26,7 +58,7 @@ export function installSharedBonds(): void {
   installed = true
   setClassMap(classMap)
   setIconSet(iconSet)
-  setI18nProvider(createSimpleI18nProvider())
+  setI18nProvider(createConformanceI18nProvider())
 }
 
 /**

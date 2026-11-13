@@ -6,7 +6,7 @@
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-angular'
 import type { ColorVariant, Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -44,6 +44,13 @@ export class MoleculeSpinner {
   @Input() testId?: string
 
   /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /**
    * Retrieves the current UI class map.
    * @returns The UIClassMap instance for styling.
    */
@@ -56,7 +63,7 @@ export class MoleculeSpinner {
    * @returns The localized aria-label for the spinner.
    */
   get spinnerLabel(): string {
-    return this.label || t('ui.spinner.loading', undefined, { defaultValue: 'Loading' })
+    return this.label || this.i18n.t('ui.spinner.loading', undefined, { defaultValue: 'Loading' })
   }
 
   /**

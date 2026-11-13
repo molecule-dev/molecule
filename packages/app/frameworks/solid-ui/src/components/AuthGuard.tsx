@@ -1,6 +1,6 @@
 import { createEffect, type JSX, on } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 
 import { createAuthState, createLocation } from '../utilities/services.js'
 
@@ -90,6 +90,7 @@ const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] 
  * @param props - {@link AuthGuardProps}
  */
 export function AuthGuard(props: AuthGuardProps): JSX.Element {
+  const { t } = useTranslation()
   const { state } = createAuthState()
   const { location, router } = createLocation()
 

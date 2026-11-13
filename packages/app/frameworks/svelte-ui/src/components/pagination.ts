@@ -4,7 +4,7 @@
  * @module
  */
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import type { IconData, IconName } from '@molecule/app-icons'
 import { getIcon } from '@molecule/app-icons'
 import type { Size } from '@molecule/app-ui'
@@ -29,7 +29,8 @@ export interface PaginationClassOptions {
  *     getPaginationClasses, getPaginationContentClass, getPaginationItemClasses,
  *     getPaginationEllipsisClass, generatePaginationRange,
  *   } from '@molecule/app-ui-svelte'
- *   import { t } from '@molecule/app-i18n'
+ *   import { useTranslation } from '@molecule/app-svelte'
+ *   const { t } = useTranslation()
  *   export let page = 1
  *   export let totalPages = 10
  *   export let siblings = 1
@@ -121,12 +122,12 @@ const paginationIconMap: Record<string, IconName> = {
 export function getPaginationIconData(direction: string): IconData {
   const name = paginationIconMap[direction]
   if (!name) {
-    throw new Error(
-      t(
-        'svelte.error.unknownPaginationDirection',
-        { direction },
-        { defaultValue: 'Unknown pagination direction: "{{direction}}"' },
-      ),
+    // Thrown outside rendering (a guard on an unknown direction), so the key
+    // is carried for re-translation instead of a frozen string.
+    throw new I18nError(
+      'svelte.error.unknownPaginationDirection',
+      { direction },
+      'Unknown pagination direction: "{{direction}}"',
     )
   }
   return getIcon(name)

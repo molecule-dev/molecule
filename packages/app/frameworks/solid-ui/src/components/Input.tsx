@@ -6,7 +6,7 @@
 
 import { type Component, createUniqueId, type JSX, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -47,6 +47,7 @@ export const Input: Component<InputProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   // Fall back to a generated id so label htmlFor / aria-describedby never
   // point at `undefined-error` (which also collides across multiple
   // id-less inputs on the same page).

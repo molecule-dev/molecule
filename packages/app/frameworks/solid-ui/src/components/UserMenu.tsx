@@ -7,8 +7,8 @@
 
 import { type Component, createEffect, createSignal, type JSX, on, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { createLocation } from '../utilities/services.js'
@@ -83,6 +83,7 @@ export const UserMenu: Component<UserMenuProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const { location } = createLocation()
   const [open, setOpen] = createSignal(false)
 

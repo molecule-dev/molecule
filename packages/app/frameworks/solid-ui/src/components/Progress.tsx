@@ -6,7 +6,7 @@
 
 import { type Component, Show, splitProps } from 'solid-js'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-solid'
 import type { BaseProps, ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -72,6 +72,7 @@ export const Progress: Component<ProgressProps> = (props) => {
   ])
 
   const cm = getClassMap()
+  const { t } = useTranslation()
   const value = (): number => local.value
   const max = (): number => local.max ?? 100
   const percentage = (): number => Math.min(Math.max((value() / max()) * 100, 0), 100)

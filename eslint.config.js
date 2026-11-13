@@ -311,6 +311,32 @@ export default tseslint.config(
     },
   },
   {
+    // The same rule for the Vue, Solid, Svelte and Angular UI components: each binding's
+    // `useTranslation()` (a ref, signal, store or Angular signal underneath) follows the
+    // locale; the static `t` does not, so text rendered with it stays in the old language
+    // (the UI conformance's "then a locale switch" cases show it against React's output).
+    files: [
+      'packages/app/frameworks/{vue-ui,solid-ui,svelte-ui,angular-ui}/src/**/*.{ts,tsx,svelte}',
+    ],
+    ignores: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [APP_CROSS_STACK_IMPORTS],
+          paths: [
+            {
+              name: '@molecule/app-i18n',
+              importNames: ['t'],
+              message:
+                "A UI component must translate through its framework binding's `useTranslation()` (@molecule/app-vue, -solid, -svelte or -angular): the static `t` does not follow a locale switch. A helper takes `t` from the component that calls it; an error thrown outside rendering is an `I18nError`.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // Native bond providers load their peer (react-native, expo-*, @react-native-*)
     // lazily via dynamic `import()` and type the result with `typeof import('peer')`.
     // That peer is an AMBIENT `declare module` (the real package ships Flow syntax
