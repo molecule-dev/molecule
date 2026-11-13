@@ -102,6 +102,19 @@ export interface PlaywrightFeedback {
   check: (options?: PlaywrightFeedbackCheckOptions) => Promise<PlaywrightFeedbackResult[]>
   /** Spec files whose latest native outcome failed and that have not passed or skipped since. */
   failingSpecs: () => string[]
+  /**
+   * The current source revision. Read it before starting a native run of your own and pass it to
+   * {@link PlaywrightFeedback.record} with that run's outcomes.
+   */
+  revision: () => number
+  /**
+   * Record outcomes of a native run the host started itself (an explicit local test command with
+   * the same spec command), so {@link PlaywrightFeedback.check} reuses them instead of running the
+   * spec again. Ignored when a source write landed after `revision` was read. Only a whole-file
+   * pass or self-skip is recorded: it clears that spec's known failure exactly as a background
+   * pass does. Any other outcome changes nothing.
+   */
+  record: (results: readonly PlaywrightFeedbackResult[], revision: number) => void
   /** Wait for speculative work in tests or shutdown. Use check for explicit verification. */
   settled: () => Promise<void>
   close: () => Promise<void>

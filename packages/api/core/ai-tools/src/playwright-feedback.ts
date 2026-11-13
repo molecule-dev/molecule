@@ -284,6 +284,22 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
     pause,
     check,
     failingSpecs: () => [...failing],
+    revision: () => revision,
+    record(results, at) {
+      // A host's own run is evidence for the revision it started on, never a later one.
+      if (stopped || at !== revision) return
+      for (const result of results) {
+        if (!settledClean(result)) continue
+        lastRun.set(result.spec, ++finishedRuns)
+        failing.delete(result.spec)
+        completed.add(result.spec)
+        outcomes.set(result.spec, { ...result, revision })
+        delivered.delete(result.spec)
+        // A queued diagnosis of this spec at this revision is now superseded by the pass.
+        for (let i = waiting.length - 1; i >= 0; i--)
+          if (waiting[i].spec === result.spec) waiting.splice(i, 1)
+      }
+    },
     settled,
     async close() {
       stopped = true
