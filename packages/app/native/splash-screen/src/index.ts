@@ -9,14 +9,23 @@
  *
  * @example
  * ```typescript
+ * import { getLogger } from '@molecule/app-logger'
  * import { hasProvider, hide } from '@molecule/app-splash-screen'
  *
+ * const logger = getLogger('boot')
+ *
  * async function bootApp(loadInitialData: () => Promise<void>): Promise<void> {
- *   await loadInitialData()
- *   // Hide ONLY after the first real frame is renderable — and ALWAYS hide,
- *   // even on error, or the app hangs on the splash forever.
- *   if (hasProvider()) {
- *     await hide({ fadeOutDuration: 200 }).catch(() => hide())
+ *   try {
+ *     await loadInitialData()
+ *   } finally {
+ *     // Hide ONLY after the first real frame is renderable — and ALWAYS hide,
+ *     // even on error, or the app hangs on the splash forever.
+ *     if (hasProvider()) {
+ *       await hide({ fadeOutDuration: 200 }).catch((error: unknown) => {
+ *         logger.warn('Splash fade-out failed; hiding without it', { error })
+ *         return hide()
+ *       })
+ *     }
  *   }
  * }
  * ```
