@@ -30,6 +30,7 @@
   "devDependencies": {
     "@molecule/app-code-editor": "1.0.3",
     "@molecule/app-i18n": "1.1.2",
+    "@molecule/app-logger": "1.0.6",
     "@types/node": "26.6.5",
     "monaco-editor": "0.56.0",
     "typescript": "6.0.3",
@@ -43,9 +44,6 @@
   },
   "peerDependenciesMeta": {
     "@molecule/app-code-editor": {
-      "optional": true
-    },
-    "@molecule/app-logger": {
       "optional": true
     }
   },

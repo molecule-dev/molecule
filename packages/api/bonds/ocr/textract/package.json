@@ -41,10 +41,12 @@
     "@molecule/api-proxy-agent": "1.1.2"
   },
   "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
     "@molecule/api-ocr": ">=1.0.0",
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
+    "@molecule/api-bond": "1.0.4",
     "@molecule/api-ocr": "1.1.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
