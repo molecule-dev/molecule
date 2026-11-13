@@ -31,4 +31,5 @@ export const it: Partial<ReactTranslations> = {
     "useToast deve essere utilizzato all'interno di un ToastProvider",
   'react.error.useWorkspaceOutsideProvider':
     "useWorkspaceProvider deve essere utilizzato all'interno di un WorkspaceProvider",
+  'react.error.oauthFailed': 'Accesso OAuth non riuscito',
 }

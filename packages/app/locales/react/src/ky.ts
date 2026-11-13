@@ -24,4 +24,5 @@ export const ky: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider WorkspaceProvider ичинде колдонулушу керек',
   'react.error.unsupportedMethod': 'Колдоого алынбаган ыкма: {{method}}',
+  'react.error.oauthFailed': 'OAuth аркылуу кирүү ишке ашкан жок',
 }

@@ -24,4 +24,5 @@ export const sk: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider musí byť použitý vnútri WorkspaceProvider',
   'react.error.unsupportedMethod': 'Nepodporovaná metóda: {{method}}',
+  'react.error.oauthFailed': 'Prihlásenie cez OAuth zlyhalo',
 }

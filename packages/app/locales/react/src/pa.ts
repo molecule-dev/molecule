@@ -30,4 +30,5 @@ export const pa: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider ਨੂੰ WorkspaceProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'react.error.unsupportedMethod': 'ਅਸਮਰਥਿਤ ਵਿਧੀ: {{method}}',
+  'react.error.oauthFailed': 'OAuth ਲੌਗਇਨ ਅਸਫਲ ਰਿਹਾ',
 }

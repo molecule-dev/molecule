@@ -24,4 +24,5 @@ export const sw: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider lazima utumike ndani ya WorkspaceProvider',
   'react.error.unsupportedMethod': 'Njia isiyoungwa mkono: {{method}}',
+  'react.error.oauthFailed': 'Kuingia kwa OAuth kumeshindwa',
 }

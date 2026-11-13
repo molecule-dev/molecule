@@ -2,6 +2,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { type LoggerProvider, setProvider as setLoggerProvider } from '@molecule/app-logger'
 import type {
   NotificationActionListener,
   NotificationReceivedListener,
@@ -79,6 +80,24 @@ describe('usePush', () => {
 
     expect(mockProvider.checkPermission).toHaveBeenCalledOnce()
     expect(result.current.permission).toBe('default')
+  })
+
+  it('logs a permission check on mount that fails', async () => {
+    const warn = vi.fn()
+    setLoggerProvider({ getLogger: () => ({ warn }) } as unknown as LoggerProvider)
+    vi.mocked(mockProvider.checkPermission).mockRejectedValueOnce(
+      new Error('permission API unavailable'),
+    )
+    const { result } = renderHook(() => usePush({ checkOnMount: true }))
+
+    await act(async () => {
+      await flush()
+    })
+
+    expect(result.current.permission).toBeNull()
+    expect(warn).toHaveBeenCalledWith('Checking push permission on mount failed', {
+      error: expect.objectContaining({ message: 'permission API unavailable' }),
+    })
   })
 
   it('does not check permission on mount by default', async () => {

@@ -18,4 +18,5 @@ export const km: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider ត្រូវតែប្រើនៅក្នុង WorkspaceProvider',
   'react.error.unsupportedMethod': 'វិធីសាស្រ្តដែលមិនគាំទ្រ: {{method}}',
+  'react.error.oauthFailed': 'ការចូលតាម OAuth បានបរាជ័យ',
 }

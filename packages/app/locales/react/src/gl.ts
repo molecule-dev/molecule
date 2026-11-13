@@ -21,4 +21,5 @@ export const gl: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider debe usarse dentro dun WorkspaceProvider',
   'react.error.unsupportedMethod': 'Método non compatible: {{method}}',
+  'react.error.oauthFailed': 'Fallou o inicio de sesión con OAuth',
 }

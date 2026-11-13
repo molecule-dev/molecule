@@ -24,4 +24,5 @@ export const da: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider skal bruges inden for en WorkspaceProvider',
   'react.error.unsupportedMethod': 'Ikke-understøttet metode: {{method}}',
+  'react.error.oauthFailed': 'OAuth-login mislykkedes',
 }

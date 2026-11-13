@@ -26,4 +26,5 @@ export const hu: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'A useWorkspaceProvider-t WorkspaceProvider-en belül kell használni',
   'react.error.unsupportedMethod': 'Nem támogatott metódus: {{method}}',
+  'react.error.oauthFailed': 'Az OAuth-bejelentkezés sikertelen',
 }

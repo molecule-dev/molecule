@@ -175,8 +175,8 @@ export function useAIModels(projectId?: string): UseAIModelsResult {
     setSnapshot({ models: cache.models, defaults: cache.defaults, error: cache.error })
 
     if (!cache.models && !cache.error) {
-      void fetchOnce(http, scope).catch(() => {
-        // Error is mirrored into cache.error and propagated via the listener.
+      void fetchOnce(http, scope).catch((_error: unknown) => {
+        // fetchOnce mirrors the error into cache.error, which the listener delivers.
       })
     }
 

@@ -24,4 +24,5 @@ export const uz: Partial<ReactTranslations> = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider WorkspaceProvider ichida ishlatilishi kerak',
   'react.error.unsupportedMethod': "Qo'llab-quvvatlanmaydigan usul: {{method}}",
+  'react.error.oauthFailed': 'OAuth orqali kirish amalga oshmadi',
 }

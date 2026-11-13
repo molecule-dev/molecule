@@ -28,4 +28,5 @@ export const ha: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'Dole ne a yi amfani da useWorkspaceProvider a cikin WorkspaceProvider',
   'react.error.unsupportedMethod': 'Hanyar da ba a tallafawa ba: {{method}}',
+  'react.error.oauthFailed': 'Shiga ta OAuth ya gaza',
 }

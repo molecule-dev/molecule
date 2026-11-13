@@ -31,4 +31,5 @@ export const ro: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider trebuie utilizat în interiorul unui WorkspaceProvider',
   'react.error.unsupportedMethod': 'Metodă neacceptată: {{method}}',
+  'react.error.oauthFailed': 'Autentificarea OAuth a eșuat',
 }

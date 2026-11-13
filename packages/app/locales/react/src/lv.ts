@@ -18,4 +18,5 @@ export const lv: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider jāizmanto WorkspaceProvider ietvaros',
   'react.error.unsupportedMethod': 'Neatbalstīta metode: {{method}}',
+  'react.error.oauthFailed': 'OAuth pieteikšanās neizdevās',
 }

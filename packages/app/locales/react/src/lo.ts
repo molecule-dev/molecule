@@ -17,4 +17,5 @@ export const lo: ReactTranslations = {
   'react.error.useToastOutsideProvider': 'useToast ຕ້ອງໃຊ້ພາຍໃນ ToastProvider',
   'react.error.useWorkspaceOutsideProvider': 'useWorkspaceProvider ຕ້ອງໃຊ້ພາຍໃນ WorkspaceProvider',
   'react.error.unsupportedMethod': 'ວິທີການທີ່ບໍ່ຮອງຮັບ: {{method}}',
+  'react.error.oauthFailed': 'ການເຂົ້າສູ່ລະບົບດ້ວຍ OAuth ລົ້ມເຫຼວ',
 }

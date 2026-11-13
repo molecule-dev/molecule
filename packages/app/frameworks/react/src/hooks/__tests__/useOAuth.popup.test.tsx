@@ -13,6 +13,8 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+
 const mockClient = {
   setAccessToken: vi.fn(),
   setUser: vi.fn(),
@@ -163,5 +165,24 @@ describe('useOAuth.loginViaPopup — postMessage relay security', () => {
     await flush()
     expect(onSuccess).toHaveBeenCalledTimes(1)
     expect(mockClient.initialize).toHaveBeenCalledTimes(1)
+  })
+
+  it('reports a failure without a reason in the active language', async () => {
+    setProvider(
+      createSimpleI18nProvider('fr', [
+        {
+          code: 'fr',
+          name: 'French',
+          translations: { 'react.error.oauthFailed': 'Échec de la connexion OAuth' },
+        },
+      ]),
+    )
+    const onError = vi.fn()
+    startPopup(undefined, onError)
+    window.dispatchEvent(
+      makeMessage({ origin: ORIGIN, source: fakePopup, data: { type: TYPE, ok: false } }),
+    )
+    await flush()
+    expect(onError).toHaveBeenCalledWith('Échec de la connexion OAuth')
   })
 })

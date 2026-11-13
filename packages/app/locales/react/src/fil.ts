@@ -30,4 +30,5 @@ export const fil: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'Ang useWorkspaceProvider ay dapat gamitin sa loob ng WorkspaceProvider',
   'react.error.unsupportedMethod': 'Hindi sinusuportahang paraan: {{method}}',
+  'react.error.oauthFailed': 'Nabigo ang pag-login sa OAuth',
 }

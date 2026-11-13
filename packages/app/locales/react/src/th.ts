@@ -17,4 +17,5 @@ export const th: ReactTranslations = {
   'react.error.useToastOutsideProvider': 'useToast ต้องใช้ภายใน ToastProvider',
   'react.error.useWorkspaceOutsideProvider': 'useWorkspaceProvider ต้องใช้ภายใน WorkspaceProvider',
   'react.error.unsupportedMethod': 'เมธอดที่ไม่รองรับ: {{method}}',
+  'react.error.oauthFailed': 'การเข้าสู่ระบบด้วย OAuth ล้มเหลว',
 }

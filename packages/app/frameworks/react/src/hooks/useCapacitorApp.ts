@@ -66,8 +66,8 @@ export function useCapacitorApp(options: CapacitorAppOptions = {}): UseCapacitor
     })
 
     // Auto-initialize on mount
-    app.initialize().catch(() => {
-      // Error is captured in state via the coordinator
+    app.initialize().catch((_error: unknown) => {
+      // The coordinator puts the error in state, which this hook returns.
     })
 
     return () => {

@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { UserProfile } from '@molecule/app-auth'
+import { getLogger } from '@molecule/app-logger'
 
 import { useAuth } from './useAuth.js'
 import { useHttpClient } from './useHttp.js'
@@ -150,7 +151,12 @@ export function useVerifyPaymentReturn(
       })
       // The plan on the cached profile is now stale — re-read it so the UI
       // (plan badges, gated features) reflects what was just paid for.
-      await refresh().catch(() => {})
+      await refresh().catch((error: unknown) => {
+        // The payment is verified either way; only the cached plan may lag until the next refresh.
+        getLogger('useVerifyPaymentReturn').warn('Refreshing the profile after payment failed', {
+          error,
+        })
+      })
       setStatus('verified')
       callbacksRef.current.onVerified?.()
 

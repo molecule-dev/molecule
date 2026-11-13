@@ -21,4 +21,5 @@ export const fa: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider باید درون WorkspaceProvider استفاده شود',
   'react.error.unsupportedMethod': 'روش پشتیبانی‌نشده: {{method}}',
+  'react.error.oauthFailed': 'ورود با OAuth ناموفق بود',
 }

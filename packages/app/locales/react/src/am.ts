@@ -18,4 +18,5 @@ export const am: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider በWorkspaceProvider ውስጥ መጠቀም አለበት',
   'react.error.unsupportedMethod': 'ያልተደገፈ ዘዴ: {{method}}',
+  'react.error.oauthFailed': 'የOAuth መግቢያ አልተሳካም',
 }

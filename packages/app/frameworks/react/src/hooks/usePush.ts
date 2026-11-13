@@ -6,6 +6,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { getLogger } from '@molecule/app-logger'
 import type {
   NotificationActionListener,
   NotificationReceivedListener,
@@ -73,8 +74,9 @@ export function usePush(options?: UsePushOptions): UsePushResult {
       providerRef.current
         .checkPermission()
         .then(setPermission)
-        .catch(() => {
-          // Silently fail
+        .catch((error: unknown) => {
+          // The permission stays unknown until checkPermission() is called again.
+          getLogger('usePush').warn('Checking push permission on mount failed', { error })
         })
     }
   }, [checkOnMount])

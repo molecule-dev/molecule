@@ -30,4 +30,5 @@ export const nl: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider moet binnen een WorkspaceProvider worden gebruikt',
   'react.error.unsupportedMethod': 'Niet-ondersteunde methode: {{method}}',
+  'react.error.oauthFailed': 'Inloggen met OAuth is mislukt',
 }

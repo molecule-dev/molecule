@@ -20,4 +20,5 @@ export const cy: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'Rhaid defnyddio useWorkspaceProvider o fewn WorkspaceProvider',
   'react.error.unsupportedMethod': 'Dull heb ei gefnogi: {{method}}',
+  'react.error.oauthFailed': 'Methodd mewngofnodi OAuth',
 }

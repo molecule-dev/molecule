@@ -31,4 +31,5 @@ export const ta: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider ஒரு WorkspaceProvider க்குள் பயன்படுத்தப்பட வேண்டும்',
   'react.error.unsupportedMethod': 'ஆதரிக்கப்படாத முறை: {{method}}',
+  'react.error.oauthFailed': 'OAuth உள்நுழைவு தோல்வியடைந்தது',
 }

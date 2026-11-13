@@ -20,4 +20,5 @@ export const mr: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider हे WorkspaceProvider मध्ये वापरले पाहिजे',
   'react.error.unsupportedMethod': 'असमर्थित पद्धत: {{method}}',
+  'react.error.oauthFailed': 'OAuth लॉगिन अयशस्वी झाले',
 }

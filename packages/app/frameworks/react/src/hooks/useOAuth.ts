@@ -26,7 +26,13 @@
 
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
+import { t } from '@molecule/app-i18n'
+
 import { useAuthClient } from './useAuth.js'
+
+/** What `onError` gets when the server gives no reason of its own. */
+const oauthFailed = (): string =>
+  t('react.error.oauthFailed', undefined, { defaultValue: 'OAuth login failed' })
 
 /**
  * `window.open` name for the OAuth popup. The callback page relays its result to
@@ -254,10 +260,10 @@ export function useOAuth(config?: {
         if (data.ok) {
           void establishSession(data.token, data.user).then((ok) => {
             if (ok) config?.onSuccess?.()
-            else config?.onError?.('OAuth login failed')
+            else config?.onError?.(oauthFailed())
           })
         } else {
-          config?.onError?.(typeof data.error === 'string' ? data.error : 'OAuth login failed')
+          config?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
         }
       }
 
@@ -354,8 +360,9 @@ export function useOAuth(config?: {
         })
 
         if (!response.ok) {
-          const data = await response.json().catch(() => ({ error: 'OAuth login failed' }))
-          const error = data.error || 'OAuth login failed'
+          // A body that is not JSON: report the generic failure.
+          const data = await response.json().catch((_error: unknown) => ({ error: oauthFailed() }))
+          const error = data.error || oauthFailed()
           if (inPopup) {
             relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
             return
@@ -364,7 +371,8 @@ export function useOAuth(config?: {
           return
         }
 
-        const data: unknown = await response.json().catch(() => null)
+        // A body that is not JSON carries no user; the token comes from the header.
+        const data: unknown = await response.json().catch((_error: unknown) => null)
         // Store the token from the response
         const authHeader =
           response.headers.get('authorization') || response.headers.get('set-authorization')
@@ -391,9 +399,9 @@ export function useOAuth(config?: {
         // unchanged behavior.
         const ok = await establishSession(token, user)
         if (ok) config?.onSuccess?.()
-        else config?.onError?.('OAuth login failed')
+        else config?.onError?.(oauthFailed())
       } catch (err) {
-        const error = err instanceof Error ? err.message : 'OAuth login failed'
+        const error = err instanceof Error ? err.message : oauthFailed()
         if (inPopup) {
           relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
           return

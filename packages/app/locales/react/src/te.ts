@@ -18,4 +18,5 @@ export const te: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider WorkspaceProvider లోపల ఉపయోగించాలి',
   'react.error.unsupportedMethod': 'మద్దతు లేని పద్ధతి: {{method}}',
+  'react.error.oauthFailed': 'OAuth లాగిన్ విఫలమైంది',
 }

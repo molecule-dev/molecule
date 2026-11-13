@@ -18,4 +18,5 @@ export const si: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider WorkspaceProvider තුළ භාවිතා කළ යුතුය',
   'react.error.unsupportedMethod': 'සහාය නොදක්වන ක්‍රමය: {{method}}',
+  'react.error.oauthFailed': 'OAuth පිවිසීම අසාර්ථක විය',
 }

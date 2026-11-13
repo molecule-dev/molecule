@@ -26,4 +26,5 @@ export const ga: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'Ní mór useWorkspaceProvider a úsáid laistigh de WorkspaceProvider',
   'react.error.unsupportedMethod': 'Modh gan tacaíocht: {{method}}',
+  'react.error.oauthFailed': 'Theip ar logáil isteach OAuth',
 }

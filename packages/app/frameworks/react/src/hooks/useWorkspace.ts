@@ -37,9 +37,12 @@ export function useWorkspace(): UseWorkspaceResult {
   const cachedRef = useRef<WorkspaceState | null>(null)
 
   const getSnapshot = useCallback(() => {
+    // A bond with getState answers with the full state, the same object until it changes.
+    const full = provider.getState?.()
+    if (full) return full
     const layout = provider.getLayout()
-    // Create a state object — provider.subscribe gives us the full WorkspaceState
-    // but getLayout only gives us the layout. Use a lightweight cache comparison.
+    // Without getState, only the layout is readable before the first subscribe
+    // callback; the rest starts at the core's initial values. Use a lightweight cache comparison.
     const prev = cachedRef.current
     if (prev && prev.layout === layout) {
       return prev

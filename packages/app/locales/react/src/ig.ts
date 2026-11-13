@@ -20,4 +20,5 @@ export const ig: Partial<ReactTranslations> = {
   'react.error.useToastOutsideProvider': "A ga-eji Toast mee ihe n'ime Onye Na-enye Toast",
   'react.error.useWorkspaceOutsideProvider':
     "A ga-eji onye na-enye ọrụ useWorkspaceProvider n'ime onye na-enye ọrụ",
+  'react.error.oauthFailed': 'Nbanye OAuth dara',
 }

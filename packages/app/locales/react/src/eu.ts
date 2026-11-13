@@ -28,4 +28,5 @@ export const eu: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider WorkspaceProvider baten barruan erabili behar da',
   'react.error.unsupportedMethod': 'Onartzen ez den metodoa: {{method}}',
+  'react.error.oauthFailed': 'OAuth bidezko saio-hasierak huts egin du',
 }

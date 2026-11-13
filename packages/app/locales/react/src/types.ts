@@ -15,6 +15,7 @@ export type ReactTranslationKey =
   | 'react.error.useToastOutsideProvider'
   | 'react.error.useWorkspaceOutsideProvider'
   | 'react.error.unsupportedMethod'
+  | 'react.error.oauthFailed'
 
 /** Translation record mapping react keys to translated strings. */
 export type ReactTranslations = Record<ReactTranslationKey, string>

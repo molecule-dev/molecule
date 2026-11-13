@@ -26,4 +26,5 @@ export const vi: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider phải được sử dụng bên trong WorkspaceProvider',
   'react.error.unsupportedMethod': 'Phương thức không được hỗ trợ: {{method}}',
+  'react.error.oauthFailed': 'Đăng nhập OAuth không thành công',
 }

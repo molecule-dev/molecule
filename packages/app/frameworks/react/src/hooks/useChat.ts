@@ -24,6 +24,7 @@ import type {
   MessageBlock,
 } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
+import { getLogger } from '@molecule/app-logger'
 
 import { DEFAULT_AGENT_NAME } from '../agent-identity.js'
 import { ChatContext } from '../contexts.js'
@@ -1712,8 +1713,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
           }, 0)
         }
       })
-      .catch(() => {
-        // History load failure is not critical
+      .catch((error: unknown) => {
+        // The chat still works without its history; log why it is empty.
+        getLogger('useChat').warn('Loading chat history failed', { error })
       })
   }, [endpoint])
 

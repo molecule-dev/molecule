@@ -19,4 +19,5 @@ export const mt: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider irid jintuża ġewwa WorkspaceProvider',
   'react.error.unsupportedMethod': 'Metodu mhux appoġġjat: {{method}}',
+  'react.error.oauthFailed': 'Id-dħul bl-OAuth falla',
 }

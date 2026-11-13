@@ -24,4 +24,5 @@ export const ka: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider უნდა გამოიყენოთ WorkspaceProvider-ის შიგნით',
   'react.error.unsupportedMethod': 'მხარდაუჭერელი მეთოდი: {{method}}',
+  'react.error.oauthFailed': 'OAuth-ით შესვლა ვერ მოხერხდა',
 }

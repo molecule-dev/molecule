@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { AuthClient, AuthState } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
+import { type LoggerProvider, setProvider as setLoggerProvider } from '@molecule/app-logger'
 
 import { AuthContext, HttpContext } from '../../contexts.js'
 import { useVerifyPaymentReturn } from '../useVerifyPaymentReturn.js'
@@ -114,6 +115,24 @@ describe('useVerifyPaymentReturn', () => {
     await waitFor(() => expect(result.current.status).toBe('verified'))
     expect(post).toHaveBeenCalledWith(`/users/user_1/verify-payment/${provider}`, {
       subscriptionId: id,
+    })
+  })
+
+  it('stays verified and logs when the profile refresh after payment fails', async () => {
+    setSearch('?provider=stripe&sessionId=cs_live_789')
+    const warn = vi.fn()
+    setLoggerProvider({ getLogger: () => ({ warn }) } as unknown as LoggerProvider)
+    const post = vi.fn().mockResolvedValue({ data: {}, status: 200, statusText: 'OK', headers: {} })
+    const { client, refresh } = makeAuthClient()
+    refresh.mockRejectedValueOnce(new Error('network down'))
+
+    const { result } = renderHook(() => useVerifyPaymentReturn(), {
+      wrapper: wrapper(client, makeHttpClient(post)),
+    })
+
+    await waitFor(() => expect(result.current.status).toBe('verified'))
+    expect(warn).toHaveBeenCalledWith('Refreshing the profile after payment failed', {
+      error: expect.objectContaining({ message: 'network down' }),
     })
   })
 

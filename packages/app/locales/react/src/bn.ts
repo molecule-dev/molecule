@@ -31,4 +31,5 @@ export const bn: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider অবশ্যই একটি WorkspaceProvider এর মধ্যে ব্যবহার করতে হবে',
   'react.error.unsupportedMethod': 'অসমর্থিত পদ্ধতি: {{method}}',
+  'react.error.oauthFailed': 'OAuth লগইন ব্যর্থ হয়েছে',
 }

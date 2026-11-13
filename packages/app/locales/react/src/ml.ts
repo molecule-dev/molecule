@@ -23,4 +23,5 @@ export const ml: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider ഒരു WorkspaceProvider-നുള്ളിൽ ഉപയോഗിക്കണം',
   'react.error.unsupportedMethod': 'പിന്തുണയ്ക്കാത്ത രീതി: {{method}}',
+  'react.error.oauthFailed': 'OAuth ലോഗിൻ പരാജയപ്പെട്ടു',
 }

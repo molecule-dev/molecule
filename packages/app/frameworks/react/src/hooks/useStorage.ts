@@ -92,8 +92,24 @@ export function useStorageValue<T>(
    * the common case on a slow (native, encrypted) backend.
    */
   const writeVersion = useRef(0)
+  /**
+   * The latest `defaultValue`, kept out of effect dependencies: an object
+   * written inline (`{ defaultValue: { size: 1 } }`) is a new object on every
+   * render and would otherwise re-read storage on every render.
+   */
+  const defaultRef = useRef(defaultValue)
+  defaultRef.current = defaultValue
+  /** The key `value` belongs to. */
+  const [valueKey, setValueKey] = useState(key)
+  if (valueKey !== key) {
+    // A new key's value is unknown until its read lands: show what a fresh mount shows.
+    setValueKey(key)
+    setValueState(defaultValue)
+    setLoading(true)
+    setError(null)
+  }
 
-  // Load initial value
+  // Load the key's value
   useEffect(() => {
     let mounted = true
     const version = writeVersion.current
@@ -101,24 +117,25 @@ export function useStorageValue<T>(
     const loadValue = async (): Promise<void> => {
       try {
         const stored = await storage.get<T>(key)
-        if (mounted && writeVersion.current === version) {
-          setValueState(stored ?? defaultValue)
-          setLoading(false)
-        }
+        if (!mounted) return
+        // A write made after this read started holds the newer value; the read still ends loading.
+        if (writeVersion.current === version) setValueState(stored ?? defaultRef.current)
+        setLoading(false)
       } catch (err) {
-        if (mounted && writeVersion.current === version) {
+        if (!mounted) return
+        if (writeVersion.current === version) {
           setError(err instanceof Error ? err : new Error(String(err)))
-          setLoading(false)
         }
+        setLoading(false)
       }
     }
 
-    loadValue()
+    void loadValue()
 
     return () => {
       mounted = false
     }
-  }, [key, storage, defaultValue])
+  }, [key, storage])
 
   // Sync across tabs if supported — through the PROVIDER's own subscription, so
   // a non-browser backend (native, encrypted, memory) propagates the same way
@@ -128,9 +145,9 @@ export function useStorageValue<T>(
 
     return storage.subscribe(key, (next) => {
       writeVersion.current += 1
-      setValueState(next === null ? defaultValue : (next as T))
+      setValueState(next === null ? defaultRef.current : (next as T))
     })
-  }, [key, sync, storage, defaultValue])
+  }, [key, sync, storage])
 
   const setValue = useCallback(
     async (newValue: T) => {
@@ -151,13 +168,13 @@ export function useStorageValue<T>(
     writeVersion.current += 1
     try {
       await storage.remove(key)
-      setValueState(defaultValue)
+      setValueState(defaultRef.current)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)))
       throw err
     }
-  }, [key, storage, defaultValue])
+  }, [key, storage])
 
   return {
     value,

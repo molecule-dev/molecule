@@ -32,4 +32,5 @@ export const hy: ReactTranslations = {
     'useWorkspaceProvider-\u0568 \u057A\u0565\u057F\u0584 \u0567 \u0585\u0563\u057F\u0561\u0563\u0578\u0580\u056E\u057E\u056B WorkspaceProvider-\u056B \u0576\u0565\u0580\u057D\u0578\u0582\u0574',
   'react.error.unsupportedMethod':
     '\u0549\u0561\u057B\u0561\u056F\u0581\u057E\u0561\u056E \u0574\u0565\u0569\u0578\u0564: {{method}}',
+  'react.error.oauthFailed': 'OAuth-ով մուտքը ձախողվեց',
 }

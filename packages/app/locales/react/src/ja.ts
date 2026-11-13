@@ -26,4 +26,5 @@ export const ja: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProviderはWorkspaceProvider内で使用する必要があります',
   'react.error.unsupportedMethod': 'サポートされていないメソッド: {{method}}',
+  'react.error.oauthFailed': 'OAuth ログインに失敗しました',
 }

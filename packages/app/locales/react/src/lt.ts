@@ -26,4 +26,5 @@ export const lt: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider turi būti naudojamas WorkspaceProvider viduje',
   'react.error.unsupportedMethod': 'Nepalaikomas metodas: {{method}}',
+  'react.error.oauthFailed': 'Prisijungti per OAuth nepavyko',
 }

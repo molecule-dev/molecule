@@ -18,4 +18,5 @@ export const et: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider tuleb kasutada WorkspaceProvider sees',
   'react.error.unsupportedMethod': 'Toetamata meetod: {{method}}',
+  'react.error.oauthFailed': 'OAuthi sisselogimine ebaõnnestus',
 }

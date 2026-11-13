@@ -18,4 +18,5 @@ export const he: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'יש להשתמש ב-useWorkspaceProvider בתוך WorkspaceProvider',
   'react.error.unsupportedMethod': 'שיטה לא נתמכת: {{method}}',
+  'react.error.oauthFailed': 'ההתחברות באמצעות OAuth נכשלה',
 }

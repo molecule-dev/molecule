@@ -28,4 +28,5 @@ export const be: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider павінен выкарыстоўвацца ўнутры WorkspaceProvider',
   'react.error.unsupportedMethod': 'Непадтрымліваемы метад: {{method}}',
+  'react.error.oauthFailed': 'Не ўдалося ўвайсці праз OAuth',
 }

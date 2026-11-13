@@ -28,4 +28,5 @@ export const my: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider ကို WorkspaceProvider အတွင်းတွင် အသုံးပြုရပါမည်',
   'react.error.unsupportedMethod': 'ပံ့ပိုးမထားသော နည်းလမ်း: {{method}}',
+  'react.error.oauthFailed': 'OAuth ဖြင့် အကောင့်ဝင်ခြင်း မအောင်မြင်ပါ',
 }

@@ -28,4 +28,5 @@ export const az: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider WorkspaceProvider daxilində istifadə edilməlidir',
   'react.error.unsupportedMethod': 'Dəstəklənməyən metod: {{method}}',
+  'react.error.oauthFailed': 'OAuth ilə giriş alınmadı',
 }

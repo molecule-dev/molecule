@@ -30,4 +30,5 @@ export const fi: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider on käytettävä WorkspaceProvider-komponentin sisällä',
   'react.error.unsupportedMethod': 'Ei-tuettu metodi: {{method}}',
+  'react.error.oauthFailed': 'OAuth-kirjautuminen epäonnistui',
 }

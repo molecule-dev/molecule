@@ -18,4 +18,5 @@ export const yo: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider gbodo lo laarin WorkspaceProvider',
   'react.error.unsupportedMethod': 'Ona ti a ko seatileyin: {{method}}',
+  'react.error.oauthFailed': 'Wíwọlé OAuth kùnà',
 }

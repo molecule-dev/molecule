@@ -21,4 +21,5 @@ export const ne: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider WorkspaceProvider भित्र प्रयोग गर्नुपर्छ',
   'react.error.unsupportedMethod': 'समर्थित नभएको विधि: {{method}}',
+  'react.error.oauthFailed': 'OAuth लगइन असफल भयो',
 }

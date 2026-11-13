@@ -18,4 +18,5 @@ export const kn: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider ಅನ್ನು WorkspaceProvider ಒಳಗೆ ಬಳಸಬೇಕು',
   'react.error.unsupportedMethod': 'ಬೆಂಬಲಿಸದ ವಿಧಾನ: {{method}}',
+  'react.error.oauthFailed': 'OAuth ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ',
 }

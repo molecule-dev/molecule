@@ -26,4 +26,5 @@ export const sq: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider duhet të përdoret brenda një WorkspaceProvider',
   'react.error.unsupportedMethod': 'Metodë e pambështetur: {{method}}',
+  'react.error.oauthFailed': 'Hyrja me OAuth dështoi',
 }

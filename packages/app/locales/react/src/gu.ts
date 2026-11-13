@@ -25,4 +25,5 @@ export const gu: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider એ WorkspaceProvider ની અંદર વાપરવું આવશ્યક છે',
   'react.error.unsupportedMethod': 'અસમર્થિત પદ્ધતિ: {{method}}',
+  'react.error.oauthFailed': 'OAuth લોગિન નિષ્ફળ થયું',
 }

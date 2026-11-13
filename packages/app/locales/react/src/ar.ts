@@ -18,4 +18,5 @@ export const ar: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'يجب استخدام useWorkspaceProvider داخل WorkspaceProvider',
   'react.error.unsupportedMethod': 'طريقة غير مدعومة: {{method}}',
+  'react.error.oauthFailed': 'فشل تسجيل الدخول عبر OAuth',
 }

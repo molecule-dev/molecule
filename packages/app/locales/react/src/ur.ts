@@ -30,4 +30,5 @@ export const ur: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider کو WorkspaceProvider کے اندر استعمال کیا جانا چاہیے',
   'react.error.unsupportedMethod': 'غیر تعاون یافتہ طریقہ: {{method}}',
+  'react.error.oauthFailed': 'OAuth لاگ ان ناکام ہو گیا',
 }

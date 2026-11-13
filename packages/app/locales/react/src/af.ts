@@ -26,4 +26,5 @@ export const af: Partial<ReactTranslations> = {
   'react.error.useToastOutsideProvider': "useToast moet binne 'n ToastProvider gebruik word",
   'react.error.useWorkspaceOutsideProvider':
     "useWorkspaceProvider moet binne 'n Werkruimteverskaffer gebruik word.",
+  'react.error.oauthFailed': 'OAuth-aanmelding het misluk',
 }

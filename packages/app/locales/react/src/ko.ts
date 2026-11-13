@@ -24,4 +24,5 @@ export const ko: ReactTranslations = {
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider는 WorkspaceProvider 내에서 사용해야 합니다',
   'react.error.unsupportedMethod': '지원되지 않는 메서드: {{method}}',
+  'react.error.oauthFailed': 'OAuth 로그인에 실패했습니다',
 }

@@ -130,8 +130,8 @@ export function useAuth<
   // Auto-refresh on mount if requested
   useEffect(() => {
     if (autoRefresh && !state.authenticated && !state.loading) {
-      client.refresh().catch(() => {
-        // Silently fail - user is just not authenticated
+      client.refresh().catch((_error: unknown) => {
+        // No session to refresh: the state already says unauthenticated.
       })
     }
   }, [autoRefresh, client, state.authenticated, state.loading])

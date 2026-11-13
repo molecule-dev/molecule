@@ -17,4 +17,5 @@ export const zh: ReactTranslations = {
   'react.error.useToastOutsideProvider': 'useToast 必须在 ToastProvider 内使用',
   'react.error.useWorkspaceOutsideProvider': 'useWorkspaceProvider 必须在 WorkspaceProvider 内使用',
   'react.error.unsupportedMethod': '不支持的方法: {{method}}',
+  'react.error.oauthFailed': 'OAuth 登录失败',
 }
