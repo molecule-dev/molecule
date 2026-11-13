@@ -67,7 +67,7 @@ export function useCapacitorApp(options?: CapacitorAppOptions): UseCapacitorAppR
   })
 
   const doInitialize = (): void => {
-    app.initialize().catch(() => {
+    app.initialize().catch((_error) => {
       // Error is captured in state.error via the subscribe callback
     })
   }

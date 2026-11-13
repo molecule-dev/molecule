@@ -1044,30 +1044,34 @@ export function FileExplorer({
           break
         }
         case 'copyPath':
-          if (node) navigator.clipboard.writeText(node.path).catch(() => {})
+          // OS-clipboard writes can reject (insecure context, permission); the
+          // in-app selection still works, so the failure is intentionally ignored.
+          if (node) navigator.clipboard.writeText(node.path).catch((_error) => {})
           break
         case 'copyPaths': {
           const paths = Array.from(selectedPaths).join('\n')
-          navigator.clipboard.writeText(paths).catch(() => {})
+          navigator.clipboard.writeText(paths).catch((_error) => {})
           break
         }
         case 'copyRelativePath':
           if (node) {
             const rel = node.path.replace(/^\/workspace\//, '')
-            navigator.clipboard.writeText(rel).catch(() => {})
+            navigator.clipboard.writeText(rel).catch((_error) => {})
           }
           break
         case 'copyRelativePaths': {
           const rels = Array.from(selectedPaths)
             .map((p) => p.replace(/^\/workspace\//, ''))
             .join('\n')
-          navigator.clipboard.writeText(rels).catch(() => {})
+          navigator.clipboard.writeText(rels).catch((_error) => {})
           break
         }
         case 'cut':
           if (selectedPaths.size > 0) {
             setClipboard({ paths: new Set(selectedPaths), operation: 'cut' })
-            navigator.clipboard.writeText(Array.from(selectedPaths).join('\n')).catch(() => {})
+            navigator.clipboard
+              .writeText(Array.from(selectedPaths).join('\n'))
+              .catch((_error) => {})
           }
           break
         case 'paste': {
@@ -1239,20 +1243,21 @@ export function FileExplorer({
         return
       }
 
-      // Ctrl/Cmd+C: copy paths
+      // Ctrl/Cmd+C: copy paths (OS-clipboard write is best-effort; the in-app
+      // clipboard state below still tracks the selection for Ctrl/Cmd+V)
       if (isMod && e.key === 'c' && selectedPaths.size > 0) {
         e.preventDefault()
         const paths = Array.from(selectedPaths).join('\n')
-        navigator.clipboard.writeText(paths).catch(() => {})
+        navigator.clipboard.writeText(paths).catch((_error) => {})
         setClipboard({ paths: new Set(selectedPaths), operation: 'copy' })
         return
       }
 
-      // Ctrl/Cmd+X: cut
+      // Ctrl/Cmd+X: cut (same best-effort OS-clipboard write)
       if (isMod && e.key === 'x' && selectedPaths.size > 0) {
         e.preventDefault()
         setClipboard({ paths: new Set(selectedPaths), operation: 'cut' })
-        navigator.clipboard.writeText(Array.from(selectedPaths).join('\n')).catch(() => {})
+        navigator.clipboard.writeText(Array.from(selectedPaths).join('\n')).catch((_error) => {})
         return
       }
 

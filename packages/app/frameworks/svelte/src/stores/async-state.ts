@@ -5,6 +5,10 @@
  */
 import { type Writable, writable } from 'svelte/store'
 
+import { getLogger } from '@molecule/app-logger'
+
+const logger = getLogger('svelte-async-state')
+
 /**
  * Async state store.
  */
@@ -61,8 +65,15 @@ export const createAsyncState = <T>(initialValue: T): AsyncStateStore<T> => {
             store.set(resolved)
           }
         },
-        () => {
-          // Silently swallow promise errors
+        (error) => {
+          // A rejected state promise leaves the previous state in place; record the
+          // failure so the stale state is traceable instead of silently stuck.
+          logger.warn(
+            'createAsyncState: setState promise rejected; state keeps its previous value',
+            {
+              error,
+            },
+          )
         },
       )
     } else if (typeof value === 'function') {
@@ -85,8 +96,13 @@ export const createAsyncState = <T>(initialValue: T): AsyncStateStore<T> => {
             store.update((prev) => ({ ...prev, ...resolved }))
           }
         },
-        () => {
-          // Silently swallow promise errors
+        (error) => {
+          // A rejected partial-update promise leaves the previous state in place;
+          // record the failure so the stale state is traceable instead of silently stuck.
+          logger.warn(
+            'createAsyncState: extendState promise rejected; state keeps its previous value',
+            { error },
+          )
         },
       )
     } else if (typeof partial === 'function') {

@@ -284,26 +284,26 @@ export function setupI18nDefault({
   import('@molecule/app-storage')
     .then(({ get, set }) => {
       provider.onLocaleChange((locale: string) => {
-        set('molecule-locale', locale).catch(() => {
+        set('molecule-locale', locale).catch((_error) => {
           // No storage provider bonded — locale persistence disabled.
         })
       })
       get<string>('molecule-locale')
         .then((saved: string | null) => {
           if (saved && saved !== provider.getLocale()) {
-            provider.setLocale(saved).catch(() => {
+            provider.setLocale(saved).catch((_error) => {
               // The saved locale is no longer registered (pruned as unsupported,
               // or dropped in an app update) — keep the default locale instead of
               // surfacing an unhandled rejection on every boot.
             })
           }
         })
-        .catch(() => {
+        .catch((_error) => {
           // No storage provider bonded — the package can be installed without a
           // bonded provider (get() then rejects); locale restore is best-effort.
         })
     })
-    .catch(() => {
+    .catch((_error) => {
       // Storage package not installed — locale persistence disabled.
     })
 

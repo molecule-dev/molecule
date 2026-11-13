@@ -140,12 +140,14 @@ describe('retry', () => {
     global.setTimeout = fakeSleep
     try {
       const fn = vi.fn().mockRejectedValue(new Error('x'))
-      await retry(fn, {
-        maxAttempts: 4,
-        initialDelay: 100,
-        backoffFactor: 10, // would explode quickly without cap
-        maxDelay: 200,
-      }).catch(() => undefined)
+      await expect(
+        retry(fn, {
+          maxAttempts: 4,
+          initialDelay: 100,
+          backoffFactor: 10, // would explode quickly without cap
+          maxDelay: 200,
+        }),
+      ).rejects.toThrow()
       // Each delay should be ≤ 200 (the cap). 3 retries → up to 600 total.
       expect(elapsed).toBeLessThanOrEqual(3 * 200)
     } finally {

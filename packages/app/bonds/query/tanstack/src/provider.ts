@@ -166,7 +166,7 @@ class TanstackClient implements QueryClient {
 
   /** Drops every document and every in-flight fetch. */
   clear(): void {
-    this.qc.cancelQueries().catch(() => {
+    this.qc.cancelQueries().catch((_error) => {
       // Cancelling is best effort; the cache is cleared regardless.
     })
     this.qc.clear()

@@ -56,7 +56,7 @@ export function createCapacitorAppStore(options?: CapacitorAppOptions): Capacito
     })
 
     // Auto-initialize
-    app.initialize().catch(() => {
+    app.initialize().catch((_error) => {
       // Errors are captured in state.error via the coordinator
     })
 

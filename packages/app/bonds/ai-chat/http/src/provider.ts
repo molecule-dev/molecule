@@ -164,8 +164,9 @@ export class HttpChatProvider implements ChatProvider {
 
         // Read the 409 body once. The lock-held answer carries no `errorKey`; a
         // 409 with one (for example `project.deleting`) is a final answer from the
-        // server, shown at once instead of retried.
-        conflictText = await response.text().catch(() => undefined)
+        // server, shown at once instead of retried. An unreadable body falls back
+        // to undefined, which the retry loop below treats as the legacy shape.
+        conflictText = await response.text().catch((_error) => undefined)
         let hasErrorKey = false
         try {
           const parsed = conflictText ? JSON.parse(conflictText) : undefined
@@ -197,10 +198,13 @@ export class HttpChatProvider implements ChatProvider {
       }
 
       if (!response!.ok) {
+        // An unreadable error body falls back to the localized "Unknown error";
+        // the HTTP status below still identifies the failure, so the parse/read
+        // error itself is intentionally ignored.
         const text =
           (response!.status === 409
             ? conflictText
-            : await response!.text().catch(() => undefined)) ??
+            : await response!.text().catch((_error) => undefined)) ??
           t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' })
         // Parse structured limit error metadata from JSON responses. `limitType`
         // names the rule that fired; `billingAction` names the remedy the backend
@@ -430,9 +434,13 @@ export class HttpChatProvider implements ChatProvider {
       })
 
       if (!response.ok) {
+        // An unreadable error body falls back to the localized "Unknown error";
+        // the status still reaches the error event below.
         const text = await response
           .text()
-          .catch(() => t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' }))
+          .catch((_error) =>
+            t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' }),
+          )
         let errorMessage: string | undefined
         try {
           const parsed = JSON.parse(text) as { error?: string }
@@ -608,7 +616,10 @@ export class HttpChatProvider implements ChatProvider {
         headers: { ...this.config.headers, 'Content-Type': 'application/json' },
         body,
         keepalive: true,
-      }).catch(() => {})
+      }).catch((_error) => {
+        // Page-unload best effort: sendBeacon is unavailable and the page is
+        // going away — the server's own turn timeout is the real backstop.
+      })
     }
   }
 

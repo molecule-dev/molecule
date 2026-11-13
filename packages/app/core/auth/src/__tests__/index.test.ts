@@ -376,7 +376,9 @@ describe('JWT Auth Client', () => {
       })
       expect(client.isAuthenticated()).toBe(true)
       expect(client.getUser()).toMatchObject({ email: 'a@b.c' })
-      await client.logout().catch(() => {})
+      // logout() here is incidental cleanup; a rejection is not this test's subject
+      // (the Authorization header assertions below are), so it is intentionally ignored.
+      await client.logout().catch((_error) => {})
       const sent = mockFetch.mock.calls.slice(1).find((c) => c[1]?.headers?.Authorization)
       expect(sent?.[1].headers.Authorization).toBe(`Token ${token}`)
     })

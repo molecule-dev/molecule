@@ -19,6 +19,7 @@ import type {
   FixWithAIRequest,
 } from '@molecule/app-code-editor'
 import { t } from '@molecule/app-i18n'
+import { getLogger } from '@molecule/app-logger'
 
 import {
   LspClient,
@@ -1771,6 +1772,8 @@ export function createProvider(config?: MonacoConfig): MonacoEditorProvider {
 
 let monacoPreload: Promise<unknown> | null = null
 
+const logger = getLogger('monaco-editor')
+
 /**
  * Warm the Monaco core bundle ahead of the first {@link MonacoEditorProvider.mount}.
  *
@@ -1791,8 +1794,11 @@ let monacoPreload: Promise<unknown> | null = null
 export function preloadMonaco(): Promise<unknown> {
   if (!monacoPreload) {
     // Same string literal as mount()'s import so Vite emits one shared chunk.
-    monacoPreload = import('monaco-editor').catch(() => {
-      // Reset so a later mount() (or retry) can attempt the import again.
+    monacoPreload = import('monaco-editor').catch((error) => {
+      // Reset so a later mount() (or retry) can attempt the import again; a
+      // failed prefetch only costs the cache warm, and mount() surfaces any
+      // real import failure to the caller.
+      logger.debug('preloadMonaco: prefetch of the monaco-editor chunk failed', { error })
       monacoPreload = null
     })
   }

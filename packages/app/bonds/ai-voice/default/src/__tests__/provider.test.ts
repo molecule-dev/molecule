@@ -554,8 +554,10 @@ describe('DefaultVoiceProvider', () => {
   describe('stopSpeaking', () => {
     it('cancels synthesis and transitions to idle', () => {
       const provider = createProvider()
-      // Start speaking
-      provider.speak('long text').catch(() => {})
+      // Start speaking; the catch keeps the cancelled speak() rejection from
+      // going unhandled — speak's rejection path is covered in the describe
+      // above ("rejects when synthesis is not supported").
+      provider.speak('long text').catch((_error) => {})
       expect(provider.getState()).toBe('speaking')
 
       provider.stopSpeaking()
@@ -628,7 +630,9 @@ describe('DefaultVoiceProvider', () => {
     it('stops listening and speaking', () => {
       const provider = createProvider()
       provider.startListening()
-      provider.speak('Test').catch(() => {})
+      // The catch keeps the cancelled speak() rejection from going unhandled;
+      // the assertion here is the cancel call below.
+      provider.speak('Test').catch((_error) => {})
 
       provider.dispose()
 

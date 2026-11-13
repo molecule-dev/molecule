@@ -83,9 +83,11 @@ export class DefaultCopilotProvider implements AICopilotProvider {
       })
 
       if (!response.ok) {
+        // An unreadable error body falls back to the localized "Unknown error";
+        // the status still reaches the error event below.
         const text = await response
           .text()
-          .catch(() =>
+          .catch((_error) =>
             t('copilot.error.unknownError', undefined, { defaultValue: 'Unknown error' }),
           )
         let errorMessage: string | undefined

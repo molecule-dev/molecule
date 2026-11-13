@@ -138,9 +138,10 @@ export function PromptDialog({
         setPending(false)
         onClose()
       })
-      .catch(() => {
+      .catch((_error) => {
         // Deliberate: a rejection keeps the dialog open (see @remarks);
-        // the caller renders the error through `children`.
+        // the caller owns the error and renders it through `children`, so
+        // re-displaying or logging it here would duplicate that.
         setPending(false)
       })
   }

@@ -61,8 +61,9 @@ describe('profile saves and access-only sessions', () => {
     auth.subscribe(listener)
 
     // A page which saved through its own HTTP adapter used to swallow this
-    // rejection, navigate away, and seed its next form from the old user.
-    const result = await auth.refresh().catch(() => undefined)
+    // rejection, navigate away, and seed its next form from the old user. A
+    // rejection would also fail the `result?.user` assertion below.
+    const result = await auth.refresh().catch((_error) => undefined)
 
     expect(auth.getUser()).toEqual(saved)
     expect(result?.user).toEqual(saved)
@@ -110,7 +111,9 @@ describe('profile saves and access-only sessions', () => {
       const fetch = vi.fn(() => read.promise)
       vi.stubGlobal('fetch', fetch)
       const { auth, items } = setup()
-      const pending = auth[operation]().catch(() => undefined)
+      // The operation's own rejection is covered by the "reports a current-user …
+      // failure" test above; this test only asserts the canonical row survives.
+      const pending = auth[operation]().catch((_error) => undefined)
       expect(fetch).toHaveBeenCalledOnce()
       auth.setUser(saved)
       read.resolve(Response.json({ user: original }))
@@ -126,7 +129,9 @@ describe('profile saves and access-only sessions', () => {
     const fetch = vi.fn(() => read.promise)
     vi.stubGlobal('fetch', fetch)
     const { auth } = setup()
-    const pending = auth.refresh().catch(() => undefined)
+    // The refresh rejection (it lost the race to the replacement session) is not
+    // this test's subject; the surviving replacement row below is.
+    const pending = auth.refresh().catch((_error) => undefined)
     expect(fetch).toHaveBeenCalledOnce()
     const replacement = { ...original, memberKey: 'member-8' }
     auth.setSession({ accessToken: 'replacement', user: replacement })

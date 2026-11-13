@@ -11,7 +11,10 @@ import type { JSX } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { getLogger } from '@molecule/app-logger'
 import { useHttpClient } from '@molecule/app-react'
+
+const logger = getLogger('quick-open')
 
 import type { QuickOpenProps, QuickPickerItem } from '../types.js'
 import { QuickPicker } from './QuickPicker.js'
@@ -50,8 +53,8 @@ export function QuickOpen({ projectId, onFileOpen, onDismiss }: QuickOpenProps):
       .then((res) => {
         if (!cancelled) setFiles(res.data.files)
       })
-      .catch(() => {
-        // Silently fail — empty file list
+      .catch((error) => {
+        logger.warn('quick-open: file list fetch failed; showing an empty picker', { error })
       })
       .finally(() => {
         if (!cancelled) setLoading(false)

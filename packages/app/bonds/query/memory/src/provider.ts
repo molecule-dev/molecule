@@ -254,7 +254,7 @@ class MemoryQueryClient implements QueryClient {
   prefetch<T>(options: QueryOptions<T>): void {
     const entry = this.entry<T>(options.key, options.gcMs)
     if (entry.inflight || this.isFresh(entry, options.staleMs ?? this.staleMs)) return
-    this.start(entry, options).catch(() => {
+    this.start(entry, options).catch((_error) => {
       // Speculative: the real navigation reports a document that will not load.
     })
   }
@@ -320,7 +320,7 @@ class MemoryQueryClient implements QueryClient {
     }
     listener(entry.state)
     if (!entry.inflight && !this.isFresh(entry, options.staleMs ?? this.staleMs)) {
-      this.start(entry, options).catch(() => {
+      this.start(entry, options).catch((_error) => {
         // The state carries the error; observers read it from there.
       })
     }

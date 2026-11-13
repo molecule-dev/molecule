@@ -483,7 +483,7 @@ describe('network/utilities', () => {
 
       // Attach a no-op catch to prevent unhandled rejection warning
       // (the actual assertion happens below)
-      promise.catch(() => {})
+      promise.catch((_error) => {})
 
       await vi.advanceTimersByTimeAsync(3000)
 
@@ -616,7 +616,8 @@ describe('network/utilities', () => {
       // The promise should be pending (not resolved or rejected immediately)
       let resolved = false
       let rejected = false
-      fetchPromise.then(() => (resolved = true)).catch(() => (rejected = true))
+      // The error itself is not the subject; the `rejected` flag is asserted below.
+      fetchPromise.then(() => (resolved = true)).catch((_error) => (rejected = true))
 
       // Give it a tick
       await new Promise((resolve) => setTimeout(resolve, 10))

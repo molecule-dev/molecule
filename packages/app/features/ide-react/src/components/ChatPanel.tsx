@@ -3495,8 +3495,9 @@ function ChatInner({
   /** Persist undo state to the server and update local tracking. */
   const persistUndoToggle = useCallback(
     (toolCallIds: string[], undone: boolean) => {
-      http.post(`/projects/${projectId}/tool-call-undo`, { toolCallIds, undone }).catch(() => {
+      http.post(`/projects/${projectId}/tool-call-undo`, { toolCallIds, undone }).catch((error) => {
         // Non-critical — undo state won't survive refresh but still works in-session
+        logger.warn('chat-panel: persisting tool-call undo state failed', { error })
       })
     },
     [http, projectId],
@@ -5069,12 +5070,15 @@ function ChatInner({
         }
         setAutoCommitLoaded(true)
       })
-      .catch(() => {
+      .catch((error) => {
         // Settings load failed: leave auto-commit off for this session — we
         // can't know whether the user explicitly disabled it, and committing
         // against an explicit off is worse than skipping the default-on. A
         // later explicit /autocommit still persists (we never silently lose a
         // user choice).
+        logger.warn('chat-panel: project settings load failed; auto-commit left off this session', {
+          error,
+        })
         autoCommitPersistedRef.current = 0
         setAutoCommitLoaded(true)
       })
@@ -5131,9 +5135,10 @@ function ChatInner({
           setAutoApproveCommandsEnabled(s.autoApproveCommands)
         }
       })
-      .catch(() => {
+      .catch((error) => {
         // Non-fatal: the change was persisted server-side; this view just won't
         // refresh until the next signal or full settings read.
+        logger.debug('chat-panel: settings re-read after a change signal failed', { error })
       })
   }, [modelSelectionSignal, http, projectId])
 
@@ -5213,8 +5218,9 @@ function ChatInner({
       // viewer's tab keeps the in-memory switch (all this session needs) and
       // skips a PATCH that could only 403.
       if (canEdit !== false) {
-        http.patch(settingsPatchUrl(), { settings: { chatModel: fallback } }).catch(() => {
-          /* persistence is best-effort; the in-memory switch is what matters */
+        http.patch(settingsPatchUrl(), { settings: { chatModel: fallback } }).catch((error) => {
+          // Persistence is best-effort; the in-memory switch is what matters.
+          logger.warn('chat-panel: persisting the model fallback swap failed', { error })
         })
       }
     }
@@ -5325,9 +5331,12 @@ function ChatInner({
         if (scope === gitScopeRef.current && request === gitStatusRequestRef.current)
           setPendingFiles(res.data.files.length > 0 ? res.data.files : null)
       })
-      .catch(() => {
-        if (scope === gitScopeRef.current && request === gitStatusRequestRef.current)
+      .catch((error) => {
+        // Transient: the bar re-fetches on every turn boundary and file change.
+        if (scope === gitScopeRef.current && request === gitStatusRequestRef.current) {
+          logger.debug('chat-panel: git-status fetch failed; pending-files bar hidden', { error })
           setPendingFiles(null)
+        }
       })
   }, [http, projectId])
 
@@ -6593,7 +6602,10 @@ function ChatInner({
         setMode(newMode)
         http
           .patch(`/projects/${projectId}/chat-mode`, { mode: newMode, conversationId })
-          .catch(() => setMode(mode))
+          .catch((error) => {
+            logger.warn('chat-panel: persisting chat-mode change failed; reverted', { error })
+            setMode(mode)
+          })
         addSystemCard(
           newMode === 'plan'
             ? t('ide.chat.switchedToPlan', undefined, { defaultValue: 'Switched to plan mode' })
@@ -11920,13 +11932,19 @@ function ChatInner({
                                       `/projects/${projectId}/files/${f.path}`,
                                     )
                                     .then((res) => onFileChange?.(f.path, res.data.content))
-                                    .catch(() => {
-                                      /* ignore */
+                                    .catch((error) => {
+                                      logger.warn(
+                                        `chat-panel: refreshing open file "${f.path}" after revert failed; editor shows pre-revert content`,
+                                        { error },
+                                      )
                                     })
                                 }
                               })
-                              .catch(() => {
-                                /* ignore */
+                              .catch((error) => {
+                                logger.warn(
+                                  `chat-panel: git revert of "${f.path}" failed; file list unchanged`,
+                                  { error },
+                                )
                               })
                           }}
                           onKeyDown={(e) => {
@@ -12071,7 +12089,12 @@ function ChatInner({
                   setMode(newMode)
                   http
                     .patch(`/projects/${projectId}/chat-mode`, { mode: newMode, conversationId })
-                    .catch(() => setMode(mode))
+                    .catch((error) => {
+                      logger.warn('chat-panel: persisting chat-mode toggle failed; reverted', {
+                        error,
+                      })
+                      setMode(mode)
+                    })
                   addSystemCard(
                     newMode === 'plan'
                       ? t('ide.chat.switchedToPlan', undefined, {
@@ -12143,7 +12166,12 @@ function ChatInner({
                   setFastMode(next)
                   http
                     .patch(`/projects/${projectId}/chat-mode`, { fastMode: next, conversationId })
-                    .catch(() => setFastMode(fastMode))
+                    .catch((error) => {
+                      logger.warn('chat-panel: persisting fast-mode toggle failed; reverted', {
+                        error,
+                      })
+                      setFastMode(fastMode)
+                    })
                   addSystemCard(
                     next
                       ? t('ide.chat.fastModeOn', undefined, {

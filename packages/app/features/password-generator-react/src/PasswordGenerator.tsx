@@ -69,7 +69,7 @@ export function PasswordGenerator({
           if (copiedTimer.current) clearTimeout(copiedTimer.current)
           copiedTimer.current = setTimeout(() => setCopied(false), 1500)
         })
-        .catch(() => {
+        .catch((_error) => {
           // Clipboard write can reject (e.g. insecure context) — swallow
           // silently; the user can still pick or read the password.
         })

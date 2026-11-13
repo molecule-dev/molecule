@@ -5,6 +5,10 @@
  */
 import { type Ref, shallowRef } from 'vue'
 
+import { getLogger } from '@molecule/app-logger'
+
+const logger = getLogger('vue-async-state')
+
 /**
  * Return type for the {@link useAsyncState} composable.
  */
@@ -84,8 +88,12 @@ export function useAsyncState<T>(initialValue: T): UseAsyncStateReturn<T> {
         .then((resolved) => {
           state.value = resolveValue(resolved)
         })
-        .catch(() => {
-          // Silently catch promise errors
+        .catch((error) => {
+          // A rejected state promise leaves the previous state in place; record the
+          // failure so the stale state is traceable instead of silently stuck.
+          logger.warn('useAsyncState: setState promise rejected; state keeps its previous value', {
+            error,
+          })
         })
       return
     }
@@ -103,8 +111,13 @@ export function useAsyncState<T>(initialValue: T): UseAsyncStateReturn<T> {
           const partialValue = resolvePartial(resolved)
           state.value = { ...state.value, ...partialValue }
         })
-        .catch(() => {
-          // Silently catch promise errors
+        .catch((error) => {
+          // A rejected partial-update promise leaves the previous state in place;
+          // record the failure so the stale state is traceable instead of silently stuck.
+          logger.warn(
+            'useAsyncState: extendState promise rejected; state keeps its previous value',
+            { error },
+          )
         })
       return
     }

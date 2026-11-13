@@ -43,7 +43,9 @@ export function TiersUpgradeSection(): JSX.Element {
   useEffect(() => {
     let cancelled = false
     Promise.all([
-      http.get<{ planKey?: string; name?: string }>('/api/billing/status').catch(() => null),
+      // Each fetch resolves null on failure; the .then handler then keeps the
+      // defaults ('Free', empty tier list) instead of throwing.
+      http.get<{ planKey?: string; name?: string }>('/api/billing/status').catch((_error) => null),
       http
         .get<{
           data?: Array<{
@@ -52,7 +54,7 @@ export function TiersUpgradeSection(): JSX.Element {
             prices: Array<{ stripePriceId: string | null; period: string; price: string }>
           }>
         }>('/api/billing/tiers')
-        .catch(() => null),
+        .catch((_error) => null),
     ])
       .then(([statusRes, tiersRes]) => {
         if (cancelled) return
@@ -74,7 +76,10 @@ export function TiersUpgradeSection(): JSX.Element {
           )
         }
       })
-      .catch(() => {})
+      .catch((_error) => {
+        // Fetch failures already resolve to null above; this only guards the
+        // mapping, keeping the section on its defaults rather than throwing.
+      })
     return () => {
       cancelled = true
     }

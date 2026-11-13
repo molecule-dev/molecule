@@ -212,7 +212,7 @@ export class WhisperVoiceProvider implements AIVoiceProvider {
       return asr
     })()
 
-    this.pipelinePromise.catch(() => {
+    this.pipelinePromise.catch((_error) => {
       // Allow a retry on the next startListening call; the caller already
       // receives this rejection via startListening's error handling.
       this.pipelinePromise = null

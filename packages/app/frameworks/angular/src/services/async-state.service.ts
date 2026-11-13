@@ -5,6 +5,10 @@
  */
 import { BehaviorSubject, type Observable } from 'rxjs'
 
+import { getLogger } from '@molecule/app-logger'
+
+const logger = getLogger('async-state')
+
 /**
  * Async state manager.
  */
@@ -69,8 +73,15 @@ export const createAsyncState = <T>(initialState: T): AsyncStateManager<T> => {
             subject.next(resolved)
           }
         },
-        () => {
-          // Silently swallow errors from resolved Promises to avoid unhandled rejections
+        (error) => {
+          // A rejected state promise leaves the previous state in place; record the
+          // failure so the stale state is traceable instead of silently stuck.
+          logger.warn(
+            'createAsyncState: setState promise rejected; state keeps its previous value',
+            {
+              error,
+            },
+          )
         },
       )
       return
@@ -104,8 +115,13 @@ export const createAsyncState = <T>(initialState: T): AsyncStateManager<T> => {
 
           subject.next({ ...subject.getValue(), ...resolvedPartial })
         },
-        () => {
-          // Silently swallow errors from resolved Promises to avoid unhandled rejections
+        (error) => {
+          // A rejected partial-update promise leaves the previous state in place;
+          // record the failure so the stale state is traceable instead of silently stuck.
+          logger.warn(
+            'createAsyncState: extendState promise rejected; state keeps its previous value',
+            { error },
+          )
         },
       )
       return

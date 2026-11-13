@@ -129,8 +129,10 @@ describe('createPromiseState', () => {
 
     const manager = createPromiseState(asyncFn)
 
-    // Start first call
-    const firstCall = manager.call().catch(() => {})
+    // Start first call; the catch only guards against an unexpected unhandled
+    // rejection — the rejection path itself is asserted in the
+    // "propagates errors" test above.
+    const firstCall = manager.call().catch((_error) => {})
 
     // Start second call (should supersede first)
     const secondCall = manager.call()

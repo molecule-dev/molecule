@@ -121,9 +121,11 @@ export class HttpImageGeneratorProvider implements AIImageGeneratorProvider {
       })
 
       if (!response.ok) {
+        // An unreadable error body falls back to the localized "Unknown error";
+        // the status still reaches the error event below.
         const text = await response
           .text()
-          .catch(() =>
+          .catch((_error) =>
             t('imageGenerator.error.unknown', undefined, { defaultValue: 'Unknown error' }),
           )
         let errorMessage: string | undefined

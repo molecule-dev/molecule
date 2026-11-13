@@ -226,7 +226,9 @@ describe('error interceptor notification context', () => {
     const client = createFetchClient({ retry: false })
     client.addErrorInterceptor(notificationInterceptor(notify))
 
-    await client.get('/caller-owns-this-error', { options }).catch(() => {})
+    // The request rejects; the caller owns that error — asserted here so the
+    // rejection is not silently dropped.
+    await expect(client.get('/caller-owns-this-error', { options })).rejects.toThrow()
 
     expect(notify).toHaveBeenCalledTimes(0)
   })
@@ -247,7 +249,9 @@ describe('error interceptor notification context', () => {
     const client = createFetchClient({ retry: false })
     client.addErrorInterceptor(notificationInterceptor(notify))
 
-    await client.get('/ordinary-error').catch(() => {})
+    // The request rejects; the caller owns that error — asserted here so the
+    // rejection is not silently dropped.
+    await expect(client.get('/ordinary-error')).rejects.toThrow()
 
     expect(notify).toHaveBeenCalledTimes(1)
   })

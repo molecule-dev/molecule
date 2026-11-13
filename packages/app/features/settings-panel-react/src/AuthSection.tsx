@@ -60,7 +60,7 @@ export function AuthSection(): JSX.Element | null {
         }
         setTwoFactorEnabled(Boolean(u?.twoFactorEnabled))
       })
-      .catch(() => {
+      .catch((_error) => {
         /* status read is best-effort; defaults to disabled */
       })
     return () => {

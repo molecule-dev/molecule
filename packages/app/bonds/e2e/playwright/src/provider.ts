@@ -54,9 +54,11 @@ export const provider: E2EProvider = {
     const page = await context.newPage()
     const closePage = page.close.bind(page)
     page.close = async (closeOptions?: Parameters<Page['close']>[0]) => {
-      await closePage(closeOptions).catch(() => undefined)
-      await context.close().catch(() => undefined)
-      await browser.close().catch(() => undefined)
+      // Teardown is best-effort at each layer: a layer that fails to close
+      // (already closed, browser crashed) must not stop the remaining layers.
+      await closePage(closeOptions).catch((_error) => undefined)
+      await context.close().catch((_error) => undefined)
+      await browser.close().catch((_error) => undefined)
     }
     return page
   },

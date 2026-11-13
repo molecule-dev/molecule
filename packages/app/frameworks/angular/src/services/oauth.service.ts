@@ -232,14 +232,18 @@ export function createOAuthState(options?: OAuthOptions): OAuthStateManager {
       })
 
       if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as { error?: unknown } | null
+        // The error body may not be JSON; the HTTP status and surfaceError below
+        // already carry the failure, so the parse error is intentionally ignored.
+        const data = (await response.json().catch((_error) => null)) as { error?: unknown } | null
         surfaceError(
           data && typeof data.error === 'string' && data.error ? data.error : 'OAuth login failed',
         )
         return
       }
 
-      const data: unknown = await response.json().catch(() => null)
+      // A non-JSON success body leaves `user` null; the token comes from the
+      // response headers either way, so the parse error is intentionally ignored.
+      const data: unknown = await response.json().catch((_error) => null)
       // Store the token from the response
       const authHeader =
         response.headers.get('authorization') || response.headers.get('set-authorization')

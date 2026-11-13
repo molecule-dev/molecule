@@ -160,7 +160,9 @@ export class DefaultAssistantProvider implements AIAssistantProvider {
       })
 
       if (!response.ok) {
-        const text = await response.text().catch(() => response.statusText)
+        // The error body may be empty or unreadable; the HTTP status above already
+        // identifies the failure, so falling back to statusText is sufficient.
+        const text = await response.text().catch((_error) => response.statusText)
         const errorEvent: AssistantStreamEvent = {
           type: 'error',
           message: `HTTP ${response.status}: ${text}`,

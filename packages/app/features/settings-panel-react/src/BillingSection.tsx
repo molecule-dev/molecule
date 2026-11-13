@@ -42,7 +42,7 @@ export function BillingSection({
         const name = body?.name
         if (typeof name === 'string' && name) setLivePlan(name)
       })
-      .catch(() => {
+      .catch((_error) => {
         /* fallback to the prop-supplied plan label */
       })
     return () => {

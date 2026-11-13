@@ -2,14 +2,15 @@
  * App-side analytics bond accessor and convenience functions.
  *
  * Bond packages call `setProvider()` during setup. All convenience
- * functions silently swallow errors so analytics never breaks the UI.
+ * functions record failures at debug level and swallow them so analytics
+ * never breaks the UI.
  * If no provider is bonded, a no-op provider is used.
  *
  * @module
  */
 
 import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
-import { snapshotCredentials } from '@molecule/app-logger'
+import { getLogger, snapshotCredentials } from '@molecule/app-logger'
 
 import type {
   AnalyticsEvent,
@@ -19,6 +20,8 @@ import type {
 } from './types.js'
 
 const BOND_TYPE = 'app-analytics'
+
+const logger = getLogger('analytics')
 
 const noopProvider: AnalyticsProvider = {
   identify: async () => {},
@@ -87,58 +90,82 @@ export const hasProvider = (): boolean => {
 }
 
 /**
- * Identifies the current user for analytics tracking. Errors are silently ignored.
+ * Identifies the current user for analytics tracking. Errors are logged at debug level and ignored.
  *
  * @param user - The user properties (ID, email, name, traits).
- * @returns A promise that resolves when identification completes or fails silently.
+ * @returns A promise that resolves when identification completes or the failure is logged at debug and ignored.
  */
 export const identify = (user: AnalyticsUserProps): Promise<void> =>
   getProvider()
     .identify(user)
-    .catch(() => {})
+    .catch((error) => {
+      logger.debug('analytics identify failed (best-effort, never breaks the caller)', { error })
+    })
 
 /**
- * Tracks a named event with optional properties. Errors are silently ignored.
+ * Tracks a named event with optional properties. Errors are logged at debug level and ignored.
  *
  * @param event - The event to track (name and optional properties).
- * @returns A promise that resolves when tracking completes or fails silently.
+ * @returns A promise that resolves when tracking completes or the failure is logged at debug and ignored.
  */
 export const track = (event: AnalyticsEvent): Promise<void> =>
   getProvider()
     .track(event)
-    .catch(() => {})
+    .catch((error) => {
+      logger.debug(
+        `analytics track of "${event.name}" failed (best-effort, never breaks the caller)`,
+        {
+          error,
+        },
+      )
+    })
 
 /**
- * Tracks a page view event. Errors are silently ignored.
+ * Tracks a page view event. Errors are logged at debug level and ignored.
  *
  * @param pageView - The page view data (name, path, referrer, etc.).
- * @returns A promise that resolves when page tracking completes or fails silently.
+ * @returns A promise that resolves when page tracking completes or the failure is logged at debug and ignored.
  */
 export const page = (pageView: AnalyticsPageView): Promise<void> =>
   getProvider()
     .page(pageView)
-    .catch(() => {})
+    .catch((error) => {
+      logger.debug(
+        `analytics page view of "${pageView.path}" failed (best-effort, never breaks the caller)`,
+        {
+          error,
+        },
+      )
+    })
 
 /**
- * Associates the current user with a group/organization. Errors are silently ignored.
+ * Associates the current user with a group/organization. Errors are logged at debug level and ignored.
  *
  * @param groupId - The group identifier.
  * @param traits - Optional traits describing the group.
- * @returns A promise that resolves when group association completes or fails silently.
+ * @returns A promise that resolves when group association completes or the failure is logged at debug and ignored.
  */
 export const group = (groupId: string, traits?: Record<string, unknown>): Promise<void> =>
-  (getProvider().group?.(groupId, traits) ?? Promise.resolve()).catch(() => {})
+  (getProvider().group?.(groupId, traits) ?? Promise.resolve()).catch((error) => {
+    logger.debug(`analytics group "${groupId}" failed (best-effort, never breaks the caller)`, {
+      error,
+    })
+  })
 
 /**
- * Resets the analytics state (e.g. on logout). Errors are silently ignored.
- * @returns A promise that resolves when reset completes or fails silently.
+ * Resets the analytics state (e.g. on logout). Errors are logged at debug level and ignored.
+ * @returns A promise that resolves when reset completes or the failure is logged at debug and ignored.
  */
 export const reset = (): Promise<void> =>
-  (getProvider().reset?.() ?? Promise.resolve()).catch(() => {})
+  (getProvider().reset?.() ?? Promise.resolve()).catch((error) => {
+    logger.debug('analytics reset failed (best-effort, never breaks the caller)', { error })
+  })
 
 /**
- * Flushes any queued analytics events to the backend. Errors are silently ignored.
- * @returns A promise that resolves when flush completes or fails silently.
+ * Flushes any queued analytics events to the backend. Errors are logged at debug level and ignored.
+ * @returns A promise that resolves when flush completes or the failure is logged at debug and ignored.
  */
 export const flush = (): Promise<void> =>
-  (getProvider().flush?.() ?? Promise.resolve()).catch(() => {})
+  (getProvider().flush?.() ?? Promise.resolve()).catch((error) => {
+    logger.debug('analytics flush failed (best-effort, never breaks the caller)', { error })
+  })

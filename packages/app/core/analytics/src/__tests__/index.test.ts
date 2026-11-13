@@ -18,6 +18,19 @@ vi.mock('@molecule/app-bond', () => ({
   isBonded: mockIsBonded,
 }))
 
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  // The app-bond mock above is type-blind, so the real getLogger's internal
+  // bond lookup would break; a no-op logger is all these tests need.
+  getLogger: () => ({
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  }),
+}))
+
 import {
   flush,
   getProvider,

@@ -45,7 +45,9 @@ export async function sendChatRequest({
   })
 
   if (!response.ok) {
-    const text = await response.text().catch(() => '')
+    // The error body may be empty or unreadable; the thrown error still carries
+    // the HTTP status, so the read failure is intentionally ignored.
+    const text = await response.text().catch((_error) => '')
     throw new Error(`HTTP ${response.status}${text ? `: ${text}` : ''}`)
   }
 

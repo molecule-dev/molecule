@@ -3,8 +3,12 @@
  * Utility functions for keyboard module
  */
 
+import { getLogger } from '@molecule/app-logger'
+
 import { hasProvider, hide, onHide, onShow } from './provider.js'
 import type { KeyboardShowEvent } from './types.js'
+
+const logger = getLogger('app-keyboard')
 
 /**
  * Automatically hide the keyboard when the user clicks outside of input elements.
@@ -24,7 +28,10 @@ export function hideOnOutsideClick(element?: HTMLElement): () => void {
       target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
 
     if (!isInput && hasProvider()) {
-      hide().catch(() => {})
+      hide().catch((error) => {
+        // Best-effort UI nicety: if hiding fails the keyboard simply stays.
+        logger.debug('hideOnOutsideClick: hide() failed; keyboard stays open', { error })
+      })
     }
   }
 

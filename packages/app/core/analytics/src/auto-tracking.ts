@@ -8,8 +8,12 @@
  * @module
  */
 
+import { getLogger } from '@molecule/app-logger'
+
 import { getProvider } from './provider.js'
 import type { AnalyticsUserProps } from './types.js'
+
+const logger = getLogger('analytics/auto-tracking')
 
 // ============================================================================
 // Minimal interfaces — web
@@ -321,10 +325,24 @@ export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
     if (identity) {
       analytics()
         .identify(identity)
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug(
+            'analytics identify on sign-in failed (best-effort, never breaks the caller)',
+            {
+              error,
+            },
+          )
+        })
       analytics()
         .track({ name, properties: { userId: identity.userId } })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug(
+            `analytics track of "${name}" failed (best-effort, never breaks the caller)`,
+            {
+              error,
+            },
+          )
+        })
       return
     }
     // No identity means the app said this session has none (or the profile has
@@ -332,7 +350,11 @@ export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
     // undefined`, but do not drop the sign-in event either.
     analytics()
       .track({ name })
-      .catch(() => {})
+      .catch((error) => {
+        logger.debug(`analytics track of "${name}" failed (best-effort, never breaks the caller)`, {
+          error,
+        })
+      })
   }
 
   // Auth events
@@ -348,15 +370,36 @@ export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
         case 'logout':
           analytics()
             .track({ name: 'auth.logout' })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug(
+                'analytics track of "auth.logout" failed (best-effort, never breaks the caller)',
+                {
+                  error,
+                },
+              )
+            })
           analytics()
             .reset?.()
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug(
+                'analytics reset on logout failed (best-effort, never breaks the caller)',
+                {
+                  error,
+                },
+              )
+            })
           break
         case 'error':
           analytics()
             .track({ name: 'auth.error', properties: { error: event.error } })
-            .catch(() => {})
+            .catch((error) => {
+              logger.debug(
+                'analytics track of "auth.error" failed (best-effort, never breaks the caller)',
+                {
+                  error,
+                },
+              )
+            })
           break
       }
     })
@@ -371,7 +414,11 @@ export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
           path: location.pathname,
           url: `${location.pathname}${location.search}${location.hash}`,
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug(`analytics page view of "${location.pathname}" failed (best-effort)`, {
+            error,
+          })
+        })
     })
     cleanups.push(removeListener)
   }
@@ -389,7 +436,14 @@ export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
             message: error.message,
           },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug(
+            'analytics track of "http.error" failed (best-effort, never breaks the caller)',
+            {
+              error,
+            },
+          )
+        })
       return error
     })
     cleanups.push(removeInterceptor)
@@ -404,14 +458,28 @@ export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
             name: 'app.foreground',
             properties: { previous: change.previous },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug(
+              'analytics track of "app.foreground" failed (best-effort, never breaks the caller)',
+              {
+                error,
+              },
+            )
+          })
       } else if (change.current === 'background' && change.previous !== 'background') {
         analytics()
           .track({
             name: 'app.background',
             properties: { previous: change.previous },
           })
-          .catch(() => {})
+          .catch((error) => {
+            logger.debug(
+              'analytics track of "app.background" failed (best-effort, never breaks the caller)',
+              {
+                error,
+              },
+            )
+          })
       }
     })
     cleanups.push(removeStateListener)
@@ -422,7 +490,14 @@ export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
           name: 'deeplink.open',
           properties: { url },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug(
+            'analytics track of "deeplink.open" failed (best-effort, never breaks the caller)',
+            {
+              error,
+            },
+          )
+        })
     })
     cleanups.push(removeUrlListener)
   }
@@ -439,7 +514,14 @@ export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
             foreground: event.foreground,
           },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug(
+            'analytics track of "push.received" failed (best-effort, never breaks the caller)',
+            {
+              error,
+            },
+          )
+        })
     })
     cleanups.push(removeReceivedListener)
 
@@ -453,7 +535,14 @@ export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
             actionId: event.actionId,
           },
         })
-        .catch(() => {})
+        .catch((error) => {
+          logger.debug(
+            'analytics track of "push.tapped" failed (best-effort, never breaks the caller)',
+            {
+              error,
+            },
+          )
+        })
     })
     cleanups.push(removeActionListener)
   }

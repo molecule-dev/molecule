@@ -86,8 +86,10 @@ beforeAll(async () => {
 }, 60_000)
 
 afterAll(async () => {
-  await tab?.close().catch(() => undefined)
-  await browser?.close().catch(() => undefined)
+  // Teardown is best-effort: the browser may never have launched (skipped
+  // suite) or already died, and that must not fail cleanup of the rest.
+  await tab?.close().catch((_error) => undefined)
+  await browser?.close().catch((_error) => undefined)
   hub.close()
   await new Promise((r) => server.close(r))
 })

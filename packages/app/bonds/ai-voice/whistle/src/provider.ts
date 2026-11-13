@@ -186,7 +186,7 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
     // retry never happens for THIS provider — a transient download failure on
     // first use would fail every later startListening until the page reloads.
     // The rejection still reaches the current caller through `promise` itself.
-    promise.catch(() => {
+    promise.catch((_error) => {
       if (this.enginePromise === promise) this.enginePromise = null
     })
     this.enginePromise = promise

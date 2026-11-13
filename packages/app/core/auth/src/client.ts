@@ -756,8 +756,9 @@ export const createJWTAuthClient = <
       // `{ errors: { credentials: ['is invalid'] } }` map, field arrays, a top-level array —
       // remains on `body` so the app can show the server's own messages. Credential values
       // are redacted in place; non-secret values are unchanged. A non-JSON body (HTML error
-      // page, empty) parses to `{}`, exactly as before.
-      const body: unknown = redactCredentials(await response.json().catch(() => ({})))
+      // page, empty) parses to `{}`, exactly as before. The parse error itself carries no
+      // information the HTTP status does not, so it is intentionally ignored.
+      const body: unknown = redactCredentials(await response.json().catch((_error) => ({})))
       const fields = (body ?? {}) as { errorKey?: unknown; error?: unknown; message?: unknown }
       // JSON is untyped: structured validation errors belong on `body`, never
       // in the translation key or its fallback text.
@@ -1193,16 +1194,22 @@ export const createJWTAuthClient = <
       // that renders from it), so a dropped `initialize()` must not leave this
       // `'loading'`. The catch keeps a restore nobody awaited from becoming an
       // unhandled rejection: the state is the answer a reader asked for.
-      void startRestoreOnce().catch(() => undefined)
+      void startRestoreOnce().catch((error) => {
+        logger.debug('auth session restore started by getState() failed', { error })
+      })
       return state
     },
     isAuthenticated: () => {
-      void startRestoreOnce().catch(() => undefined)
+      void startRestoreOnce().catch((error) => {
+        logger.debug('auth session restore started by isAuthenticated() failed', { error })
+      })
       return state.authenticated
     },
 
     getUser: () => {
-      void startRestoreOnce().catch(() => undefined)
+      void startRestoreOnce().catch((error) => {
+        logger.debug('auth session restore started by getUser() failed', { error })
+      })
       return state.user
     },
 
@@ -1627,7 +1634,15 @@ export const createJWTAuthClient = <
       // Resolve, never reject: this is awaited before every authenticated request, so a
       // restore that failed must not turn into a rejected request — the request goes out
       // unauthenticated instead (the same outcome as not waiting at all).
-      return restoreInFlight ? restoreInFlight.catch(() => undefined) : Promise.resolve()
+      return restoreInFlight
+        ? restoreInFlight.catch((error) => {
+            logger.debug(
+              'auth session restore failed; whenRestored() resolves so the request proceeds unauthenticated',
+              { error },
+            )
+            return undefined
+          })
+        : Promise.resolve()
     },
 
     async validateSession(): Promise<void> {
@@ -1723,13 +1738,17 @@ export const createJWTAuthClient = <
       // Subscribing is a read of the state in all but name: a component that only
       // subscribes (and renders from the callback) must get a decision, not a
       // permanent `'loading'` (see `startRestoreOnce`).
-      void startRestoreOnce().catch(() => undefined)
+      void startRestoreOnce().catch((error) => {
+        logger.debug('auth session restore started by subscribe() failed', { error })
+      })
       stateListeners.add(callback)
       return () => stateListeners.delete(callback)
     },
 
     onAuthChange(callback: (state: AuthState<T>) => void): () => void {
-      void startRestoreOnce().catch(() => undefined)
+      void startRestoreOnce().catch((error) => {
+        logger.debug('auth session restore started by onAuthChange() failed', { error })
+      })
       stateListeners.add(callback)
       return () => stateListeners.delete(callback)
     },

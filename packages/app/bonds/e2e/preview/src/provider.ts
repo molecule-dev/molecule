@@ -458,11 +458,14 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
       const reply = await cmd({ op: 'evaluate', source, arg }, timeout)
       if (reply.pageClosed) {
         // The action navigated the page away before it could answer (a link click, a form submit).
+        // The wait is a best-effort sync with the new document: it may time out
+        // when no new page announces itself, and the outcome is `navigated`
+        // either way, so the timeout rejection is intentionally ignored.
         await awaitNavigation(
           String(reply.pageId ?? hub.current ?? ''),
           navigationTimeout,
           null,
-        ).promise.catch(() => undefined)
+        ).promise.catch((_error) => undefined)
         return { ok: true, navigated: true }
       }
       if (reply.ok === false) throw new Error(String(reply.error ?? 'evaluate failed'))

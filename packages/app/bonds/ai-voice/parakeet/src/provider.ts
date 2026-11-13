@@ -240,7 +240,7 @@ export class ParakeetVoiceProvider implements AIVoiceProvider {
       return parakeet
     })()
 
-    this.modelPromise.catch(() => {
+    this.modelPromise.catch((_error) => {
       // Allow a retry on the next startListening call; the caller already
       // receives this rejection via startListening's error handling.
       this.modelPromise = null

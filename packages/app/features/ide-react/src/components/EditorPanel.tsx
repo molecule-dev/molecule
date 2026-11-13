@@ -9,8 +9,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useCallback } from 'react'
 
 import type { EditorConfig } from '@molecule/app-code-editor'
+import { getLogger } from '@molecule/app-logger'
 import { useEditor, useEditorProvider, useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+
+const logger = getLogger('editor-panel')
 
 import { useNarrowViewport } from '../hooks/useViewport.js'
 import type { EditorPanelProps } from '../types.js'
@@ -218,7 +221,10 @@ export function EditorPanel({
         .then(() => {
           onEditorReadyRef.current?.()
         })
-        .catch(() => {
+        .catch((error) => {
+          logger.error('editor-panel: mounting the code editor failed; panel stays empty', {
+            error,
+          })
           mountedRef.current = false
         })
     } else {
