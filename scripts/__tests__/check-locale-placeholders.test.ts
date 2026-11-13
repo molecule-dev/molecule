@@ -43,6 +43,15 @@ function runnableLines(text: string): string {
     .join('\n')
 }
 
+/**
+ * The commands the hook hands to `scripts/run-on-index.mjs`, which runs each one
+ * against an export of the tree the commit carries (one quoted string per line).
+ */
+function hookIndexCommands(hook: string): string[] {
+  const block = /node scripts\/run-on-index\.mjs((?:\s*\\\n\s*"[^"]*")+)/.exec(runnableLines(hook))
+  return block ? [...block[1].matchAll(/"([^"]*)"/g)].map((m) => m[1]) : []
+}
+
 describe('locale placeholder gate', () => {
   it('reports no placeholder drift anywhere in the fleet', () => {
     const { problems, filesScanned, packagesScanned } = analyzeLocalePlaceholders()
@@ -63,8 +72,10 @@ describe('locale placeholder gate', () => {
   it('is actually invoked by the husky pre-commit hook', () => {
     const hookPath = join(ROOT, '.husky', 'pre-commit')
     expect(existsSync(hookPath)).toBe(true)
-    expect(runnableLines(readFileSync(hookPath, 'utf8'))).toMatch(
-      /npm run check:locale-placeholders\b/,
+    // The hook runs it on the tree the commit carries (run-on-index.mjs), not
+    // the shared worktree.
+    expect(hookIndexCommands(readFileSync(hookPath, 'utf8'))).toContain(
+      'scripts/check-locale-placeholders.js',
     )
   })
 

@@ -21,6 +21,15 @@ function runnableLines(text: string): string {
     .join('\n')
 }
 
+/**
+ * The commands the hook hands to `scripts/run-on-index.mjs`, which runs each one
+ * against an export of the tree the commit carries (one quoted string per line).
+ */
+function hookIndexCommands(hook: string): string[] {
+  const block = /node scripts\/run-on-index\.mjs((?:\s*\\\n\s*"[^"]*")+)/.exec(runnableLines(hook))
+  return block ? [...block[1].matchAll(/"([^"]*)"/g)].map((m) => m[1]) : []
+}
+
 describe('i18n parity guard (cross-cutting-i18n)', () => {
   it('reports no NEW missing keys: every literal t() key resolves in its owning bond', () => {
     // newMissing() = keys used in code via a literal `t('ns.key')` whose
@@ -40,6 +49,10 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
   it('is invoked by the husky pre-commit hook', () => {
     const hookPath = join(ROOT, '.husky', 'pre-commit')
     expect(existsSync(hookPath)).toBe(true)
-    expect(runnableLines(readFileSync(hookPath, 'utf8'))).toMatch(/npm run check:i18n-parity\b/)
+    // The hook runs it on the tree the commit carries (run-on-index.mjs), not
+    // the shared worktree; the script and its --check flag must both be there.
+    expect(hookIndexCommands(readFileSync(hookPath, 'utf8'))).toContain(
+      'scripts/check-i18n-parity.js --check',
+    )
   })
 })
