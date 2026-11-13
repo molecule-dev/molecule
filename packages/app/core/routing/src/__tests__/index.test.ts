@@ -313,6 +313,14 @@ describe('@molecule/app-routing', () => {
     })
 
     describe('getLocation', () => {
+      it('keeps a bare ? and # as React Router does', () => {
+        const bare = createMemoryRouter({ initialEntries: ['/items?', '/docs#'] })
+        expect(bare.getLocation()).toMatchObject({ pathname: '/docs', search: '', hash: '#' })
+        bare.back()
+        expect(bare.getLocation()).toMatchObject({ pathname: '/items', search: '?', hash: '' })
+        bare.destroy()
+      })
+
       it('should return current location', () => {
         const location = router.getLocation()
         expect(location.pathname).toBe('/')

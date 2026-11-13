@@ -62,12 +62,8 @@ export const parseLocation = (path: string, state?: unknown): RouteLocation => {
   const queryIndex = beforeHash.indexOf('?')
   const pathname = queryIndex === -1 ? beforeHash : beforeHash.slice(0, queryIndex)
   const search = queryIndex === -1 ? '' : beforeHash.slice(queryIndex)
-  return {
-    pathname: pathname || '/',
-    search: search === '?' ? '' : search,
-    hash: hash === '#' ? '' : hash,
-    state,
-  }
+  // A bare `?` or `#` is kept, as React Router's `parsePath` keeps it.
+  return { pathname: pathname || '/', search, hash, state }
 }
 
 /**

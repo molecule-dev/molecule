@@ -43814,7 +43814,8 @@
      "fields": {
       "hash": "value",
       "pathname": "value",
-      "search": "value"
+      "search": "value",
+      "state": "value"
      }
     },
     "snapshots": [
@@ -43822,7 +43823,8 @@
       "result": {
        "hash": "",
        "pathname": "/items",
-       "search": "?page=2"
+       "search": "?page=2",
+       "state": null
       },
       "route": "/items?page=2"
      }
@@ -43841,7 +43843,8 @@
      "fields": {
       "hash": "value",
       "pathname": "value",
-      "search": "value"
+      "search": "value",
+      "state": "value"
      }
     },
     "snapshots": [
@@ -43849,7 +43852,8 @@
       "result": {
        "hash": "",
        "pathname": "/",
-       "search": ""
+       "search": "",
+       "state": null
       },
       "route": "/"
      },
@@ -43857,7 +43861,8 @@
       "result": {
        "hash": "",
        "pathname": "/a",
-       "search": ""
+       "search": "",
+       "state": null
       },
       "route": "/a"
      },
@@ -43865,7 +43870,8 @@
       "result": {
        "hash": "",
        "pathname": "/b",
-       "search": "?x=1"
+       "search": "?x=1",
+       "state": null
       },
       "route": "/b?x=1"
      }
@@ -43884,7 +43890,8 @@
      "fields": {
       "hash": "value",
       "pathname": "value",
-      "search": "value"
+      "search": "value",
+      "state": "value"
      }
     },
     "snapshots": [
@@ -43892,7 +43899,8 @@
       "result": {
        "hash": "#setup",
        "pathname": "/docs/intro",
-       "search": ""
+       "search": "",
+       "state": null
       },
       "route": "/docs/intro"
      }
@@ -43911,7 +43919,8 @@
      "fields": {
       "hash": "value",
       "pathname": "value",
-      "search": "value"
+      "search": "value",
+      "state": "value"
      }
     },
     "snapshots": [
@@ -43919,7 +43928,8 @@
       "result": {
        "hash": "",
        "pathname": "/",
-       "search": ""
+       "search": "",
+       "state": null
       },
       "route": "/"
      },
@@ -43927,7 +43937,8 @@
       "result": {
        "hash": "#top",
        "pathname": "/a",
-       "search": ""
+       "search": "",
+       "state": null
       },
       "route": "/a"
      },
@@ -43935,7 +43946,8 @@
       "result": {
        "hash": "#end",
        "pathname": "/b",
-       "search": "?x=1"
+       "search": "?x=1",
+       "state": null
       },
       "route": "/b?x=1"
      }
@@ -43954,7 +43966,8 @@
      "fields": {
       "hash": "value",
       "pathname": "value",
-      "search": "value"
+      "search": "value",
+      "state": "value"
      }
     },
     "snapshots": [
@@ -43962,7 +43975,8 @@
       "result": {
        "hash": "",
        "pathname": "/items",
-       "search": "?"
+       "search": "?",
+       "state": null
       },
       "route": "/items?"
      }
@@ -43981,7 +43995,8 @@
      "fields": {
       "hash": "value",
       "pathname": "value",
-      "search": "value"
+      "search": "value",
+      "state": "value"
      }
     },
     "snapshots": [
@@ -43989,7 +44004,8 @@
       "result": {
        "hash": "#top",
        "pathname": "/docs",
-       "search": ""
+       "search": "",
+       "state": null
       },
       "route": "/docs"
      },
@@ -43997,7 +44013,8 @@
       "result": {
        "hash": "#section-two",
        "pathname": "/docs",
-       "search": ""
+       "search": "",
+       "state": null
       },
       "route": "/docs"
      }
@@ -44016,7 +44033,8 @@
      "fields": {
       "hash": "value",
       "pathname": "value",
-      "search": "value"
+      "search": "value",
+      "state": "value"
      }
     },
     "snapshots": [
@@ -44024,7 +44042,8 @@
       "result": {
        "hash": "",
        "pathname": "/",
-       "search": ""
+       "search": "",
+       "state": null
       },
       "route": "/"
      },
@@ -44032,7 +44051,8 @@
       "result": {
        "hash": "",
        "pathname": "/a",
-       "search": ""
+       "search": "",
+       "state": null
       },
       "route": "/a"
      },
