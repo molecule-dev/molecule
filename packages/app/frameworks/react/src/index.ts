@@ -21,6 +21,15 @@
  * seed does not follow asynchronous restoration; use `useProfileForm` to hydrate
  * pristine fields while preserving edits.
  *
+ * **Local draft state with late data:** `useForm({ defaultValues: { title: '' } }).asState('title')`
+ * returns `[title, setTitle, fillTitle]`. Use `setTitle` for user edits and `fillTitle`
+ * for request/effect answers; a fill never replaces a dirty value. `asState()` without
+ * a field returns the whole object and preserves dirty fields individually. Both edit
+ * setters accept functional updates. Pass `resetKey: recordId` to `useForm` when the
+ * same component edits different records, so each record starts a fresh draft.
+ * External `values` also preserve dirty fields by default; `resetOptions: { keepDirtyValues: false }`
+ * explicitly requests replacement. Composite values remain one form field.
+ *
  * **Session restore:** `useAuth().status === 'loading'` is undecided: wait for
  * it and redirect only on `status === 'unauthenticated'`. `'unavailable'` keeps
  * the session candidate for retry, but `isAuthenticated` can be false and `user`

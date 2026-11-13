@@ -4,6 +4,7 @@
  * @module
  */
 
+import type { Dispatch, SetStateAction } from 'react'
 import { useCallback, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 
 import type {
@@ -63,6 +64,10 @@ function useFormSnapshot<T extends FormValuesConstraint<T>, S>(
  * native provider until the app bonds its own.
  */
 export interface UseFormOptions<T extends FormValuesConstraint<T>> extends FormOptions<T> {
+  /** External values preserve dirty fields by default. Set keepDirtyValues: false to replace them explicitly. */
+  resetOptions?: FormResetOptions
+  /** New record identity. Serialize composite keys; fresh objects/arrays must not reset drafts on each render. */
+  resetKey?: string | number | boolean | bigint | null
   /**
    * Explicit form factory for this one form. Defaults to the bonded forms
    * provider; pass it only to pin a specific provider instance.
@@ -97,6 +102,16 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
   ) => (event?: React.FormEvent) => Promise<void>
   reset: (values?: Partial<T>) => void
   updateValues: (values: Partial<T>, resetOptions?: FormResetOptions) => void
+  /** Whole-form state tuple: edits mark only changed fields dirty; fills preserve them. */
+  asState(): readonly [
+    T,
+    Dispatch<SetStateAction<T>>,
+    (values: Partial<T> | ((previous: T) => Partial<T>)) => void,
+  ]
+  /** One field as [value, edit, fill]. Fill preserves edits made before data arrives. */
+  asState<K extends keyof T>(
+    name: K,
+  ): readonly [T[K], Dispatch<SetStateAction<T[K]>>, Dispatch<SetStateAction<T[K]>>]
   validate: () => Promise<boolean>
 }
 
@@ -146,18 +161,20 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
 export function useForm<T extends FormValuesConstraint<T> = Record<string, unknown>>(
   options: UseFormOptions<T> = {},
 ): UseFormResult<T> {
-  const { createForm = createBondedForm, ...formOptions } = options
+  const { createForm = createBondedForm, resetKey, ...formOptions } = options
 
   // Create form controller once
   const formRef = useRef<FormController<T> | null>(null)
-  if (!formRef.current) {
+  const formKey = useRef(resetKey)
+  if (!formRef.current || !Object.is(formKey.current, resetKey)) {
     formRef.current = createForm(formOptions)
+    formKey.current = resetKey
   }
   const form = formRef.current
   const mounted = useRef(true)
   const values = options.values
-  const keepDirtyValues = options.resetOptions?.keepDirtyValues === true
-  const lastExternalValues = useRef<{ values: Partial<T> } | null>(null)
+  const keepDirtyValues = options.resetOptions?.keepDirtyValues !== false
+  const lastExternalValues = useRef<{ form: FormController<T>; values: Partial<T> } | null>(null)
 
   useLayoutEffect(() => {
     mounted.current = true
@@ -175,16 +192,19 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     // baseline without making an unchanged record external again.
     if (
       lastExternalValues.current !== null &&
+      lastExternalValues.current.form === form &&
       formValuesEqual(lastExternalValues.current.values, values)
     ) {
       return
     }
-    lastExternalValues.current = { values: snapshotFormValue(values) }
+    lastExternalValues.current = { form, values: snapshotFormValue(values) }
     form.updateValues(values, { keepDirtyValues })
   }, [form, keepDirtyValues, values])
 
   const readState = useCallback(() => form.getState(), [form])
   const formState = useFormSnapshot(form, readState)
+  const stateSnapshots = useMemo(() => new WeakMap<FormController<T>, FormState<T>>(), [])
+  stateSnapshots.set(form, formState)
 
   // Memoized methods
   const register = useCallback(
@@ -227,12 +247,69 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     [form],
   )
 
+  const stateTuples = useMemo(
+    () =>
+      new Map<
+        keyof T | undefined,
+        readonly [
+          Dispatch<SetStateAction<T | T[keyof T]>>,
+          (
+            value:
+              Partial<T> | T[keyof T] | ((previous: T | T[keyof T]) => Partial<T> | T[keyof T]),
+          ) => void,
+        ]
+      >(),
+    [form],
+  )
+  const asState = useCallback(
+    (name?: keyof T) => {
+      const read = (): T | T[keyof T] =>
+        name === undefined ? form.getState().values : form.getValue(name)
+      const snapshot = stateSnapshots.get(form) ?? form.getState()
+      const visible = name === undefined ? snapshot.values : snapshot.values[name]
+      const existing = stateTuples.get(name)
+      if (existing) return [visible, ...existing] as const
+      const edit = (value: SetStateAction<T | T[keyof T]>): void => {
+        const next =
+          typeof value === 'function'
+            ? (value as (previous: T | T[keyof T]) => T | T[keyof T])(read())
+            : value
+        if (name !== undefined) {
+          form.setValue(name as string, next as T[keyof T])
+          return
+        }
+        const values = next as T
+        for (const field of Object.keys(
+          Object.assign({}, form.getState().values, values),
+        ) as Extract<keyof T, string>[]) {
+          if (!formValuesEqual(form.getValue(field), values[field]))
+            form.setValue(field, values[field])
+        }
+      }
+      const fill = (
+        value: Partial<T> | T[keyof T] | ((previous: T | T[keyof T]) => Partial<T> | T[keyof T]),
+      ): void => {
+        const next =
+          typeof value === 'function'
+            ? (value as (previous: T | T[keyof T]) => Partial<T> | T[keyof T])(read())
+            : value
+        form.updateValues(
+          name === undefined ? (next as Partial<T>) : ({ [name]: next } as Partial<T>),
+          { keepDirtyValues: true },
+        )
+      }
+      stateTuples.set(name, [edit, fill])
+      return [visible, edit, fill] as const
+    },
+    [form, stateTuples, stateSnapshots],
+  ) as UseFormResult<T>['asState']
+
   const validate = useCallback(() => form.validate(), [form])
 
   const handleSubmit = useCallback(
     (onSubmit: (values: T) => void | Promise<void>) => {
       return form.handleSubmit((values) => {
-        if (mounted.current) return onSubmit(values)
+        if (mounted.current && formRef.current === form) return onSubmit(values)
       })
     },
     [form],
@@ -252,6 +329,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     handleSubmit,
     reset,
     updateValues,
+    asState,
     validate,
   }
 }
