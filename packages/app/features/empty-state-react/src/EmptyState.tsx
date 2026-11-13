@@ -3,42 +3,40 @@ import type { JSX, ReactElement, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link EmptyState}. */
-export type EmptyStateProps = {
+export interface EmptyStateProps {
   /** Visual — typically an `<Icon>` or `<img>`. Rendered in a circular badge above the heading. */
   icon?: ReactNode
+  /** Primary heading for a general, unselected collection. */
+  title: ReactNode
+  /** Supporting description shown below the heading. */
+  description?: ReactNode
+  /** Optional action for a general empty state. */
+  action?: ReactNode
+  /** Selected views use the component's view-owned props instead. */
+  view?: never
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
   /** Override outer wrapper classes (for per-app dashed-border, background, padding, etc.). */
   className?: string
   /** Override the icon-badge wrapper classes. */
   iconWrapperClassName?: string
-} & (
-  | {
-      /** Primary heading for a general, unselected collection. */
-      title: ReactNode
-      /** Supporting description shown below the heading. */
-      description?: ReactNode
-      /** Optional action for a general empty state. */
-      action?: ReactNode
-      view?: never
-    }
-  | {
-      /**
-       * The selected view owns its message AND recovery action. Store these
-       * together beside the view declaration and pass the selected entry.
-       * A filtered or personal view cannot silently inherit a generic empty
-       * message or omit the way back to another view. Translate text in the app.
-       */
-      view: {
-        title: ReactNode
-        description?: ReactNode
-        action: ReactElement
-      }
-      title?: never
-      description?: never
-      action?: never
-    }
-)
+}
+
+/** Selected-view content stays together, without changing the extendable public interface. */
+type SelectedViewEmptyStateProps = Omit<
+  EmptyStateProps,
+  'title' | 'description' | 'action' | 'view'
+> & {
+  /** The selected view's translated message and required recovery element. */
+  view: {
+    title: ReactNode
+    description?: ReactNode
+    action: ReactElement
+  }
+  title?: never
+  description?: never
+  action?: never
+}
 
 /**
  * Generic centred empty-state panel for lists, feeds, boards, and tables.
@@ -68,7 +66,7 @@ export function EmptyState({
   dataMolId,
   className,
   iconWrapperClassName,
-}: EmptyStateProps): JSX.Element {
+}: EmptyStateProps | SelectedViewEmptyStateProps): JSX.Element {
   const cm = getClassMap()
   const content = view ?? { title, description, action }
   return (

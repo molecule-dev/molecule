@@ -7,9 +7,9 @@ import { describe, expect, it } from 'vitest'
 function diagnostics(value: string): string[] {
   const file = join(import.meta.dirname, '../../empty-state-contract.ts')
   const source = [
-    "import type { EmptyStateProps } from './src/EmptyState.js'",
+    "import { EmptyState, type EmptyStateProps } from './src/EmptyState.js'",
     "import { createElement } from 'react'",
-    `const props: EmptyStateProps = ${value}`,
+    `const props: Parameters<typeof EmptyState>[0] = ${value}`,
     'void props',
   ].join('\n')
   const options: ts.CompilerOptions = {
@@ -58,5 +58,13 @@ describe('selected-view empty-state public contract', () => {
         "{ title: 'Nothing here', view: { title: 'No assigned work', action: createElement('button') } }",
       ),
     ).not.toEqual([])
+  })
+
+  it('keeps the existing public props interface extendable', () => {
+    expect(
+      diagnostics(
+        "{ title: 'No records' }; interface AppEmptyProps extends EmptyStateProps { trackingId?: string }; const extended: AppEmptyProps = { title: 'No records' }; void extended",
+      ),
+    ).toEqual([])
   })
 })
