@@ -6,6 +6,7 @@
  */
 
 import {
+  type AfterViewChecked,
   type AfterViewInit,
   ChangeDetectorRef,
   Component,
@@ -151,7 +152,7 @@ type DropdownAlign = 'start' | 'center' | 'end'
         [attr.data-testid]="menuTestId()"
         (keydown)="handleMenuKeyDown($event)"
       >
-        @for (item of items; track $index) {
+        @for (item of items; track keyForItem(item, $index)) {
           @if (item.separator) {
             <div [class]="cm().dropdownSeparator" role="separator"></div>
           } @else {
@@ -183,7 +184,7 @@ type DropdownAlign = 'start' | 'center' | 'end'
       </div></ng-template
     >`,
 })
-export class Dropdown implements AfterViewInit, DoCheck, OnDestroy {
+export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy {
   /** Dropdown trigger (node-valued prop). */
   trigger?: unknown
   /** Dropdown items. */
@@ -245,7 +246,13 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy {
   private lastRoute = ''
   /** Which end a keyboard open focuses (`first`, or `last` for ArrowUp). */
   private pendingOpenFocus: 'first' | 'last' = 'first'
-  /** The template used as the item label when a label is a TemplateRef. */
+  /** The menu item element `focusActive` put DOM focus on last. */
+  private focusedItemEl: HTMLElement | null = null
+  /** The `items` the previous view check rendered; focus is restored only after they change. */
+  private checkedItems: DropdownItem<string>[] | null = null
+  /** Whether `focusedItemEl` held DOM focus before this check updated the view. */
+  private itemHadFocus = false
+  /** Closes the menu when the route (path or query) changes, and on mount, as React's effect does. */
   private readonly routeEffect = effect(() => {
     const location = this.router.location()
     const key = `${location.pathname}${location.search}`
@@ -271,6 +278,19 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy {
    */
   asTemplate(value: unknown): TemplateRef<unknown> | null {
     return value instanceof TemplateRef ? value : null
+  }
+
+  /**
+   * The key React renders a menu item with (`key={item.separator ?
+   * \`separator-${index}\` : item.value}`); `@for` tracks it, so a node
+   * survives an items update whose key is unchanged and moves on a reorder.
+   *
+   * @param item - The menu item.
+   * @param index - The item's index in `items`.
+   * @returns The React key.
+   */
+  keyForItem(item: DropdownItem<string>, index: number): string {
+    return item.separator ? `separator-${index}` : item.value
   }
 
   /**
@@ -484,6 +504,8 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy {
    * every pass (props steps and state changes both land here).
    */
   ngDoCheck(): void {
+    // Before the view (and its `@for`) updates: note whether the item still has focus.
+    this.itemHadFocus = this.focusedItemEl !== null && document.activeElement === this.focusedItemEl
     this.syncMenu()
   }
 
@@ -586,7 +608,29 @@ export class Dropdown implements AfterViewInit, DoCheck, OnDestroy {
   /** Moves DOM focus to the roving-tabindex active item (React's focus effect). */
   private focusActive(): void {
     if (!this.isOpen() || this.activeIndex() < 0) return
-    this.elementForIndex(this.activeIndex())?.focus()
+    const el = this.elementForIndex(this.activeIndex())
+    el?.focus()
+    this.focusedItemEl = el
+  }
+
+  /**
+   * After the view (and its `@for` reorder) has updated: React's keyed
+   * reconciliation moves the focused menu item's node without detaching it,
+   * so its DOM focus survives an items update, while `@for` detaches the
+   * views it moves and drops focus to the body. After an items update, while
+   * the menu is open, put focus back on the item only if it had focus before
+   * the update. Focus the user moved elsewhere stays there, as in React.
+   */
+  ngAfterViewChecked(): void {
+    const itemsChanged = this.items !== this.checkedItems
+    this.checkedItems = this.items
+    if (!this.isOpen()) {
+      this.focusedItemEl = null
+      return
+    }
+    if (!itemsChanged || !this.itemHadFocus || !this.menuEl) return
+    const restore = this.focusedItemEl
+    if (restore?.isConnected && document.activeElement !== restore) restore.focus()
   }
 
   /**

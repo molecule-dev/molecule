@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Component, createMemo, For, splitProps } from 'solid-js'
+import { type Component, createMemo, Index, splitProps } from 'solid-js'
 
 import type { SkeletonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -77,9 +77,11 @@ export const SkeletonText: Component<{ lines?: number; className?: string }> = (
 
   return (
     <div class={cm.cn(cm.skeletonTextContainer, props.className)}>
-      <For each={Array.from({ length: lines() }, (_, i) => i)}>
-        {(i: number) => <Skeleton height={16} width={i === lines() - 1 ? '60%' : '100%'} />}
-      </For>
+      {/* React keys the lines `key={i}`, so `<Index>` — a position's node
+          survives a line-count change and its width updates. */}
+      <Index each={Array.from({ length: lines() }, (_, i) => i)}>
+        {(i) => <Skeleton height={16} width={i() === lines() - 1 ? '60%' : '100%'} />}
+      </Index>
     </div>
   )
 }

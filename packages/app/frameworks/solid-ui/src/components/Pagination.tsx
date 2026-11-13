@@ -11,6 +11,7 @@ import type { PaginationProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
+import { createKeyedList } from '../utilities/keyedList.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
@@ -111,6 +112,14 @@ export const Pagination: Component<PaginationProps> = (props) => {
     generatePaginationRange(page(), totalPages(), local.siblings ?? 1, local.boundaries ?? 1),
   )
 
+  // React keys the range entries (`key={item}`, `key={`ellipsis-${index}`}`):
+  // an entry's node survives an update whose key is unchanged. `<For>` keys by
+  // object identity, so the render iterates the KEYS; a page number's key is
+  // the number itself, an ellipsis's is its position.
+  const rangeKeys = createKeyedList(range, (item, index) =>
+    item === 'ellipsis' ? `ellipsis-${index}` : item,
+  )
+
   const handlePageChange = (newPage: number): void => {
     if (newPage >= 1 && newPage <= totalPages() && newPage !== page() && !local.disabled) {
       local.onChange(newPage)
@@ -168,31 +177,31 @@ export const Pagination: Component<PaginationProps> = (props) => {
         </Show>
 
         {/* Page numbers */}
-        <For each={range()}>
-          {(item: number | 'ellipsis') =>
-            item === 'ellipsis' ? (
-              <li>
-                <Ellipsis />
-              </li>
-            ) : (
+        <For each={rangeKeys.keys()}>
+          {(key) =>
+            typeof key === 'number' ? (
               <li>
                 <button
                   type="button"
-                  class={buttonClasses(item === page())}
-                  onClick={() => handlePageChange(item)}
+                  class={buttonClasses(key === page())}
+                  onClick={() => handlePageChange(key)}
                   disabled={local.disabled}
                   aria-label={
-                    local.labels?.goToPage?.(item) ??
+                    local.labels?.goToPage?.(key) ??
                     t(
                       'ui.pagination.goToPage',
-                      { page: item },
+                      { page: key },
                       { defaultValue: 'Go to page {{page}}' },
                     )
                   }
-                  aria-current={item === page() ? 'page' : undefined}
+                  aria-current={key === page() ? 'page' : undefined}
                 >
-                  {item}
+                  {key}
                 </button>
+              </li>
+            ) : (
+              <li>
+                <Ellipsis />
               </li>
             )
           }

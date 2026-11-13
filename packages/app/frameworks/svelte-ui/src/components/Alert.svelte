@@ -5,9 +5,9 @@
 -->
 <script lang="ts">
   import type { IconName } from '@molecule/app-icons'
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { AlertProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -42,7 +42,7 @@
     testId,
   }: AlertProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const alertVariant = $derived(statusVariantMap[status] || 'default')
   const iconName = $derived(statusIconMap[alertVariant])
@@ -74,7 +74,7 @@
       type="button"
       onclick={onDismiss}
       class={cm.alertDismiss}
-      aria-label={dismissLabel ?? $t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })}
+      aria-label={dismissLabel ?? t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })}
     >
       <IconGlyph name="x-mark" className={cm.iconSm} />
     </button>

@@ -18,6 +18,7 @@ import type { TabsProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
+import { createKeyedList } from '../utilities/keyedList.js'
 
 /**
  * Renders the Tabs component.
@@ -97,6 +98,15 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
   const activeItem = (): (typeof local.items)[number] | undefined =>
     local.items.find((item) => item.value === activeValue())
 
+  // React reconciles the tab buttons by `key={item.value}`: a tab's node
+  // survives an items update whose key is unchanged and moves on a reorder.
+  // `<For>` keys by object identity, so the render iterates the KEYS and reads
+  // each item through the lookup.
+  const tabs = createKeyedList(
+    () => local.items,
+    (item) => item.value,
+  )
+
   return (
     <div class={local.className} style={toStyleProps(local.style)} data-testid={local.testId}>
       <div
@@ -107,25 +117,20 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
         role="tablist"
         onKeyDown={handleKeyDown}
       >
-        <For each={local.items}>
-          {(item: {
-            value: string
-            label?: unknown
-            icon?: unknown
-            disabled?: boolean
-            content?: unknown
-          }) => {
-            const isActive = (): boolean => item.value === activeValue()
+        <For each={tabs.keys()}>
+          {(key) => {
+            const item = (): TabsProps<string>['items'][number] => tabs.get(key)!
+            const isActive = (): boolean => item().value === activeValue()
             return (
               <button
                 ref={(node) => {
-                  tabRefs[item.value] = node
+                  tabRefs[item().value] = node
                 }}
-                id={`${idBase}-tab-${item.value}`}
+                id={`${idBase}-tab-${item().value}`}
                 type="button"
                 role="tab"
                 aria-selected={isActive()}
-                aria-controls={`${idBase}-tabpanel-${item.value}`}
+                aria-controls={`${idBase}-tabpanel-${item().value}`}
                 // The ACTIVE look itself stays a `data-[state=active]` CSS
                 // attribute selector baked into `cm.tabsTrigger()`'s output
                 // (see core/ui's `TabsClassOptions` doc) — this attribute is
@@ -134,17 +139,17 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
                 // Roving tabindex: only the active tab is a Tab stop —
                 // arrow keys (handled above) move focus among the rest.
                 tabindex={isActive() ? 0 : -1}
-                disabled={item.disabled}
-                onClick={() => selectTab(item.value)}
+                disabled={item().disabled}
+                onClick={() => selectTab(item().value)}
                 class={cm.cn(
                   cm.tabsTrigger({ variant: local.variant, size: local.size }),
                   local.fitted && cm.tabTriggerFitted,
                 )}
               >
-                <Show when={item.icon}>
-                  <span class={cm.tabTriggerIcon}>{item.icon as JSX.Element}</span>
+                <Show when={item().icon}>
+                  <span class={cm.tabTriggerIcon}>{item().icon as JSX.Element}</span>
                 </Show>
-                {item.label as JSX.Element}
+                {item().label as JSX.Element}
               </button>
             )
           }}

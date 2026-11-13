@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Component, For, type JSX, Show, splitProps } from 'solid-js'
+import { type Component, Index, type JSX, Show, splitProps } from 'solid-js'
 
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -43,27 +43,30 @@ export const PageHeader: Component<PageHeaderProps> = (props) => {
     >
       <Show when={local.breadcrumbs && local.breadcrumbs.length > 0}>
         <nav class={cm.pageHeaderBreadcrumbs} aria-label="Breadcrumb">
-          <For each={local.breadcrumbs}>
-            {(crumb: { href?: string; label: unknown }, index: () => number) => (
+          {/* React keys the breadcrumbs `key={index}` (`<React.Fragment
+              key={index}>`), so `<Index>` — a position's node survives and its
+              content updates, exactly the index-key behavior. */}
+          <Index each={local.breadcrumbs}>
+            {(crumb, index) => (
               <>
-                <Show when={index() > 0}>
+                <Show when={index > 0}>
                   <span class={cm.pageHeaderBreadcrumbSeparator} aria-hidden="true">
                     /
                   </span>
                 </Show>
                 <Show
-                  when={crumb.href}
+                  when={crumb().href}
                   fallback={
-                    <span class={cm.pageHeaderBreadcrumbItem}>{crumb.label as JSX.Element}</span>
+                    <span class={cm.pageHeaderBreadcrumbItem}>{crumb().label as JSX.Element}</span>
                   }
                 >
-                  <a href={crumb.href} class={cm.pageHeaderBreadcrumbItem}>
-                    {crumb.label as JSX.Element}
+                  <a href={crumb().href} class={cm.pageHeaderBreadcrumbItem}>
+                    {crumb().label as JSX.Element}
                   </a>
                 </Show>
               </>
             )}
-          </For>
+          </Index>
         </nav>
       </Show>
       <div class={cm.flex({ justify: 'between', align: 'center' })}>

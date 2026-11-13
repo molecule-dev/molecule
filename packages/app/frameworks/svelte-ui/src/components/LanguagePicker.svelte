@@ -4,11 +4,11 @@
   and closes the modal. No hardcoded language list.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents } from '../dom.js'
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { LanguagePickerProps } from '../types.js'
   import Icon from './Icon.svelte'
@@ -28,11 +28,10 @@
     ...rest
   }: LanguagePickerProps = $props()
 
-  const { t, locale, locales, setLocale } = useI18n()
+  const { t, locale, locales, setLocale } = useTranslation()
   const cm = $derived(getClassMap())
   let open = $state(false)
 
-  const ariaLabel = $derived($t(labelKey, {}, { defaultValue: labelDefault }))
   const current = $derived($locales.find((l) => l.code === $locale))
   const currentName = $derived(current?.name ?? $locale)
   const triggerLabel = $derived(
@@ -46,7 +45,7 @@
   <button
     type="button"
     data-mol-id="language-picker-trigger"
-    aria-label={ariaLabel}
+    aria-label={t(labelKey, {}, { defaultValue: labelDefault })}
     onclick={() => (open = true)}
     class={cm.cn(cm.languagePickerTrigger, className)}
     use:reactStyle={style}
@@ -60,7 +59,7 @@
 <Modal
   {open}
   onClose={() => (open = false)}
-  title={$t(modalTitleKey, {}, { defaultValue: modalTitleDefault })}
+  title={t(modalTitleKey, {}, { defaultValue: modalTitleDefault })}
   size="lg"
   data-mol-id="language-picker-modal"
 >

@@ -6,9 +6,9 @@
   whole header renders nothing on desktop.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useI18n } from '../framework.js'
   import { useShellContext } from '../shell-context.js'
   import { reactStyle } from '../style.js'
   import type { ResponsiveAppShellTopBarProps } from '../types.js'
@@ -24,12 +24,9 @@
     testId,
   }: ResponsiveAppShellTopBarProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const shell = useShellContext('ResponsiveAppShell.TopBar')
-  const triggerLabel = $derived(
-    $t('appShell.openMenu', {}, { defaultValue: 'Open navigation menu' }),
-  )
 </script>
 
 {#if !(mobileOnly && shell.isDesktop)}
@@ -51,7 +48,7 @@
       {#if shell.hasDrawer && !shell.isDesktop}<button
           type="button"
           onclick={shell.openDrawer}
-          aria-label={triggerLabel}
+          aria-label={t('appShell.openMenu', {}, { defaultValue: 'Open navigation menu' })}
           aria-expanded={shell.drawerOpen}
           aria-controls={shell.drawerId}
           data-mol-id="shell-drawer-open"

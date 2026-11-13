@@ -1,4 +1,4 @@
-import { type Component, createMemo, For, type JSX, splitProps } from 'solid-js'
+import { type Component, createMemo, Index, type JSX, splitProps } from 'solid-js'
 
 import { getIcon, type IconName } from '@molecule/app-icons'
 
@@ -125,17 +125,19 @@ export const Icon: Component<IconProps> = (props) => {
             class={local.className}
             {...(rest as JSX.SvgSVGAttributes<SVGSVGElement>)}
           >
-            <For each={data.paths}>
+            {/* React keys the paths `key={i}`, so `<Index>` — a position's
+                node survives and its attributes update. */}
+            <Index each={data.paths}>
               {(p) => (
                 <path
-                  d={p.d}
-                  fill={p.fill}
-                  fill-rule={p.fillRule}
-                  clip-rule={p.clipRule}
-                  opacity={p.opacity}
+                  d={p().d}
+                  fill={p().fill}
+                  fill-rule={p().fillRule}
+                  clip-rule={p().clipRule}
+                  opacity={p().opacity}
                 />
               )}
-            </For>
+            </Index>
           </svg>
         )
       })()}

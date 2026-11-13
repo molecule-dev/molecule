@@ -3,10 +3,10 @@
   direction, error wiring and option-level disable.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reflectChecked, useGeneratedId } from '../dom.js'
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { RadioGroupProps } from '../types.js'
 
@@ -25,7 +25,7 @@
     disabled,
   }: RadioGroupProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const generatedName = useGeneratedId()
   const groupName = $derived(name || generatedName)
@@ -52,7 +52,7 @@
   use:reactStyle={style}
   data-testid={testId}
   role="radiogroup"
-  aria-label={label ?? $t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })}
+  aria-label={label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })}
   aria-invalid={error ? 'true' : undefined}
   aria-describedby={error ? errorId : undefined}
 >

@@ -9,6 +9,9 @@ import type { UIComponentCases } from '../../spec.js'
 /** PageHeader: title, description, actions slot, breadcrumb trail, overrides. */
 export const pageHeaderCases: UIComponentCases = {
   component: 'PageHeader',
+  keyedLists: [
+    { prop: 'breadcrumbs', selector: 'nav a, nav span', caseName: 'breadcrumbs with links' },
+  ],
   cases: [
     { name: 'title only', props: { title: 'Dashboard' } },
     {

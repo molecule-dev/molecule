@@ -2,9 +2,9 @@
   Progress: an accessible progressbar with label row and clamped values.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { ProgressProps } from '../types.js'
 
@@ -21,7 +21,7 @@
     testId,
   }: ProgressProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const percentage = $derived(Math.min(Math.max((value / max) * 100, 0), 100))
 </script>
@@ -46,7 +46,7 @@
     aria-valuenow={indeterminate ? undefined : Math.min(Math.max(value, 0), max)}
     aria-valuemin="0"
     aria-valuemax={max}
-    aria-label={label ?? $t('ui.progress.label', undefined, { defaultValue: 'Progress' })}
+    aria-label={label ?? t('ui.progress.label', undefined, { defaultValue: 'Progress' })}
   >
     <div
       class={cm.cn(

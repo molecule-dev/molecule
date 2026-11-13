@@ -4,11 +4,11 @@
   and shows the configured dark/light icon accordingly.
 -->
 <script lang="ts">
+  import { useTheme, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents } from '../dom.js'
-  import { useI18n, useTheme } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { ThemeToggleProps } from '../types.js'
   import Icon from './Icon.svelte'
@@ -25,7 +25,7 @@
   }: ThemeToggleProps = $props()
 
   const { mode, toggleTheme } = useTheme()
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
 </script>
 
@@ -34,7 +34,7 @@
   data-mol-id="theme-toggle"
   data-mode={$mode}
   aria-pressed={$mode === 'dark'}
-  aria-label={$t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
+  aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
   onclick={toggleTheme}
   class={cm.cn(cm.themeToggleButton, className)}
   use:reactStyle={style}

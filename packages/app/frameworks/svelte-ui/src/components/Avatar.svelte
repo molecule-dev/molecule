@@ -3,9 +3,9 @@
   fallback automatically.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useI18n } from '../framework.js'
   import { reactInitials } from '../initials.js'
   import { reactStyle } from '../style.js'
   import type { AvatarProps } from '../types.js'
@@ -25,7 +25,7 @@
 
   let imageError = $state(false)
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const showFallback = $derived(!src || imageError)
   const avatarSize = $derived(typeof size === 'number' ? undefined : size)
@@ -39,7 +39,7 @@
   {#if !showFallback}
     <img
       {src}
-      alt={alt || name || $t('ui.avatar.alt', undefined, { defaultValue: 'Avatar' })}
+      alt={alt || name || t('ui.avatar.alt', undefined, { defaultValue: 'Avatar' })}
       class={cm.avatarImage}
       onerror={() => {
         imageError = true

@@ -3,9 +3,9 @@
   content.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { PageShellProps } from '../types.js'
 
@@ -21,7 +21,7 @@
     automationId,
   }: PageShellProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
 </script>
 
@@ -39,8 +39,8 @@
           class={cm.pageShellSidebarToggle}
           onclick={onSidebarToggle}
           aria-label={sidebarCollapsed
-            ? $t('ui.pageShell.expandSidebar', undefined, { defaultValue: 'Expand sidebar' })
-            : $t('ui.pageShell.collapseSidebar', undefined, { defaultValue: 'Collapse sidebar' })}
+            ? t('ui.pageShell.expandSidebar', undefined, { defaultValue: 'Expand sidebar' })
+            : t('ui.pageShell.collapseSidebar', undefined, { defaultValue: 'Collapse sidebar' })}
         >
           {sidebarCollapsed ? '▶' : '◀'}
         </button>

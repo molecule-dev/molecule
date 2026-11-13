@@ -7,6 +7,7 @@
   react to Escape and Tab, and reference-counts the body scroll lock.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import {
@@ -20,7 +21,6 @@
     unlockBodyScroll,
     useGeneratedId,
   } from '../dom.js'
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { ModalProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -45,8 +45,11 @@
     ...rest
   }: ModalProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
+  const resolvedCloseLabel = $derived(
+    closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' }),
+  )
   // Per-instance title id AND stack key (React's useId): a hardcoded
   // 'modal-title' would duplicate the id whenever two modals are mounted.
   const instanceId = useGeneratedId()
@@ -172,7 +175,7 @@
               onclick={onClose}
               class={cm.dialogClose}
               data-mol-id="modal-close"
-              aria-label={closeLabel ?? $t('ui.modal.close', undefined, { defaultValue: 'Close' })}
+              aria-label={resolvedCloseLabel}
             >
               <IconGlyph name="x-mark" className={cm.iconMd} />
             </button>
@@ -184,7 +187,7 @@
           onclick={onClose}
           class={cm.dialogCloseFloating}
           data-mol-id="modal-close"
-          aria-label={closeLabel ?? $t('ui.modal.close', undefined, { defaultValue: 'Close' })}
+          aria-label={resolvedCloseLabel}
         >
           <IconGlyph name="x-mark" className={cm.iconMd} />
         </button>

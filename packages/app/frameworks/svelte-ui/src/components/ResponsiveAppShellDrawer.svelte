@@ -8,6 +8,7 @@
   navigation. Renders nothing on desktop or while closed.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import {
@@ -17,7 +18,6 @@
     spreadEvents,
     unlockBodyScroll,
   } from '../dom.js'
-  import { useI18n } from '../framework.js'
   import { useShellContext } from '../shell-context.js'
   import { reactStyle } from '../style.js'
   import type { ResponsiveAppShellDrawerProps } from '../types.js'
@@ -36,14 +36,13 @@
     testId,
   }: ResponsiveAppShellDrawerProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const shell = useShellContext('ResponsiveAppShell.Drawer')
+  // Rendered at two sites, so one derived carries it; `t` reads the binding's
+  // locale version, so it follows a locale switch without a store read.
   const resolvedNavLabel = $derived(
-    navLabel ?? $t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' }),
-  )
-  const closeLabel = $derived(
-    $t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' }),
+    navLabel ?? t('appShell.primaryNav', {}, { defaultValue: 'Primary navigation' }),
   )
 
   let panelRef = $state<HTMLDivElement | null>(null)
@@ -176,7 +175,7 @@
             </div>{:else}<span aria-hidden="true"></span>{/if}{#if showCloseButton}<button
               type="button"
               onclick={shell.closeDrawer}
-              aria-label={closeLabel}
+              aria-label={t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' })}
               data-mol-id={closeDataMolId}
               class={cm.cn(
                 cm.flex({ align: 'center', justify: 'center' }),

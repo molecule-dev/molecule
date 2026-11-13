@@ -46,13 +46,46 @@ const withLocaleSwitch = (family: UIComponentCases): UIComponentCases => {
   return { ...family, cases: [...family.cases, switched] }
 }
 
-/** Every case family, in a stable order, each with its locale-switch case. */
+/**
+ * For each keyed list the family declares, its base case with the rendered items marked and
+ * then the same items passed again as new, equal objects; and the same with the items
+ * reversed. React keeps (and on a reorder, moves) the nodes whose key is unchanged.
+ *
+ * @param family - One component's cases.
+ * @returns The family with those cases added.
+ */
+const withKeyedLists = (family: UIComponentCases): UIComponentCases => {
+  const derived = (family.keyedLists ?? []).flatMap(({ prop, selector, caseName }) => {
+    const base = caseName ? family.cases.find((c) => c.name === caseName) : family.cases[0]
+    if (!base) throw new Error(`${family.component}: keyed list case "${caseName}" not found`)
+    const items = base.props?.[prop]
+    if (!Array.isArray(items) || items.length < 2)
+      throw new Error(`${family.component} "${base.name}": ${prop} must list at least two items`)
+    const again = (name: string, next: unknown[]): UICase => ({
+      ...base,
+      name: `${base.name}, then ${prop} ${name}`,
+      interactions: [
+        ...(base.interactions ?? []),
+        { type: 'mark', selector },
+        { type: 'props', props: { [prop]: next } },
+      ],
+    })
+    return [
+      again('again as equal new objects', structuredClone(items)),
+      again('reversed', structuredClone(items).reverse()),
+    ]
+  })
+  return derived.length ? { ...family, cases: [...family.cases, ...derived] } : family
+}
+
+/** Every case family, in a stable order, each with its locale-switch and keyed-list cases. */
 export const uiCaseFamilies: UIComponentCases[] = (Object.values(allCases) as UIComponentCases[])
   .sort((a, b) => a.component.localeCompare(b.component))
   .map(withLocaleSwitch)
+  .map(withKeyedLists)
 
 /** The React reference results every framework must reproduce. */
-export const uiGoldens = goldensJson as unknown as UIGoldens
+export const uiGoldens: UIGoldens = goldensJson
 
 /**
  * Cases that do not match yet, per component. `'(export)'` under any React

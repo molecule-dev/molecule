@@ -4,7 +4,7 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type VNodeChild } from 'vue'
+import { defineComponent, Fragment, h, type PropType, type VNodeChild } from 'vue'
 
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -46,18 +46,19 @@ export const PageHeader = defineComponent({
 
       const children: VNodeChild[] = []
       if (breadcrumbs && breadcrumbs.length > 0) {
-        const crumbs: VNodeChild[] = []
-        breadcrumbs.forEach((crumb, index) => {
-          if (index > 0)
-            crumbs.push(
-              h('span', { class: cm.pageHeaderBreadcrumbSeparator, 'aria-hidden': 'true' }, '/'),
-            )
-          crumbs.push(
+        const crumbs: VNodeChild[] = breadcrumbs.map((crumb, index) =>
+          // React renders one `<React.Fragment key={index}>` per crumb, so Vue
+          // keys the same fragment: a keyed list keeps (and moves) whole
+          // crumb+separator units instead of diffing the flat child array.
+          h(Fragment, { key: index }, [
+            index > 0
+              ? h('span', { class: cm.pageHeaderBreadcrumbSeparator, 'aria-hidden': 'true' }, '/')
+              : null,
             crumb.href
               ? h('a', { href: crumb.href, class: cm.pageHeaderBreadcrumbItem }, crumb.label)
               : h('span', { class: cm.pageHeaderBreadcrumbItem }, crumb.label),
-          )
-        })
+          ]),
+        )
         children.push(
           h('nav', { class: cm.pageHeaderBreadcrumbs, 'aria-label': 'Breadcrumb' }, crumbs),
         )

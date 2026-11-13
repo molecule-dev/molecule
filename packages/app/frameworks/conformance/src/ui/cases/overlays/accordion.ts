@@ -15,6 +15,7 @@ const ITEMS = [
 /** Accordion: single vs multiple expansion, collapsible, controlled value, disabled items, onChange. */
 export const accordionCases: UIComponentCases = {
   component: 'Accordion',
+  keyedLists: [{ prop: 'items', selector: 'button' }],
   cases: [
     { name: 'defaults (all collapsed)', props: { items: ITEMS } },
     { name: 'defaultValue single', props: { items: ITEMS, defaultValue: 'shipping' } },

@@ -16,10 +16,10 @@
 <script lang="ts">
   import { untrack } from 'svelte'
 
+  import { useLocation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { bodyPortal, useGeneratedId } from '../dom.js'
-  import { useLocation } from '../framework.js'
   import { type CSSStyle, reactStyle } from '../style.js'
   import type { DropdownItem, DropdownProps } from '../types.js'
   import { calculateDropdownPosition } from './dropdown.js'
@@ -150,10 +150,32 @@
     activeIndex = wantLast ? focusable[focusable.length - 1]! : focusable[0]!
   })
 
-  // Syncs real DOM focus to the roving-tabindex active item.
+  // Syncs real DOM focus to the roving-tabindex active item (React's effect on
+  // `[isOpen, activeIndex]`).
+  let focusedItemEl: HTMLDivElement | null = null
   $effect(() => {
     if (!isOpen || activeIndex < 0) return
-    itemEls[activeIndex]?.focus()
+    const el = itemEls[activeIndex] ?? null
+    el?.focus()
+    focusedItemEl = el
+  })
+
+  // React's keyed reconciliation moves a focused item's node without detaching
+  // it, so the item keeps DOM focus across an items update; Svelte's keyed each
+  // detaches the node it moves, which drops focus to the body. The pre-effect
+  // runs before the DOM updates: it notes whether the item held focus, and the
+  // effect after the update puts focus back only then. Focus the user moved
+  // elsewhere stays there.
+  let itemHadFocus = false
+  $effect.pre(() => {
+    void items
+    itemHadFocus = focusedItemEl !== null && document.activeElement === focusedItemEl
+  })
+  $effect(() => {
+    void items
+    const el = focusedItemEl
+    if (!itemHadFocus || !el || !untrack(() => isOpen)) return
+    if (el.isConnected && document.activeElement !== el) el.focus()
   })
 
   // Close on outside mousedown and Escape (with focus restoration).

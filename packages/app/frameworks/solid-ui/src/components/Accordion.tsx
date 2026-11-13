@@ -20,6 +20,7 @@ import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecu
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
+import { createKeyedList } from '../utilities/keyedList.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
@@ -132,6 +133,15 @@ export const Accordion: Component<AccordionProps<string>> = (props) => {
   const expandedItems = (): string[] =>
     local.value !== undefined ? normalizeValue(local.value) : internalExpanded()
 
+  // React reconciles the items by `key={item.value}`: an item's DOM node
+  // survives an items update whose key is unchanged and moves on a reorder.
+  // `<For>` keys by object identity, so the render iterates the KEYS and reads
+  // each item through the lookup (`props.item` stays a reactive getter).
+  const items = createKeyedList(
+    () => local.items,
+    (item) => item.value,
+  )
+
   const toggleItem = (itemValue: string): void => {
     const current = expandedItems()
     let newExpanded: string[]
@@ -181,7 +191,7 @@ export const Accordion: Component<AccordionProps<string>> = (props) => {
         style={toStyleProps(local.style)}
         data-testid={local.testId}
       >
-        <For each={local.items}>{(item) => <AccordionItemComponent item={item} />}</For>
+        <For each={items.keys()}>{(key) => <AccordionItemComponent item={items.get(key)!} />}</For>
       </div>
     </AccordionContext.Provider>
   )

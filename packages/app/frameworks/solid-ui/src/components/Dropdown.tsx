@@ -6,6 +6,7 @@
 
 import {
   type Component,
+  createComputed,
   createEffect,
   createRenderEffect,
   createSignal,
@@ -23,6 +24,7 @@ import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
+import { createKeyedList } from '../utilities/keyedList.js'
 import { BodyPortal } from '../utilities/portal.jsx'
 
 interface Position {
@@ -107,6 +109,17 @@ interface DropdownMenuItemProps {
  */
 const DropdownMenuItem: Component<DropdownMenuItemProps> = (props) => {
   const cm = getClassMap()
+  // The parent registers items by POSITION (`itemRefs[index()] = node`). React
+  // re-runs ref callbacks on every re-render, so a keyed reorder re-registers
+  // the (unchanged) node at its new position; Solid's ref callback runs once.
+  // Register synchronously in the ref (the open-focus flow reads the refs
+  // before any effect runs) and re-register through an effect tracking the
+  // reactive position for later moves.
+  const [node, setNode] = createSignal<HTMLDivElement | null>(null)
+  createEffect(() => {
+    const el = node()
+    if (el) props.registerRef(el)
+  })
 
   const handleClick = (): void => {
     if (!props.item.disabled) {
@@ -128,7 +141,10 @@ const DropdownMenuItem: Component<DropdownMenuItemProps> = (props) => {
       fallback={<div class={cm.dropdownSeparator} role="separator" />}
     >
       <div
-        ref={props.registerRef}
+        ref={(el) => {
+          setNode(el)
+          props.registerRef(el)
+        }}
         role="menuitem"
         // Roving tabindex (WAI-ARIA APG menu pattern): only the active item is
         // a Tab stop. Previously EVERY enabled item had tabIndex 0, so Tab
@@ -204,6 +220,15 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
   let triggerRef: HTMLElement | undefined
   let menuRef: HTMLDivElement | undefined
   const itemRefs: (HTMLDivElement | null)[] = []
+  // React reconciles the menu items by
+  // `key={item.separator ? `separator-${index}` : item.value}`: an item's node
+  // survives an items update whose key is unchanged and moves on a reorder.
+  // `<For>` keys by object identity, so the render iterates the KEYS and reads
+  // each item through the lookup.
+  const items = createKeyedList(
+    () => props.items,
+    (item, index) => (item.separator ? `separator-${index}` : item.value),
+  )
   // Which end of the menu keyboard-driven opens should focus: ArrowDown
   // (and Enter/Space/click) want the first item, ArrowUp wants the last.
   let pendingOpenFocus: 'first' | 'last' = 'first'
@@ -314,10 +339,31 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
     ),
   )
 
-  // Syncs real DOM focus to the roving-tabindex active item.
+  // Syncs real DOM focus to the roving-tabindex active item (React's effect on
+  // `[isOpen, activeIndex]`).
+  let focusedItemRef: HTMLDivElement | null = null
   createEffect(() => {
     if (!isOpen() || activeIndex() < 0) return
-    itemRefs[activeIndex()]?.focus()
+    const el = itemRefs[activeIndex()] ?? null
+    el?.focus()
+    focusedItemRef = el
+  })
+
+  // React's keyed reconciliation moves a focused item's node without detaching
+  // it, so the item keeps DOM focus across an items update; `<For>` detaches the
+  // node it moves, which drops focus to the body. A computation runs before the
+  // DOM moves: it notes whether the item held focus, and the effect after the
+  // update puts focus back only then. Focus the user moved elsewhere stays there.
+  let itemHadFocus = false
+  createComputed(() => {
+    void props.items
+    itemHadFocus = focusedItemRef !== null && document.activeElement === focusedItemRef
+  })
+  createEffect(() => {
+    void props.items
+    const el = focusedItemRef
+    if (!itemHadFocus || !el || !untrack(isOpen)) return
+    if (el.isConnected && document.activeElement !== el) el.focus()
   })
 
   // Close on outside click and Escape (with focus restoration).
@@ -476,10 +522,10 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
             data-testid={props.testId ? `${props.testId}-menu` : undefined}
             onKeyDown={handleMenuKeyDown}
           >
-            <For each={props.items}>
-              {(item, index) => (
+            <For each={items.keys()}>
+              {(key, index) => (
                 <DropdownMenuItem
-                  item={item}
+                  item={items.get(key)!}
                   isActive={index() === activeIndex()}
                   onSelect={handleSelect}
                   onClose={closeAndRefocusTrigger}

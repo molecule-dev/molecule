@@ -176,6 +176,12 @@ export type Interaction =
    * `useTranslation()`.
    */
   | { type: 'locale'; code: string }
+  /**
+   * Stamps `data-conformance-mark="<n>"` on every element matching `selector`, from outside
+   * the framework. A later snapshot shows which DOM nodes the component kept: a node it
+   * re-created has lost its mark. React keeps a node while its `key` is unchanged.
+   */
+  | { type: 'mark'; selector: string }
 
 /** Framework-neutral app context a component may read (auth, theme, route, locale). */
 export interface CaseContext {
@@ -246,6 +252,24 @@ export interface UIComponentCases {
   /** The export name in `@molecule/app-ui-react` (and every other UI package). */
   component: string
   cases: UICase[]
+  /**
+   * List props whose items React renders keyed. For each entry the kit derives two cases
+   * from the named case (default: the first): the rendered items are marked, then the same
+   * items are passed again as new, equal objects; or passed again reversed. The snapshots
+   * show which DOM nodes survive, so a framework that keys by object identity (re-creating
+   * every row on equal data) or by position (where React keys by value) fails.
+   */
+  keyedLists?: KeyedList[]
+}
+
+/** One keyed list of a component; see {@link UIComponentCases.keyedLists}. */
+export interface KeyedList {
+  /** The array prop (`data`, `options`, `items`). */
+  prop: string
+  /** The rendered element of one item (`tbody tr`, `option`, `[role="tab"]`). */
+  selector: string
+  /** The case to derive from (default: the family's first case). */
+  caseName?: string
 }
 
 /** A recorded callback invocation, with arguments normalized to plain data. */

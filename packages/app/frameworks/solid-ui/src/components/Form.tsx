@@ -10,7 +10,7 @@ import {
   createMemo,
   createSignal,
   createUniqueId,
-  For,
+  Index,
   type JSX,
   onCleanup,
   Show,
@@ -140,7 +140,9 @@ export const Form: Component<SolidFormProps> = (props) => {
     >
       <Show when={messages().length > 0}>
         <ul role="alert" class={cm.formError}>
-          <For each={messages()}>{(message: string) => <li>{message}</li>}</For>
+          {/* React keys the messages `key={index}`, so `<Index>` — a
+              position's `<li>` survives and its text updates. */}
+          <Index each={messages()}>{(message) => <li>{message()}</li>}</Index>
         </ul>
       </Show>
       <fieldset disabled={local.submitting || pending()} class={cm.formFieldsetContents}>

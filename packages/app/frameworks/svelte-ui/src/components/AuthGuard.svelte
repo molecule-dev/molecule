@@ -6,9 +6,8 @@
   on each transition into authenticated.
 -->
 <script lang="ts">
-  import { getRouter } from '@molecule/app-svelte'
+  import { getRouter, useAuth, useLocation, useTranslation } from '@molecule/app-svelte'
 
-  import { useAuth, useI18n, useLocation } from '../framework.js'
   import type { AuthGuardProps } from '../types.js'
   import ReactNode from './ReactNode.svelte'
 
@@ -22,7 +21,7 @@
   }: AuthGuardProps = $props()
 
   const { state: authState } = useAuth()
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const location = useLocation()
   const router = getRouter()
 
@@ -72,7 +71,7 @@
     <ReactNode node={loadingFallback} />
   {:else}
     <div data-mol-id="auth-guard-loading">
-      {$t(loadingKey, {}, { defaultValue: loadingDefault })}
+      {t(loadingKey, {}, { defaultValue: loadingDefault })}
     </div>
   {/if}
 {:else}

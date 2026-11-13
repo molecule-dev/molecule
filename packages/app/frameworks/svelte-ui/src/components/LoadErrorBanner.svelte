@@ -4,11 +4,11 @@
   owns the error); without onRetry no retry button renders.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents } from '../dom.js'
-  import { useI18n } from '../framework.js'
   import type { LoadErrorBannerProps } from '../types.js'
   import Alert from './Alert.svelte'
   import Button from './Button.svelte'
@@ -24,7 +24,7 @@
     ...rest
   }: LoadErrorBannerProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   let pending = $state(false)
 
@@ -57,11 +57,11 @@
             disabled={pending}
             data-mol-id={retryMolId}
           >
-            {#if pending}{$t(
+            {#if pending}{t(
                 'loadError.retrying',
                 {},
                 { defaultValue: 'Retrying…' },
-              )}{:else if retryLabel}<ReactNode node={retryLabel} />{:else}{$t(
+              )}{:else if retryLabel}<ReactNode node={retryLabel} />{:else}{t(
                 'loadError.retry',
                 {},
                 { defaultValue: 'Retry' },

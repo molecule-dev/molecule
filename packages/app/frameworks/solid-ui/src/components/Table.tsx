@@ -11,6 +11,7 @@ import type { TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
+import { createKeyedList } from '../utilities/keyedList.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 import { Spinner } from './Spinner.jsx'
 
@@ -41,6 +42,29 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
   const cm = getClassMap()
   const { t } = useTranslation()
   const hoverable = (): boolean => local.hoverable ?? true
+
+  // The key React reconciles a row with (`key={getRowKey(row, rowIndex)}`):
+  // the `rowKey` function, the `rowKey` field, or the index when there is
+  // neither. An index key is unchanged by any update that keeps the list's
+  // shape, so the row nodes stay in place while their content updates.
+  const getRowKey = (row: Record<string, unknown>, index: number): string | number => {
+    if (typeof local.rowKey === 'function') {
+      return local.rowKey(row)
+    }
+    if (local.rowKey && row[local.rowKey] !== undefined) {
+      return row[local.rowKey] as string | number
+    }
+    return index
+  }
+
+  // React keeps a row/column's DOM node while its key is unchanged and moves
+  // it on a reorder; `<For>` keys by object identity, so the render iterates
+  // the KEYS instead and reads each item through the lookup.
+  const rows = createKeyedList(() => local.data, getRowKey)
+  const cols = createKeyedList(
+    () => local.columns,
+    (column) => column.key as string,
+  )
 
   const getCellValue = (
     row: Record<string, unknown>,
@@ -75,42 +99,47 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
       <table class={tableClasses()} style={toStyleProps(local.style)} data-testid={local.testId}>
         <thead class={cm.tableHeader}>
           <tr class={cm.tableRow}>
-            <For each={local.columns}>
-              {(column) => (
-                <th
-                  class={cm.cn(
-                    cm.tableHead,
-                    column.align === 'center' && cm.textCenter,
-                    column.align === 'right' && cm.textRight,
-                    column.sortable && cm.tableHeadSortable,
-                  )}
-                  style={toStyleProps({ width: column.width })}
-                  onClick={() => column.sortable && handleSort(column)}
-                  aria-sort={
-                    column.sortable
-                      ? local.sort?.key === (column.key as string)
-                        ? local.sort.direction === 'asc'
-                          ? 'ascending'
-                          : 'descending'
-                        : 'none'
-                      : undefined
-                  }
-                >
-                  <div class={cm.tableSortWrapper}>
-                    {column.header as JSX.Element}
-                    <Show when={column.sortable && local.sort?.key === (column.key as string)}>
-                      <span class={cm.tableSortIcon}>
-                        <Show
-                          when={local.sort!.direction === 'asc'}
-                          fallback={renderIcon('chevron-down', cm.iconSm)}
-                        >
-                          {renderIcon('chevron-up', cm.iconSm)}
-                        </Show>
-                      </span>
-                    </Show>
-                  </div>
-                </th>
-              )}
+            <For each={cols.keys()}>
+              {(columnKey) => {
+                const column = (): TableColumn<Record<string, unknown>> => cols.get(columnKey)!
+                return (
+                  <th
+                    class={cm.cn(
+                      cm.tableHead,
+                      column().align === 'center' && cm.textCenter,
+                      column().align === 'right' && cm.textRight,
+                      column().sortable && cm.tableHeadSortable,
+                    )}
+                    style={toStyleProps({ width: column().width })}
+                    onClick={() => column().sortable && handleSort(column())}
+                    aria-sort={
+                      column().sortable
+                        ? local.sort?.key === (column().key as string)
+                          ? local.sort.direction === 'asc'
+                            ? 'ascending'
+                            : 'descending'
+                          : 'none'
+                        : undefined
+                    }
+                  >
+                    <div class={cm.tableSortWrapper}>
+                      {column().header as JSX.Element}
+                      <Show
+                        when={column().sortable && local.sort?.key === (column().key as string)}
+                      >
+                        <span class={cm.tableSortIcon}>
+                          <Show
+                            when={local.sort!.direction === 'asc'}
+                            fallback={renderIcon('chevron-down', cm.iconSm)}
+                          >
+                            {renderIcon('chevron-up', cm.iconSm)}
+                          </Show>
+                        </span>
+                      </Show>
+                    </div>
+                  </th>
+                )
+              }}
             </For>
           </tr>
         </thead>
@@ -126,32 +155,39 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
               </tr>
             }
           >
-            <For each={local.data}>
-              {(row, rowIndex) => (
-                <tr
-                  class={cm.cn(
-                    cm.tableRow,
-                    local.striped && rowIndex() % 2 === 1 && cm.tableRowStriped,
-                    hoverable() && cm.tableRowHoverable,
-                    local.onRowClick && cm.tableRowClickable,
-                  )}
-                  onClick={() => local.onRowClick?.(row, rowIndex())}
-                >
-                  <For each={local.columns}>
-                    {(column) => (
-                      <td
-                        class={cm.cn(
-                          cm.tableCell,
-                          column.align === 'center' && cm.textCenter,
-                          column.align === 'right' && cm.textRight,
-                        )}
-                      >
-                        {getCellValue(row, column, rowIndex()) as JSX.Element}
-                      </td>
+            <For each={rows.keys()}>
+              {(rowKey, rowIndex) => {
+                const row = (): Record<string, unknown> => rows.get(rowKey)!
+                return (
+                  <tr
+                    class={cm.cn(
+                      cm.tableRow,
+                      local.striped && rowIndex() % 2 === 1 && cm.tableRowStriped,
+                      hoverable() && cm.tableRowHoverable,
+                      local.onRowClick && cm.tableRowClickable,
                     )}
-                  </For>
-                </tr>
-              )}
+                    onClick={() => local.onRowClick?.(row(), rowIndex())}
+                  >
+                    <For each={cols.keys()}>
+                      {(columnKey) => {
+                        const column = (): TableColumn<Record<string, unknown>> =>
+                          cols.get(columnKey)!
+                        return (
+                          <td
+                            class={cm.cn(
+                              cm.tableCell,
+                              column().align === 'center' && cm.textCenter,
+                              column().align === 'right' && cm.textRight,
+                            )}
+                          >
+                            {getCellValue(row(), column(), rowIndex()) as JSX.Element}
+                          </td>
+                        )
+                      }}
+                    </For>
+                  </tr>
+                )
+              }}
             </For>
           </Show>
         </tbody>

@@ -5,11 +5,11 @@
   ignores further clicks. The armed state is announced through aria-live.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents } from '../dom.js'
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { ConfirmButtonProps } from '../types.js'
   import ReactNode from './ReactNode.svelte'
@@ -30,7 +30,7 @@
     ...rest
   }: ConfirmButtonProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   let phase = $state<'idle' | 'armed' | 'pending'>('idle')
   let disarmTimer: ReturnType<typeof setTimeout> | null = null
@@ -101,13 +101,13 @@
   use:spreadEvents={rest}
 >
   {#if phase === 'pending'}
-    {#if pendingLabel}<ReactNode node={pendingLabel} />{:else}{$t(
+    {#if pendingLabel}<ReactNode node={pendingLabel} />{:else}{t(
         'confirmButton.pending',
         {},
         { defaultValue: 'Working…' },
       )}{/if}
   {:else if phase === 'armed'}
-    {#if confirmLabel}<ReactNode node={confirmLabel} />{:else}{$t(
+    {#if confirmLabel}<ReactNode node={confirmLabel} />{:else}{t(
         'confirmButton.confirm',
         {},
         { defaultValue: 'Confirm?' },

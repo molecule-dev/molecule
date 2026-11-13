@@ -11,6 +11,7 @@ import type { RadioGroupProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
+import { createKeyedList } from '../utilities/keyedList.js'
 
 /**
  * Renders the RadioGroup component.
@@ -47,6 +48,15 @@ export const RadioGroup: Component<RadioGroupProps<string>> = (props) => {
   const groupName = (): string => local.name || generatedName
   const errorId = (): string => `${groupName()}-error`
 
+  // React reconciles the radios by `key={option.value}`: an option's `<label>`
+  // node survives an options update whose key is unchanged and moves on a
+  // reorder. `<For>` keys by object identity, so the render iterates the KEYS
+  // and reads each option through the lookup.
+  const options = createKeyedList(
+    () => local.options,
+    (option) => option.value,
+  )
+
   let groupRef: HTMLDivElement | undefined
 
   // A controlled group restores every radio's checked state after an event
@@ -80,10 +90,11 @@ export const RadioGroup: Component<RadioGroupProps<string>> = (props) => {
         <div class={cm.cn(cm.label({ required: false }), cm.sp('mb', 2))}>{local.label}</div>
       </Show>
       <div class={cm.radioGroupLayout(local.direction ?? 'vertical')}>
-        <For each={local.options}>
-          {(option: { value: string; label?: unknown; disabled?: boolean }) => {
-            const isChecked = (): boolean => local.value === option.value
-            const isDisabled = (): boolean => !!(local.disabled || option.disabled)
+        <For each={options.keys()}>
+          {(key) => {
+            const option = (): RadioGroupProps<string>['options'][number] => options.get(key)!
+            const isChecked = (): boolean => local.value === option().value
+            const isDisabled = (): boolean => !!(local.disabled || option().disabled)
 
             return (
               <label class={cm.cn(cm.controlLabel, isDisabled() && cm.controlDisabled)}>
@@ -96,17 +107,17 @@ export const RadioGroup: Component<RadioGroupProps<string>> = (props) => {
                   }}
                   type="radio"
                   name={groupName()}
-                  value={option.value}
+                  value={option().value}
                   checked={isChecked()}
                   disabled={isDisabled()}
                   data-state={isChecked() ? 'checked' : 'unchecked'}
                   class={cm.cn(cm.radio({ error: !!local.error }), cm.cursorPointer)}
                   onChange={() => {
-                    local.onChange?.(option.value)
+                    local.onChange?.(option().value)
                     restoreControlled()
                   }}
                 />
-                <span class={cm.controlText}>{option.label as JSX.Element}</span>
+                <span class={cm.controlText}>{option().label as JSX.Element}</span>
               </label>
             )
           }}

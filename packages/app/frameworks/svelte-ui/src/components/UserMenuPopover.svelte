@@ -7,10 +7,10 @@
 <script lang="ts">
   import { setContext } from 'svelte'
 
+  import { useAuth, useLocation, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { useGeneratedId } from '../dom.js'
-  import { useAuth, useI18n, useLocation } from '../framework.js'
   import type { UserMenuPopoverProps } from '../types.js'
   import { USER_MENU_POPOVER_CONTEXT } from '../user-menu-popover.svelte.js'
 
@@ -18,7 +18,7 @@
 
   const cm = $derived(getClassMap())
   const { state: authState } = useAuth()
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const location = useLocation()
   const panelId = useGeneratedId()
 
@@ -63,8 +63,10 @@
   const user = $derived(
     ($authState.user ?? null) as { name?: string | null; email?: string | null } | null,
   )
+  // Feeds `displayName` below, so a derived carries it; `t` reads the binding's
+  // locale version, so it follows a locale switch without a store read.
   const resolvedGuest = $derived(
-    guestName ?? $t('userMenuPopover.guest', {}, { defaultValue: 'Account' }),
+    guestName ?? t('userMenuPopover.guest', {}, { defaultValue: 'Account' }),
   )
   const displayName = $derived(user?.name ?? user?.email ?? resolvedGuest)
   const email = $derived(user?.email ?? undefined)

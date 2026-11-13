@@ -45,6 +45,7 @@ vi.mock('vue', () => ({
   reactive: (obj: unknown) => mockReactive(obj),
   toRaw: (val: unknown) => val,
   Teleport: 'Teleport',
+  Fragment: 'Fragment',
 }))
 
 // ============================================================================

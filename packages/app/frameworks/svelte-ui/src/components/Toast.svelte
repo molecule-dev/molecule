@@ -7,10 +7,10 @@
   import { untrack } from 'svelte'
 
   import type { IconName } from '@molecule/app-icons'
+  import { useTranslation } from '@molecule/app-svelte'
   import type { ColorVariant } from '@molecule/app-ui'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { ToastProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -53,7 +53,7 @@
   }: ToastProps = $props()
 
   let isVisible = $state(true)
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   const variant = $derived(statusVariantMap[status] ?? 'default')
   const iconName = $derived(statusIconMap[variant])
@@ -134,7 +134,7 @@
         type="button"
         onclick={handleDismiss}
         class={cm.toastClose}
-        aria-label={closeLabel ?? $t('ui.toast.close', undefined, { defaultValue: 'Close' })}
+        aria-label={closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })}
       >
         <IconGlyph name="x-mark" className={cm.iconSm} />
       </button>

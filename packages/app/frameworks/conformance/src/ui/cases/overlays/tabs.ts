@@ -15,6 +15,7 @@ const ITEMS = [
 /** Tabs: variants, sizes, fitted, controlled/uncontrolled selection, roving-tabindex keyboard model. */
 export const tabsCases: UIComponentCases = {
   component: 'Tabs',
+  keyedLists: [{ prop: 'items', selector: '[role="tab"]' }],
   cases: [
     { name: 'defaults', props: { items: ITEMS } },
     { name: 'defaultValue selects a tab', props: { items: ITEMS, defaultValue: 'profile' } },

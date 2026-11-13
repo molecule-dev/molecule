@@ -5,11 +5,11 @@
   content dismisses the drawer via usePanelClose(); closes on route change.
 -->
 <script lang="ts">
+  import { useAuth, useLocation, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents } from '../dom.js'
-  import { useAuth, useI18n, useLocation } from '../framework.js'
   import { reactInitials } from '../initials.js'
   import { reactStyle } from '../style.js'
   import type { SidebarUserCardProps } from '../types.js'
@@ -29,7 +29,7 @@
   }: SidebarUserCardProps = $props()
 
   const { state: authState } = useAuth()
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const location = useLocation()
   const cm = $derived(getClassMap())
   let open = $state(false)
@@ -48,7 +48,9 @@
       avatarUrl?: string | null
     } | null,
   )
-  const guestName = $derived($t('sidebarUserCard.guest', {}, { defaultValue: 'Guest' }))
+  // Feeds `displayName` below, so a derived carries it; `t` reads the binding's
+  // locale version, so it follows a locale switch without a store read.
+  const guestName = $derived(t('sidebarUserCard.guest', {}, { defaultValue: 'Guest' }))
   const displayName = $derived(name ?? user?.name ?? user?.email ?? guestName)
   const displaySecondary = $derived(secondaryLine ?? user?.email ?? undefined)
   const displayAvatarUrl = $derived(avatarUrl ?? user?.avatarUrl ?? undefined)
@@ -57,7 +59,7 @@
 <button
   type="button"
   onclick={() => (open = true)}
-  aria-label={$t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
+  aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
   data-mol-id={dataMolId}
   class={cm.cn(
     cm.flex({ align: 'center', gap: 'sm' }),

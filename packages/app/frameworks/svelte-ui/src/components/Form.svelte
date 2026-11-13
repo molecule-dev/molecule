@@ -3,11 +3,11 @@
   pending and renders rejected submissions as an accessible error list.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactAttrs, withoutEvents } from '../attrs.js'
   import { spreadEvents } from '../dom.js'
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { FormProps } from '../types.js'
   import { formSubmitErrorMessages } from './form-submit-error.js'
@@ -26,7 +26,7 @@
     ...rest
   }: FormProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
   let failure = $state<{ error: unknown } | null>(null)
   let pending = $state(false)
@@ -87,7 +87,7 @@
     error
       ? formSubmitErrorMessages(
           error.error,
-          $t('ui.form.submitError', undefined, {
+          t('ui.form.submitError', undefined, {
             defaultValue: 'Unable to submit. Please try again.',
           }),
         )

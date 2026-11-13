@@ -5,9 +5,9 @@
 <script lang="ts">
   import { getContext } from 'svelte'
 
+  import { useAuthClient, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useAuth, useI18n } from '../framework.js'
   import type { UserMenuPopoverSignOutProps } from '../types.js'
   import {
     USER_MENU_POPOVER_CONTEXT,
@@ -21,9 +21,9 @@
     className,
   }: UserMenuPopoverSignOutProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
-  const { client } = useAuth()
+  const client = useAuthClient()
   const ctx = getContext<UserMenuPopoverContextValue>(USER_MENU_POPOVER_CONTEXT)
   if (!ctx) {
     throw new Error('<UserMenuPopoverSignOut> must be rendered inside <UserMenuPopover>')
@@ -54,5 +54,5 @@
     className,
   )}
 >
-  {$t(labelKey, {}, { defaultValue: labelDefault })}
+  {t(labelKey, {}, { defaultValue: labelDefault })}
 </button>

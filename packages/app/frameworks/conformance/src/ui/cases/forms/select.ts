@@ -15,6 +15,7 @@ const plans = [
 /** Select: sizes, placeholder, clearable, option groups, control and value-change events. */
 export const selectCases: UIComponentCases = {
   component: 'Select',
+  keyedLists: [{ prop: 'options', selector: 'option' }],
   cases: [
     { name: 'defaults', props: { options: plans, name: 'plan' } },
     ...(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => ({

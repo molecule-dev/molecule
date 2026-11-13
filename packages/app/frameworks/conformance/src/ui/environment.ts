@@ -219,10 +219,17 @@ export function performDomInteraction(step: Interaction): void {
       )
       return
     }
+    case 'mark': {
+      const elements = document.querySelectorAll(step.selector)
+      if (elements.length === 0) throw new Error(`mark: no element matches ${step.selector}`)
+      elements.forEach((el, index) => el.setAttribute('data-conformance-mark', String(index)))
+      return
+    }
     case 'advance':
     case 'props':
     case 'settle':
     case 'navigate':
+    case 'locale':
       return
   }
 }

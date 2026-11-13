@@ -38,20 +38,16 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@molecule/app-auth": "^3.0.0",
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-icons": "^1.0.1",
-    "@molecule/app-routing": "^1.0.1",
     "@molecule/app-svelte": "^3.4.0",
     "@molecule/app-ui": "^1.0.1",
     "svelte": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
-    "@molecule/app-auth": "3.4.2",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.0",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-routing": "1.1.0",
     "@molecule/app-svelte": "3.4.0",
     "@sveltejs/package": "3.0.2",
     "@sveltejs/vite-plugin-svelte": "7.1.2",

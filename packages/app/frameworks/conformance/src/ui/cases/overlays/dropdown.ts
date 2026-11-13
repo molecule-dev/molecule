@@ -18,6 +18,13 @@ const ITEMS = [
 /** Dropdown: menu-button pattern — trigger cloning, controlled/uncontrolled open, roving tabindex, selection. */
 export const dropdownCases: UIComponentCases = {
   component: 'Dropdown',
+  keyedLists: [
+    {
+      prop: 'items',
+      selector: '[role="menuitem"], [role="separator"]',
+      caseName: 'separator and disabled items render',
+    },
+  ],
   cases: [
     {
       name: 'defaults (closed)',
@@ -48,6 +55,19 @@ export const dropdownCases: UIComponentCases = {
       props: { items: ITEMS, open: false },
       slots: { trigger: triggerButton },
       interactions: [{ type: 'props', props: { open: true } }],
+    },
+    {
+      // Neither a re-render nor equal items re-passed pull focus back into an open
+      // menu: React keeps an item's focus across an items update only when it had it.
+      name: 'focus moved off an open menu stays off across a re-render',
+      fakeTimers: true,
+      props: { items: ITEMS, open: true },
+      slots: { trigger: triggerButton },
+      interactions: [
+        { type: 'blur', selector: '[role="menuitem"]' },
+        { type: 'props', props: { align: 'start' } },
+        { type: 'props', props: { items: ITEMS.map((item) => ({ ...item })) } },
+      ],
     },
     {
       name: 'text trigger gets a button wrapper',

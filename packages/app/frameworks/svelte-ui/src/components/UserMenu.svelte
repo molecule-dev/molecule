@@ -4,9 +4,9 @@
   via usePanelClose(); the drawer closes on route change.
 -->
 <script lang="ts">
+  import { useLocation, useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useI18n, useLocation } from '../framework.js'
   import type { UserMenuProps } from '../types.js'
   import Button from './Button.svelte'
   import Icon from './Icon.svelte'
@@ -26,7 +26,7 @@
     side = 'right',
   }: UserMenuProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const location = useLocation()
   const cm = $derived(getClassMap())
   let open = $state(false)
@@ -44,7 +44,7 @@
   variant="ghost"
   size="sm"
   onClick={onClick ?? (() => (open = true))}
-  aria-label={$t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
+  aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
   data-mol-id={dataMolId}
   className={cm.cn(cm.minH(10), cm.minW(10), className)}
   {disabled}
@@ -55,7 +55,7 @@
   {open}
   onClose={() => (open = false)}
   className={side === 'left' ? cm.cn(cm.drawer, cm.drawerLeft) : cm.drawer}
-  aria-label={$t('userMenu.panelLabel', {}, { defaultValue: 'Account menu' })}
+  aria-label={t('userMenu.panelLabel', {}, { defaultValue: 'Account menu' })}
 >
   <PanelCloseProvider close={() => (open = false)}>{@render children?.()}</PanelCloseProvider>
 </Modal>

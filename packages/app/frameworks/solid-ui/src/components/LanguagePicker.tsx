@@ -12,6 +12,7 @@ import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
+import { createKeyedList } from '../utilities/keyedList.js'
 import { Icon } from './Icon.jsx'
 import { Modal } from './Modal.jsx'
 
@@ -90,6 +91,12 @@ export const LanguagePicker: Component<LanguagePickerProps> = (props) => {
   const sortedLocales = (): LocaleConfig[] =>
     [...locales()].sort((a, b) => a.name.localeCompare(b.name))
 
+  // React reconciles the locale buttons by `key={l.code}`: a locale's node
+  // survives an update whose key is unchanged and moves on a reorder.
+  // `<For>` keys by object identity, so the render iterates the KEYS and reads
+  // each locale through the lookup.
+  const sortedLocaleKeys = createKeyedList(sortedLocales, (entry) => entry.code)
+
   return (
     <>
       <Show when={!local.renderTrigger}>
@@ -123,22 +130,23 @@ export const LanguagePicker: Component<LanguagePickerProps> = (props) => {
         data-mol-id="language-picker-modal"
       >
         <div class={cm.languageGrid}>
-          <For each={sortedLocales()}>
-            {(entry) => {
-              const active = (): boolean => entry.code === locale()
+          <For each={sortedLocaleKeys.keys()}>
+            {(key) => {
+              const entry = (): LocaleConfig => sortedLocaleKeys.get(key)!
+              const active = (): boolean => entry().code === locale()
               return (
                 <button
                   type="button"
-                  data-mol-id={`language-picker-option-${entry.code}`}
+                  data-mol-id={`language-picker-option-${entry().code}`}
                   data-active={active() || undefined}
                   aria-pressed={active()}
                   onClick={async () => {
-                    await setLocale(entry.code)
+                    await setLocale(entry().code)
                     setOpen(false)
                   }}
                   class={active() ? cm.languageActive : cm.languageOption}
                 >
-                  {entry.name}
+                  {entry().name}
                 </button>
               )
             }}

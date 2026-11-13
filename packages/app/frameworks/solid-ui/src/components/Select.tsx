@@ -7,6 +7,7 @@
 import {
   type Component,
   createEffect,
+  createMemo,
   createUniqueId,
   For,
   type JSX,
@@ -15,10 +16,11 @@ import {
 } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
-import type { SelectProps } from '@molecule/app-ui'
+import type { SelectOption, SelectProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { toStyleProps } from '../utilities/dom.js'
+import { createKeyedList } from '../utilities/keyedList.js'
 import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
@@ -31,6 +33,33 @@ export interface SolidSelectProps<T = string> extends SelectProps<T> {
    * Used only while `value` is omitted.
    */
   defaultValue?: T
+}
+
+/**
+ * Renders one `<option>`. The accessor supplies the latest option for the
+ * option's key, so a kept node re-reads its label and disabled state when the
+ * options prop is replaced.
+ *
+ * @param option - The latest option for the rendered key.
+ * @returns The rendered option JSX.
+ */
+const renderOption = (option: () => SelectOption): JSX.Element => (
+  <option value={option().value} disabled={option().disabled}>
+    {option().label as JSX.Element}
+  </option>
+)
+
+/**
+ * Renders one group's options, keyed by `option.value` the way React keys its
+ * `<option>` children: an unchanged key keeps the option's DOM node and a
+ * reorder moves it.
+ *
+ * @param props - The group's options, as a reactive accessor.
+ * @returns The rendered options JSX.
+ */
+const KeyedSelectOptions: Component<{ options: () => SelectOption[] }> = (props) => {
+  const options = createKeyedList(props.options, (option) => option.value)
+  return <For each={options.keys()}>{(key) => renderOption(() => options.get(key)!)}</For>
 }
 
 /**
@@ -125,41 +154,53 @@ export const Select: Component<SolidSelectProps<string>> = (props) => {
     if (local.value !== undefined) applySelectValue(local.value, false)
   }
 
-  const renderOption = (option: {
-    value: string
-    label?: unknown
-    disabled?: boolean
-  }): JSX.Element => (
-    <option value={option.value} disabled={option.disabled}>
-      {option.label as JSX.Element}
-    </option>
-  )
-
-  const renderOptions = (): JSX.Element => {
-    // Group options by group property
-    const grouped = new Map<string, typeof local.options>()
+  // Groups the options by their `group`, in each group's first-appearance
+  // order — React reduces the options into an object keyed by group and
+  // renders `Object.entries` of it.
+  const groupedOptions = createMemo(() => {
+    const grouped = new Map<string, SelectOption[]>()
     for (const option of local.options) {
       const group = option.group || ''
       const list = grouped.get(group)
       if (list) list.push(option)
       else grouped.set(group, [option])
     }
-    const groups = [...grouped.entries()]
+    return [...grouped.entries()]
+  })
 
-    if (groups.length === 1 && groups[0][0] === '') {
+  // React's flat branch: the only group is the unnamed one. A boolean, so a
+  // plain options update (still flat) does not re-render the option region —
+  // the keyed `<For>`s inside handle that while keeping the option nodes.
+  const isFlat = createMemo(() => {
+    const groups = groupedOptions()
+    return groups.length === 1 && groups[0]![0] === ''
+  })
+
+  const optionsOfGroup = (group: string): SelectOption[] =>
+    groupedOptions().find(([name]) => name === group)?.[1] ?? []
+
+  // The optgroups, keyed by group name the way React keys `<optgroup>`; an
+  // unchanged group keeps its node and its options keep theirs.
+  const groups = createKeyedList(
+    () => groupedOptions(),
+    ([group]) => group,
+  )
+
+  const renderOptions = (): JSX.Element => {
+    if (isFlat()) {
       // No groups, render flat options
-      return <For each={groups[0][1]}>{(option) => renderOption(option)}</For>
+      return <KeyedSelectOptions options={() => optionsOfGroup('')} />
     }
 
-    // Render grouped options
+    // Render grouped options; a trailing unnamed group renders its options bare
     return (
-      <For each={groups}>
-        {([group, groupOptions]: [string, typeof local.options]) =>
+      <For each={groups.keys()}>
+        {(group) =>
           group === '' ? (
-            <For each={groupOptions}>{(option) => renderOption(option)}</For>
+            <KeyedSelectOptions options={() => optionsOfGroup(group)} />
           ) : (
             <optgroup label={group}>
-              <For each={groupOptions}>{(option) => renderOption(option)}</For>
+              <KeyedSelectOptions options={() => optionsOfGroup(group)} />
             </optgroup>
           )
         }

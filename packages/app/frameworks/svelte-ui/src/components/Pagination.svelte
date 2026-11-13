@@ -3,9 +3,9 @@
   optional first/last and prev/next buttons, and localized labels.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import { useI18n } from '../framework.js'
   import { reactStyle } from '../style.js'
   import type { PaginationProps } from '../types.js'
   import IconGlyph from './IconGlyph.svelte'
@@ -26,8 +26,13 @@
     disabled,
   }: PaginationProps = $props()
 
-  const { t } = useI18n()
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
+  // Resolved per item during template evaluation; `t` reads the binding's
+  // locale version, so the label follows a locale switch without a store read.
+  const goToPageLabel = (item: number): string =>
+    labels?.goToPage?.(item) ??
+    t('ui.pagination.goToPage', { page: item }, { defaultValue: 'Go to page {{page}}' })
 
   /** Generates the page range with ellipsis markers. */
   const range = $derived.by(() => {
@@ -64,7 +69,7 @@
 
 <nav
   role={navRole}
-  aria-label={labels?.nav ?? $t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })}
+  aria-label={labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })}
   class={cm.cn(cm.paginationRoot, className)}
   use:reactStyle={style}
   data-testid={testId}
@@ -78,7 +83,7 @@
           onclick={() => handlePageChange(1)}
           disabled={page === 1 || disabled}
           aria-label={labels?.first ??
-            $t('ui.pagination.first', undefined, { defaultValue: 'Go to first page' })}
+            t('ui.pagination.first', undefined, { defaultValue: 'Go to first page' })}
         >
           <IconGlyph name="chevrons-left" className={cm.iconSm} />
         </button>
@@ -93,7 +98,7 @@
           onclick={() => handlePageChange(page - 1)}
           disabled={page === 1 || disabled}
           aria-label={labels?.previous ??
-            $t('ui.pagination.previous', undefined, { defaultValue: 'Go to previous page' })}
+            t('ui.pagination.previous', undefined, { defaultValue: 'Go to previous page' })}
         >
           <IconGlyph name="chevron-left" className={cm.iconSm} />
         </button>
@@ -114,8 +119,7 @@
             class={buttonClasses(item === page)}
             onclick={() => handlePageChange(item)}
             {disabled}
-            aria-label={labels?.goToPage?.(item) ??
-              $t('ui.pagination.goToPage', { page: item }, { defaultValue: 'Go to page {{page}}' })}
+            aria-label={goToPageLabel(item)}
             aria-current={item === page ? 'page' : undefined}
           >
             {item}
@@ -132,7 +136,7 @@
           onclick={() => handlePageChange(page + 1)}
           disabled={page === totalPages || disabled}
           aria-label={labels?.next ??
-            $t('ui.pagination.next', undefined, { defaultValue: 'Go to next page' })}
+            t('ui.pagination.next', undefined, { defaultValue: 'Go to next page' })}
         >
           <IconGlyph name="chevron-right" className={cm.iconSm} />
         </button>
@@ -147,7 +151,7 @@
           onclick={() => handlePageChange(totalPages)}
           disabled={page === totalPages || disabled}
           aria-label={labels?.last ??
-            $t('ui.pagination.last', undefined, { defaultValue: 'Go to last page' })}
+            t('ui.pagination.last', undefined, { defaultValue: 'Go to last page' })}
         >
           <IconGlyph name="chevrons-right" className={cm.iconSm} />
         </button>
