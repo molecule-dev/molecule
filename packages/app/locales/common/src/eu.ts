@@ -32,7 +32,6 @@ export const eu: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Pasahitza berrezartzeko tokena',
   'auth.resetPassword.twoFactor': 'Bi Faktoreko Tokena (Gaituta badago)',
   'auth.signup.email': 'Helbide elektronikoa (Beharrezkoa)',
-  'auth.signup.name': 'Zure izena',
   'auth.signup.password': 'Pasahitza (Beharrezkoa)',
   'auth.signup.signUp': 'Izena eman',
   'auth.signup.signingUp': 'Izena ematen...',
@@ -524,4 +523,5 @@ export const eu: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} gisa saioa hasita',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Izena (aukerakoa)',
 }

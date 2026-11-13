@@ -7,7 +7,7 @@
 import React, { useState } from 'react'
 import { Image, Text, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { AvatarProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -34,6 +34,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   className,
   testId,
 }) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [imageError, setImageError] = useState(false)
   const namedSize = typeof size === 'string' ? size : undefined

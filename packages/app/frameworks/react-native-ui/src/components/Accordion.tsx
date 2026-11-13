@@ -7,7 +7,7 @@
 import React, { createContext, useCallback, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -44,6 +44,7 @@ export const Accordion: React.FC<AccordionProps> = ({
   className,
   testId,
 }) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
 
   const normalize = (v: string | string[] | undefined): string[] => {

@@ -13,7 +13,6 @@ export const fr: Partial<CommonTranslations> = {
   'auth.login.forgotPassword': 'Mot de passe oublié ?',
   'auth.login.password': 'Mot de passe',
   'auth.resetPassword.email': 'E-mail',
-  'auth.signup.name': 'Votre nom',
   'footer.about': 'À propos de {{appName}}',
   'footer.language': 'Langue',
   'footer.privacyPolicy': 'Politique de confidentialité',
@@ -523,4 +522,5 @@ export const fr: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Connecté en tant que {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Nom (facultatif)',
 }

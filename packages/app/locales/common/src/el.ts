@@ -8,7 +8,6 @@ export const el: Partial<CommonTranslations> = {
   'auth.login.forgotPassword': 'Ξεχάσατε τον κωδικό;',
   'auth.login.password': 'Κωδικός πρόσβασης',
   'auth.login.signUp': 'Εγγραφή',
-  'auth.signup.name': 'Το όνομά σας',
   'auth.signup.signUp': 'Εγγραφή',
   'footer.about': 'Σχετικά με {{appName}}',
   'footer.language': 'Γλώσσα',
@@ -523,4 +522,5 @@ export const el: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Συνδεθήκατε ως {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Όνομα (προαιρετικό)',
 }

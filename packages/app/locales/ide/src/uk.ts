@@ -35,7 +35,6 @@ export const uk: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Зареєструватися',
   'ide.chat.modelUpgradeRequired':
     '{{model}} доступна в Pro. Оновіть підписку, щоб отримати доступ до всіх моделей.',
-  'ide.chat.autoFixCountdown': 'Відновити',
   'ide.chat.autoFixPause': 'Пауза',
   'ide.chat.autoFixCancel': 'Скасувати',
   'ide.chat.soundAll': 'Усі',
@@ -123,7 +122,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Файл занадто великий. Максимальний розмір – {{maxSize}} МБ.',
   'ide.chat.modelSet': 'Модель чату встановлена на {{name}}',
   'ide.chat.compacting': 'Стискання розмови...',
-  'ide.chat.compacted': 'Використання контексту низьке — ущільнення не потрібне.',
   'ide.chat.compactError': 'Не вдалося стиснути розмову.',
   'ide.chat.switchedToPlan': 'Переключено в режим плану',
   'ide.chat.switchedToExecute': 'Переключено в режим виконання',
@@ -150,7 +148,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Ця модель коштує ×{{multiplier}} у період {{windows}}. Решту доби діє звичайний тариф.',
   'ide.chat.undoNoChanges': 'Немає змін у файлі для скасування.',
-  'ide.chat.undoComplete': 'Не вдалося скасувати зміни.',
   'ide.chat.commitNoChanges': 'Немає змін для фіксації.',
   'ide.chat.commitError': 'Не вдалося зберегти зміни.',
   'ide.chat.autoFixEnabled': 'Автоматичне виправлення ввімкнено.',
@@ -166,7 +163,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Не вдалося оновити максимальну кількість ітерацій інструменту.',
   'ide.chat.dropFilesHere': 'Перетягніть файли сюди',
   'ide.chat.autoFixPaused': 'Автоматичне виправлення призупинено',
-  'ide.chat.version': '{{productName}} версії 0.1.0',
   'ide.chat.selectModel': 'Виберіть модель',
   'ide.chat.currentBadge': 'поточний',
   'ide.chat.proRequired': 'Професіонал',
@@ -206,7 +202,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'Натисніть ще раз, щоб підтвердити',
   'ide.search.replaceAll': 'Замінити все',
   'ide.search.confirm': 'Підтвердити',
-  'ide.search.replaceConfirmation': 'Зіставте регістр',
   'ide.search.wholeWord': 'Зіставлення цілого слова',
   'ide.search.regex': 'Використовуйте регулярний вираз',
   'ide.search.toggleFilters': 'Перемикання фільтрів',
@@ -274,7 +269,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result': 'Перевірка Lint або типу завершена',
   'ide.chat.soundEventDesc.preview_error':
     'Під час попереднього перегляду в реальному часі сталася помилка',
-  'ide.chat.voice': 'Голос',
   'ide.chat.voiceUnavailable': 'Диктування недоступне в цьому браузері.',
   'ide.chat.voiceMicBlocked': 'Доступ до мікрофона заблоковано.',
   'ide.chat.voicePreparing': 'Підготовка диктування — першого разу це може зайняти трохи часу.',
@@ -807,4 +801,12 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.context.resets': 'Скидає {{at}} .',
   'ide.error.noProvider':
     'Постачальник робочої області IDE не налаштовано. Спочатку підключіть постачальника IDE.',
+  'ide.chat.compacted': 'Стиснуто {{count}} повідомлень.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'Повернуто {{count}} файл(ів) з останнього ходу ШІ.',
+  'ide.chat.autoFixCountdown': 'Автоматичне виправлення за {{seconds}} с...',
+  'ide.chat.version': '{{productName}} версія {{version}}',
+  'ide.search.replaceConfirmation': 'Замінити {{count}} екземплярів у {{files}} файлах?',
+  'ide.chat.voice': 'Диктувати',
+  'ide.chat.voiceStop': 'Зупинити диктування',
 }

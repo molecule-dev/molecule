@@ -6,7 +6,7 @@
 
 import React, { forwardRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { AvatarProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -19,6 +19,7 @@ import { renderIcon } from '../utilities/renderIcon.js'
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
   ({ src, alt, name, size = 'md', rounded = true, fallback, className, style, testId }, ref) => {
     const [imageError, setImageError] = useState(false)
+    const { t } = useTranslation()
 
     const cm = getClassMap()
     const showFallback = !src || imageError

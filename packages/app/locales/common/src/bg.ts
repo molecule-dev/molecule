@@ -39,7 +39,6 @@ export const bg: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Токен за нулиране на парола',
   'auth.resetPassword.twoFactor': 'Двуфакторен токен (ако е активиран)',
   'auth.signup.email': 'Имейл (задължително)',
-  'auth.signup.name': 'Вашето име',
   'auth.signup.password': 'Парола (Задължително)',
   'auth.signup.signUp': 'Регистрация',
   'auth.signup.signingUp': 'Регистрация...',
@@ -523,4 +522,5 @@ export const bg: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Влезли сте като {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Име (по избор)',
 }

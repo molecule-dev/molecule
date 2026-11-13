@@ -460,7 +460,7 @@ describe('ChatPanel /model picker — mode dropdown + manage seam', () => {
         throw new Error('mode card not shown')
       }
     })
-    expect(container.textContent).not.toContain('available on a paid plan')
+    expect(container.textContent).not.toContain('available on Pro')
     expect(patchCalls).toHaveLength(0)
   })
 

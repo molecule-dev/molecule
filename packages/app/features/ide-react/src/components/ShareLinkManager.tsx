@@ -27,9 +27,8 @@
 import type { JSX } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import { useHttpClient, useThemeMode } from '@molecule/app-react'
+import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
@@ -105,6 +104,7 @@ export function ShareLinkManager({
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
+  const { t } = useTranslation()
   const isLight = useThemeMode() === 'light'
   const isNarrow = useNarrowViewport()
   const isCoarse = useCoarsePointer()
@@ -181,7 +181,7 @@ export function ShareLinkManager({
     } finally {
       setCreating(false)
     }
-  }, [creating, http, projectId, role, onCreated])
+  }, [creating, http, projectId, role, onCreated, t])
 
   const handleRevoke = useCallback(
     async (id: string) => {
@@ -203,7 +203,7 @@ export function ShareLinkManager({
         setRevokingId(null)
       }
     },
-    [revokingId, http, projectId, onRevoked],
+    [revokingId, http, projectId, onRevoked, t],
   )
 
   const handleCopy = useCallback((id: string, url: string) => {

@@ -25,8 +25,8 @@
 import type { ErrorInfo, JSX, ReactNode } from 'react'
 import { Component } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -46,6 +46,32 @@ interface Props {
   render: () => ReactNode
   /** Reports a caught render error (telemetry). Never throws. */
   onError?: (error: Error, info: ErrorInfo) => void
+}
+
+/**
+ * The inline notice shown in place of a timeline item that failed to render.
+ *
+ * A function component, deliberately separate from the class boundary above: a
+ * class cannot call a hook, and the notice must read `t` from
+ * `useTranslation()` so it re-renders in the new language when the locale
+ * changes.
+ *
+ * @returns The inline failure notice.
+ */
+function ChatItemFallback(): JSX.Element {
+  const { t } = useTranslation()
+  const cm = getClassMap()
+  return (
+    <div
+      data-mol-id="chat-item-render-error"
+      className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+      style={{ padding: '6px 12px', fontStyle: 'italic' }}
+    >
+      {t('ide.chat.itemRenderError', undefined, {
+        defaultValue: "This message couldn't be displayed.",
+      })}
+    </div>
+  )
 }
 
 interface State {
@@ -99,18 +125,7 @@ export class ChatItemBoundary extends Component<Props, State> {
    */
   override render(): ReactNode {
     if (this.state.failed) {
-      const cm = getClassMap()
-      return (
-        <div
-          data-mol-id="chat-item-render-error"
-          className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-          style={{ padding: '6px 12px', fontStyle: 'italic' }}
-        >
-          {t('ide.chat.itemRenderError', undefined, {
-            defaultValue: "This message couldn't be displayed.",
-          })}
-        </div>
-      )
+      return <ChatItemFallback />
     }
     return <RenderSlot render={this.props.render} />
   }

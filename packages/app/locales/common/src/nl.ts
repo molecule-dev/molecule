@@ -14,7 +14,6 @@ export const nl: Partial<CommonTranslations> = {
   'auth.login.password': 'Wachtwoord',
   'auth.login.signUp': 'Registreren',
   'auth.resetPassword.email': 'E-mail',
-  'auth.signup.name': 'Uw naam',
   'auth.signup.signUp': 'Registreren',
   'error.unknown': 'Er is een onverwachte fout opgetreden.',
   'footer.about': 'Over {{appName}}',
@@ -522,4 +521,5 @@ export const nl: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Ingelogd als {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Naam (optioneel)',
 }

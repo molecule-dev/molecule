@@ -32,7 +32,6 @@ export const sq: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Tokeni i Rivendosjes së Fjalëkalimit',
   'auth.resetPassword.twoFactor': 'Token me dy faktorë (Nëse është aktivizuar)',
   'auth.signup.email': 'Email (E detyrueshme)',
-  'auth.signup.name': 'Emri juaj',
   'auth.signup.password': 'Fjalëkalimi (i detyrueshëm)',
   'auth.signup.signUp': 'Regjistrohu',
   'auth.signup.signingUp': 'Duke u regjistruar...',
@@ -525,4 +524,5 @@ export const sq: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'I kyçur si {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Emri (opsional)',
 }

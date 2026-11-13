@@ -14,7 +14,6 @@ export const zh: Partial<CommonTranslations> = {
   'auth.login.password': '密码',
   'auth.login.signUp': '注册',
   'auth.resetPassword.email': '邮箱',
-  'auth.signup.name': '您的姓名',
   'auth.signup.signUp': '注册',
   'error.unknown': '发生意外错误。',
   'footer.about': '关于 {{appName}}',
@@ -514,4 +513,5 @@ export const zh: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '以{{who}}身份登录',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': '姓名（可选）',
 }

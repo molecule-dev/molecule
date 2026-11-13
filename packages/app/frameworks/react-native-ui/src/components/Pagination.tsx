@@ -7,7 +7,7 @@
 import React from 'react'
 import { Pressable, Text, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { PaginationProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -36,6 +36,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   className,
   testId,
 }) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
 
   const range = (start: number, end: number): number[] =>
@@ -121,7 +122,7 @@ export const Pagination: React.FC<PaginationProps> = ({
               accessibilityLabel={t(
                 'ui.pagination.goToPage',
                 { page: String(item) },
-                { defaultValue: `Page ${item}` },
+                { defaultValue: 'Go to page {{page}}' },
               )}
             >
               <Text>{item}</Text>

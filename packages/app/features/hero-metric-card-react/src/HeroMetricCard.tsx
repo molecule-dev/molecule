@@ -1,4 +1,4 @@
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -82,6 +82,7 @@ export function HeroMetricCard({
   className,
   dataMolId,
 }: HeroMetricCardProps): React.ReactElement {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const interactive = Boolean(onClick)
   const accentBar = accent ? resolveAccentBar(cm, accent) : undefined

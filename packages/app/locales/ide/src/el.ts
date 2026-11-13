@@ -34,7 +34,6 @@ export const el: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Εγγραφή',
   'ide.chat.modelUpgradeRequired':
     '{{model}} είναι διαθέσιμο στο Pro. Αναβαθμίστε για να έχετε πρόσβαση σε όλα τα μοντέλα.',
-  'ide.chat.autoFixCountdown': 'Συνέχιση',
   'ide.chat.autoFixPause': 'Παύση',
   'ide.chat.autoFixCancel': 'Ακύρωση',
   'ide.chat.soundAll': 'Όλα',
@@ -122,7 +121,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Το αρχείο είναι πολύ μεγάλο. Το μέγιστο μέγεθος είναι {{maxSize}} ΜΒ.',
   'ide.chat.modelSet': 'Το μοντέλο συνομιλίας έχει οριστεί σε {{name}}',
   'ide.chat.compacting': 'Συμπύκνωση συνομιλίας...',
-  'ide.chat.compacted': 'Η χρήση περιβάλλοντος είναι χαμηλή — δεν απαιτείται συμπύκνωση.',
   'ide.chat.compactError': 'Αποτυχία συμπύκνωσης συνομιλίας.',
   'ide.chat.switchedToPlan': 'Έγινε εναλλαγή σε λειτουργία σχεδιασμού',
   'ide.chat.switchedToExecute': 'Έγινε εναλλαγή σε λειτουργία εκτέλεσης',
@@ -152,7 +150,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Αυτό το μοντέλο κοστίζει ×{{multiplier}} μεταξύ {{windows}}. Την υπόλοιπη ημέρα ισχύει η κανονική χρέωση.',
   'ide.chat.undoNoChanges': 'Δεν υπάρχουν αλλαγές αρχείου προς αναίρεση.',
-  'ide.chat.undoComplete': 'Η επαναφορά των αλλαγών απέτυχε.',
   'ide.chat.commitNoChanges': 'Δεν υπάρχουν αλλαγές προς καταχώρηση.',
   'ide.chat.commitError': 'Αποτυχία καταχώρησης αλλαγών.',
   'ide.chat.autoFixEnabled': 'Η αυτόματη διόρθωση είναι ενεργοποιημένη.',
@@ -168,7 +165,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Αποτυχία ενημέρωσης του μέγιστου αριθμού επαναλήψεων εργαλείου.',
   'ide.chat.dropFilesHere': 'Αποθέστε αρχεία εδώ',
   'ide.chat.autoFixPaused': 'Η αυτόματη διόρθωση τέθηκε σε παύση',
-  'ide.chat.version': '{{productName}} έκδοση 0.1.0',
   'ide.chat.selectModel': 'Επιλέξτε μοντέλο',
   'ide.chat.currentBadge': 'ρεύμα',
   'ide.chat.proRequired': 'Επαγγελματίας',
@@ -208,7 +204,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'Κάντε κλικ ξανά για επιβεβαίωση',
   'ide.search.replaceAll': 'Αντικατάσταση όλων',
   'ide.search.confirm': 'Επιβεβαιώνω',
-  'ide.search.replaceConfirmation': 'Ταίριασμα υπόθεσης',
   'ide.search.wholeWord': 'Αντιστοίχιση ολόκληρης λέξης',
   'ide.search.regex': 'Χρήση κανονικής έκφρασης',
   'ide.search.toggleFilters': 'Εναλλαγή φίλτρων',
@@ -275,7 +270,6 @@ export const el: Partial<IdeTranslations> = {
     'Συμπληρώστε το όριο μέγιστων επαναλήψεων εργαλείου',
   'ide.chat.soundEventDesc.verification_result': 'Ολοκληρώθηκε η εκτέλεση ελέγχου χνουδιών ή τύπου',
   'ide.chat.soundEventDesc.preview_error': 'Η ζωντανή προεπισκόπηση αντιμετώπισε σφάλμα',
-  'ide.chat.voice': 'Φωνή',
   'ide.chat.voiceUnavailable': 'Η υπαγόρευση δεν είναι διαθέσιμη σε αυτό το πρόγραμμα περιήγησης.',
   'ide.chat.voiceMicBlocked': 'Η πρόσβαση στο μικρόφωνο έχει αποκλειστεί.',
   'ide.chat.voicePreparing':
@@ -817,4 +811,13 @@ export const el: Partial<IdeTranslations> = {
     'Συμβουλή: πληκτρολογήστε @filename για να επισυνάψετε ένα αρχείο έργου ως περιβάλλον — {{agentName}} το διαβάζει απευθείας.',
   'ide.chat.help.modePlan':
     'Σχέδιο — {{agentName}} ερευνά τη βάση κώδικα και προτείνει ένα σχέδιο ΧΩΡΙΣ επεξεργασία αρχείων. Εναλλαγή με /plan. Ιδανικό για μεγάλες ή επικίνδυνες αλλαγές.',
+  'ide.chat.compacted': 'Συμπυκνωμένα {{count}} μηνύματα.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete':
+    'Επαναφέρθηκαν {{count}} αρχεία από τον τελευταίο γύρο της Τεχνητής Νοημοσύνης.',
+  'ide.chat.autoFixCountdown': 'Αυτόματη διόρθωση σε {{seconds}} δευτ...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation': 'Αντικατάσταση {{count}} εμφανίσεων σε {{files}} αρχεία;',
+  'ide.chat.voice': 'Υπαγόρευση',
+  'ide.chat.voiceStop': 'Διακοπή υπαγόρευσης',
 }

@@ -51,7 +51,7 @@ import {
   voiceEngineCoversLanguage,
 } from '@molecule/app-ai-voice'
 import { getCountryFlag } from '@molecule/app-country-flags'
-import { getLocale, t } from '@molecule/app-i18n'
+import { getLocale } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import { getLogger } from '@molecule/app-logger'
 import {
@@ -61,6 +61,8 @@ import {
   useChat,
   useHttpClient,
   useThemeMode,
+  useTranslation,
+  type UseTranslationResult,
 } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
@@ -775,10 +777,11 @@ function relativeTime(iso: string): string {
  * can be weeks out — an hours-only formatter capped at "tomorrow", so a window
  * ending in 18 days told the user it came back in the morning.
  *
+ * @param t - The translation function from `useTranslation()`.
  * @param resetAt - Epoch ms of the window end (always in the future from the API).
  * @returns A localized human countdown phrase.
  */
-function allowanceResetCountdown(resetAt: number): string {
+function allowanceResetCountdown(t: UseTranslationResult['t'], resetAt: number): string {
   const diffMs = resetAt - Date.now()
   if (!Number.isFinite(diffMs) || diffMs <= 0) {
     return t('ide.chat.resetSoon', undefined, { defaultValue: 'soon' })
@@ -792,11 +795,7 @@ function allowanceResetCountdown(resetAt: number): string {
     if (days <= 1) {
       return t('ide.chat.resetTomorrow', undefined, { defaultValue: 'tomorrow' })
     }
-    return t(
-      'ide.chat.resetInDays',
-      { days },
-      { defaultValue: `in about ${days} ${days === 1 ? 'day' : 'days'}` },
-    )
+    return t('ide.chat.resetInDays', { days }, { defaultValue: 'in about {{days}} days' })
   }
   const rounded = Math.round(hours)
   const laterLocalDay = new Date(resetAt).toDateString() !== new Date().toDateString()
@@ -806,7 +805,7 @@ function allowanceResetCountdown(resetAt: number): string {
   return t(
     'ide.chat.resetInHours',
     { hours: rounded },
-    { defaultValue: `in about ${rounded} ${rounded === 1 ? 'hour' : 'hours'}` },
+    { defaultValue: 'in about {{hours}} hours' },
   )
 }
 
@@ -886,10 +885,11 @@ function formatSize(bytes: number): string {
 
 /**
  * Format a duration in milliseconds as a human-readable string.
+ * @param t - The translation function from `useTranslation()`.
  * @param ms - Duration in milliseconds.
  * @returns Formatted string like "Thought for 5 seconds" or "Thought for 2 minutes".
  */
-function formatThinkingDuration(ms: number): string {
+function formatThinkingDuration(t: UseTranslationResult['t'], ms: number): string {
   if (ms < 1000) return t('ide.chat.thoughtBriefly', undefined, { defaultValue: 'Thought briefly' })
   const seconds = Math.round(ms / 1000)
   if (seconds < 60) {
@@ -926,15 +926,19 @@ function formatThinkingDuration(ms: number): string {
  * spinner. Returns undefined when there's nothing specific to show (the
  * indicator then falls back to its rotating generic messages).
  *
+ * @param t - The translation function from `useTranslation()`.
  * @param msg - The streaming assistant message.
  * @param msg.blocks - The ordered stream blocks (thinking / tool_use / text).
  * @param msg.toolCalls - The message's tool calls, looked up by block id.
  * @returns A short activity label, or undefined.
  */
-export function streamingActivityLabel(msg: {
-  blocks?: Array<{ type: string; id?: string }>
-  toolCalls?: Array<{ id: string; name: string; input?: unknown }>
-}): string | undefined {
+export function streamingActivityLabel(
+  t: UseTranslationResult['t'],
+  msg: {
+    blocks?: Array<{ type: string; id?: string }>
+    toolCalls?: Array<{ id: string; name: string; input?: unknown }>
+  },
+): string | undefined {
   const blocks = msg.blocks
   if (!blocks || blocks.length === 0) return undefined
   const last = blocks[blocks.length - 1]
@@ -1003,6 +1007,7 @@ function ThinkingBlock({
   durationMs?: number
   isStreaming?: boolean
 }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const contentRef = useRef<HTMLDivElement>(null)
   // Auto-expand while streaming so the user can see thinking in real-time.
@@ -1020,7 +1025,7 @@ function ThinkingBlock({
   const label = isStreaming
     ? t('ide.chat.thinking', undefined, { defaultValue: 'Thinking' })
     : durationMs != null
-      ? formatThinkingDuration(durationMs)
+      ? formatThinkingDuration(t, durationMs)
       : t('ide.chat.thoughtBriefly', undefined, { defaultValue: 'Thought briefly' })
 
   return (
@@ -1278,6 +1283,7 @@ function VerificationBadge({
   categories?: string[]
   renderCheckUnavailable?: boolean
 }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [expanded, setExpanded] = useState(false)
 
@@ -1642,6 +1648,7 @@ export function CommitCardItem({
   card: CommitCard
   onRevert?: (hash: string) => Promise<string | undefined>
 }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const isCoarse = useCoarsePointer()
   const [expanded, setExpanded] = useState(false)
@@ -1739,7 +1746,7 @@ export function CommitCardItem({
                 }}
               >
                 {isRunning ? (
-                  t('ide.chat.committing', undefined, { defaultValue: 'Committing' })
+                  t('ide.chat.committing', undefined, { defaultValue: 'Committing...' })
                 ) : (
                   <>
                     {t('ide.chat.commitLabel', undefined, { defaultValue: 'Commit' })}{' '}
@@ -2043,6 +2050,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     showTimestamp,
   } = props
 
+  const { t } = useTranslation()
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
@@ -2666,9 +2674,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     {t(
                       'ide.chat.loopLimitReached',
                       { max: msg.loopLimitReached },
-                      {
-                        defaultValue: `Reached the maximum of ${msg.loopLimitReached} tool iterations.`,
-                      },
+                      { defaultValue: 'Reached the maximum of {{max}} tool iterations.' },
                     )}
                   </div>
                   {loopActions.map((opt, i) => (
@@ -2939,6 +2945,7 @@ function ChatInner({
   // feedbackUrl: prop kept for back-compat (callers still pass it), but no longer
   // consumed here — its only use was the command-menu footer link removed in P3-21.
 }: ChatInnerProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   // Share-link management may be gated ABOVE canEdit by the host (molecule.dev
   // mints/lists/revokes at admin+) — every /share surface below uses this, so
@@ -6391,13 +6398,7 @@ function ChatInner({
           setCurrentModel(modelId)
           setSavedChatModel(modelId)
           addSystemCard(
-            t(
-              'ide.chat.modelSet',
-              { name },
-              {
-                defaultValue: `Chat model set to ${name}`,
-              },
-            ),
+            t('ide.chat.modelSet', { name }, { defaultValue: 'Chat model set to {{name}}' }),
           )
         }
       } catch (error) {
@@ -6576,9 +6577,7 @@ function ChatInner({
               t(
                 'ide.chat.compacted',
                 { count: res.data.compactedCount },
-                {
-                  defaultValue: `Compacted ${res.data.compactedCount} messages.`,
-                },
+                { defaultValue: 'Compacted {{count}} messages.' },
               ),
             )
           } else {
@@ -6653,7 +6652,7 @@ function ChatInner({
                   ? isMonthlyAllowance
                     ? t(
                         'ide.chat.usageAllowanceUsedUpMonthlyLine',
-                        { when: allowanceResetCountdown(d.allowanceResetAt) },
+                        { when: allowanceResetCountdown(t, d.allowanceResetAt) },
                         {
                           defaultValue:
                             'This month’s AI allowance is used up — refreshes {{when}}.',
@@ -6661,7 +6660,7 @@ function ChatInner({
                       )
                     : t(
                         'ide.chat.usageAllowanceUsedUpLine',
-                        { when: allowanceResetCountdown(d.allowanceResetAt) },
+                        { when: allowanceResetCountdown(t, d.allowanceResetAt) },
                         {
                           defaultValue: "Today's AI allowance is used up — refreshes {{when}}.",
                         },
@@ -6799,9 +6798,7 @@ function ChatInner({
             t(
               'ide.chat.undoComplete',
               { count: fileOriginals.size },
-              {
-                defaultValue: `Reverted ${fileOriginals.size} file(s) from last AI turn.`,
-              },
+              { defaultValue: 'Reverted {{count}} file(s) from last AI turn.' },
             ),
           )
         } catch (error) {
@@ -7257,9 +7254,7 @@ function ChatInner({
             t(
               'ide.chat.modelUpgradeRequired',
               { model: resolved?.label ?? name },
-              {
-                defaultValue: `${resolved?.label ?? name} is available on a paid plan. Upgrade to access all models.`,
-              },
+              { defaultValue: '{{model}} is available on Pro. Upgrade to access all models.' },
             ),
             // The upgrade/sign-in button(s) are the host's (its own routes/copy).
             { action: buildUpgradeCta?.({}) ?? undefined },
@@ -7391,13 +7386,7 @@ function ChatInner({
         await http.patch(settingsPatchUrl(), { settings: { maxToolLoops: n } })
         setCurrentMaxLoops(n)
         addSystemCard(
-          t(
-            'ide.chat.maxLoopsSet',
-            { n },
-            {
-              defaultValue: `Max tool iterations set to ${n}`,
-            },
-          ),
+          t('ide.chat.maxLoopsSet', { n }, { defaultValue: 'Max tool iterations set to {{n}}' }),
         )
       } catch (err) {
         const data = (
@@ -9195,7 +9184,8 @@ function ChatInner({
           // tool-execution gaps, rather than vanishing/restarting at each new assistant message.
           const turnTokens = estimateTurnTokens(messages)
           const label = streamingLike
-            ? (streamingStatus ?? (streamingMsg ? streamingActivityLabel(streamingMsg) : undefined))
+            ? (streamingStatus ??
+              (streamingMsg ? streamingActivityLabel(t, streamingMsg) : undefined))
             : t('ide.chat.awaitingSandbox', undefined, {
                 defaultValue: 'Waiting for the development environment to finish starting…',
               })
@@ -9249,9 +9239,7 @@ function ChatInner({
               : t(
                   'ide.chat.autoFixCountdown',
                   { seconds: autoFixCountdown.secondsLeft },
-                  {
-                    defaultValue: `Auto-fixing in ${autoFixCountdown.secondsLeft}s...`,
-                  },
+                  { defaultValue: 'Auto-fixing in {{seconds}}s...' },
                 )}
           </span>
           {autoFixCountdown.paused ? (
@@ -9335,7 +9323,7 @@ function ChatInner({
               'ide.chat.retryCountdown',
               { seconds: retryCountdown.secondsRemaining, attempt: retryCountdown.attempt },
               {
-                defaultValue: `Server error — retrying in ${retryCountdown.secondsRemaining}s… (attempt ${retryCountdown.attempt})`,
+                defaultValue: 'Server error — retrying in {{seconds}}s… (attempt {{attempt}})',
               },
             )}
           </span>
@@ -10199,7 +10187,8 @@ function ChatInner({
                                   'ide.chat.modelUpgradeRequired',
                                   { model: model.label },
                                   {
-                                    defaultValue: `${model.label} is available on a paid plan. Upgrade to access all models.`,
+                                    defaultValue:
+                                      '{{model}} is available on Pro. Upgrade to access all models.',
                                   },
                                 ),
                                 // Host owns the upgrade/sign-in button(s) (its routes/copy).
@@ -10696,7 +10685,7 @@ function ChatInner({
                                                 >
                                                   (
                                                   {t(
-                                                    'ide.chat.models.usageRateValue',
+                                                    'ide.chat.models.usageRateMultiplier',
                                                     { rate: rRate },
                                                     { defaultValue: '×{{rate}}' },
                                                   )}
@@ -11788,10 +11777,8 @@ function ChatInner({
                           { count: pendingFiles.length },
                           {
                             count: pendingFiles.length,
-                            defaultValue:
-                              pendingFiles.length === 1
-                                ? 'Commit {{count}} file'
-                                : 'Commit {{count}} files',
+                            defaultValue: 'Commit {{count}} files',
+                            defaultValue_one: 'Commit {{count}} file',
                           },
                         )}
                         disabled={autoCommitHeld}
@@ -11834,7 +11821,9 @@ function ChatInner({
                             )}
                           >
                             {commitState?.status === 'committing'
-                              ? t('ide.chat.committing')
+                              ? t('ide.chat.committing', undefined, {
+                                  defaultValue: 'Committing...',
+                                })
                               : commitState?.status === 'committed'
                                 ? t('ide.chat.committed')
                                 : t(
@@ -11842,10 +11831,8 @@ function ChatInner({
                                     { count: pendingFiles.length },
                                     {
                                       count: pendingFiles.length,
-                                      defaultValue:
-                                        pendingFiles.length === 1
-                                          ? 'Commit {{count}} file'
-                                          : 'Commit {{count}} files',
+                                      defaultValue: 'Commit {{count}} files',
+                                      defaultValue_one: 'Commit {{count}} file',
                                     },
                                   )}
                           </button>
@@ -12232,9 +12219,11 @@ function ChatInner({
                 type="button"
                 data-mol-id="chat-mic-button"
                 onClick={toggleVoice}
-                title={t('ide.chat.voice', undefined, {
-                  defaultValue: isListening ? 'Stop dictation' : 'Dictate',
-                })}
+                title={
+                  isListening
+                    ? t('ide.chat.voiceStop', undefined, { defaultValue: 'Stop dictation' })
+                    : t('ide.chat.voice', undefined, { defaultValue: 'Dictate' })
+                }
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -12693,6 +12682,7 @@ export function ChatPanel({
   skipToolCall,
   className,
 }: ChatPanelProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   // Share management may be gated ABOVE canEdit by the host (see
   // ChatPanelProps.canShare) — gates the built-in header share button here and

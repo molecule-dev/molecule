@@ -30,7 +30,6 @@ export const ky: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Сырсөздү калыбына келтирүү токени',
   'auth.resetPassword.twoFactor': 'Эки факторлуу токен (эгер иштетилсе)',
   'auth.signup.email': 'Электрондук почта (милдеттүү)',
-  'auth.signup.name': 'Атыңыз',
   'auth.signup.password': 'Сырсөз (милдеттүү)',
   'auth.signup.signUp': 'Катталуу',
   'auth.signup.signingUp': 'Катталууда...',
@@ -523,4 +522,5 @@ export const ky: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} катары кирди',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Аты-жөнү (милдеттүү эмес)',
 }

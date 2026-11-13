@@ -11,7 +11,6 @@ export const nb: Partial<CommonTranslations> = {
   'auth.login.password': 'Passord',
   'auth.login.signUp': 'Registrer deg',
   'auth.resetPassword.email': 'E-post',
-  'auth.signup.name': 'Ditt navn',
   'auth.signup.signUp': 'Registrer deg',
   'footer.about': 'Om {{appName}}',
   'footer.language': 'Språk',
@@ -522,4 +521,5 @@ export const nb: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Logget inn som {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Navn (valgfritt)',
 }

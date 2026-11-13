@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { DockStrip, StatusMark } from './DockStrip.js'
@@ -37,6 +37,7 @@ export function PlanCard({
   /** Whether the turn is paused on a question to the person. */
   awaitingUser?: boolean
 }): JSX.Element | null {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [expanded, setExpanded] = useState(true)
   if (todos.length === 0) return null

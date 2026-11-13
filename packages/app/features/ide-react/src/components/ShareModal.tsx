@@ -26,7 +26,7 @@
 import type { JSX, ReactNode } from 'react'
 import { useEffect } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ShareLinkResult, ShareRole } from './chat-share-utilities.js'
@@ -87,6 +87,7 @@ export function ShareModal({
   onCreated?: (result: ShareLinkResult) => void
 }): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
 
   // Escape closes the modal.
   useEffect(() => {

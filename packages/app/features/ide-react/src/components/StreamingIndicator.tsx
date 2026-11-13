@@ -8,7 +8,7 @@
 import type { JSX } from 'react'
 import { useEffect, useId, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { moleculeSpinnerMarkSvg } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
@@ -142,6 +142,7 @@ export function StreamingIndicator({
   startedAt,
   tokens,
 }: StreamingIndicatorProps): JSX.Element {
+  const { t } = useTranslation()
   const [msgIdx, setMsgIdx] = useState(0)
   const [now, setNow] = useState(() => Date.now())
   const isNarrow = useNarrowViewport()

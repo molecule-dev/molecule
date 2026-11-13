@@ -6,6 +6,9 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { createSimpleI18nProvider } from '@molecule/app-i18n'
+import { en } from '@molecule/app-locales-ide'
+
 import {
   parseTestsBarArg,
   parseTestsBarVisible,
@@ -16,6 +19,13 @@ import type { TestsRunState } from '../components/tests-card-utilities.js'
 import { EMPTY_RUN_STATE } from '../components/tests-card-utilities.js'
 import { testsBarLabel } from '../components/TestStatusBar.js'
 import type { TestItem } from '../types.js'
+
+// The label helper takes its translator as a parameter now (the component passes
+// the one from `useTranslation()`); this test hands it a real provider's `t`
+// bonded with the ide locale bond's own English catalog, so the assertions
+// exercise the actual translation table — plural keys resolve their `key_one`/
+// `key_other` forms by `count`, exactly as the loaded runtime does.
+const t = createSimpleI18nProvider('en', [{ code: 'en', name: 'English', translations: en }]).t
 
 const TESTS: TestItem[] = [
   {
@@ -245,8 +255,8 @@ describe('summariseTestsBar', () => {
 
 describe('testsBarLabel', () => {
   it('says how many tests have not run, singular and plural', () => {
-    expect(testsBarLabel(summariseTestsBar(runState({}), TESTS))).toBe('2 tests not run yet')
-    expect(testsBarLabel(summariseTestsBar(runState({}), TESTS.slice(0, 1)))).toBe(
+    expect(testsBarLabel(t, summariseTestsBar(runState({}), TESTS))).toBe('2 tests not run yet')
+    expect(testsBarLabel(t, summariseTestsBar(runState({}), TESTS.slice(0, 1)))).toBe(
       '1 test not run yet',
     )
   })

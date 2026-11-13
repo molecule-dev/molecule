@@ -7,7 +7,6 @@ export const fil: Partial<CommonTranslations> = {
   'auth.error.loginFailed': 'Nabigo ang pag-login',
   'auth.login.forgotPassword': 'Nakalimutan ang password?',
   'auth.login.signUp': 'Mag-sign up',
-  'auth.signup.name': 'Inyong pangalan',
   'auth.signup.signUp': 'Mag-sign up',
   'footer.about': 'Tungkol sa {{appName}}',
   'footer.language': 'Wika',
@@ -523,4 +522,5 @@ export const fil: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Naka-log in bilang {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Pangalan (opsyonal)',
 }

@@ -302,7 +302,11 @@ describe('routing hooks outside any router', () => {
     ['useIsActive', () => useIsActive('/settings')],
   ] as const)('%s names the router to mount', (_name, useHook) => {
     expect(() => renderHook<unknown, unknown>(useHook)).toThrow(
-      'useMoleculeRouter must be used within a React Router router. Mount BrowserRouter, HashRouter, MemoryRouter, Router, or RouterProvider.',
+      '`useMoleculeRouter` must be used within a React Router router. Mount `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, or `RouterProvider`.',
+    )
+    // The key travels with the error, so whatever shows it can translate it.
+    expect(() => renderHook<unknown, unknown>(useHook)).toThrow(
+      expect.objectContaining({ i18nKey: 'routing.error.useMoleculeRouterOutsideRouter' }),
     )
   })
 })

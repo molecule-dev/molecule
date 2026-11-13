@@ -39,7 +39,6 @@ export const lo: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'ໂທເຄັນຣີເຊັດລະຫັດຜ່ານ',
   'auth.resetPassword.twoFactor': 'ໂທເຄັນສອງປັດໄຈ (ຖ້າເປີດໃຊ້ງານ)',
   'auth.signup.email': 'ອີເມວ (ຕ້ອງໃສ່)',
-  'auth.signup.name': 'ຊື່ຂອງທ່ານ',
   'auth.signup.password': 'ລະຫັດຜ່ານ (ຕ້ອງການ)',
   'auth.signup.signUp': 'ລົງທະບຽນ',
   'auth.signup.signingUp': 'ກຳລັງລົງທະບຽນ...',
@@ -521,4 +520,5 @@ export const lo: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'ເຂົ້າສູ່ລະບົບໃນນາມ {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'ຊື່ (ບໍ່ຈຳເປັນ)',
 }

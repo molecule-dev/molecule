@@ -39,7 +39,6 @@ export const my: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'စကားဝှက်ပြန်လည်သတ်မှတ်ခြင်း တိုကင်',
   'auth.resetPassword.twoFactor': 'နှစ်ဆင့် တိုကင် (ဖွင့်ထားပါက)',
   'auth.signup.email': 'အီးမေးလ် (လိုအပ်သည်)',
-  'auth.signup.name': 'သင့်နာမည်',
   'auth.signup.password': 'စကားဝှက် (လိုအပ်သည်)',
   'auth.signup.signUp': 'ဆိုင်းအပ်',
   'auth.signup.signingUp': 'စာရင်းသွင်းနေသည်...',
@@ -524,4 +523,5 @@ export const my: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} အဖြစ် ဝင်ရောက်ထားသည်',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'အမည် (ရွေးချယ်နိုင်သည်)',
 }

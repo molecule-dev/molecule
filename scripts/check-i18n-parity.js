@@ -338,9 +338,11 @@ export function analyzeDefaults(root = ROOT) {
     const plural = !enTexts.has(id) && enTexts.has(`${id}_other`)
     const english = plural ? enTexts.get(`${id}_other`) : enTexts.get(id)
     const englishOne = plural ? enTexts.get(`${id}_one`) : undefined
+    // An empty default renders nothing until the key loads (content an app supplies, such as
+    // its legal pages); it holds no English to compare.
     const differing = literals.filter(
       (s) =>
-        (english !== undefined && s.text !== english) ||
+        (english !== undefined && s.text !== '' && s.text !== english) ||
         (englishOne !== undefined && s.one !== undefined && s.one !== englishOne),
     )
     if (differing.length > 0) add(`${id} :: default differs from en.ts`, differing)

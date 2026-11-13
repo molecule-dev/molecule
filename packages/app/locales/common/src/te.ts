@@ -39,7 +39,6 @@ export const te: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'పాస్‌వర్డ్ రీసెట్ టోకెన్',
   'auth.resetPassword.twoFactor': 'టూ-ఫ్యాక్టర్ టోకెన్ (ఎనేబుల్ చేయబడితే)',
   'auth.signup.email': 'ఇమెయిల్ (తప్పనిసరి)',
-  'auth.signup.name': 'మీ పేరు',
   'auth.signup.password': 'పాస్‌వర్డ్ (తప్పనిసరి)',
   'auth.signup.signUp': 'నమోదు చేసుకోండి',
   'auth.signup.signingUp': 'నమోదు చేసుకుంటున్నాను...',
@@ -520,4 +519,5 @@ export const te: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} గా లాగిన్ అయ్యారు',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'పేరు (ఐచ్ఛికం)',
 }

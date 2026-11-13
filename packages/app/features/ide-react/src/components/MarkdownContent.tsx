@@ -11,7 +11,7 @@
 import type { JSX, ReactNode } from 'react'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { StreamingIndicator } from './StreamingIndicator.js'
@@ -79,6 +79,7 @@ function LinkToken({
   href: string
   onNavigatePreview?: (path: string) => void
 }): JSX.Element {
+  const { t } = useTranslation()
   const linkStyle = {
     color: 'var(--mol-color-primary, #4070e0)',
     textDecoration: 'underline',
@@ -357,6 +358,7 @@ function Prose({
  * @returns The rendered code block element.
  */
 function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [copied, setCopied] = useState(false)
 

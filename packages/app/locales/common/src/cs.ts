@@ -11,7 +11,6 @@ export const cs: Partial<CommonTranslations> = {
   'auth.login.password': 'Heslo',
   'auth.login.signUp': 'Zaregistrovat se',
   'auth.resetPassword.email': 'E-mail',
-  'auth.signup.name': 'Vaše jméno',
   'auth.signup.signUp': 'Zaregistrovat se',
   'footer.about': 'O {{appName}}',
   'footer.language': 'Jazyk',
@@ -520,4 +519,5 @@ export const cs: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Přihlášen/a jako {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Jméno (volitelné)',
 }

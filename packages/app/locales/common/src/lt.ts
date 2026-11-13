@@ -32,7 +32,6 @@ export const lt: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Slaptažodžio atkūrimo prieigos raktas',
   'auth.resetPassword.twoFactor': 'Dviejų veiksnių prieigos raktas (jei įjungtas)',
   'auth.signup.email': 'El. paštas (būtina)',
-  'auth.signup.name': 'Jūsų vardas',
   'auth.signup.password': 'Slaptažodis (būtinas)',
   'auth.signup.signUp': 'Registruotis',
   'auth.signup.signingUp': 'Registruojamės...',
@@ -521,4 +520,5 @@ export const lt: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Prisijungta kaip {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Vardas (nebūtina)',
 }

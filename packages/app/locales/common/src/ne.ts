@@ -39,7 +39,6 @@ export const ne: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'पासवर्ड रिसेट टोकन',
   'auth.resetPassword.twoFactor': 'दुई-कारक टोकन (यदि सक्षम छ भने)',
   'auth.signup.email': 'इमेल (आवश्यक)',
-  'auth.signup.name': 'तपाईंको नाम',
   'auth.signup.password': 'पासवर्ड (आवश्यक)',
   'auth.signup.signUp': 'साइन अप गर्नुहोस्',
   'auth.signup.signingUp': 'साइन अप गर्दै...',
@@ -522,4 +521,5 @@ export const ne: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} को रूपमा लग इन गरियो',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'नाम (वैकल्पिक)',
 }

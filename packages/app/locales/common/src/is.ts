@@ -32,7 +32,6 @@ export const is: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Lykilorðsendurstillingartákn',
   'auth.resetPassword.twoFactor': 'Tvíþátta tákn (ef virkt)',
   'auth.signup.email': 'Netfang (Nauðsynlegt)',
-  'auth.signup.name': 'Nafn þitt',
   'auth.signup.password': 'Lykilorð (Nauðsynlegt)',
   'auth.signup.signUp': 'Skráning',
   'auth.signup.signingUp': 'Skráning...',
@@ -521,4 +520,5 @@ export const is: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Innskráð(ur) sem {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Nafn (valfrjálst)',
 }

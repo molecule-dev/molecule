@@ -32,7 +32,6 @@ export const kk: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Құпия сөзді қалпына келтіру токені',
   'auth.resetPassword.twoFactor': 'Екі факторлы токен (егер қосылған болса)',
   'auth.signup.email': 'Электрондық пошта (міндетті)',
-  'auth.signup.name': 'Сіздің атыңыз',
   'auth.signup.password': 'Құпия сөз (міндетті)',
   'auth.signup.signUp': 'Тіркелу',
   'auth.signup.signingUp': 'Тіркелуде...',
@@ -522,4 +521,5 @@ export const kk: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} ретінде кірдіңіз',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Аты-жөні (міндетті емес)',
 }

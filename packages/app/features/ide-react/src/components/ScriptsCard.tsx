@@ -18,9 +18,8 @@
 import type { CSSProperties, JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import { DEFAULT_AGENT_NAME, useHttpClient } from '@molecule/app-react'
+import { DEFAULT_AGENT_NAME, useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { chatCardStyle } from './chat-card-style.js'
@@ -69,6 +68,7 @@ export function ScriptsCard({
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
+  const { t } = useTranslation()
   const [status, setStatus] = useState<ScriptsStatus>('loading')
   const [scripts, setScripts] = useState<ScriptInfo[]>([])
   const [query, setQuery] = useState(initialQuery)
@@ -189,7 +189,7 @@ export function ScriptsCard({
     } finally {
       setSaving(false)
     }
-  }, [http, projectId, newName, newDescription, newBody, loadScripts])
+  }, [http, projectId, newName, newDescription, newBody, loadScripts, t])
 
   const filtered = useMemo(() => filterScripts(scripts, query), [scripts, query])
   const rowBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'
@@ -539,6 +539,7 @@ function ScriptOptionsForm({
   onSubmit: () => void
 }): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const canRun = missingRequiredParams(script, values).length === 0
   return (
     <div

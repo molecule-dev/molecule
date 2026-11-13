@@ -29,7 +29,6 @@ export const ig: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Akara Ntọgharị Okwuntughe',
   'auth.resetPassword.twoFactor': 'Akara ihe abụọ (ọ bụrụ na agbanyere ya)',
   'auth.signup.email': 'Ozi-e (Achọrọ ya)',
-  'auth.signup.name': 'Aha gị',
   'auth.signup.password': 'Okwuntughe (Achọrọ ya)',
   'auth.signup.signUp': 'Debanye aha',
   'auth.signup.signingUp': 'Na-edebanye aha...',
@@ -519,4 +518,5 @@ export const ig: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Banye dị ka {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Aha (nhọrọ)',
 }

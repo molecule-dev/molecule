@@ -39,7 +39,6 @@ export const ur: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'پاس ورڈ ری سیٹ ٹوکن',
   'auth.resetPassword.twoFactor': 'دو فیکٹر ٹوکن (اگر فعال ہو)',
   'auth.signup.email': 'ای میل (ضروری)',
-  'auth.signup.name': 'آپ کا نام',
   'auth.signup.password': 'پاس ورڈ (ضروری)',
   'auth.signup.signUp': 'سائن اپ کریں۔',
   'auth.signup.signingUp': 'سائن اپ ہو رہا ہے...',
@@ -521,4 +520,5 @@ export const ur: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'بطور {{who}} لاگ ان',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'نام (اختیاری)',
 }

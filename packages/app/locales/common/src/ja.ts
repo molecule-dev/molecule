@@ -14,7 +14,6 @@ export const ja: Partial<CommonTranslations> = {
   'auth.login.password': 'パスワード',
   'auth.login.signUp': 'サインアップ',
   'auth.resetPassword.email': 'メールアドレス',
-  'auth.signup.name': 'お名前',
   'auth.signup.signUp': 'サインアップ',
   'error.unknown': '予期しないエラーが発生しました。',
   'footer.about': '{{appName}}について',
@@ -521,4 +520,5 @@ export const ja: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}}としてログインしました',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': '名前（任意）',
 }

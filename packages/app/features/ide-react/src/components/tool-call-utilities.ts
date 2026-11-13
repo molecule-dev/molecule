@@ -400,7 +400,7 @@ export function subagentErrorLine(error: unknown, report: string): string {
 export function toolSummary(name: string, output: ToolOutput, status: string): string {
   if (status === 'pending') return ''
   if (status === 'running')
-    return t('ide.toolCall.statusRunning', undefined, { defaultValue: 'Running' })
+    return t('ide.toolCall.statusRunning', undefined, { defaultValue: 'Running…' })
   // Checked BEFORE every per-tool branch: a skipped `exec_command` carries no
   // exit code and a skipped `write_file` no diff, so the branches below would
   // fall through to the empty summary that means "it worked".

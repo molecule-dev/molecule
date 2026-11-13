@@ -39,7 +39,6 @@ export const pa: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'ਪਾਸਵਰਡ ਰੀਸੈਟ ਟੋਕਨ',
   'auth.resetPassword.twoFactor': 'ਦੋ-ਫੈਕਟਰ ਟੋਕਨ (ਜੇਕਰ ਯੋਗ ਹੈ)',
   'auth.signup.email': 'ਈਮੇਲ (ਲੋੜੀਂਦਾ)',
-  'auth.signup.name': 'ਤੁਹਾਡਾ ਨਾਮ',
   'auth.signup.password': 'ਪਾਸਵਰਡ (ਲੋੜੀਂਦਾ)',
   'auth.signup.signUp': 'ਸਾਇਨ ਅਪ',
   'auth.signup.signingUp': 'ਸਾਈਨ ਅੱਪ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...',
@@ -520,4 +519,5 @@ export const pa: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} ਵਜੋਂ ਲੌਗਇਨ ਕੀਤਾ',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'ਨਾਮ (ਵਿਕਲਪਿਕ)',
 }

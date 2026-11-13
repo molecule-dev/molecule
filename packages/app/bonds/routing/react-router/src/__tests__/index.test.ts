@@ -1154,7 +1154,9 @@ describe('@molecule/app-routing-react-router', () => {
       })
 
       it('should throw for missing required param', () => {
-        expect(() => generatePath('/products/:id', {})).toThrow('Missing required param "id"')
+        expect(() => generatePath('/products/:id', {})).toThrow(
+          'Missing param "id" for path "/products/:id"',
+        )
       })
 
       it('should throw I18nError with routing.error.missingParam key for missing param', () => {

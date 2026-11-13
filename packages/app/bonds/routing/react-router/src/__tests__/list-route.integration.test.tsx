@@ -552,6 +552,6 @@ describe('URL-backed list consumer transitions', () => {
     await settle()
     expect(href('next')).toBe('/?view=following&page=2')
     expect(href('topic-design')).toBe('/topics/design')
-    expect(() => current.href({ selection: 'topic' })).toThrow('Missing required param "topic"')
+    expect(() => current.href({ selection: 'topic' })).toThrow('Missing param "topic" for path')
   })
 })

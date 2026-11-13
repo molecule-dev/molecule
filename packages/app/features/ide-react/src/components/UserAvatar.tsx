@@ -10,7 +10,7 @@
 
 import { type JSX, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Icon } from './Icon.js'
@@ -57,6 +57,7 @@ export interface UserAvatarProps {
  * @returns The avatar image or icon fallback, optionally wrapped in a button.
  */
 export function UserAvatar({ userAvatar, name, size = 24, onClick }: UserAvatarProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [hover, setHover] = useState(false)
   const src = resolveUserAvatar(userAvatar)

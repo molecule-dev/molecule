@@ -39,7 +39,6 @@ export const uz: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Parolni tiklash tokeni',
   'auth.resetPassword.twoFactor': "Ikki faktorli token (agar yoqilgan bo'lsa)",
   'auth.signup.email': 'Elektron pochta (majburiy)',
-  'auth.signup.name': 'Sizning ismingiz',
   'auth.signup.password': 'Parol (majburiy)',
   'auth.signup.signUp': "Ro'yxatdan o'tish",
   'auth.signup.signingUp': "Ro'yxatdan o'tilmoqda...",
@@ -521,4 +520,5 @@ export const uz: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} sifatida tizimga kirdingiz',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Ism (ixtiyoriy)',
 }

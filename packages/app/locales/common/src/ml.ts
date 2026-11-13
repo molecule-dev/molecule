@@ -39,7 +39,6 @@ export const ml: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'പാസ്‌വേഡ് റീസെറ്റ് ടോക്കൺ',
   'auth.resetPassword.twoFactor': 'ടു-ഫാക്ടർ ടോക്കൺ (പ്രവർത്തനക്ഷമമാക്കിയിട്ടുണ്ടെങ്കിൽ)',
   'auth.signup.email': 'ഇമെയിൽ (ആവശ്യമാണ്)',
-  'auth.signup.name': 'നിങ്ങളുടെ പേര്',
   'auth.signup.password': 'പാസ്‌വേഡ് (ആവശ്യമാണ്)',
   'auth.signup.signUp': 'സൈൻ അപ്പ് ചെയ്യുക',
   'auth.signup.signingUp': 'സൈൻ അപ്പ് ചെയ്യുന്നു...',
@@ -526,4 +525,5 @@ export const ml: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} ആയി ലോഗിൻ ചെയ്‌തു',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'പേര് (ഓപ്ഷണൽ)',
 }

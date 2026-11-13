@@ -13,7 +13,9 @@
  */
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 vi.mock('react-native', () => {
   const host =
@@ -49,12 +51,17 @@ vi.mock('@molecule/app-ui', () => ({
     ),
 }))
 
-// A stand-in translation table: the shared bond's English for the two keys involved.
+// The component translates through `useTranslation()` (@molecule/app-react), which
+// outside an I18nProvider reads the bonded provider — so the test bonds a real
+// provider with the shared bond's English values for the two keys involved, the
+// way an app does. (A vi.mock('@molecule/app-i18n') stub no longer reaches it.)
 const TRANSLATIONS: Record<string, string> = { 'ui.input.clear': 'Clear', 'ui.icon.close': '✕' }
-vi.mock('@molecule/app-i18n', () => ({
-  t: (key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-    TRANSLATIONS[key] ?? opts?.defaultValue ?? key,
-}))
+
+beforeEach(() => {
+  setProvider(
+    createSimpleI18nProvider('en', [{ code: 'en', name: 'English', translations: TRANSLATIONS }]),
+  )
+})
 
 const { Input } = await import('../components/Input.js')
 

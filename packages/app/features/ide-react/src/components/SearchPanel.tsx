@@ -8,9 +8,8 @@ import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import { useHttpClient, useThemeMode } from '@molecule/app-react'
+import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-react'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -164,6 +163,7 @@ const FileResultGroup = memo(function FileResultGroup({
   showReplace: boolean
 }): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -328,6 +328,7 @@ export function SearchPanel({
   readOnly,
 }: SearchPanelProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const isLight = useThemeMode() === 'light'
   const http = useHttpClient()
   const isNarrow = useNarrowViewport()
@@ -645,9 +646,7 @@ export function SearchPanel({
             {t(
               'ide.search.replaceConfirmation',
               { count: totalCount, files: fileCount },
-              {
-                defaultValue: `Replace ${totalCount} occurrences in ${fileCount} files?`,
-              },
+              { defaultValue: 'Replace {{count}} occurrences in {{files}} files?' },
             )}
           </div>
         )}
@@ -785,16 +784,12 @@ export function SearchPanel({
               ? t(
                   'ide.search.resultsTruncated',
                   { count: totalCount, files: fileCount },
-                  {
-                    defaultValue: `${totalCount} results in ${fileCount} files (truncated)`,
-                  },
+                  { defaultValue: '{{count}} results in {{files}} files (truncated)' },
                 )
               : t(
                   'ide.search.results',
                   { count: totalCount, files: fileCount },
-                  {
-                    defaultValue: `${totalCount} results in ${fileCount} files`,
-                  },
+                  { defaultValue: '{{count}} results in {{files}} files' },
                 )
             : t('ide.search.noResults', undefined, { defaultValue: 'No results found' })}
         </div>

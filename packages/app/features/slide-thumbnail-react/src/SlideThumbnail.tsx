@@ -1,6 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for the {@link SlideThumbnail} component. */
@@ -37,6 +37,7 @@ export function SlideThumbnail({
   width = 160,
   className,
 }: SlideThumbnailProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   return (
     <button

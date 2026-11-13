@@ -39,7 +39,6 @@ export const ta: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'கடவுச்சொல் மீட்டமைப்பு டோக்கன்',
   'auth.resetPassword.twoFactor': 'இரு காரணி டோக்கன் (செயல்படுத்தப்பட்டிருந்தால்)',
   'auth.signup.email': 'மின்னஞ்சல் (கட்டாயம்)',
-  'auth.signup.name': 'உங்கள் பெயர்',
   'auth.signup.password': 'கடவுச்சொல் (தேவை)',
   'auth.signup.signUp': 'பதிவு செய்க',
   'auth.signup.signingUp': 'பதிவு செய்தல்...',
@@ -523,4 +522,5 @@ export const ta: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} ஆக உள்நுழைந்துள்ளார்',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'பெயர் (விருப்பப்பட்டால்)',
 }

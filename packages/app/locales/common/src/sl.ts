@@ -32,7 +32,6 @@ export const sl: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Žeton za ponastavitev gesla',
   'auth.resetPassword.twoFactor': 'Dvofaktorski žeton (če je omogočen)',
   'auth.signup.email': 'E-pošta (obvezno)',
-  'auth.signup.name': 'Vaše ime',
   'auth.signup.password': 'Geslo (obvezno)',
   'auth.signup.signUp': 'Prijavi se',
   'auth.signup.signingUp': 'Prijava ...',
@@ -521,4 +520,5 @@ export const sl: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Prijavljen kot {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Ime (neobvezno)',
 }

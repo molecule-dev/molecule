@@ -14,7 +14,6 @@ export const hi: Partial<CommonTranslations> = {
   'auth.login.password': 'पासवर्ड',
   'auth.login.signUp': 'साइन अप करें',
   'auth.resetPassword.email': 'ईमेल',
-  'auth.signup.name': 'आपका नाम',
   'auth.signup.signUp': 'साइन अप करें',
   'error.unknown': 'एक अप्रत्याशित त्रुटि हुई।',
   'footer.about': '{{appName}} के बारे में',
@@ -520,4 +519,5 @@ export const hi: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} के रूप में लॉग इन किया गया',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'नाम: (वैकल्पिक)',
 }

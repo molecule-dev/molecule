@@ -34,7 +34,6 @@ export const tr: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Kayıt ol',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Pro sürümünde mevcuttur. Tüm modellere erişmek için sürümünüzü yükseltin.',
-  'ide.chat.autoFixCountdown': 'Devam et',
   'ide.chat.autoFixPause': 'Duraklat',
   'ide.chat.autoFixCancel': 'İptal',
   'ide.chat.soundAll': 'Tümü',
@@ -132,7 +131,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Dosya çok büyük. Maksimum boyut... {{maxSize}} MB.',
   'ide.chat.modelSet': 'Sohbet modeli şu şekilde ayarlandı: {{name}}',
   'ide.chat.compacting': 'Konuşmayı özetliyor...',
-  'ide.chat.compacted': 'Bağlam kullanımı düşük — sıkıştırmaya gerek yok.',
   'ide.chat.compactError': 'Konuşmayı özetlemek mümkün olmadı.',
   'ide.chat.switchedToPlan': 'Plan moduna geçildi.',
   'ide.chat.switchedToExecute': 'Yürütme moduna geçildi.',
@@ -160,7 +158,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Bu model {{windows}} arasında ×{{multiplier}} ücretlendirilir. Günün geri kalanında normal ücret geçerlidir.',
   'ide.chat.undoNoChanges': 'Geri alınacak dosya değişikliği yok.',
-  'ide.chat.undoComplete': 'Değişiklikler geri alınamadı.',
   'ide.chat.commitNoChanges': 'Kaydedilecek değişiklik yok.',
   'ide.chat.commitError': 'Değişiklikler kaydedilemedi.',
   'ide.chat.autoFixEnabled': 'Otomatik düzeltme etkinleştirildi.',
@@ -176,7 +173,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Maksimum araç yineleme sayısını güncelleme başarısız oldu.',
   'ide.chat.dropFilesHere': 'Dosyaları buraya sürükleyin',
   'ide.chat.autoFixPaused': 'Otomatik düzeltme duraklatıldı',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Model seçin',
   'ide.chat.currentBadge': 'akım',
   'ide.chat.proRequired': 'Profesyonel',
@@ -212,7 +208,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'Yer değiştirmek',
   'ide.search.confirmReplaceAll': 'Onaylamak için tekrar tıklayın.',
   'ide.search.replaceAll': 'Tümünü Değiştir',
-  'ide.search.replaceConfirmation': 'Kibrit Kutusu',
   'ide.search.wholeWord': 'Kelimenin tamamını eşleştir',
   'ide.search.regex': 'Düzenli İfade Kullanımı',
   'ide.search.toggleFilters': 'Filtreleri Aç/Kapat',
@@ -271,7 +266,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.loop_limit_reached': 'Maksimum araç yineleme sınırına ulaşıldı.',
   'ide.chat.soundEventDesc.verification_result': 'Kod denetimi veya tür kontrolü tamamlandı.',
   'ide.chat.soundEventDesc.preview_error': 'Canlı önizlemede bir hata oluştu.',
-  'ide.chat.voice': 'Ses',
   'ide.chat.voiceUnavailable': 'Dikte bu tarayıcıda kullanılamıyor.',
   'ide.chat.voiceMicBlocked': 'Mikrofon erişimi engellendi.',
   'ide.chat.voicePreparing': 'Dikte hazırlanıyor — ilk kullanımda biraz zaman alabilir.',
@@ -798,4 +792,13 @@ export const tr: Partial<IdeTranslations> = {
     'IDE çalışma alanı sağlayıcısı yapılandırılmamış. Öncelikle bir IDE sağlayıcısı bağlayın.',
   'ide.chat.tip.getStarted':
     'İpucu: Tüm komutları görmek için / yazın veya {{agentName}} e üzerinde çalışacağı bir dosya vermek için @ dosya adı yazın.',
+  'ide.chat.compacted': 'Sıkıştırılmış {{count}} mesaj.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'Son yapay zeka turundan {{count}} dosya geri alındı.',
+  'ide.chat.autoFixCountdown': 'Otomatik düzeltme {{seconds}} içinde...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation':
+    '{{files}} dosyada {{count}} tekrarı değiştirmek mi istiyorsunuz?',
+  'ide.chat.voice': 'Dikte',
+  'ide.chat.voiceStop': 'Dikteyi durdurun',
 }

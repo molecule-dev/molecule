@@ -8,8 +8,7 @@ import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
-import { useThemeMode } from '@molecule/app-react'
+import { useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer } from '../hooks/useViewport.js'
@@ -732,6 +731,7 @@ export function FileExplorer({
   activeFile,
   fileStatuses,
 }: FileExplorerProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const gitColors = useThemeMode() === 'light' ? LIGHT_GIT_COLORS : DARK_GIT_COLORS
   const isCoarse = useCoarsePointer()

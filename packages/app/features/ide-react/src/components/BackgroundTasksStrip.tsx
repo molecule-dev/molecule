@@ -1,7 +1,7 @@
 import { type JSX, useEffect, useState } from 'react'
 
 import type { BackgroundTaskState } from '@molecule/app-ai-chat'
-import { t } from '@molecule/app-i18n'
+import { useTranslation, type UseTranslationResult } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { DockStrip, StatusMark } from './DockStrip.js'
@@ -25,6 +25,7 @@ export function BackgroundTasksStrip({
 }: {
   tasks: BackgroundTaskState[]
 }): JSX.Element | null {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [expanded, setExpanded] = useState(false)
   // Re-render once a second so the elapsed time on a running command counts up.
@@ -111,7 +112,7 @@ export function BackgroundTasksStrip({
       chipTitle={lead ? purpose(lead) : undefined}
       hint={
         !expanded && lead
-          ? `· ${purpose(lead)}${progress(lead) ? ` · ${progress(lead)}` : ''}`
+          ? `· ${purpose(lead)}${progress(t, lead) ? ` · ${progress(t, lead)}` : ''}`
           : undefined
       }
     >
@@ -139,7 +140,7 @@ export function BackgroundTasksStrip({
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div>{purpose(task)}</div>
-              {progress(task) && <div className={cm.textMuted}>{progress(task)}</div>}
+              {progress(t, task) && <div className={cm.textMuted}>{progress(t, task)}</div>}
               {task.description ? (
                 <code
                   className={cm.textMuted}
@@ -150,7 +151,7 @@ export function BackgroundTasksStrip({
               ) : null}
             </div>
             <span className={cm.textMuted} style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
-              {describe(task)}
+              {describe(t, task)}
             </span>
           </li>
         ))}
@@ -164,8 +165,13 @@ function purpose(task: BackgroundTaskState): string {
   return task.description ?? task.command
 }
 
-/** The right-hand status for one command: how long it ran, and how it ended. */
-function describe(task: BackgroundTaskState): string {
+/**
+ * The right-hand status for one command: how long it ran, and how it ended.
+ * @param t - The translation function from `useTranslation()`.
+ * @param task - The background task to describe.
+ * @returns The status text.
+ */
+function describe(t: UseTranslationResult['t'], task: BackgroundTaskState): string {
   const seconds = Math.max(0, Math.round(((task.finishedAt ?? Date.now()) - task.startedAt) / 1000))
   const elapsed = seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`
   if (task.status === 'running') {
@@ -188,8 +194,13 @@ function describe(task: BackgroundTaskState): string {
   return t('ide.chat.backgroundOk', { elapsed }, { defaultValue: 'done · {{elapsed}}' })
 }
 
-/** A worker's observed output is useful progress without inventing a total or percentage. */
-function progress(task: BackgroundTaskState): string | null {
+/**
+ * A worker's observed output is useful progress without inventing a total or percentage.
+ * @param t - The translation function from `useTranslation()`.
+ * @param task - The background task whose output is measured.
+ * @returns The progress text, or null when no output has been observed.
+ */
+function progress(t: UseTranslationResult['t'], task: BackgroundTaskState): string | null {
   if (task.outputChars == null) return null
   return t(
     'ide.chat.backgroundOutput',

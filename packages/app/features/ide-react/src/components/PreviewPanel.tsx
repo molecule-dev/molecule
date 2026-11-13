@@ -55,10 +55,9 @@
 
 import { type JSX, useCallback, useEffect, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import { withCacheBuster } from '@molecule/app-live-preview'
-import { usePreview } from '@molecule/app-react'
+import { usePreview, useTranslation } from '@molecule/app-react'
 import { get as storageGet, set as storageSet } from '@molecule/app-storage'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
@@ -530,6 +529,7 @@ export function PreviewPanel({
   isBuilding,
   wakeAt,
 }: PreviewPanelProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const { state, setUrl, refresh, setDevice, openExternal, recordNavigation, back, forward } =
     usePreview()
@@ -2267,7 +2267,7 @@ export function PreviewPanel({
             icon="sync"
             molId="preview-refresh"
             onClick={refresh}
-            title={t('ide.preview.refresh', {}, { defaultValue: 'Reload' })}
+            title={t('ide.preview.refresh', {}, { defaultValue: 'Refresh preview' })}
           />
           {/* The device-frame dropdown also hosts Rotate (only when the current */}
           {/* frame is rotatable — "where relevant") and Open in new tab (P4-04). */}
@@ -2636,6 +2636,7 @@ function PreviewBlankNotice({
   onReload: () => void
   onOpenExternal: () => void
 }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   return (
     <div
@@ -2734,6 +2735,7 @@ function DefaultLoadingIndicator({
   retryCount: number
   onManualRetry?: () => void
 }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   // Rotate the themed phrases (~2.4s each) so the overlay never reads as a frozen
   // "Loading preview…" while the build thrashes the preview with reloads. (When a

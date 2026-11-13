@@ -32,7 +32,6 @@ export const lv: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Paroles atiestatīšanas žetons',
   'auth.resetPassword.twoFactor': 'Divfaktoru marķieris (ja iespējots)',
   'auth.signup.email': 'E-pasts (obligāti)',
-  'auth.signup.name': 'Tavs vārds',
   'auth.signup.password': 'Parole (obligāti)',
   'auth.signup.signUp': 'Reģistrēties',
   'auth.signup.signingUp': 'Reģistrēšanās...',
@@ -520,4 +519,5 @@ export const lv: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Pieteicies kā {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Vārds (pēc izvēles)',
 }

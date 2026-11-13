@@ -58,7 +58,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Ifayela likhulu kakhulu. Usayizi omkhulu ngu {{maxSize}} MB.',
   'ide.chat.modelSet': 'Imodeli yengxoxo isethwe ku- {{name}}',
   'ide.chat.compacting': 'Ingxoxo efinyeziwe...',
-  'ide.chat.compacted': 'Ukusetshenziswa komongo kuphansi — akukho ukuqiniswa okudingekayo.',
   'ide.chat.compactError': 'Yehlulekile ukufinyeza ingxoxo.',
   'ide.chat.switchedToPlan': 'Kushintshelwe kumodi yohlelo',
   'ide.chat.switchedToExecute': 'Kushintshelwe kumodi yokusebenzisa',
@@ -88,7 +87,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Le modeli ibiza ×{{multiplier}} phakathi kuka-{{windows}}. Isikhathi esisele sosuku kusebenza inani elijwayelekile.',
   'ide.chat.undoNoChanges': 'Azikho izinguquko zefayela okufanele zihlehliswe.',
-  'ide.chat.undoComplete': 'Yehlulekile ukubuyisela izinguquko.',
   'ide.chat.commitNoChanges': 'Azikho izinguquko okufanele zenziwe.',
   'ide.chat.commitError': 'Yehlulekile ukwenza izinguquko.',
   'ide.chat.autoFixEnabled': 'Ukulungisa okuzenzakalelayo kuvuliwe.',
@@ -107,10 +105,8 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Yehlulekile ukubuyekeza ukuphindaphinda kwamathuluzi okuphezulu.',
   'ide.chat.dropFilesHere': 'Lahla amafayela lapha',
   'ide.chat.autoFixPaused': 'Ukulungisa okuzenzakalelayo kumiswe okwesikhashana',
-  'ide.chat.autoFixCountdown': 'Qalisa kabusha',
   'ide.chat.autoFixPause': 'Misa isikhashana',
   'ide.chat.autoFixCancel': 'Khansela',
-  'ide.chat.version': 'I-{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Khetha imodeli',
   'ide.chat.currentBadge': 'okwamanje',
   'ide.chat.proRequired': 'Ingcweti',
@@ -159,7 +155,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'Chofoza futhi ukuze uqinisekise',
   'ide.search.replaceAll': 'Shintsha Konke',
   'ide.search.confirm': 'Qinisekisa',
-  'ide.search.replaceConfirmation': 'Icala Lokufana',
   'ide.search.wholeWord': 'Qondanisa Igama Eliphelele',
   'ide.search.regex': 'Sebenzisa Ukuvezwa Okuvamile',
   'ide.search.toggleFilters': 'Guqula Izihlungi',
@@ -271,7 +266,6 @@ export const zu: Partial<IdeTranslations> = {
     'Finyelela umkhawulo ophezulu wokuphindaphinda kwamathuluzi',
   'ide.chat.soundEventDesc.verification_result': 'I-Lint noma i-type-check isiqedile ukusebenza',
   'ide.chat.soundEventDesc.preview_error': 'Ukubuka kuqala okubukhoma kuhlangabezane nephutha',
-  'ide.chat.voice': 'Izwi',
   'ide.chat.voiceUnavailable': 'Ukubhala ngezwi akutholakali kule bhrawuza.',
   'ide.chat.voiceMicBlocked': 'Ukufinyelela kwemakrofoni kuvinjiwe.',
   'ide.chat.voicePreparing': 'Ilungiselela ukubhala ngezwi — kungathatha isikhashana okokuqala.',
@@ -805,4 +799,14 @@ export const zu: Partial<IdeTranslations> = {
     'Icebiso: thayipha / ukuze ubone yonke imiyalo, noma @ igama lefayela ukuze unike {{agentName}} ifayela ozosebenza kulo.',
   'ide.chat.tip.plan':
     'Icebiso: sebenzisa /plan ukuze ucwaninge i {{agentName}} futhi uphakamise uhlelo ngaphambi kokuthi ihlele noma yimaphi amafayela.',
+  'ide.chat.compacted': 'Imiyalezo engu {{count}} ehlanganisiwe.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete':
+    'Ifayela(amafayela) elingu {{count}} libuyiselwe emuva kusukela ekuphendukeni kokugcina kwe-AI.',
+  'ide.chat.autoFixCountdown': 'Ukulungisa okuzenzakalelayo kumasekhondi {{seconds}}...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation':
+    'Shintsha izenzakalo ezingu {{count}} kumafayela angu {{files}} ?',
+  'ide.chat.voice': 'Bizela',
+  'ide.chat.voiceStop': 'Misa ukubizela',
 }

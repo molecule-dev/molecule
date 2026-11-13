@@ -36,8 +36,7 @@
 import type { CSSProperties, JSX } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
-import { DEFAULT_AGENT_NAME } from '@molecule/app-react'
+import { DEFAULT_AGENT_NAME, useTranslation, type UseTranslationResult } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TestItem, TestKind, TestSelection, TestStatus } from '../types.js'
@@ -160,10 +159,11 @@ export interface TestsCardProps {
 /**
  * Human label for a kind.
  *
+ * @param t - The translation function from `useTranslation()`.
  * @param kind - The kind.
  * @returns The translated label.
  */
-function kindLabel(kind: TestKind): string {
+function kindLabel(t: UseTranslationResult['t'], kind: TestKind): string {
   return kind === 'e2e'
     ? t('ide.tests.kind.e2e', undefined, { defaultValue: 'End-to-end' })
     : t('ide.tests.kind.unit', undefined, { defaultValue: 'Unit' })
@@ -173,21 +173,23 @@ function kindLabel(kind: TestKind): string {
  * The heading for one group: its kind and the directory that owns it. The
  * workspace ROOT has no name of its own, so it gets the generic word.
  *
+ * @param t - The translation function from `useTranslation()`.
  * @param group - The group.
  * @returns The heading text.
  */
-function groupHeading(group: TestGroup): string {
+function groupHeading(t: UseTranslationResult['t'], group: TestGroup): string {
   const where = group.label ?? t('ide.tests.workspace.root', undefined, { defaultValue: 'Project' })
-  return `${kindLabel(group.kind)} · ${where}`
+  return `${kindLabel(t, group.kind)} · ${where}`
 }
 
 /**
  * The short label a status pill shows.
  *
+ * @param t - The translation function from `useTranslation()`.
  * @param status - The status.
  * @returns The translated label.
  */
-function statusLabel(status: TestStatus): string {
+function statusLabel(t: UseTranslationResult['t'], status: TestStatus): string {
   if (status === 'passed') return t('ide.tests.statusPassed', undefined, { defaultValue: 'Passed' })
   if (status === 'failed') return t('ide.tests.statusFailed', undefined, { defaultValue: 'Failed' })
   return t('ide.tests.statusSkipped', undefined, { defaultValue: 'Skipped' })
@@ -197,11 +199,16 @@ function statusLabel(status: TestStatus): string {
  * What the header says while a run is going: who started it, when it was not
  * this panel.
  *
+ * @param t - The translation function from `useTranslation()`.
  * @param run - The run on show.
  * @param agentName - The agent's display name.
  * @returns The translated label.
  */
-export function runningLabel(run: TestsRunState, agentName?: string): string {
+export function runningLabel(
+  t: UseTranslationResult['t'],
+  run: TestsRunState,
+  agentName?: string,
+): string {
   if (!run.external) return t('ide.tests.running', undefined, { defaultValue: 'Running…' })
   if (run.source === 'agent')
     return t(
@@ -236,6 +243,7 @@ export function TestsCard({
   agentName,
 }: TestsCardProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [query, setQuery] = useState(initialQuery)
   // The run output starts COLLAPSED. ScriptsCard auto-expands nothing while a
   // script runs, so neither does this; the status pills carry the state and the
@@ -331,7 +339,7 @@ export function TestsCard({
               style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
             >
               <span className={cm.spinner({ size: 'xs' })} aria-hidden="true" />
-              {runningLabel(run, agentName)}
+              {runningLabel(t, run, agentName)}
             </span>
           ) : (
             summary.reported > 0 && (
@@ -670,6 +678,7 @@ function TestsCardGroup({
   onSkipCurrent,
 }: TestsCardGroupProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const groupId = `${group.kind}-${group.workspace}`
   return (
     <div
@@ -687,7 +696,7 @@ function TestsCardGroup({
         }}
       >
         <div className={cm.cn(cm.fontWeight('medium'))} style={{ minWidth: 0 }}>
-          {groupHeading(group)}
+          {groupHeading(t, group)}
         </div>
         <button
           type="button"
@@ -777,6 +786,7 @@ function TestsCardRow({
   onSkipCurrent,
 }: TestsCardRowProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   // A failure's output starts COLLAPSED too — the row's status pill says what
   // happened; the detail is one click away for whoever wants it.
   const [showFailure, setShowFailure] = useState(false)
@@ -821,7 +831,7 @@ function TestsCardRow({
               }
               style={{ flexShrink: 0 }}
             >
-              {statusLabel(result.status)}
+              {statusLabel(t, result.status)}
             </span>
           )
         )}

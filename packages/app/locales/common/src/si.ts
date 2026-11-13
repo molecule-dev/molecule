@@ -39,7 +39,6 @@ export const si: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'මුරපද යළි පිහිටුවීමේ ටෝකනය',
   'auth.resetPassword.twoFactor': 'ද්වි-සාධක ටෝකනය (සක්‍රීය කර ඇත්නම්)',
   'auth.signup.email': 'විද්‍යුත් තැපෑල (අවශ්‍යයි)',
-  'auth.signup.name': 'ඔයාගේ නම',
   'auth.signup.password': 'මුරපදය (අවශ්‍යයි)',
   'auth.signup.signUp': 'ලියාපදිංචි වන්න',
   'auth.signup.signingUp': 'ලියාපදිංචි වෙමින්...',
@@ -521,4 +520,5 @@ export const si: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} ලෙස ලොග් වී ඇත.',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'නම (විකල්ප)',
 }

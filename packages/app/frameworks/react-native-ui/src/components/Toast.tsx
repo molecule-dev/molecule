@@ -7,7 +7,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Animated, Pressable, Text, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -34,6 +34,7 @@ export const Toast: React.FC<ToastProps> = ({
   className,
   testId,
 }) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const classes = cm.cn(
     cm.toast({
@@ -150,11 +151,12 @@ export const ToastProvider: React.FC<{
  * @returns The toast context value.
  */
 export function useToast(): ToastContextValue {
+  const { t } = useTranslation()
   const context = useContext(ToastContext)
   if (!context) {
     throw new Error(
       t('ui.toast.error.noProvider', undefined, {
-        defaultValue: 'useToast must be used within a ToastProvider',
+        defaultValue: '`useToast` must be used within a `ToastProvider`',
       }),
     )
   }

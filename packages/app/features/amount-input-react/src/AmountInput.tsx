@@ -1,6 +1,6 @@
 import type { ChangeEvent, ReactElement } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
@@ -66,6 +66,7 @@ export function AmountInput({
   size = 'lg',
   className,
 }: AmountInputProps): ReactElement {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const amountLabel = ariaLabel ?? t('amountInput.ariaLabel', undefined, { defaultValue: 'Amount' })
   /**

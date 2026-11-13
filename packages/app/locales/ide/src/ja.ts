@@ -35,7 +35,6 @@ export const ja: Partial<IdeTranslations> = {
   'upgrade.signUp': 'サインアップ',
   'ide.chat.modelUpgradeRequired':
     '{{model}}はPro版でのみ利用可能です。アップグレードするとすべてのモデルにアクセスできます。',
-  'ide.chat.autoFixCountdown': '再開',
   'ide.chat.autoFixPause': '一時停止',
   'ide.chat.autoFixCancel': 'キャンセル',
   'ide.chat.proRequired': 'プロ',
@@ -134,7 +133,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'ファイルサイズが大きすぎます。最大サイズは{{maxSize}} MB。',
   'ide.chat.modelSet': 'チャットモデルは次のように設定されています{{name}}',
   'ide.chat.compacting': '会話を凝縮する…',
-  'ide.chat.compacted': 'コンテキストの使用頻度が低いため、圧縮は不要です。',
   'ide.chat.compactError': '会話を簡潔にまとめることに失敗した。',
   'ide.chat.switchedToPlan': 'プランモードに切り替えました',
   'ide.chat.switchedToExecute': '実行モードに切り替えました',
@@ -162,7 +160,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'このモデルは {{windows}} の間は ×{{multiplier}} の料金です。それ以外の時間帯は通常料金です。',
   'ide.chat.undoNoChanges': '取り消すべきファイル変更はありません。',
-  'ide.chat.undoComplete': '変更を元に戻すことができませんでした。',
   'ide.chat.commitNoChanges': '変更事項はありません。',
   'ide.chat.commitError': '変更のコミットに失敗しました。',
   'ide.chat.autoFixEnabled': '自動修正機能が有効になっています。',
@@ -177,7 +174,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': '最大ツール反復回数の更新に失敗しました。',
   'ide.chat.dropFilesHere': 'ファイルをここにドロップしてください',
   'ide.chat.autoFixPaused': '自動修復が一時停止されました',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'モデルを選択',
   'ide.chat.currentBadge': '現在',
   'ide.chat.notificationSounds': '通知音',
@@ -212,7 +208,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': '交換する',
   'ide.search.confirmReplaceAll': 'もう一度クリックして確定',
   'ide.search.replaceAll': 'すべて置換',
-  'ide.search.replaceConfirmation': 'マッチケース',
   'ide.search.wholeWord': '単語全体を一致させる',
   'ide.search.regex': '正規表現を使用する',
   'ide.search.toggleFilters': 'フィルターの切り替え',
@@ -273,7 +268,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result':
     'リントチェックまたはタイプチェックの実行が完了しました',
   'ide.chat.soundEventDesc.preview_error': 'ライブプレビューでエラーが発生しました',
-  'ide.chat.voice': '声',
   'ide.chat.voiceUnavailable': 'このブラウザでは音声入力を利用できません。',
   'ide.chat.voiceMicBlocked': 'マイクへのアクセスがブロックされています。',
   'ide.chat.voicePreparing': '音声入力を準備中 — 初回は少し時間がかかることがあります。',
@@ -793,4 +787,13 @@ export const ja: Partial<IdeTranslations> = {
     'プラン{{agentName}} /planコードベースを調査し、ファイルを編集せずにプランを提案します。/planで切り替えられます。大規模な変更やリスクの高い変更に最適です。',
   'ide.chat.help.tipPlan':
     '• 変更を行う前に、/plan を使用して{{agentName}}に調査を依頼してください。',
+  'ide.chat.compacted': '{{count}}件のメッセージを圧縮しました。',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': '前回のAIターンから{{count}}のファイルを元に戻しました。',
+  'ide.chat.autoFixCountdown': '{{seconds}}秒で自動修正...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation':
+    '{{files}}個のファイル内の{{count}}個の出現箇所を置換しますか？',
+  'ide.chat.voice': '口述する',
+  'ide.chat.voiceStop': '音声入力を停止',
 }

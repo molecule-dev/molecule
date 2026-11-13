@@ -321,7 +321,6 @@ export const uk: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Токен скидання пароля',
   'auth.resetPassword.twoFactor': 'Двофакторний токен (якщо ввімкнено)',
   'auth.signup.email': "Електронна пошта (обов'язково)",
-  'auth.signup.name': "Ваше ім'я",
   'auth.signup.password': "Пароль (обов'язково)",
   'auth.signup.signingUp': 'Реєстрація...',
   'codeSandbox.docker.error.apiError': 'API Докера {{method}} {{path}} : {{status}} {{error}}',
@@ -520,4 +519,5 @@ export const uk: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Увійшов як {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': "Ім'я (необов'язково)",
 }

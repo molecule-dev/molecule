@@ -2,7 +2,7 @@ import { type JSX, useEffect, useState } from 'react'
 
 import type { ContextCategoryId, ContextCompaction, ContextUsage } from '@molecule/app-ai-chat'
 import { formatTokenCount } from '@molecule/app-ai-models'
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Modal, Progress, Tooltip } from '@molecule/app-ui-react'
 
@@ -72,6 +72,7 @@ function ContextUsageView({
   conversationId,
   onOpenSettings,
 }: ContextUsageIndicatorProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [open, setOpen] = useState(false)
   const [preview, setPreview] = useState(false)

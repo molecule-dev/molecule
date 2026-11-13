@@ -164,13 +164,19 @@ describe('an edit_file card whose replacements array holds a malformed entry', (
 
 describe('streamingActivityLabel reads model-authored fields as strings', () => {
   /**
+   * The translation function the component passes into the helper: the real
+   * provider's, so a missing key falls back to the call's own `defaultValue`.
+   */
+  const t = createSimpleI18nProvider('en').t
+
+  /**
    * Build a streaming message whose last block is a tool_use.
    *
    * @param name - The tool name.
    * @param input - The tool's model-authored input.
    * @returns The message shape the label reads.
    */
-  function message(name: string, input: unknown): Parameters<typeof streamingActivityLabel>[0] {
+  function message(name: string, input: unknown): Parameters<typeof streamingActivityLabel>[1] {
     return {
       blocks: [{ type: 'tool_use', id: 'call-1' }],
       toolCalls: [{ id: 'call-1', name, input }],
@@ -180,18 +186,18 @@ describe('streamingActivityLabel reads model-authored fields as strings', () => 
   it('does not throw when a declared-string path arrives as a non-string', () => {
     for (const name of ['write_file', 'edit_file']) {
       for (const value of HOSTILE_VALUES) {
-        expect(() => streamingActivityLabel(message(name, { path: value }))).not.toThrow()
+        expect(() => streamingActivityLabel(t, message(name, { path: value }))).not.toThrow()
       }
     }
   })
 
   it('still names the file when the path is a real string', () => {
-    expect(streamingActivityLabel(message('write_file', { path: 'a/b/App.tsx' }))).toContain(
+    expect(streamingActivityLabel(t, message('write_file', { path: 'a/b/App.tsx' }))).toContain(
       'App.tsx',
     )
   })
 
   it('stringifies a numeric field rather than dropping the label', () => {
-    expect(streamingActivityLabel(message('write_file', { path: 42 }))).toContain('42')
+    expect(streamingActivityLabel(t, message('write_file', { path: 42 }))).toContain('42')
   })
 })

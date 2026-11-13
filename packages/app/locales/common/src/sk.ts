@@ -32,7 +32,6 @@ export const sk: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Token na obnovenie hesla',
   'auth.resetPassword.twoFactor': 'Dvojfaktorový token (ak je povolený)',
   'auth.signup.email': 'E-mail (Povinné)',
-  'auth.signup.name': 'Vaše meno',
   'auth.signup.password': 'Heslo (povinné)',
   'auth.signup.signUp': 'Zaregistrovať sa',
   'auth.signup.signingUp': 'Registrácia...',
@@ -521,4 +520,5 @@ export const sk: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Prihlásený ako {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Meno (voliteľné)',
 }

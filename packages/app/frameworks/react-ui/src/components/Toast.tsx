@@ -15,8 +15,8 @@ import React, {
 } from 'react'
 import { createPortal } from 'react-dom'
 
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { useTranslation } from '@molecule/app-react'
 import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -75,6 +75,7 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
     ref,
   ) => {
     const [isVisible, setIsVisible] = useState(true)
+    const { t } = useTranslation()
     const cm = getClassMap()
     const variant = statusVariantMap[status] || 'default'
     const iconName = statusIconMap[variant]
@@ -236,6 +237,7 @@ const ToastContext = createContext<ToastContextValue | null>(null)
  * @returns The toast context value with toast management methods.
  */
 export const useToast = (): ToastContextValue => {
+  const { t } = useTranslation()
   const context = useContext(ToastContext)
   if (!context) {
     throw new Error(

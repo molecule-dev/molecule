@@ -39,7 +39,6 @@ export const mk: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Токен за ресетирање на лозинка',
   'auth.resetPassword.twoFactor': 'Двофакторски токен (доколку е овозможен)',
   'auth.signup.email': 'Е-пошта (Задолжително)',
-  'auth.signup.name': 'Вашето име',
   'auth.signup.password': 'Лозинка (Задолжително)',
   'auth.signup.signUp': 'Регистрирај се',
   'auth.signup.signingUp': 'Се пријавува...',
@@ -522,4 +521,5 @@ export const mk: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Најавени сте како {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Име (опционално)',
 }

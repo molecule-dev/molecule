@@ -1,6 +1,6 @@
 import type React from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { HeroMetricTrend } from './types.js'
@@ -28,6 +28,7 @@ export function HeroMetricTrendChip({
   trend,
   className,
 }: HeroMetricTrendChipProps): React.ReactElement {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const arrow = trend.direction === 'up' ? '▲' : '▼'
   const label =

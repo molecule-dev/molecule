@@ -18,7 +18,7 @@
 
 import type { JSX } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation, type UseTranslationResult } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TestItem } from '../types.js'
@@ -31,10 +31,11 @@ import { runningLabel } from './TestsCard.js'
 /**
  * The one-line summary the collapsed bar shows.
  *
+ * @param t - The translation function from `useTranslation()`.
  * @param summary - The derived run summary.
  * @returns The label.
  */
-export function testsBarLabel(summary: TestsBarSummary): string {
+export function testsBarLabel(t: UseTranslationResult['t'], summary: TestsBarSummary): string {
   const { tone, passed, failed, skipped } = summary
   if (tone === 'running') {
     return summary.remaining > 0
@@ -73,7 +74,8 @@ export function testsBarLabel(summary: TestsBarSummary): string {
     { count },
     {
       count,
-      defaultValue: count === 1 ? '{{count}} test not run yet' : '{{count}} tests not run yet',
+      defaultValue: '{{count}} tests not run yet',
+      defaultValue_one: '{{count}} test not run yet',
     },
   )
 }
@@ -91,10 +93,11 @@ const TONE_MARK: Record<TestsBarTone, StatusMarkState> = {
 /**
  * The short label the tray chip wears; full details live in the tests browser.
  *
+ * @param t - The translation function from `useTranslation()`.
  * @param summary - The derived run summary.
  * @returns The label.
  */
-export function testsChipLabel(summary: TestsBarSummary): string {
+export function testsChipLabel(t: UseTranslationResult['t'], summary: TestsBarSummary): string {
   const { tone, passed, failed } = summary
   if (tone === 'running')
     return t('ide.testsBar.runningLast', undefined, { defaultValue: 'Running tests' })
@@ -102,7 +105,7 @@ export function testsChipLabel(summary: TestsBarSummary): string {
     return `${failed} ${t('ide.testsBar.failedLabel', undefined, { defaultValue: 'failing' })}`
   if (tone === 'passing')
     return `${passed} ${t('ide.testsBar.passedLabel', undefined, { defaultValue: 'passing' })}`
-  return testsBarLabel(summary)
+  return testsBarLabel(t, summary)
 }
 
 /** What the bar needs from its host. */
@@ -143,9 +146,11 @@ export function TestStatusBar({
   agentName,
 }: TestStatusBarProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const summary = summariseTestsBar(run, tests)
   // A run this panel only watches says who started it; the counts are in the browser.
-  const label = run.running && run.external ? runningLabel(run, agentName) : testsBarLabel(summary)
+  const label =
+    run.running && run.external ? runningLabel(t, run, agentName) : testsBarLabel(t, summary)
 
   return (
     <DockStrip
@@ -181,7 +186,7 @@ export function TestStatusBar({
         ) : undefined
       }
       icon={<StatusMark state={TONE_MARK[summary.tone]} size={14} />}
-      chipLabel={run.running && run.external ? label : testsChipLabel(summary)}
+      chipLabel={run.running && run.external ? label : testsChipLabel(t, summary)}
     />
   )
 }

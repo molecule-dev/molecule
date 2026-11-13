@@ -30,7 +30,6 @@ export const yo: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Àmì Àtúntò Ọ̀rọ̀ Aṣínà',
   'auth.resetPassword.twoFactor': 'Àmì onífekítọ̀ méjì (tí a bá mú ṣiṣẹ́)',
   'auth.signup.email': 'Imeeli (Ó pọndandan)',
-  'auth.signup.name': 'Orúkọ rẹ',
   'auth.signup.password': 'Ọ̀rọ̀ aṣínà (Ó pọndandan)',
   'auth.signup.signUp': 'Forúkọ sílẹ̀',
   'auth.signup.signingUp': 'Ń forúkọ sílẹ̀...',
@@ -520,4 +519,5 @@ export const yo: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Mo wọlé gẹ́gẹ́ bí {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Orúkọ (àṣàyàn)',
 }

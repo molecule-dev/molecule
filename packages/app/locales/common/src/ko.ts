@@ -14,7 +14,6 @@ export const ko: Partial<CommonTranslations> = {
   'auth.login.password': '비밀번호',
   'auth.login.signUp': '회원가입',
   'auth.resetPassword.email': '이메일',
-  'auth.signup.name': '이름',
   'auth.signup.signUp': '회원가입',
   'error.unknown': '예기치 않은 오류가 발생했습니다.',
   'footer.about': '{{appName}} 소개',
@@ -518,4 +517,5 @@ export const ko: Partial<CommonTranslations> = {
   'common.countGuests': '{{count}} 명',
   'common.countWords': '{{count}} 단어',
   'common.minutesMin': '{{minutes}} 분',
+  'auth.signup.name': '이름 (선택 사항)',
 }

@@ -107,6 +107,16 @@ const moleculeLocal = {
   },
 }
 
+/**
+ * App packages never import API packages. Shared by the .ts and .tsx blocks below: a later
+ * `no-restricted-imports` entry replaces an earlier one's options for the files both match.
+ */
+const APP_CROSS_STACK_IMPORTS = {
+  group: ['@molecule/api-*'],
+  message:
+    'App packages cannot import from @molecule/api-* packages. This is a cross-stack boundary violation.',
+}
+
 /** The naming-convention rule entry: PascalCase only for types and const values. */
 const NAMING_CONVENTION = [
   'warn',
@@ -265,14 +275,35 @@ export default tseslint.config(
   {
     files: ['packages/app/**/*.ts'],
     rules: {
+      'no-restricted-imports': ['error', { patterns: [APP_CROSS_STACK_IMPORTS] }],
+    },
+  },
+  {
+    // React components translate through the hook. `useTranslation()` (and `useT()`) from
+    // @molecule/app-react subscribe to the provider's locale changes; the static `t` from
+    // @molecule/app-i18n does not, so a component that calls it while rendering keeps the
+    // old language after a switch until something else happens to re-render it. A helper
+    // outside a component takes `t` as a parameter from the component that calls it.
+    // Solid's .tsx is not React: its components read translations through its own primitives.
+    files: ['packages/app/**/*.tsx'],
+    ignores: [
+      'packages/app/frameworks/solid/**',
+      'packages/app/frameworks/solid-ui/**',
+      '**/__tests__/**',
+      '**/*.test.tsx',
+      '**/*.spec.tsx',
+    ],
+    rules: {
       'no-restricted-imports': [
         'error',
         {
-          patterns: [
+          patterns: [APP_CROSS_STACK_IMPORTS],
+          paths: [
             {
-              group: ['@molecule/api-*'],
+              name: '@molecule/app-i18n',
+              importNames: ['t'],
               message:
-                'App packages cannot import from @molecule/api-* packages. This is a cross-stack boundary violation.',
+                "A React component must read `t` from `useTranslation()` (or `useT()`) from '@molecule/app-react': the static `t` does not re-render the component when the locale changes. Pass that `t` to any helper outside the component.",
             },
           ],
         },

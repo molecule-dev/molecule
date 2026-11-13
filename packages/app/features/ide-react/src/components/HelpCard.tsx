@@ -19,8 +19,7 @@
 
 import type { JSX } from 'react'
 
-import { t } from '@molecule/app-i18n'
-import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-react'
+import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ChatEventCardAction } from '../customEventCards.js'
@@ -48,6 +47,7 @@ export function HelpCard({
   upgradeLines?: readonly string[]
   upgradeAction?: ChatEventCardAction | ChatEventCardAction[]
 }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const rowBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'
   const sectionHeading = cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))

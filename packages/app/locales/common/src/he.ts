@@ -114,7 +114,6 @@ export const he: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'אסימון איפוס סיסמה',
   'auth.resetPassword.twoFactor': 'אסימון דו-גורמי (אם מופעל)',
   'auth.signup.email': 'דוא"ל (חובה)',
-  'auth.signup.name': 'השם שלך',
   'auth.signup.password': 'סיסמה (נדרש)',
   'auth.signup.signUp': 'הרשמה',
   'auth.signup.signingUp': 'נרשם...',
@@ -517,4 +516,5 @@ export const he: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'מחובר בתור {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'שם (אופציונלי)',
 }

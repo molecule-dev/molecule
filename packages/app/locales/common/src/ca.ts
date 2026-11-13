@@ -32,7 +32,6 @@ export const ca: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Token de restabliment de contrasenya',
   'auth.resetPassword.twoFactor': 'Token de dos factors (si està habilitat)',
   'auth.signup.email': 'Correu electrònic (obligatori)',
-  'auth.signup.name': 'El teu nom',
   'auth.signup.password': 'Contrasenya (obligatòria)',
   'auth.signup.signUp': "Registra't",
   'auth.signup.signingUp': 'Registrant-se...',
@@ -526,4 +525,5 @@ export const ca: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Has iniciat la sessió com a {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Nom (opcional)',
 }

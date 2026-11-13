@@ -7,7 +7,7 @@
 import React from 'react'
 import { Pressable, Text, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { RadioGroupProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -36,6 +36,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   className,
   testId,
 }) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const layoutClasses = cm.radioGroupLayout(direction)
 

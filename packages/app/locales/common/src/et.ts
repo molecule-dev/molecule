@@ -32,7 +32,6 @@ export const et: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Parooli lähtestamise tunnus',
   'auth.resetPassword.twoFactor': 'Kahefaktoriline märk (kui lubatud)',
   'auth.signup.email': 'E-post (nõutav)',
-  'auth.signup.name': 'Sinu nimi',
   'auth.signup.password': 'Parool (nõutav)',
   'auth.signup.signUp': 'Registreeru',
   'auth.signup.signingUp': 'Registreerumine...',
@@ -520,4 +519,5 @@ export const et: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Sisse logitud kui {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Nimi (valikuline)',
 }

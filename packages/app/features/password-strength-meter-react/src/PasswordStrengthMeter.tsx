@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react'
 import { useEffect, useMemo } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { PasswordChecklist, PasswordScore } from './scorer.js'
@@ -138,6 +138,7 @@ export function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactE
     className,
   } = props
 
+  const { t } = useTranslation()
   const cm = getClassMap()
   const result = useMemo(() => scorePassword(password), [password])
   const { score, checklist } = result
@@ -154,9 +155,7 @@ export function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactE
   const ariaValueText = t(
     'passwordStrengthMeter.ariaValueText',
     { label: labelText, score },
-    {
-      defaultValue: `Password strength: ${labelText} (${score} of 4)`,
-    },
+    { defaultValue: 'Password strength: {{label}} ({{score}} of 4)' },
   )
 
   return (

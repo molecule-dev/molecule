@@ -6,7 +6,7 @@
 
 import React, { createContext, forwardRef, useCallback, useContext, useId, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -24,6 +24,7 @@ interface AccordionContextValue {
 const AccordionContext = createContext<AccordionContextValue | null>(null)
 
 const useAccordionContext = (): AccordionContextValue => {
+  const { t } = useTranslation()
   const context = useContext(AccordionContext)
   if (!context) {
     throw new Error(

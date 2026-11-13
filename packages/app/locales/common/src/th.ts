@@ -39,7 +39,6 @@ export const th: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'โทเค็นรีเซ็ตรหัสผ่าน',
   'auth.resetPassword.twoFactor': 'โทเค็นยืนยันตัวตนสองขั้นตอน (หากเปิดใช้งาน)',
   'auth.signup.email': 'อีเมล (จำเป็น)',
-  'auth.signup.name': 'ชื่อของคุณ',
   'auth.signup.password': 'รหัสผ่าน (จำเป็น)',
   'auth.signup.signUp': 'ลงทะเบียน',
   'auth.signup.signingUp': 'กำลังลงทะเบียน...',
@@ -522,4 +521,5 @@ export const th: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'เข้าสู่ระบบในฐานะ {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'ชื่อ (ไม่บังคับ)',
 }

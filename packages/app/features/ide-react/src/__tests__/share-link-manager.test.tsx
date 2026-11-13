@@ -18,13 +18,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import type * as AppReact from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 const httpMock = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), delete: vi.fn() }))
 const clipboardMock = vi.hoisted(() => ({ writeText: vi.fn() }))
 
-vi.mock('@molecule/app-react', () => ({
+// Partial mock: the real module keeps `useTranslation` (the components read `t`
+// through the hook, which resolves the bonded provider set in `beforeEach`);
+// only the http/theme hooks are stood in here.
+vi.mock('@molecule/app-react', async () => ({
+  ...(await vi.importActual<typeof AppReact>('@molecule/app-react')),
   useHttpClient: () => httpMock,
   useThemeMode: () => 'dark',
 }))

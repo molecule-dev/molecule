@@ -32,7 +32,6 @@ export const nl: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Registreren',
   'ide.chat.modelUpgradeRequired':
     '{{model}} is beschikbaar op Pro. Upgrade om toegang te krijgen tot alle modellen.',
-  'ide.chat.autoFixCountdown': 'Hervatten',
   'ide.chat.autoFixPause': 'Pauzeren',
   'ide.chat.autoFixCancel': 'Annuleren',
   'ide.chat.soundAll': 'Alle',
@@ -126,7 +125,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Het bestand is te groot. De maximale grootte is {{maxSize}} MB.',
   'ide.chat.modelSet': 'Chatmodel ingesteld op {{name}}',
   'ide.chat.compacting': 'Het gesprek compacter maken...',
-  'ide.chat.compacted': 'Het contextgebruik is laag — compactie is niet nodig.',
   'ide.chat.compactError': 'Het is niet gelukt het gesprek compact te houden.',
   'ide.chat.switchedToPlan': 'Overgeschakeld naar planmodus',
   'ide.chat.switchedToExecute': 'Overgeschakeld naar uitvoeringsmodus',
@@ -155,7 +153,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Dit model kost ×{{multiplier}} tussen {{windows}}. De rest van de dag geldt het normale tarief.',
   'ide.chat.undoNoChanges': 'Er zijn geen bestandswijzigingen die ongedaan gemaakt kunnen worden.',
-  'ide.chat.undoComplete': 'Wijzigingen ongedaan maken is mislukt.',
   'ide.chat.commitNoChanges': 'Geen wijzigingen om door te voeren.',
   'ide.chat.commitError': 'Wijzigingen konden niet worden opgeslagen.',
   'ide.chat.autoFixEnabled': 'Automatische correctie ingeschakeld.',
@@ -172,7 +169,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Het bijwerken van het maximale aantal tooliteraties is mislukt.',
   'ide.chat.dropFilesHere': 'Sleep bestanden hierheen',
   'ide.chat.autoFixPaused': 'Automatische correctie gepauzeerd',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Selecteer model',
   'ide.chat.currentBadge': 'huidig',
   'ide.chat.proRequired': 'Pro',
@@ -210,7 +206,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'Vervangen',
   'ide.search.confirmReplaceAll': 'Klik nogmaals om te bevestigen',
   'ide.search.replaceAll': 'Vervang alles',
-  'ide.search.replaceConfirmation': 'Lucifersdoosje',
   'ide.search.wholeWord': 'Combineer het hele woord',
   'ide.search.regex': 'Gebruik een reguliere expressie.',
   'ide.search.toggleFilters': 'Filters in-/uitschakelen',
@@ -275,7 +270,6 @@ export const nl: Partial<IdeTranslations> = {
     'Het maximale aantal iteraties van de tool is bereikt.',
   'ide.chat.soundEventDesc.verification_result': 'Lint- of typecontrole is voltooid.',
   'ide.chat.soundEventDesc.preview_error': 'Er is een fout opgetreden tijdens het livevoorbeeld.',
-  'ide.chat.voice': 'Stem',
   'ide.chat.voiceUnavailable': 'Dicteren is niet beschikbaar in deze browser.',
   'ide.chat.voiceMicBlocked': 'Toegang tot de microfoon is geblokkeerd.',
   'ide.chat.voicePreparing': 'Dicteren wordt voorbereid — de eerste keer kan dit even duren.',
@@ -805,4 +799,13 @@ export const nl: Partial<IdeTranslations> = {
     'Tip: typ / om alle opdrachten te zien, of @ een bestandsnaam om {{agentName}} een bestand te geven om mee te werken.',
   'ide.chat.help.modeExecute':
     'Uitvoeren — de standaard werkmodus. {{agentName}} schrijft code, voert tools uit, past wijzigingen toe en controleert deze vervolgens.',
+  'ide.chat.compacted': 'Gecomprimeerde {{count}} berichten.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'Er zijn {{count}} bestanden teruggezet van de vorige AI-beurt.',
+  'ide.chat.autoFixCountdown': 'Automatische correctie binnen {{seconds}} s...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation':
+    'Vervang {{count}} voorkomende gevallen in {{files}} bestanden?',
+  'ide.chat.voice': 'Dicteren',
+  'ide.chat.voiceStop': 'Stop het dicteren',
 }

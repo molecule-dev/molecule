@@ -38,7 +38,6 @@ export const am: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'የይለፍ ቃል ዳግም ማስጀመሪያ ማስመሰያ',
   'auth.resetPassword.twoFactor': 'ባለሁለት-ደረጃ ማስመሰያ (ከነቃ)',
   'auth.signup.email': 'ኢሜይል (አስፈላጊ)',
-  'auth.signup.name': 'የእርስዎ ስም',
   'auth.signup.password': 'የይለፍ ቃል (አስፈላጊ)',
   'auth.signup.signUp': 'ይመዝገቡ',
   'auth.signup.signingUp': 'በመመዝገብ ላይ...',
@@ -516,4 +515,5 @@ export const am: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'እንደ {{who}} ገብተዋል',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'ስም (አማራጭ)',
 }

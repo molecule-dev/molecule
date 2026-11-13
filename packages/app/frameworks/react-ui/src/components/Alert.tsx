@@ -6,8 +6,8 @@
 
 import React, { forwardRef } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { useTranslation } from '@molecule/app-react'
 import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -66,6 +66,7 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps & { live?: boolean }>
     },
     ref,
   ) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
     const alertVariant = statusVariantMap[status] || 'default'
     const iconName = statusIconMap[alertVariant]

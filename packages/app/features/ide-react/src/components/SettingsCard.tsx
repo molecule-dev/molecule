@@ -26,8 +26,7 @@
 
 import type { JSX } from 'react'
 
-import { t } from '@molecule/app-i18n'
-import { DEFAULT_AGENT_NAME } from '@molecule/app-react'
+import { DEFAULT_AGENT_NAME, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
@@ -63,6 +62,7 @@ export function SettingsCard({
   agentName?: string
   embedded?: boolean
 }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const groups = groupCommandsByCategory()
   const rowBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'

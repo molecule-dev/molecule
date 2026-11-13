@@ -39,7 +39,6 @@ export const bn: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'পাসওয়ার্ড রিসেট টোকেন',
   'auth.resetPassword.twoFactor': 'দ্বি-উপাদান টোকেন (যদি সক্রিয় করা থাকে)',
   'auth.signup.email': 'ইমেইল (আবশ্যক)',
-  'auth.signup.name': 'আপনার নাম',
   'auth.signup.password': 'পাসওয়ার্ড (আবশ্যক)',
   'auth.signup.signUp': 'সাইন আপ করুন',
   'auth.signup.signingUp': 'নিবন্ধন করা হচ্ছে...',
@@ -520,4 +519,5 @@ export const bn: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} হিসেবে লগ ইন করা হয়েছে',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'নাম (ঐচ্ছিক)',
 }

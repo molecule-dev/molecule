@@ -6,7 +6,7 @@
 
 import type { JSX } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { SidebarTabsProps } from '../types.js'
@@ -24,6 +24,7 @@ export function SidebarTabs({
   children,
   className,
 }: SidebarTabsProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
 
   return (

@@ -11,7 +11,7 @@
 
 import type { JSX } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer } from '../hooks/useViewport.js'
@@ -41,6 +41,7 @@ export interface ActivityCardProps {
  * @returns The rendered activity card element.
  */
 export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const isCoarse = useCoarsePointer()
   const pill = activityStatusColors(activity.status)

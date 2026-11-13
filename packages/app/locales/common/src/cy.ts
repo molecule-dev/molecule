@@ -32,7 +32,6 @@ export const cy: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Tocyn Ailosod Cyfrinair',
   'auth.resetPassword.twoFactor': "Tocyn Dau Ffactor (Os yw wedi'i alluogi)",
   'auth.signup.email': 'E-bost (Angenrheidiol)',
-  'auth.signup.name': 'Eich enw',
   'auth.signup.password': 'Cyfrinair (Angenrheidiol)',
   'auth.signup.signUp': 'Cofrestru',
   'auth.signup.signingUp': 'Yn cofrestru...',
@@ -523,4 +522,5 @@ export const cy: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Wedi mewngofnodi fel {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Enw (dewisol)',
 }

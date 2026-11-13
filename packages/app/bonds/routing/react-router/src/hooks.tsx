@@ -24,7 +24,7 @@ import {
   useSearchParams,
 } from 'react-router'
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import { setRouter } from '@molecule/app-routing'
 
 import { createReactRouter } from './provider.js'
@@ -155,11 +155,12 @@ export function useMoleculeRouter(): Router {
   const router = useContext(MoleculeRouterContext)
   const inRouter = useInRouterContext()
   if (!inRouter) {
-    throw new Error(
-      t('routing.error.useMoleculeRouterOutsideRouter', undefined, {
-        defaultValue:
-          'useMoleculeRouter must be used within a React Router router. Mount BrowserRouter, HashRouter, MemoryRouter, Router, or RouterProvider.',
-      }),
+    // Thrown like the package's other errors: the key travels with the English message
+    // and is translated wherever the error is shown.
+    throw new I18nError(
+      'routing.error.useMoleculeRouterOutsideRouter',
+      undefined,
+      '`useMoleculeRouter` must be used within a React Router router. Mount `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, or `RouterProvider`.',
     )
   }
 

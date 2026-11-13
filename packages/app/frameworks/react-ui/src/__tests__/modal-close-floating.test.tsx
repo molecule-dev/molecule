@@ -10,6 +10,8 @@
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -34,13 +36,15 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-i18n', () => ({
-  t: (key: string, _values: unknown, opts?: { defaultValue?: string }) => opts?.defaultValue ?? key,
-}))
-
 vi.mock('@molecule/app-icons', () => ({
   getIcon: () => ({ viewBox: '0 0 20 20', paths: [{ d: 'M0 0h20v20H0z' }] }),
 }))
+
+// Modal reads `t` through `useTranslation()` (the bonded provider), so it gets
+// a REAL provider instead of the old static-`t` stub. No translations are
+// registered: every label falls back to its own `defaultValue`, which is what
+// these assertions were checking through the stub anyway.
+setProvider(createSimpleI18nProvider())
 
 const { Modal } = await import('../components/Modal.js')
 

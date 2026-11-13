@@ -2,6 +2,9 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import type * as AppLogger from '@molecule/app-logger'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -22,14 +25,14 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-i18n', () => ({
-  t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-    opts?.defaultValue ?? _key,
-}))
-
-vi.mock('@molecule/app-logger', () => ({
+// The real i18n provider logs through the same package, so only the boundary's report is stubbed.
+vi.mock('@molecule/app-logger', async (importOriginal) => ({
+  ...(await importOriginal<typeof AppLogger>()),
   error: vi.fn(),
 }))
+
+// No translations registered: the fallback renders its English default value.
+setProvider(createSimpleI18nProvider('en', [{ code: 'en', name: 'English', translations: {} }]))
 
 const { RootErrorBoundary } = await import('../RootErrorBoundary.js')
 

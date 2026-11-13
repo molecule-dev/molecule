@@ -33,7 +33,6 @@ export const hu: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Regisztráció',
   'ide.chat.modelUpgradeRequired':
     '{{model}} elérhető Pro verzióban. Frissítsen, hogy minden modellhez hozzáférjen.',
-  'ide.chat.autoFixCountdown': 'Folytatás',
   'ide.chat.autoFixPause': 'Szünet',
   'ide.chat.autoFixCancel': 'Mégse',
   'ide.chat.soundAll': 'Összes',
@@ -121,7 +120,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'A fájl túl nagy. A maximális méret {{maxSize}} MB.',
   'ide.chat.modelSet': 'Csevegési modell beállítva erre: {{name}}',
   'ide.chat.compacting': 'Beszélgetés tömörítése...',
-  'ide.chat.compacted': 'A kontextushasználat alacsony – nincs szükség tömörítésre.',
   'ide.chat.compactError': 'Nem sikerült tömöríteni a beszélgetést.',
   'ide.chat.switchedToPlan': 'Tervezési módba kapcsolva',
   'ide.chat.switchedToExecute': 'Végrehajtási módba kapcsolva',
@@ -149,7 +147,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Ez a modell ×{{multiplier}} díjba kerül {{windows}} között. A nap többi részében a szokásos díj érvényes.',
   'ide.chat.undoNoChanges': 'Nincsenek visszavonható fájlmódosítások.',
-  'ide.chat.undoComplete': 'Nem sikerült visszaállítani a változtatásokat.',
   'ide.chat.commitNoChanges': 'Nincsenek véglegesítendő változtatások.',
   'ide.chat.commitError': 'Nem sikerült véglegesíteni a változtatásokat.',
   'ide.chat.autoFixEnabled': 'Automatikus javítás engedélyezve.',
@@ -165,7 +162,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Nem sikerült frissíteni a maximális eszköziterációk számát.',
   'ide.chat.dropFilesHere': 'Húzd ide a fájlokat',
   'ide.chat.autoFixPaused': 'Automatikus javítás szünetel',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Válasszon modellt',
   'ide.chat.currentBadge': 'jelenlegi',
   'ide.chat.proRequired': 'Profi',
@@ -205,7 +201,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'Kattintson ismét a megerősítéshez',
   'ide.search.replaceAll': 'Összes cseréje',
   'ide.search.confirm': 'Megerősítés',
-  'ide.search.replaceConfirmation': 'Gyufa tok',
   'ide.search.wholeWord': 'Egész szó egyezése',
   'ide.search.regex': 'Reguláris kifejezés használata',
   'ide.search.toggleFilters': 'Szűrők ki-/bekapcsolása',
@@ -270,7 +265,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result':
     'A Lint vagy a típusellenőrzés futása befejeződött.',
   'ide.chat.soundEventDesc.preview_error': 'Az élő előnézet hibába ütközött',
-  'ide.chat.voice': 'Hang',
   'ide.chat.voiceUnavailable': 'A diktálás nem érhető el ebben a böngészőben.',
   'ide.chat.voiceMicBlocked': 'A mikrofonhoz való hozzáférés le van tiltva.',
   'ide.chat.voicePreparing': 'Diktálás előkészítése — első alkalommal eltarthat egy pillanatig.',
@@ -800,4 +794,12 @@ export const hu: Partial<IdeTranslations> = {
     'IDE munkaterület-szolgáltató nincs konfigurálva. Először kössön össze egy IDE-szolgáltatót.',
   'ide.chat.help.modePlan':
     'Terv – {{agentName}} áttanulmányozza a kódbázist, és javaslatot tesz egy tervre FÁJLOK SZERKESZTÉSE NÉLKÜL. Kapcsolja ki a /plan kapcsolóval. Nagy vagy kockázatos változtatásokhoz a legmegfelelőbb.',
+  'ide.chat.compacted': 'Tömörített {{count}} üzenet.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': '{{count}} fájlt visszaállítottál az utolsó MI körből.',
+  'ide.chat.autoFixCountdown': 'Automatikus javítás {{seconds}} másodperc múlva...',
+  'ide.chat.version': '{{productName}} verzió: {{version}}',
+  'ide.search.replaceConfirmation': 'Cseréljen le {{count}} előfordulást {{files}} fájlban?',
+  'ide.chat.voice': 'Diktál',
+  'ide.chat.voiceStop': 'Diktálás leállítása',
 }

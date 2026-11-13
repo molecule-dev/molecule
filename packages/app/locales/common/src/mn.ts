@@ -32,7 +32,6 @@ export const mn: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Нууц үг шинэчлэх токен',
   'auth.resetPassword.twoFactor': 'Хоёр хүчин зүйлийн токен (Хэрэв идэвхжүүлсэн бол)',
   'auth.signup.email': 'И-мэйл (Заавал)',
-  'auth.signup.name': 'Таны нэр',
   'auth.signup.password': 'Нууц үг (Шаардлагатай)',
   'auth.signup.signUp': 'Бүртгүүлэх',
   'auth.signup.signingUp': 'Бүртгүүлж байна...',
@@ -525,4 +524,5 @@ export const mn: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} нэрээр нэвтэрсэн',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Нэр (заавал биш)',
 }

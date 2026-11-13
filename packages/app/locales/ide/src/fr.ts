@@ -32,7 +32,6 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.sendQueued': 'Envoyer',
   'ide.chat.continueButton': 'Continuer',
   'upgrade.viewPlans': 'Mettre à niveau',
-  'ide.chat.autoFixCountdown': 'Reprendre',
   'ide.chat.autoFixPause': 'Mettre en pause',
   'ide.chat.autoFixCancel': 'Annuler',
   'ide.chat.soundAll': 'Toutes',
@@ -130,8 +129,6 @@ export const fr: Partial<IdeTranslations> = {
     'Le fichier est trop volumineux. La taille maximale est de {{maxSize}} MB.',
   'ide.chat.modelSet': 'Modèle de chat défini sur {{name}}',
   'ide.chat.compacting': 'Conversation condensée...',
-  'ide.chat.compacted':
-    "L'utilisation du contexte est faible — aucune compaction n'est nécessaire.",
   'ide.chat.compactError': 'Échec de la concision de la conversation.',
   'ide.chat.switchedToPlan': 'Passage en mode avion',
   'ide.chat.switchedToExecute': 'Passage en mode exécution',
@@ -160,7 +157,6 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     "Ce modèle coûte ×{{multiplier}} entre {{windows}}. Le reste de la journée, le tarif normal s'applique.",
   'ide.chat.undoNoChanges': 'Aucune modification de fichier à annuler.',
-  'ide.chat.undoComplete': "Impossible d'annuler les modifications.",
   'ide.chat.commitNoChanges': 'Aucune modification à valider.',
   'ide.chat.commitError': 'Échec de la validation des modifications.',
   'ide.chat.autoFixEnabled': 'Correction automatique activée.',
@@ -179,7 +175,6 @@ export const fr: Partial<IdeTranslations> = {
     "Impossible de mettre à jour le nombre maximal d'itérations de l'outil.",
   'ide.chat.dropFilesHere': 'Déposez vos fichiers ici',
   'ide.chat.autoFixPaused': 'Correction automatique suspendue',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Sélectionner le modèle',
   'ide.chat.currentBadge': 'actuel',
   'ide.chat.proRequired': 'Pro',
@@ -216,7 +211,6 @@ export const fr: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'Remplacer',
   'ide.search.confirmReplaceAll': 'Cliquez à nouveau pour confirmer',
   'ide.search.replaceAll': 'Remplacer tout',
-  'ide.search.replaceConfirmation': "Boîte d'allumettes",
   'ide.search.wholeWord': 'Associer le mot entier',
   'ide.search.regex': 'Utilisez une expression régulière',
   'ide.search.toggleFilters': 'Activer/désactiver les filtres',
@@ -279,7 +273,6 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result':
     "L'analyse ou la vérification de type s'est terminée.",
   'ide.chat.soundEventDesc.preview_error': "L'aperçu en direct a rencontré une erreur",
-  'ide.chat.voice': 'Voix',
   'ide.chat.voiceUnavailable': "La dictée n'est pas disponible dans ce navigateur.",
   'ide.chat.voiceMicBlocked': "L'accès au microphone est bloqué.",
   'ide.chat.voicePreparing':
@@ -813,4 +806,12 @@ export const fr: Partial<IdeTranslations> = {
     "Le fournisseur d'espace de travail IDE n'est pas configuré. Veuillez d'abord associer un fournisseur IDE.",
   'ide.chat.help.tipPlan':
     "• Utilisez /plan pour demander {{agentName}} de faire des recherches avant d'apporter des modifications.",
+  'ide.chat.compacted': 'Messages {{count}} compactés.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': "Rétablissement de {{count}} fichiers du dernier tour de l'IA.",
+  'ide.chat.autoFixCountdown': 'Correction automatique en {{seconds}} s...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation': 'Remplacer {{count}} occurrences dans les fichiers {{files}} ?',
+  'ide.chat.voice': 'Dicter',
+  'ide.chat.voiceStop': 'Arrêtez la dictée',
 }

@@ -22,6 +22,12 @@ vi.mock('@molecule/app-react', () => ({
   useSignup: () => ({ status: 'idle', error: null, signup: signupMock }),
   useI18nError: (error: unknown) => (error ? String(error) : null),
   useOAuth: () => ({ providers: [], loginViaPopup: vi.fn() }),
+  // AuthModal reads `t` from `useTranslation()` (it must re-render on locale
+  // switches). The component only uses the `defaultValue` contract here.
+  useTranslation: () => ({
+    t: (key: string, _values?: Record<string, unknown>, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key,
+  }),
 }))
 
 vi.mock('@molecule/app-auth-shell-react', () => ({

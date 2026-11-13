@@ -39,7 +39,6 @@ export const km: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'សញ្ញាសម្ងាត់កំណត់ពាក្យសម្ងាត់ឡើងវិញ',
   'auth.resetPassword.twoFactor': 'សញ្ញាសម្ងាត់ពីរកត្តា (ប្រសិនបើបើកដំណើរការ)',
   'auth.signup.email': 'អ៊ីមែល (តម្រូវឲ្យមាន)',
-  'auth.signup.name': 'ឈ្មោះរបស់អ្នក',
   'auth.signup.password': 'ពាក្យសម្ងាត់ (តម្រូវឲ្យមាន)',
   'auth.signup.signUp': 'ចុះឈ្មោះ',
   'auth.signup.signingUp': 'កំពុងចុះឈ្មោះ...',
@@ -522,4 +521,5 @@ export const km: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'បានចូលជា {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'ឈ្មោះ (ស្រេចចិត្ត)',
 }

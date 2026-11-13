@@ -7,7 +7,7 @@
 import React, { forwardRef, useCallback } from 'react'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -39,6 +39,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
     const inputClasses = cm.cn(
       cm.input({ error: !!error, size }),

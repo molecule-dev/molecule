@@ -14,7 +14,6 @@ export const ar: Partial<CommonTranslations> = {
   'auth.login.password': 'كلمة المرور',
   'auth.login.signUp': 'إنشاء حساب',
   'auth.resetPassword.email': 'البريد الإلكتروني',
-  'auth.signup.name': 'اسمك',
   'auth.signup.signUp': 'إنشاء حساب',
   'error.unknown': 'حدث خطأ غير متوقع.',
   'footer.about': 'حول {{appName}}',
@@ -520,4 +519,5 @@ export const ar: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'تم تسجيل الدخول باسم {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'الاسم (اختياري)',
 }

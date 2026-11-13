@@ -32,7 +32,6 @@ export const zu: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Ithokheni Yokusetha Kabusha Iphasiwedi',
   'auth.resetPassword.twoFactor': 'Ithokheni Yezici Ezimbili (Uma ivuliwe)',
   'auth.signup.email': 'I-imeyili (Iyadingeka)',
-  'auth.signup.name': 'Igama lakho',
   'auth.signup.password': 'Iphasiwedi (Iyadingeka)',
   'auth.signup.signUp': 'bhalisela',
   'auth.signup.signingUp': 'Ukubhalisa...',
@@ -525,4 +524,5 @@ export const zu: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Ungene ngemvume njengo {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Igama (ongakukhetha)',
 }

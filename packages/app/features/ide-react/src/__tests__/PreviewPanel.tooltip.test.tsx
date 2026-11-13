@@ -121,7 +121,7 @@ const PREVIEW_CONTROLS: ReadonlyArray<{ id: string; tip: string }> = [
   { id: 'preview-device-cycle', tip: 'Device frame' },
   { id: 'preview-back', tip: 'Back' },
   { id: 'preview-forward', tip: 'Forward' },
-  { id: 'preview-refresh', tip: 'Reload' },
+  { id: 'preview-refresh', tip: 'Refresh preview' },
 ]
 
 describe('PreviewPanel tooltips (IDE1 — real styled Tooltip, not native title)', () => {

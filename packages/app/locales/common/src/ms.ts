@@ -11,7 +11,6 @@ export const ms: Partial<CommonTranslations> = {
   'auth.login.password': 'Kata laluan',
   'auth.login.signUp': 'Daftar',
   'auth.resetPassword.email': 'E-mel',
-  'auth.signup.name': 'Nama Anda',
   'auth.signup.signUp': 'Daftar',
   'footer.about': 'Tentang {{appName}}',
   'footer.language': 'Bahasa',
@@ -522,4 +521,5 @@ export const ms: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Log masuk sebagai {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Nama (pilihan)',
 }

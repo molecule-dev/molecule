@@ -58,7 +58,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'ဖိုင်က အရမ်းကြီးပါတယ်။ အကြီးဆုံးအရွယ်အစားက {{maxSize}} အမ်ဘီ။',
   'ide.chat.modelSet': 'ချတ်မော်ဒယ်ကို အောက်ပါအတိုင်း သတ်မှတ်ထားသည် {{name}}',
   'ide.chat.compacting': 'စကားဝိုင်းကို အကျဉ်းချုပ်ခြင်း...',
-  'ide.chat.compacted': 'နောက်ခံအသုံးပြုမှုနည်းပါးသည် — ဖိသိပ်ရန်မလိုအပ်ပါ။',
   'ide.chat.compactError': 'စကားဝိုင်းကို ကျစ်လျစ်အောင် မလုပ်နိုင်ခဲ့ပါ။',
   'ide.chat.switchedToPlan': 'အစီအစဉ်မုဒ်သို့ ပြောင်းလိုက်ပါပြီ',
   'ide.chat.switchedToExecute': 'execute mode သို့ ပြောင်းလိုက်ပါပြီ',
@@ -87,7 +86,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'ဤမော်ဒယ်သည် {{windows}} အတွင်း ×{{multiplier}} ကျသင့်ပါသည်။ ကျန်အချိန်များတွင် ပုံမှန်နှုန်းဖြစ်ပါသည်။',
   'ide.chat.undoNoChanges': 'ပြန်ပြင်ရန် ဖိုင်ပြောင်းလဲမှုများ မရှိပါ။',
-  'ide.chat.undoComplete': 'ပြောင်းလဲမှုများကို ပြန်ပြင်၍မရပါ။',
   'ide.chat.commitNoChanges': 'ကတိပြုရန် ပြောင်းလဲမှုများ မရှိပါ။',
   'ide.chat.commitError': 'ပြောင်းလဲမှုများကို အကောင်အထည်ဖော်ရန် မအောင်မြင်ခဲ့ပါ။',
   'ide.chat.autoFixEnabled': 'အလိုအလျောက်ပြင်ဆင်ခြင်းကို ဖွင့်ထားသည်။',
@@ -105,10 +103,8 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'ကိရိယာ ဗားရှင်းအများဆုံးကို အပ်ဒိတ်လုပ်၍မရပါ။',
   'ide.chat.dropFilesHere': 'ဖိုင်များကို ဤနေရာတွင် ချပါ',
   'ide.chat.autoFixPaused': 'အလိုအလျောက်ပြင်ဆင်ခြင်းကို ခေတ္တရပ်ထားသည်',
-  'ide.chat.autoFixCountdown': 'ကိုယ်ရေးအကျဥ်း',
   'ide.chat.autoFixPause': 'ခေတ္တရပ်ပါ',
   'ide.chat.autoFixCancel': 'ပယ်ဖျက်ရန်',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'မော်ဒယ်ကို ရွေးချယ်ပါ',
   'ide.chat.currentBadge': 'လက်ရှိ',
   'ide.chat.proRequired': 'ပရို',
@@ -156,7 +152,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'အတည်ပြုရန် ထပ်မံနှိပ်ပါ',
   'ide.search.replaceAll': 'အားလုံးကို အစားထိုးပါ',
   'ide.search.confirm': 'အတည်ပြုပါ',
-  'ide.search.replaceConfirmation': 'ကိုက်ညီမှုကိစ္စ',
   'ide.search.wholeWord': 'စကားလုံးတစ်ခုလုံးကို တွဲပါ',
   'ide.search.regex': 'ပုံမှန်ဖော်ပြချက်ကို အသုံးပြုပါ',
   'ide.search.toggleFilters': 'စစ်ထုတ်မှုများကို ပြောင်းပါ',
@@ -270,7 +265,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result':
     'အမွေးအမှင် သို့မဟုတ် အမျိုးအစားစစ်ဆေးခြင်း ပြီးဆုံးပါပြီ',
   'ide.chat.soundEventDesc.preview_error': 'တိုက်ရိုက်ကြည့်ရှုမှုတွင် အမှားတစ်ခု ကြုံတွေ့ခဲ့ရသည်',
-  'ide.chat.voice': 'အသံ',
   'ide.chat.voiceUnavailable': 'ဤဘရောက်ဆာတွင် အသံဖြင့်စာရိုက်ခြင်း မရနိုင်ပါ။',
   'ide.chat.voiceMicBlocked': 'မိုက်ခရိုဖုန်း အသုံးပြုခွင့် ပိတ်ထားသည်။',
   'ide.chat.voicePreparing':
@@ -810,4 +804,12 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.context.resets': '{{at}} ပြန်လည်သတ်မှတ်သည်။',
   'ide.error.noProvider':
     'IDE workspace provider ကို configure မလုပ်ရသေးပါ။ IDE provider ကို ဦးစွာ ချည်နှောင်ပါ။',
+  'ide.chat.compacted': 'မက်ဆေ့ချ် {{count}} ကို ကျစ်လျစ်အောင်ပြုလုပ်ထားသည်။',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'AI နောက်ဆုံးအလှည့်မှ ဖိုင် {{count}} ခုကို ပြန်ပြောင်းလိုက်သည်။',
+  'ide.chat.autoFixCountdown': '{{seconds}} စက္ကန့်အတွင်း အလိုအလျောက်ပြင်ဆင်ခြင်း...',
+  'ide.chat.version': '{{productName}} နှင့် {{version}}',
+  'ide.search.replaceConfirmation': '{{files}} ဖိုင်များတွင် {{count}} ကြိမ် အစားထိုးလိုပါသလား။',
+  'ide.chat.voice': 'နှုတ်တိုက်ရွတ်ဆိုပါ',
+  'ide.chat.voiceStop': 'နှုတ်တိုက်ရွတ်ဆိုခြင်းကို ရပ်ပါ',
 }

@@ -9,7 +9,7 @@
 import React from 'react'
 import { FlatList, Pressable, Text, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -48,6 +48,7 @@ export const Table: React.FC<TableProps<Record<string, unknown>>> = ({
   className,
   testId,
 }) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
 
   const getRowKey = (row: Record<string, unknown>, index: number): string => {

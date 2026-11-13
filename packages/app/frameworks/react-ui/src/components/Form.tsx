@@ -6,7 +6,7 @@
 
 import React, { forwardRef, useEffect, useId, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { FormFieldProps, FormProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -38,6 +38,7 @@ export const Form = forwardRef<HTMLFormElement, ReactFormProps>((props, ref) => 
     ...rest
   } = props
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [failure, setFailure] = useState<{ error: unknown } | null>(null)
   const [pending, setPending] = useState(false)
   const attempt = useRef(0)

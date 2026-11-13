@@ -57,7 +57,6 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'ਫਾਈਲ ਬਹੁਤ ਵੱਡੀ ਹੈ। ਵੱਧ ਤੋਂ ਵੱਧ ਆਕਾਰ ਹੈ {{maxSize}} ਐਮ.ਬੀ.',
   'ide.chat.modelSet': "ਚੈਟ ਮਾਡਲ ਇਸ 'ਤੇ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ {{name}}",
   'ide.chat.compacting': 'ਸੰਖੇਪ ਗੱਲਬਾਤ...',
-  'ide.chat.compacted': 'ਸੰਦਰਭ ਦੀ ਵਰਤੋਂ ਘੱਟ ਹੈ — ਕਿਸੇ ਸੰਕੁਚਨ ਦੀ ਲੋੜ ਨਹੀਂ ਹੈ।',
   'ide.chat.compactError': 'ਗੱਲਬਾਤ ਨੂੰ ਸੰਖੇਪ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'ide.chat.switchedToPlan': "ਪਲਾਨ ਮੋਡ 'ਤੇ ਸਵਿੱਚ ਕੀਤਾ ਗਿਆ",
   'ide.chat.switchedToExecute': 'ਐਗਜ਼ੀਕਿਊਟ ਮੋਡ ਵਿੱਚ ਬਦਲਿਆ ਗਿਆ',
@@ -84,7 +83,6 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'ਇਸ ਮਾਡਲ ਦਾ ਖਰਚ {{windows}} ਵਿਚਕਾਰ ×{{multiplier}} ਹੈ। ਬਾਕੀ ਦਿਨ ਆਮ ਦਰ ਲਾਗੂ ਹੁੰਦੀ ਹੈ।',
   'ide.chat.undoNoChanges': 'ਵਾਪਸ ਕਰਨ ਲਈ ਕੋਈ ਫਾਈਲ ਬਦਲਾਅ ਨਹੀਂ ਹਨ।',
-  'ide.chat.undoComplete': 'ਬਦਲਾਵਾਂ ਨੂੰ ਵਾਪਸ ਲਿਆਉਣ ਵਿੱਚ ਅਸਫਲ।',
   'ide.chat.commitNoChanges': 'ਕੋਈ ਬਦਲਾਅ ਕਰਨ ਲਈ ਨਹੀਂ।',
   'ide.chat.commitError': 'ਬਦਲਾਅ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'ide.chat.autoFixEnabled': 'ਆਟੋ-ਫਿਕਸ ਯੋਗ ਹੈ।',
@@ -102,10 +100,8 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'ਵੱਧ ਤੋਂ ਵੱਧ ਟੂਲ ਦੁਹਰਾਓ ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'ide.chat.dropFilesHere': 'ਫਾਈਲਾਂ ਇੱਥੇ ਸੁੱਟੋ',
   'ide.chat.autoFixPaused': 'ਆਟੋ-ਫਿਕਸ ਰੋਕਿਆ ਗਿਆ',
-  'ide.chat.autoFixCountdown': 'ਰੈਜ਼ਿਊਮੇ',
   'ide.chat.autoFixPause': 'ਵਿਰਾਮ',
   'ide.chat.autoFixCancel': 'ਰੱਦ ਕਰੋ',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'ਮਾਡਲ ਚੁਣੋ',
   'ide.chat.currentBadge': 'ਮੌਜੂਦਾ',
   'ide.chat.proRequired': 'ਪ੍ਰੋ',
@@ -153,7 +149,6 @@ export const pa: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'ਪੁਸ਼ਟੀ ਕਰਨ ਲਈ ਦੁਬਾਰਾ ਕਲਿੱਕ ਕਰੋ',
   'ide.search.replaceAll': 'ਸਭ ਬਦਲੋ',
   'ide.search.confirm': 'ਪੁਸ਼ਟੀ ਕਰੋ',
-  'ide.search.replaceConfirmation': 'ਮੈਚ ਕੇਸ',
   'ide.search.wholeWord': 'ਪੂਰਾਸ਼ਬਦਮੇਲਕਰੋ',
   'ide.search.regex': 'ਰੈਗੂਲਰ ਐਕਸਪ੍ਰੈਸ਼ਨ ਵਰਤੋ',
   'ide.search.toggleFilters': 'ਫਿਲਟਰ ਟੌਗਲ ਕਰੋ',
@@ -263,7 +258,6 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.loop_limit_reached': 'ਵੱਧ ਤੋਂ ਵੱਧ ਟੂਲ ਦੁਹਰਾਓ ਸੀਮਾ ਪੂਰੀ ਕਰੋ',
   'ide.chat.soundEventDesc.verification_result': 'ਲਿੰਟ ਜਾਂ ਟਾਈਪ-ਚੈੱਕ ਚੱਲਣਾ ਪੂਰਾ ਹੋਇਆ',
   'ide.chat.soundEventDesc.preview_error': 'ਲਾਈਵ ਪ੍ਰੀਵਿਊ ਵਿੱਚ ਇੱਕ ਗਲਤੀ ਆਈ।',
-  'ide.chat.voice': 'ਆਵਾਜ਼',
   'ide.chat.voiceUnavailable': 'ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਡਿਕਟੇਸ਼ਨ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।',
   'ide.chat.voiceMicBlocked': 'ਮਾਈਕ੍ਰੋਫ਼ੋਨ ਪਹੁੰਚ ਬਲਾਕ ਕੀਤੀ ਗਈ ਹੈ।',
   'ide.chat.voicePreparing':
@@ -786,4 +780,13 @@ export const pa: Partial<IdeTranslations> = {
     'IDE ਵਰਕਸਪੇਸ ਪ੍ਰਦਾਤਾ ਕੌਂਫਿਗਰ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ। ਪਹਿਲਾਂ ਇੱਕ IDE ਪ੍ਰਦਾਤਾ ਨੂੰ ਬਾਂਡ ਕਰੋ।',
   'ide.chat.tip.plan':
     'ਸੁਝਾਅ: ਕਿਸੇ ਵੀ ਫਾਈਲ ਨੂੰ ਸੰਪਾਦਿਤ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ {{agentName}} ਖੋਜ ਕਰਵਾਉਣ ਅਤੇ ਯੋਜਨਾ ਪ੍ਰਸਤਾਵਿਤ ਕਰਨ ਲਈ /plan ਦੀ ਵਰਤੋਂ ਕਰੋ।',
+  'ide.chat.compacted': 'ਸੰਕੁਚਿਤ {{count}} ਸੁਨੇਹੇ।',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'ਆਖਰੀ AI ਮੋੜ ਤੋਂ {{count}} ਫਾਈਲਾਂ ਵਾਪਸ ਕੀਤੀਆਂ ਗਈਆਂ।',
+  'ide.chat.autoFixCountdown': '{{seconds}} ਸਕਿੰਟਾਂ ਵਿੱਚ ਆਟੋ-ਫਿਕਸਿੰਗ...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation':
+    'ਕੀ {{files}} ਫਾਈਲਾਂ ਵਿੱਚ {{count}} ਵਾਰ ਹੋਣ ਵਾਲੀਆਂ ਘਟਨਾਵਾਂ ਨੂੰ ਬਦਲਣਾ ਹੈ?',
+  'ide.chat.voice': 'ਲਿਖਵਾਓ',
+  'ide.chat.voiceStop': 'ਡਿਕਟੇਸ਼ਨ ਬੰਦ ਕਰੋ',
 }

@@ -4,12 +4,18 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import type * as AppReact from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { BackgroundTasksStrip } from '../components/BackgroundTasksStrip.js'
 
-vi.mock('@molecule/app-react', () => ({ useThemeMode: () => 'light' }))
+// Keep the real module (the component now reads `t` from `useTranslation`, which
+// must reach the bonded provider) and pin only the theme mode this test assumes.
+vi.mock('@molecule/app-react', async () => ({
+  ...(await vi.importActual<typeof AppReact>('@molecule/app-react')),
+  useThemeMode: () => 'light',
+}))
 beforeEach(() => {
   setClassMap(classMap)
   setProvider(createSimpleI18nProvider('en'))

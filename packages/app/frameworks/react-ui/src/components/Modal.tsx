@@ -7,7 +7,7 @@
 import React, { forwardRef, useEffect, useId, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { ModalProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -139,6 +139,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
     },
     ref,
   ) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
     // Per-instance title id AND stack key. A hardcoded 'modal-title'
     // duplicated the id whenever two modals were mounted (stacked dialogs, a

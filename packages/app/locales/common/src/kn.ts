@@ -39,7 +39,6 @@ export const kn: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸುವ ಟೋಕನ್',
   'auth.resetPassword.twoFactor': 'ಎರಡು-ಅಂಶ ಟೋಕನ್ (ಸಕ್ರಿಯಗೊಳಿಸಿದ್ದರೆ)',
   'auth.signup.email': 'ಇಮೇಲ್ (ಅಗತ್ಯವಿದೆ)',
-  'auth.signup.name': 'ನಿಮ್ಮ ಹೆಸರು',
   'auth.signup.password': 'ಪಾಸ್‌ವರ್ಡ್ (ಅಗತ್ಯವಿದೆ)',
   'auth.signup.signUp': 'ಸೈನ್ ಅಪ್ ಮಾಡಿ',
   'auth.signup.signingUp': 'ಸೈನ್ ಅಪ್ ಮಾಡಲಾಗುತ್ತಿದೆ...',
@@ -523,4 +522,5 @@ export const kn: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} ಎಂದು ಲಾಗಿನ್ ಆಗಿದ್ದಾರೆ',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'ಹೆಸರು (ಐಚ್ಛಿಕ)',
 }

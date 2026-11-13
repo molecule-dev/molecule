@@ -35,7 +35,6 @@ export const it: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Registrati',
   'ide.chat.modelUpgradeRequired':
     "{{model}} è disponibile nella versione Pro. Esegui l'upgrade per accedere a tutti i modelli.",
-  'ide.chat.autoFixCountdown': 'Riprendi',
   'ide.chat.autoFixPause': 'Pausa',
   'ide.chat.autoFixCancel': 'Annulla',
   'ide.chat.soundAll': 'Tutte',
@@ -127,8 +126,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Il file è troppo grande. La dimensione massima è {{maxSize}} MB.',
   'ide.chat.modelSet': 'Modello di chat impostato su {{name}}',
   'ide.chat.compacting': 'Compattando la conversazione...',
-  'ide.chat.compacted':
-    "L'utilizzo del contesto è basso, quindi non è necessaria alcuna compattazione.",
   'ide.chat.compactError': 'Impossibile condensare la conversazione.',
   'ide.chat.switchedToPlan': 'Passato alla modalità piano',
   'ide.chat.switchedToExecute': 'Passato alla modalità di esecuzione',
@@ -156,7 +153,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Questo modello costa ×{{multiplier}} tra le {{windows}}. Nel resto della giornata si applica la tariffa normale.',
   'ide.chat.undoNoChanges': 'Nessuna modifica ai file da annullare.',
-  'ide.chat.undoComplete': 'Impossibile annullare le modifiche.',
   'ide.chat.commitNoChanges': 'Nessuna modifica da confermare.',
   'ide.chat.commitError': 'Impossibile salvare le modifiche.',
   'ide.chat.autoFixEnabled': 'Correzione automatica abilitata.',
@@ -173,7 +169,6 @@ export const it: Partial<IdeTranslations> = {
     'Impossibile aggiornare il numero massimo di iterazioni dello strumento.',
   'ide.chat.dropFilesHere': 'Trascina i file qui',
   'ide.chat.autoFixPaused': 'Correzione automatica sospesa',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Seleziona il modello',
   'ide.chat.currentBadge': 'attuale',
   'ide.chat.proRequired': 'Pro',
@@ -209,7 +204,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'Sostituire',
   'ide.search.confirmReplaceAll': 'Fare clic nuovamente per confermare',
   'ide.search.replaceAll': 'Sostituisci tutto',
-  'ide.search.replaceConfirmation': 'Scatola di fiammiferi',
   'ide.search.wholeWord': 'Abbina la parola intera',
   'ide.search.regex': 'Utilizzare le espressioni regolari',
   'ide.search.toggleFilters': 'Attiva/disattiva filtri',
@@ -277,7 +271,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result':
     'Controllo della linting o del tipo di dato terminato',
   'ide.chat.soundEventDesc.preview_error': "L'anteprima in diretta ha riscontrato un errore",
-  'ide.chat.voice': 'Voce',
   'ide.chat.voiceUnavailable': 'La dettatura non è disponibile in questo browser.',
   'ide.chat.voiceMicBlocked': "L'accesso al microfono è bloccato.",
   'ide.chat.voicePreparing':
@@ -813,4 +806,12 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.help.tipPlan':
     '• Utilizzare /plan per far sì che {{agentName}} effettui delle ricerche prima di apportare modifiche.',
   'ide.chat.scripts.cmdExitFail': '{{name}} è terminato con codice {{code}}',
+  'ide.chat.compacted': 'Messaggi compattati {{count}} .',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': "Ripristinati {{count}} file dall'ultimo turno dell'IA.",
+  'ide.chat.autoFixCountdown': 'Riparazione automatica in {{seconds}} s...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation': 'Sostituire {{count}} occorrenze nei {{files}} file?',
+  'ide.chat.voice': 'Dettare',
+  'ide.chat.voiceStop': 'Interrompere la dettatura',
 }

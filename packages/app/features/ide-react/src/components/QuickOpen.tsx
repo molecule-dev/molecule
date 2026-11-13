@@ -10,9 +10,8 @@ import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import { useHttpClient } from '@molecule/app-react'
+import { useHttpClient, useTranslation } from '@molecule/app-react'
 
 const logger = getLogger('quick-open')
 
@@ -41,6 +40,7 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
  * @returns The quick open element.
  */
 export function QuickOpen({ projectId, onFileOpen, onDismiss }: QuickOpenProps): JSX.Element {
+  const { t } = useTranslation()
   const http = useHttpClient()
   const [files, setFiles] = useState<string[]>([])
   const [loading, setLoading] = useState(true)

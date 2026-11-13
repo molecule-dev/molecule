@@ -6,7 +6,7 @@
 
 import React, { forwardRef, useId } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { RadioGroupProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -31,6 +31,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
     },
     ref,
   ) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
     // Radios only form a native group (arrow-key navigation, exclusive
     // native checked state) when they share a `name` — and that name must be

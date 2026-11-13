@@ -10,8 +10,7 @@
 import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
-import { useThemeMode } from '@molecule/app-react'
+import { useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
@@ -58,6 +57,7 @@ export function QuickPicker({
   initialQuery,
   className,
 }: QuickPickerProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
   const isNarrow = useNarrowViewport()

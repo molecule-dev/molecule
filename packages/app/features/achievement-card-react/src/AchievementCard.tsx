@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
@@ -51,6 +51,7 @@ export function AchievementCard({
   tier,
   className,
 }: AchievementCardProps): ReactElement {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const earnedText =
     earnedLabel ?? t('achievementCard.earned', undefined, { defaultValue: 'Earned' })

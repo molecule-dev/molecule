@@ -146,7 +146,6 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.loop_limit_reached': 'Максималдуу курал итерацияларынын чегине жетти',
   'ide.chat.soundEventDesc.verification_result': 'Линт же тип текшерүүсү аяктады',
   'ide.chat.soundEventDesc.preview_error': 'Түз көрсөтүүдө ката пайда болду',
-  'ide.chat.voice': 'Үн',
   'ide.chat.voiceUnavailable': 'Диктовка бул браузерде жеткиликтүү эмес.',
   'ide.chat.voiceMicBlocked': 'Микрофонго кирүү бөгөттөлгөн.',
   'ide.chat.voicePreparing':
@@ -276,7 +275,6 @@ export const ky: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Кирүү',
   'guest.reminder.logIn': 'Кирүү',
   'ide.chat.compacting': 'Маек кысылууда...',
-  'ide.chat.compacted': 'Контекстти колдонуу аз — кысуунун кажети жок.',
   'ide.chat.compactError': 'Маек тыгыздалбай калды.',
   'ide.chat.switchedToPlan': 'План режимине которулду',
   'ide.chat.switchedToExecute': 'Аткаруу режимине которулду',
@@ -306,19 +304,15 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Бул модель {{windows}} аралыгында ×{{multiplier}} турат. Күндүн калган убагында кадимки баа колдонулат.',
   'ide.chat.undoNoChanges': 'Жокко чыгаруу үчүн файл өзгөртүүлөрү жок.',
-  'ide.chat.undoComplete': 'Өзгөртүүлөр кайтарылган жок.',
   'ide.chat.commitNoChanges': 'Милдеттенмеге өзгөртүүлөр киргизилбейт.',
   'ide.chat.commitError': 'Өзгөртүүлөр киргизилген жок.',
   'ide.chat.autoFixPaused': 'Автоматтык түрдө оңдоо тындырылды',
-  'ide.chat.autoFixCountdown': 'Резюме',
   'ide.chat.autoFixPause': 'Тыным',
   'ide.chat.autoFixCancel': 'Жокко чыгаруу',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.activeFile': 'активдүү',
   'ide.chat.openTab': 'ачык',
   'ide.chat.switchToExecute': 'Аткаруу режимине өтүү',
   'ide.chat.switchToPlan': 'План режимине которулуу',
-  'ide.search.replaceConfirmation': 'Дал келүү учуру',
   'ide.search.resultsTruncated': '{{count}} натыйжалар {{files}} файлдар (кыскартылган)',
   'ide.preview.back': 'Артка',
   'ide.preview.forward': 'Алга',
@@ -797,4 +791,14 @@ export const ky: Partial<IdeTranslations> = {
     'Кеңеш: ар бир буйрукту көрүү үчүн / деп териңиз, же {{agentName}} ге иштей турган файлды берүү үчүн @ файл атын жазыңыз.',
   'ide.chat.tip.plan':
     'Кеңеш: {{agentName}} кандайдыр бир файлдарды түзөтүүдөн мурун, аны изилдеп, план сунуштоо үчүн /plan колдонуңуз.',
+  'ide.chat.compacted': 'Кысылган {{count}} билдирүү.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete':
+    'Акыркы жасалма интеллекттин айлампасынан {{count}} файл(дар) кайтарылды.',
+  'ide.chat.autoFixCountdown': '{{seconds}} секунданын ичинде автоматтык түрдө оңдолот...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation':
+    '{{files}} файлдарындагы {{count}} кайталанууларды алмаштыруу керекпи?',
+  'ide.chat.voice': 'Диктант',
+  'ide.chat.voiceStop': 'Диктантты токтотуу',
 }

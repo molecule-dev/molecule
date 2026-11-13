@@ -7,7 +7,7 @@
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 
 import type { CommandPaletteProps, QuickPickerItem } from '../types.js'
 import { QuickPicker } from './QuickPicker.js'
@@ -19,6 +19,7 @@ import { QuickPicker } from './QuickPicker.js'
  * @returns The command palette element.
  */
 export function CommandPalette({ commands, onDismiss }: CommandPaletteProps): JSX.Element {
+  const { t } = useTranslation()
   const items: QuickPickerItem[] = useMemo(
     () =>
       commands.map((cmd) => ({

@@ -39,7 +39,6 @@ export const ru: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Токен для сброса пароля',
   'auth.resetPassword.twoFactor': 'Токен двухфакторной аутентификации (если включен)',
   'auth.signup.email': 'Адрес электронной почты (обязательно)',
-  'auth.signup.name': 'Ваше имя',
   'auth.signup.password': 'Пароль (обязательно)',
   'auth.signup.signUp': 'Зарегистрироваться',
   'auth.signup.signingUp': 'Регистрация...',
@@ -520,4 +519,5 @@ export const ru: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Зарегистрирован как {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Имя (необязательно)',
 }

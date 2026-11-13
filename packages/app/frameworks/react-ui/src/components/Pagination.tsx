@@ -6,7 +6,7 @@
 
 import React, { forwardRef, useMemo } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { PaginationProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -99,6 +99,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
 
     const range = useMemo(

@@ -36,7 +36,6 @@ export const pl: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Zarejestruj się',
   'ide.chat.modelUpgradeRequired':
     '{{model}} jest dostępny w wersji Pro. Uaktualnij, aby uzyskać dostęp do wszystkich modeli.',
-  'ide.chat.autoFixCountdown': 'Wznów',
   'ide.chat.autoFixPause': 'Pauza',
   'ide.chat.autoFixCancel': 'Anuluj',
   'ide.chat.soundAll': 'Wszystkie',
@@ -132,7 +131,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Plik jest za duży. Maksymalny rozmiar to {{maxSize}} MB.',
   'ide.chat.modelSet': 'Model czatu ustawiony na {{name}}',
   'ide.chat.compacting': 'Kompaktowanie konwersacji...',
-  'ide.chat.compacted': 'Wykorzystanie kontekstu jest niskie — nie ma potrzeby kompresji.',
   'ide.chat.compactError': 'Nie udało się skompresować konwersacji.',
   'ide.chat.switchedToPlan': 'Przełączony na tryb planowania',
   'ide.chat.switchedToExecute': 'Przełączony do trybu wykonywania',
@@ -160,7 +158,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Ten model kosztuje ×{{multiplier}} w godzinach {{windows}}. Przez resztę dnia obowiązuje zwykła stawka.',
   'ide.chat.undoNoChanges': 'Brak zmian w pliku do cofnięcia.',
-  'ide.chat.undoComplete': 'Nie udało się cofnąć zmian.',
   'ide.chat.commitNoChanges': 'Nie ma potrzeby wprowadzania zmian.',
   'ide.chat.commitError': 'Nie udało się zatwierdzić zmian.',
   'ide.chat.autoFixEnabled': 'Włączono funkcję automatycznej naprawy.',
@@ -176,7 +173,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Nie udało się zaktualizować maksymalnej liczby iteracji narzędzia.',
   'ide.chat.dropFilesHere': 'Upuść pliki tutaj',
   'ide.chat.autoFixPaused': 'Wstrzymano automatyczną naprawę',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Wybierz model',
   'ide.chat.currentBadge': 'aktualny',
   'ide.chat.proRequired': 'Zawodowiec',
@@ -212,7 +208,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'Zastępować',
   'ide.search.confirmReplaceAll': 'Kliknij ponownie, aby potwierdzić',
   'ide.search.replaceAll': 'Zamień wszystko',
-  'ide.search.replaceConfirmation': 'Etui na zapałki',
   'ide.search.wholeWord': 'Dopasuj całe słowo',
   'ide.search.regex': 'Użyj wyrażenia regularnego',
   'ide.search.toggleFilters': 'Przełącz filtry',
@@ -276,7 +271,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result':
     'Zakończono sprawdzanie typu lub sprawdzanie kłaczków',
   'ide.chat.soundEventDesc.preview_error': 'Podczas podglądu na żywo wystąpił błąd',
-  'ide.chat.voice': 'Głos',
   'ide.chat.voiceUnavailable': 'Dyktowanie nie jest dostępne w tej przeglądarce.',
   'ide.chat.voiceMicBlocked': 'Dostęp do mikrofonu jest zablokowany.',
   'ide.chat.voicePreparing':
@@ -809,4 +803,12 @@ export const pl: Partial<IdeTranslations> = {
   'ide.search.results': '{{count}} daje w rezultacie {{files}} plików',
   'ide.chat.help.modePlan':
     'Plan — {{agentName}} analizuje bazę kodu i proponuje plan BEZ edytowania plików. Przełączaj za pomocą /plan. Najlepiej sprawdza się w przypadku dużych lub ryzykownych zmian.',
+  'ide.chat.compacted': 'Skompresowano {{count}} wiadomości.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'Przywrócono {{count}} plików z ostatniej tury AI.',
+  'ide.chat.autoFixCountdown': 'Automatyczne naprawianie w ciągu {{seconds}} s...',
+  'ide.chat.version': '{{productName}} w {{version}}',
+  'ide.search.replaceConfirmation': 'Zastąpić {{count}} wystąpień w {{files}} plikach?',
+  'ide.chat.voice': 'Dyktować',
+  'ide.chat.voiceStop': 'Zatrzymaj dyktando',
 }

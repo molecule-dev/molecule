@@ -206,7 +206,7 @@ export const createReactRouter = (config: ReactRouterConfig = {}): Router => {
     ): void {
       const route = namedRoutes.get(name)
       if (!route) {
-        throw new I18nError('routing.error.routeNotFound', { name }, `Route "${name}" not found`)
+        throw new I18nError('routing.error.routeNotFound', { name }, 'Route "{{name}}" not found')
       }
 
       let path = generatePath(route.path, routeParams)
@@ -280,7 +280,7 @@ export const createReactRouter = (config: ReactRouterConfig = {}): Router => {
     generatePath(name: string, routeParams?: RouteParams, query?: QueryParams): string {
       const route = namedRoutes.get(name)
       if (!route) {
-        throw new I18nError('routing.error.routeNotFound', { name }, `Route "${name}" not found`)
+        throw new I18nError('routing.error.routeNotFound', { name }, 'Route "{{name}}" not found')
       }
 
       let path = generatePath(route.path, routeParams)

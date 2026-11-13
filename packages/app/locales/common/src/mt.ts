@@ -32,7 +32,6 @@ export const mt: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Token tar-Risettjar tal-Password',
   'auth.resetPassword.twoFactor': "Token b'Żewġ Fatturi (Jekk attivat)",
   'auth.signup.email': 'Email (Meħtieġa)',
-  'auth.signup.name': 'Ismek',
   'auth.signup.password': 'Password (Meħtieġa)',
   'auth.signup.signUp': 'Irreġistra',
   'auth.signup.signingUp': 'Qed nirreġistra...',
@@ -521,4 +520,5 @@ export const mt: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Illoggjat bħala {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Isem (mhux obbligatorju)',
 }

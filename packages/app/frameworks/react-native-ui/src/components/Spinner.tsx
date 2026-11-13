@@ -7,7 +7,7 @@
 import React from 'react'
 import { ActivityIndicator, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { SpinnerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -28,6 +28,7 @@ const sizeMap: Record<string, 'small' | 'large'> = {
  * @returns The rendered Spinner element.
  */
 export const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className, testId }) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const classes = cm.cn(cm.spinner({ size }), className)
 

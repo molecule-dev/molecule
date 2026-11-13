@@ -14,7 +14,6 @@ export const tr: Partial<CommonTranslations> = {
   'auth.login.password': 'Parola',
   'auth.login.signUp': 'Kayıt ol',
   'auth.resetPassword.email': 'E-posta',
-  'auth.signup.name': 'Adınız',
   'auth.signup.signUp': 'Kayıt ol',
   'error.unknown': 'Beklenmeyen bir hata oluştu.',
   'footer.about': '{{appName}} hakkında',
@@ -522,4 +521,5 @@ export const tr: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} olarak giriş yapıldı.',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'İsim (isteğe bağlı)',
 }

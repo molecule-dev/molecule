@@ -18,9 +18,13 @@
 import type { JSX } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import { DEFAULT_PRODUCT_NAME, useHttpClient, useThemeMode } from '@molecule/app-react'
+import {
+  DEFAULT_PRODUCT_NAME,
+  useHttpClient,
+  useThemeMode,
+  useTranslation,
+} from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
@@ -60,6 +64,7 @@ export function ReportModal({
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
+  const { t } = useTranslation()
   const isLight = useThemeMode() === 'light'
   const [form, setForm] = useState<ReportFormState>({
     ...EMPTY_REPORT_FORM,
@@ -117,7 +122,7 @@ export function ReportModal({
       )
       setSubmitting(false)
     }
-  }, [form, submitting, conversationId, projectId, http, onSubmitted, appVersion, isLight])
+  }, [form, submitting, conversationId, projectId, http, onSubmitted, appVersion, isLight, t])
 
   return (
     <div

@@ -56,7 +56,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Faili ni kubwa sana. Ukubwa wa juu zaidi ni {{maxSize}} MB.',
   'ide.chat.modelSet': 'Muundo wa gumzo umewekwa kuwa {{name}}',
   'ide.chat.compacting': 'Kufupisha mazungumzo...',
-  'ide.chat.compacted': 'Matumizi ya muktadha ni ya chini — hakuna mgandamizo unaohitajika.',
   'ide.chat.compactError': 'Imeshindwa kufupisha mazungumzo.',
   'ide.chat.switchedToPlan': 'Imebadilishwa hadi hali ya mpango',
   'ide.chat.switchedToExecute': 'Imebadilishwa hadi hali ya kutekeleza',
@@ -84,7 +83,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Modeli hii inagharimu ×{{multiplier}} kati ya {{windows}}. Muda uliobaki wa siku ni kiwango cha kawaida.',
   'ide.chat.undoNoChanges': 'Hakuna mabadiliko ya faili ya kutendua.',
-  'ide.chat.undoComplete': 'Imeshindwa kurejesha mabadiliko.',
   'ide.chat.commitNoChanges': 'Hakuna mabadiliko ya kufanya.',
   'ide.chat.commitError': 'Imeshindwa kufanya mabadiliko.',
   'ide.chat.autoFixEnabled': 'Urekebishaji kiotomatiki umewezeshwa.',
@@ -102,10 +100,8 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Imeshindwa kusasisha marudio ya juu zaidi ya zana.',
   'ide.chat.dropFilesHere': 'Weka faili hapa',
   'ide.chat.autoFixPaused': 'Kurekebisha kiotomatiki kumesitishwa',
-  'ide.chat.autoFixCountdown': 'Wasifu',
   'ide.chat.autoFixPause': 'Sitisha',
   'ide.chat.autoFixCancel': 'Ghairi',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Chagua modeli',
   'ide.chat.currentBadge': 'mkondo',
   'ide.chat.proRequired': 'Mtaalamu',
@@ -153,7 +149,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'Bonyeza tena ili kuthibitisha',
   'ide.search.replaceAll': 'Badilisha Zote',
   'ide.search.confirm': 'Thibitisha',
-  'ide.search.replaceConfirmation': 'Kisa cha Kulinganisha',
   'ide.search.wholeWord': 'Linganisha Neno Lote',
   'ide.search.regex': 'Tumia Usemi wa Kawaida',
   'ide.search.toggleFilters': 'Badilisha Vichujio',
@@ -263,7 +258,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result': 'Kuangalia rangi au aina kumekamilika',
   'ide.chat.soundEventDesc.preview_error':
     'Onyesho la awali la moja kwa moja limekumbwa na hitilafu',
-  'ide.chat.voice': 'Sauti',
   'ide.chat.voiceUnavailable': 'Kuandika kwa sauti hakupatikani katika kivinjari hiki.',
   'ide.chat.voiceMicBlocked': 'Ufikiaji wa maikrofoni umezuiwa.',
   'ide.chat.voicePreparing':
@@ -796,4 +790,13 @@ export const sw: Partial<IdeTranslations> = {
     'Kidokezo: andika / ili kuona kila amri, au @ jina la faili ili kumpa {{agentName}} faili ya kufanya kazi kutoka kwake.',
   'ide.chat.tip.plan':
     'Ushauri: tumia /plan kufanya utafiti wa {{agentName}} na kupendekeza mpango kabla ya kuhariri faili zozote.',
+  'ide.chat.compacted': 'Ujumbe wa {{count}} uliounganishwa.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete':
+    'Faili (faili) za {{count}} zilizorejeshwa kutoka kwa zamu ya mwisho ya AI.',
+  'ide.chat.autoFixCountdown': 'Inarekebisha kiotomatiki katika {{seconds}}...',
+  'ide.chat.version': '{{productName}} dhidi ya {{version}}',
+  'ide.search.replaceConfirmation': 'Badilisha matukio ya {{count}} katika faili {{files}} ?',
+  'ide.chat.voice': 'Amri',
+  'ide.chat.voiceStop': 'Acha kuandika kwa herufi kubwa',
 }

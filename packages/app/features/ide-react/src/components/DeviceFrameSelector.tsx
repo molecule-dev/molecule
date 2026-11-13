@@ -32,8 +32,8 @@
 
 import { type JSX, type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
@@ -73,6 +73,7 @@ export function DeviceFrameSelector({
   onRotate,
   onOpenExternal,
 }: DeviceFrameSelectorWithActionsProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
 
   // Action rows shown below the device frames (P4-04), after a divider: Rotate

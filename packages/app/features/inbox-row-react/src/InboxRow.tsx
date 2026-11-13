@@ -1,7 +1,7 @@
 import type * as React from 'react'
 import type { ReactNode } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
@@ -56,6 +56,7 @@ export function InboxRow({
   onToggleStar,
   className,
 }: InboxRowProps): React.JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const senderName =
     typeof sender === 'string'

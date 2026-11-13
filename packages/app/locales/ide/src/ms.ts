@@ -32,7 +32,6 @@ export const ms: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Daftar',
   'ide.chat.modelUpgradeRequired':
     '{{model}} tersedia pada Pro. Tingkatkan untuk mengakses semua model.',
-  'ide.chat.autoFixCountdown': 'Sambung semula',
   'ide.chat.autoFixPause': 'Jeda',
   'ide.chat.autoFixCancel': 'Batal',
   'ide.chat.soundAll': 'Semua',
@@ -118,7 +117,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Fail terlalu besar. Saiz maksimum ialah {{maxSize}} MB.',
   'ide.chat.modelSet': 'Model sembang ditetapkan kepada {{name}}',
   'ide.chat.compacting': 'Perbualan yang padat...',
-  'ide.chat.compacted': 'Penggunaan konteks adalah rendah — tiada pemadatan diperlukan.',
   'ide.chat.compactError': 'Gagal memadatkan perbualan.',
   'ide.chat.switchedToPlan': 'Beralih ke mod pelan',
   'ide.chat.switchedToExecute': 'Beralih ke mod pelaksanaan',
@@ -147,7 +145,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Model ini berharga ×{{multiplier}} antara {{windows}}. Sepanjang baki hari, kadar biasa dikenakan.',
   'ide.chat.undoNoChanges': 'Tiada perubahan fail untuk dibuat asal.',
-  'ide.chat.undoComplete': 'Gagal membalikkan perubahan.',
   'ide.chat.commitNoChanges': 'Tiada perubahan untuk dikomit.',
   'ide.chat.commitError': 'Gagal melakukan perubahan.',
   'ide.chat.autoFixEnabled': 'Pembetulan automatik diaktifkan.',
@@ -163,7 +160,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Gagal mengemas kini lelaran alat maksimum.',
   'ide.chat.dropFilesHere': 'Letak fail di sini',
   'ide.chat.autoFixPaused': 'Pembetulan automatik dijeda',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pilih model',
   'ide.chat.currentBadge': 'semasa',
   'ide.chat.proRequired': 'Profesional',
@@ -204,7 +200,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'Klik sekali lagi untuk mengesahkan',
   'ide.search.replaceAll': 'Gantikan Semua',
   'ide.search.confirm': 'Sahkan',
-  'ide.search.replaceConfirmation': 'Kes Padanan',
   'ide.search.wholeWord': 'Padankan Seluruh Perkataan',
   'ide.search.regex': 'Gunakan Ungkapan Biasa',
   'ide.search.toggleFilters': 'Togol Penapis',
@@ -268,7 +263,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.loop_limit_reached': 'Capai had lelaran alat maksimum',
   'ide.chat.soundEventDesc.verification_result': 'Semakan lint atau jenis selesai dijalankan',
   'ide.chat.soundEventDesc.preview_error': 'Pratonton langsung mengalami ralat',
-  'ide.chat.voice': 'Suara',
   'ide.chat.voiceUnavailable': 'Imlak tidak tersedia dalam pelayar ini.',
   'ide.chat.voiceMicBlocked': 'Akses mikrofon disekat.',
   'ide.chat.voicePreparing':
@@ -797,4 +791,12 @@ export const ms: Partial<IdeTranslations> = {
     'Petua: taip / untuk melihat setiap arahan, atau @ nama fail untuk memberi {{agentName}} fail untuk digunakan.',
   'ide.chat.tip.plan':
     'Petua: gunakan /plan untuk meminta {{agentName}} membuat kajian dan mencadangkan pelan sebelum ia mengedit sebarang fail.',
+  'ide.chat.compacted': 'Mesej {{count}} yang dipadatkan.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'Membalikkan {{count}} fail daripada pusingan AI terakhir.',
+  'ide.chat.autoFixCountdown': 'Pembaikan automatik dalam {{seconds}} saat...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation': 'Gantikan kejadian {{count}} dalam fail {{files}} ?',
+  'ide.chat.voice': 'Mendikte',
+  'ide.chat.voiceStop': 'Hentikan imlak',
 }

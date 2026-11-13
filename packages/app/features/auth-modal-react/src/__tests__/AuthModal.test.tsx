@@ -27,6 +27,19 @@ vi.mock('@molecule/app-react', () => ({
   useSignup: () => ({ status: 'idle', error: null, signup: signupMock }),
   useI18nError: (error: unknown) => (error ? String(error) : null),
   useOAuth: () => ({ providers: [], loginViaPopup: vi.fn() }),
+  // AuthModal reads `t` from `useTranslation()` (it must re-render on locale
+  // switches). The stub mirrors the real provider's contract for the parts the
+  // modal uses: the `defaultValue` with `{{name}}` placeholders interpolated
+  // from `values` — the same interpolation `app-i18n`'s provider applies to a
+  // missing key's fallback, so a `{{who}}` default renders the real value.
+  useTranslation: () => ({
+    t: (key: string, values?: Record<string, unknown>, options?: { defaultValue?: string }) => {
+      const text = options?.defaultValue ?? key
+      return text.replace(/\{\{(\w+)\}\}/g, (whole, name: string) =>
+        values && name in values ? String(values[name]) : whole,
+      )
+    },
+  }),
 }))
 
 vi.mock('@molecule/app-auth-shell-react', () => ({

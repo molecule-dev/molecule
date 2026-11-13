@@ -32,7 +32,6 @@ export const ga: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Comhartha Athshocraithe Pasfhocail',
   'auth.resetPassword.twoFactor': 'Comhartha Dhá Fhachtóir (Más cumasaithe)',
   'auth.signup.email': 'Ríomhphost (Riachtanach)',
-  'auth.signup.name': "D'ainm",
   'auth.signup.password': 'Pasfhocal (Riachtanach)',
   'auth.signup.signUp': 'Cláraigh',
   'auth.signup.signingUp': 'Ag clárú...',
@@ -522,4 +521,5 @@ export const ga: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Logáilte isteach mar {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Ainm (roghnach)',
 }

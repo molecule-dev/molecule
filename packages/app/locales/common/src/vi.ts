@@ -11,7 +11,6 @@ export const vi: Partial<CommonTranslations> = {
   'auth.login.forgotPassword': 'Quên mật khẩu?',
   'auth.login.password': 'Mật khẩu',
   'auth.login.signUp': 'Đăng ký',
-  'auth.signup.name': 'Tên của quý vị',
   'auth.signup.signUp': 'Đăng ký',
   'error.unknown': 'Đã xảy ra lỗi không mong muốn.',
   'footer.about': 'Về {{appName}}',
@@ -522,4 +521,5 @@ export const vi: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Đăng nhập với tư cách {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Tên (tùy chọn)',
 }

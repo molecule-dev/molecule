@@ -11,7 +11,6 @@ export const hu: Partial<CommonTranslations> = {
   'auth.login.password': 'Jelszó',
   'auth.login.signUp': 'Regisztráció',
   'auth.resetPassword.email': 'E-mail',
-  'auth.signup.name': 'Az Ön neve',
   'auth.signup.signUp': 'Regisztráció',
   'footer.about': 'A {{appName}}-ről',
   'footer.language': 'Nyelv',
@@ -522,4 +521,5 @@ export const hu: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Bejelentkezve {{who}} néven',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Név (opcionális)',
 }

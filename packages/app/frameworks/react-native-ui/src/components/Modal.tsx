@@ -7,7 +7,7 @@
 import React from 'react'
 import { Modal as RNModal, Pressable, ScrollView, Text, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { ModalProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -34,6 +34,7 @@ export const Modal: React.FC<ModalProps> = ({
   className,
   testId,
 }) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const contentClasses = cm.cn(cm.modal({ size }), className)
 

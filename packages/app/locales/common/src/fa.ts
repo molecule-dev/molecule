@@ -39,7 +39,6 @@ export const fa: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'توکن بازنشانی رمز عبور',
   'auth.resetPassword.twoFactor': 'توکن دو مرحله‌ای (در صورت فعال بودن)',
   'auth.signup.email': 'ایمیل (الزامی)',
-  'auth.signup.name': 'نام شما',
   'auth.signup.password': 'رمز عبور (الزامی)',
   'auth.signup.signUp': 'ثبت نام کنید',
   'auth.signup.signingUp': 'در حال ثبت نام...',
@@ -523,4 +522,5 @@ export const fa: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'به عنوان {{who}} وارد سیستم شده است',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'نام (اختیاری)',
 }

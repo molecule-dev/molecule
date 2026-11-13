@@ -1,7 +1,6 @@
 import { type JSX, useEffect, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
-import { useHttpClient } from '@molecule/app-react'
+import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { type ChatUsageTokens, formatTokenTotal, totalPromptTokens } from './chat-cost-utilities.js'
@@ -77,6 +76,7 @@ export function ContextSessionUsage({
   loading: boolean
   failed: boolean
 }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const available = data && !failed
   const percent = data?.allowancePercent

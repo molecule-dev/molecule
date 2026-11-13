@@ -61,7 +61,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Tá an comhad rómhór. Is é an méid uasta ná {{maxSize}} MB.',
   'ide.chat.modelSet': 'Socraithe samhail comhrá go {{name}}',
   'ide.chat.compacting': 'Ag dlúthú an chomhrá...',
-  'ide.chat.compacted': 'Tá úsáid chomhthéacs íseal — níl aon chomhdhlúthú ag teastáil.',
   'ide.chat.compactError': 'Theip ar an gcomhrá a chomhdhlúthú.',
   'ide.chat.switchedToPlan': 'Athraithe go mód pleanála',
   'ide.chat.switchedToExecute': 'Athraíodh go mód forghníomhaithe',
@@ -90,7 +89,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Cosnaíonn an tsamhail seo ×{{multiplier}} idir {{windows}}. Baineann an gnáthráta leis an gcuid eile den lá.',
   'ide.chat.undoNoChanges': 'Gan aon athruithe ar chomhad le cealú.',
-  'ide.chat.undoComplete': 'Theip ar na hathruithe a aisiompú.',
   'ide.chat.commitNoChanges': 'Gan aon athruithe le gealladh.',
   'ide.chat.commitError': 'Theip ar athruithe a chur i bhfeidhm.',
   'ide.chat.autoFixEnabled': 'Uath-cheartú cumasaithe.',
@@ -108,10 +106,8 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Theip ar uasmhéid athrá uirlisí a nuashonrú.',
   'ide.chat.dropFilesHere': 'Scaoil comhaid anseo',
   'ide.chat.autoFixPaused': 'Uath-cheartú curtha ar sos',
-  'ide.chat.autoFixCountdown': 'Atosú',
   'ide.chat.autoFixPause': 'Sos',
   'ide.chat.autoFixCancel': 'Cealaigh',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Roghnaigh samhail',
   'ide.chat.currentBadge': 'reatha',
   'ide.chat.proRequired': 'Gairmiúil',
@@ -159,7 +155,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'Cliceáil arís le deimhniú',
   'ide.search.replaceAll': 'Ionadaigh Gach Rud',
   'ide.search.confirm': 'Deimhnigh',
-  'ide.search.replaceConfirmation': 'Cás Meaitseála',
   'ide.search.wholeWord': 'Meaitseáil an Focal Iomlán',
   'ide.search.regex': 'Úsáid an Léiriú Rialta',
   'ide.search.toggleFilters': 'Scagairí a Athsholáthar',
@@ -268,7 +263,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.loop_limit_reached': 'Buail an teorainn uasta athrá uirlisí',
   'ide.chat.soundEventDesc.verification_result': 'Lint nó seiceáil cineáil críochnaithe ag rith',
   'ide.chat.soundEventDesc.preview_error': 'Tharla earráid sa réamhamharc beo',
-  'ide.chat.voice': 'Guth',
   'ide.chat.voiceUnavailable': 'Níl deachtú ar fáil sa bhrabhsálaí seo.',
   'ide.chat.voiceMicBlocked': 'Tá rochtain ar an micreafón blocáilte.',
   'ide.chat.voicePreparing': "Deachtú á ullmhú — d'fhéadfadh sé nóiméad a thógáil an chéad uair.",
@@ -808,4 +802,14 @@ export const ga: Partial<IdeTranslations> = {
     'Leid: clóscríobh / chun gach ordú a fheiceáil, nó @ ainm comhaid chun comhad a thabhairt {{agentName}} le hoibriú uaidh.',
   'ide.chat.tip.plan':
     'Leid: bain úsáid as /plan chun go ndéanfaidh {{agentName}} taighde agus plean a mholadh sula ndéanann sé aon chomhaid a chur in eagar.',
+  'ide.chat.compacted': '{{count}} teachtaireacht chomhdhlúite.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete':
+    'Cuireadh {{count}} comhad(anna) ar ais ón seal deireanach de chuid na hintleachta saorga.',
+  'ide.chat.autoFixCountdown': 'Uath-cheartú i {{seconds}} s...',
+  'ide.chat.version': '{{productName}} leagan {{version}}',
+  'ide.search.replaceConfirmation':
+    'Athsholáthar a dhéanamh {{count}} eachtraí i {{files}} comhaid?',
+  'ide.chat.voice': 'Deachtaigh',
+  'ide.chat.voiceStop': 'Stop an deachtú',
 }

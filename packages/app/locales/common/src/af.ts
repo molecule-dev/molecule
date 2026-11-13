@@ -32,7 +32,6 @@ export const af: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Wagwoordherstelteken',
   'auth.resetPassword.twoFactor': 'Twee-Faktor Teken (Indien geaktiveer)',
   'auth.signup.email': 'E-pos (Verpligtend)',
-  'auth.signup.name': 'Jou naam',
   'auth.signup.password': 'Wagwoord (Verpligtend)',
   'auth.signup.signUp': 'Registreer',
   'auth.signup.signingUp': 'Registreer tans...',
@@ -522,4 +521,5 @@ export const af: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Aangemeld as {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Naam (opsioneel)',
 }

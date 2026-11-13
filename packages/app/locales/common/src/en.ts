@@ -30,7 +30,7 @@ export const en: CommonTranslations = {
   'auth.resetPassword.token': 'Password Reset Token',
   'auth.resetPassword.twoFactor': 'Two-Factor Token (If enabled)',
   'auth.signup.email': 'Email (Required)',
-  'auth.signup.name': 'Your name',
+  'auth.signup.name': 'Name (optional)',
   'auth.signup.password': 'Password (Required)',
   'auth.signup.signUp': 'Sign up',
   'auth.signup.signingUp': 'Signing up...',

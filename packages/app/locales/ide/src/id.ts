@@ -33,7 +33,6 @@ export const id: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Daftar',
   'ide.chat.modelUpgradeRequired':
     '{{model}} tersedia di Pro. Tingkatkan ke versi Pro untuk mengakses semua model.',
-  'ide.chat.autoFixCountdown': 'Lanjutkan',
   'ide.chat.autoFixPause': 'Jeda',
   'ide.chat.autoFixCancel': 'Batal',
   'ide.chat.soundAll': 'Semua',
@@ -126,7 +125,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Ukuran file terlalu besar. Ukuran maksimum adalah {{maxSize}} MB.',
   'ide.chat.modelSet': 'Model obrolan diatur ke {{name}}',
   'ide.chat.compacting': 'Mempersingkat percakapan...',
-  'ide.chat.compacted': 'Penggunaan konteks rendah — tidak diperlukan pemadatan.',
   'ide.chat.compactError': 'Gagal memadatkan percakapan.',
   'ide.chat.switchedToPlan': 'Beralih ke mode perencanaan',
   'ide.chat.switchedToExecute': 'Beralih ke mode eksekusi',
@@ -153,7 +151,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Model ini dikenakan ×{{multiplier}} antara {{windows}}. Sisa hari lainnya berlaku tarif normal.',
   'ide.chat.undoNoChanges': 'Tidak ada perubahan file yang perlu dibatalkan.',
-  'ide.chat.undoComplete': 'Gagal mengembalikan perubahan.',
   'ide.chat.commitNoChanges': 'Tidak ada perubahan yang perlu di-commit.',
   'ide.chat.commitError': 'Perubahan gagal disimpan.',
   'ide.chat.autoFixEnabled': 'Perbaikan otomatis diaktifkan.',
@@ -169,7 +166,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Gagal memperbarui jumlah iterasi alat maksimum.',
   'ide.chat.dropFilesHere': 'Seret file ke sini',
   'ide.chat.autoFixPaused': 'Perbaikan otomatis dijeda',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pilih model',
   'ide.chat.currentBadge': 'saat ini',
   'ide.chat.proRequired': 'Pro',
@@ -206,7 +202,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'Mengganti',
   'ide.search.confirmReplaceAll': 'Klik lagi untuk konfirmasi',
   'ide.search.replaceAll': 'Ganti Semua',
-  'ide.search.replaceConfirmation': 'Kotak Korek Api',
   'ide.search.wholeWord': 'Cocokkan Seluruh Kata',
   'ide.search.regex': 'Gunakan Ekspresi Reguler',
   'ide.search.toggleFilters': 'Alihkan Filter',
@@ -268,7 +263,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result':
     'Pemeriksaan lint atau pengecekan tipe telah selesai dijalankan.',
   'ide.chat.soundEventDesc.preview_error': 'Pratinjau langsung mengalami kesalahan.',
-  'ide.chat.voice': 'Suara',
   'ide.chat.voiceUnavailable': 'Dikte tidak tersedia di browser ini.',
   'ide.chat.voiceMicBlocked': 'Akses mikrofon diblokir.',
   'ide.chat.voicePreparing': 'Menyiapkan dikte — mungkin butuh waktu sebentar saat pertama kali.',
@@ -797,4 +791,12 @@ export const id: Partial<IdeTranslations> = {
     'Tip: ketik / untuk melihat semua perintah, atau @ nama file untuk memberikan {{agentName}} file untuk dikerjakan.',
   'ide.chat.help.modePlan':
     'Rencana — {{agentName}} meneliti basis kode dan mengusulkan rencana TANPA mengedit file. Aktifkan/nonaktifkan dengan /plan. Terbaik untuk perubahan besar atau berisiko.',
+  'ide.chat.compacted': 'Jumlah pesan yang dipadatkan adalah {{count}} .',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'Mengembalikan {{count}} file dari giliran AI terakhir.',
+  'ide.chat.autoFixCountdown': 'Perbaikan otomatis dalam {{seconds}} detik...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation': 'Gantikan {{count}} kemunculan dalam {{files}} file?',
+  'ide.chat.voice': 'Mendikte',
+  'ide.chat.voiceStop': 'Hentikan dikte',
 }

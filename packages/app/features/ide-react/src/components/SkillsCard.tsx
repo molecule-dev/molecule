@@ -49,9 +49,8 @@
 import type { CSSProperties, JSX } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import { useHttpClient } from '@molecule/app-react'
+import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
@@ -146,6 +145,7 @@ export function SkillsCard({
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
+  const { t } = useTranslation()
   const [status, setStatus] = useState<SkillsStatus>('loading')
   const [skills, setSkills] = useState<SkillInfo[]>([])
   const [query, setQuery] = useState(initialQuery)

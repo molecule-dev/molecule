@@ -1,7 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { error as logError } from '@molecule/app-logger'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 interface Props {
@@ -13,9 +13,34 @@ interface State {
 }
 
 /**
+ * The recovery alert the boundary shows once a render error is caught. A function
+ * component, so it reads `t` from `useTranslation()` and re-renders in the new
+ * language after a locale switch (a class component cannot subscribe to one).
+ *
+ * @returns The localized recovery alert.
+ */
+function RootErrorFallback(): ReactNode {
+  const { t } = useTranslation()
+  const cm = getClassMap()
+  return (
+    <div
+      className={cm.cn(
+        cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
+        cm.sp('p', 8),
+      )}
+      role="alert"
+    >
+      <p className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
+        {t('error.unknown', {}, { defaultValue: 'An unexpected error occurred.' })}
+      </p>
+    </div>
+  )
+}
+
+/**
  * Top-level React error boundary that catches render errors, logs them via
  * the bonded `@molecule/app-logger`, and falls back to a minimal recovery
- * surface localized through `@molecule/app-i18n`.
+ * surface localized through `useTranslation()` from `@molecule/app-react`.
  *
  * Use this directly under your routing root so it covers the whole route tree.
  */
@@ -41,20 +66,7 @@ export class RootErrorBoundary extends Component<Props, State> {
    */
   override render(): ReactNode {
     if (this.state.hasError) {
-      const cm = getClassMap()
-      return (
-        <div
-          className={cm.cn(
-            cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
-            cm.sp('p', 8),
-          )}
-          role="alert"
-        >
-          <p className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>
-            {t('error.unknown', {}, { defaultValue: 'An unexpected error occurred.' })}
-          </p>
-        </div>
-      )
+      return <RootErrorFallback />
     }
     return this.props.children
   }

@@ -11,7 +11,7 @@ import type {
 } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ResizeHandleProps } from '../types.js'
@@ -42,6 +42,7 @@ export function ResizeHandle({
   direction = 'horizontal',
   className,
 }: ResizeHandleProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const startRef = useRef<number>(0)
   const draggingRef = useRef(false)

@@ -36,7 +36,6 @@ export const ar: Partial<IdeTranslations> = {
   'upgrade.signUp': 'إنشاء حساب',
   'ide.chat.modelUpgradeRequired':
     '{{model}} متوفر في الإصدار الاحترافي. قم بالترقية للوصول إلى جميع النماذج.',
-  'ide.chat.autoFixCountdown': 'استئناف',
   'ide.chat.autoFixPause': 'إيقاف مؤقت',
   'ide.chat.autoFixCancel': 'إلغاء',
   'ide.chat.soundAll': 'الكل',
@@ -134,7 +133,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'حجم الملف كبير جدًا. الحد الأقصى للحجم هو {{maxSize}} م.ب.',
   'ide.chat.modelSet': 'تم ضبط نموذج الدردشة على {{name}}',
   'ide.chat.compacting': 'اختصار المحادثة...',
-  'ide.chat.compacted': 'استخدام السياق منخفض - لا حاجة إلى ضغط البيانات.',
   'ide.chat.compactError': 'فشل في ضغط المحادثة.',
   'ide.chat.switchedToPlan': 'تم التبديل إلى وضع التخطيط',
   'ide.chat.switchedToExecute': 'تم التبديل إلى وضع التنفيذ',
@@ -164,7 +162,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'يكلف هذا النموذج ×{{multiplier}} بين {{windows}}. وهو السعر العادي في بقية اليوم.',
   'ide.chat.undoNoChanges': 'لا توجد تغييرات في الملفات يمكن التراجع عنها.',
-  'ide.chat.undoComplete': 'فشل في التراجع عن التغييرات.',
   'ide.chat.commitNoChanges': 'لا توجد تغييرات يجب الالتزام بها.',
   'ide.chat.commitError': 'فشل في حفظ التغييرات.',
   'ide.chat.autoFixEnabled': 'تم تفعيل خاصية الإصلاح التلقائي.',
@@ -180,7 +177,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'فشل تحديث الحد الأقصى لعدد تكرارات الأداة.',
   'ide.chat.dropFilesHere': 'قم بإسقاط الملفات هنا',
   'ide.chat.autoFixPaused': 'تم إيقاف التصحيح التلقائي مؤقتًا',
-  'ide.chat.version': '{{productName}} الإصدار 0.1.0',
   'ide.chat.selectModel': 'اختر الطراز',
   'ide.chat.currentBadge': 'حاضِر',
   'ide.chat.proRequired': 'محترف',
@@ -217,7 +213,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'يستبدل',
   'ide.search.confirmReplaceAll': 'انقر مرة أخرى للتأكيد',
   'ide.search.replaceAll': 'استبدل الكل',
-  'ide.search.replaceConfirmation': 'علبة كبريت',
   'ide.search.wholeWord': 'تطابق الكلمة الكاملة',
   'ide.search.regex': 'استخدم التعبير النمطي',
   'ide.search.toggleFilters': 'تبديل الفلاتر',
@@ -276,7 +271,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.loop_limit_reached': 'تم الوصول إلى الحد الأقصى لعدد تكرارات الأداة',
   'ide.chat.soundEventDesc.verification_result': 'انتهى تشغيل فحص الأخطاء أو التدقيق الإملائي',
   'ide.chat.soundEventDesc.preview_error': 'واجهت المعاينة المباشرة خطأً',
-  'ide.chat.voice': 'صوت',
   'ide.chat.voiceUnavailable': 'الإملاء غير متاح في هذا المتصفح.',
   'ide.chat.voiceMicBlocked': 'تم حظر الوصول إلى الميكروفون.',
   'ide.chat.voicePreparing': 'جارٍ تجهيز الإملاء — قد يستغرق ذلك لحظات عند أول استخدام.',
@@ -793,4 +787,13 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.scripts.cmdExitFail': 'خرج {{name}} بالرمز {{code}}',
   'ide.chat.help.modePlan':
     'الخطة — يقوم {{agentName}} بفحص قاعدة البيانات واقتراح خطة دون تعديل الملفات. فعّل/عطّل الخطة باستخدام /plan. الأفضل للتغييرات الكبيرة أو الخطيرة.',
+  'ide.chat.compacted': 'تم ضغط {{count}} رسالة.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'تم استعادة {{count}} ملفًا من آخر دورة للذكاء الاصطناعي.',
+  'ide.chat.autoFixCountdown': 'إصلاح تلقائي في {{seconds}} ثانية...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation':
+    'هل تريد استبدال {{count}} من مرات الظهور في {{files}} من الملفات؟',
+  'ide.chat.voice': 'أملِ',
+  'ide.chat.voiceStop': 'أوقف الإملاء',
 }

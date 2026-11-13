@@ -33,7 +33,6 @@ export const fil: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Mag-sign up',
   'ide.chat.modelUpgradeRequired':
     '{{model}} ay available sa Pro. Mag-upgrade para ma-access ang lahat ng modelo.',
-  'ide.chat.autoFixCountdown': 'Ituloy',
   'ide.chat.autoFixPause': 'I-pause',
   'ide.chat.autoFixCancel': 'Kanselahin',
   'ide.chat.soundAll': 'Lahat',
@@ -117,7 +116,6 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Masyadong malaki ang file. Ang maximum na laki ay {{maxSize}} MB.',
   'ide.chat.modelSet': 'Nakatakda ang modelo ng chat sa {{name}}',
   'ide.chat.compacting': 'Pagsasama-sama ng usapan...',
-  'ide.chat.compacted': 'Mababa ang paggamit sa konteksto — hindi kailangan ng compaction.',
   'ide.chat.compactError': 'Nabigong paikliin ang pag-uusap.',
   'ide.chat.switchedToPlan': 'Lumipat sa plan mode',
   'ide.chat.switchedToExecute': 'Lumipat sa execute mode',
@@ -145,7 +143,6 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Nagkakahalaga ang modelong ito ng ×{{multiplier}} sa pagitan ng {{windows}}. Normal na rate naman sa natitirang oras ng araw.',
   'ide.chat.undoNoChanges': 'Walang mga pagbabago sa file na dapat i-undo.',
-  'ide.chat.undoComplete': 'Nabigong ibalik ang mga pagbabago.',
   'ide.chat.commitNoChanges': 'Walang mga pagbabagong iko-commit.',
   'ide.chat.commitError': 'Nabigong isagawa ang mga pagbabago.',
   'ide.chat.autoFixEnabled': 'Naka-enable ang awtomatikong pag-aayos.',
@@ -161,7 +158,6 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Nabigong i-update ang pinakamataas na mga iterasyon ng tool.',
   'ide.chat.dropFilesHere': 'I-drop ang mga file dito',
   'ide.chat.autoFixPaused': 'Na-pause ang awtomatikong pag-aayos',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pumili ng modelo',
   'ide.chat.currentBadge': 'kasalukuyan',
   'ide.chat.proRequired': 'Propesyonal',
@@ -201,7 +197,6 @@ export const fil: Partial<IdeTranslations> = {
   'ide.search.confirmReplaceAll': 'I-click muli para kumpirmahin',
   'ide.search.replaceAll': 'Palitan Lahat',
   'ide.search.confirm': 'Kumpirmahin',
-  'ide.search.replaceConfirmation': 'Kaso ng Pagtutugma',
   'ide.search.wholeWord': 'Pagtugmain ang Buong Salita',
   'ide.search.regex': 'Gumamit ng Regular na Expression',
   'ide.search.toggleFilters': 'I-toggle ang mga Filter',
@@ -269,7 +264,6 @@ export const fil: Partial<IdeTranslations> = {
     'Abutin ang pinakamataas na limitasyon sa mga pag-ulit ng tool',
   'ide.chat.soundEventDesc.verification_result': 'Tapos na ang pagtakbo ng lint o type-check',
   'ide.chat.soundEventDesc.preview_error': 'Nagkaroon ng error sa live preview',
-  'ide.chat.voice': 'Boses',
   'ide.chat.voiceUnavailable': 'Hindi available ang diktasyon sa browser na ito.',
   'ide.chat.voiceMicBlocked': 'Naka-block ang access sa mikropono.',
   'ide.chat.voicePreparing':
@@ -810,4 +804,12 @@ export const fil: Partial<IdeTranslations> = {
     'Tip: i-type ang / para makita ang bawat command, o @ isang filename para bigyan {{agentName}} ng file na mapagtatrabahuhan.',
   'ide.chat.tip.plan':
     'Tip: gamitin ang /plan para magsaliksik {{agentName}} at magmungkahi ng plano bago nito i-edit ang anumang mga file.',
+  'ide.chat.compacted': 'Pinagsama-samang {{count}} na mga mensahe.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'Ibinalik ang {{count}} na file mula sa huling AI turn.',
+  'ide.chat.autoFixCountdown': 'Awtomatikong pag-aayos sa loob ng {{seconds}} segundo...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation': 'Palitan ang {{count}} na paglitaw sa mga file na {{files}} ?',
+  'ide.chat.voice': 'Magdikta',
+  'ide.chat.voiceStop': 'Itigil ang pagdidikta',
 }

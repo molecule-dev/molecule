@@ -26,7 +26,7 @@
 
 import type { JSX } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
@@ -52,6 +52,7 @@ export function RelevantSkillSuggestion({
   onDismiss: (skill: SkillInfo) => void
 }): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   // The styled Tooltip shows the skill's own description; fall back to a generic
   // "open in the editor" hint when a skill ships no description.
   const openHint = t('ide.chat.skills.loadTitle', undefined, { defaultValue: 'Open in the editor' })

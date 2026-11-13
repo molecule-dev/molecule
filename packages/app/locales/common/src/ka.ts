@@ -39,7 +39,6 @@ export const ka: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'პაროლის აღდგენის ტოკენი',
   'auth.resetPassword.twoFactor': 'ორფაქტორიანი ტოკენი (თუ ჩართულია)',
   'auth.signup.email': 'ელ. ფოსტა (აუცილებელია)',
-  'auth.signup.name': 'თქვენი სახელი',
   'auth.signup.password': 'პაროლი (აუცილებელია)',
   'auth.signup.signUp': 'რეგისტრაცია',
   'auth.signup.signingUp': 'რეგისტრაცია...',
@@ -521,4 +520,5 @@ export const ka: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'შესულია, როგორც {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'სახელი (არასავალდებულო)',
 }

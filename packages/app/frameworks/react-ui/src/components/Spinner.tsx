@@ -6,7 +6,7 @@
 
 import React, { forwardRef } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { SpinnerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -18,6 +18,7 @@ import { getClassMap } from '@molecule/app-ui'
  */
 export const Spinner = forwardRef<HTMLDivElement, SpinnerProps & { 'data-mol-id'?: string }>(
   ({ size = 'md', color, label, className, style, testId, ...rest }, ref) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
     const classes = cm.cn(cm.spinner({ size }), className)
 

@@ -20,9 +20,15 @@
 import { type JSX, type ReactNode, useEffect, useState } from 'react'
 
 import { useAuthFormState } from '@molecule/app-auth-shell-react'
-import { t } from '@molecule/app-i18n'
 import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-react'
-import { useAuth, useAuthClient, useI18nError, useLogin, useSignup } from '@molecule/app-react'
+import {
+  useAuth,
+  useAuthClient,
+  useI18nError,
+  useLogin,
+  useSignup,
+  useTranslation,
+} from '@molecule/app-react'
 import { useOAuth } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Icon, Modal } from '@molecule/app-ui-react'
@@ -133,6 +139,7 @@ export function AuthModal({
   captchaSlot,
   captchaSolved = true,
 }: AuthModalProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const isTouchFirst = useTouchFirstViewport()
   const [mode, setMode] = useState<AuthModalMode>(initialMode)
@@ -263,7 +270,7 @@ export function AuthModal({
                 </div>
                 {who && (
                   <div className={cm.textMuted} style={{ fontSize: 13 }}>
-                    {t('auth.modal.loggedInAs', { who }, { defaultValue: `Logged in as ${who}` })}
+                    {t('auth.modal.loggedInAs', { who }, { defaultValue: 'Logged in as {{who}}' })}
                   </div>
                 )}
               </div>
@@ -327,7 +334,7 @@ export function AuthModal({
                   autoComplete="one-time-code"
                   data-mol-id="auth-modal-2fa"
                   placeholder={t('auth.login.twoFactor', undefined, {
-                    defaultValue: '2FA code (if enabled)',
+                    defaultValue: 'Two-Factor Token (If enabled)',
                   })}
                   style={fieldStyle}
                 />

@@ -39,7 +39,6 @@ export const gu: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'પાસવર્ડ રીસેટ ટોકન',
   'auth.resetPassword.twoFactor': 'ટુ-ફેક્ટર ટોકન (જો સક્ષમ હોય તો)',
   'auth.signup.email': 'ઇમેઇલ (જરૂરી)',
-  'auth.signup.name': 'તમારું નામ',
   'auth.signup.password': 'પાસવર્ડ (જરૂરી)',
   'auth.signup.signUp': 'સાઇન અપ કરો',
   'auth.signup.signingUp': 'સાઇન અપ કરી રહ્યું છે...',
@@ -520,4 +519,5 @@ export const gu: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} તરીકે લોગ ઇન કર્યું',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'નામ (વૈકલ્પિક)',
 }

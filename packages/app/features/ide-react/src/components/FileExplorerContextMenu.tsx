@@ -8,7 +8,7 @@ import type { JSX } from 'react'
 import { useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation, type UseTranslationResult } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FileNode } from '../types.js'
@@ -70,12 +70,15 @@ interface MenuItem {
 
 /**
  * Build the list of menu items based on context (file, directory, or background).
+ * @param t - The translation function from `useTranslation()`.
  * @param node - The right-clicked node, or null for background.
  * @param selectedCount - Number of selected items (> 1 triggers multi-select menu).
  * @param canPaste - Whether paste is available.
+ * @param readOnly - Read-only mode: mutating actions are omitted.
  * @returns Array of menu items with optional separators.
  */
 function getMenuItems(
+  t: UseTranslationResult['t'],
   node: FileNode | null,
   selectedCount: number,
   canPaste: boolean,
@@ -120,7 +123,7 @@ function getMenuItems(
         label: t(
           'ide.contextMenu.deleteCount',
           { count: selectedCount },
-          { defaultValue: `Delete ${selectedCount} Items` },
+          { defaultValue: 'Delete {{count}} Items' },
         ),
         shortcut: '\u232B',
       },
@@ -266,6 +269,7 @@ export function FileExplorerContextMenu({
   onClose,
   readOnly,
 }: ContextMenuProps): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -320,7 +324,7 @@ export function FileExplorerContextMenu({
     [onAction, onClose],
   )
 
-  const items = getMenuItems(node, selectedCount, canPaste, readOnly)
+  const items = getMenuItems(t, node, selectedCount, canPaste, readOnly)
 
   const menu = (
     <div

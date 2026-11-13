@@ -1,7 +1,7 @@
 /**
  * Top-level React error boundary that catches render errors, logs them via
  * the bonded `@molecule/app-logger`, and shows a minimal localized fallback
- * message through `@molecule/app-i18n`.
+ * message through `useTranslation()` from `@molecule/app-react`.
  *
  * Exports `<RootErrorBoundary>` (class component; `children` is the only
  * prop). Mount it directly under your routing root so it covers the whole
@@ -26,9 +26,11 @@
  *   (key `error.unknown`). Wrap or fork when you need a recovery button.
  * - React error boundaries catch RENDER errors only — not event handlers,
  *   async code, or server-side rendering errors.
- * - Uses the core `t()` from `@molecule/app-i18n` (not the React hook), so
- *   no `I18nProvider` is required; without locale registration it falls back
- *   to English. Translations: `@molecule/app-locales-root-error-boundary`.
+ * - The fallback translates through `useTranslation()`, so it re-renders in
+ *   the new language after a locale switch. No `I18nProvider` is required:
+ *   outside one it reads the bonded `@molecule/app-i18n` provider, and without
+ *   locale registration it falls back to English. Translations:
+ *   `@molecule/app-locales-root-error-boundary`.
  *
  * @module
  */

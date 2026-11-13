@@ -6,7 +6,7 @@
 
 import React, { forwardRef } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -37,6 +37,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
     },
     ref,
   ) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
 
     const getRowKey = (row: Record<string, unknown>, index: number): string | number => {

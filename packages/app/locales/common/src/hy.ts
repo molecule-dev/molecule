@@ -39,7 +39,6 @@ export const hy: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Գաղտնաբառի վերականգնման տոկեն',
   'auth.resetPassword.twoFactor': 'Երկփուլային թոքեն (եթե միացված է)',
   'auth.signup.email': 'Էլ․ հասցե (պարտադիր)',
-  'auth.signup.name': 'Ձեր անունը',
   'auth.signup.password': 'Գաղտնաբառ (պարտադիր)',
   'auth.signup.signUp': 'Գրանցվել',
   'auth.signup.signingUp': 'Գրանցվում է...',
@@ -522,4 +521,5 @@ export const hy: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Մուտք գործած եք որպես {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Անուն (ըստ ցանկության)',
 }

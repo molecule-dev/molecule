@@ -32,7 +32,6 @@ export const gl: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Token de restablecemento de contrasinal',
   'auth.resetPassword.twoFactor': 'Token de dous factores (se está activado)',
   'auth.signup.email': 'Correo electrónico (obrigatorio)',
-  'auth.signup.name': 'O teu nome',
   'auth.signup.password': 'Contrasinal (obrigatorio)',
   'auth.signup.signUp': 'Rexístrate',
   'auth.signup.signingUp': 'Rexistrándose...',
@@ -524,4 +523,5 @@ export const gl: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Iniciado sesión como {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Nome (opcional)',
 }

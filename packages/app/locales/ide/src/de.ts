@@ -33,7 +33,6 @@ export const de: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Registrieren',
   'ide.chat.modelUpgradeRequired':
     '{{model}} ist in der Pro-Version verfügbar. Führen Sie ein Upgrade durch, um auf alle Modelle zuzugreifen.',
-  'ide.chat.autoFixCountdown': 'Fortsetzen',
   'ide.chat.autoFixPause': 'Pausieren',
   'ide.chat.autoFixCancel': 'Abbrechen',
   'ide.chat.soundAll': 'Alle',
@@ -128,8 +127,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Die Datei ist zu groß. Maximale Größe: {{maxSize}} MB.',
   'ide.chat.modelSet': 'Chat-Modell eingestellt auf {{name}}',
   'ide.chat.compacting': 'Verdichtung des Gesprächs...',
-  'ide.chat.compacted':
-    'Die Kontextnutzung ist gering – eine Komprimierung ist nicht erforderlich.',
   'ide.chat.compactError': 'Es gelang nicht, das Gespräch zu verkürzen.',
   'ide.chat.switchedToPlan': 'In den Planmodus gewechselt',
   'ide.chat.switchedToExecute': 'In den Ausführungsmodus gewechselt',
@@ -158,7 +155,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Dieses Modell kostet zwischen {{windows}} ×{{multiplier}}. Den Rest des Tages gilt der normale Tarif.',
   'ide.chat.undoNoChanges': 'Keine Dateiänderungen, die rückgängig gemacht werden müssten.',
-  'ide.chat.undoComplete': 'Änderungen konnten nicht rückgängig gemacht werden.',
   'ide.chat.commitNoChanges': 'Keine Änderungen erforderlich.',
   'ide.chat.commitError': 'Änderungen konnten nicht übernommen werden.',
   'ide.chat.autoFixEnabled': 'Automatische Fehlerbehebung aktiviert.',
@@ -176,7 +172,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Fehler beim Aktualisieren der maximalen Werkzeugiterationen.',
   'ide.chat.dropFilesHere': 'Dateien hier ablegen',
   'ide.chat.autoFixPaused': 'Automatische Fehlerbehebung pausiert',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Modell auswählen',
   'ide.chat.currentBadge': 'aktuell',
   'ide.chat.proRequired': 'Pro',
@@ -213,7 +208,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'Ersetzen',
   'ide.search.confirmReplaceAll': 'Klicken Sie erneut, um zu bestätigen.',
   'ide.search.replaceAll': 'Alle ersetzen',
-  'ide.search.replaceConfirmation': 'Streichholzschachtel',
   'ide.search.wholeWord': 'Gleiches Wort aus',
   'ide.search.regex': 'Regulären Ausdruck verwenden',
   'ide.search.toggleFilters': 'Filter umschalten',
@@ -278,7 +272,6 @@ export const de: Partial<IdeTranslations> = {
     'Die maximale Anzahl an Werkzeugiterationen wurde erreicht.',
   'ide.chat.soundEventDesc.verification_result': 'Lint- oder Typüberprüfung abgeschlossen',
   'ide.chat.soundEventDesc.preview_error': 'Bei der Live-Vorschau ist ein Fehler aufgetreten.',
-  'ide.chat.voice': 'Stimme',
   'ide.chat.voiceUnavailable': 'Diktieren ist in diesem Browser nicht verfügbar.',
   'ide.chat.voiceMicBlocked': 'Der Mikrofonzugriff ist blockiert.',
   'ide.chat.voicePreparing':
@@ -820,4 +813,12 @@ export const de: Partial<IdeTranslations> = {
     'Der IDE-Arbeitsbereichsanbieter ist nicht konfiguriert. Stellen Sie zuerst eine Verbindung zu einem IDE-Anbieter her.',
   'ide.chat.autoCommit.enabled':
     'Automatischer Commit bei: Commit erfolgt {{seconds}} Sekunden nach der letzten Dateiänderung.\nAuf 0 setzen, um die automatische Commit-Funktion zu deaktivieren.',
+  'ide.chat.compacted': 'Komprimierte {{count}} Nachrichten.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': '{{count}} Dateien aus dem letzten KI-Zug zurückgesetzt.',
+  'ide.chat.autoFixCountdown': 'Automatische Korrektur in {{seconds}} Sekunden...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation': 'Ersetzen Sie {{count}} Vorkommen in {{files}} Dateien?',
+  'ide.chat.voice': 'Diktieren',
+  'ide.chat.voiceStop': 'Diktieren beenden',
 }

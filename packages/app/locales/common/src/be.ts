@@ -30,7 +30,6 @@ export const be: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Токен скіду пароля',
   'auth.resetPassword.twoFactor': 'Двухфактарны токен (калі ўключаны)',
   'auth.signup.email': 'Электронная пошта (абавязкова)',
-  'auth.signup.name': 'Ваша імя',
   'auth.signup.password': 'Пароль (абавязкова)',
   'auth.signup.signUp': 'Зарэгістравацца',
   'auth.signup.signingUp': 'Рэгістрацыя...',
@@ -520,4 +519,5 @@ export const be: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Увайшоў як {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Імя (неабавязкова)',
 }

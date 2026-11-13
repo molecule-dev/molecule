@@ -33,7 +33,6 @@ export const hi: Partial<IdeTranslations> = {
   'upgrade.signUp': 'साइन अप करें',
   'ide.chat.modelUpgradeRequired':
     '{{model}} प्रो संस्करण में उपलब्ध है। सभी मॉडल एक्सेस करने के लिए अपग्रेड करें।',
-  'ide.chat.autoFixCountdown': 'जारी रखें',
   'ide.chat.autoFixPause': 'रोकें',
   'ide.chat.autoFixCancel': 'रद्द करें',
   'ide.chat.proRequired': 'प्रो',
@@ -132,7 +131,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'फ़ाइल का आकार बहुत बड़ा है। अधिकतम आकार है {{maxSize}} एमबी.',
   'ide.chat.modelSet': 'चैट मॉडल सेट किया गया {{name}}',
   'ide.chat.compacting': 'बातचीत को संक्षिप्त करना...',
-  'ide.chat.compacted': 'संदर्भ का उपयोग कम है - संपीड़न की आवश्यकता नहीं है।',
   'ide.chat.compactError': 'बातचीत को संक्षिप्त करने में असफल रहे।',
   'ide.chat.switchedToPlan': 'योजना मोड में स्विच किया गया',
   'ide.chat.switchedToExecute': 'निष्पादन मोड में स्विच किया गया',
@@ -160,7 +158,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'इस मॉडल की लागत {{windows}} के बीच ×{{multiplier}} है। बाकी दिन सामान्य दर लागू रहती है।',
   'ide.chat.undoNoChanges': 'फ़ाइल में कोई बदलाव नहीं हुआ है जिसे पूर्ववत किया जा सके।',
-  'ide.chat.undoComplete': 'परिवर्तनों को पूर्ववत करने में विफल।',
   'ide.chat.commitNoChanges': 'कोई बदलाव करने की आवश्यकता नहीं है।',
   'ide.chat.commitError': 'परिवर्तन लागू करने में विफल।',
   'ide.chat.autoFixEnabled': 'ऑटो-फिक्स सक्षम किया गया।',
@@ -175,7 +172,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'अधिकतम टूल पुनरावृत्तियों को अपडेट करने में विफलता।',
   'ide.chat.dropFilesHere': 'फ़ाइल यहां छोड़ें',
   'ide.chat.autoFixPaused': 'ऑटो-फिक्स रुका हुआ है',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'मॉडल चुनें',
   'ide.chat.currentBadge': 'मौजूदा',
   'ide.chat.notificationSounds': 'अधिसूचना ध्वनियाँ',
@@ -211,7 +207,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'प्रतिस्थापित करें',
   'ide.search.confirmReplaceAll': 'पुष्टि करने के लिए दोबारा क्लिक करें',
   'ide.search.replaceAll': 'सभी को बदलें',
-  'ide.search.replaceConfirmation': 'मामले मिलाएं',
   'ide.search.wholeWord': 'पूरे शब्द का मिलान करें',
   'ide.search.regex': 'नियमित अभिव्यक्ति का उपयोग करें',
   'ide.search.toggleFilters': 'फ़िल्टर टॉगल करें',
@@ -270,7 +265,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.loop_limit_reached': 'टूल के अधिकतम पुनरावृति सीमा तक पहुँच गया।',
   'ide.chat.soundEventDesc.verification_result': 'लिंट या टाइप-चेक का संचालन समाप्त हो गया है।',
   'ide.chat.soundEventDesc.preview_error': 'लाइव पूर्वावलोकन में एक त्रुटि आ गई।',
-  'ide.chat.voice': 'आवाज़',
   'ide.chat.voiceUnavailable': 'इस ब्राउज़र में डिक्टेशन उपलब्ध नहीं है।',
   'ide.chat.voiceMicBlocked': 'माइक्रोफ़ोन एक्सेस अवरुद्ध है।',
   'ide.chat.voicePreparing': 'डिक्टेशन तैयार हो रहा है — पहली बार में थोड़ा समय लग सकता है।',
@@ -790,4 +784,13 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.context.resets': 'रीसेट {{at}} .',
   'ide.error.noProvider':
     'IDE वर्कस्पेस प्रदाता कॉन्फ़िगर नहीं किया गया है। कृपया पहले एक IDE प्रदाता को बॉन्ड करें।',
+  'ide.chat.compacted': '{{count}} संदेशों को संकुचित किया गया।',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'पिछली एआई बारी से {{count}} फ़ाइलें वापस ली गईं।',
+  'ide.chat.autoFixCountdown': '{{seconds}} में स्वतः ठीक हो रहा है...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation':
+    '{{files}} फाइलों में से {{count}} बार आने वाले शब्दों को बदलें?',
+  'ide.chat.voice': 'हुक्म',
+  'ide.chat.voiceStop': 'श्रुतलेख बंद करो',
 }

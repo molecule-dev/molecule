@@ -17,8 +17,7 @@
 import type { JSX, ReactNode } from 'react'
 import { memo, useCallback, useContext, useMemo, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
-import { useThemeMode } from '@molecule/app-react'
+import { useThemeMode, useTranslation, type UseTranslationResult } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
@@ -206,6 +205,7 @@ function PackageResultRows({
   onFileOpen?: (path: string) => void
 }): JSX.Element {
   const isCoarse = useCoarsePointer()
+  const { t } = useTranslation()
   if (results.length === 0) {
     return (
       <span style={{ opacity: 0.5 }}>
@@ -415,11 +415,12 @@ function renderIn(name: string, input: unknown): ReactNode {
 
 /**
  * Render the output section for a tool call.
+ * @param t - The translation function from `useTranslation()`.
  * @param name - The tool name.
  * @param output - The raw tool output payload.
  * @returns A ReactNode showing the formatted output content.
  */
-function renderOut(name: string, output: unknown): ReactNode {
+function renderOut(t: UseTranslationResult['t'], name: string, output: unknown): ReactNode {
   const out = (output ?? {}) as Inp
 
   // The result's `message` is written for the model ("Check the actual state
@@ -696,6 +697,7 @@ export const ToolCallCard = memo(function ToolCallCard({
 }: ToolCallCardProps): JSX.Element | null {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
+  const { t } = useTranslation()
   // Touch/phone branches (called unconditionally, before the per-tool early
   // returns, so the hook order stays stable): hover-revealed controls become
   // visible-by-default and compact hit areas grow; fine-pointer desktop
@@ -838,7 +840,7 @@ export const ToolCallCard = memo(function ToolCallCard({
   // Only exec_command and web_fetch get the labeled IN / OUT pane treatment.
   const showInOut = name === 'exec_command' || name === 'web_fetch'
   const inContent = showInOut && input !== undefined ? renderIn(name, input) : null
-  const outContent = showInOut && output !== undefined ? renderOut(name, output) : null
+  const outContent = showInOut && output !== undefined ? renderOut(t, name, output) : null
 
   const handleClick =
     (isNewFile || isDocOpen) && filePath && onFileOpen
@@ -1722,7 +1724,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                       defaultValue: 'Type your answer…',
                     })
                   : t('ide.chat.askUserPlaceholder', undefined, {
-                      defaultValue: 'Or something else…',
+                      defaultValue: 'Or type your own…',
                     })
               }
               className={cm.touchTargetCompact}
@@ -2139,7 +2141,7 @@ export const ToolCallCard = memo(function ToolCallCard({
               {/* Listing / search tools: show output results */}
               {(name === 'list_files' || name === 'find_files' || name === 'search_files') &&
                 output !== undefined &&
-                renderOut(name, output)}
+                renderOut(t, name, output)}
 
               {/* find_package: clickable package matches — each opens its README.md */}
               {name === 'find_package' && output !== undefined && (

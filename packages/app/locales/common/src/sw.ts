@@ -32,7 +32,6 @@ export const sw: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Tokeni ya Kuweka Upya Nenosiri',
   'auth.resetPassword.twoFactor': 'Tokeni ya Vipengele Viwili (Ikiwa imewezeshwa)',
   'auth.signup.email': 'Barua pepe (Inahitajika)',
-  'auth.signup.name': 'Jina lako',
   'auth.signup.password': 'Nenosiri (Linahitajika)',
   'auth.signup.signUp': 'Jisajili',
   'auth.signup.signingUp': 'Inajisajili...',
@@ -521,4 +520,5 @@ export const sw: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Umeingia kama {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Jina (hiari)',
 }

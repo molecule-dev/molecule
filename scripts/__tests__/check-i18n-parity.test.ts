@@ -209,6 +209,22 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
       ])
     })
 
+    it('accepts an empty default, which renders nothing until the key loads', () => {
+      // Content an app supplies (its legal pages) renders nothing while not loaded.
+      const root = fixture()
+      write(
+        root,
+        'packages/app/locales/legal/src/en.ts',
+        "export const en = {\n  'legal.policy': '<p>Policy</p>',\n}\n",
+      )
+      write(
+        root,
+        'packages/app/features/legal/src/legal.ts',
+        "t('legal.policy', {}, { defaultValue: '' })\n",
+      )
+      expect(analyzeDefaults(root).entries).toEqual([])
+    })
+
     it('accepts a literal default equal to en.ts, from t() or a provider method', () => {
       const root = fixture()
       write(

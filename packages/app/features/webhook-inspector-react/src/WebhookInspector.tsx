@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Shape of a single webhook delivery attempt shown in the inspector. */
@@ -61,6 +61,7 @@ export function WebhookInspector({
   selectedId,
   className,
 }: WebhookInspectorProps): ReactNode {
+  const { t } = useTranslation()
   const cm = getClassMap()
   /**
    * Serialises a request/response body value to a display string.

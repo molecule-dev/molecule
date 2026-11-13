@@ -36,7 +36,7 @@
 
 import type { JSX } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { AutoCommitState } from './chat-autocommit-utilities.js'
@@ -73,6 +73,7 @@ export function AutoCommitBadge({
   /** Combined action/info label, e.g. "Commit 2 files". */
   label?: string
 }): JSX.Element | null {
+  const { t } = useTranslation()
   const cm = getClassMap()
   if (!isAutoCommitEnabled(state)) return null
   // A held countdown is paused, not imminent — never show the countdown label

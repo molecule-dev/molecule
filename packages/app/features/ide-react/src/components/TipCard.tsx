@@ -11,8 +11,8 @@
 
 import type { CSSProperties, JSX, ReactNode } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { CHAT_CARD_ICON_SIZE, chatCardStyle } from './chat-card-style.js'
@@ -70,6 +70,7 @@ export function TipCard({
   accent?: string
   icon?: IconName
 }): JSX.Element {
+  const { t } = useTranslation()
   const cm = getClassMap()
   return (
     <div

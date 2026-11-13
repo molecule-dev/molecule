@@ -30,7 +30,6 @@ export const ha: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Alamar Sake Saita Kalmar Sirri',
   'auth.resetPassword.twoFactor': 'Alamar abu biyu (idan an kunna)',
   'auth.signup.email': 'Imel (Ana buƙata)',
-  'auth.signup.name': 'Sunanka',
   'auth.signup.password': 'Kalmar sirri (Ana buƙata)',
   'auth.signup.signUp': 'Yi rajista',
   'auth.signup.signingUp': 'Ana yin rajista...',
@@ -522,4 +521,5 @@ export const ha: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'An shiga a matsayin {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Suna (zaɓi ne)',
 }

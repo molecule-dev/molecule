@@ -11,7 +11,6 @@ export const ro: Partial<CommonTranslations> = {
   'auth.login.password': 'Parolă',
   'auth.login.signUp': 'Înregistrați-vă',
   'auth.resetPassword.email': 'E-mail',
-  'auth.signup.name': 'Numele dvs.',
   'auth.signup.signUp': 'Înregistrați-vă',
   'footer.about': 'Despre {{appName}}',
   'footer.language': 'Limbă',
@@ -522,4 +521,5 @@ export const ro: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Conectat ca {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Nume (opțional)',
 }

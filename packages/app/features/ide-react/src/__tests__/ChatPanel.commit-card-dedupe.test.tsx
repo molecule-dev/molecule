@@ -23,7 +23,7 @@ import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-cha
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
-import { de } from '@molecule/app-locales-ide'
+import { de, en } from '@molecule/app-locales-ide'
 import {
   ChatProvider as ChatContextProvider,
   HttpProvider,
@@ -187,7 +187,9 @@ function commitCards(container: HTMLElement): Element[] {
 }
 
 beforeEach(() => {
-  setI18nProvider(createSimpleI18nProvider('en'))
+  setI18nProvider(
+    createSimpleI18nProvider('en', [{ code: 'en', name: 'English', translations: en }]),
+  )
   committed = false
   pendingPaths = ['src/Login.tsx']
   autoCommitSeconds = 0
@@ -217,14 +219,23 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup()
-  setI18nProvider(createSimpleI18nProvider('en'))
+  setI18nProvider(
+    createSimpleI18nProvider('en', [{ code: 'en', name: 'English', translations: en }]),
+  )
   vi.useRealTimers()
   document.body.innerHTML = ''
 })
 
 /** The real panel, including its portalled work tray and existing commit handler. */
 function panel(props: Partial<Parameters<typeof ChatPanel>[0]> = {}): ReactElement {
-  const i18n = createSimpleI18nProvider(locale, [{ code: 'de', name: 'Deutsch', translations: de }])
+  // Both catalogs ride along so plural keys resolve their `key_one`/`key_other`
+  // forms in whichever locale is active — production always has the locale bond
+  // loaded, and the assertions assert that real (catalog) English, not the
+  // interpolated inline default.
+  const i18n = createSimpleI18nProvider(locale, [
+    { code: 'en', name: 'English', translations: en },
+    { code: 'de', name: 'Deutsch', translations: de },
+  ])
   setI18nProvider(i18n)
   return (
     <I18nProvider provider={i18n}>
@@ -474,7 +485,11 @@ describe('ChatPanel commit-card dedupe', () => {
   it('renders a commit once after a history reload brings in its persisted record', async () => {
     const onLoadHistory = vi.fn()
     const wrap = (children: ReactNode): ReactElement => (
-      <I18nProvider provider={createSimpleI18nProvider('en')}>
+      <I18nProvider
+        provider={createSimpleI18nProvider('en', [
+          { code: 'en', name: 'English', translations: en },
+        ])}
+      >
         <ThemeProvider provider={buildThemeProvider()}>
           <HttpProvider client={buildHttpClient()}>
             <ChatContextProvider provider={buildChatProvider(onLoadHistory)}>

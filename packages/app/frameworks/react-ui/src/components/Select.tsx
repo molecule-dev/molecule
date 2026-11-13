@@ -6,7 +6,7 @@
 
 import React, { forwardRef, useId } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { SelectProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -39,6 +39,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps<string>>(
     },
     ref,
   ) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
     // Fall back to a generated id so label htmlFor / aria-describedby never
     // point at `undefined-error` (which also collides across multiple

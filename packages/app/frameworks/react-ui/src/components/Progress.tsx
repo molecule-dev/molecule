@@ -6,7 +6,7 @@
 
 import React, { forwardRef } from 'react'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { BaseProps, ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -72,6 +72,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
     const percentage = Math.min(Math.max((value / max) * 100, 0), 100)
 

@@ -6,6 +6,7 @@
 
 import React, { forwardRef } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import type { PageShellProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -31,6 +32,7 @@ export const PageShell = forwardRef<HTMLDivElement, PageShellProps>(
     ref,
   ) => {
     const cm = getClassMap()
+    const { t } = useTranslation()
 
     return (
       <div
@@ -49,7 +51,13 @@ export const PageShell = forwardRef<HTMLDivElement, PageShellProps>(
                 type="button"
                 className={cm.pageShellSidebarToggle}
                 onClick={onSidebarToggle}
-                aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                aria-label={
+                  sidebarCollapsed
+                    ? t('ui.pageShell.expandSidebar', undefined, { defaultValue: 'Expand sidebar' })
+                    : t('ui.pageShell.collapseSidebar', undefined, {
+                        defaultValue: 'Collapse sidebar',
+                      })
+                }
               >
                 {sidebarCollapsed ? '\u25B6' : '\u25C0'}
               </button>

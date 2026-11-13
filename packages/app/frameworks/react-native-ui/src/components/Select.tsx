@@ -10,7 +10,7 @@
 import React, { useState } from 'react'
 import { FlatList, Modal as RNModal, Pressable, Text, View } from 'react-native'
 
-import { t } from '@molecule/app-i18n'
+import { useTranslation } from '@molecule/app-react'
 import type { SelectProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -45,6 +45,7 @@ export const Select: React.FC<SelectProps> = ({
   className,
   testId,
 }) => {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [isOpen, setIsOpen] = useState(false)
   const classes = cm.cn(cm.select({ error: !!error, size }), className)

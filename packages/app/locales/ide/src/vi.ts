@@ -33,7 +33,6 @@ export const vi: Partial<IdeTranslations> = {
   'upgrade.signUp': 'Đăng ký',
   'ide.chat.modelUpgradeRequired':
     '{{model}} chỉ có trên phiên bản Pro. Nâng cấp để truy cập tất cả các mẫu.',
-  'ide.chat.autoFixCountdown': 'Tiếp tục',
   'ide.chat.autoFixPause': 'Tạm dừng',
   'ide.chat.autoFixCancel': 'Hủy',
   'ide.chat.soundAll': 'Tất cả',
@@ -129,7 +128,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.fileTooLarge': 'Tệp tin quá lớn. Kích thước tối đa là {{maxSize}} MB.',
   'ide.chat.modelSet': 'Mô hình trò chuyện được thiết lập thành {{name}}',
   'ide.chat.compacting': 'Tóm gọn cuộc trò chuyện...',
-  'ide.chat.compacted': 'Mức độ sử dụng ngữ cảnh thấp — không cần nén dữ liệu.',
   'ide.chat.compactError': 'Không thể tóm gọn cuộc trò chuyện.',
   'ide.chat.switchedToPlan': 'Đã chuyển sang chế độ lập kế hoạch',
   'ide.chat.switchedToExecute': 'Đã chuyển sang chế độ thực thi',
@@ -157,7 +155,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.models.peakHint':
     'Mô hình này có giá ×{{multiplier}} trong khoảng {{windows}}. Thời gian còn lại trong ngày áp dụng mức giá thông thường.',
   'ide.chat.undoNoChanges': 'Không có thay đổi nào cần hoàn tác trong tệp tin.',
-  'ide.chat.undoComplete': 'Không thể hoàn tác các thay đổi.',
   'ide.chat.commitNoChanges': 'Không có thay đổi nào cần lưu lại.',
   'ide.chat.commitError': 'Không thể lưu các thay đổi.',
   'ide.chat.autoFixEnabled': 'Đã bật tính năng tự động sửa lỗi.',
@@ -173,7 +170,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError': 'Không thể cập nhật số lần lặp tối đa của công cụ.',
   'ide.chat.dropFilesHere': 'Kéo thả tập tin vào đây',
   'ide.chat.autoFixPaused': 'Tự động sửa lỗi tạm dừng',
-  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Chọn mẫu',
   'ide.chat.currentBadge': 'hiện hành',
   'ide.chat.proRequired': 'Chuyên nghiệp',
@@ -210,7 +206,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.search.replacePlaceholder': 'Thay thế',
   'ide.search.confirmReplaceAll': 'Nhấp chuột lại để xác nhận',
   'ide.search.replaceAll': 'Thay thế tất cả',
-  'ide.search.replaceConfirmation': 'Hộp diêm',
   'ide.search.wholeWord': 'Ghép toàn bộ từ',
   'ide.search.regex': 'Sử dụng biểu thức chính quy',
   'ide.search.toggleFilters': 'Bật/tắt bộ lọc',
@@ -273,7 +268,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.verification_result':
     'Quá trình kiểm tra cú pháp hoặc kiểu dữ liệu đã hoàn tất.',
   'ide.chat.soundEventDesc.preview_error': 'Bản xem trước trực tiếp gặp lỗi.',
-  'ide.chat.voice': 'Tiếng nói',
   'ide.chat.voiceUnavailable': 'Tính năng đọc chính tả không khả dụng trên trình duyệt này.',
   'ide.chat.voiceMicBlocked': 'Quyền truy cập micrô đã bị chặn.',
   'ide.chat.voicePreparing': 'Đang chuẩn bị đọc chính tả — lần đầu có thể mất một lúc.',
@@ -799,4 +793,12 @@ export const vi: Partial<IdeTranslations> = {
     'Mẹo: Sử dụng /plan để {{agentName}} nghiên cứu và đề xuất kế hoạch trước khi chỉnh sửa bất kỳ tập tin nào.',
   'ide.chat.tip.commit':
     'Mẹo: dùng /commit để lưu các thay đổi của bạn thành một git commit mà bạn luôn có thể quay lại.',
+  'ide.chat.compacted': 'Đã nén {{count}} tin nhắn.',
+  'ide.chat.models.usageRateMultiplier': '× {{rate}}',
+  'ide.chat.undoComplete': 'Đã khôi phục {{count}} tập tin từ lượt chơi AI trước.',
+  'ide.chat.autoFixCountdown': 'Tự động sửa lỗi trong {{seconds}} giây...',
+  'ide.chat.version': '{{productName}} v {{version}}',
+  'ide.search.replaceConfirmation': 'Thay thế {{count}} lần xuất hiện trong {{files}} tệp?',
+  'ide.chat.voice': 'Đọc chính tả',
+  'ide.chat.voiceStop': 'Dừng đọc chính tả',
 }

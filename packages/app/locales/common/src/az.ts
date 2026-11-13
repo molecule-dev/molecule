@@ -32,7 +32,6 @@ export const az: Partial<CommonTranslations> = {
   'auth.resetPassword.token': 'Şifrə Sıfırlama Tokeni',
   'auth.resetPassword.twoFactor': 'İki Faktorlu Token (Aktivdirsə)',
   'auth.signup.email': 'E-poçt (Tələb olunur)',
-  'auth.signup.name': 'Adınız',
   'auth.signup.password': 'Şifrə (Tələb olunur)',
   'auth.signup.signUp': 'Qeydiyyatdan keçin',
   'auth.signup.signingUp': 'Qeydiyyatdan keçirik...',
@@ -522,4 +521,5 @@ export const az: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '{{who}} kimi daxil oldum',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Ad (isteğe bağlı)',
 }

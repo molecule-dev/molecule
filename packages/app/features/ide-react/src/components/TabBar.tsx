@@ -8,8 +8,7 @@ import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
-import { useThemeMode } from '@molecule/app-react'
+import { useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer } from '../hooks/useViewport.js'
@@ -136,6 +135,7 @@ function TabItem({
   isCoarse,
 }: TabItemProps): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
   const fileName = path.split('/').pop() || path
   const fileColor = resolveFileColor(statusColors, diagnosticColors, diagnostics, gitStatus)

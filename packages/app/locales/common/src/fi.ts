@@ -11,7 +11,6 @@ export const fi: Partial<CommonTranslations> = {
   'auth.login.password': 'Salasana',
   'auth.login.signUp': 'Rekisteröidy',
   'auth.resetPassword.email': 'Sähköposti',
-  'auth.signup.name': 'Nimesi',
   'auth.signup.signUp': 'Rekisteröidy',
   'footer.about': 'Tietoja {{appName}}',
   'footer.language': 'Kieli',
@@ -522,4 +521,5 @@ export const fi: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Kirjautunut sisään nimellä {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Nimi (valinnainen)',
 }

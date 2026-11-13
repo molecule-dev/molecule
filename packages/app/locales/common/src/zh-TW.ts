@@ -38,7 +38,6 @@ export const zhTW: Partial<CommonTranslations> = {
   'auth.resetPassword.token': '密碼重設令牌',
   'auth.resetPassword.twoFactor': '雙因素令牌（如果已啟用）',
   'auth.signup.email': '電子郵件（必填）',
-  'auth.signup.name': '你的名字',
   'auth.signup.password': '密碼（必填）',
   'auth.signup.signUp': '報名',
   'auth.signup.signingUp': '註冊中…',
@@ -514,4 +513,5 @@ export const zhTW: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': '以{{who}}身份登入',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': '姓名（可選）',
 }

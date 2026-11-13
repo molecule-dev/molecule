@@ -14,7 +14,6 @@ export const de: Partial<CommonTranslations> = {
   'auth.login.password': 'Passwort',
   'auth.login.signUp': 'Registrieren',
   'auth.resetPassword.email': 'E-Mail',
-  'auth.signup.name': 'Ihr Name',
   'auth.signup.signUp': 'Registrieren',
   'error.unknown': 'Ein unerwarteter Fehler ist aufgetreten.',
   'footer.about': 'Über {{appName}}',
@@ -524,4 +523,5 @@ export const de: Partial<CommonTranslations> = {
   'auth.modal.loggedInAs': 'Angemeldet als {{who}}',
   'authBrandHeader.appName': '{{appName}}',
   'authBrandHeader.tagline': '{{tagline}}',
+  'auth.signup.name': 'Name (optional)',
 }

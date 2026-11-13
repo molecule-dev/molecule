@@ -111,7 +111,7 @@ export function generatePath(pattern: string, params?: RouteParams): string {
       throw new I18nError(
         'routing.error.missingParam',
         { name, pattern },
-        `Missing required param "${name}" for path "${pattern}"`,
+        'Missing param "{{name}}" for path "{{pattern}}"',
       )
     }
     return encodeURIComponent(value)
