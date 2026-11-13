@@ -97,7 +97,7 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
             </td>
           </tr>
         } @else {
-          @for (row of data; track rowIndex($index); let rowIdx = $index) {
+          @for (row of data; track rowKeyOf(row, $index); let rowIdx = $index) {
             <tr [class]="rowClasses($index)" (click)="handleRowClick(row, $index)">
               @for (column of columns; track column.key) {
                 <td [class]="cellClasses(column)">
@@ -298,12 +298,14 @@ export class Table implements AfterViewInit, DoCheck {
   }
 
   /**
-   * The stable key for a row (React's `getRowKey`).
-   * @param index - The row index.
+   * The stable key for a row (React's `getRowKey`). It reads the row it is given,
+   * never `data[index]`: Angular also tracks the rows it already rendered by their
+   * old index, and `data` is then the new array.
+   * @param row - The row.
+   * @param index - The row's index (the key when there is no `rowKey`).
    * @returns The key.
    */
-  rowIndex(index: number): string | number {
-    const row = this.data[index]
+  rowKeyOf(row: Record<string, unknown>, index: number): string | number {
     if (typeof this.rowKey === 'function') return this.rowKey(row)
     if (this.rowKey && row[this.rowKey] !== undefined) return row[this.rowKey] as string | number
     return index

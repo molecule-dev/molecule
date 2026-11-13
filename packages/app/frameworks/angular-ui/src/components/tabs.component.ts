@@ -8,6 +8,7 @@ import {
   Component,
   type ElementRef,
   EventEmitter,
+  type OnInit,
   Output,
   type QueryList,
   signal,
@@ -99,7 +100,7 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
       </div>
     }`,
 })
-export class Tabs {
+export class Tabs implements OnInit {
   /** The tabs. */
   items: TabItem<string>[] = []
   /** Controlled active value. */
@@ -138,13 +139,21 @@ export class Tabs {
   }
 
   /**
-   * The active tab value (controlled or uncontrolled, seeded from the first
-   * tab like React's `useState(defaultValue || items[0]?.value)`).
+   * Seeds the uncontrolled value once, at mount, like React's
+   * `useState(defaultValue || items[0]?.value)`: reordering the tabs later keeps
+   * the active tab rather than activating whichever tab is now first.
+   */
+  ngOnInit(): void {
+    this.internalValue.set(this.defaultValue || this.items[0]?.value)
+  }
+
+  /**
+   * The active tab value: the controlled `value`, else the uncontrolled one.
    * @returns The active value.
    */
   activeValue(): string | undefined {
     if (this.value !== undefined) return this.value
-    return this.internalValue() ?? this.defaultValue ?? this.items[0]?.value
+    return this.internalValue()
   }
 
   /**
