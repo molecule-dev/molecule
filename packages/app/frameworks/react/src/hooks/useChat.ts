@@ -1557,6 +1557,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
       persistQueue(storageKey, [])
       emitStore(storageKey)
     }
+    // A send loop this instance started under an older generation is orphaned:
+    // it exits at its generation check without releasing the send slot, so
+    // release it here, or every send in the new conversation queues behind a
+    // stream whose writes are already dropped.
+    if (generationRef.current !== null && generationRef.current !== syncStore.generation) {
+      sendingRef.current = false
+    }
     generationRef.current = syncStore.generation
     const loadGeneration = syncStore.generation
     const intentRevision = syncStore.userIntentRevision
