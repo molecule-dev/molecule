@@ -16,10 +16,10 @@
 
 import type { AuthClient } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
-import type { I18nProvider } from '@molecule/app-i18n'
+import type { I18nProvider, Translations } from '@molecule/app-i18n'
 import type { LoggerProvider } from '@molecule/app-logger'
 import type { MoleculeProviderProps } from '@molecule/app-react'
-import type { Router } from '@molecule/app-routing'
+import type { RouteDefinition, Router } from '@molecule/app-routing'
 import type { StateProvider } from '@molecule/app-state'
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
@@ -38,7 +38,11 @@ import type { NativeSeed } from './fakes/native.js'
  * - `resolve` / `reject`: returns a promise resolved with `resolve` or rejected
  *   with `new Error(reject)`;
  * - `defer: true`: returns a promise that stays pending until a `settle` step
- *   names this function.
+ *   names this function;
+ * - `pick`: returns part of what it was called with (`[0, 'count']` is
+ *   `args[0].count`), so it can act as a selector. A callback with logic of its
+ *   own (an equality check, an updater that computes) is an area fake's named
+ *   function, passed as `{ $ref }`.
  */
 export interface FnArg {
   $fn: string
@@ -46,6 +50,7 @@ export interface FnArg {
   resolve?: unknown
   reject?: string
   defer?: boolean
+  pick?: (string | number)[]
 }
 
 /** A scripted HTTP response, matched by method and URL in order. */
@@ -85,9 +90,17 @@ export interface BindingContext extends CaseContext {
    * Translations per locale. The i18n provider knows `en` (the default), `fr`,
    * `de` and `ar` (right-to-left); a `locale` step may switch to any of them.
    */
-  translations?: Partial<Record<'en' | 'fr' | 'de' | 'ar', Record<string, string>>>
+  translations?: Partial<Record<'en' | 'fr' | 'de' | 'ar', Translations>>
+  /** Route definitions for the memory router (`{ path: '/items/:id' }`), so `useParams` can match. */
+  routes?: RouteDefinition[]
   /** Seeds for the area fakes (`chat`, `native`, …); each `src/bindings/fakes/<area>.ts` adds its key. */
   areas?: AreaSeeds
+  /**
+   * Services the framework's composition root does NOT receive for this case
+   * (`['auth']`), to pin what a hook does without its provider: React's
+   * `use*Provider` hooks throw, which the result records as `{ $threw }`.
+   */
+  omitServices?: (keyof BindingServices)[]
 }
 
 /** Per-area seeds; each seed type lives in (and is owned by) its area's fakes module. */
@@ -106,8 +119,23 @@ export interface AreaSeeds {
 
 /** One step of a binding case. */
 export type HookStep =
-  /** Call a method of the result (`method` omitted: the result itself is the function). */
-  | { type: 'call'; method?: string; args?: unknown[] }
+  /**
+   * Call a method of the result (`method` omitted: the result itself is the
+   * function; a dotted `method` such as `'0.cancel'` reaches into the result). `as` keeps what the call returned (a promise: what it resolved
+   * to) under a name, and a later call with `on` set to that name calls a
+   * method of the kept value instead (`createStore` → `on: 'store'`, `setState`).
+   */
+  | { type: 'call'; method?: string; args?: unknown[]; as?: string; on?: string }
+  /**
+   * Record whether each named method of the result (or, with no `methods`, the
+   * result itself when it is a function, recorded as `$result`) is the same
+   * function as at the previous `stable` step (the first records `first`). Put
+   * it around steps that should not rebuild the function (a re-render with the
+   * same arguments, an unrelated service change, a change the hook documents it
+   * survives); a framework may rebuild a function whose inputs changed, so do
+   * not span such a change.
+   */
+  | { type: 'stable'; methods?: string[] }
   /** Re-render the host with new hook arguments. */
   | { type: 'args'; args: unknown[] }
   /** Advance fake timers (the case must set `fakeTimers`). */
@@ -129,13 +157,21 @@ export type HookStep =
       status: 'authenticated' | 'unauthenticated' | 'loading' | 'unavailable'
       user?: Record<string, unknown>
     }
-  /** Switch the i18n locale. */
+  /**
+   * Switch the i18n locale. This step, `theme`, `navigate`, `auth` and
+   * `storage` record a rejection as `! <step>` with `{ rejected }` instead of
+   * failing the case (`! locale` for an unknown locale).
+   */
   | { type: 'locale'; locale: string }
   /** Switch the theme mode from outside. */
   | { type: 'theme'; mode: 'light' | 'dark' }
   /** Navigate the router from outside. */
   | { type: 'navigate'; to: string }
-  /** Write a storage key from outside. */
+  /**
+   * Write a storage key from outside (another tab): the case's storage
+   * provider holds the value (an area provider with `subscribe` also notifies
+   * its subscribers); not recorded.
+   */
   | { type: 'storage'; key: string; value: unknown }
   /**
    * Call a named control that an area's fakes module registered (`chat.emit`,
@@ -144,6 +180,12 @@ export type HookStep =
   | { type: 'control'; name: string; args?: unknown[] }
   /** Unmount the host (later snapshots show only calls; cleanup is observable through them). */
   | { type: 'unmount' }
+  /**
+   * Unmount the host (when mounted) and mount a fresh one with the same services
+   * and fakes, and `args` or the case's own: what a second component sees of
+   * state the first one left behind (a module-level store, a cache).
+   */
+  | { type: 'remount'; args?: unknown[] }
 
 /** One hook case. */
 export interface HookCase {
@@ -159,7 +201,23 @@ export interface HookCase {
 export interface HookCases {
   /** The `@molecule/app-react` export name (`useAuth`). */
   hook: string
+  /**
+   * `'text'` when the export is a component (`SessionReady`) rather than a
+   * hook. See {@link MountOptions.render}.
+   */
+  render?: 'text'
   cases: HookCase[]
+}
+
+/** How an adapter mounts one export. */
+export interface MountOptions {
+  /**
+   * `'text'`: the export is a component. Mount it with `args[0]` as its props,
+   * where each string prop is a text slot (`children` is the default slot,
+   * any other name a named slot), and make `result()` the text it renders
+   * (`''` when it renders nothing).
+   */
+  render?: 'text'
 }
 
 /**
@@ -211,23 +269,31 @@ export interface MountedHook {
 export interface BindingAdapter {
   /** `react`, `vue`, `solid`, `svelte`, `angular`. */
   name: string
+  /**
+   * Clears the binding's own module-level state before each case (React:
+   * `resetChatStoresForTests()`, `resetAIModelsCache()`), so no case sees another's.
+   */
+  reset?(): void | Promise<void>
   /** Whether the binding exports this hook under its React name. */
   has(hook: string): boolean
   /**
-   * Mounts a host component that calls `hook(...args)` under the services. An
-   * export that is not a function (a constant) is the result itself.
+   * Mounts a host component that calls `hook(...args)` under the services,
+   * through `callHook` (a constant export is the result itself, and a throw is
+   * stored as a `HookThrew`).
    *
    * @param hook - The hook's export name.
    * @param args - The arguments (functions already created by the kit).
-   * @param services - The case's services.
+   * @param services - The case's services (without those the case omits).
    * @param shape - React's result shape, when known (from the goldens), so an
    * adapter can tell a value accessor from a method.
+   * @param options - How to mount it (a component export renders text).
    */
   mount(
     hook: string,
     args: unknown[],
-    services: BindingServices,
+    services: Partial<BindingServices>,
     shape?: ResultShape,
+    options?: MountOptions,
   ): Promise<MountedHook>
 }
 
@@ -261,6 +327,16 @@ export interface AreaFakes {
   controls?: Record<string, (...args: unknown[]) => unknown>
   /** Subscriptions the area's services still hold (checked after unmount). */
   listeners?: () => Record<string, number>
+  /**
+   * Objects a case passes as an argument by name: `{ $ref: 'async.form' }` anywhere in
+   * `args` (or a `call`/`args` step) becomes `refs['async.form']` (name them `<area>.<thing>`).
+   */
+  refs?: Record<string, unknown>
+  /**
+   * An area that replaces `services.storage` handles the `storage` step: store
+   * the value without recording it and notify the provider's subscribers.
+   */
+  writeStorage?: (key: string, value: unknown) => void | Promise<void>
   /** Undoes global changes (bonds, `window` stubs) after the case. */
   dispose?: () => void | Promise<void>
 }

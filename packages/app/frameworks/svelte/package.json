@@ -48,7 +48,9 @@
     "svelte": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
+    "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-utilities": "1.0.6",
+    "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@types/node": "26.6.5",
     "svelte": "5.57.2",
     "typescript": "6.0.3",

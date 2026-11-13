@@ -5,6 +5,7 @@
  * @module
  */
 
+export * from './environment.js'
 export * from './run.js'
 export * from './services.js'
 export * from './spec.js'

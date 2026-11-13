@@ -1,0 +1,280 @@
+{
+  "convergeHistory": [
+    "(export)"
+  ],
+  "DEFAULT_AGENT_IDENTITY": [
+    "(export)"
+  ],
+  "DEFAULT_AGENT_NAME": [
+    "(export)"
+  ],
+  "DEFAULT_PRODUCT_NAME": [
+    "(export)"
+  ],
+  "localOnlyMessages": [
+    "(export)"
+  ],
+  "resetAIModelsCache": [
+    "(export)"
+  ],
+  "resetChatStoresForTests": [
+    "(export)"
+  ],
+  "useAIModels": [
+    "(export)"
+  ],
+  "useAsyncState": [
+    "a promise settling after a newer synchronous set overwrites it",
+    "a rejecting promise leaves the state unchanged",
+    "extendState accepts a promise resolving a partial",
+    "extendState accepts a promise resolving an updater",
+    "extendState merges a partial into the state",
+    "extendState takes an updater that receives the previous state",
+    "holds the initial state",
+    "setState accepts a promise and applies its value",
+    "setState accepts a promise resolving an updater",
+    "setState replaces the whole state",
+    "setState takes an updater that receives the previous state",
+    "unmount before a promise settles: no warning"
+  ],
+  "useAuth": [
+    "a failed login rejects",
+    "a failed logout rejects and keeps the session",
+    "a failed refresh rejects",
+    "a failed register rejects and keeps the visitor signed out",
+    "a failed updateProfile keeps the user",
+    "autoRefresh arriving through new arguments probes",
+    "autoRefresh probes once on mount when signed out",
+    "autoRefresh skips the probe while the session is loading or signed in",
+    "autoRefresh swallows a failing probe",
+    "follows a session change made elsewhere",
+    "loading is undecided",
+    "login signs in",
+    "login with an empty email still signs in",
+    "logout signs out",
+    "refresh resolves the current session without changing it",
+    "register signs in without the password",
+    "setSession adopts a session in one call",
+    "setUser caches a user without signing in",
+    "signed in",
+    "signed out",
+    "the actions keep their identity across an unrelated re-render",
+    "unavailable keeps the candidate user for retry",
+    "unmount unsubscribes from the session",
+    "updateProfile merges the profile"
+  ],
+  "useChat": [
+    "(export)"
+  ],
+  "useChatProvider": [
+    "(export)"
+  ],
+  "useEditor": [
+    "(export)"
+  ],
+  "useEditorProvider": [
+    "(export)"
+  ],
+  "useFieldState": [
+    "a failed validation shows the error and invalidates the field",
+    "a submit held by a deferred validator completes when it passes",
+    "a submit with invalid values reports the errors and never calls the handler",
+    "a valid submit calls the handler with the values",
+    "an async validator holds until it is settled",
+    "an edit marks the field touched and dirty",
+    "reset clears the field state",
+    "starts clean"
+  ],
+  "useForm": [
+    "a changed resetKey starts a fresh form",
+    "a changed values option keeps dirty fields by default",
+    "a changed values option with keepDirtyValues false replaces edits",
+    "a form-level validate option adds cross-field errors",
+    "a passing validation clears a stale error",
+    "a registered transform is applied to each change",
+    "a submit held by a deferred validator reports isSubmitting until it settles",
+    "a submit over invalid values publishes the errors and never calls the handler",
+    "a throwing handler records submitError, rejects the runner and clearErrors drops it",
+    "asState returns the field tuple and the whole-form tuple",
+    "default values are the clean baseline",
+    "handleSubmit returns the runner without running it",
+    "new defaultValues without a resetKey leave the form alone",
+    "register's default reaches formState without another change",
+    "register's onChange takes an event or a plain value; onBlur touches",
+    "reset restores the baseline and clears touched, errors and submit state",
+    "reset with values makes them the new baseline",
+    "running the returned runner validates and calls the handler with the values",
+    "setError, getError and clearErrors manage field errors",
+    "setValue updates the value, marks the field touched and the form dirty",
+    "starts empty with no options",
+    "the field tuple: the fill element loads a pristine field, the edit element touches it",
+    "the whole-form edit changes only differing fields; the form fill keeps edits",
+    "unmount with a pending deferred validator: no warning",
+    "updateValues keeps dirty fields when asked",
+    "updateValues without keepDirtyValues replaces edits",
+    "validate awaits a deferred validator before publishing",
+    "validate runs the registered rules and publishes field errors"
+  ],
+  "useGet": [
+    "a 404 on the initial load shows the error",
+    "a refetch takes over with the next answer",
+    "fetches immediately on mount"
+  ],
+  "useHttp": [
+    "a second request while the first is pending owns the state",
+    "an immediate fetch does not repeat when the url changes",
+    "an older request answering after a newer one does not overwrite it",
+    "immediate fetches on mount",
+    "immediate stays pending until the deferred answer",
+    "onError reports a failed request",
+    "onSuccess reports each answered request",
+    "reset supersedes a pending request and clears the state"
+  ],
+  "useI18nError": [
+    "(export)"
+  ],
+  "useLogin": [
+    "reset while a login is pending does not stop its result landing"
+  ],
+  "useOAuth": [
+    "a blocked popup falls back to a redirect",
+    "a code in the url with no stashed provider does nothing",
+    "a failed exchange reports the API error",
+    "a failed popup callback relays the error to the opener",
+    "a failed relay reports the popups error",
+    "a failed relay without a message reports the generic failure",
+    "a full-page callback exchanges the code for a session",
+    "a message of another type is ignored",
+    "a network failure during the exchange reports the error",
+    "a relay after unmount establishes the session without calling onSuccess",
+    "a relay from another origin is ignored",
+    "a relay from another window is ignored",
+    "a relay without a user fails the login",
+    "a second loginViaPopup focuses the open popup",
+    "a second relay after a settled one changes nothing",
+    "a successful relay establishes the session in place",
+    "a wedged popup is closed by the hard timeout",
+    "an exchange failure without a reason reports the generic failure",
+    "an exchange without a token or user fails the login",
+    "getOAuthUrl builds and encodes the provider url",
+    "getOAuthUrl uses a custom oauth endpoint",
+    "lists the configured providers",
+    "loginViaPopup opens a named popup and waits",
+    "no providers by default",
+    "providers follow a changed config",
+    "redirect from a nested page carries the return path",
+    "redirect stashes the provider and navigates to it",
+    "the opener stops waiting when the user closes the popup",
+    "the popup callback relays the result to the opener",
+    "the token also arrives in the set-authorization header",
+    "the user can arrive as props"
+  ],
+  "useOptimisticValue": [
+    "(export)"
+  ],
+  "usePost": [
+    "immediate posts the body on mount"
+  ],
+  "usePreview": [
+    "(export)"
+  ],
+  "usePreviewProvider": [
+    "(export)"
+  ],
+  "useProfileForm": [
+    "(export)"
+  ],
+  "usePromise": [
+    "a call shows pending, then resolved with the value and its arguments pass through",
+    "a rejection marks the state rejected and rethrows to its caller",
+    "a stale rejection after a newer call started is not shown but rethrows to its caller",
+    "a stale resolution after a newer call started does not overwrite the value",
+    "cancel marks a pending call rejected with its message, and its late result is not shown",
+    "cancel with no message, then reset returns to idle",
+    "idle with no call yet",
+    "reset after a resolved call clears the value",
+    "unmount while a call is pending: no state update and no warning"
+  ],
+  "usePush": [
+    "a background notification reports foreground false",
+    "a failed register rejects and leaves no token",
+    "a failed requestPermission rejects and keeps the previous status",
+    "a failing checkOnMount leaves permission unset and warns once",
+    "a notification arriving with no listener recorded is dropped",
+    "a pending checkOnMount shows no permission until it settles",
+    "a settled-as-failed register rejects after unmount",
+    "checkOnMount reads the permission",
+    "checkPermission resolves and stores the status",
+    "listeners receive notifications, actions and token changes",
+    "register forwards a vapid public key",
+    "register stores the token",
+    "requestPermission grants and stores the status",
+    "setBadge and clearBadge call through",
+    "starts with no permission and no token",
+    "turning checkOnMount on through args checks once more",
+    "unmount while register is pending settles without a warning",
+    "unregister clears a registered token"
+  ],
+  "useStoragePreference": [
+    "(export)"
+  ],
+  "useStorageValue": [
+    "a write before the first read lands wins",
+    "an outside write reaches the hook through sync"
+  ],
+  "useStore": [
+    "a selector receives the whole state and derives the result",
+    "an equal selected value keeps the previous result",
+    "an equality function without a selector compares whole states"
+  ],
+  "useStoreAction": [
+    "(export)"
+  ],
+  "useT": [
+    "a string second argument is the default value",
+    "pluralizes with count through the shorthand",
+    "the provider form with a values map still works",
+    "the shorthand fallback interpolates values"
+  ],
+  "useTheme": [
+    "toggleTheme from dark returns to light through toggleMode",
+    "toggleTheme switches light to dark through toggleMode",
+    "toggleTheme twice returns to light"
+  ],
+  "useTranslation": [
+    "a count without plural keys falls back to the base key",
+    "a plural suffixed key wins over the base key",
+    "arabic plural categories resolve per count",
+    "count reaches the default value interpolation",
+    "interpolation leaves unfilled placeholders as written",
+    "t interpolates values into the default value",
+    "t picks the plural form for the count",
+    "t returns the default value for a missing key",
+    "t stringifies numbers and booleans in placeholders"
+  ],
+  "useVerifyPaymentReturn": [
+    "(export)"
+  ],
+  "useVersion": [
+    "a check that finds an update sets newVersion",
+    "a check that finds nothing clears isChecking",
+    "a failed check rejects and clears isChecking",
+    "a pending check shows isChecking until it settles",
+    "a seeded lastChecked round-trips",
+    "a waiting service worker shows in the state",
+    "an update arriving from outside updates the state",
+    "applyUpdate forwards options and defaults",
+    "dismissUpdate hides an update a check found",
+    "idle state by default",
+    "immediate periodic checks check right away",
+    "periodic checks keep running after unmount",
+    "periodic checks run on the interval and stop",
+    "unmount while a check is pending settles without warnings"
+  ],
+  "useWorkspace": [
+    "(export)"
+  ],
+  "useWorkspaceProvider": [
+    "(export)"
+  ]
+}

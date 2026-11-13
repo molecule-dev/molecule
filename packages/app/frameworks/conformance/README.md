@@ -23,12 +23,16 @@ itself is wrong; then React is fixed first and its goldens are re-recorded.
   result. A package's own `npm test` (and CI) therefore fails when it drifts from React.
 - **No bond can opt out.** `molecule/scripts/check-framework-conformance.mjs` (run by
   `molecule/scripts/__tests__/framework-conformance.test.mjs`, which CI always runs)
-  finds every `@molecule/app-ui-*` package under `packages/app/frameworks/` and fails
-  unless it has that test file, calls `runUIConformance`, has a `known-gaps.json`, and
-  lists this kit in `devDependencies`. It also fails on a static `class="…"` or a Svelte
-  `class:` directive in `.svelte`, `.vue` or `.html` markup (ESLint does not parse those).
-  A new UI bond is covered the moment it exists. (`@molecule/app-ui-react-native` is
-  exempt: it renders native views, not DOM.)
+  finds every package under `packages/app/frameworks/` and sorts it into its group of
+  swappable bonds: `@molecule/app-ui-*` packages are UI bonds, every other package (but
+  this kit) is a framework binding (see [Framework bindings](#framework-bindings)). It
+  fails unless each bond has that test file, calls its group's runner
+  (`runUIConformance` / `runBindingConformance`), has a `known-gaps.json`, and lists this
+  kit in `devDependencies`. It also fails on a static `class="…"` or a Svelte `class:`
+  directive in a UI bond's `.svelte`, `.vue` or `.html` markup (ESLint does not parse
+  those). A new bond is covered the moment it exists. Exempt: the two React references,
+  `@molecule/app-ui-react-native` (it renders native views, not DOM) and
+  `@molecule/app-react-native` (it re-exports `@molecule/app-react` unchanged).
 - **Gaps only shrink.** `known-gaps.json` lists cases a package does not match yet
   (`"(export)"` = the component is missing). Listed cases run as expected failures, so a
   listed case that starts matching fails until it is removed from the list.
@@ -125,3 +129,62 @@ value, every state the component can be in, and every interaction that changes w
 rendered or calls a callback. Then `RECORD_GOLDENS=1 npx vitest run` here, and run each UI
 package's conformance test: a new mismatch is either fixed in that package or added to its
 `known-gaps.json`.
+
+## Framework bindings
+
+The same contract holds the framework bindings (`@molecule/app-vue`, `-solid`, `-svelte`,
+`-angular`) to `@molecule/app-react`'s hooks (`src/bindings/`, imported from
+`@molecule/app-framework-conformance/bindings`).
+
+- **Required exports:** every `@molecule/app-react` export except the `*Context` objects
+  and `*Provider` components. Those are the composition root, the one place an app changes
+  when it swaps framework (Vue `moleculePlugin`, Solid `MoleculeProvider config`, Svelte
+  `setMoleculeContext`, Angular `provideMolecule`).
+- **Cases:** `src/bindings/cases/**`, one `HookCases` per export. React's results live in
+  `src/bindings/goldens.json`. `src/__tests__/bindings-goldens.test.ts` re-runs every case
+  in React and fails on a stale golden, a React error or warning, a required export with
+  no case family, or two families for one export.
+- **Each binding package** calls `runBindingConformance(adapter, { knownGaps })` from
+  `src/__tests__/conformance.test.ts`, with its adapter in
+  `src/__tests__/conformance/binding-adapter.ts`.
+- **A result** is, after mount and after every step, the hook's result read under React's
+  shape (value fields normalized, methods as `'[method]'`) plus the router location; then
+  every service call (`auth.login`, `http.get`, `storage.set`, …), every call of a
+  function argument, every method outcome (`=> login` with `returned`, `threw`,
+  `resolved` or `rejected`), and the subscriptions each service still holds after unmount.
+
+| React                            | Vue (`app-vue`)                        | Solid (`app-solid`)                     | Svelte (`app-svelte`)                      | Angular (`app-angular`)                              |
+| -------------------------------- | -------------------------------------- | --------------------------------------- | ------------------------------------------ | ---------------------------------------------------- |
+| `useAuth()` in a component       | `useAuth()` in `setup`                 | `useAuth()` in a component              | `useAuth()` during component init          | `useAuth()` in an injection context                  |
+| services from `MoleculeProvider` | `app.use(moleculePlugin, …)`           | `<MoleculeProvider config={…}>`         | `setMoleculeContext({…})`                  | `provideMolecule({…})`                               |
+| value field `user`               | value or `Ref`                         | value or accessor `() => user`          | value or store (`$user`)                   | value or signal                                      |
+| method `login`                   | function                               | function                                | function                                   | function                                             |
+| component `SessionReady`         | component, slots `default`, `fallback` | component, props `children`, `fallback` | component, snippets `children`, `fallback` | component, default `<ng-content>`, `[slot=fallback]` |
+
+An `args` step re-renders React with new arguments; the other adapters re-mount the host,
+since a composable, primitive or injection runs once per mount.
+
+Writing binding cases (`HookCase`, `src/bindings/spec.ts`):
+
+| Field / marker                                           | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `args`                                                   | the hook's arguments                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `{ $fn, returns \| resolve \| reject \| defer \| pick }` | a recorded function argument; `defer` stays pending until a `settle` step; `pick: [0, 'count']` returns `args[0].count` (a selector)                                                                                                                                                                                                                                                                                                                                                                          |
+| `{ $ref: 'async.form' }`                                 | an object an area fakes module exposes (a form controller a case cannot write as data)                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `context`                                                | `auth`, `authErrors`, `http` (scripted responses, `defer`), `storage`, `translations`, `routes`, `theme`, `locale`, `route`, `areas`, `omitServices` (mount without a provider: a throwing hook records `{ $threw }`)                                                                                                                                                                                                                                                                                         |
+| `steps`                                                  | `call` (a dotted `method` such as `0.cancel` reaches into the result, `as` keeps its result, `on` calls a method of a kept one), `stable` (is a method, or with no `methods` the result itself, the same function as at the previous `stable`), `args`, `advance`, `settle`, `http`, `auth`, `locale`, `theme`, `navigate`, `storage`, `control`, `unmount`, `remount` (a fresh host over the same services and fakes); a rejected `auth`, `locale`, `theme`, `navigate` or `storage` step records `! <step>` |
+| `render: 'text'` on `HookCases`                          | the export is a component: string props are text slots and the result is the text it renders                                                                                                                                                                                                                                                                                                                                                                                                                  |
+
+Area fakes (`src/bindings/fakes/<area>.ts`) add what one group of hooks needs beyond the
+shared services: extra services (chat, workspace, editor, preview), bonded providers set for
+one case and restored after it, `control` actions (`chat.emit`), `$ref` objects and
+listener counts.
+
+```bash
+# in any binding package (vue, solid, svelte, angular)
+npx vitest run src/__tests__/conformance.test.ts
+CONFORMANCE_HOOKS=useAuth,useForm npx vitest run src/__tests__/conformance.test.ts
+
+# in this kit, while writing cases: run them in React only, and see what React produced
+CONFORMANCE_HOOKS=useAuth CONFORMANCE_SKIP_GOLDENS=1 CONFORMANCE_DUMP=/tmp/react.json npx vitest run src/__tests__/bindings-goldens.test.ts
+```

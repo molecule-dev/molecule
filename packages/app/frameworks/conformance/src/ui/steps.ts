@@ -79,6 +79,15 @@ export class CallRecorder {
       if ('returns' in result) return result.returns
       if ('resolve' in result) return Promise.resolve(result.resolve)
       if ('reject' in result) return Promise.reject(new Error(result.reject))
+      if ('pick' in result) {
+        return result.pick.reduce<unknown>(
+          (value, key) =>
+            value === null || value === undefined
+              ? undefined
+              : (value as Record<string | number, unknown>)[key],
+          args,
+        )
+      }
       return new Promise((resolve, reject) => {
         const queue = this.pending.get(name) ?? []
         queue.push({ resolve, reject })

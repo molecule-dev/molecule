@@ -7,8 +7,9 @@
  * Recording is the deliberate step that changes the contract: every framework
  * binding then has to match it.
  *
- * While writing cases: `CONFORMANCE_HOOKS=useAuth,useForm` narrows the run and
- * `CONFORMANCE_SKIP_GOLDENS=1` checks only that React runs them cleanly.
+ * While writing cases: `CONFORMANCE_HOOKS=useAuth,useForm` narrows the run,
+ * `CONFORMANCE_SKIP_GOLDENS=1` checks only that React runs them cleanly, and
+ * `CONFORMANCE_DUMP=<file>` writes what React produced to that file.
  *
  * @module
  */
@@ -33,6 +34,8 @@ import { reactBindingAdapter } from './react-bindings-adapter.js'
 
 const RECORD = process.env.RECORD_GOLDENS === '1'
 const SKIP_GOLDENS = process.env.CONFORMANCE_SKIP_GOLDENS === '1'
+// A path to write this run's React results to, for reading while writing cases (never the goldens file).
+const DUMP = process.env.CONFORMANCE_DUMP || null
 const FILTER =
   process.env.CONFORMANCE_HOOKS?.split(',')
     .map((s) => s.trim())
@@ -48,6 +51,16 @@ const recorded: BindingGoldens = { exports: exportNames, cases: {} }
 describe.skipIf(FILTER !== null)('React binding coverage', () => {
   it.skipIf(RECORD || SKIP_GOLDENS)('the committed goldens list the required exports', () => {
     expect(bindingGoldens.exports).toEqual(exportNames)
+  })
+  it('every required export has a case family with cases', () => {
+    const covered = new Set(
+      bindingCaseFamilies.filter((f) => f.cases.length > 0).map((f) => f.hook),
+    )
+    expect(exportNames.filter((name) => !covered.has(name))).toEqual([])
+  })
+  it('each export has one case family', () => {
+    const hooks = bindingCaseFamilies.map((f) => f.hook)
+    expect(hooks.filter((hook, i) => hooks.indexOf(hook) !== i)).toEqual([])
   })
   it('every case family names a required export', () => {
     expect(bindingCaseFamilies.map((f) => f.hook).filter((h) => !exportNames.includes(h))).toEqual(
@@ -71,6 +84,7 @@ describe('React reference runs', () => {
     vi.restoreAllMocks()
   })
   afterAll(() => {
+    if (DUMP) writeFileSync(DUMP, `${JSON.stringify(recorded.cases, null, 1)}\n`)
     if (!RECORD) return
     writeFileSync(GOLDENS_FILE, `${JSON.stringify(recorded, null, 1)}\n`)
   })

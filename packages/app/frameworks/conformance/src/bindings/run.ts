@@ -14,10 +14,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { CallRecorder, settle } from '../ui/steps.js'
 import * as allCases from './cases/index.js'
+import { isolateBondRegistry, pinBrowserEnvironment } from './environment.js'
 import goldensJson from './goldens.json' with { type: 'json' }
 import { buildBindingServices } from './services.js'
 import type {
   BindingAdapter,
+  BindingServices,
   HookCase,
   HookCaseResult,
   HookCases,
@@ -27,6 +29,7 @@ import type {
 } from './spec.js'
 import {
   fnResults,
+  functionOf,
   materializeArgs,
   methodOf,
   normalizeValue,
@@ -103,11 +106,21 @@ export async function runHookCase(
   const stepArgs = (testCase.steps ?? []).flatMap((s) =>
     s.type === 'call' || s.type === 'args' ? (s.args ?? []) : [],
   )
+  // Module-level state of the binding (caches, stores) and browser storage start empty for every case.
+  await adapter.reset?.()
+  if (typeof window !== 'undefined') {
+    window.localStorage?.clear()
+    window.sessionStorage?.clear()
+  }
   const recorder = new CallRecorder(
     fnResults([...(testCase.args ?? []), ...stepArgs]),
     normalizeValue,
   )
   const fns = new Map<string, (...args: unknown[]) => unknown>()
+  // Pinned before the services are built, so an area that seeds its own value
+  // patches over the pinned one and restores it.
+  const restoreBonds = isolateBondRegistry()
+  const restoreEnvironment = pinBrowserEnvironment()
   const { services, controls } = buildBindingServices(testCase.context ?? {}, (name, args) => {
     recorder.calls.push({ name, args })
   })
@@ -125,16 +138,24 @@ export async function runHookCase(
     })
   }
   await services.i18n.setLocale(testCase.context?.locale ?? 'en')
+  // What the kit itself did to set the case up (the locale switch above logs
+  // through the bonded logger) is not the hook's behaviour: the recording starts
+  // at mount.
+  recorder.calls.length = 0
   const snapshots: unknown[] = []
-  const state: RunState = {
-    mounted: await adapter.mount(
+  const render = bindingCaseFamilies.find((f) => f.hook === hook)?.render
+  // The composition root gets every service but those the case omits; the runner keeps them all.
+  const given: Partial<BindingServices> = { ...services }
+  for (const name of testCase.context?.omitServices ?? []) delete given[name]
+  const mountHost = (args: unknown[]): Promise<MountedHook> =>
+    adapter.mount(
       hook,
-      materializeArgs(testCase.args ?? [], recorder, fns),
-      services,
+      materializeArgs(args, recorder, fns, controls.refs),
+      given,
       shape,
-    ),
-    unmounted: false,
-  }
+      render ? { render } : undefined,
+    )
+  const state: RunState = { mounted: await mountHost(testCase.args ?? []), unmounted: false }
   let resolvedShape = shape
   const snap = (): void => {
     if (state.unmounted) {
@@ -155,6 +176,36 @@ export async function runHookCase(
     if (state.mounted.wrap && !state.unmounted) await state.mounted.wrap(body)
     else await body()
   }
+  /** A service change from outside: a rejection is the outcome (`! locale`), not a broken case. */
+  const outside = (type: string, action: () => Promise<unknown> | unknown): Promise<void> =>
+    run(async () => {
+      try {
+        await action()
+      } catch (error) {
+        recorder.calls.push({
+          name: `! ${type}`,
+          args: [{ rejected: (error as Error)?.message ?? String(error) }],
+        })
+      }
+    })
+  /** Values `call` steps kept under their `as` names. */
+  const kept = new Map<string, unknown>()
+  /** Each method's function at the previous `stable` step. */
+  const stableBefore = new Map<string, unknown>()
+  /** The function a `call` step names: on the result, or on a kept value (`on`). */
+  const target = (
+    step: Extract<HookStep, { type: 'call' }>,
+  ): { fn: (...args: unknown[]) => unknown; self: unknown } => {
+    if (step.on === undefined) return methodOf(state.mounted, resolvedShape!, step.method)
+    if (!kept.has(step.on)) throw new Error(`conformance: no call kept a value as ${step.on}`)
+    const value = kept.get(step.on)
+    const fn = functionOf(
+      step.method === undefined ? value : (value as Record<string, unknown> | null)?.[step.method],
+      state.mounted,
+    )
+    if (!fn) throw new Error(`conformance: ${step.on} has no method ${step.method ?? '()'}`)
+    return { fn, self: value }
+  }
   try {
     await state.mounted.flush()
     snap()
@@ -162,9 +213,9 @@ export async function runHookCase(
       switch (step.type) {
         case 'call': {
           if (state.unmounted) throw new Error('conformance: a call step after unmount')
-          const label = `=> ${step.method ?? '()'}`
-          const { fn, self } = methodOf(state.mounted, resolvedShape!, step.method)
-          const args = materializeArgs(step.args ?? [], recorder, fns)
+          const label = `=> ${step.on === undefined ? '' : `${step.on}.`}${step.method ?? '()'}`
+          const { fn, self } = target(step)
+          const args = materializeArgs(step.args ?? [], recorder, fns, controls.refs)
           await run(() => {
             let returned: unknown
             try {
@@ -178,8 +229,10 @@ export async function runHookCase(
             }
             if (returned && typeof (returned as { then?: unknown }).then === 'function') {
               ;(returned as Promise<unknown>).then(
-                (value) =>
-                  recorder.calls.push({ name: label, args: [{ resolved: normalizeValue(value) }] }),
+                (value) => {
+                  if (step.as !== undefined) kept.set(step.as, value)
+                  recorder.calls.push({ name: label, args: [{ resolved: normalizeValue(value) }] })
+                },
                 (error: unknown) =>
                   recorder.calls.push({
                     name: label,
@@ -187,14 +240,31 @@ export async function runHookCase(
                   }),
               )
             } else {
+              if (step.as !== undefined) kept.set(step.as, returned)
               recorder.calls.push({ name: label, args: [{ returned: normalizeValue(returned) }] })
             }
           })
           break
         }
+        case 'stable': {
+          if (state.unmounted) throw new Error('conformance: a stable step after unmount')
+          const outcome: Record<string, string> = {}
+          for (const method of step.methods ?? [undefined]) {
+            const { fn } = methodOf(state.mounted, resolvedShape!, method)
+            const key = method ?? '$result'
+            outcome[key] = !stableBefore.has(key)
+              ? 'first'
+              : Object.is(stableBefore.get(key), fn)
+                ? 'same'
+                : 'rebuilt'
+            stableBefore.set(key, fn)
+          }
+          recorder.calls.push({ name: 'stable', args: [outcome] })
+          break
+        }
         case 'args':
           if (state.unmounted) throw new Error('conformance: an args step after unmount')
-          await state.mounted.setArgs(materializeArgs(step.args, recorder, fns))
+          await state.mounted.setArgs(materializeArgs(step.args, recorder, fns, controls.refs))
           break
         case 'advance':
           await run(() => vi.advanceTimersByTimeAsync(step.ms).then(() => undefined))
@@ -206,19 +276,19 @@ export async function runHookCase(
           await run(() => controls.answerHttp(step))
           break
         case 'auth':
-          await run(() => controls.setAuth(step.status, step.user))
+          await outside(step.type, () => controls.setAuth(step.status, step.user))
           break
         case 'locale':
-          await run(() => services.i18n.setLocale(step.locale))
+          await outside(step.type, () => services.i18n.setLocale(step.locale))
           break
         case 'theme':
-          await run(() => controls.setThemeMode(step.mode))
+          await outside(step.type, () => controls.setThemeMode(step.mode))
           break
         case 'navigate':
-          await run(() => services.router.navigate(step.to))
+          await outside(step.type, () => services.router.navigate(step.to))
           break
         case 'storage':
-          await run(() => controls.writeStorage(step.key, step.value))
+          await outside(step.type, () => controls.writeStorage(step.key, step.value))
           break
         case 'control':
           await run(() => controls.control(step.name, step.args ?? []))
@@ -226,6 +296,15 @@ export async function runHookCase(
         case 'unmount':
           if (!state.unmounted) await state.mounted.unmount()
           state.unmounted = true
+          break
+        case 'remount':
+          if (!state.unmounted) await state.mounted.unmount()
+          state.unmounted = true
+          await settle()
+          state.mounted = await mountHost(step.args ?? testCase.args ?? [])
+          state.unmounted = false
+          // A fresh host's functions are new; identity checks start over.
+          stableBefore.clear()
           break
       }
       if (state.unmounted) await settle()
@@ -240,6 +319,8 @@ export async function runHookCase(
   }
   const listenersAfterUnmount = controls.listeners()
   await controls.dispose()
+  restoreEnvironment()
+  restoreBonds()
   return {
     shape: resolvedShape ?? { kind: 'value' },
     snapshots,

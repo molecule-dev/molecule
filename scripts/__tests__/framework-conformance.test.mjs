@@ -1,6 +1,6 @@
 /**
- * Tests for scripts/check-framework-conformance.mjs: every swappable UI bond runs
- * the framework conformance kit. Each rule is shown failing on a known-bad tree
+ * Tests for scripts/check-framework-conformance.mjs: every swappable UI bond and
+ * framework binding runs the framework conformance kit. Each rule is shown failing on a known-bad tree
  * (AGENTS.md Rule 23) and passing on a conforming one, and the real tree is
  * checked last.
  *
@@ -13,6 +13,8 @@ import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import {
+  BINDING_EXEMPT,
+  BINDING_REFERENCE,
   EXEMPT,
   findConformanceViolations,
   KIT,
@@ -32,8 +34,15 @@ import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 runUIConformance(adapter, { knownGaps })
 `
 
+const BINDING_TEST_FILE = `import { runBindingConformance } from '${KIT}/bindings'
+import { adapter } from './conformance/binding-adapter.js'
+import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
+runBindingConformance(adapter, { knownGaps })
+`
+
 /**
- * A molecule tree holding the kit, the React reference, an exempt bond and one UI bond.
+ * A molecule tree holding the kit, both React references, the exempt bonds, one UI bond
+ * and one framework binding.
  *
  * @param [overrides]
  * @returns The fixture root.
@@ -51,17 +60,34 @@ function tree(overrides = {}) {
     JSON.stringify({
       name: KIT,
       private: true,
-      devDependencies: { [REFERENCE]: '4.0.0' },
+      devDependencies: { [REFERENCE]: '4.0.0', [BINDING_REFERENCE]: '4.0.0' },
       ...overrides.kit,
     }),
   )
-  write(`${fw}/conformance/src/__tests__/goldens.test.ts`, '')
+  if (overrides.kitTests?.goldens !== null)
+    write(`${fw}/conformance/src/__tests__/goldens.test.ts`, '')
+  if (overrides.kitTests?.bindings !== null)
+    write(`${fw}/conformance/src/__tests__/bindings-goldens.test.ts`, '')
   write(`${fw}/react-ui/package.json`, JSON.stringify({ name: REFERENCE }))
   write(
     `${fw}/react-native-ui/package.json`,
     JSON.stringify({ name: '@molecule/app-ui-react-native' }),
   )
-  write(`${fw}/vue/package.json`, JSON.stringify({ name: '@molecule/app-vue' }))
+  write(`${fw}/react/package.json`, JSON.stringify({ name: BINDING_REFERENCE }))
+  write(`${fw}/react-native/package.json`, JSON.stringify({ name: '@molecule/app-react-native' }))
+  const binding = overrides.binding ?? {}
+  write(
+    `${fw}/vue/package.json`,
+    JSON.stringify({
+      name: '@molecule/app-vue',
+      devDependencies: { [KIT]: '0.0.0' },
+      ...binding.pkg,
+    }),
+  )
+  if (binding.test !== null)
+    write(`${fw}/vue/src/__tests__/conformance.test.ts`, binding.test ?? BINDING_TEST_FILE)
+  if (binding.gaps !== null)
+    write(`${fw}/vue/src/__tests__/conformance/known-gaps.json`, binding.gaps ?? '{}')
   const bond = overrides.bond ?? {}
   write(
     `${fw}/foo-ui/package.json`,
@@ -80,7 +106,7 @@ function tree(overrides = {}) {
 }
 
 describe('check-framework-conformance', () => {
-  it('passes a tree where every UI bond runs the kit', () => {
+  it('passes a tree where every UI bond and framework binding runs the kit', () => {
     expect(findConformanceViolations(tree())).toEqual([])
   })
 
@@ -135,11 +161,46 @@ describe('check-framework-conformance', () => {
     expect(violations[0]).toMatch(message)
   })
 
-  it('fails a kit that is publishable or does not depend on the React reference', () => {
+  it('fails a kit that is publishable or does not depend on the React references', () => {
     const root = tree({ kit: { private: false, devDependencies: {} } })
     expect(findConformanceViolations(root)).toEqual([
       'packages/app/frameworks/conformance: the kit must be "private": true (it is never published)',
       `packages/app/frameworks/conformance: must depend on ${REFERENCE} so a React change re-checks the goldens`,
+      `packages/app/frameworks/conformance: must depend on ${BINDING_REFERENCE} so a React change re-checks the goldens`,
+    ])
+  })
+
+  it('fails a kit without a goldens test for each group', () => {
+    const root = tree({ kitTests: { goldens: null, bindings: null } })
+    expect(findConformanceViolations(root)).toEqual([
+      'packages/app/frameworks/conformance: src/__tests__/goldens.test.ts is missing (it keeps the goldens equal to React)',
+      'packages/app/frameworks/conformance: src/__tests__/bindings-goldens.test.ts is missing (it keeps the goldens equal to React)',
+    ])
+  })
+
+  it('fails a new framework binding that has no conformance test, no gaps file and no kit dependency', () => {
+    const root = tree({ binding: { pkg: { devDependencies: {} }, test: null, gaps: null } })
+    expect(findConformanceViolations(root)).toEqual([
+      'packages/app/frameworks/vue: src/__tests__/conformance.test.ts is missing; it must call runBindingConformance(adapter, { knownGaps })',
+      'packages/app/frameworks/vue: src/__tests__/conformance/known-gaps.json is missing (use {} when nothing is known to differ)',
+      'packages/app/frameworks/vue: devDependencies must list @molecule/app-framework-conformance',
+    ])
+  })
+
+  it('fails a framework binding that runs the UI suite instead of the binding suite', () => {
+    const root = tree({ binding: { test: TEST_FILE } })
+    expect(findConformanceViolations(root)).toEqual([
+      `packages/app/frameworks/vue: conformance.test.ts does not import '${KIT}/bindings'`,
+      'packages/app/frameworks/vue: conformance.test.ts does not call runBindingConformance(',
+    ])
+  })
+
+  it('fails a binding known-gaps file that does not map export names to case lists', () => {
+    const violations = findConformanceViolations(
+      tree({ binding: { gaps: '{"useAuth":"signed in"}' } }),
+    )
+    expect(violations).toEqual([
+      'packages/app/frameworks/vue: known-gaps.json must map export names to arrays of case names',
     ])
   })
 
@@ -180,6 +241,14 @@ describe('check-framework-conformance', () => {
       '@molecule/app-ui-react-native',
     ])
     for (const reason of Object.values(EXEMPT)) expect(reason.length).toBeGreaterThan(20)
+  })
+
+  it('exempts only the React bindings and the bindings that re-export them', () => {
+    expect(Object.keys(BINDING_EXEMPT).sort()).toEqual([
+      '@molecule/app-react',
+      '@molecule/app-react-native',
+    ])
+    for (const reason of Object.values(BINDING_EXEMPT)) expect(reason.length).toBeGreaterThan(20)
   })
 
   it('finds no violations in the real tree', () => {

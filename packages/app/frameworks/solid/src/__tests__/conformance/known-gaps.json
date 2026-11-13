@@ -1,0 +1,237 @@
+{
+  "convergeHistory": [
+    "(export)"
+  ],
+  "DEFAULT_AGENT_IDENTITY": [
+    "(export)"
+  ],
+  "DEFAULT_AGENT_NAME": [
+    "(export)"
+  ],
+  "DEFAULT_PRODUCT_NAME": [
+    "(export)"
+  ],
+  "localOnlyMessages": [
+    "(export)"
+  ],
+  "resetAIModelsCache": [
+    "(export)"
+  ],
+  "resetChatStoresForTests": [
+    "(export)"
+  ],
+  "useAIModels": [
+    "(export)"
+  ],
+  "useAsyncState": [
+    "(export)"
+  ],
+  "useAuth": [
+    "(export)"
+  ],
+  "useAuthClient": [
+    "(export)"
+  ],
+  "useCapacitorApp": [
+    "(export)"
+  ],
+  "useChangePassword": [
+    "(export)"
+  ],
+  "useChat": [
+    "(export)"
+  ],
+  "useChatProvider": [
+    "(export)"
+  ],
+  "useChildLogger": [
+    "(export)"
+  ],
+  "useCurrentTheme": [
+    "(export)"
+  ],
+  "useDelete": [
+    "(export)"
+  ],
+  "useDevice": [
+    "(export)"
+  ],
+  "useDirection": [
+    "(export)"
+  ],
+  "useEditor": [
+    "(export)"
+  ],
+  "useEditorProvider": [
+    "(export)"
+  ],
+  "useFieldState": [
+    "(export)"
+  ],
+  "useForm": [
+    "(export)"
+  ],
+  "useGet": [
+    "(export)"
+  ],
+  "useHttp": [
+    "(export)"
+  ],
+  "useHttpClient": [
+    "(export)"
+  ],
+  "useI18nError": [
+    "(export)"
+  ],
+  "useI18nProvider": [
+    "(export)"
+  ],
+  "useIsActive": [
+    "(export)"
+  ],
+  "useIsAuthenticated": [
+    "(export)"
+  ],
+  "useLogger": [
+    "(export)"
+  ],
+  "useLoggerProvider": [
+    "(export)"
+  ],
+  "useLogin": [
+    "(export)"
+  ],
+  "useOAuth": [
+    "(export)"
+  ],
+  "useOptimisticValue": [
+    "(export)"
+  ],
+  "usePasswordReset": [
+    "(export)"
+  ],
+  "usePatch": [
+    "(export)"
+  ],
+  "usePlatform": [
+    "(export)"
+  ],
+  "usePost": [
+    "(export)"
+  ],
+  "usePreview": [
+    "(export)"
+  ],
+  "usePreviewProvider": [
+    "(export)"
+  ],
+  "useProfileForm": [
+    "(export)"
+  ],
+  "usePromise": [
+    "(export)"
+  ],
+  "usePush": [
+    "(export)"
+  ],
+  "usePut": [
+    "(export)"
+  ],
+  "useRootLogger": [
+    "(export)"
+  ],
+  "useRouter": [
+    "(export)"
+  ],
+  "useRouterInstance": [
+    "(export)"
+  ],
+  "useSetStore": [
+    "(export)"
+  ],
+  "useSignup": [
+    "(export)"
+  ],
+  "useStateProvider": [
+    "(export)"
+  ],
+  "useStorage": [
+    "(export)"
+  ],
+  "useStoragePreference": [
+    "(export)"
+  ],
+  "useStorageProvider": [
+    "(export)"
+  ],
+  "useStorageValue": [
+    "(export)"
+  ],
+  "useStore": [
+    "a selector receives the whole state and derives the result",
+    "an equal selected value keeps the previous result",
+    "an equality function without a selector compares whole states"
+  ],
+  "useStoreAction": [
+    "(export)"
+  ],
+  "useT": [
+    "(export)"
+  ],
+  "useTheme": [
+    "(export)"
+  ],
+  "useThemeColors": [
+    "(export)"
+  ],
+  "useThemeMode": [
+    "(export)"
+  ],
+  "useThemeProvider": [
+    "(export)"
+  ],
+  "useTranslation": [
+    "a count without plural keys falls back to the base key",
+    "a key only present in another locale does not leak into english",
+    "a plural suffixed key wins over the base key",
+    "an empty defaultValue falls back to the key",
+    "an empty key without a default value returns an empty string",
+    "arabic plural categories resolve per count",
+    "count reaches the default value interpolation",
+    "english by default",
+    "follows a locale change",
+    "formatDate formats a date for the active locale",
+    "formatNumber formats for the active locale",
+    "interpolation leaves unfilled placeholders as written",
+    "setLocale and the formatters keep their identity across a locale change",
+    "setLocale rejects an unknown locale and keeps the current one",
+    "setLocale switches to a right-to-left locale",
+    "t falls back to English when the active locale lacks the key",
+    "t interpolates values into the default value",
+    "t picks the plural form for the count",
+    "t reads the active locale translation",
+    "t resolves a dot key into nested translations",
+    "t returns the default value for a missing key",
+    "t returns the key without a default value",
+    "t stringifies numbers and booleans in placeholders",
+    "unmount removes the locale listener"
+  ],
+  "useUser": [
+    "(export)"
+  ],
+  "useVerifyPaymentReturn": [
+    "(export)"
+  ],
+  "useVersion": [
+    "(export)"
+  ],
+  "useWatch": [
+    "(export)"
+  ],
+  "useWorkspace": [
+    "(export)"
+  ],
+  "useWorkspaceProvider": [
+    "(export)"
+  ]
+}

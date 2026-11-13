@@ -10,7 +10,13 @@ import { createRoot } from 'react-dom/client'
 
 import * as ReactBindings from '@molecule/app-react'
 
-import type { BindingAdapter, BindingServices, MountedHook } from '../bindings/index.js'
+import {
+  type BindingAdapter,
+  type BindingServices,
+  callHook,
+  type MountedHook,
+  type MountOptions,
+} from '../bindings/index.js'
 import { settle } from '../ui/index.js'
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
@@ -24,40 +30,53 @@ interface Slot {
 
 /** Calls the hook on every render and stores its result. */
 function Host({ hook, args, into }: { hook: string; args: unknown[]; into: Slot }): null {
-  const target = exportsOf[hook]
-  // A constant export (DEFAULT_AGENT_NAME) is its own result.
-  into.result =
-    typeof target === 'function' ? (target as (...a: unknown[]) => unknown)(...args) : target
+  into.result = callHook(exportsOf[hook], args)
   return null
 }
 
-const tree = (hook: string, args: unknown[], services: BindingServices, into: Slot): ReactElement =>
+const tree = (
+  hook: string,
+  args: unknown[],
+  services: Partial<BindingServices>,
+  into: Slot,
+  options: MountOptions,
+): ReactElement =>
   createElement(ReactBindings.MoleculeProvider, {
     ...services,
     awaitSession: false,
-    children: createElement(Host, { hook, args, into }),
+    children:
+      options.render === 'text'
+        ? // A component export renders with args[0] as props; its string props are text slots.
+          createElement(exportsOf[hook] as (props: object) => ReactElement, {
+            ...(args[0] as object),
+          })
+        : createElement(Host, { hook, args, into }),
   })
 
 /** The React reference adapter. */
 export const reactBindingAdapter: BindingAdapter = {
   name: 'react',
+  reset: () => {
+    ReactBindings.resetChatStoresForTests()
+    ReactBindings.resetAIModelsCache()
+  },
   has: (name) => typeof exportsOf[name] !== 'undefined',
-  async mount(hook, args, services): Promise<MountedHook> {
+  async mount(hook, args, services, _shape, options = {}): Promise<MountedHook> {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
     const slot: Slot = { result: undefined }
     let current = args
     await act(async () => {
-      root.render(tree(hook, current, services, slot))
+      root.render(tree(hook, current, services, slot, options))
     })
     return {
-      result: () => slot.result,
+      result: () => (options.render === 'text' ? (container.textContent ?? '') : slot.result),
       read: (value) => value,
       setArgs: async (next) => {
         current = next
         await act(async () => {
-          root.render(tree(hook, current, services, slot))
+          root.render(tree(hook, current, services, slot, options))
         })
       },
       flush: async () => {

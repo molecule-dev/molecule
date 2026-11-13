@@ -10,6 +10,39 @@ import type { CallRecorder } from '../ui/steps.js'
 import type { FnArg, MountedHook, ResultShape } from './spec.js'
 
 /**
+ * What an adapter stores as the result when calling the hook threw (a hook used
+ * without its provider). It snapshots as `{ $threw: <error name> }`: every
+ * framework must throw where React throws, and only there. The message is not
+ * compared, since it names each framework's own composition root.
+ */
+export class HookThrew {
+  /**
+   * Wraps the error the hook threw.
+   *
+   * @param error - The thrown value.
+   */
+  constructor(readonly error: unknown) {}
+}
+
+/**
+ * Calls one binding export the way every adapter's host does: a function is
+ * called with the arguments, a constant (`DEFAULT_AGENT_NAME`) is its own
+ * result, and a throw becomes a {@link HookThrew}.
+ *
+ * @param target - The export.
+ * @param args - The arguments.
+ * @returns The result.
+ */
+export function callHook(target: unknown, args: unknown[]): unknown {
+  if (typeof target !== 'function') return target
+  try {
+    return (target as (...a: unknown[]) => unknown)(...args)
+  } catch (error) {
+    return new HookThrew(error)
+  }
+}
+
+/**
  * Whether a value is a `{ $fn }` argument marker.
  *
  * @param value - Any value.
@@ -21,6 +54,21 @@ export function isFnArg(value: unknown): value is FnArg {
     typeof value === 'object' &&
     Object.getPrototypeOf(value) === Object.prototype &&
     typeof (value as { $fn?: unknown }).$fn === 'string'
+  )
+}
+
+/**
+ * Whether a value is a `{ $ref }` argument marker.
+ *
+ * @param value - Any value.
+ * @returns True for `{ $ref: string }` plain objects.
+ */
+export function isRefArg(value: unknown): value is { $ref: string } {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    Object.getPrototypeOf(value) === Object.prototype &&
+    typeof (value as { $ref?: unknown }).$ref === 'string'
   )
 }
 
@@ -45,6 +93,7 @@ export function fnResults(values: unknown[]): Record<string, CallbackResult> {
       if (value.defer) out[value.$fn] = { defer: true }
       else if (value.reject !== undefined) out[value.$fn] = { reject: value.reject }
       else if ('resolve' in value) out[value.$fn] = { resolve: value.resolve }
+      else if (value.pick !== undefined) out[value.$fn] = { pick: value.pick }
       else if ('returns' in value) out[value.$fn] = { returns: value.returns }
       return
     }
@@ -62,14 +111,21 @@ export function fnResults(values: unknown[]): Record<string, CallbackResult> {
  * @param value - Arguments as the case wrote them.
  * @param recorder - The case's recorder.
  * @param cache - Functions already built for this case.
+ * @param refs - Objects area fakes expose to `{ $ref }` markers.
  * @returns The value with markers replaced; everything else is copied.
  */
 export function materializeArgs<T>(
   value: T,
   recorder: CallRecorder,
   cache: Map<string, (...args: unknown[]) => unknown>,
+  refs: Record<string, unknown> = {},
 ): T {
   const walk = (v: unknown): unknown => {
+    if (isRefArg(v)) {
+      if (!(v.$ref in refs))
+        throw new Error(`conformance: no area fakes module exposes { $ref: '${v.$ref}' }`)
+      return refs[v.$ref]
+    }
     if (isFnArg(v)) {
       let fn = cache.get(v.$fn)
       if (!fn) {
@@ -88,8 +144,24 @@ export function materializeArgs<T>(
 }
 
 /**
+ * Whether a value is an Error turned into plain data: a string `message` and
+ * a string `stack` (what `@molecule/app-logger`'s credential-safe wrapper
+ * hands a logger in place of a logged Error).
+ *
+ * @param value - The object to test.
+ * @returns `true` for an error snapshot.
+ */
+function isErrorSnapshot(
+  value: object,
+): value is { message: string; stack: string; name?: unknown; status?: unknown } {
+  const v = value as { message?: unknown; stack?: unknown }
+  return typeof v.message === 'string' && typeof v.stack === 'string'
+}
+
+/**
  * Normalizes a hook value to plain, JSON-comparable data. Functions become
- * `'[function]'`, errors `{ $error: message, name }` (plus `status` when set),
+ * `'[function]'`, errors `{ $error: message, name }` (plus `status` when set) whether they are
+ * Error instances or plain snapshots of one,
  * dates their ISO string, maps and sets arrays, promises `'[promise]'`;
  * object keys are sorted and `undefined` fields dropped (a missing field and an
  * `undefined` one read the same), and a route location's random `key` (any
@@ -105,9 +177,24 @@ export function normalizeValue(value: unknown): unknown {
     if (typeof v === 'function') return '[function]'
     if (typeof v === 'number' && !Number.isFinite(v)) return String(v)
     if (typeof v !== 'object') return v
+    if (v instanceof HookThrew) {
+      const name = (v.error as { name?: unknown } | null)?.name
+      return { $threw: typeof name === 'string' ? name : 'Error' }
+    }
     if (v instanceof Error) {
       const status = (v as { status?: unknown }).status
       return { $error: v.message, name: v.name, ...(typeof status === 'number' ? { status } : {}) }
+    }
+    if (isErrorSnapshot(v)) {
+      // An Error that @molecule/app-logger's credential-safe wrapper turned into
+      // plain data before a logger saw it: compared as the Error it was, so its
+      // stack (this checkout's paths and line numbers) is never recorded.
+      const { message, name, status } = v
+      return {
+        $error: message,
+        name: typeof name === 'string' ? name : 'Error',
+        ...(typeof status === 'number' ? { status } : {}),
+      }
     }
     if (v instanceof Date) return v.toISOString()
     if (typeof (v as { then?: unknown }).then === 'function') return '[promise]'
@@ -163,7 +250,8 @@ export function resultShape(result: unknown): ResultShape {
     result &&
     typeof result === 'object' &&
     !Array.isArray(result) &&
-    !(result instanceof Error)
+    !(result instanceof Error) &&
+    !(result instanceof HookThrew)
   ) {
     const fields: Record<string, 'value' | 'method'> = {}
     const location = isRouteLocation(result)
@@ -226,6 +314,8 @@ export function functionOf(
  * @returns Comparable data.
  */
 export function snapshotResult(mounted: MountedHook, shape: ResultShape): unknown {
+  // A hook that threw shows the throw under any shape.
+  if (mounted.result() instanceof HookThrew) return normalizeValue(mounted.result())
   if (shape.kind === 'function') {
     return functionOf(mounted.result(), mounted)
       ? '[function]'
@@ -254,7 +344,9 @@ export function snapshotResult(mounted: MountedHook, shape: ResultShape): unknow
  *
  * @param mounted - The mounted hook.
  * @param shape - React's result shape.
- * @param method - The method name; omitted when the result is the function.
+ * @param method - The method name, or a dotted path into the result
+ *   (`'0.cancel'`: element 0's `cancel`, called on element 0); omitted when the
+ *   result is the function.
  * @returns The function and its receiver.
  * @throws {Error} When the framework has no such function.
  */
@@ -268,8 +360,15 @@ export function methodOf(
     if (!fn) throw new Error('conformance: the hook result is not a function')
     return { fn, self: undefined }
   }
-  const object = shape.kind === 'object' || shape.kind === 'value' ? resultObject(mounted) : null
-  const fn = functionOf(object?.[method], mounted)
+  let self: unknown =
+    shape.kind === 'object' || shape.kind === 'value' ? resultObject(mounted) : null
+  const path = method.split('.')
+  // Each step along a dotted path is read through the framework's unwrapping.
+  for (const key of path.slice(0, -1)) {
+    const next = (self as Record<string, unknown> | null)?.[key]
+    self = next === undefined || next === null ? next : mounted.read(next)
+  }
+  const fn = functionOf((self as Record<string, unknown> | null)?.[path[path.length - 1]!], mounted)
   if (!fn) throw new Error(`conformance: the hook result has no method ${method}`)
-  return { fn, self: object }
+  return { fn, self }
 }

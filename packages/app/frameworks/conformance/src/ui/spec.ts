@@ -224,9 +224,16 @@ export interface UICase {
   viewportWidth?: number
 }
 
-/** What a recorded callback returns. */
+/**
+ * What a recorded callback returns. `pick` returns part of its arguments
+ * (`[0, 'count']` is `args[0].count`; a missing step gives `undefined`).
+ */
 export type CallbackResult =
-  { returns: unknown } | { resolve: unknown } | { reject: string } | { defer: true }
+  | { returns: unknown }
+  | { resolve: unknown }
+  | { reject: string }
+  | { defer: true }
+  | { pick: (string | number)[] }
 
 /** All cases of one component, keyed by its React export name. */
 export interface UIComponentCases {

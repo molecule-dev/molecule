@@ -39,6 +39,7 @@
     "vue": "^3.4.0"
   },
   "devDependencies": {
+    "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-utilities": "1.0.6",
     "@types/node": "26.6.5",
     "@vue/test-utils": "2.5.1",

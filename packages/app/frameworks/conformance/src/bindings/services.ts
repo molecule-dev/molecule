@@ -12,6 +12,7 @@
  */
 
 import type { AuthClient, AuthState } from '@molecule/app-auth'
+import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
 import {
   type FullRequestConfig,
   type HttpClient,
@@ -20,7 +21,12 @@ import {
   type RequestConfig,
 } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
-import type { Logger, LoggerProvider, LogLevel } from '@molecule/app-logger'
+import {
+  type Logger,
+  type LoggerProvider,
+  type LogLevel,
+  setProvider as setLoggerProvider,
+} from '@molecule/app-logger'
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
 import { createSimpleStateProvider } from '@molecule/app-state'
 import { createMemoryStorageProvider, type StorageProvider } from '@molecule/app-storage'
@@ -54,6 +60,8 @@ export interface BindingControls {
   writeStorage(key: string, value: unknown): Promise<void>
   /** Switches the theme mode as if another part of the app did (not recorded). */
   setThemeMode(mode: 'light' | 'dark'): void
+  /** Objects area fakes expose to `{ $ref }` arguments. */
+  refs: Record<string, unknown>
   /** Calls a control an area fakes module registered (a `control` step). */
   control(name: string, args: unknown[]): Promise<void>
   /** Undoes every area's global changes after the case. */
@@ -94,9 +102,12 @@ function createBindingAuthClient(
   let revision = 1
   let token: string | null = state.authenticated ? 'token' : null
   const listeners = new Set<(s: AuthState<User>) => void>()
-  const set = (next: AuthState<User>): void => {
+  // Like the real client (AuthClient.getSessionRevision): starting, replacing
+  // or ending a session moves the revision; a profile update, a setUser on the
+  // signed-in session and a same-session refresh keep it.
+  const set = (next: AuthState<User>, newSession: boolean): void => {
     state = next
-    revision++
+    if (newSession) revision++
     for (const l of [...listeners]) l(state)
   }
   const fail = (op: AuthOperation): void => {
@@ -105,7 +116,7 @@ function createBindingAuthClient(
   }
   const signIn = (user: User): { user: User; accessToken: string } => {
     token = 'token'
-    set(authState('authenticated', user))
+    set(authState('authenticated', user), true)
     return { user, accessToken: 'token' }
   }
   const subscribe = (cb: (s: AuthState<User>) => void): (() => void) => {
@@ -121,7 +132,7 @@ function createBindingAuthClient(
     getSessionRevision: () => revision,
     setUser: (user) => {
       record('auth.setUser', [user])
-      set({ ...state, user })
+      set({ ...state, user }, false)
     },
     getAccessToken: () => token,
     setAccessToken: (next) => {
@@ -131,7 +142,7 @@ function createBindingAuthClient(
     setSession: (session) => {
       record('auth.setSession', [session])
       token = (session as { accessToken?: string }).accessToken ?? 'token'
-      set(authState('authenticated', (session as { user?: User }).user ?? null))
+      set(authState('authenticated', (session as { user?: User }).user ?? null), true)
     },
     getRefreshToken: () => null,
     login: async (credentials) => {
@@ -144,7 +155,7 @@ function createBindingAuthClient(
       record('auth.logout', [])
       fail('logout')
       token = null
-      set(authState('unauthenticated', null))
+      set(authState('unauthenticated', null), true)
     },
     register: async (data) => {
       record('auth.register', [data])
@@ -169,7 +180,7 @@ function createBindingAuthClient(
       record('auth.updateProfile', [data])
       fail('updateProfile')
       const user = { ...(state.user ?? {}), ...(data as User) }
-      set({ ...state, user })
+      set({ ...state, user }, false)
       return user
     },
     changePassword: async (oldPassword, newPassword) => {
@@ -185,7 +196,15 @@ function createBindingAuthClient(
   }
   return {
     client,
-    setAuth: (status, user) => set(authState(status, user ?? state.user)),
+    // From outside (another tab, a token refresh): a new session when signing
+    // in or out, or when another account signs in.
+    setAuth: (status, user) => {
+      const next = authState(status, user ?? state.user)
+      const newSession =
+        next.authenticated !== state.authenticated ||
+        (next.user as { id?: unknown } | null)?.id !== (state.user as { id?: unknown } | null)?.id
+      set(next, newSession)
+    },
     listenerCount: () => listeners.size,
   }
 }
@@ -435,7 +454,9 @@ function countRouterListeners(router: Router): { router: Router; listenerCount: 
 
 /**
  * A logger provider that records every message (level, logger name, message)
- * instead of printing it.
+ * instead of printing it. The sink normalizes the arguments, so an `Error` (or
+ * the plain snapshot `@molecule/app-logger` makes of one) is recorded as
+ * `{ $error, name }`, never with its stack.
  *
  * @param record - Receives every log call.
  * @returns The provider.
@@ -448,12 +469,7 @@ function createRecordingLoggerProvider(record: ServiceCallSink): LoggerProvider 
     const log =
       (lvl: LogLevel) =>
       (message: string | Error, ...args: unknown[]): void =>
-        record(`logger.${lvl}`, [
-          name,
-          message instanceof Error ? message.message : message,
-          ...args,
-          ...extra,
-        ])
+        record(`logger.${lvl}`, [name, message, ...args, ...extra])
     const logger: Logger = {
       trace: log('trace'),
       debug: log('debug'),
@@ -513,7 +529,7 @@ export function buildBindingServices(
   const storage = createRecordedStorage(context.storage ?? {}, sink)
   const theme = createBindingThemeProvider(context.theme ?? 'light', sink)
   const router = countRouterListeners(
-    createMemoryRouter({ initialEntries: [context.route ?? '/'] }),
+    createMemoryRouter({ initialEntries: [context.route ?? '/'], routes: context.routes ?? [] }),
   )
   // A fresh i18n provider per case, also bonded globally: hooks that translate
   // through the bond (provider-missing errors) and through the context see one provider.
@@ -544,6 +560,16 @@ export function buildBindingServices(
     },
   }
   setI18nProvider(i18n)
+  // One recording logger, given to the composition root AND bonded globally.
+  // Hooks log through either: the provider in context, or the module-level
+  // `getLogger()` of @molecule/app-logger (useChat, usePush, useVerifyPaymentReturn,
+  // …). Unbonded, that bond auto-creates a console logger, and console output
+  // fails the React reference run. `dispose` restores the slot as it was (an
+  // empty slot stays empty).
+  const logger = createRecordingLoggerProvider(sink)
+  const loggerWasBonded = isBonded('app-logger')
+  const loggerBefore = bondGet<LoggerProvider>('app-logger')
+  setLoggerProvider(logger)
   const areas = areaFakesFactories.map((factory) => factory(context, sink))
   const services: BindingServices = {
     i18n,
@@ -553,7 +579,7 @@ export function buildBindingServices(
     http: http.client,
     storage: storage.provider,
     state: createSimpleStateProvider(),
-    logger: createRecordingLoggerProvider(sink),
+    logger,
     ...Object.assign({}, ...areas.map((area) => area.services ?? {})),
   }
   const areaControls: Record<string, (...args: unknown[]) => unknown> = Object.assign(
@@ -565,8 +591,13 @@ export function buildBindingServices(
     controls: {
       setAuth: auth.setAuth,
       answerHttp: http.answer,
-      writeStorage: (key, value) => storage.inner.set(key, value),
+      // An area that replaced `services.storage` owns outside writes to it.
+      writeStorage: async (key, value) => {
+        const writer = areas.find((area) => area.writeStorage)?.writeStorage
+        await (writer ? writer(key, value) : storage.inner.set(key, value))
+      },
       setThemeMode: theme.setMode,
+      refs: Object.assign({}, ...areas.map((area) => area.refs ?? {})),
       control: async (name, args) => {
         const control = areaControls[name]
         if (!control) throw new Error(`conformance: no area registered the control ${name}`)
@@ -574,6 +605,7 @@ export function buildBindingServices(
       },
       dispose: async () => {
         for (const area of areas) await area.dispose?.()
+        bond('app-logger', loggerWasBonded ? loggerBefore : null)
       },
       listeners: () => ({
         auth: auth.listenerCount(),
