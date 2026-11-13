@@ -51,4 +51,6 @@ export const sv: Partial<UiTranslations> = {
   'prompt.confirm': 'Bekräfta',
   'ui.form.submitError': 'Det gick inte att skicka. Försök igen.',
   'userMenu.panelLabel': 'Konto-meny',
+  'ui.error.noClassMap':
+    'Ingen UIClassMap har ställts in. Anropa setClassMap() vid appstart med en stylingbiblioteksimplementering (t.ex. @molecule/app-ui-tailwind).',
 }

@@ -60,4 +60,6 @@ export const ml: UiTranslations = {
   'prompt.confirm': 'സ്ഥിരീകരിക്കുക',
   'ui.form.submitError': 'സമർപ്പിക്കാൻ കഴിയുന്നില്ല. വീണ്ടും ശ്രമിക്കുക.',
   'userMenu.panelLabel': 'അക്കൗണ്ട് മെനു',
+  'ui.error.noClassMap':
+    'UIClassMap ഒന്നും സജ്ജീകരിച്ചിട്ടില്ല. ആപ്പ് സ്റ്റാർട്ടപ്പിൽ ഒരു സ്റ്റൈലിംഗ് ലൈബ്രറി ഇംപ്ലിമെന്റേഷൻ ഉപയോഗിച്ച് setClassMap() വിളിക്കുക (ഉദാ: @molecule/app-ui-tailwind).',
 }

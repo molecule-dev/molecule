@@ -51,4 +51,6 @@ export const uk: Partial<UiTranslations> = {
   'prompt.confirm': 'Підтвердити',
   'ui.form.submitError': 'Не вдалося надіслати. Спробуйте ще раз.',
   'userMenu.panelLabel': 'Меню облікового запису',
+  'ui.error.noClassMap':
+    'UIClassMap не встановлено. Викличте setClassMap() під час запуску програми з реалізацією бібліотеки стилів (наприклад, @molecule/app-ui-tailwind).',
 }

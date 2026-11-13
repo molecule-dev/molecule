@@ -51,4 +51,6 @@ export const nl: Partial<UiTranslations> = {
   'prompt.confirm': 'Bevestigen',
   'ui.form.submitError': 'Verzenden mislukt. Probeer het opnieuw.',
   'userMenu.panelLabel': 'Accountmenu',
+  'ui.error.noClassMap':
+    'Er is geen UIClassMap ingesteld. Roep setClassMap() aan bij het opstarten van de app met een implementatie van een stylingbibliotheek (bijv. @molecule/app-ui-tailwind).',
 }

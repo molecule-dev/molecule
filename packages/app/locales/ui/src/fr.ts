@@ -52,4 +52,6 @@ export const fr: Partial<UiTranslations> = {
   'prompt.confirm': 'Confirmer',
   'ui.form.submitError': "Impossible d'envoyer. Veuillez réessayer.",
   'userMenu.panelLabel': 'Menu du compte',
+  'ui.error.noClassMap':
+    "Aucune UIClassMap n'a été définie. Appelez setClassMap() au démarrage de l'application avec une implémentation de bibliothèque de style (par exemple, @molecule/app-ui-tailwind).",
 }

@@ -51,4 +51,6 @@ export const ko: Partial<UiTranslations> = {
   'prompt.confirm': '확인',
   'ui.form.submitError': '제출할 수 없습니다. 다시 시도해 주세요.',
   'userMenu.panelLabel': '계정 메뉴',
+  'ui.error.noClassMap':
+    'UIClassMap이 설정되지 않았습니다. 스타일링 라이브러리 구현체(예: @molecule/app-ui-tailwind)를 사용하여 앱 시작 시 setClassMap()을 호출하세요.',
 }

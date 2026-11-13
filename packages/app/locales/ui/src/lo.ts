@@ -52,4 +52,6 @@ export const lo: UiTranslations = {
   'prompt.confirm': 'ຢືນຢັນ',
   'ui.form.submitError': 'ບໍ່ສາມາດສົ່ງໄດ້. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ.',
   'userMenu.panelLabel': 'ເມນູບັນຊີ',
+  'ui.error.noClassMap':
+    'ບໍ່ມີການຕັ້ງຄ່າ UIClassMap. ໃຫ້ເອີ້ນໃຊ້ setClassMap() ເມື່ອເລີ່ມຕົ້ນແອັບດ້ວຍການຈັດຕັ້ງປະຕິບັດຫ້ອງສະໝຸດຮູບແບບ (ຕົວຢ່າງ, @molecule/app-ui-tailwind).',
 }

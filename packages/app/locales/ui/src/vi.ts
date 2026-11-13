@@ -51,4 +51,6 @@ export const vi: Partial<UiTranslations> = {
   'prompt.confirm': 'Xác nhận',
   'ui.form.submitError': 'Không thể gửi. Vui lòng thử lại.',
   'userMenu.panelLabel': 'Menu tài khoản',
+  'ui.error.noClassMap':
+    'Chưa có UIClassMap nào được thiết lập. Hãy gọi setClassMap() khi khởi chạy ứng dụng với một thư viện tạo kiểu (ví dụ: @molecule/app-ui-tailwind).',
 }

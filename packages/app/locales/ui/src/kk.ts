@@ -55,4 +55,6 @@ export const kk: UiTranslations = {
   'prompt.confirm': 'Растау',
   'ui.form.submitError': 'Жіберу мүмкін емес. Қайталап көріңіз.',
   'userMenu.panelLabel': 'Тіркелгі мәзірі',
+  'ui.error.noClassMap':
+    'UIClassMap орнатылмаған. Стильдеу кітапханасын іске қосу арқылы қолданба іске қосылғанда setClassMap() функциясын шақырыңыз (мысалы, @molecule/app-ui-tailwind).',
 }

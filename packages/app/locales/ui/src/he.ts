@@ -51,4 +51,6 @@ export const he: Partial<UiTranslations> = {
   'prompt.confirm': 'לְאַשֵׁר',
   'ui.form.submitError': 'לא ניתן לשלוח. אנא נסה שוב.',
   'userMenu.panelLabel': 'תפריט חשבון',
+  'ui.error.noClassMap':
+    'לא הוגדרה UIClassMap. קריאה לפונקציה setClassMap() בעת הפעלת האפליקציה באמצעות יישום ספריית עיצוב (למשל, @molecule/app-ui-tailwind).',
 }

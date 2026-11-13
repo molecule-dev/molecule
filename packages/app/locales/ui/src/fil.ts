@@ -51,4 +51,6 @@ export const fil: Partial<UiTranslations> = {
   'prompt.confirm': 'Kumpirmahin',
   'ui.form.submitError': 'Hindi maisumite. Pakisubukang muli.',
   'userMenu.panelLabel': 'Menu ng Account',
+  'ui.error.noClassMap':
+    'Walang naitakdang UIClassMap. Tawagin ang setClassMap() sa pagsisimula ng app gamit ang isang implementasyon ng styling library (hal., @molecule/app-ui-tailwind).',
 }

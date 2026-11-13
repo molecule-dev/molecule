@@ -51,4 +51,6 @@ export const ga: UiTranslations = {
   'prompt.confirm': 'Deimhnigh',
   'ui.form.submitError': 'Ní féidir é a chur isteach. Déan iarracht arís.',
   'userMenu.panelLabel': 'Roghchlár cuntais',
+  'ui.error.noClassMap':
+    'Níl UIClassMap socraithe. Glaoigh ar setClassMap() ag am tosaithe aip le cur i bhfeidhm leabharlainne stíle (m.sh., @molecule/app-ui-tailwind).',
 }

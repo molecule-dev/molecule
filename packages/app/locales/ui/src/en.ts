@@ -51,4 +51,6 @@ export const en: UiTranslations = {
   'prompt.confirm': 'Confirm',
   'ui.form.submitError': 'Unable to submit. Please try again.',
   'userMenu.panelLabel': 'Account menu',
+  'ui.error.noClassMap':
+    'No UIClassMap has been set. Call setClassMap() at app startup with a styling library implementation (e.g., @molecule/app-ui-tailwind).',
 }

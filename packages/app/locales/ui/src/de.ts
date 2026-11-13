@@ -51,4 +51,6 @@ export const de: Partial<UiTranslations> = {
   'prompt.confirm': 'Bestätigen',
   'ui.form.submitError': 'Absenden fehlgeschlagen. Bitte versuchen Sie es erneut.',
   'userMenu.panelLabel': 'Kontomenü',
+  'ui.error.noClassMap':
+    'Es wurde keine UIClassMap festgelegt. Rufen Sie setClassMap() beim Start der Anwendung mit einer Styling-Bibliotheksimplementierung auf (z. B. @molecule/app-ui-tailwind).',
 }

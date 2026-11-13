@@ -58,4 +58,6 @@ export const ta: UiTranslations = {
   'prompt.confirm': 'உறுதிப்படுத்து',
   'ui.form.submitError': 'சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
   'userMenu.panelLabel': 'கணக்கு மெனு',
+  'ui.error.noClassMap':
+    'UIClassMap எதுவும் அமைக்கப்படவில்லை. செயலி தொடங்கும் போது, ஒரு ஸ்டைலிங் லைப்ரரி செயலாக்கத்தைப் (எ.கா., @molecule/app-ui-tailwind) பயன்படுத்தி setClassMap()-ஐ அழைக்கவும்.',
 }

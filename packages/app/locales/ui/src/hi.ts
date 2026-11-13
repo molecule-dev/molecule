@@ -51,4 +51,6 @@ export const hi: Partial<UiTranslations> = {
   'prompt.confirm': 'पुष्टि करें',
   'ui.form.submitError': 'सबमिट करने में असमर्थ। कृपया पुनः प्रयास करें।',
   'userMenu.panelLabel': 'खाता मेनू',
+  'ui.error.noClassMap':
+    'कोई UIClassMap सेट नहीं किया गया है। ऐप स्टार्टअप पर स्टाइलिंग लाइब्रेरी इम्प्लीमेंटेशन (जैसे, @molecule/app-ui-tailwind) के साथ setClassMap() को कॉल करें।',
 }

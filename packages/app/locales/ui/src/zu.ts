@@ -51,4 +51,6 @@ export const zu: UiTranslations = {
   'prompt.confirm': 'Qinisekisa',
   'ui.form.submitError': 'Ayikwazi ukuthumela. Sicela uzame futhi.',
   'userMenu.panelLabel': 'Imenyu ye-akhawunti',
+  'ui.error.noClassMap':
+    'Akukho UIClassMap esethiwe. Shayela i-setClassMap() ekuqaleni kohlelo lokusebenza ngokusetshenziswa kwelabhulali yesitayela (isb., @molecule/app-ui-tailwind).',
 }

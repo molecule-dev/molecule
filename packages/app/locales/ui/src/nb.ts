@@ -51,4 +51,6 @@ export const nb: Partial<UiTranslations> = {
   'prompt.confirm': 'Bekrefte',
   'ui.form.submitError': 'Kan ikke sende inn. Prøv på nytt.',
   'userMenu.panelLabel': 'Konto-meny',
+  'ui.error.noClassMap':
+    'Ingen UIClassMap er angitt. Kall setClassMap() ved oppstart av appen med en implementering av et stylingbibliotek (f.eks. @molecule/app-ui-tailwind).',
 }

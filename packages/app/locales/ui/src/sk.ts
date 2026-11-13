@@ -51,4 +51,6 @@ export const sk: UiTranslations = {
   'prompt.confirm': 'Potvrdiť',
   'ui.form.submitError': 'Nepodarilo sa odoslať. Skúste to znova.',
   'userMenu.panelLabel': 'Ponuka účtu',
+  'ui.error.noClassMap':
+    'Nebola nastavená žiadna premenná UIClassMap. Pri spustení aplikácie zavolajte funkciu setClassMap() s implementáciou knižnice štýlov (napr. @molecule/app-ui-tailwind).',
 }

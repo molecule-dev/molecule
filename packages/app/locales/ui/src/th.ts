@@ -55,4 +55,6 @@ export const th: UiTranslations = {
   'prompt.confirm': 'ยืนยัน',
   'ui.form.submitError': 'ไม่สามารถส่งข้อมูลได้ โปรดลองอีกครั้ง',
   'userMenu.panelLabel': 'เมนูบัญชี',
+  'ui.error.noClassMap':
+    'ยังไม่ได้ตั้งค่า UIClassMap โปรดเรียกใช้ setClassMap() เมื่อแอปเริ่มต้นทำงาน หากใช้ไลบรารีการจัดสไตล์ (เช่น @molecule/app-ui-tailwind)',
 }

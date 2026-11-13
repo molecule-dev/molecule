@@ -51,4 +51,6 @@ export const ms: Partial<UiTranslations> = {
   'prompt.confirm': 'Sahkan',
   'ui.form.submitError': 'Tidak dapat menghantar. Sila cuba lagi.',
   'userMenu.panelLabel': 'Menu akaun',
+  'ui.error.noClassMap':
+    'Tiada UIClassMap telah ditetapkan. Panggil setClassMap() semasa permulaan aplikasi dengan pelaksanaan pustaka penggayaan (cth., @molecule/app-ui-tailwind).',
 }

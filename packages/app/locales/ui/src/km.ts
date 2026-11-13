@@ -54,4 +54,6 @@ export const km: UiTranslations = {
   'prompt.confirm': 'បញ្ជាក់',
   'ui.form.submitError': 'មិនអាចដាក់ស្នើបានទេ។ សូមព្យាយាមម្តងទៀត។',
   'userMenu.panelLabel': 'ម៉ឺនុយគណនី',
+  'ui.error.noClassMap':
+    'គ្មាន UIClassMap ត្រូវបានកំណត់ទេ។ ហៅ setClassMap() នៅពេលចាប់ផ្តើមកម្មវិធីជាមួយនឹងការអនុវត្តបណ្ណាល័យរចនាប័ទ្ម (ឧ. @molecule/app-ui-tailwind)។',
 }

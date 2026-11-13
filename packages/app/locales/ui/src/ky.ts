@@ -51,4 +51,6 @@ export const ky: UiTranslations = {
   'prompt.confirm': 'Ырастоо',
   'ui.form.submitError': 'Тапшыруу мүмкүн эмес. Кайра аракет кылып көрүңүз.',
   'userMenu.panelLabel': 'Аккаунт менюсу',
+  'ui.error.noClassMap':
+    'UIClassMap коюлган эмес. Стилдөө китепканасын ишке ашыруу менен колдонмону ишке киргизүүдө setClassMap() функциясын чакырыңыз (мисалы, @molecule/app-ui-tailwind).',
 }

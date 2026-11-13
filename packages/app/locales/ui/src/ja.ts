@@ -51,4 +51,6 @@ export const ja: Partial<UiTranslations> = {
   'prompt.confirm': '確認',
   'ui.form.submitError': '送信できませんでした。もう一度お試しください。',
   'userMenu.panelLabel': 'アカウントメニュー',
+  'ui.error.noClassMap':
+    'UIClassMapが設定されていません。アプリ起動時に、スタイリングライブラリの実装（例：@molecule/app-ui-tailwind）を使用してsetClassMap()を呼び出してください。',
 }

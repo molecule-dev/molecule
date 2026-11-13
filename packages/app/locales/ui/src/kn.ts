@@ -58,4 +58,6 @@ export const kn: UiTranslations = {
   'prompt.confirm': 'ದೃಢೀಕರಿಸಿ',
   'ui.form.submitError': 'ಸಲ್ಲಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
   'userMenu.panelLabel': 'ಖಾತೆ ಮೆನು',
+  'ui.error.noClassMap':
+    'ಯಾವುದೇ UIClassMap ಅನ್ನು ಹೊಂದಿಸಲಾಗಿಲ್ಲ. ಅಪ್ಲಿಕೇಶನ್ ಪ್ರಾರಂಭದಲ್ಲಿ ಸ್ಟೈಲಿಂಗ್ ಲೈಬ್ರರಿ ಅನುಷ್ಠಾನದೊಂದಿಗೆ (ಉದಾ, @molecule/app-ui-tailwind) setClassMap() ಗೆ ಕರೆ ಮಾಡಿ.',
 }

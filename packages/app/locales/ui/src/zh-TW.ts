@@ -51,4 +51,6 @@ export const zhTW: UiTranslations = {
   'prompt.confirm': '確認',
   'ui.form.submitError': '提交失敗，請重試。',
   'userMenu.panelLabel': '帳戶選單',
+  'ui.error.noClassMap':
+    '尚未設定 UIClassMap。請在應用程式啟動時使用樣式庫實作（例如，@molecule/app-ui-tailwind）呼叫 setClassMap()。',
 }

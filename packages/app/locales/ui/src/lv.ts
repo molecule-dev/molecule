@@ -51,4 +51,6 @@ export const lv: UiTranslations = {
   'prompt.confirm': 'Apstiprināt',
   'ui.form.submitError': 'Nevar iesniegt. Lūdzu, mēģiniet vēlreiz.',
   'userMenu.panelLabel': 'Konta izvēlne',
+  'ui.error.noClassMap':
+    'Nav iestatīts UIClassMap. Lietotnes startēšanas laikā izsauciet funkciju setClassMap() ar stila bibliotēkas ieviešanu (piemēram, @molecule/app-ui-tailwind).',
 }

@@ -61,4 +61,6 @@ export const ne: UiTranslations = {
   'prompt.confirm': 'पुष्टि गर्नुहोस्',
   'ui.form.submitError': 'पेश गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।',
   'userMenu.panelLabel': 'खाता मेनु',
+  'ui.error.noClassMap':
+    'कुनै पनि UIClassMap सेट गरिएको छैन। स्टाइलिङ लाइब्रेरी कार्यान्वयन (जस्तै, @molecule/app-ui-tailwind) सँग एप स्टार्टअपमा setClassMap() लाई कल गर्नुहोस्।',
 }

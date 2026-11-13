@@ -51,4 +51,6 @@ export const sq: UiTranslations = {
   'prompt.confirm': 'Konfirmo',
   'ui.form.submitError': 'Nuk mund të dërgohet. Ju lutemi provoni përsëri.',
   'userMenu.panelLabel': 'Menuja e llogarisë',
+  'ui.error.noClassMap':
+    'Nuk është vendosur UIClassMap. Thirrni setClassMap() në nisjen e aplikacionit me një implementim të bibliotekës së stilimit (p.sh., @molecule/app-ui-tailwind).',
 }

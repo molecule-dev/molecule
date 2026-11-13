@@ -51,4 +51,6 @@ export const sw: UiTranslations = {
   'prompt.confirm': 'Thibitisha',
   'ui.form.submitError': 'Haiwezi kuwasilisha. Tafadhali jaribu tena.',
   'userMenu.panelLabel': 'Menyu ya akaunti',
+  'ui.error.noClassMap':
+    'Hakuna UIClassMap iliyowekwa. Piga simu setClassMap() wakati programu inapoanza kwa kutumia usanidi wa maktaba (km, @molecule/app-ui-tailwind).',
 }

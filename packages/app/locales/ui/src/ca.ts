@@ -51,4 +51,6 @@ export const ca: Partial<UiTranslations> = {
   'prompt.confirm': 'Confirma',
   'ui.form.submitError': "No s'ha pogut enviar. Torna-ho a intentar.",
   'userMenu.panelLabel': 'Menú del compte',
+  'ui.error.noClassMap':
+    "No s'ha definit cap UIClassMap. Crida setClassMap() a l'inici de l'aplicació amb una implementació de biblioteca d'estils (per exemple, @molecule/app-ui-tailwind).",
 }

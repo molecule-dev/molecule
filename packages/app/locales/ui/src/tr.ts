@@ -51,4 +51,6 @@ export const tr: Partial<UiTranslations> = {
   'prompt.confirm': 'Onayla',
   'ui.form.submitError': 'Gönderilemedi. Lütfen tekrar deneyin.',
   'userMenu.panelLabel': 'Hesap menüsü',
+  'ui.error.noClassMap':
+    'Hiçbir UIClassMap ayarlanmadı. Uygulama başlatılırken, bir stil kütüphanesi uygulamasıyla (örneğin, @molecule/app-ui-tailwind) setClassMap() işlevini çağırın.',
 }

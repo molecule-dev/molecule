@@ -51,4 +51,6 @@ export const fa: UiTranslations = {
   'prompt.confirm': 'تأیید',
   'ui.form.submitError': 'ارسال مقدور نیست. لطفا دوباره امتحان کنید.',
   'userMenu.panelLabel': 'منوی حساب کاربری',
+  'ui.error.noClassMap':
+    'هیچ UIClassMap تنظیم نشده است. در هنگام راه‌اندازی برنامه با پیاده‌سازی کتابخانه استایل‌بندی (مثلاً @molecule/app-ui-tailwind)، تابع setClassMap() را فراخوانی کنید.',
 }

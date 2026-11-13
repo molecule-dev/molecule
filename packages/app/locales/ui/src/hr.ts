@@ -51,4 +51,6 @@ export const hr: UiTranslations = {
   'prompt.confirm': 'Potvrdi',
   'ui.form.submitError': 'Nije moguće poslati. Pokušajte ponovno.',
   'userMenu.panelLabel': 'Izbornik računa',
+  'ui.error.noClassMap':
+    'Nije postavljen UIClassMap. Pozovite setClassMap() pri pokretanju aplikacije s implementacijom biblioteke za stiliziranje (npr. @molecule/app-ui-tailwind).',
 }

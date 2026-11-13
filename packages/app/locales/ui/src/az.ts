@@ -51,4 +51,6 @@ export const az: UiTranslations = {
   'prompt.confirm': 'Təsdiqləyin',
   'ui.form.submitError': 'Təqdim etmək mümkün deyil. Zəhmət olmasa, yenidən cəhd edin.',
   'userMenu.panelLabel': 'Hesab menyusu',
+  'ui.error.noClassMap':
+    'UIClassMap təyin edilməyib. Tətbiqin başlanğıcında stil kitabxanası tətbiqi ilə (məsələn, @molecule/app-ui-tailwind) setClassMap() funksiyasını çağırın.',
 }

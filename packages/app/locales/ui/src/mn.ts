@@ -57,4 +57,6 @@ export const mn: UiTranslations = {
   'prompt.confirm': 'Баталгаажуулах',
   'ui.form.submitError': 'Илгээх боломжгүй байна. Дахин оролдоно уу.',
   'userMenu.panelLabel': 'Бүртгэлийн цэс',
+  'ui.error.noClassMap':
+    'UIClassMap тохируулагдаагүй байна. Апп эхлүүлэх үед загварчлалын сангийн хэрэгжүүлэлттэй (жишээ нь, @molecule/app-ui-tailwind) setClassMap() функцийг дуудна уу.',
 }

@@ -51,4 +51,6 @@ export const af: UiTranslations = {
   'prompt.confirm': 'Bevestig',
   'ui.form.submitError': 'Kon nie indien nie. Probeer asseblief weer.',
   'userMenu.panelLabel': 'Rekeningkieslys',
+  'ui.error.noClassMap':
+    "Geen UIClassMap is gestel nie. Roep setClassMap() aan tydens die opstart van die toepassing met 'n stileringsbiblioteekimplementering (bv. @molecule/app-ui-tailwind).",
 }

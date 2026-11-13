@@ -51,4 +51,6 @@ export const lt: UiTranslations = {
   'prompt.confirm': 'Patvirtinti',
   'ui.form.submitError': 'Nepavyko pateikti. Bandykite dar kartą.',
   'userMenu.panelLabel': 'Paskyros meniu',
+  'ui.error.noClassMap':
+    'Nenustatytas UIClassMap. Paleidžiant programą, iškvieskite setClassMap() funkciją su stiliaus bibliotekos įgyvendinimu (pvz., @molecule/app-ui-tailwind).',
 }

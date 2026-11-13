@@ -51,4 +51,6 @@ export const yo: UiTranslations = {
   'prompt.confirm': 'Jẹ́rìísí',
   'ui.form.submitError': 'Kò le fi silẹ. Jọwọ gbiyanju lẹẹkansi.',
   'userMenu.panelLabel': 'Àtòjọ àkọọ́lẹ̀',
+  'ui.error.noClassMap':
+    'Kò sí UIClassMap tí a ti ṣètò. Pe setClassMap() ní ìbẹ̀rẹ̀ ìṣàfilọ́lẹ̀ àpù pẹ̀lú ìgbékalẹ̀ ìkàwé àṣà (fún àpẹẹrẹ, @molecule/app-ui-tailwind).',
 }

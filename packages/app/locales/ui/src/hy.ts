@@ -56,4 +56,6 @@ export const hy: UiTranslations = {
   'prompt.confirm': 'Հաստատել',
   'ui.form.submitError': 'Անհնար է ուղարկել։ Խնդրում ենք կրկին փորձել։',
   'userMenu.panelLabel': 'Հաշվի ցանկ',
+  'ui.error.noClassMap':
+    'UIClassMap-ը սահմանված չէ: Կանչեք setClassMap() ֆունկցիան ծրագրի գործարկման ժամանակ՝ ոճավորման գրադարանի իրականացմամբ (օրինակ՝ @molecule/app-ui-tailwind):',
 }

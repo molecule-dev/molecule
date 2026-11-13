@@ -56,4 +56,6 @@ export const pa: UiTranslations = {
   'prompt.confirm': 'ਪੁਸ਼ਟੀ ਕਰੋ',
   'ui.form.submitError': 'ਸਪੁਰਦ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
   'userMenu.panelLabel': 'ਖਾਤਾ ਮੀਨੂ',
+  'ui.error.noClassMap':
+    "ਕੋਈ UIClassMap ਸੈੱਟ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ। ਸਟਾਈਲਿੰਗ ਲਾਇਬ੍ਰੇਰੀ ਲਾਗੂਕਰਨ (ਜਿਵੇਂ ਕਿ, @molecule/app-ui-tailwind) ਦੇ ਨਾਲ ਐਪ ਸਟਾਰਟਅੱਪ 'ਤੇ setClassMap() ਨੂੰ ਕਾਲ ਕਰੋ।",
 }

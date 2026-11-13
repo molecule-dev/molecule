@@ -51,4 +51,6 @@ export const gl: UiTranslations = {
   'prompt.confirm': 'Confirmar',
   'ui.form.submitError': 'Non se pode enviar. Téntao de novo.',
   'userMenu.panelLabel': 'Menú da conta',
+  'ui.error.noClassMap':
+    'Non se estableceu ningún UIClassMap. Chama a setClassMap() ao iniciar a aplicación cunha implementación dunha biblioteca de estilos (por exemplo, @molecule/app-ui-tailwind).',
 }

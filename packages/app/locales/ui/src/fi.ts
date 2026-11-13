@@ -51,4 +51,6 @@ export const fi: Partial<UiTranslations> = {
   'prompt.confirm': 'Vahvistaa',
   'ui.form.submitError': 'Lähetys epäonnistui. Yritä uudelleen.',
   'userMenu.panelLabel': 'Tilivalikko',
+  'ui.error.noClassMap':
+    'UIClassMapia ei ole asetettu. Kutsu setClassMap()-funktiota sovelluksen käynnistyksen yhteydessä tyylikirjaston toteutuksella (esim. @molecule/app-ui-tailwind).',
 }

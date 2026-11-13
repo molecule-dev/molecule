@@ -51,4 +51,6 @@ export const be: UiTranslations = {
   'prompt.confirm': 'Пацвердзіць',
   'ui.form.submitError': 'Немагчыма адправіць. Паўтарыце спробу.',
   'userMenu.panelLabel': 'Меню ўліковага запісу',
+  'ui.error.noClassMap':
+    'UIClassMap не быў зададзены. Выклікайце setClassMap() пры запуску праграмы з рэалізацыяй бібліятэкі стыляў (напрыклад, @molecule/app-ui-tailwind).',
 }

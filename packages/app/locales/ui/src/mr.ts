@@ -56,4 +56,6 @@ export const mr: UiTranslations = {
   'prompt.confirm': 'पुष्टी करा',
   'ui.form.submitError': 'सबमिट करता आले नाही. कृपया पुन्हा प्रयत्न करा.',
   'userMenu.panelLabel': 'खाते मेनू',
+  'ui.error.noClassMap':
+    'कोणताही UIClassMap सेट केलेला नाही. अॅप सुरू होताना स्टायलिंग लायब्ररीच्या अंमलबजावणीसह (उदा., @molecule/app-ui-tailwind) setClassMap() ला कॉल करा.',
 }

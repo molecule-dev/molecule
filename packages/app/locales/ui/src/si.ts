@@ -56,4 +56,6 @@ export const si: UiTranslations = {
   'prompt.confirm': 'තහවුරු කරන්න',
   'ui.form.submitError': 'ඉදිරිපත් කළ නොහැක. කරුණාකර නැවත උත්සාහ කරන්න.',
   'userMenu.panelLabel': 'ගිණුම් මෙනුව',
+  'ui.error.noClassMap':
+    'UIClassMap සකසා නොමැත. යෙදුම් ආරම්භයේදී ස්ටයිලිං පුස්තකාල ක්‍රියාත්මක කිරීමක් සමඟින් setClassMap() අමතන්න (උදා: @molecule/app-ui-tailwind).',
 }

@@ -51,4 +51,6 @@ export const hu: Partial<UiTranslations> = {
   'prompt.confirm': 'Megerősítés',
   'ui.form.submitError': 'Nem sikerült elküldeni. Próbáld újra.',
   'userMenu.panelLabel': 'Fiók menü',
+  'ui.error.noClassMap':
+    'Nincs beállítva UIClassMap. Hívd meg a setClassMap() függvényt az alkalmazás indításakor egy stíluskönyvtár implementációjával (pl. @molecule/app-ui-tailwind).',
 }

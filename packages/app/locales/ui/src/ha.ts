@@ -51,4 +51,6 @@ export const ha: UiTranslations = {
   'prompt.confirm': 'Tabbatar',
   'ui.form.submitError': 'Ba za a iya ƙaddamar da shi ba. Da fatan a sake gwadawa.',
   'userMenu.panelLabel': 'Menu na asusu',
+  'ui.error.noClassMap':
+    'Ba a saita UIClassMap ba. Kira setClassMap() a farkon aikace-aikacen tare da aiwatar da ɗakin karatu mai salo (misali, @molecule/app-ui-tailwind).',
 }

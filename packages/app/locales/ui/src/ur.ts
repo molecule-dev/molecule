@@ -57,4 +57,6 @@ export const ur: UiTranslations = {
   'prompt.confirm': 'تصدیق کریں۔',
   'ui.form.submitError': 'جمع کرنے سے قاصر۔ براہ کرم دوبارہ کوشش کریں۔',
   'userMenu.panelLabel': 'اکاؤنٹ مینو',
+  'ui.error.noClassMap':
+    'کوئی UIClassMap سیٹ نہیں کیا گیا ہے۔ اسٹائلنگ لائبریری کے نفاذ کے ساتھ ایپ اسٹارٹ اپ پر setClassMap() کو کال کریں (جیسے @molecule/app-ui-tailwind)۔',
 }

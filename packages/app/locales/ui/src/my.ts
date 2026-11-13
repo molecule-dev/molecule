@@ -58,4 +58,6 @@ export const my: UiTranslations = {
   'prompt.confirm': 'အတည်ပြုပါ',
   'ui.form.submitError': 'ပေးပို့၍မရပါ။ ထပ်မံကြိုးစားပါ။',
   'userMenu.panelLabel': 'အကောင့်မီနူး',
+  'ui.error.noClassMap':
+    'UIClassMap ကို မသတ်မှတ်ရသေးပါ။ အက်ပ်စတင်ချိန်တွင် styling library implementation (ဥပမာ၊ @molecule/app-ui-tailwind) ဖြင့် setClassMap() ကို ခေါ်ပါ။',
 }

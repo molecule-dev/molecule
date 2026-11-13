@@ -58,4 +58,6 @@ export const ka: UiTranslations = {
   'prompt.confirm': 'დადასტურება',
   'ui.form.submitError': 'გაგზავნა შეუძლებელია. გთხოვთ, სცადოთ ხელახლა.',
   'userMenu.panelLabel': 'ანგარიშის მენიუ',
+  'ui.error.noClassMap':
+    'UIClassMap არ არის დაყენებული. აპლიკაციის გაშვებისას გამოიძახეთ setClassMap() სტილის ბიბლიოთეკის იმპლემენტაციით (მაგ., @molecule/app-ui-tailwind).',
 }

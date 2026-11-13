@@ -51,4 +51,6 @@ export const id: Partial<UiTranslations> = {
   'prompt.confirm': 'Konfirmasi',
   'ui.form.submitError': 'Tidak dapat mengirimkan. Silakan coba lagi.',
   'userMenu.panelLabel': 'Menu Akun',
+  'ui.error.noClassMap':
+    'Belum ada UIClassMap yang diatur. Panggil setClassMap() saat aplikasi dimulai dengan implementasi pustaka styling (misalnya, @molecule/app-ui-tailwind).',
 }

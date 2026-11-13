@@ -51,4 +51,6 @@ export const mt: UiTranslations = {
   'prompt.confirm': 'Ikkonferma',
   'ui.form.submitError': "Ma tistax tissottometti. Jekk jogħġbok erġa' pprova.",
   'userMenu.panelLabel': 'Menù tal-Kont',
+  'ui.error.noClassMap':
+    "Ma ġiex issettjat UIClassMap. Sejjaħ setClassMap() fil-bidu tal-app b'implimentazzjoni ta' librerija tal-istil (eż., @molecule/app-ui-tailwind).",
 }

@@ -51,4 +51,6 @@ export const et: UiTranslations = {
   'prompt.confirm': 'Kinnita',
   'ui.form.submitError': 'Esitamine ebaõnnestus. Palun proovige uuesti.',
   'userMenu.panelLabel': 'Konto menüü',
+  'ui.error.noClassMap':
+    'UIClassMap-i pole määratud. Rakenda rakenduse käivitamisel funktsiooni setClassMap() abil, kasutades stiiliteegi implementatsiooni (nt @molecule/app-ui-tailwind).',
 }

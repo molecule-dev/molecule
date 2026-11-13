@@ -58,4 +58,6 @@ export const ru: UiTranslations = {
   'prompt.confirm': 'Подтверждать',
   'ui.form.submitError': 'Не удалось отправить. Пожалуйста, попробуйте еще раз.',
   'userMenu.panelLabel': 'Меню учетной записи',
+  'ui.error.noClassMap':
+    'Класс UIClassMap не установлен. Вызовите метод setClassMap() при запуске приложения, используя реализацию библиотеки стилей (например, @molecule/app-ui-tailwind).',
 }

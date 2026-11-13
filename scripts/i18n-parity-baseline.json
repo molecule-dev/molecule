@@ -128,7 +128,6 @@
     "app/network::network.error.noProvider",
     "app/notification-center::notifications.loadError",
     "app/notification-center::notifications.retry",
-    "app/react-native-ui|app/react-ui|app/solid-ui|app/ui::ui.error.noClassMap",
     "app/splash-screen::splashScreen.error.missingDependency",
     "app/stage-timeline::stageTimeline.stage",
     "app/status-bar::statusBar.error.missingDependency",

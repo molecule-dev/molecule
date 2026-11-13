@@ -57,4 +57,6 @@ export const sr: UiTranslations = {
   'prompt.confirm': 'Потврди',
   'ui.form.submitError': 'Није могуће послати. Молимо покушајте поново.',
   'userMenu.panelLabel': 'Мени налога',
+  'ui.error.noClassMap':
+    'Није подешен UIClassMap. Позовите setClassMap() при покретању апликације са имплементацијом библиотеке за стилизовање (нпр. @molecule/app-ui-tailwind).',
 }

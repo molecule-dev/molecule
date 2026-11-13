@@ -57,4 +57,6 @@ export const te: UiTranslations = {
   'prompt.confirm': 'నిర్ధారించండి',
   'ui.form.submitError': 'సమర్పించలేకపోతున్నాము. దయచేసి మళ్ళీ ప్రయత్నించండి.',
   'userMenu.panelLabel': 'ఖాతా మెనూ',
+  'ui.error.noClassMap':
+    'UIClassMap ఏదీ సెట్ చేయబడలేదు. యాప్ ప్రారంభంలో స్టైలింగ్ లైబ్రరీ ఇంప్లిమెంటేషన్‌తో (ఉదా, @molecule/app-ui-tailwind) setClassMap()ని కాల్ చేయండి.',
 }

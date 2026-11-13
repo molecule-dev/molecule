@@ -51,4 +51,6 @@ export const is: UiTranslations = {
   'prompt.confirm': 'Staðfesta',
   'ui.form.submitError': 'Ekki tókst að senda inn. Reyndu aftur.',
   'userMenu.panelLabel': 'Reikningsvalmynd',
+  'ui.error.noClassMap':
+    'Engin UIClassMap hefur verið stillt. Kallaðu á setClassMap() við ræsingu forritsins með útfærslu á stílbókasafni (t.d. @molecule/app-ui-tailwind).',
 }

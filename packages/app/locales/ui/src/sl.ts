@@ -51,4 +51,6 @@ export const sl: UiTranslations = {
   'prompt.confirm': 'Potrdi',
   'ui.form.submitError': 'Ni mogoče poslati. Poskusite znova.',
   'userMenu.panelLabel': 'Meni računa',
+  'ui.error.noClassMap':
+    'UIClassMap ni bil nastavljen. Ob zagonu aplikacije pokličite setClassMap() z implementacijo knjižnice za oblikovanje (npr. @molecule/app-ui-tailwind).',
 }

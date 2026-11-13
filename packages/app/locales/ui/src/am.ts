@@ -51,4 +51,6 @@ export const am: UiTranslations = {
   'prompt.confirm': 'አረጋግጥ',
   'ui.form.submitError': 'ማስገባት አልተቻለም። እባክዎ እንደገና ይሞክሩ።',
   'userMenu.panelLabel': 'የመለያ ምናሌ',
+  'ui.error.noClassMap':
+    'ምንም UIClassMap አልተዘጋጀም። በቅጥ ቤተ-መጽሐፍት ትግበራ (ለምሳሌ @molecule/app-ui-tailwind) በመተግበሪያ ጅምር ላይ setClassMap() ይደውሉ።',
 }

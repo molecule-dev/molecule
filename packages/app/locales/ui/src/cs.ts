@@ -51,4 +51,6 @@ export const cs: Partial<UiTranslations> = {
   'prompt.confirm': 'Potvrdit',
   'ui.form.submitError': 'Nelze odeslat. Zkuste to prosím znovu.',
   'userMenu.panelLabel': 'Nabídka účtu',
+  'ui.error.noClassMap':
+    'Nebyla nastavena žádná proměnná UIClassMap. Při spuštění aplikace volejte funkci setClassMap() s implementací stylingové knihovny (např. @molecule/app-ui-tailwind).',
 }

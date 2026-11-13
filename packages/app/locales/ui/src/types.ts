@@ -49,6 +49,7 @@ export type UiTranslationKey =
   | 'prompt.confirm'
   | 'ui.form.submitError'
   | 'userMenu.panelLabel'
+  | 'ui.error.noClassMap'
 
 /** Translation record mapping ui keys to translated strings. */
 export type UiTranslations = Record<UiTranslationKey, string>

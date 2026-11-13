@@ -51,4 +51,6 @@ export const zh: Partial<UiTranslations> = {
   'prompt.confirm': '确认',
   'ui.form.submitError': '提交失败，请重试。',
   'userMenu.panelLabel': '帐户菜单',
+  'ui.error.noClassMap':
+    '尚未设置 UIClassMap。请在应用启动时使用样式库实现（例如，@molecule/app-ui-tailwind）调用 setClassMap()。',
 }

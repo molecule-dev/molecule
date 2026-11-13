@@ -51,4 +51,6 @@ export const gu: UiTranslations = {
   'prompt.confirm': 'પુષ્ટિ કરો',
   'ui.form.submitError': 'સબમિટ કરવામાં અસમર્થ. કૃપા કરીને ફરી પ્રયાસ કરો.',
   'userMenu.panelLabel': 'એકાઉન્ટ મેનૂ',
+  'ui.error.noClassMap':
+    'કોઈ UIClassMap સેટ કરવામાં આવ્યો નથી. સ્ટાઇલિંગ લાઇબ્રેરી અમલીકરણ (દા.ત., @molecule/app-ui-tailwind) સાથે એપ્લિકેશન સ્ટાર્ટઅપ પર setClassMap() ને કૉલ કરો.',
 }

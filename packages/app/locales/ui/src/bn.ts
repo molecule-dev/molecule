@@ -51,4 +51,6 @@ export const bn: UiTranslations = {
   'prompt.confirm': 'নিশ্চিত করুন',
   'ui.form.submitError': 'জমা দেওয়া সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন।',
   'userMenu.panelLabel': 'অ্যাকাউন্ট মেনু',
+  'ui.error.noClassMap':
+    'কোনো UIClassMap সেট করা হয়নি। অ্যাপ চালুর সময় একটি স্টাইলিং লাইব্রেরি ইমপ্লিমেন্টেশন (যেমন, @molecule/app-ui-tailwind) ব্যবহার করে setClassMap() কল করুন।',
 }

@@ -51,4 +51,6 @@ export const el: Partial<UiTranslations> = {
   'prompt.confirm': 'Επιβεβαιώνω',
   'ui.form.submitError': 'Δεν είναι δυνατή η υποβολή. Δοκιμάστε ξανά.',
   'userMenu.panelLabel': 'Μενού λογαριασμού',
+  'ui.error.noClassMap':
+    'Δεν έχει οριστεί UIClassMap. Καλέστε την setClassMap() κατά την εκκίνηση της εφαρμογής με μια υλοποίηση βιβλιοθήκης στυλ (π.χ., @molecule/app-ui-tailwind).',
 }

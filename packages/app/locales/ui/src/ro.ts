@@ -51,4 +51,6 @@ export const ro: Partial<UiTranslations> = {
   'prompt.confirm': 'Confirma',
   'ui.form.submitError': 'Nu se poate trimite. Vă rugăm să încercați din nou.',
   'userMenu.panelLabel': 'Meniul Cont',
+  'ui.error.noClassMap':
+    'Nu a fost setată nicio UIClassMap. Apelați setClassMap() la pornirea aplicației cu o implementare a unei biblioteci de stiluri (de exemplu, @molecule/app-ui-tailwind).',
 }

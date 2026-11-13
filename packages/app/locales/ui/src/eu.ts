@@ -51,4 +51,6 @@ export const eu: UiTranslations = {
   'prompt.confirm': 'Berretsi',
   'ui.form.submitError': 'Ezin da bidali. Saiatu berriro.',
   'userMenu.panelLabel': 'Kontuaren menua',
+  'ui.error.noClassMap':
+    'Ez da UIClassMap-ik ezarri. Deitu setClassMap() aplikazioa abiaraztean estilo liburutegi baten inplementazio batekin (adibidez, @molecule/app-ui-tailwind).',
 }

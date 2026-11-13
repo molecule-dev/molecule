@@ -51,4 +51,6 @@ export const bg: UiTranslations = {
   'prompt.confirm': 'Потвърди',
   'ui.form.submitError': 'Не може да се изпрати. Моля, опитайте отново.',
   'userMenu.panelLabel': 'Меню на акаунта',
+  'ui.error.noClassMap':
+    'Не е зададен UIClassMap. Извикайте setClassMap() при стартиране на приложението с имплементация на библиотека за стилизиране (напр. @molecule/app-ui-tailwind).',
 }

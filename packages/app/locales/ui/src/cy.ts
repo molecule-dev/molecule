@@ -51,4 +51,6 @@ export const cy: Partial<UiTranslations> = {
   'prompt.confirm': 'Cadarnhau',
   'ui.form.submitError': 'Methu cyflwyno. Rhowch gynnig arall arni.',
   'userMenu.panelLabel': 'Dewislen cyfrif',
+  'ui.error.noClassMap':
+    "Nid oes UIClassMap wedi'i osod. Galwch setClassMap() wrth gychwyn yr ap gyda gweithrediad llyfrgell steilio (e.e., @molecule/app-ui-tailwind).",
 }

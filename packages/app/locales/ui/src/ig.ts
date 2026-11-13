@@ -51,4 +51,6 @@ export const ig: UiTranslations = {
   'prompt.confirm': 'Kwenye',
   'ui.form.submitError': 'Enweghị ike izipu ya. Biko nwaa ọzọ.',
   'userMenu.panelLabel': 'Ndepụta akaụntụ',
+  'ui.error.noClassMap':
+    'E tinyebeghị UIClassMap ọ bụla. Kpọọ setClassMap() na mmalite ngwa site na iji usoro nhazi (dịka ọmụmaatụ, @molecule/app-ui-tailwind).',
 }

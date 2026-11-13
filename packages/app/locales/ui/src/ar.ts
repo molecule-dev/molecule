@@ -51,4 +51,6 @@ export const ar: Partial<UiTranslations> = {
   'prompt.confirm': 'تأكيد',
   'ui.form.submitError': 'تعذر الإرسال. يرجى المحاولة مرة أخرى.',
   'userMenu.panelLabel': 'قائمة الحساب',
+  'ui.error.noClassMap':
+    'لم يتم تعيين أي UIClassMap. قم باستدعاء setClassMap() عند بدء تشغيل التطبيق باستخدام تطبيق مكتبة التنسيق (على سبيل المثال، @molecule/app-ui-tailwind).',
 }
