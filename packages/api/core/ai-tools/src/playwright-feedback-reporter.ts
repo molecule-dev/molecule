@@ -19,6 +19,11 @@ export function feedbackReporterSource(): string {
 const fs = require('node:fs');
 module.exports = class FeedbackReporter {
   onTestEnd(test, result) {
+    if (!process.env.MOL_TEST_FEEDBACK_EVENTS) return;
+    if (result.status === 'passed' && test.expectedStatus === 'passed') {
+      fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS, JSON.stringify({id: test.id, passed: true}) + '\n');
+      return;
+    }
     if (result.status === test.expectedStatus || !['failed','timedOut'].includes(result.status)) return;
     const errors = result.errors || [];
     const error = errors.map(e => e.message || '').join('\n');
@@ -35,30 +40,34 @@ module.exports = class FeedbackReporter {
         if (section) rendered = section.split(fence)[1]?.split('\n').slice(1).join('\n').trim().slice(0, 2000);
       }
     } catch {}
-    if (process.env.MOL_TEST_FEEDBACK_EVENTS) fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS,
+    fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS,
       JSON.stringify({id: test.id, spec: location.file, line: location.line, error: error.slice(0, 6000), rendered}) + '\n');
   }
 };`
 }
 
 /**
- * The ids of the tests the reporter saw fail, in the form Playwright's own last-run record
- * (`.last-run.json` `failedTests`) uses, so a run stopped before it finished still names them.
+ * The ids of the tests the reporter saw end, by outcome, in the form Playwright's own last-run
+ * record (`.last-run.json` `failedTests`) uses, so a run stopped before it finished still says
+ * which tests failed and which passed.
  * @param text - Reporter JSONL; an incomplete final line waits for the next read.
- * @returns Distinct test ids, in failure order.
+ * @returns Distinct test ids per outcome, in the order the tests ended.
  */
-export function nativeFailedTestIds(text: string): string[] {
-  const ids = new Set<string>()
-  if (text.length > 1_000_000) return []
+export function nativeTestOutcomes(text: string): { failed: string[]; passed: string[] } {
+  const failed = new Set<string>()
+  const passed = new Set<string>()
+  if (text.length > 1_000_000) return { failed: [], passed: [] }
   for (const line of text.split('\n').slice(0, -1)) {
     try {
-      const id = (JSON.parse(line) as { id?: unknown }).id
-      if (typeof id === 'string' && id && id.length <= 200) ids.add(id)
+      const event = JSON.parse(line) as { id?: unknown; passed?: unknown; error?: unknown }
+      if (typeof event.id !== 'string' || !event.id || event.id.length > 200) continue
+      if (event.passed === true) passed.add(event.id)
+      else if (typeof event.error === 'string') failed.add(event.id)
     } catch (_error) {
       /* not a completed native event */
     }
   }
-  return [...ids]
+  return { failed: [...failed], passed: [...passed] }
 }
 
 /**

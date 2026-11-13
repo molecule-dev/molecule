@@ -60,6 +60,11 @@ export interface PlaywrightFeedbackResult {
    */
   lastRun?: string
   /**
+   * The ids of the tests a `cancelled` run saw pass before it stopped, in the same form as
+   * {@link lastRun}'s. They leave the spec's known failures; tests it never reached stay as known.
+   */
+  passedTests?: string[]
+  /**
    * `last-failed` when the run selected only the tests an earlier run's record names. Its pass
    * clears those failures; it never stands for the whole file.
    */

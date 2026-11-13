@@ -16,8 +16,8 @@ import { posix } from 'node:path'
 import { feedbackProcessSource } from './playwright-feedback-process.js'
 import {
   feedbackReporterSource,
-  nativeFailedTestIds,
   nativeFeedbackFailures,
+  nativeTestOutcomes,
 } from './playwright-feedback-reporter.js'
 import { selectFeedbackSpecs } from './playwright-feedback-selection.js'
 import type {
@@ -131,17 +131,27 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
     if (result.lastRun) failedRecords.set(path, result.lastRun)
     else failedRecords.delete(path)
   }
-  // A run stopped before it finished names only the tests it saw fail. They join the spec's
-  // known failures; the tests it never reached keep whatever the older record said about them.
+  // A run stopped before it finished reports only the tests it reached. A known failure is a test
+  // whose latest run failed: the tests it saw fail join the record, the ones it saw pass leave it,
+  // and the tests it never reached keep whatever the older record said about them.
   const rememberStopped = (path: string, result: PlaywrightFeedbackResult): void => {
-    if (!result.lastRun) return
-    failing.add(path)
+    const failedNow = result.lastRun ? recordedTestIds(result.lastRun) : []
+    const passedNow = new Set(result.passedTests ?? [])
+    if (!failedNow.length && !passedNow.size) return
     const known = failedRecords.get(path)
     const merged = failedTestsRecord([
-      ...(known ? recordedTestIds(known) : []),
-      ...recordedTestIds(result.lastRun),
+      ...(known ? recordedTestIds(known) : []).filter((id) => !passedNow.has(id)),
+      ...failedNow,
     ])
-    if (merged) failedRecords.set(path, merged)
+    if (merged) {
+      failing.add(path)
+      failedRecords.set(path, merged)
+    } else if (known) {
+      // Every test the record named has passed since, and none failed: nothing is known to fail.
+      // A file known to fail without a record keeps that status; nothing here says which test.
+      failing.delete(path)
+      failedRecords.delete(path)
+    }
   }
   const revisionSources = new Set<string>()
   // Attempts determine fairness, not coverage. A foreground tool may interrupt a long file
@@ -566,10 +576,13 @@ export async function runPlaywrightFeedback(
   const emitted = new Set<string>()
   const nativeFailures = new Map<string, PlaywrightFeedbackFailure>()
   const failedIds = new Set<string>()
+  const passedIds = new Set<string>()
   const readEvents = async (): Promise<void> => {
     try {
       const text = await backend.readFile(eventsPath)
-      for (const id of nativeFailedTestIds(text)) failedIds.add(id)
+      const ended = nativeTestOutcomes(text)
+      for (const id of ended.failed) failedIds.add(id)
+      for (const id of ended.passed) passedIds.add(id)
       for (const failure of nativeFeedbackFailures(text, sourceFiles)) {
         const identity = JSON.stringify(failure)
         nativeFailures.set(identity, failure)
@@ -589,14 +602,19 @@ export async function runPlaywrightFeedback(
   }
   // A run stopped before it finished (cancelled, or yielded to the sandbox's own foreground
   // work) writes no last-run record. Its reporter already named each failed test, so the result
-  // carries a record of exactly those, in the runner's own shape.
+  // carries a record of exactly those, in the runner's own shape, and the ids of the tests it
+  // saw pass.
   const stoppedEarly = async (): Promise<PlaywrightFeedbackResult> => {
     done = true
     if (poll) clearTimeout(poll)
     if (reading) await reading
     await readEvents()
     const record = failedTestsRecord([...failedIds])
-    return { ...cancelled(), ...(record ? { lastRun: record } : {}) }
+    return {
+      ...cancelled(),
+      ...(record ? { lastRun: record } : {}),
+      ...(passedIds.size ? { passedTests: [...passedIds] } : {}),
+    }
   }
   const tick = (): void => {
     if (done) return

@@ -234,6 +234,78 @@ describe('known-failures checkpoint', () => {
     expect(foregroundCalls(f.run).map((call) => call[6])).toEqual([RECORD])
   })
 
+  it('drops tests a later paused run saw pass, and the file once none is left (P348, 2026-11-13)', async () => {
+    // A file failed whole before its feature existed; later runs passed those tests but were paused
+    // before they finished, so the checkpoint re-ran all nine at the deploy.
+    const early = JSON.stringify({
+      status: 'failed',
+      failedTests: ['3f1c-reschedule', '9a0e-cancel'],
+    })
+    let background = 0
+    const f = fixture(async (_spec, _files, revision, _emit, signal, mode, lastRun) => {
+      if (mode === 'foreground')
+        return result(revision, 'passed', lastRun ? { selection: 'last-failed' } : {})
+      background++
+      if (background === 1) return result(revision, 'failed', { lastRun: early })
+      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
+      return result(revision, 'cancelled', {
+        passedTests: background === 2 ? ['3f1c-reschedule'] : ['9a0e-cancel', '1b2d-list'],
+      })
+    })
+    f.watcher.changed(['/clinic/src/Calendar.tsx'])
+    await f.watcher.settled()
+    f.watcher.changed(['/clinic/src/Calendar.tsx'])
+    await vi.waitFor(() => expect(background).toBe(2))
+    await f.watcher.check({ failedOnly: true })
+    expect(foregroundCalls(f.run).map((call) => call[6])).toEqual([
+      JSON.stringify({ status: 'failed', failedTests: ['9a0e-cancel'] }),
+    ])
+  })
+
+  it('stops knowing a file as failing once a paused run passed every test its record named', async () => {
+    const early = JSON.stringify({
+      status: 'failed',
+      failedTests: ['3f1c-reschedule', '9a0e-cancel'],
+    })
+    let background = 0
+    const f = fixture(async (_spec, _files, revision, _emit, signal, mode) => {
+      if (mode === 'foreground') return result(revision, 'passed')
+      if (++background === 1) return result(revision, 'failed', { lastRun: early })
+      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
+      return result(revision, 'cancelled', { passedTests: ['3f1c-reschedule', '9a0e-cancel'] })
+    })
+    f.watcher.changed(['/clinic/src/Calendar.tsx'])
+    await f.watcher.settled()
+    expect(f.watcher.failingSpecs()).toEqual([SPEC])
+    f.watcher.changed(['/clinic/src/Calendar.tsx'])
+    await vi.waitFor(() => expect(background).toBe(2))
+    expect(await f.watcher.check({ failedOnly: true })).toEqual([])
+    expect(foregroundCalls(f.run)).toHaveLength(0)
+    expect(f.watcher.failingSpecs()).toEqual([])
+  })
+
+  it('keeps a file known-failing without a record, whatever a paused run passed', async () => {
+    let background = 0
+    const f = fixture(async (_spec, _files, revision, emit, signal, mode) => {
+      if (mode === 'foreground') return result(revision, 'passed')
+      background++
+      if (background === 1) {
+        // An older runner: a failure, and no last-run record.
+        emit(result(revision, 'failed'))
+        return result(revision, 'failed')
+      }
+      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
+      return result(revision, 'cancelled', { passedTests: ['3f1c-reschedule'] })
+    })
+    f.watcher.changed(['/clinic/src/Calendar.tsx'])
+    await f.watcher.settled()
+    f.watcher.changed(['/clinic/src/Calendar.tsx'])
+    await vi.waitFor(() => expect(background).toBe(2))
+    await f.watcher.check({ failedOnly: true })
+    // Nothing named the failing test, so the whole file answers.
+    expect(foregroundCalls(f.run).map((call) => call.length)).toEqual([6])
+  })
+
   it('does not make a file known-failing when its paused run saw no failure', async () => {
     let started = false
     const f = fixture(async (_spec, _files, revision, _emit, signal, mode) => {
@@ -374,6 +446,9 @@ test('prints the schedule', async () => { await new Promise((r) => setTimeout(r,
     })
     expect(stopped.status).toBe('cancelled')
     expect(JSON.parse(stopped.lastRun!).failedTests).toHaveLength(1)
+    // The test that passed before the failure is named too, and is not the failed one.
+    expect(stopped.passedTests).toHaveLength(1)
+    expect(JSON.parse(stopped.lastRun!).failedTests).not.toContain(stopped.passedTests![0])
 
     await state('fixed')
     const known = await runPlaywrightFeedback(backend, slow, [], 1, {
