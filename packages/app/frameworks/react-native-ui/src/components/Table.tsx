@@ -101,7 +101,7 @@ export const Table: React.FC<TableProps<Record<string, unknown>>> = ({
         <View className={cm.tableEmptyCell}>
           <Text className={cm.textMuted}>
             {(emptyMessage as React.ReactNode) ||
-              t('ui.table.empty', undefined, { defaultValue: 'No data' })}
+              t('ui.table.empty', undefined, { defaultValue: 'No data available' })}
           </Text>
         </View>
       ) : (

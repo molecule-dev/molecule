@@ -88,7 +88,9 @@ export const Pagination: React.FC<PaginationProps> = ({
             className={cm.paginationPrevious}
             onPress={() => onChange?.(1)}
             disabled={page <= 1}
-            accessibilityLabel={t('ui.pagination.first', undefined, { defaultValue: 'First' })}
+            accessibilityLabel={t('ui.pagination.first', undefined, {
+              defaultValue: 'Go to first page',
+            })}
           >
             <Text>{t('ui.icon.chevronsLeft', undefined, { defaultValue: '«' })}</Text>
           </Pressable>
@@ -97,7 +99,9 @@ export const Pagination: React.FC<PaginationProps> = ({
           className={cm.paginationPrevious}
           onPress={() => onChange?.(page - 1)}
           disabled={page <= 1}
-          accessibilityLabel={t('ui.pagination.previous', undefined, { defaultValue: 'Previous' })}
+          accessibilityLabel={t('ui.pagination.previous', undefined, {
+            defaultValue: 'Go to previous page',
+          })}
         >
           <Text>{t('ui.icon.chevronLeft', undefined, { defaultValue: '‹' })}</Text>
         </Pressable>
@@ -129,7 +133,9 @@ export const Pagination: React.FC<PaginationProps> = ({
           className={cm.paginationNext}
           onPress={() => onChange?.(page + 1)}
           disabled={page >= totalPages}
-          accessibilityLabel={t('ui.pagination.next', undefined, { defaultValue: 'Next' })}
+          accessibilityLabel={t('ui.pagination.next', undefined, {
+            defaultValue: 'Go to next page',
+          })}
         >
           <Text>{t('ui.icon.chevronRight', undefined, { defaultValue: '›' })}</Text>
         </Pressable>
@@ -138,7 +144,9 @@ export const Pagination: React.FC<PaginationProps> = ({
             className={cm.paginationNext}
             onPress={() => onChange?.(totalPages)}
             disabled={page >= totalPages}
-            accessibilityLabel={t('ui.pagination.last', undefined, { defaultValue: 'Last' })}
+            accessibilityLabel={t('ui.pagination.last', undefined, {
+              defaultValue: 'Go to last page',
+            })}
           >
             <Text>{t('ui.icon.chevronsRight', undefined, { defaultValue: '»' })}</Text>
           </Pressable>

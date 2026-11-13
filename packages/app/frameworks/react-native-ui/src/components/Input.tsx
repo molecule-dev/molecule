@@ -95,8 +95,13 @@ export const Input = forwardRef<TextInput, InputProps>(
             accessibilityLabel={typeof label === 'string' ? label : undefined}
           />
           {clearable && !!value && (
-            <Pressable className={cm.inputClearButton} onPress={handleClear}>
-              <Text>{t('ui.input.clear', undefined, { defaultValue: '×' })}</Text>
+            <Pressable
+              className={cm.inputClearButton}
+              onPress={handleClear}
+              accessibilityRole="button"
+              accessibilityLabel={t('ui.input.clear', undefined, { defaultValue: 'Clear' })}
+            >
+              <Text>{t('ui.icon.close', undefined, { defaultValue: '✕' })}</Text>
             </Pressable>
           )}
           {!!rightElement && !clearable && (
