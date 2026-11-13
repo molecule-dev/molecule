@@ -248,6 +248,12 @@ export interface FormState<T extends FormValuesConstraint<T> = Record<string, un
   isSubmitting: boolean
 
   /**
+   * The latest rejected submission, cleared by a new submit, reset or clearErrors.
+   * Kept separately from client field validation; use the framework Form to render it.
+   */
+  submitError?: unknown
+
+  /**
    * Number of times the form has been submitted.
    */
   submitCount: number

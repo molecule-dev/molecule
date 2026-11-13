@@ -25,6 +25,9 @@
  * const onSubmit = form.handleSubmit(async (values) => {
  *   await http.post('/signup', values)   // relative path via the app HTTP client
  * })
+ * // A rejected submit remains in form.getState().submitError and still rejects
+ * // for programmatic callers. In React, <Form onSubmit={handleSubmit(save)}>
+ * // from @molecule/app-ui-react renders the server error list automatically.
  * ```
  *
  * @remarks

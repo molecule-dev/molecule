@@ -4,33 +4,63 @@
  * @module
  */
 
-import React, { forwardRef, useId } from 'react'
+import React, { forwardRef, useEffect, useId, useRef, useState } from 'react'
 
+import { t } from '@molecule/app-i18n'
 import type { FormFieldProps, FormProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { formSubmitErrorMessages } from './formSubmitError.js'
+
+/** Props for the React form, including a failure managed by an external form controller. */
+export interface ReactFormProps extends FormProps {
+  /** A rejected submission, for example useForm().formState.submitError. */
+  submitError?: unknown
+}
+
 /**
- * Form component.
+ * Form component. Rejected async handlers render an accessible server-error list by default.
+ * A new submit clears the previous failure; native action/method forms retain native submission.
  */
-export const Form = forwardRef<HTMLFormElement, FormProps>(
-  (
-    {
-      children,
-      onFormSubmit,
-      submitting,
-      className,
-      style,
-      testId,
-      onSubmit,
-      action,
-      method,
-      noValidate,
-      ...rest
+export const Form = forwardRef<HTMLFormElement, ReactFormProps>((props, ref) => {
+  const {
+    children,
+    onFormSubmit,
+    submitting,
+    submitError,
+    className,
+    style,
+    testId,
+    onSubmit,
+    action,
+    method,
+    noValidate,
+    ...rest
+  } = props
+  const cm = getClassMap()
+  const [failure, setFailure] = useState<{ error: unknown } | null>(null)
+  const [pending, setPending] = useState(false)
+  const attempt = useRef(0)
+  useEffect(
+    () => () => {
+      attempt.current++
     },
-    ref,
-  ) => {
-    const cm = getClassMap()
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    [],
+  )
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    if (!onFormSubmit && !onSubmit) return
+    const current = ++attempt.current
+    setFailure(null)
+    setPending(true)
+    try {
+      const submissions: Promise<void>[] = []
+      const call = (handler: () => void | Promise<void>): void => {
+        try {
+          submissions.push(Promise.resolve(handler()))
+        } catch (error) {
+          submissions.push(Promise.reject(error))
+        }
+      }
       if (onFormSubmit) {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
@@ -38,30 +68,56 @@ export const Form = forwardRef<HTMLFormElement, FormProps>(
         formData.forEach((value, key) => {
           data[key] = value
         })
-        onFormSubmit(data)
+        call(() => onFormSubmit(data))
       }
-      onSubmit?.(e as unknown as Event)
+      // Call both handlers before yielding: the native event's currentTarget is still valid.
+      call(() => onSubmit?.(e as unknown as Event))
+      await Promise.all(submissions)
+    } catch (error) {
+      if (attempt.current === current) setFailure({ error })
+    } finally {
+      if (attempt.current === current) setPending(false)
     }
+  }
+  const error = Object.hasOwn(props, 'submitError')
+    ? submitError === undefined
+      ? null
+      : { error: submitError }
+    : failure
+  const messages = error
+    ? formSubmitErrorMessages(
+        error.error,
+        t('ui.form.submitError', undefined, {
+          defaultValue: 'Unable to submit. Please try again.',
+        }),
+      )
+    : []
 
-    return (
-      <form
-        ref={ref}
-        className={className}
-        style={style}
-        data-testid={testId}
-        action={action}
-        method={method}
-        noValidate={noValidate}
-        onSubmit={handleSubmit}
-        {...(rest as React.FormHTMLAttributes<HTMLFormElement>)}
-      >
-        <fieldset disabled={submitting} className={cm.formFieldsetContents}>
-          {children as React.ReactNode}
-        </fieldset>
-      </form>
-    )
-  },
-)
+  return (
+    <form
+      ref={ref}
+      className={className}
+      style={style}
+      data-testid={testId}
+      action={action}
+      method={method}
+      noValidate={noValidate}
+      onSubmit={handleSubmit}
+      {...(rest as React.FormHTMLAttributes<HTMLFormElement>)}
+    >
+      {messages.length > 0 && (
+        <ul role="alert" className={cm.formError}>
+          {messages.map((message, index) => (
+            <li key={index}>{message}</li>
+          ))}
+        </ul>
+      )}
+      <fieldset disabled={submitting || pending} className={cm.formFieldsetContents}>
+        {children as React.ReactNode}
+      </fieldset>
+    </form>
+  )
+})
 
 Form.displayName = 'Form'
 

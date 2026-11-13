@@ -4,6 +4,13 @@
  * Provides React implementations of the `@molecule/app-ui` component
  * interfaces using the UIClassMap abstraction from `@molecule/app-ui`.
  *
+ * `Form` awaits `onFormSubmit(data)` or `onSubmit` (including a `useForm().handleSubmit`
+ * handler), disables its fieldset while pending, and renders rejected submissions as an
+ * accessible error list. Auth `body`, HTTP `response.data`, `data.errors` and ordinary
+ * errors are supported; entered values stay in place for retry. Handlers that catch their
+ * own failure can pass `submitError={formState.submitError}`. Key the form by record when
+ * switching records so an old pending submit cannot affect the new form.
+ *
  * Server-backed boolean actions use `OptimisticToggleButton`: pass a loaded `value`, a
  * `commit(desired)` returning the confirmed boolean, and translated `activeLabel` and
  * `inactiveLabel`. The label and pressed state change on the first tap; saves run in order

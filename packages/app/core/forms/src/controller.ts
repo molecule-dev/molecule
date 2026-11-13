@@ -56,6 +56,7 @@ export const createNativeFormProvider = (): FormProvider => {
       let touched: Partial<Record<keyof T, boolean>> = {}
       let submitCount = 0
       let isSubmitting = false
+      let submitError: unknown
       let replacementRevision = 0
       let validationOrder = 0
       let submissionVersion = 0
@@ -217,6 +218,7 @@ export const createNativeFormProvider = (): FormProvider => {
             isValid: Object.keys(errors).length === 0,
             isDirty: !formValuesEqual(values, defaultValues),
             isSubmitting,
+            ...(submitError === undefined ? {} : { submitError }),
             submitCount,
           }
         },
@@ -277,6 +279,7 @@ export const createNativeFormProvider = (): FormProvider => {
 
         clearErrors(): void {
           errors = {}
+          submitError = undefined
           notify()
         },
 
@@ -419,6 +422,9 @@ export const createNativeFormProvider = (): FormProvider => {
 
           const currentValues = values
           const previousDefaultValues = defaultValues
+          if (recordIdentityChanged(previousDefaultValues, nextDefaultValues)) {
+            submitError = undefined
+          }
           if (
             resetOptions.keepDirtyValues !== true ||
             recordIdentityChanged(previousDefaultValues, nextDefaultValues)
@@ -467,6 +473,7 @@ export const createNativeFormProvider = (): FormProvider => {
           touched = {}
           submitCount = 0
           isSubmitting = false
+          submitError = undefined
           notify()
         },
 
@@ -484,6 +491,7 @@ export const createNativeFormProvider = (): FormProvider => {
             const replacement = replacementRevision
             submitCount++
             isSubmitting = true
+            submitError = undefined
             const submissionValues = snapshotSubmissionValue(values)
             const fields = validationFields(submissionValues)
             const revisions = new Map(
@@ -526,6 +534,19 @@ export const createNativeFormProvider = (): FormProvider => {
                   }
                 }
               }
+            } catch (error) {
+              // An older record/request must not put its failure on the current form.
+              if (currentSubmission()) {
+                submitError =
+                  error === undefined
+                    ? new Error(
+                        t('forms.submitError', undefined, {
+                          defaultValue: 'Unable to submit. Please try again.',
+                        }),
+                      )
+                    : error
+              }
+              throw error
             } finally {
               if (submission === submissionVersion) {
                 isSubmitting = false
