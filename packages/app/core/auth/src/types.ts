@@ -36,6 +36,13 @@ export interface UserProfile {
   roles?: string[]
 
   /**
+   * The OAuth provider the account was created with (`'github'`, `'google'`, …),
+   * when it signs in through one. Such an account has no password, so settings
+   * hide the change-password controls when this is set.
+   */
+  oauthServer?: string
+
+  /**
    * Additional metadata.
    */
   metadata?: Record<string, unknown>
