@@ -1,5 +1,11 @@
 # @molecule/app-ui-react-native
 
+## 1.0.7
+
+### Patch Changes
+
+- The clearable Input's clear button shows the close icon and is labelled "Clear" for screen readers, and Pagination and Table use the same English defaults as the other UI frameworks.
+
 ## 1.0.6
 
 ### Patch Changes

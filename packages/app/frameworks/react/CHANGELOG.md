@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.3.1
+
+### Patch Changes
+
+- Requires `@molecule/app-ai-chat` ^1.8.0, the release that supplies `createChatSession`.
+
 ## 4.3.0
 
 ### Minor Changes

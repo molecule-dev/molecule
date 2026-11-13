@@ -1,5 +1,15 @@
 # @molecule/app-locales-ui
 
+## 1.1.0
+
+### Minor Changes
+
+- Adds translations for the shared UI components' labels: app shell menu, confirm button, prompt and confirm dialogs, load-error retry, form submit error, select, toast, icons and user menu.
+
+### Patch Changes
+
+- Adds the missing-UIClassMap error message.
+
 ## 1.0.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-splash-screen
 
+## 1.0.5
+
+### Patch Changes
+
+- The boot example hides the splash in a `finally` and logs a failed fade-out before hiding without it.
+
 ## 1.0.4
 
 ### Patch Changes

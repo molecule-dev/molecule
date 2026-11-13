@@ -1,5 +1,11 @@
 # @molecule/app-locales-solid
 
+## 1.0.4
+
+### Patch Changes
+
+- Adds the `useChatProvider` outside-provider error message.
+
 ## 1.0.3
 
 ### Patch Changes

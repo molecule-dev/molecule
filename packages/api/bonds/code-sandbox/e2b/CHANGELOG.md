@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.4.3
+
+### Patch Changes
+
+- Removes a no-op rejection handler from the sandbox listing.
+
 ## 1.4.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.3.0
+
+### Minor Changes
+
+- Adds `useChat`, `useChatProvider`, `convergeHistory`, `localOnlyMessages`, `resetChatStoresForTests` and the agent identity defaults with React's behavior, backed by the shared chat session of `@molecule/app-ai-chat` (now a required peer, as is `@molecule/app-ai-models`); `useChat` accepts reactive options, and the composition root takes a `chat` provider.
+
 ## 3.2.4
 
 ### Patch Changes

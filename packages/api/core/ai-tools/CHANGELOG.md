@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.18.3
+
+### Patch Changes
+
+- Give unvisited test files a turn after foreground work interrupts background diagnosis.
+- A known-failures checkpoint re-runs only the tests that failed, with Playwright's own last-run record, instead of every test in each failing file.
+
 ## 1.18.2
 
 ### Patch Changes

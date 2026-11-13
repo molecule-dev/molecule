@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-svelte",
-  "version": "3.2.5",
+  "version": "3.3.0",
   "description": "Svelte framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

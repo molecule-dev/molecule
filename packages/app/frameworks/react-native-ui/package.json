@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-react-native",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "React Native UI component implementations for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/app-ui-react-native",
   "type": "module",

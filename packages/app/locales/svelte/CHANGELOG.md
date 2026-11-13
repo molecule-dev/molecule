@@ -1,5 +1,12 @@
 # @molecule/app-locales-svelte
 
+## 1.0.4
+
+### Patch Changes
+
+- Adds the `useToast` outside-provider error message.
+- Adds the `useChatProvider` outside-provider error message.
+
 ## 1.0.3
 
 ### Patch Changes
