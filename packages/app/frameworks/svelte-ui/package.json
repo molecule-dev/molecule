@@ -32,11 +32,16 @@
     "svelte": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
+    "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.1.2",
     "@molecule/app-icons": "1.0.3",
+    "@molecule/app-svelte": "3.2.3",
+    "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@types/node": "26.6.5",
+    "jsdom": "30.1.3",
     "svelte": "5.57.2",
     "typescript": "6.0.3",
+    "vite": "8.3.5",
     "vitest": "4.1.12"
   },
   "homepage": "https://www.molecule.dev/packages/app-ui-svelte",
