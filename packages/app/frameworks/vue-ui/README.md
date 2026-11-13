@@ -5750,7 +5750,7 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.1
 - `@molecule/app-icons` ^1.0.1
 - `@molecule/app-ui` ^1.0.1
-- `@molecule/app-vue` ^3.3.0
+- `@molecule/app-vue` ^3.4.0
 - `vue` ^3.4.0
 
 ### Runtime Dependencies

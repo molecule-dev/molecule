@@ -13867,7 +13867,7 @@ Peer dependencies:
 - `@angular/common` ^22.0.0
 - `@angular/core` ^22.0.0
 - `@angular/platform-browser` ^22.0.0
-- `@molecule/app-angular` ^3.3.1
+- `@molecule/app-angular` ^3.4.0
 - `@molecule/app-i18n` ^1.0.1
 - `@molecule/app-icons` ^1.0.1
 - `@molecule/app-ui` ^1.0.1
