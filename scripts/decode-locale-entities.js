@@ -69,7 +69,8 @@ function walk(dir, depth = 0) {
   let entries
   try {
     entries = readdirSync(dir, { withFileTypes: true })
-  } catch {
+  } catch (_error) {
+    // A directory that vanished or cannot be read holds no locale file to decode.
     return
   }
   for (const e of entries) {

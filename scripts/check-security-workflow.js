@@ -82,7 +82,8 @@ if (usesAuditGate) {
   let gate = ''
   try {
     gate = readFileSync(gatePath, 'utf-8')
-  } catch {
+  } catch (_error) {
+    // The missing script IS the finding; the read error adds nothing to it.
     errors.push('ci.yml runs scripts/audit-gate.mjs but that script is missing')
   }
   if (gate && !/FAIL_AT\s*=\s*\[[^\]]*'moderate'/.test(gate)) {

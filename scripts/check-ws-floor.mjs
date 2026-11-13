@@ -58,7 +58,6 @@ const found = []
  *
  * @param dir - Directory to scan.
  * @param depth - Recursion guard depth.
- * @returns Nothing; mutates the module-level `found` array.
  */
 function scan(dir, depth = 0) {
   if (depth > 12) return

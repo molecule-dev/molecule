@@ -14,10 +14,14 @@
  * @module
  */
 
+import { Buffer } from 'node:buffer'
+import console from 'node:console'
 import { createHmac } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
+import process from 'node:process'
+import { URL } from 'node:url'
 
 /** Overridable so tests can point the seed at a scratch dir. */
 export const SEED_PATH =
@@ -28,8 +32,8 @@ const B32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
 /**
  * RFC 4648 base32 decode.
  *
- * @param {string} input - Base32 text (padding, spaces and dashes tolerated).
- * @returns {Buffer | null} Decoded bytes, or null when the text is not base32.
+ * @param input - Base32 text (padding, spaces and dashes tolerated).
+ * @returns Decoded bytes, or null when the text is not base32.
  */
 export function base32Decode(input) {
   const clean = input.replace(/[\s-]/g, '').replace(/=+$/, '').toUpperCase()
@@ -51,8 +55,8 @@ export function base32Decode(input) {
 /**
  * RFC 4648 base32 encode (no padding).
  *
- * @param {Buffer} buf - Raw bytes.
- * @returns {string} Base32 text.
+ * @param buf - Raw bytes.
+ * @returns Base32 text.
  */
 export function base32Encode(buf) {
   let bits = 0
@@ -74,9 +78,9 @@ export function base32Encode(buf) {
  * RFC 6238 TOTP (SHA-1, 30 s period — authenticator-app defaults, which is
  * what npm's 2FA uses).
  *
- * @param {Buffer} secret - Raw seed bytes.
- * @param {{ now?: number, period?: number, digits?: number }} [opts]
- * @returns {string} The zero-padded code.
+ * @param secret - Raw seed bytes.
+ * @param [opts] - `now` (epoch millis), `period` (seconds) and `digits`.
+ * @returns The zero-padded code.
  */
 export function totp(secret, { now = Date.now(), period = 30, digits = 6 } = {}) {
   const counter = Math.floor(now / 1000 / period)
@@ -91,9 +95,9 @@ export function totp(secret, { now = Date.now(), period = 30, digits = 6 } = {})
 /**
  * Seconds until the current TOTP window rolls over.
  *
- * @param {number} [now] - Epoch millis.
- * @param {number} [period] - Window length in seconds.
- * @returns {number} Seconds remaining (>= 1).
+ * @param [now] - Epoch millis.
+ * @param [period] - Window length in seconds.
+ * @returns Seconds remaining (>= 1).
  */
 export function secondsLeftInWindow(now = Date.now(), period = 30) {
   return Math.max(1, period - Math.floor((now / 1000) % period))
@@ -103,8 +107,8 @@ export function secondsLeftInWindow(now = Date.now(), period = 30) {
  * Accepts a bare base32 secret or an otpauth:// URI (the text an
  * authenticator app shows when you reveal or re-enroll a setup code).
  *
- * @param {string} text - User input.
- * @returns {Buffer | null} The raw seed bytes, or null when unparseable.
+ * @param text - User input.
+ * @returns The raw seed bytes, or null when unparseable.
  */
 export function parseSecret(text) {
   const t = text.trim()
@@ -113,7 +117,8 @@ export function parseSecret(text) {
       const secret = new URL(t).searchParams.get('secret')
       const buf = secret ? base32Decode(secret) : null
       return buf && buf.length >= 10 ? buf : null
-    } catch {
+    } catch (_error) {
+      // An unparseable URI is not a setup code; the caller re-prompts.
       return null
     }
   }
@@ -124,14 +129,15 @@ export function parseSecret(text) {
 /**
  * Reads the stored seed.
  *
- * @returns {Buffer | null} Seed bytes, or null when none is stored.
+ * @returns Seed bytes, or null when none is stored.
  */
 export function loadSeed() {
   if (!existsSync(SEED_PATH)) return null
   let text
   try {
     text = readFileSync(SEED_PATH, 'utf8')
-  } catch {
+  } catch (_error) {
+    // An unreadable seed file counts as no seed: the caller falls back to prompting.
     return null
   }
   const buf = base32Decode(text)
@@ -141,7 +147,7 @@ export function loadSeed() {
 /**
  * Writes the seed with mode 0600.
  *
- * @param {Buffer} buf - Raw seed bytes.
+ * @param buf - Raw seed bytes.
  */
 export function storeSeed(buf) {
   mkdirSync(dirname(SEED_PATH), { recursive: true })

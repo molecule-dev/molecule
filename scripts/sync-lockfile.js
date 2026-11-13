@@ -16,18 +16,11 @@
  * Usage: node scripts/sync-lockfile.js
  */
 
-import {
-  cpSync,
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs'
+import { execSync } from 'node:child_process'
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { execSync } from 'node:child_process'
+import { URL } from 'node:url'
 
 const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '')
 
@@ -44,17 +37,21 @@ try {
   }
 
   // Copy all workspace package.json files (maintaining directory structure)
-  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'))
-  const workspacePatterns = pkg.workspaces || []
-
-  /** @param {string} dir @param {number} depth */
+  /**
+   * Finds every directory holding a package.json under `dir`.
+   *
+   * @param dir - Directory to search.
+   * @param depth - Recursion depth so far.
+   * @returns The directories found.
+   */
   function findPackageJsons(dir, depth) {
     if (depth > 6) return []
     const results = []
     let entries
     try {
       entries = readdirSync(dir, { withFileTypes: true })
-    } catch {
+    } catch (_error) {
+      // A directory that vanished or cannot be read holds no package to copy.
       return results
     }
 
@@ -84,19 +81,19 @@ try {
     const rel = dir.slice(ROOT.length + 1)
     const pkgJsonPath = join(dir, 'package.json')
 
+    let parsed
     try {
-      const content = readFileSync(pkgJsonPath, 'utf-8')
-      const parsed = JSON.parse(content)
-      if (!parsed.name?.startsWith('@molecule/')) continue
-
-      // Create directory structure and copy package.json
-      const destDir = join(tmp, rel)
-      const destFile = join(destDir, 'package.json')
-      cpSync(pkgJsonPath, destFile, { recursive: true })
-      copied++
-    } catch {
-      // skip
+      parsed = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'))
+    } catch (error) {
+      // An unreadable manifest is not a workspace npm can lock either; say which one.
+      console.warn(`Skipping ${rel}/package.json: ${error.message}`)
+      continue
     }
+    if (!parsed.name?.startsWith('@molecule/')) continue
+
+    // Create directory structure and copy package.json
+    cpSync(pkgJsonPath, join(tmp, rel, 'package.json'), { recursive: true })
+    copied++
   }
 
   console.log(`Copied ${copied} workspace package.json files to temp directory.`)

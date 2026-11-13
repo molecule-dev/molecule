@@ -11,10 +11,11 @@ import { noRawClassNames } from './eslint-rules/no-raw-class-names.mjs'
  * Local rules.
  *
  * `require-catch-binding` enforces AGENTS.md Rule 14 (no silent error
- * swallows): it forbids bindingless `catch {` so every error can be logged or
- * explicitly ignored; with no-unused-vars caughtErrors:'all' +
- * caughtErrorsIgnorePattern:'^_', a catch must use the error or be a
- * `catch (_error)` documented noop.
+ * swallows): it forbids bindingless `catch {` and parameterless `.catch(() => …)`
+ * / `.then(…, () => …)` handlers so every error can be logged or explicitly
+ * ignored; with no-unused-vars caughtErrors:'all' + caughtErrorsIgnorePattern
+ * and argsIgnorePattern '^_', a catch must use the error or be a `catch
+ * (_error)` / `(_error) =>` documented noop.
  *
  * `no-hand-styled-button` enforces Rule 5 / anti-pattern 12 at the one place
  * they leak: a `<button>` whose size, radius, typography or colour comes from a
@@ -37,16 +38,36 @@ const moleculeLocal = {
         fixable: 'code',
         docs: {
           description:
-            'Require a binding in catch clauses so the error can be logged or explicitly ignored',
+            'Require a binding in catch clauses and promise rejection handlers so the error can be logged or explicitly ignored',
         },
         schema: [],
         messages: {
           missing:
             'Bind the caught error: `catch (error)` to log it, or `catch (_error)` + a comment for an intentional noop (AGENTS Rule 14 — no silent error swallows).',
+          missingRejection:
+            'Bind the rejection: `.catch((error) => …)` to log it, or `.catch((_error) => …)` + a comment for an intentional noop (AGENTS Rule 14 — no silent error swallows).',
         },
       },
       create(context) {
         return {
+          // A rejection handler with no parameter cannot log what it caught. No autofix:
+          // inserting `_error` would satisfy the rule without anyone deciding the error is
+          // safe to drop.
+          CallExpression(node) {
+            const callee = node.callee
+            if (callee.type !== 'MemberExpression' || callee.computed) return
+            const method = callee.property.type === 'Identifier' ? callee.property.name : null
+            const handler =
+              method === 'catch' ? node.arguments[0] : method === 'then' ? node.arguments[1] : null
+            if (
+              handler &&
+              (handler.type === 'ArrowFunctionExpression' ||
+                handler.type === 'FunctionExpression') &&
+              handler.params.length === 0
+            ) {
+              context.report({ node: handler, messageId: 'missingRejection' })
+            }
+          },
           CatchClause(node) {
             if (node.param) return
             context.report({

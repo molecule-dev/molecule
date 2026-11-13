@@ -46,7 +46,7 @@
     "check:ws-floor": "node scripts/check-ws-floor.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "eslint packages/ --max-warnings 0",
+    "lint": "eslint packages/ scripts/ eslint-rules/ --max-warnings 0",
     "lint:fix": "eslint packages/ --fix --max-warnings 0",
     "prepare": "husky",
     "release": "npm run build && node scripts/publish-paced.mjs",
