@@ -2,15 +2,17 @@
   "name": "@molecule/app-framework-conformance",
   "version": "0.0.0",
   "private": true,
-  "description": "Test kit every Molecule UI framework bond runs: framework-neutral cases plus the React results each Vue, Solid, Svelte and Angular package must reproduce.",
+  "description": "Test kit every Molecule framework bond runs: framework-neutral UI and hook cases plus the React results each Vue, Solid, Svelte and Angular package must reproduce.",
   "type": "module",
   "exports": {
+    "./bindings": "./src/bindings/index.ts",
     "./ui": "./src/ui/index.ts",
     "./ui/setup": "./src/ui/setup.ts"
   },
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck:tests": "tsc -p tsconfig.json"
   },
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",

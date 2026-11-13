@@ -1,0 +1,3314 @@
+{
+ "exports": [
+  "DEFAULT_AGENT_IDENTITY",
+  "DEFAULT_AGENT_NAME",
+  "DEFAULT_PRODUCT_NAME",
+  "SessionReady",
+  "convergeHistory",
+  "localOnlyMessages",
+  "resetAIModelsCache",
+  "resetChatStoresForTests",
+  "useAIModels",
+  "useAsyncState",
+  "useAuth",
+  "useAuthClient",
+  "useCapacitorApp",
+  "useChangePassword",
+  "useChat",
+  "useChatProvider",
+  "useChildLogger",
+  "useCurrentTheme",
+  "useDelete",
+  "useDevice",
+  "useDirection",
+  "useEditor",
+  "useEditorProvider",
+  "useFieldState",
+  "useForm",
+  "useGet",
+  "useHttp",
+  "useHttpClient",
+  "useI18nError",
+  "useI18nProvider",
+  "useIsActive",
+  "useIsAuthenticated",
+  "useLocale",
+  "useLocation",
+  "useLogger",
+  "useLoggerProvider",
+  "useLogin",
+  "useNavigate",
+  "useOAuth",
+  "useOptimisticValue",
+  "useParams",
+  "usePasswordReset",
+  "usePatch",
+  "usePlatform",
+  "usePost",
+  "usePreview",
+  "usePreviewProvider",
+  "useProfileForm",
+  "usePromise",
+  "usePush",
+  "usePut",
+  "useQuery",
+  "useRootLogger",
+  "useRouter",
+  "useRouterInstance",
+  "useSetStore",
+  "useSignup",
+  "useStateProvider",
+  "useStorage",
+  "useStoragePreference",
+  "useStorageProvider",
+  "useStorageValue",
+  "useStore",
+  "useStoreAction",
+  "useT",
+  "useTheme",
+  "useThemeColors",
+  "useThemeMode",
+  "useThemeProvider",
+  "useTranslation",
+  "useUser",
+  "useVerifyPaymentReturn",
+  "useVersion",
+  "useWatch",
+  "useWorkspace",
+  "useWorkspaceProvider"
+ ],
+ "cases": {
+  "useAuth": {
+   "signed out": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "isAuthenticated": "value",
+      "isLoading": "value",
+      "login": "method",
+      "logout": "method",
+      "refresh": "method",
+      "register": "method",
+      "setSession": "method",
+      "setUser": "method",
+      "state": "value",
+      "status": "value",
+      "updateProfile": "method",
+      "user": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "isAuthenticated": false,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": false,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "unauthenticated",
+        "user": null
+       },
+       "status": "unauthenticated",
+       "updateProfile": "[method]",
+       "user": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "signed in": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "isAuthenticated": "value",
+      "isLoading": "value",
+      "login": "method",
+      "logout": "method",
+      "refresh": "method",
+      "register": "method",
+      "setSession": "method",
+      "setUser": "method",
+      "state": "value",
+      "status": "value",
+      "updateProfile": "method",
+      "user": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "isAuthenticated": true,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": true,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "authenticated",
+        "user": {
+         "email": "a@b.c",
+         "id": "u1"
+        }
+       },
+       "status": "authenticated",
+       "updateProfile": "[method]",
+       "user": {
+        "email": "a@b.c",
+        "id": "u1"
+       }
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "login signs in": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "isAuthenticated": "value",
+      "isLoading": "value",
+      "login": "method",
+      "logout": "method",
+      "refresh": "method",
+      "register": "method",
+      "setSession": "method",
+      "setUser": "method",
+      "state": "value",
+      "status": "value",
+      "updateProfile": "method",
+      "user": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "isAuthenticated": false,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": false,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "unauthenticated",
+        "user": null
+       },
+       "status": "unauthenticated",
+       "updateProfile": "[method]",
+       "user": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "isAuthenticated": true,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": true,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "authenticated",
+        "user": {
+         "email": "a@b.c",
+         "id": "u1"
+        }
+       },
+       "status": "authenticated",
+       "updateProfile": "[method]",
+       "user": {
+        "email": "a@b.c",
+        "id": "u1"
+       }
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "auth.login",
+      "args": [
+       {
+        "email": "a@b.c",
+        "password": "pw"
+       }
+      ]
+     },
+     {
+      "name": "=> login",
+      "args": [
+       {
+        "resolved": {
+         "accessToken": "token",
+         "user": {
+          "email": "a@b.c",
+          "id": "u1"
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a failed login rejects": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "isAuthenticated": "value",
+      "isLoading": "value",
+      "login": "method",
+      "logout": "method",
+      "refresh": "method",
+      "register": "method",
+      "setSession": "method",
+      "setUser": "method",
+      "state": "value",
+      "status": "value",
+      "updateProfile": "method",
+      "user": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "isAuthenticated": false,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": false,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "unauthenticated",
+        "user": null
+       },
+       "status": "unauthenticated",
+       "updateProfile": "[method]",
+       "user": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "isAuthenticated": false,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": false,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "unauthenticated",
+        "user": null
+       },
+       "status": "unauthenticated",
+       "updateProfile": "[method]",
+       "user": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "auth.login",
+      "args": [
+       {
+        "email": "a@b.c",
+        "password": "bad"
+       }
+      ]
+     },
+     {
+      "name": "=> login",
+      "args": [
+       {
+        "rejected": "Invalid credentials"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "logout signs out": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "isAuthenticated": "value",
+      "isLoading": "value",
+      "login": "method",
+      "logout": "method",
+      "refresh": "method",
+      "register": "method",
+      "setSession": "method",
+      "setUser": "method",
+      "state": "value",
+      "status": "value",
+      "updateProfile": "method",
+      "user": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "isAuthenticated": true,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": true,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "authenticated",
+        "user": {
+         "id": "u1"
+        }
+       },
+       "status": "authenticated",
+       "updateProfile": "[method]",
+       "user": {
+        "id": "u1"
+       }
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "isAuthenticated": false,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": false,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "unauthenticated",
+        "user": null
+       },
+       "status": "unauthenticated",
+       "updateProfile": "[method]",
+       "user": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "auth.logout",
+      "args": []
+     },
+     {
+      "name": "=> logout",
+      "args": [
+       {
+        "resolved": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "follows a session change made elsewhere": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "isAuthenticated": "value",
+      "isLoading": "value",
+      "login": "method",
+      "logout": "method",
+      "refresh": "method",
+      "register": "method",
+      "setSession": "method",
+      "setUser": "method",
+      "state": "value",
+      "status": "value",
+      "updateProfile": "method",
+      "user": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "isAuthenticated": false,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": false,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "unauthenticated",
+        "user": null
+       },
+       "status": "unauthenticated",
+       "updateProfile": "[method]",
+       "user": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "isAuthenticated": true,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": true,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "authenticated",
+        "user": {
+         "id": "u2"
+        }
+       },
+       "status": "authenticated",
+       "updateProfile": "[method]",
+       "user": {
+        "id": "u2"
+       }
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "isAuthenticated": false,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": false,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "unauthenticated",
+        "user": null
+       },
+       "status": "unauthenticated",
+       "updateProfile": "[method]",
+       "user": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "updateProfile merges the profile": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "isAuthenticated": "value",
+      "isLoading": "value",
+      "login": "method",
+      "logout": "method",
+      "refresh": "method",
+      "register": "method",
+      "setSession": "method",
+      "setUser": "method",
+      "state": "value",
+      "status": "value",
+      "updateProfile": "method",
+      "user": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "isAuthenticated": true,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": true,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "authenticated",
+        "user": {
+         "id": "u1",
+         "name": "A"
+        }
+       },
+       "status": "authenticated",
+       "updateProfile": "[method]",
+       "user": {
+        "id": "u1",
+        "name": "A"
+       }
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "isAuthenticated": true,
+       "isLoading": false,
+       "login": "[method]",
+       "logout": "[method]",
+       "refresh": "[method]",
+       "register": "[method]",
+       "setSession": "[method]",
+       "setUser": "[method]",
+       "state": {
+        "authenticated": true,
+        "error": null,
+        "initialized": true,
+        "loading": false,
+        "status": "authenticated",
+        "user": {
+         "id": "u1",
+         "name": "B"
+        }
+       },
+       "status": "authenticated",
+       "updateProfile": "[method]",
+       "user": {
+        "id": "u1",
+        "name": "B"
+       }
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "auth.updateProfile",
+      "args": [
+       {
+        "name": "B"
+       }
+      ]
+     },
+     {
+      "name": "=> updateProfile",
+      "args": [
+       {
+        "resolved": {
+         "id": "u1",
+         "name": "B"
+        }
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useLocale": {
+   "en, then a change": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "en",
+      "route": "/"
+     },
+     {
+      "result": "de",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useLocation": {
+   "initial route with a query": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "hash": "value",
+      "pathname": "value",
+      "search": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "hash": "",
+       "pathname": "/items",
+       "search": "?page=2"
+      },
+      "route": "/items?page=2"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "follows navigation": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "hash": "value",
+      "pathname": "value",
+      "search": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "hash": "",
+       "pathname": "/",
+       "search": ""
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "hash": "",
+       "pathname": "/a",
+       "search": ""
+      },
+      "route": "/a"
+     },
+     {
+      "result": {
+       "hash": "",
+       "pathname": "/b",
+       "search": "?x=1"
+      },
+      "route": "/b?x=1"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useNavigate": {
+   "navigates to a path": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/settings"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useTheme": {
+   "light by default": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "mode": "value",
+      "setTheme": "method",
+      "theme": "value",
+      "themeName": "value",
+      "toggleTheme": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "mode": "light",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#ffffff",
+         "backgroundSecondary": "#f5f5f5",
+         "backgroundTertiary": "#eeeeee",
+         "border": "#e0e0e0",
+         "borderFocus": "#0066cc",
+         "borderSecondary": "#cccccc",
+         "error": "#dc3545",
+         "errorLight": "#f8d7da",
+         "info": "#17a2b8",
+         "infoLight": "#d1ecf1",
+         "inputBackground": "#ffffff",
+         "overlay": "rgba(0, 0, 0, 0.5)",
+         "primary": "#0066cc",
+         "primaryDark": "#004d99",
+         "primaryLight": "#3399ff",
+         "secondary": "#6c757d",
+         "secondaryDark": "#495057",
+         "secondaryLight": "#868e96",
+         "shadow": "rgba(0, 0, 0, 0.1)",
+         "success": "#28a745",
+         "successLight": "#d4edda",
+         "surface": "#ffffff",
+         "surfaceSecondary": "#fafafa",
+         "text": "#1a1a1a",
+         "textInverse": "#ffffff",
+         "textSecondary": "#666666",
+         "textTertiary": "#999999",
+         "warning": "#b87a00",
+         "warningLight": "#fff3cd"
+        },
+        "mode": "light",
+        "name": "light",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "light",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "dark from the provider": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "mode": "value",
+      "setTheme": "method",
+      "theme": "value",
+      "themeName": "value",
+      "toggleTheme": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "mode": "dark",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#121212",
+         "backgroundSecondary": "#1e1e1e",
+         "backgroundTertiary": "#2d2d2d",
+         "border": "#333333",
+         "borderFocus": "#3399ff",
+         "borderSecondary": "#444444",
+         "error": "#e87080",
+         "errorLight": "#4d1a1f",
+         "info": "#17a2b8",
+         "infoLight": "#0d3d47",
+         "inputBackground": "#181818",
+         "overlay": "rgba(0, 0, 0, 0.7)",
+         "primary": "#3399ff",
+         "primaryDark": "#0066cc",
+         "primaryLight": "#66b3ff",
+         "secondary": "#868e96",
+         "secondaryDark": "#6c757d",
+         "secondaryLight": "#adb5bd",
+         "shadow": "rgba(0, 0, 0, 0.3)",
+         "success": "#28a745",
+         "successLight": "#1e4620",
+         "surface": "#1e1e1e",
+         "surfaceSecondary": "#252525",
+         "text": "#ffffff",
+         "textInverse": "#1a1a1a",
+         "textSecondary": "#b3b3b3",
+         "textTertiary": "#808080",
+         "warning": "#b88a12",
+         "warningLight": "#4d3800"
+        },
+        "mode": "dark",
+        "name": "dark",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "dark",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "toggleTheme switches light to dark through toggleMode": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "mode": "value",
+      "setTheme": "method",
+      "theme": "value",
+      "themeName": "value",
+      "toggleTheme": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "mode": "light",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#ffffff",
+         "backgroundSecondary": "#f5f5f5",
+         "backgroundTertiary": "#eeeeee",
+         "border": "#e0e0e0",
+         "borderFocus": "#0066cc",
+         "borderSecondary": "#cccccc",
+         "error": "#dc3545",
+         "errorLight": "#f8d7da",
+         "info": "#17a2b8",
+         "infoLight": "#d1ecf1",
+         "inputBackground": "#ffffff",
+         "overlay": "rgba(0, 0, 0, 0.5)",
+         "primary": "#0066cc",
+         "primaryDark": "#004d99",
+         "primaryLight": "#3399ff",
+         "secondary": "#6c757d",
+         "secondaryDark": "#495057",
+         "secondaryLight": "#868e96",
+         "shadow": "rgba(0, 0, 0, 0.1)",
+         "success": "#28a745",
+         "successLight": "#d4edda",
+         "surface": "#ffffff",
+         "surfaceSecondary": "#fafafa",
+         "text": "#1a1a1a",
+         "textInverse": "#ffffff",
+         "textSecondary": "#666666",
+         "textTertiary": "#999999",
+         "warning": "#b87a00",
+         "warningLight": "#fff3cd"
+        },
+        "mode": "light",
+        "name": "light",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "light",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "mode": "dark",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#121212",
+         "backgroundSecondary": "#1e1e1e",
+         "backgroundTertiary": "#2d2d2d",
+         "border": "#333333",
+         "borderFocus": "#3399ff",
+         "borderSecondary": "#444444",
+         "error": "#e87080",
+         "errorLight": "#4d1a1f",
+         "info": "#17a2b8",
+         "infoLight": "#0d3d47",
+         "inputBackground": "#181818",
+         "overlay": "rgba(0, 0, 0, 0.7)",
+         "primary": "#3399ff",
+         "primaryDark": "#0066cc",
+         "primaryLight": "#66b3ff",
+         "secondary": "#868e96",
+         "secondaryDark": "#6c757d",
+         "secondaryLight": "#adb5bd",
+         "shadow": "rgba(0, 0, 0, 0.3)",
+         "success": "#28a745",
+         "successLight": "#1e4620",
+         "surface": "#1e1e1e",
+         "surfaceSecondary": "#252525",
+         "text": "#ffffff",
+         "textInverse": "#1a1a1a",
+         "textSecondary": "#b3b3b3",
+         "textTertiary": "#808080",
+         "warning": "#b88a12",
+         "warningLight": "#4d3800"
+        },
+        "mode": "dark",
+        "name": "dark",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "dark",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "theme.toggleMode",
+      "args": []
+     },
+     {
+      "name": "=> toggleTheme",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "toggleTheme twice returns to light": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "mode": "value",
+      "setTheme": "method",
+      "theme": "value",
+      "themeName": "value",
+      "toggleTheme": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "mode": "light",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#ffffff",
+         "backgroundSecondary": "#f5f5f5",
+         "backgroundTertiary": "#eeeeee",
+         "border": "#e0e0e0",
+         "borderFocus": "#0066cc",
+         "borderSecondary": "#cccccc",
+         "error": "#dc3545",
+         "errorLight": "#f8d7da",
+         "info": "#17a2b8",
+         "infoLight": "#d1ecf1",
+         "inputBackground": "#ffffff",
+         "overlay": "rgba(0, 0, 0, 0.5)",
+         "primary": "#0066cc",
+         "primaryDark": "#004d99",
+         "primaryLight": "#3399ff",
+         "secondary": "#6c757d",
+         "secondaryDark": "#495057",
+         "secondaryLight": "#868e96",
+         "shadow": "rgba(0, 0, 0, 0.1)",
+         "success": "#28a745",
+         "successLight": "#d4edda",
+         "surface": "#ffffff",
+         "surfaceSecondary": "#fafafa",
+         "text": "#1a1a1a",
+         "textInverse": "#ffffff",
+         "textSecondary": "#666666",
+         "textTertiary": "#999999",
+         "warning": "#b87a00",
+         "warningLight": "#fff3cd"
+        },
+        "mode": "light",
+        "name": "light",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "light",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "mode": "dark",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#121212",
+         "backgroundSecondary": "#1e1e1e",
+         "backgroundTertiary": "#2d2d2d",
+         "border": "#333333",
+         "borderFocus": "#3399ff",
+         "borderSecondary": "#444444",
+         "error": "#e87080",
+         "errorLight": "#4d1a1f",
+         "info": "#17a2b8",
+         "infoLight": "#0d3d47",
+         "inputBackground": "#181818",
+         "overlay": "rgba(0, 0, 0, 0.7)",
+         "primary": "#3399ff",
+         "primaryDark": "#0066cc",
+         "primaryLight": "#66b3ff",
+         "secondary": "#868e96",
+         "secondaryDark": "#6c757d",
+         "secondaryLight": "#adb5bd",
+         "shadow": "rgba(0, 0, 0, 0.3)",
+         "success": "#28a745",
+         "successLight": "#1e4620",
+         "surface": "#1e1e1e",
+         "surfaceSecondary": "#252525",
+         "text": "#ffffff",
+         "textInverse": "#1a1a1a",
+         "textSecondary": "#b3b3b3",
+         "textTertiary": "#808080",
+         "warning": "#b88a12",
+         "warningLight": "#4d3800"
+        },
+        "mode": "dark",
+        "name": "dark",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "dark",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "mode": "light",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#ffffff",
+         "backgroundSecondary": "#f5f5f5",
+         "backgroundTertiary": "#eeeeee",
+         "border": "#e0e0e0",
+         "borderFocus": "#0066cc",
+         "borderSecondary": "#cccccc",
+         "error": "#dc3545",
+         "errorLight": "#f8d7da",
+         "info": "#17a2b8",
+         "infoLight": "#d1ecf1",
+         "inputBackground": "#ffffff",
+         "overlay": "rgba(0, 0, 0, 0.5)",
+         "primary": "#0066cc",
+         "primaryDark": "#004d99",
+         "primaryLight": "#3399ff",
+         "secondary": "#6c757d",
+         "secondaryDark": "#495057",
+         "secondaryLight": "#868e96",
+         "shadow": "rgba(0, 0, 0, 0.1)",
+         "success": "#28a745",
+         "successLight": "#d4edda",
+         "surface": "#ffffff",
+         "surfaceSecondary": "#fafafa",
+         "text": "#1a1a1a",
+         "textInverse": "#ffffff",
+         "textSecondary": "#666666",
+         "textTertiary": "#999999",
+         "warning": "#b87a00",
+         "warningLight": "#fff3cd"
+        },
+        "mode": "light",
+        "name": "light",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "light",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "theme.toggleMode",
+      "args": []
+     },
+     {
+      "name": "=> toggleTheme",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "theme.toggleMode",
+      "args": []
+     },
+     {
+      "name": "=> toggleTheme",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "setTheme passes the theme name": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "mode": "value",
+      "setTheme": "method",
+      "theme": "value",
+      "themeName": "value",
+      "toggleTheme": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "mode": "light",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#ffffff",
+         "backgroundSecondary": "#f5f5f5",
+         "backgroundTertiary": "#eeeeee",
+         "border": "#e0e0e0",
+         "borderFocus": "#0066cc",
+         "borderSecondary": "#cccccc",
+         "error": "#dc3545",
+         "errorLight": "#f8d7da",
+         "info": "#17a2b8",
+         "infoLight": "#d1ecf1",
+         "inputBackground": "#ffffff",
+         "overlay": "rgba(0, 0, 0, 0.5)",
+         "primary": "#0066cc",
+         "primaryDark": "#004d99",
+         "primaryLight": "#3399ff",
+         "secondary": "#6c757d",
+         "secondaryDark": "#495057",
+         "secondaryLight": "#868e96",
+         "shadow": "rgba(0, 0, 0, 0.1)",
+         "success": "#28a745",
+         "successLight": "#d4edda",
+         "surface": "#ffffff",
+         "surfaceSecondary": "#fafafa",
+         "text": "#1a1a1a",
+         "textInverse": "#ffffff",
+         "textSecondary": "#666666",
+         "textTertiary": "#999999",
+         "warning": "#b87a00",
+         "warningLight": "#fff3cd"
+        },
+        "mode": "light",
+        "name": "light",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "light",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "mode": "dark",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#121212",
+         "backgroundSecondary": "#1e1e1e",
+         "backgroundTertiary": "#2d2d2d",
+         "border": "#333333",
+         "borderFocus": "#3399ff",
+         "borderSecondary": "#444444",
+         "error": "#e87080",
+         "errorLight": "#4d1a1f",
+         "info": "#17a2b8",
+         "infoLight": "#0d3d47",
+         "inputBackground": "#181818",
+         "overlay": "rgba(0, 0, 0, 0.7)",
+         "primary": "#3399ff",
+         "primaryDark": "#0066cc",
+         "primaryLight": "#66b3ff",
+         "secondary": "#868e96",
+         "secondaryDark": "#6c757d",
+         "secondaryLight": "#adb5bd",
+         "shadow": "rgba(0, 0, 0, 0.3)",
+         "success": "#28a745",
+         "successLight": "#1e4620",
+         "surface": "#1e1e1e",
+         "surfaceSecondary": "#252525",
+         "text": "#ffffff",
+         "textInverse": "#1a1a1a",
+         "textSecondary": "#b3b3b3",
+         "textTertiary": "#808080",
+         "warning": "#b88a12",
+         "warningLight": "#4d3800"
+        },
+        "mode": "dark",
+        "name": "dark",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "dark",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "theme.setTheme",
+      "args": [
+       "dark"
+      ]
+     },
+     {
+      "name": "=> setTheme",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "follows a theme change made elsewhere": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "mode": "value",
+      "setTheme": "method",
+      "theme": "value",
+      "themeName": "value",
+      "toggleTheme": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "mode": "light",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#ffffff",
+         "backgroundSecondary": "#f5f5f5",
+         "backgroundTertiary": "#eeeeee",
+         "border": "#e0e0e0",
+         "borderFocus": "#0066cc",
+         "borderSecondary": "#cccccc",
+         "error": "#dc3545",
+         "errorLight": "#f8d7da",
+         "info": "#17a2b8",
+         "infoLight": "#d1ecf1",
+         "inputBackground": "#ffffff",
+         "overlay": "rgba(0, 0, 0, 0.5)",
+         "primary": "#0066cc",
+         "primaryDark": "#004d99",
+         "primaryLight": "#3399ff",
+         "secondary": "#6c757d",
+         "secondaryDark": "#495057",
+         "secondaryLight": "#868e96",
+         "shadow": "rgba(0, 0, 0, 0.1)",
+         "success": "#28a745",
+         "successLight": "#d4edda",
+         "surface": "#ffffff",
+         "surfaceSecondary": "#fafafa",
+         "text": "#1a1a1a",
+         "textInverse": "#ffffff",
+         "textSecondary": "#666666",
+         "textTertiary": "#999999",
+         "warning": "#b87a00",
+         "warningLight": "#fff3cd"
+        },
+        "mode": "light",
+        "name": "light",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "light",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "mode": "dark",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#121212",
+         "backgroundSecondary": "#1e1e1e",
+         "backgroundTertiary": "#2d2d2d",
+         "border": "#333333",
+         "borderFocus": "#3399ff",
+         "borderSecondary": "#444444",
+         "error": "#e87080",
+         "errorLight": "#4d1a1f",
+         "info": "#17a2b8",
+         "infoLight": "#0d3d47",
+         "inputBackground": "#181818",
+         "overlay": "rgba(0, 0, 0, 0.7)",
+         "primary": "#3399ff",
+         "primaryDark": "#0066cc",
+         "primaryLight": "#66b3ff",
+         "secondary": "#868e96",
+         "secondaryDark": "#6c757d",
+         "secondaryLight": "#adb5bd",
+         "shadow": "rgba(0, 0, 0, 0.3)",
+         "success": "#28a745",
+         "successLight": "#1e4620",
+         "surface": "#1e1e1e",
+         "surfaceSecondary": "#252525",
+         "text": "#ffffff",
+         "textInverse": "#1a1a1a",
+         "textSecondary": "#b3b3b3",
+         "textTertiary": "#808080",
+         "warning": "#b88a12",
+         "warningLight": "#4d3800"
+        },
+        "mode": "dark",
+        "name": "dark",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "dark",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "mode": "light",
+       "setTheme": "[method]",
+       "theme": {
+        "borderRadius": {
+         "full": "9999px",
+         "lg": "12px",
+         "md": "8px",
+         "none": "0",
+         "sm": "4px",
+         "xl": "16px"
+        },
+        "breakpoints": {
+         "desktop": "2560px",
+         "laptop": "1024px",
+         "laptopL": "1440px",
+         "mobileL": "425px",
+         "mobileM": "375px",
+         "mobileS": "320px",
+         "tablet": "768px"
+        },
+        "colors": {
+         "background": "#ffffff",
+         "backgroundSecondary": "#f5f5f5",
+         "backgroundTertiary": "#eeeeee",
+         "border": "#e0e0e0",
+         "borderFocus": "#0066cc",
+         "borderSecondary": "#cccccc",
+         "error": "#dc3545",
+         "errorLight": "#f8d7da",
+         "info": "#17a2b8",
+         "infoLight": "#d1ecf1",
+         "inputBackground": "#ffffff",
+         "overlay": "rgba(0, 0, 0, 0.5)",
+         "primary": "#0066cc",
+         "primaryDark": "#004d99",
+         "primaryLight": "#3399ff",
+         "secondary": "#6c757d",
+         "secondaryDark": "#495057",
+         "secondaryLight": "#868e96",
+         "shadow": "rgba(0, 0, 0, 0.1)",
+         "success": "#28a745",
+         "successLight": "#d4edda",
+         "surface": "#ffffff",
+         "surfaceSecondary": "#fafafa",
+         "text": "#1a1a1a",
+         "textInverse": "#ffffff",
+         "textSecondary": "#666666",
+         "textTertiary": "#999999",
+         "warning": "#b87a00",
+         "warningLight": "#fff3cd"
+        },
+        "mode": "light",
+        "name": "light",
+        "shadows": {
+         "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+         "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+         "none": "none",
+         "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+         "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+        },
+        "spacing": {
+         "lg": "24px",
+         "md": "16px",
+         "sm": "8px",
+         "xl": "32px",
+         "xs": "4px",
+         "xxl": "48px",
+         "xxxl": "64px"
+        },
+        "transitions": {
+         "fast": "150ms ease-in-out",
+         "normal": "250ms ease-in-out",
+         "slow": "350ms ease-in-out"
+        },
+        "typography": {
+         "fontFamily": {
+          "mono": "SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+          "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+          "serif": "Georgia, \"Times New Roman\", Times, serif"
+         },
+         "fontSize": {
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
+          "5xl": "3rem",
+          "base": "1rem",
+          "lg": "1.125rem",
+          "sm": "0.875rem",
+          "xl": "1.25rem",
+          "xs": "0.75rem"
+         },
+         "fontWeight": {
+          "bold": 700,
+          "light": 300,
+          "medium": 500,
+          "normal": 400,
+          "semibold": 600
+         },
+         "lineHeight": {
+          "normal": 1.5,
+          "relaxed": 1.75,
+          "tight": 1.25
+         }
+        },
+        "zIndex": {
+         "base": 0,
+         "dropdown": 1000,
+         "fixed": 1200,
+         "hide": -1,
+         "modal": 1300,
+         "popover": 1400,
+         "sticky": 1100,
+         "toast": 1600,
+         "tooltip": 1500
+        }
+       },
+       "themeName": "light",
+       "toggleTheme": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useThemeMode": {
+   "light by default": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "light",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "follows a theme change made elsewhere": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": "light",
+      "route": "/"
+     },
+     {
+      "result": "dark",
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useTranslation": {
+   "english by default": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "direction": "value",
+      "formatDate": "method",
+      "formatNumber": "method",
+      "locale": "value",
+      "locales": "value",
+      "setLocale": "method",
+      "t": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "t returns the default value for a missing key": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "direction": "value",
+      "formatDate": "method",
+      "formatNumber": "method",
+      "locale": "value",
+      "locales": "value",
+      "setLocale": "method",
+      "t": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> t",
+      "args": [
+       {
+        "returned": "Hello"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "t interpolates values into the default value": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "direction": "value",
+      "formatDate": "method",
+      "formatNumber": "method",
+      "locale": "value",
+      "locales": "value",
+      "setLocale": "method",
+      "t": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> t",
+      "args": [
+       {
+        "returned": "Hi Ada"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "t returns the key without a default value": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "direction": "value",
+      "formatDate": "method",
+      "formatNumber": "method",
+      "locale": "value",
+      "locales": "value",
+      "setLocale": "method",
+      "t": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> t",
+      "args": [
+       {
+        "returned": "greeting.hello"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "follows a locale change": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "direction": "value",
+      "formatDate": "method",
+      "formatNumber": "method",
+      "locale": "value",
+      "locales": "value",
+      "setLocale": "method",
+      "t": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "fr",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "t reads the active locale translation": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "direction": "value",
+      "formatDate": "method",
+      "formatNumber": "method",
+      "locale": "value",
+      "locales": "value",
+      "setLocale": "method",
+      "t": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {
+          "greeting.hello": "Hello"
+         }
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {
+          "greeting.hello": "Bonjour"
+         }
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {
+          "greeting.hello": "Hello"
+         }
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {
+          "greeting.hello": "Bonjour"
+         }
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "fr",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {
+          "greeting.hello": "Hello"
+         }
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {
+          "greeting.hello": "Bonjour"
+         }
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "fr",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {
+          "greeting.hello": "Hello"
+         }
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {
+          "greeting.hello": "Bonjour"
+         }
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> t",
+      "args": [
+       {
+        "returned": "Hello"
+       }
+      ]
+     },
+     {
+      "name": "=> t",
+      "args": [
+       {
+        "returned": "Bonjour"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "setLocale switches to a right-to-left locale": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "direction": "value",
+      "formatDate": "method",
+      "formatNumber": "method",
+      "locale": "value",
+      "locales": "value",
+      "setLocale": "method",
+      "t": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "direction": "ltr",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "en",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "direction": "rtl",
+       "formatDate": "[method]",
+       "formatNumber": "[method]",
+       "locale": "ar",
+       "locales": [
+        {
+         "code": "en",
+         "name": "English",
+         "translations": {}
+        },
+        {
+         "code": "fr",
+         "name": "French",
+         "nativeName": "Français",
+         "translations": {}
+        },
+        {
+         "code": "de",
+         "name": "German",
+         "nativeName": "Deutsch",
+         "translations": {}
+        },
+        {
+         "code": "ar",
+         "direction": "rtl",
+         "name": "Arabic",
+         "nativeName": "العربية",
+         "translations": {}
+        }
+       ],
+       "setLocale": "[method]",
+       "t": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setLocale",
+      "args": [
+       {
+        "resolved": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  }
+ }
+}

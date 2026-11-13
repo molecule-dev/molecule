@@ -21,21 +21,32 @@ itself is wrong; then React is fixed first and its goldens are re-recorded.
   `@molecule/app-ui-tailwind` ClassMap, the molecule icon set, the simple i18n provider, a
   memory router and the fakes in `src/ui/fakes.ts`), runs the interactions and returns the
   result. A package's own `npm test` (and CI) therefore fails when it drifts from React.
-- **No bond can opt out.** `molecule/scripts/__tests__/framework-conformance.test.ts`
-  finds every `packages/app/frameworks/*-ui` package and fails unless it has that test
-  file, calls `runUIConformance`, and lists this kit in `devDependencies`. A new UI bond is
-  covered the moment it exists. (`@molecule/app-ui-react-native` is exempt: it renders
-  native views, not DOM.)
+- **No bond can opt out.** `molecule/scripts/check-framework-conformance.mjs` (run by
+  `molecule/scripts/__tests__/framework-conformance.test.mjs`, which CI always runs)
+  finds every `@molecule/app-ui-*` package under `packages/app/frameworks/` and fails
+  unless it has that test file, calls `runUIConformance`, has a `known-gaps.json`, and
+  lists this kit in `devDependencies`. It also fails on a static `class="…"` or a Svelte
+  `class:` directive in `.svelte`, `.vue` or `.html` markup (ESLint does not parse those).
+  A new UI bond is covered the moment it exists. (`@molecule/app-ui-react-native` is
+  exempt: it renders native views, not DOM.)
 - **Gaps only shrink.** `known-gaps.json` lists cases a package does not match yet
   (`"(export)"` = the component is missing). Listed cases run as expected failures, so a
   listed case that starts matching fails until it is removed from the list.
+- **Every export exists.** `goldens.json` also lists every `@molecule/app-ui-react` export
+  (components, compound parts, hooks, utilities); each package's run checks that it exports
+  each one under the same name.
 - **Goldens stay true.** `src/__tests__/goldens.test.ts` (this kit's own test) re-renders
   every case in React and fails if the result differs from `goldens.json`, if a case
-  logs a React error or warning, or if a `@molecule/app-ui-react` component has no cases.
+  logs a React error or warning, if the recorded export list differs from React's, or if
+  a `@molecule/app-ui-react` export is rendered by no case (as the root, nested in a
+  child, slot or node-valued prop, or called by a probe; `cn` is the one exception, a
+  re-export of `@molecule/app-ui`'s class joiner).
 
 A result is a normalized DOM snapshot after mount and after every interaction
-(`src/ui/normalize.ts`) followed by the router location (`@route /path`), plus every
-callback call and every service call (`auth.logout`, `theme.toggleMode`, …).
+(`src/ui/normalize.ts`) followed by the router location (`@route /path`, with
+` state=<json>` when the history entry carries state, `key` fields dropped) and the focused
+element (`@focus body>div:0>button:1`), plus every callback call and every service call
+(`auth.logout`, `theme.toggleMode`, …).
 
 Equal normalized DOM means equal pixels: the same elements, attributes, class tokens,
 inline styles and text, styled by the same ClassMap stylesheet, with no framework wrapper
@@ -68,6 +79,28 @@ selector whose host is `display: contents`.
 
 Svelte: components are real Svelte 5 `.svelte` components (runes, `$props()`), shipped as
 `.svelte` files with `.svelte.d.ts` declarations.
+
+## Writing cases
+
+A case (`UICase`, `src/ui/spec.ts`) is plain data, so every framework reads the same one:
+
+| Field / marker                                          | Meaning                                                                                                                     |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `props`                                                 | data props, by React name                                                                                                   |
+| `children`, `slots`                                     | node lists: strings, `{ tag, attrs, children }`, `{ component, props, children, slots }`                                    |
+| `{ $nodes: [...] }` inside a prop                       | a node-valued prop (`leftIcon`, `items[0].icon`); each adapter builds its own node type                                     |
+| `{ $fn, returns }` / `{ $fn, format: '{0}: {1.name}' }` | a plain function prop (`rowKey`, `goToPage`); `format` interpolates the call's arguments                                    |
+| `{ $fn, nodes: [...] }`                                 | a render function (`columns[0].render`); string nodes interpolate `{0}`, `{1.field}`                                        |
+| `{ probe: 'useToast', method, args, label }`            | a button that calls a UI-package hook on click (`useToast().addToast(...)`)                                                 |
+| `{ probe, value: true, label }`                         | the same button showing the hook's current value as `data-parity-value` (JSON)                                              |
+| `callbacks`, `callbackResults`                          | callback props to record, and what each returns: `returns`, `resolve`, `reject`, or `defer` (pending until a `settle` step) |
+| `context`                                               | app state: auth status/user, theme mode, initial route, locale                                                              |
+| `viewportWidth`, `fakeTimers`                           | `matchMedia` width; fake timers for `advance` steps                                                                         |
+
+Interactions: `click`, `dblclick`, `focus`, `blur`, `mouseenter`, `mouseleave`, `pointerdown`,
+`keydown`, `input`, `check`, `submit`, `event` (any DOM event on a selector, `window` or
+`document`), `props` (re-render with new props), `advance` (timers), `settle` (a deferred
+callback), `navigate` (the router, from outside).
 
 ## Running it
 
