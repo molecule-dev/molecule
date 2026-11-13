@@ -114,8 +114,12 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       for (const { spec, sourceFiles } of selected) {
         if (!current()) break
         const emit = (result: PlaywrightFeedbackResult): void => {
-          if (!current() || result.status !== 'failed') return
+          if (!live() || result.status !== 'failed') return
           failing.add(spec.path)
+          // A native failure stays known even after a write. Deploy may cancel this run before
+          // it finishes, so remember the event now and recheck current source at its checkpoint.
+          // Only a current revision may deliver the diagnostic itself.
+          if (!current()) return
           const identities = delivered.get(spec.path) ?? new Set<string>()
           const failures = result.failures.filter((f) => {
             const identity = JSON.stringify(f)
