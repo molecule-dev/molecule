@@ -94,6 +94,30 @@ describe('parseFlyMachineList', () => {
     expect(parsed[0]?.imageRef).toBe('registry.fly.io/molecule-api:d1')
   })
 
+  it('reads an image object that names no whole image as unreadable, then tries image_ref', () => {
+    const parsed = parseFlyMachineList(
+      JSON.stringify([
+        { id: 'f'.repeat(14), state: 'started', config: { image: {} }, image_ref: {} },
+        {
+          id: '0'.repeat(14),
+          state: 'started',
+          config: { image: { registry: 'registry.fly.io', tag: 'd1' } },
+          image_ref: {
+            registry: 'registry.fly.io',
+            repository: 'molecule-api',
+            digest: 'sha256:abc',
+          },
+        },
+        { id: '1'.repeat(14), state: 'started', config: { image: '' } },
+      ]),
+    )
+    expect(parsed.map((m) => m.imageRef)).toEqual([
+      null,
+      'registry.fly.io/molecule-api@sha256:abc',
+      null,
+    ])
+  })
+
   it('refuses output that is not an array', () => {
     expect(() => parseFlyMachineList('{"error":"nope"}')).toThrow(/did not return an array/)
     expect(() => parseFlyMachineList('not json')).toThrow(/could not parse/)
@@ -156,6 +180,19 @@ describe('assertHomogeneousFlyMachines', () => {
       ]),
     )
     expect(() => assertHomogeneousFlyMachines(machines)).toThrow(/MIXED builds/)
+  })
+
+  it('names an incomplete listing as unreadable, not as a second build', () => {
+    const machines = parseFlyMachineList(
+      JSON.stringify([
+        machine('a'.repeat(14)),
+        machine('b'.repeat(14), { config: { image: {} }, image_ref: {} }),
+      ]),
+    )
+    expect(() => assertHomogeneousFlyMachines(machines)).toThrow(
+      /machine b{14} has no readable image ref/,
+    )
+    expect(() => assertHomogeneousFlyMachines(machines)).not.toThrow(/MIXED|undefined/)
   })
 
   it('refuses a malformed machine id', () => {

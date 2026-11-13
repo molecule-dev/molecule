@@ -121,6 +121,35 @@ export function serviceCheckGraceMs(machine: unknown): number {
 }
 
 /**
+ * Read one image reference from a Machine listing: a string, or a
+ * `{ registry, repository, digest | tag }` object.
+ *
+ * An object missing any of those parts names no image. It reads as `null`
+ * (unreadable), never as a string such as `undefined/undefined:undefined`,
+ * which compared as a second build and refused a patch as "MIXED builds"
+ * when one listing came back incomplete.
+ *
+ * @param image - `config.image` or `image_ref` from the listing.
+ * @returns The image reference, or `null` when the value names no whole image.
+ */
+const readImageRef = (image: unknown): string | null => {
+  if (typeof image === 'string') return image || null
+  if (!image || typeof image !== 'object') return null
+  const ref = image as Record<string, unknown>
+  const part = (value: unknown): string | null =>
+    typeof value === 'string' && value ? value : null
+  const registry = part(ref.registry)
+  const repository = part(ref.repository)
+  if (!registry || !repository) return null
+  // A Machine deployed BY DIGEST reports no tag; the tag form would be
+  // `…:undefined`, which never matches the Machine's real FLY_IMAGE_REF.
+  const digest = part(ref.digest)
+  if (digest) return `${registry}/${repository}@${digest}`
+  const tag = part(ref.tag)
+  return tag ? `${registry}/${repository}:${tag}` : null
+}
+
+/**
  * Parse `flyctl machine list --app <app> --json` into the facts a rollout needs.
  *
  * @param json - The command's stdout.
@@ -140,19 +169,8 @@ export const parseFlyMachineList = (json: string): FlyMachine[] => {
   return parsed.map((machine: Record<string, unknown>) => {
     const config = machine?.config as Record<string, unknown> | undefined
     // `config.image` is the live shape; `image_ref` is what older flyctl output
-    // (and the fixtures) carry at the top level.
-    const image = config?.image ?? machine?.image_ref
-    let imageRef: string | null = null
-    if (typeof image === 'string') imageRef = image
-    else if (image && typeof (image as Record<string, unknown>).digest === 'string') {
-      // A Machine deployed BY DIGEST reports no tag; the tag form would be
-      // `…:undefined`, which never matches the Machine's real FLY_IMAGE_REF.
-      const ref = image as Record<string, unknown>
-      imageRef = `${String(ref.registry)}/${String(ref.repository)}@${String(ref.digest)}`
-    } else if (image) {
-      const ref = image as Record<string, unknown>
-      imageRef = `${String(ref.registry)}/${String(ref.repository)}:${String(ref.tag)}`
-    }
+    // (and the fixtures) carry at the top level. The first one that names a whole image wins.
+    const imageRef = readImageRef(config?.image) ?? readImageRef(machine?.image_ref)
     const id = typeof machine?.id === 'string' ? machine.id : ''
     const version =
       typeof (machine?.instance_id ?? machine?.version) === 'string'
