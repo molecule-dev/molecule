@@ -89,6 +89,14 @@ fi
 # but deleting published source also needs a changeset.
 node scripts/precommit-changeset.mjs
 
+# Every relative import in this commit must name a file the commit carries. A file
+# git ignores or never tracked still resolves in this checkout, so local builds and
+# tests pass while CI and every consumer fail (2026-11-13: app-ui-svelte imported an
+# ignored `bag.svelte.js` and a release waited on CI). Reads the index, so a private
+# GIT_INDEX_FILE and MOL_PRECOMMIT_BASE are honoured. Before the early exit: a
+# deletion can strand an importer too.
+node scripts/check-tracked-imports.mjs --staged
+
 if [ -z "$STAGED" ]; then
   exit 0
 fi
