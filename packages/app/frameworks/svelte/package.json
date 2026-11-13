@@ -68,9 +68,11 @@
     "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-utilities": "1.0.6",
+    "@sveltejs/package": "3.0.2",
     "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@types/node": "26.6.5",
     "svelte": "5.57.2",
+    "svelte-check": "4.7.7",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },
