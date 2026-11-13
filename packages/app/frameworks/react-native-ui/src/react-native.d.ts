@@ -72,7 +72,8 @@ declare module 'react-native' {
     onTouchEnd?: () => void
   }
 
-  interface TextProps extends ViewProps {}
+  /** Text accepts the same props as View here. */
+  type TextProps = ViewProps
 
   interface PressableProps extends ViewProps {
     onPress?: ((event?: any) => void) | (() => void)
@@ -125,16 +126,25 @@ declare module 'react-native' {
     color?: string
   }
 
-  interface ScrollViewProps extends ViewProps {}
+  /** ScrollView accepts the same props as View here. */
+  type ScrollViewProps = ViewProps
 
   // ---- Component exports ----
+  /** The react-native View. */
   export const View: ComponentType<ViewProps>
+  /** The react-native Text. */
   export const Text: ComponentType<TextProps>
+  /** The react-native Pressable. */
   export const Pressable: ComponentType<PressableProps>
+  /** The react-native Image. */
   export const Image: ComponentType<ImageProps>
+  /** The react-native Modal. */
   export const Modal: ComponentType<ModalProps>
+  /** The react-native Switch. */
   export const Switch: ComponentType<SwitchComponentProps>
+  /** The react-native ActivityIndicator. */
   export const ActivityIndicator: ComponentType<ActivityIndicatorProps>
+  /** The react-native ScrollView. */
   export const ScrollView: ComponentType<ScrollViewProps>
 
   /** TextInput — exported as class for JSX use and `forwardRef` ref typing. */
@@ -144,7 +154,9 @@ declare module 'react-native' {
   export function FlatList<ItemT = any>(props: FlatListProps<ItemT>): ReactNode
 
   // ---- Animated API ----
+  /** The react-native Animated API (the subset these components use). */
   export namespace Animated {
+    /** An animated numeric value. */
     class Value {
       constructor(value: number)
     }
@@ -166,5 +178,5 @@ declare module 'react-native' {
   }
 
   // ---- Re-export types used by components ----
-  export type { ViewStyle, AccessibilityRole }
+  export type { AccessibilityRole, ViewStyle }
 }

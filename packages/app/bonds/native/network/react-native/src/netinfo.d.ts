@@ -1,5 +1,5 @@
 /**
- * Minimal type declarations for @react-native-community/netinfo used by this package.
+ * Minimal type declarations for `@react-native-community/netinfo` used by this package.
  *
  * The real types ship with the peer package. However, installing it in a non-RN
  * workspace breaks Vitest across every package that mocks it. This stub provides

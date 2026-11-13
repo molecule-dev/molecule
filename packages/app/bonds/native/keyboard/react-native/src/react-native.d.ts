@@ -26,6 +26,8 @@ declare module 'react-native' {
     get(dim: string): { height: number; width: number }
   }
 
+  /** The react-native Keyboard module. */
   export const Keyboard: Keyboard
+  /** The react-native Dimensions module. */
   export const Dimensions: Dimensions
 }

@@ -20,6 +20,7 @@ declare module 'react-native' {
     currentHeight?: number
   }
 
+  /** The react-native StatusBar static API. */
   export const StatusBar: StatusBarStatic
 
   /** Platform detection utilities. */

@@ -11,11 +11,13 @@
  */
 
 declare module 'react-native' {
+  /** The react-native AppState module: the app's foreground/background state. */
   export const AppState: {
     currentState: string
     addEventListener: (type: string, handler: (state: string) => void) => { remove: () => void }
   }
 
+  /** The react-native Linking module: deep links opened into the app. */
   export const Linking: {
     addEventListener: (
       type: string,
