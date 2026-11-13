@@ -10,4 +10,5 @@ export const pl: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Sesja profilu została zmieniona przed wysłaniem',
   'auth.error.passwordRequiresSignIn': 'Zaloguj się przed zmianą hasła',
   'auth.error.passwordSessionChanged': 'Hasło sesji zostało zmienione przed wysłaniem',
+  'auth.error.requestTimedOut': 'Żądanie uwierzytelnienia przekroczyło limit czasu',
 }

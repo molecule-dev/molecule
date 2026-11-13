@@ -11,5 +11,5 @@ export const km: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}ម៉ {{minutes}}ន',
   'battery.remainingMinutes': '{{minutes}}ន',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: គ្មានអ្នកផ្តល់សេវាណាមួយត្រូវបានកំណត់ទេ។ សូមហៅ `setProvider()` ជាមួយនឹងការអនុវត្ត `BatteryProvider` — គ្មានអ្នកផ្តល់សេវាណាម្នាក់ដឹកជញ្ជូនជាមួយកងនាវាទេ។ អនុវត្តចំណុចប្រទាក់នៅលើពេលដំណើរការដើមរបស់អ្នក ហើយភ្ជាប់វា។',
+    '`@molecule/app-battery`: គ្មាន​អ្នកផ្តល់សេវា​ត្រូវបាន​កំណត់​ទេ។ សូម​ហៅ `setProvider()` ជាមួយនឹង​ការអនុវត្ត `BatteryProvider` — Molecule មិន​ដឹកជញ្ជូន​អ្នកផ្តល់សេវា​សម្រាប់​វា​ទេ។ អនុវត្ត​ចំណុចប្រទាក់​នៅលើ​ពេល​ដំណើរការ​ដើម​របស់អ្នក ហើយ​ភ្ជាប់​វា។',
 }

@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const bg: ContactsTranslations = {
   'contacts.unknown': 'Неизвестно',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: Няма зададен доставчик. Извикайте `setProvider()` с имплементация на `ContactsProvider` — с флота не се доставя доставчик; имплементирайте интерфейса в собствената си среда за изпълнение и го свържете.',
+    '`@molecule/app-contacts`: Няма зададен доставчик. Извикайте `setProvider()` с имплементация на `ContactsProvider` — Molecule не предоставя доставчик за него; имплементирайте интерфейса в собствената си среда за изпълнение и го свържете.',
 }

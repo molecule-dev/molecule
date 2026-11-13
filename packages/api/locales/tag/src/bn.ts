@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Bengali. */
 export const bn: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ট্যাগের নাম আবশ্যক',
   'tag.error.invalidName': 'ট্যাগের নাম অবৈধ',
   'tag.error.createFailed': 'ট্যাগ তৈরি করতে ব্যর্থ',
@@ -17,4 +16,5 @@ export const bn: TagTranslations = {
   'tag.error.associationNotFound': 'ট্যাগ সম্পর্ক পাওয়া যায়নি',
   'tag.error.removeFailed': 'রিসোর্স থেকে ট্যাগ সরাতে ব্যর্থ',
   'tag.error.getBySlugFailed': 'ট্যাগ অনুযায়ী রিসোর্স পেতে ব্যর্থ',
+  'tag.error.forbidden': 'ট্যাগ পরিচালনা করার জন্য অ্যাডমিন অ্যাক্সেস প্রয়োজন।',
 }

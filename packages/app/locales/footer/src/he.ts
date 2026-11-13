@@ -6,8 +6,6 @@ export const he: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'מדיניות פרטיות',
   'footer.termsOfService': 'תנאי השירות',
   'footer.language': 'שָׂפָה',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured': 'תוכן זה טרם הוגדר. בעל האפליקציה חייב לספק אותו.',
   'footer.about': 'אודות {{appName}}',
 }

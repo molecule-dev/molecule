@@ -1165,12 +1165,14 @@ class DeepseekAIProviderImpl implements AIProvider {
       logger.warn('DeepSeek response did not complete', { finishReason })
       yield {
         type: 'error',
-        message: t('ai.error.apiError', undefined, {
-          defaultValue:
-            finishReason === 'length'
-              ? 'AI response reached the output token limit before completion.'
-              : 'AI response ended before completion. Please try again.',
-        }),
+        message:
+          finishReason === 'length'
+            ? t('ai.error.responseTokenLimit', undefined, {
+                defaultValue: 'AI response reached the output token limit before completion.',
+              })
+            : t('ai.error.responseIncomplete', undefined, {
+                defaultValue: 'AI response ended before completion. Please try again.',
+              }),
         errorKey: 'ai.error.apiError',
       }
       return
@@ -1341,7 +1343,7 @@ class DeepseekAIProviderImpl implements AIProvider {
         })
         yield {
           type: 'error',
-          message: t('ai.error.apiError', undefined, {
+          message: t('ai.error.responseIncomplete', undefined, {
             defaultValue: 'AI response ended before completion. Please try again.',
           }),
           errorKey: 'ai.error.apiError',
@@ -1542,12 +1544,14 @@ class DeepseekAIProviderImpl implements AIProvider {
             })
             yield {
               type: 'error',
-              message: t('ai.error.apiError', undefined, {
-                defaultValue:
-                  finishReason === 'length'
-                    ? 'AI response reached the output token limit before completion.'
-                    : 'AI response was interrupted before completion. Please try again.',
-              }),
+              message:
+                finishReason === 'length'
+                  ? t('ai.error.responseTokenLimit', undefined, {
+                      defaultValue: 'AI response reached the output token limit before completion.',
+                    })
+                  : t('ai.error.responseIncomplete', undefined, {
+                      defaultValue: 'AI response ended before completion. Please try again.',
+                    }),
               errorKey: 'ai.error.apiError',
             }
             return

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for French. */
 export const fr: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Service non trouvé.',
   'status.error.incidentNotFound': 'Incident non trouvé.',
   'status.error.validationFailed': 'Validation échouée : {{errors}}',
@@ -16,4 +15,5 @@ export const fr: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Échec du listage des incidents.',
   'status.error.getStatusFailed': 'Échec de la récupération du statut système.',
   'status.error.getUptimeFailed': 'Échec de la récupération des données de disponibilité.',
+  'status.error.forbidden': "Autorisation requise pour gérer la page d'état",
 }

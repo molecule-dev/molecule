@@ -3,5 +3,5 @@ import type { BrightnessTranslations } from './types.js'
 /** Brightness translations for Hindi. */
 export const hi: BrightnessTranslations = {
   'brightness.error.noProvider':
-    '@molecule/app-brightness: कोई प्रदाता सेट नहीं है। BrightnessProvider कार्यान्वयन के साथ setProvider() कॉल करें।',
+    '`@molecule/app-brightness`: कोई प्रदाता सेट नहीं है। `BrightnessProvider` कार्यान्वयन के साथ `setProvider()` कॉल करें — Molecule इसके लिए कोई प्रदाता प्रदान नहीं करता है; अपने नेटिव रनटाइम पर इंटरफ़ेस को लागू करें और इसे बॉन्ड करें।',
 }

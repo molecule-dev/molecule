@@ -75,4 +75,14 @@ export const ig: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} anaghị enye ọnụ ụzọ ịkwụ ụgwọ.',
   'user.payment.subscriptionOwnershipMismatch': 'Ndebanye aha a abụghị nke akaụntị gị.',
   'user.payment.transactionAlreadyClaimed': 'Nzụta a ejikọtala na akaụntụ ọzọ.',
+  'user.error.completeTargetMissing': 'Enweghị akaụntụ nwere ID enyere dị ka completeId.',
+  'user.error.completeIdentityMismatch':
+    'Aha njirimara ma ọ bụ ozi-e enyere anaghị egosi akaụntụ njirimara zuru oke.',
+  'user.error.completeNotOwned':
+    'Akaụntụ Id zuru oke na-abanye site na OAuth; e tinyeghị asambodo ya ebe a.',
+  'user.error.identityRequired':
+    'Inye ihe chọrọ aha njirimara ma ọ bụ email iji chọpụta akaụntụ ahụ.',
+  'user.error.usernameEmailConflict': "Aha njirimara na ozi-e ahụ dị n'akaụntụ abụọ dị adị.",
+  'user.error.oauthEmailCollision':
+    'Akaụntụ dịlarị maka ozi-e a. Biko banye na ụzọ mbụ gị, wee jikọọ onye na-enye ọrụ a na ntọala akaụntụ gị.',
 }

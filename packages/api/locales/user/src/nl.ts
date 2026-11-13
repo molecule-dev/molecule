@@ -77,4 +77,15 @@ export const nl: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} biedt geen factureringsportaal aan.',
   'user.payment.subscriptionOwnershipMismatch': 'Dit abonnement hoort niet bij uw account.',
   'user.payment.transactionAlreadyClaimed': 'Deze aankoop is al gekoppeld aan een ander account.',
+  'user.error.completeTargetMissing': 'Er bestaat geen account met de opgegeven ID als completeId.',
+  'user.error.completeIdentityMismatch':
+    'De opgegeven gebruikersnaam of het e-mailadres identificeert het completeId-account niet.',
+  'user.error.completeNotOwned':
+    'Het completeId-account meldt zich aan via OAuth; de inloggegevens worden hier niet verstrekt.',
+  'user.error.identityRequired':
+    'Voor het aanmaken van een account is een gebruikersnaam of e-mailadres nodig ter identificatie.',
+  'user.error.usernameEmailConflict':
+    'De gebruikersnaam en het e-mailadres behoren tot twee verschillende bestaande accounts.',
+  'user.error.oauthEmailCollision':
+    'Er bestaat al een account voor dit e-mailadres. Meld u eerst aan met uw oorspronkelijke methode en koppel vervolgens deze provider in uw accountinstellingen.',
 }

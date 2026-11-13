@@ -10,4 +10,5 @@ export const uz: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': "Profil sessiyasi topshirishdan oldin o'zgartirildi",
   'auth.error.passwordRequiresSignIn': "Parolni o'zgartirishdan oldin tizimga kiring",
   'auth.error.passwordSessionChanged': "Parol sessiyasi yuborishdan oldin o'zgartirildi",
+  'auth.error.requestTimedOut': "Autentifikatsiya so'rovi vaqti tugadi",
 }

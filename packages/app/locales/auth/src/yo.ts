@@ -10,4 +10,5 @@ export const yo: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Ìpàdé ìwífúnni yí padà kí ó tó fi sílẹ̀',
   'auth.error.passwordRequiresSignIn': 'Wọlé kí o tó yí ọ̀rọ̀ìpamọ́ padà',
   'auth.error.passwordSessionChanged': 'Àkókò ọ̀rọ̀ìpamọ́ ti yípadà kí a tó fi ránṣẹ́',
+  'auth.error.requestTimedOut': 'Àkókò ìbéèrè ìfàṣẹsí ti parí',
 }

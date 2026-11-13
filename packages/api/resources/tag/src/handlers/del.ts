@@ -22,7 +22,7 @@ export async function del(req: MoleculeRequest, res: MoleculeResponse): Promise<
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return

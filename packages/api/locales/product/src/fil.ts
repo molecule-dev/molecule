@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Filipino. */
 export const fil: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Kinakailangan ang pangalan ng produkto',
   'product.error.invalidName': 'Hindi wasto ang pangalan ng produkto',
   'product.error.invalidPrice': 'Kinakailangan ang wastong presyo',
@@ -15,4 +14,5 @@ export const fil: ProductTranslations = {
   'product.error.listVariantsFailed': 'Nabigong ilista ang mga variant ng produkto',
   'product.error.variantNameRequired': 'Kinakailangan ang pangalan ng variant',
   'product.error.createVariantFailed': 'Nabigong gumawa ng variant ng produkto',
+  'product.error.forbidden': 'Kinakailangan ang access ng admin upang pamahalaan ang mga produkto',
 }

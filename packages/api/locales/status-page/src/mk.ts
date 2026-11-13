@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Macedonian. */
 export const mk: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Услугата не е пронајдена.',
   'status.error.incidentNotFound': 'Инцидентот не е пронајден.',
   'status.error.validationFailed': 'Валидацијата не успеа: {{errors}}',
@@ -16,4 +15,5 @@ export const mk: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Неуспешно листање на инциденти.',
   'status.error.getStatusFailed': 'Неуспешно преземање на статусот на системот.',
   'status.error.getUptimeFailed': 'Неуспешно преземање на податоците за достапност.',
+  'status.error.forbidden': 'Потребна е дозвола за управување со страницата за статус',
 }

@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Vietnamese. */
 export const vi: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Tên sản phẩm là bắt buộc',
   'product.error.invalidName': 'Tên sản phẩm không hợp lệ',
   'product.error.invalidPrice': 'Yêu cầu mức giá hợp lệ',
@@ -15,4 +14,5 @@ export const vi: ProductTranslations = {
   'product.error.listVariantsFailed': 'Không thể liệt kê các biến thể sản phẩm',
   'product.error.variantNameRequired': 'Tên biến thể là bắt buộc',
   'product.error.createVariantFailed': 'Không thể tạo biến thể sản phẩm',
+  'product.error.forbidden': 'Cần có quyền truy cập quản trị để quản lý sản phẩm.',
 }

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Gujarati. */
 export const gu: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'સેવા મળી નથી.',
   'status.error.incidentNotFound': 'ઘટના મળી નથી.',
   'status.error.validationFailed': 'માન્યતા નિષ્ફળ: {{errors}}',
@@ -16,4 +15,5 @@ export const gu: StatusTranslations = {
   'status.error.listIncidentsFailed': 'ઘટનાઓની યાદી મેળવવામાં નિષ્ફળ.',
   'status.error.getStatusFailed': 'સિસ્ટમ સ્થિતિ મેળવવામાં નિષ્ફળ.',
   'status.error.getUptimeFailed': 'અપટાઇમ ડેટા મેળવવામાં નિષ્ફળ.',
+  'status.error.forbidden': 'સ્ટેટસ પેજ મેનેજ કરવા માટે પરવાનગી જરૂરી છે',
 }

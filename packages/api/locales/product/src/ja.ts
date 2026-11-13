@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Japanese. */
 export const ja: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': '商品名は必須です',
   'product.error.invalidName': '商品名が無効です',
   'product.error.invalidPrice': '有効な価格が必要です',
@@ -15,4 +14,5 @@ export const ja: ProductTranslations = {
   'product.error.listVariantsFailed': '商品バリエーション一覧の取得に失敗しました',
   'product.error.variantNameRequired': 'バリエーション名は必須です',
   'product.error.createVariantFailed': '商品バリエーションの作成に失敗しました',
+  'product.error.forbidden': '製品を管理するには管理者権限が必要です',
 }

@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Hausa. */
 export const ha: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Ba a saita mai samar da dashboard na matsayi ba.',
   'statusDashboard.error.fetchFailed': 'An kasa samun matsayi: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Duk Tsarin Suna Aiki',
   'statusDashboard.label.someIssues': 'Wasu Tsarin Suna Fuskantar Matsaloli',
@@ -17,4 +16,6 @@ export const ha: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'An duba karo na ƙarshe {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Ba a ba da rahoton wani abu ba.',
+  'statusDashboard.error.noProvider':
+    'Ba a saita mai bada dashboard na matsayi ba. Da farko haɗa mai bada dashboard na matsayi.',
 }

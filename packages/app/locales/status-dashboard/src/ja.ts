@@ -9,7 +9,6 @@ export const ja: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'サービス',
   'statusDashboard.label.incidents': 'インシデント',
   'statusDashboard.label.uptime': '稼働率',
-  'statusDashboard.error.noProvider': 'ステータスダッシュボードプロバイダーが設定されていません。',
   'statusDashboard.error.fetchFailed': 'ステータスの取得に失敗しました: HTTP {{status}}',
   'statusDashboard.label.allOperational': '全システム稼働中',
   'statusDashboard.label.someIssues': '一部のシステムで問題が発生しています',
@@ -17,4 +16,6 @@ export const ja: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': '最終確認{{time}}',
   'statusDashboard.label.latency': '{{ms}} MS',
   'statusDashboard.label.noIncidents': '事件の報告はありません。',
+  'statusDashboard.error.noProvider':
+    'ステータスダッシュボードプロバイダーが設定されていません。まずステータスダッシュボードプロバイダーをバインドしてください。',
 }

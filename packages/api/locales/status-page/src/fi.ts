@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Finnish. */
 export const fi: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Palvelua ei löytynyt.',
   'status.error.incidentNotFound': 'Tapahtumaa ei löytynyt.',
   'status.error.validationFailed': 'Validointi epäonnistui: {{errors}}',
@@ -16,4 +15,5 @@ export const fi: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Tapahtumien listaaminen epäonnistui.',
   'status.error.getStatusFailed': 'Järjestelmän tilan hakeminen epäonnistui.',
   'status.error.getUptimeFailed': 'Käytettävyystietojen hakeminen epäonnistui.',
+  'status.error.forbidden': 'Tilasivun hallintaan vaaditaan käyttöoikeus',
 }

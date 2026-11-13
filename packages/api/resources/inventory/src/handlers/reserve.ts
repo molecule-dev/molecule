@@ -25,7 +25,7 @@ export async function reserve(req: MoleculeRequest, res: MoleculeResponse): Prom
   const userId = getInventorySession(res)?.userId
   if (!userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return

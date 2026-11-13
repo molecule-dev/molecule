@@ -76,4 +76,16 @@ export const hu: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} nem kínál számlázási portált.',
   'user.payment.subscriptionOwnershipMismatch': 'Ez az előfizetés nem a fiókodhoz tartozik.',
   'user.payment.transactionAlreadyClaimed': 'Ez a vásárlás már egy másik fiókhoz van társítva.',
+  'user.error.completeTargetMissing':
+    'Nincs olyan fiók, amelyik a completeId azonosítóként megadott.',
+  'user.error.completeIdentityMismatch':
+    'A megadott felhasználónév vagy e-mail cím nem azonosítja a completeId fiókot.',
+  'user.error.completeNotOwned':
+    'A completeId fiók OAuth-on keresztül jelentkezik be; a hitelesítő adatai itt nincsenek kiépítve.',
+  'user.error.identityRequired':
+    'A fiók azonosításához felhasználónévre vagy e-mail címre van szükség.',
+  'user.error.usernameEmailConflict':
+    'A felhasználónév és az e-mail cím két különböző, meglévő fiókhoz tartozik.',
+  'user.error.oauthEmailCollision':
+    'Már létezik egy fiók ehhez az e-mail címhez. Kérjük, jelentkezzen be az eredeti módszerével, majd kapcsolja össze ezt a szolgáltatót a fiókbeállításaiban.',
 }

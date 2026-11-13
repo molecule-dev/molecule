@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const uz: Partial<ContactsTranslations> = {
   'contacts.unknown': "Noma'lum",
   'contacts.error.noProvider':
-    "`@molecule/app-contacts`: Provayder o'rnatilmagan. `setProvider()` `ContactsProvider` implementatsiyasi bilan chaqiring — hech qanday provayder flot bilan birga jo'natilmaydi; interfeysni o'zingizning mahalliy ish vaqtingizda amalga oshiring va uni bog'lang.",
+    "`@molecule/app-contacts`: Provayder o'rnatilmagan. `ContactsProvider` implementatsiyasi bilan `setProvider()` ga qo'ng'iroq qiling — Molecule buning uchun provayder yubormaydi; interfeysni o'zingizning mahalliy ish vaqtingizda amalga oshiring va uni bog'lang.",
 }

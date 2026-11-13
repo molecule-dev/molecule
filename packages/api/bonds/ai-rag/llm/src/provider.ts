@@ -109,9 +109,7 @@ export const provider: AIRagProvider = {
           t(
             'ai-rag.error.aiProviderNotBonded',
             { name: input.provider },
-            {
-              defaultValue: `AI provider "${input.provider}" is not bonded. Bond it before querying.`,
-            },
+            { defaultValue: 'AI provider "{{name}}" is not bonded. Bond it before querying.' },
           ),
         )
       }

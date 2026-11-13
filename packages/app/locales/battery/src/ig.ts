@@ -11,5 +11,5 @@ export const ig: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}ch {{minutes}}nk',
   'battery.remainingMinutes': '{{minutes}}nk',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Enweghị onye na-enye ọrụ. Kpọọ `setProvider()` site na iji `BatteryProvider` — ọ dịghị onye na-enye ọrụ na-ebuga ya na ndị ọrụ; tinye interface ahụ na oge ọrụ gị wee jikọta ya.',
+    '`@molecule/app-battery`: Enweghị ntọala onye na-enye ọrụ. Kpọọ `setProvider()` site na iji `BatteryProvider` — Molecule anaghị ebufe onye na-enye ọrụ maka ya; tinye interface ahụ na oge ọrụ gị wee jikọta ya.',
 }

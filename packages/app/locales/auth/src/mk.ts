@@ -10,4 +10,5 @@ export const mk: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Сесијата на профилот се промени пред поднесувањето',
   'auth.error.passwordRequiresSignIn': 'Најавете се пред да ја промените лозинката',
   'auth.error.passwordSessionChanged': 'Сесијата со лозинка се промени пред поднесувањето',
+  'auth.error.requestTimedOut': 'Барањето за автентикација истече',
 }

@@ -6,8 +6,6 @@ export const uz: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Maxfiylik siyosati',
   'footer.termsOfService': "Xizmat ko'rsatish shartlari",
   'footer.language': 'Til',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured': 'Bu kontent hali sozlanmagan. Ilova egasi uni taqdim etishi kerak.',
   'footer.about': '{{appName}} haqida',
 }

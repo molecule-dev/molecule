@@ -94,10 +94,10 @@ export async function updateStock(req: MoleculeRequest, res: MoleculeResponse): 
         newTotal = input.quantity
         if (newTotal < row.reserved) {
           res.status(409).json({
-            error: t('inventory.error.insufficientStock', undefined, {
+            error: t('inventory.error.insufficientStockSet', undefined, {
               defaultValue: 'Cannot set: value is below reserved quantity',
             }),
-            errorKey: 'inventory.error.insufficientStock',
+            errorKey: 'inventory.error.insufficientStockSet',
           })
           return
         }

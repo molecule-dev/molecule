@@ -80,13 +80,13 @@ export function MedicationRow({
                 {t(
                   'medication.supplyDays',
                   { days: supplyDays },
-                  { defaultValue: `${supplyDays} day supply` },
+                  { defaultValue: '{{days}} day supply' },
                 )}
               </span>
             )}
             {refills !== undefined && (
               <span className={cm.textSize('xs')}>
-                · {t('medication.refills', { refills }, { defaultValue: `${refills} refills` })}
+                · {t('medication.refills', { refills }, { defaultValue: '{{refills}} refills' })}
               </span>
             )}
           </div>

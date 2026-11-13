@@ -63,7 +63,7 @@ export function BulkActionToolbar({
       style={stickyStyle}
     >
       <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
-        {t('bulkActions.selected', { count }, { defaultValue: `${count} selected` })}
+        {t('bulkActions.selected', { count }, { defaultValue: '{{count}} selected' })}
       </span>
       <div className={cm.flex({ align: 'center', gap: 'sm' })}>
         {actions.map((a) => (

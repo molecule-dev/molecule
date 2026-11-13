@@ -3,5 +3,5 @@ import type { MotionTranslations } from './types.js'
 /** Motion translations for Nepali. */
 export const ne: MotionTranslations = {
   'motion.error.noProvider':
-    '@molecule/app-motion: प्रदायक सेट गरिएको छैन। MotionProvider कार्यान्वयनसँग setProvider() कल गर्नुहोस्।',
+    '`@molecule/app-motion`: कुनै प्रदायक सेट गरिएको छैन। `MotionProvider` कार्यान्वयनको साथ `setProvider()` कल गर्नुहोस् — Molecule ले यसको लागि कुनै प्रदायक पठाउँदैन; तपाईंको नेटिभ रनटाइममा इन्टरफेस लागू गर्नुहोस् र यसलाई बन्ड गर्नुहोस्।',
 }

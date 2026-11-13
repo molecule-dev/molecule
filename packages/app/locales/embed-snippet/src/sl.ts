@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for sl. */
 export const sl: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Vdelana koda ({language})',
   'embedSnippet.heading': 'Vdelana koda',
   'embedSnippet.eyebrow': 'Kopiraj vdelano kodo',
   'embedSnippet.copy': 'Kopiraj',
@@ -13,4 +12,5 @@ export const sl: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Svetloba',
   'embedSnippet.theme.dark': 'Temno',
   'embedSnippet.theme.auto': 'Samodejno',
+  'embedSnippet.aria.region': 'Vdelana koda ({{language}})',
 }

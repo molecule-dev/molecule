@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Filipino. */
 export const fil: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Kinakailangan ang pangalan ng tag',
   'tag.error.invalidName': 'Hindi wasto ang pangalan ng tag',
   'tag.error.createFailed': 'Hindi matagumpay na nalikha ang tag',
@@ -17,4 +16,5 @@ export const fil: TagTranslations = {
   'tag.error.associationNotFound': 'Hindi nahanap ang kaugnayan ng tag',
   'tag.error.removeFailed': 'Hindi matagumpay na naalis ang tag sa resource',
   'tag.error.getBySlugFailed': 'Hindi matagumpay na nakuha ang mga resource ayon sa tag',
+  'tag.error.forbidden': 'Kinakailangan ang access ng admin para mapamahalaan ang mga tag',
 }

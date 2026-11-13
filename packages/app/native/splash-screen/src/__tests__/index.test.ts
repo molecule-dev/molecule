@@ -322,7 +322,7 @@ describe('@molecule/app-splash-screen', () => {
         await configure({ backgroundColor: '#000000' })
 
         expect(consoleSpy).toHaveBeenCalledWith(
-          '@molecule/app-splash-screen: configure not supported by provider',
+          'configure() is not supported by this splash screen provider.',
         )
         consoleSpy.mockRestore()
       })

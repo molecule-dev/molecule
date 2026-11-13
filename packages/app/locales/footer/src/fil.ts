@@ -6,8 +6,6 @@ export const fil: Partial<FooterTranslations> = {
   'footer.termsOfService': 'Mga Tuntunin ng Serbisyo',
   'footer.language': 'Wika',
   'footer.version': 'v {{version}}',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Hindi pa nako-configure ang nilalamang ito. Dapat itong ibigay ng may-ari ng app.',
   'footer.about': 'Tungkol kay {{appName}}',

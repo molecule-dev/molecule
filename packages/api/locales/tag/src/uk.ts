@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Ukrainian. */
 export const uk: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': "Назва тегу обов'язкова",
   'tag.error.invalidName': 'Назва тегу недійсна',
   'tag.error.createFailed': 'Не вдалося створити тег',
@@ -17,4 +16,5 @@ export const uk: TagTranslations = {
   'tag.error.associationNotFound': "Зв'язок тегу не знайдено",
   'tag.error.removeFailed': 'Не вдалося видалити тег з ресурсу',
   'tag.error.getBySlugFailed': 'Не вдалося отримати ресурси за тегом',
+  'tag.error.forbidden': 'Для керування тегами потрібен доступ адміністратора',
 }

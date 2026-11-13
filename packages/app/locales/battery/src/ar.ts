@@ -11,5 +11,5 @@ export const ar: Partial<BatteryTranslations> = {
   'battery.not-charging': 'لا يتم الشحن',
   'battery.remainingTime': '{{hours}} ح {{minutes}} م',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: لم يتم تعيين موفر. استدعِ `setProvider()` مع تطبيق `BatteryProvider` — لا يأتي أي موفر مع الأسطول؛ قم بتنفيذ الواجهة على وقت التشغيل الأصلي الخاص بك وقم بربطها.',
+    '`@molecule/app-battery`: لم يتم تعيين موفر. استدعِ `setProvider()` مع تطبيق `BatteryProvider` — لا يوفر Molecule موفرًا له؛ قم بتنفيذ الواجهة على وقت التشغيل الأصلي الخاص بك وقم بربطها.',
 }

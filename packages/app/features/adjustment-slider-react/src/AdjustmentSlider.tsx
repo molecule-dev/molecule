@@ -108,8 +108,8 @@ export function AdjustmentSlider({
   // Position center mark proportionally between min..max (0..100%).
   const centerPct = showCenterMark ? ((0 - min) / (max - min)) * 100 : 50
 
-  const resetAria = t('adjustmentSlider.reset.aria', { label }, { defaultValue: `Reset ${label}` })
-  const sliderAria = t('adjustmentSlider.aria', { label }, { defaultValue: label })
+  const resetAria = t('adjustmentSlider.reset.aria', { label }, { defaultValue: 'Reset {{label}}' })
+  const sliderAria = t('adjustmentSlider.aria', { label }, { defaultValue: '{{label}}' })
 
   return (
     <div className={cm.cn(cm.stack(1), className)} data-mol-id={dataMolId ?? 'adjustment-slider'}>

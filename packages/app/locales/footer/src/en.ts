@@ -13,6 +13,4 @@ export const en: FooterTranslations = {
   // default policy would be legally wrong to present as an app's own. The
   // footer renders `footer.legalNotConfigured` (never a blank modal) until the
   // app registers real content or wires `@molecule/app-locales-legal-default`.
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
 }

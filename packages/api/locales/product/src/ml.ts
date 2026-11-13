@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Malayalam. */
 export const ml: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ഉൽപ്പന്ന നാമം ആവശ്യമാണ്',
   'product.error.invalidName': 'ഉൽപ്പന്ന നാമം അസാധുവാണ്',
   'product.error.invalidPrice': 'സാധുവായ വില ആവശ്യമാണ്',
@@ -15,4 +14,5 @@ export const ml: ProductTranslations = {
   'product.error.listVariantsFailed': 'ഉൽപ്പന്ന വകഭേദങ്ങൾ പട്ടികപ്പെടുത്തുന്നതിൽ പരാജയപ്പെട്ടു',
   'product.error.variantNameRequired': 'വകഭേദ നാമം ആവശ്യമാണ്',
   'product.error.createVariantFailed': 'ഉൽപ്പന്ന വകഭേദം സൃഷ്ടിക്കുന്നതിൽ പരാജയപ്പെട്ടു',
+  'product.error.forbidden': 'ഉൽപ്പന്നങ്ങൾ മാനേജ് ചെയ്യാൻ അഡ്മിൻ ആക്‌സസ് ആവശ്യമാണ്.',
 }

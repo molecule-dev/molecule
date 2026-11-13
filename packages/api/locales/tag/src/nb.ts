@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Norwegian Bokmål. */
 export const nb: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tagnavn er påkrevd',
   'tag.error.invalidName': 'Tagnavn er ugyldig',
   'tag.error.createFailed': 'Kunne ikke opprette tag',
@@ -17,4 +16,5 @@ export const nb: TagTranslations = {
   'tag.error.associationNotFound': 'Tagtilknytning ikke funnet',
   'tag.error.removeFailed': 'Kunne ikke fjerne tag fra ressurs',
   'tag.error.getBySlugFailed': 'Kunne ikke hente ressurser etter tag',
+  'tag.error.forbidden': 'Administratortilgang kreves for å administrere tagger',
 }

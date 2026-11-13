@@ -3,5 +3,5 @@ import type { ScreenOrientationTranslations } from './types.js'
 /** Screen Orientation translations for Basque. */
 export const eu: ScreenOrientationTranslations = {
   'screenOrientation.error.noProvider':
-    '@molecule/app-screen-orientation: Ez da hornitzailerik ezarri. Deitu setProvider() ScreenOrientationProvider inplementazio batekin.',
+    '`@molecule/app-screen-orientation`: Ez da hornitzailerik ezarri. Deitu `setProvider()` `ScreenOrientationProvider` inplementazio batekin — Moleculek ez du hornitzailerik bidaltzen berarentzat; inplementatu interfazea zure jatorrizko exekuzio-denboran eta lotu ezazu.',
 }

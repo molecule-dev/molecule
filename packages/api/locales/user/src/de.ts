@@ -78,4 +78,15 @@ export const de: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Dieses Abonnement gehört nicht zu Ihrem Konto.',
   'user.payment.transactionAlreadyClaimed':
     'Dieser Kauf ist bereits einem anderen Konto zugeordnet.',
+  'user.error.completeTargetMissing': 'Es existiert kein Konto mit der angegebenen ID completeId.',
+  'user.error.completeIdentityMismatch':
+    'Der angegebene Benutzername oder die E-Mail-Adresse identifiziert nicht das completeId-Konto.',
+  'user.error.completeNotOwned':
+    'Das completeId-Konto meldet sich über OAuth an; seine Anmeldeinformationen werden nicht hier bereitgestellt.',
+  'user.error.identityRequired':
+    'Für die Bereitstellung wird ein Benutzername oder eine E-Mail-Adresse zur Identifizierung des Kontos benötigt.',
+  'user.error.usernameEmailConflict':
+    'Der Benutzername und die E-Mail-Adresse gehören zu zwei verschiedenen bestehenden Konten.',
+  'user.error.oauthEmailCollision':
+    'Für diese E-Mail-Adresse existiert bereits ein Konto. Bitte melden Sie sich mit Ihrer gewohnten Methode an und verknüpfen Sie diesen Anbieter anschließend in Ihren Kontoeinstellungen.',
 }

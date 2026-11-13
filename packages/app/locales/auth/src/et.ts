@@ -10,4 +10,5 @@ export const et: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Profiilisessioon muutus enne esitamist',
   'auth.error.passwordRequiresSignIn': 'Logi sisse enne parooli muutmist',
   'auth.error.passwordSessionChanged': 'Parooliseanss muudeti enne esitamist',
+  'auth.error.requestTimedOut': 'Autentimistaotlus aegus',
 }

@@ -103,7 +103,7 @@ export function useTranslation(): UseTranslationResult {
   const t: I18nProvider['t'] = (
     key: string,
     values?: InterpolationValues,
-    options?: { defaultValue?: string; count?: number },
+    options?: TranslateOptions,
   ) => provider.t(key, values, options)
 
   // The provider's own promise is returned (a caller may await the switch, and

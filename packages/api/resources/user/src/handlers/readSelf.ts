@@ -41,7 +41,7 @@ export const readSelf = ({ tableName }: types.HandlerResource) => {
         return {
           statusCode: 401,
           body: {
-            error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+            error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
             errorKey: 'resource.error.unauthorized',
           },
         }
@@ -55,7 +55,7 @@ export const readSelf = ({ tableName }: types.HandlerResource) => {
         return {
           statusCode: 401,
           body: {
-            error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+            error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
             errorKey: 'resource.error.unauthorized',
           },
         }

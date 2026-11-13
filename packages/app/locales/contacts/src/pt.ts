@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const pt: Partial<ContactsTranslations> = {
   'contacts.unknown': 'Desconhecido',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: Nenhum provedor definido. Chame `setProvider()` com uma implementação de `ContactsProvider` — nenhum provedor é fornecido com a frota; implemente a interface em seu ambiente de execução nativo e vincule-a.',
+    '`@molecule/app-contacts`: Nenhum provedor definido. Chame `setProvider()` com uma implementação de `ContactsProvider` — o Molecule não fornece um provedor para isso; implemente a interface em seu ambiente de execução nativo e faça a vinculação.',
 }

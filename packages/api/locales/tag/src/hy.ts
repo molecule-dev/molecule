@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Armenian. */
 export const hy: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired':
     '\u054A\u056B\u057F\u0561\u056F\u056B \u0561\u0576\u0578\u0582\u0576\u0568 \u057A\u0561\u0580\u057F\u0561\u0564\u056B\u0580 \u0567',
   'tag.error.invalidName':
@@ -30,4 +29,5 @@ export const hy: TagTranslations = {
     '\u0549\u0570\u0561\u057B\u0578\u0572\u057E\u0565\u0581 \u057A\u056B\u057F\u0561\u056F\u0568 \u0570\u0565\u057C\u0561\u0581\u0576\u0565\u056C \u057C\u0565\u057D\u0578\u0582\u0580\u057D\u056B\u0581',
   'tag.error.getBySlugFailed':
     '\u0549\u0570\u0561\u057B\u0578\u0572\u057E\u0565\u0581 \u057D\u057F\u0561\u0576\u0561\u056C \u057C\u0565\u057D\u0578\u0582\u0580\u057D\u0576\u0565\u0580\u0568 \u0568\u057D\u057F \u057A\u056B\u057F\u0561\u056F\u056B',
+  'tag.error.forbidden': 'Պիտակները կառավարելու համար անհրաժեշտ է ադմինիստրատորի մուտք',
 }

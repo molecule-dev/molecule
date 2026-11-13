@@ -76,4 +76,16 @@ export const pl: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} nie oferuje portalu rozliczeniowego.',
   'user.payment.subscriptionOwnershipMismatch': 'Ta subskrypcja nie jest częścią Twojego konta.',
   'user.payment.transactionAlreadyClaimed': 'Ten zakup jest już powiązany z innym kontem.',
+  'user.error.completeTargetMissing':
+    'Nie istnieje konto o identyfikatorze podanym jako completeId.',
+  'user.error.completeIdentityMismatch':
+    'Podana nazwa użytkownika lub adres e-mail nie identyfikują konta completeId.',
+  'user.error.completeNotOwned':
+    'Konto completeId loguje się za pomocą protokołu OAuth. Jego dane uwierzytelniające nie są tutaj udostępniane.',
+  'user.error.identityRequired':
+    'Do utworzenia konta potrzebna jest nazwa użytkownika lub adres e-mail w celu jego identyfikacji.',
+  'user.error.usernameEmailConflict':
+    'Nazwa użytkownika i adres e-mail należą do dwóch różnych kont.',
+  'user.error.oauthEmailCollision':
+    'Konto dla tego adresu e-mail już istnieje. Zaloguj się przy użyciu pierwotnej metody, a następnie połącz tego dostawcę w ustawieniach konta.',
 }

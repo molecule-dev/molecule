@@ -77,4 +77,16 @@ export const kk: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Бұл жазылым сіздің аккаунтыңызға тиесілі емес.',
   'user.payment.transactionAlreadyClaimed':
     'Бұл сатып алу басқа есептік жазбамен байланыстырылған.',
+  'user.error.completeTargetMissing':
+    'completeId ретінде берілген идентификатормен ешқандай тіркелгі жоқ.',
+  'user.error.completeIdentityMismatch':
+    'Берілген пайдаланушы аты немесе электрондық пошта толық ID тіркелгісін анықтамайды.',
+  'user.error.completeNotOwned':
+    'completeId тіркелгісі OAuth арқылы кіреді; оның тіркелгі деректері мұнда берілмеген.',
+  'user.error.identityRequired':
+    'Тіркелгіні анықтау үшін пайдаланушы аты немесе электрондық пошта қажет.',
+  'user.error.usernameEmailConflict':
+    'Пайдаланушы аты мен электрондық пошта екі түрлі қолданыстағы тіркелгіге тиесілі.',
+  'user.error.oauthEmailCollision':
+    'Бұл электрондық пошта үшін тіркелгі бұрыннан бар. Бастапқы әдісіңізбен кіріңіз, содан кейін тіркелгі параметрлерінен осы провайдерді байланыстырыңыз.',
 }

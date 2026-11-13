@@ -10,4 +10,5 @@ export const ru: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Сессия профиля была изменена перед отправкой.',
   'auth.error.passwordRequiresSignIn': 'Войдите в систему перед сменой пароля.',
   'auth.error.passwordSessionChanged': 'Пароль сессии был изменен перед отправкой.',
+  'auth.error.requestTimedOut': 'Запрос на аутентификацию истек по времени.',
 }

@@ -11,5 +11,5 @@ export const ky: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}с {{minutes}}мин',
   'battery.remainingMinutes': '{{minutes}}мин',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Провайдер орнотулган эмес. `setProvider()` функциясын `BatteryProvider` реализациясы менен чакырыңыз — эч бир провайдер флот менен жөнөтүлбөйт; интерфейсти өзүңүздүн жергиликтүү иштөө убактыңызга ишке ашырып, аны байланыштырыңыз.',
+    '`@molecule/app-battery`: Провайдер коюлган эмес. `setProvider()` функциясын `BatteryProvider` реализациясы менен чакырыңыз — Molecule ага эч кандай провайдер жөнөтпөйт; интерфейсти өзүңүздүн жергиликтүү иштөө убактыңызга ишке ашырып, аны байланыштырыңыз.',
 }

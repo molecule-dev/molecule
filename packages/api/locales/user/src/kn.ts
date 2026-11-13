@@ -75,4 +75,15 @@ export const kn: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ಬಿಲ್ಲಿಂಗ್ ಪೋರ್ಟಲ್ ಅನ್ನು ನೀಡುವುದಿಲ್ಲ.',
   'user.payment.subscriptionOwnershipMismatch': 'ಈ ಚಂದಾದಾರಿಕೆ ನಿಮ್ಮ ಖಾತೆಗೆ ಸೇರಿಲ್ಲ.',
   'user.payment.transactionAlreadyClaimed': 'ಈ ಖರೀದಿಯು ಈಗಾಗಲೇ ಮತ್ತೊಂದು ಖಾತೆಯೊಂದಿಗೆ ಸಂಯೋಜಿತವಾಗಿದೆ.',
+  'user.error.completeTargetMissing':
+    'completeId ಎಂದು ಒದಗಿಸಲಾದ ಐಡಿಯೊಂದಿಗೆ ಯಾವುದೇ ಖಾತೆ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ.',
+  'user.error.completeIdentityMismatch':
+    'ಒದಗಿಸಲಾದ ಬಳಕೆದಾರಹೆಸರು ಅಥವಾ ಇಮೇಲ್ ಸಂಪೂರ್ಣ ಐಡಿ ಖಾತೆಯನ್ನು ಗುರುತಿಸುವುದಿಲ್ಲ.',
+  'user.error.completeNotOwned':
+    'ಕಂಪ್ಲೀಟ್ ಐಡಿ ಖಾತೆಯು OAuth ಮೂಲಕ ಸೈನ್ ಇನ್ ಆಗುತ್ತದೆ; ಅದರ ರುಜುವಾತುಗಳನ್ನು ಇಲ್ಲಿ ಒದಗಿಸಲಾಗಿಲ್ಲ.',
+  'user.error.identityRequired': 'ಖಾತೆಯನ್ನು ಗುರುತಿಸಲು ಪೂರೈಕೆಗೆ ಬಳಕೆದಾರಹೆಸರು ಅಥವಾ ಇಮೇಲ್ ಅಗತ್ಯವಿದೆ.',
+  'user.error.usernameEmailConflict':
+    'ಬಳಕೆದಾರಹೆಸರು ಮತ್ತು ಇಮೇಲ್ ಎರಡು ವಿಭಿನ್ನ ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ ಖಾತೆಗಳಿಗೆ ಸೇರಿವೆ.',
+  'user.error.oauthEmailCollision':
+    'ಈ ಇಮೇಲ್‌ಗಾಗಿ ಈಗಾಗಲೇ ಒಂದು ಖಾತೆ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಮೂಲ ವಿಧಾನದೊಂದಿಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿ, ನಂತರ ನಿಮ್ಮ ಖಾತೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳಿಂದ ಈ ಪೂರೈಕೆದಾರರನ್ನು ಲಿಂಕ್ ಮಾಡಿ.',
 }

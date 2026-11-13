@@ -75,4 +75,14 @@ export const et: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ei paku arveldusportaali.',
   'user.payment.subscriptionOwnershipMismatch': 'See tellimus ei kuulu teie kontole.',
   'user.payment.transactionAlreadyClaimed': 'See ost on juba seotud teise kontoga.',
+  'user.error.completeTargetMissing': 'Sellise ID-ga nagu completeId pole ühtegi kontot olemas.',
+  'user.error.completeIdentityMismatch':
+    'Esitatud kasutajanimi või e-posti aadress ei tuvasta completeId kontot.',
+  'user.error.completeNotOwned':
+    'completeId konto logib sisse OAuthi kaudu; selle volitusi siin ei eraldata.',
+  'user.error.identityRequired': 'Konto tuvastamiseks on vaja kasutajanime või e-posti aadressi.',
+  'user.error.usernameEmailConflict':
+    'Kasutajanimi ja e-posti aadress kuuluvad kahele erinevale olemasolevale kontole.',
+  'user.error.oauthEmailCollision':
+    'Selle e-posti aadressi jaoks on juba konto olemas. Palun logige sisse oma algse meetodiga ja seejärel linkige see pakkuja oma konto seadetes.',
 }

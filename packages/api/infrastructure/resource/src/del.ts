@@ -77,7 +77,9 @@ export const del =
           error: t(
             'resource.error.unableToDelete',
             { name },
-            { defaultValue: `Unable to delete ${name}.` },
+            {
+              defaultValue: 'Unable to delete {{name}}.',
+            },
           ),
           errorKey: 'resource.error.unableToDelete',
         },

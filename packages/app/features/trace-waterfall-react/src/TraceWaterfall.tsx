@@ -229,9 +229,7 @@ function SpanRowView({
       duration: durationLabel,
     },
     {
-      defaultValue: span.service
-        ? '{{service}} · {{name}} · {{duration}}'
-        : '{{name}} · {{duration}}',
+      defaultValue: '{{service}} · {{name}} · {{duration}}',
     },
   )
 

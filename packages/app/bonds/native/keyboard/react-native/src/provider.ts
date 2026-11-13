@@ -49,7 +49,7 @@ async function getReactNativeKeyboard(): Promise<{
       t(
         'keyboard.error.missingDependency',
         { library: 'react-native' },
-        { defaultValue: 'react-native is required but not installed.' },
+        { defaultValue: '`{{library}}` is required but not installed.' },
       ),
       { cause: error },
     )

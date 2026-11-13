@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Welsh. */
 export const cy: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': "Mae angen enw'r tag",
   'tag.error.invalidName': "Mae enw'r tag yn annilys",
   'tag.error.createFailed': 'Methwyd â chreu tag',
@@ -17,4 +16,5 @@ export const cy: TagTranslations = {
   'tag.error.associationNotFound': 'Ni chanfuwyd cysylltiad y tag',
   'tag.error.removeFailed': "Methwyd â thynnu tag o'r adnodd",
   'tag.error.getBySlugFailed': 'Methwyd â chael adnoddau yn ôl tag',
+  'tag.error.forbidden': 'Mae angen mynediad gweinyddol i reoli tagiau',
 }

@@ -10,4 +10,5 @@ export const ur: AuthTranslations = {
   'auth.error.profileSessionChanged': 'جمع کرانے سے پہلے پروفائل سیشن بدل گیا۔',
   'auth.error.passwordRequiresSignIn': 'پاس ورڈ تبدیل کرنے سے پہلے سائن ان کریں۔',
   'auth.error.passwordSessionChanged': 'جمع کرانے سے پہلے پاس ورڈ سیشن تبدیل ہو گیا۔',
+  'auth.error.requestTimedOut': 'تصدیق کی درخواست کا وقت ختم ہو گیا۔',
 }

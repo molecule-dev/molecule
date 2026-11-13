@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for lo. */
 export const lo: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'ລະຫັດຝັງ ({language})',
   'embedSnippet.heading': 'ລະຫັດຝັງ',
   'embedSnippet.eyebrow': 'ສຳເນົາລະຫັດຝັງ',
   'embedSnippet.copy': 'ສຳເນົາ',
@@ -13,4 +12,5 @@ export const lo: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'ແສງສະຫວ່າງ',
   'embedSnippet.theme.dark': 'ມືດ',
   'embedSnippet.theme.auto': 'ອັດຕະໂນມັດ',
+  'embedSnippet.aria.region': 'ລະຫັດຝັງ ({{language}})',
 }

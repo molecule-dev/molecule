@@ -11,5 +11,5 @@ export const si: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}පැ {{minutes}}මි',
   'battery.remainingMinutes': '{{minutes}}මි',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: සැපයුම්කරු සකසා නැත. `BatteryProvider` ක්‍රියාත්මක කිරීමක් සමඟ `setProvider()` අමතන්න — කිසිදු සැපයුම්කරුවෙකු බලඇණිය සමඟ නැව්ගත නොකරයි; ඔබගේ ස්වදේශීය ධාවන වේලාවේ අතුරු මුහුණත ක්‍රියාත්මක කර එය බැඳ තබන්න.',
+    '`@molecule/app-battery`: සැපයුම්කරු සකසා නැත. `BatteryProvider` ක්‍රියාත්මක කිරීමක් සමඟ `setProvider()` අමතන්න — අණුව ඒ සඳහා සැපයුම්කරුවෙකු නොයවයි; ඔබේ ස්වදේශීය ධාවන වේලාවේ අතුරු මුහුණත ක්‍රියාත්මක කර එය බැඳ තබන්න.',
 }

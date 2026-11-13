@@ -95,7 +95,7 @@ export const createSimpleChartProvider = (options?: SimpleChartProviderOptions):
         const chartDesc =
           options?.placeholderDescription ??
           t('charts.placeholder.description', undefined, {
-            defaultValue: 'No chart provider bonded',
+            defaultValue: 'Use a proper chart provider',
           })
         ctx.fillText(chartLabel, width / 2, height / 2)
         ctx.fillText(chartDesc, width / 2, height / 2 + 20)

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Korean. */
 export const ko: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': '서비스를 찾을 수 없습니다.',
   'status.error.incidentNotFound': '인시던트를 찾을 수 없습니다.',
   'status.error.validationFailed': '유효성 검사 실패: {{errors}}',
@@ -16,4 +15,5 @@ export const ko: StatusTranslations = {
   'status.error.listIncidentsFailed': '인시던트 목록 조회에 실패했습니다.',
   'status.error.getStatusFailed': '시스템 상태 조회에 실패했습니다.',
   'status.error.getUptimeFailed': '가동 시간 데이터 조회에 실패했습니다.',
+  'status.error.forbidden': '상태 페이지를 관리하려면 권한이 필요합니다.',
 }

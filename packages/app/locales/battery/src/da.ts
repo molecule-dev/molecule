@@ -11,5 +11,5 @@ export const da: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}t {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Ingen udbyder angivet. Kald `setProvider()` med en `BatteryProvider` implementering — ingen udbyder følger med flåden; implementer grænsefladen på din native runtime og opret en tilknytning til den.',
+    '`@molecule/app-battery`: Ingen provider angivet. Kald `setProvider()` med en `BatteryProvider` implementering — Molecule leverer ingen provider til den; implementer grænsefladen på din native runtime og opret en tilknytning til den.',
 }

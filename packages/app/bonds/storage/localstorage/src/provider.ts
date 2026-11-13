@@ -159,7 +159,7 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
           throw new I18nError(
             'storage.error.quotaExceeded',
             { key },
-            `Storage quota exceeded when setting key "${key}"`,
+            'Storage quota exceeded when setting key "{{key}}"',
             error,
           )
         }

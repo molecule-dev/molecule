@@ -10,4 +10,5 @@ export const af: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Die profielsessie het voor indiening verander',
   'auth.error.passwordRequiresSignIn': "Meld aan voordat u 'n wagwoord verander",
   'auth.error.passwordSessionChanged': 'Die wagwoordsessie het voor indiening verander',
+  'auth.error.requestTimedOut': 'Die verifikasieversoek het verstryk',
 }

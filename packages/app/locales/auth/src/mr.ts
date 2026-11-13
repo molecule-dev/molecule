@@ -10,4 +10,5 @@ export const mr: AuthTranslations = {
   'auth.error.profileSessionChanged': 'सबमिशन करण्यापूर्वी प्रोफाइल सेशन बदलले.',
   'auth.error.passwordRequiresSignIn': 'पासवर्ड बदलण्यापूर्वी साइन इन करा',
   'auth.error.passwordSessionChanged': 'सबमिशन करण्यापूर्वी पासवर्ड सेशन बदलले.',
+  'auth.error.requestTimedOut': 'प्रमाणीकरण विनंतीची वेळ संपली.',
 }

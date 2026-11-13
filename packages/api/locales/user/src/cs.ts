@@ -76,4 +76,15 @@ export const cs: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} nenabízí fakturační portál.',
   'user.payment.subscriptionOwnershipMismatch': 'Toto předplatné nepatří k vašemu účtu.',
   'user.payment.transactionAlreadyClaimed': 'Tento nákup je již přidružen k jinému účtu.',
+  'user.error.completeTargetMissing': 'S ID uvedeným jako completeId neexistuje žádný účet.',
+  'user.error.completeIdentityMismatch':
+    'Zadané uživatelské jméno nebo e-mail neidentifikují účet completeId.',
+  'user.error.completeNotOwned':
+    'Účet completeId se přihlašuje přes OAuth; jeho přihlašovací údaje zde nejsou zřízeny.',
+  'user.error.identityRequired':
+    'Zřizování vyžaduje uživatelské jméno nebo e-mail k identifikaci účtu.',
+  'user.error.usernameEmailConflict':
+    'Uživatelské jméno a e-mail patří ke dvěma různým existujícím účtům.',
+  'user.error.oauthEmailCollision':
+    'Pro tento e-mail již existuje účet. Přihlaste se prosím původním způsobem a poté propojte tohoto poskytovatele v nastavení účtu.',
 }

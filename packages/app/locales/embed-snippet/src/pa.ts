@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for pa. */
 export const pa: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'ਕੋਡ ({language}) ਨੂੰ ਏਮਬੈਡ ਕਰੋ',
   'embedSnippet.heading': 'ਕੋਡ ਏਮਬੈਡ ਕਰੋ',
   'embedSnippet.eyebrow': 'ਏਮਬੈਡ ਕੋਡ ਕਾਪੀ ਕਰੋ',
   'embedSnippet.copy': 'ਕਾਪੀ ਕਰੋ',
@@ -13,4 +12,5 @@ export const pa: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'ਰੋਸ਼ਨੀ',
   'embedSnippet.theme.dark': 'ਹਨੇਰਾ',
   'embedSnippet.theme.auto': 'ਆਟੋ',
+  'embedSnippet.aria.region': 'ਏਮਬੈਡ ਕੋਡ ({{language}})',
 }

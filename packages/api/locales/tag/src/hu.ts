@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Hungarian. */
 export const hu: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'A címke neve kötelező',
   'tag.error.invalidName': 'A címke neve érvénytelen',
   'tag.error.createFailed': 'A címke létrehozása sikertelen',
@@ -17,4 +16,5 @@ export const hu: TagTranslations = {
   'tag.error.associationNotFound': 'A címke társítás nem található',
   'tag.error.removeFailed': 'A címke eltávolítása az erőforrásból sikertelen',
   'tag.error.getBySlugFailed': 'Az erőforrások lekérése címke alapján sikertelen',
+  'tag.error.forbidden': 'A címkék kezeléséhez rendszergazdai hozzáférés szükséges',
 }

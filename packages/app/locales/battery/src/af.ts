@@ -11,5 +11,5 @@ export const af: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}u {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    "`@molecule/app-battery`: Geen verskaffer gestel nie. Roep `setProvider()` met 'n `BatteryProvider` implementering — geen verskaffer word saam met die vloot gestuur nie; implementeer die koppelvlak op jou eie looptyd en koppel dit.",
+    "`@molecule/app-battery`: Geen verskaffer gestel nie. Roep `setProvider()` aan met 'n `BatteryProvider` implementering — Molecule stuur geen verskaffer daarvoor nie; implementeer die koppelvlak op jou oorspronklike looptyd en koppel dit.",
 }

@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Finnish. */
 export const fi: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tagin nimi on pakollinen',
   'tag.error.invalidName': 'Tagin nimi on virheellinen',
   'tag.error.createFailed': 'Tagin luonti epäonnistui',
@@ -17,4 +16,5 @@ export const fi: TagTranslations = {
   'tag.error.associationNotFound': 'Tagin yhdistystä ei löytynyt',
   'tag.error.removeFailed': 'Tagin poisto resurssista epäonnistui',
   'tag.error.getBySlugFailed': 'Resurssien haku tagin mukaan epäonnistui',
+  'tag.error.forbidden': 'Tagien hallintaan vaaditaan järjestelmänvalvojan oikeudet',
 }

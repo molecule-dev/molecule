@@ -65,18 +65,18 @@ describe('Provider Management', () => {
     })
 
     it('should return false when no provider is bonded (feature-detectable)', () => {
-      // No provider ships with the fleet — apps must be able to detect this and
+      // Molecule ships no provider for it — apps must be able to detect this and
       // hide the feature instead of hitting a throw.
       expect(hasProvider()).toBe(false)
     })
   })
 
-  describe('unbonded (no provider ships with the fleet)', () => {
+  describe('unbonded (Molecule ships no provider for it)', () => {
     it('getProvider() throws an actionable error naming the gap and the fix', () => {
       expect(hasProvider()).toBe(false)
       // Names the gap...
       expect(() => getProvider()).toThrow('No health provider bonded')
-      expect(() => getProvider()).toThrow('No provider ships with the fleet')
+      expect(() => getProvider()).toThrow('Molecule ships no provider for it')
       // ...and the fix.
       expect(() => getProvider()).toThrow('HealthProvider')
       expect(() => getProvider()).toThrow('setProvider()')

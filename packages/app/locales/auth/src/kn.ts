@@ -10,4 +10,5 @@ export const kn: AuthTranslations = {
   'auth.error.profileSessionChanged': 'ಸಲ್ಲಿಸುವ ಮೊದಲು ಪ್ರೊಫೈಲ್ ಸೆಷನ್ ಬದಲಾಗಿದೆ.',
   'auth.error.passwordRequiresSignIn': 'ಪಾಸ್‌ವರ್ಡ್ ಬದಲಾಯಿಸುವ ಮೊದಲು ಸೈನ್ ಇನ್ ಮಾಡಿ',
   'auth.error.passwordSessionChanged': 'ಸಲ್ಲಿಸುವ ಮೊದಲು ಪಾಸ್‌ವರ್ಡ್ ಅವಧಿ ಬದಲಾಗಿದೆ.',
+  'auth.error.requestTimedOut': 'ದೃಢೀಕರಣ ವಿನಂತಿಯ ಸಮಯ ಮೀರಿದೆ.',
 }

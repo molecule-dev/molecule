@@ -105,7 +105,7 @@ export function ProgressRings({
       'progressRings.summary',
       { count: rings.length },
       {
-        defaultValue: rings.length === 1 ? 'Progress ring' : `Progress rings ({{count}} rings)`,
+        defaultValue: 'Progress rings ({{count}} rings)',
       },
     )
 

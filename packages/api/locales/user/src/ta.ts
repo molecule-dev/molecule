@@ -79,4 +79,15 @@ export const ta: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'இந்தச் சந்தா உங்கள் கணக்கிற்குச் சொந்தமானது அல்ல.',
   'user.payment.transactionAlreadyClaimed':
     'இந்தக் கொள்முதல் ஏற்கனவே மற்றொரு கணக்குடன் இணைக்கப்பட்டுள்ளது.',
+  'user.error.completeTargetMissing': 'completeId ஆக வழங்கப்பட்ட ஐடியுடன் எந்தக் கணக்கும் இல்லை.',
+  'user.error.completeIdentityMismatch':
+    'வழங்கப்பட்ட பயனர்பெயர் அல்லது மின்னஞ்சல், completeId கணக்கை அடையாளம் காட்டவில்லை.',
+  'user.error.completeNotOwned':
+    'completeId கணக்கு OAuth வழியாக உள்நுழைகிறது; அதன் நற்சான்றுகள் இங்கு வழங்கப்படவில்லை.',
+  'user.error.identityRequired':
+    'கணக்கை அடையாளம் காண, வழங்குவதற்கு ஒரு பயனர்பெயர் அல்லது மின்னஞ்சல் தேவைப்படுகிறது.',
+  'user.error.usernameEmailConflict':
+    'பயனர்பெயரும் மின்னஞ்சலும் ஏற்கனவே உள்ள இரண்டு வெவ்வேறு கணக்குகளுக்கு உரியவை.',
+  'user.error.oauthEmailCollision':
+    'இந்த மின்னஞ்சலுக்கு ஏற்கனவே ஒரு கணக்கு உள்ளது. தயவுசெய்து உங்கள் அசல் முறையைப் பயன்படுத்தி உள்நுழைந்து, பின்னர் உங்கள் கணக்கு அமைப்புகளிலிருந்து இந்த வழங்குநரை இணைக்கவும்.',
 }

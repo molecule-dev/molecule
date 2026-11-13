@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Bengali. */
 export const bn: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'সেবা পাওয়া যায়নি।',
   'status.error.incidentNotFound': 'ঘটনা পাওয়া যায়নি।',
   'status.error.validationFailed': 'যাচাইকরণ ব্যর্থ: {{errors}}',
@@ -16,4 +15,5 @@ export const bn: StatusTranslations = {
   'status.error.listIncidentsFailed': 'ঘটনা তালিকা করতে ব্যর্থ।',
   'status.error.getStatusFailed': 'সিস্টেম স্থিতি আনতে ব্যর্থ।',
   'status.error.getUptimeFailed': 'আপটাইম ডেটা আনতে ব্যর্থ।',
+  'status.error.forbidden': 'স্ট্যাটাস পেজ পরিচালনা করার জন্য অনুমতি প্রয়োজন।',
 }

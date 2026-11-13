@@ -79,4 +79,16 @@ export const el: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Αυτή η συνδρομή δεν ανήκει στον λογαριασμό σας.',
   'user.payment.transactionAlreadyClaimed':
     'Αυτή η αγορά είναι ήδη συσχετισμένη με έναν άλλο λογαριασμό.',
+  'user.error.completeTargetMissing':
+    'Δεν υπάρχει λογαριασμός με το αναγνωριστικό που παρέχεται ως completeId.',
+  'user.error.completeIdentityMismatch':
+    'Το όνομα χρήστη ή η διεύθυνση ηλεκτρονικού ταχυδρομείου που παρέχεται δεν προσδιορίζει τον λογαριασμό completeId.',
+  'user.error.completeNotOwned':
+    'Ο λογαριασμός completeId συνδέεται μέσω OAuth. Τα διαπιστευτήριά του δεν παρέχονται εδώ.',
+  'user.error.identityRequired':
+    'Η παροχή απαιτεί ένα όνομα χρήστη ή μια διεύθυνση ηλεκτρονικού ταχυδρομείου για την αναγνώριση του λογαριασμού.',
+  'user.error.usernameEmailConflict':
+    'Το όνομα χρήστη και το email ανήκουν σε δύο διαφορετικούς υπάρχοντες λογαριασμούς.',
+  'user.error.oauthEmailCollision':
+    'Υπάρχει ήδη λογαριασμός για αυτό το μήνυμα ηλεκτρονικού ταχυδρομείου. Συνδεθείτε με την αρχική σας μέθοδο και, στη συνέχεια, συνδέστε αυτόν τον πάροχο από τις ρυθμίσεις του λογαριασμού σας.',
 }

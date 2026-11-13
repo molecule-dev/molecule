@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Kannada. */
 export const kn: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'ಸೇವೆ ಕಂಡುಬಂದಿಲ್ಲ.',
   'status.error.incidentNotFound': 'ಘಟನೆ ಕಂಡುಬಂದಿಲ್ಲ.',
   'status.error.validationFailed': 'ಮೌಲ್ಯೀಕರಣ ವಿಫಲವಾಯಿತು: {{errors}}',
@@ -16,4 +15,5 @@ export const kn: StatusTranslations = {
   'status.error.listIncidentsFailed': 'ಘಟನೆಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡಲು ವಿಫಲವಾಯಿತು.',
   'status.error.getStatusFailed': 'ಸಿಸ್ಟಮ್ ಸ್ಥಿತಿ ಪಡೆಯಲು ವಿಫಲವಾಯಿತು.',
   'status.error.getUptimeFailed': 'ಅಪ್‌ಟೈಮ್ ಡೇಟಾ ಪಡೆಯಲು ವಿಫಲವಾಯಿತು.',
+  'status.error.forbidden': 'ಸ್ಥಿತಿ ಪುಟವನ್ನು ನಿರ್ವಹಿಸಲು ಅನುಮತಿ ಅಗತ್ಯವಿದೆ',
 }

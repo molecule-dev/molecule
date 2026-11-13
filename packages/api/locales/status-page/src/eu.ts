@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Basque. */
 export const eu: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Zerbitzua ez da aurkitu.',
   'status.error.incidentNotFound': 'Gertakaria ez da aurkitu.',
   'status.error.validationFailed': 'Baliozkotzeak huts egin du: {{errors}}',
@@ -16,4 +15,5 @@ export const eu: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Gertakariak zerrendatzeak huts egin du.',
   'status.error.getStatusFailed': 'Sistemaren egoera eskuratzeak huts egin du.',
   'status.error.getUptimeFailed': 'Funtzionamendu-datuak eskuratzeak huts egin du.',
+  'status.error.forbidden': 'Baimena behar da egoera orria kudeatzeko',
 }

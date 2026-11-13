@@ -830,7 +830,7 @@ export const createJWTAuthClient = <
       const timer = setTimeout(() => {
         controller.abort(
           new I18nError(
-            'auth.error.requestFailed',
+            'auth.error.requestTimedOut',
             undefined,
             'The authentication request timed out',
           ),

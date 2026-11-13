@@ -194,7 +194,7 @@ export function JoinCode(props: JoinCodeProps): ReactElement {
         const slotLabel = t(
           'joinCode.slotAriaLabel',
           { position: index + 1 },
-          { defaultValue: `Join code character ${index + 1}` },
+          { defaultValue: 'Join code character {{position}}' },
         )
         return (
           <input

@@ -262,7 +262,7 @@ export const provider: AIAgentsProvider = {
         t(
           'ai-agents.error.aiProviderNotFound',
           { name: input.provider ?? '' },
-          { defaultValue: `AI provider "${input.provider}" is not bonded.` },
+          { defaultValue: 'AI provider "{{name}}" is not bonded.' },
         ),
       )
     }
@@ -335,7 +335,7 @@ export const provider: AIAgentsProvider = {
           t(
             'ai-agents.error.providerError',
             { message: turn.errorMessage },
-            { defaultValue: `AI provider error during agent run: ${turn.errorMessage}` },
+            { defaultValue: 'AI provider error during agent run: {{message}}' },
           ),
         )
       }
@@ -450,14 +450,18 @@ export const provider: AIAgentsProvider = {
         // caller can tell "the model kept thinking" from "the model tried to
         // call a tool".
         if (!finalTurn.text.trim()) {
-          const reasoningOnly = finalTurn.reasoning?.trim()
-            ? ' It returned only reasoning text and no answer.'
-            : ''
+          if (finalTurn.reasoning?.trim()) {
+            throw new Error(
+              t('ai-agents.error.finalSynthesisEmptyReasoningOnly', undefined, {
+                defaultValue:
+                  'Agent step budget exhausted and the final synthesis turn returned only reasoning text and no answer.',
+              }),
+            )
+          }
           throw new Error(
             t('ai-agents.error.finalSynthesisEmpty', undefined, {
               defaultValue:
-                'Agent step budget exhausted and the final synthesis turn produced no answer.' +
-                reasoningOnly,
+                'Agent step budget exhausted and the final synthesis turn produced no answer.',
             }),
           )
         }

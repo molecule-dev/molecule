@@ -11,5 +11,5 @@ export const lv: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}st {{minutes}}min',
   'battery.remainingMinutes': '{{minutes}}min',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Nav iestatīts nodrošinātājs. Izsauciet `setProvider()` ar `BatteryProvider` ieviešanu — flotē nav nodrošinātāja; ieviesiet saskarni savā vietējā izpildlaikā un sasaistiet to.',
+    '`@molecule/app-battery`: Nav iestatīts nodrošinātājs. Izsauciet `setProvider()` ar `BatteryProvider` ieviešanu — Molecule nenodrošina tam nodrošinātāju; ieviesiet saskarni savā vietējā izpildlaikā un sasaistiet to.',
 }

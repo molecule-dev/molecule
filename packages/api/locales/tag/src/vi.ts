@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Vietnamese. */
 export const vi: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tên thẻ là bắt buộc',
   'tag.error.invalidName': 'Tên thẻ không hợp lệ',
   'tag.error.createFailed': 'Không thể tạo thẻ',
@@ -17,4 +16,5 @@ export const vi: TagTranslations = {
   'tag.error.associationNotFound': 'Không tìm thấy liên kết thẻ',
   'tag.error.removeFailed': 'Không thể xóa thẻ khỏi tài nguyên',
   'tag.error.getBySlugFailed': 'Không thể lấy tài nguyên theo thẻ',
+  'tag.error.forbidden': 'Cần có quyền quản trị để quản lý thẻ.',
 }

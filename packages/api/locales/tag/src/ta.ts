@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Tamil. */
 export const ta: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'குறிச்சொல் பெயர் தேவை',
   'tag.error.invalidName': 'குறிச்சொல் பெயர் செல்லுபடியாகாது',
   'tag.error.createFailed': 'குறிச்சொல் உருவாக்கம் தோல்வி',
@@ -17,4 +16,5 @@ export const ta: TagTranslations = {
   'tag.error.associationNotFound': 'குறிச்சொல் தொடர்பு கிடைக்கவில்லை',
   'tag.error.removeFailed': 'வளத்திலிருந்து குறிச்சொல் நீக்க தோல்வி',
   'tag.error.getBySlugFailed': 'குறிச்சொல் மூலம் வளங்களை பெற தோல்வி',
+  'tag.error.forbidden': 'குறிச்சொற்களை நிர்வகிக்க நிர்வாகி அணுகல் தேவை.',
 }

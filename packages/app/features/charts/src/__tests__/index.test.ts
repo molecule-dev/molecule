@@ -1544,9 +1544,9 @@ describe('@molecule/app-charts', () => {
       provider.createChart(canvas, placeholderConfig)
 
       const drawn = ctx.fillText.mock.calls.map((call) => String(call[0])).join(' | ')
-      // Label names itself a placeholder; description states no provider is bonded.
+      // Label names itself a placeholder; description tells the user what to do.
       expect(drawn.toLowerCase()).toContain('placeholder')
-      expect(drawn).toContain('No chart provider bonded')
+      expect(drawn).toContain('Use a proper chart provider')
     })
   })
 })

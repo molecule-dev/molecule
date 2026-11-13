@@ -3,5 +3,5 @@ import type { NfcTranslations } from './types.js'
 /** Nfc translations for af. */
 export const af: Partial<NfcTranslations> = {
   'nfc.error.noProvider':
-    "@molecule/app-nfc: Geen verskaffer gestel nie. Roep setProvider() met 'n NfcProvider-implementering.",
+    "`@molecule/app-nfc`: Geen verskaffer gestel nie. Roep `setProvider()` met 'n `NfcProvider` implementering — Molecule stuur geen verskaffer daarvoor nie; implementeer die koppelvlak op jou oorspronklike looptyd en koppel dit.",
 }

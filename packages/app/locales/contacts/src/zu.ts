@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const zu: ContactsTranslations = {
   'contacts.unknown': 'Akwaziwa',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: Akukho umhlinzeki osethiwe. Shayela `setProvider()` ngokusebenzisa i `ContactsProvider` — akukho umhlinzeki othumela neqembu; sebenzisa isikhombimsebenzisi ngesikhathi sakho sokusebenza bese usibopha.',
+    '`@molecule/app-contacts`: Akukho umhlinzeki osethiwe. Shayela `setProvider()` ngokusetshenziswa kwe `ContactsProvider` — I-Molecule ayithumeli umhlinzeki wayo; sebenzisa isikhombimsebenzisi ngesikhathi sakho sokusebenza bese usibopha.',
 }

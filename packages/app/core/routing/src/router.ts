@@ -187,7 +187,11 @@ export const createBrowserRouter = (config: RouterConfig = {}): Router => {
       const route = namedRoutes.get(name)
       if (!route) {
         throw new Error(
-          t('routing.error.routeNotFound', { name }, { defaultValue: `Route "${name}" not found` }),
+          t(
+            'routing.error.routeNotFound',
+            { name },
+            { defaultValue: 'Route "{{name}}" not found' },
+          ),
         )
       }
 
@@ -242,7 +246,11 @@ export const createBrowserRouter = (config: RouterConfig = {}): Router => {
       const route = namedRoutes.get(name)
       if (!route) {
         throw new Error(
-          t('routing.error.routeNotFound', { name }, { defaultValue: `Route "${name}" not found` }),
+          t(
+            'routing.error.routeNotFound',
+            { name },
+            { defaultValue: 'Route "{{name}}" not found' },
+          ),
         )
       }
 
@@ -384,7 +392,11 @@ export const createMemoryRouter = (
       const route = namedRoutes.get(name)
       if (!route) {
         throw new Error(
-          t('routing.error.routeNotFound', { name }, { defaultValue: `Route "${name}" not found` }),
+          t(
+            'routing.error.routeNotFound',
+            { name },
+            { defaultValue: 'Route "{{name}}" not found' },
+          ),
         )
       }
 
@@ -457,7 +469,11 @@ export const createMemoryRouter = (
       const route = namedRoutes.get(name)
       if (!route) {
         throw new Error(
-          t('routing.error.routeNotFound', { name }, { defaultValue: `Route "${name}" not found` }),
+          t(
+            'routing.error.routeNotFound',
+            { name },
+            { defaultValue: 'Route "{{name}}" not found' },
+          ),
         )
       }
 

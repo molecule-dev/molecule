@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Irish. */
 export const ga: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Tá ainm an táirge ag teastáil',
   'product.error.invalidName': 'Tá ainm an táirge neamhbhailí',
   'product.error.invalidPrice': 'Tá praghas bailí ag teastáil',
@@ -15,4 +14,5 @@ export const ga: ProductTranslations = {
   'product.error.listVariantsFailed': 'Theip ar liostú athróg an táirge',
   'product.error.variantNameRequired': 'Tá ainm an athróige ag teastáil',
   'product.error.createVariantFailed': 'Theip ar chruthú athróg an táirge',
+  'product.error.forbidden': 'Rochtain riarthóra ag teastáil chun táirgí a bhainistiú',
 }

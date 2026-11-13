@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Thai. */
 export const th: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'ไม่พบบริการ',
   'status.error.incidentNotFound': 'ไม่พบเหตุการณ์',
   'status.error.validationFailed': 'การตรวจสอบล้มเหลว: {{errors}}',
@@ -16,4 +15,5 @@ export const th: StatusTranslations = {
   'status.error.listIncidentsFailed': 'แสดงรายการเหตุการณ์ล้มเหลว',
   'status.error.getStatusFailed': 'ดึงข้อมูลสถานะระบบล้มเหลว',
   'status.error.getUptimeFailed': 'ดึงข้อมูลเวลาทำงานล้มเหลว',
+  'status.error.forbidden': 'ต้องได้รับอนุญาตก่อนจึงจะสามารถจัดการหน้าสถานะได้',
 }

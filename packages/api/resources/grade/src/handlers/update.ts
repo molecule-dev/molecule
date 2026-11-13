@@ -26,7 +26,7 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return
@@ -34,7 +34,7 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
   if (!(await isGradeAdmin(res))) {
     res.status(403).json({
       error: t('grade.error.forbidden', undefined, {
-        defaultValue: 'Permission required to manage grades',
+        defaultValue: 'Access denied',
       }),
       errorKey: 'grade.error.forbidden',
     })

@@ -11,5 +11,5 @@ export const mt: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}s {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    "`@molecule/app-battery`: L-ebda fornitur ma ġie stabbilit. Sejħa `setProvider()` b'implimentazzjoni ta `BatteryProvider` — l-ebda fornitur ma jibgħat mal-flotta; implimenta l-interface fuq ir-runtime nattiv tiegħek u waħħalha.",
+    "`@molecule/app-battery`: L-ebda fornitur ma ġie stabbilit. Sejħa `setProvider()` b'implimentazzjoni ta `BatteryProvider` — Molecule ma tibgħat l-ebda fornitur għaliha; implimenta l-interface fuq ir-runtime nattiv tiegħek u waħħalha.",
 }

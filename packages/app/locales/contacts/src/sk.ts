@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const sk: ContactsTranslations = {
   'contacts.unknown': 'Neznáme',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: Žiadny nastavený poskytovateľ. Zavolajte `setProvider()` s implementáciou `ContactsProvider` – s flotilou nie je dodávaný žiadny poskytovateľ; implementujte rozhranie vo vašom natívnom runtime prostredí a prepojte ho.',
+    '`@molecule/app-contacts`: Nie je nastavený žiadny poskytovateľ. Zavolajte `setProvider()` s implementáciou `ContactsProvider` — Molecule preň neposkytuje žiadneho poskytovateľa; implementujte rozhranie vo vašom natívnom runtime prostredí a prepojte ho.',
 }

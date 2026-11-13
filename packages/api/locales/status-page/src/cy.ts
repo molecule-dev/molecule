@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Welsh. */
 export const cy: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Gwasanaeth heb ei ganfod.',
   'status.error.incidentNotFound': 'Digwyddiad heb ei ganfod.',
   'status.error.validationFailed': 'Dilysu wedi methu: {{errors}}',
@@ -16,4 +15,5 @@ export const cy: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Methwyd â rhestru digwyddiadau.',
   'status.error.getStatusFailed': 'Methwyd â nôl statws y system.',
   'status.error.getUptimeFailed': 'Methwyd â nôl data amser rhedeg.',
+  'status.error.forbidden': "Mae angen caniatâd i reoli'r dudalen statws",
 }

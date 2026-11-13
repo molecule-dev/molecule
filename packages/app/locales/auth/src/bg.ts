@@ -10,4 +10,5 @@ export const bg: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Сесията на профила се промени преди изпращането',
   'auth.error.passwordRequiresSignIn': 'Влезте, преди да промените паролата си',
   'auth.error.passwordSessionChanged': 'Паролата за сесията е променена преди изпращането',
+  'auth.error.requestTimedOut': 'Заявката за удостоверяване изтече',
 }

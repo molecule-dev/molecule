@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Croatian. */
 export const hr: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Usluga nije pronađena.',
   'status.error.incidentNotFound': 'Incident nije pronađen.',
   'status.error.validationFailed': 'Validacija neuspješna: {{errors}}',
@@ -16,4 +15,5 @@ export const hr: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Popis incidenata neuspješan.',
   'status.error.getStatusFailed': 'Dohvaćanje statusa sustava neuspješno.',
   'status.error.getUptimeFailed': 'Dohvaćanje podataka o dostupnosti neuspješno.',
+  'status.error.forbidden': 'Potrebno je dopuštenje za upravljanje stranicom statusa',
 }

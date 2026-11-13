@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Thai. */
 export const th: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ต้องระบุชื่อสินค้า',
   'product.error.invalidName': 'ชื่อสินค้าไม่ถูกต้อง',
   'product.error.invalidPrice': 'ต้องระบุราคาที่ถูกต้อง',
@@ -15,4 +14,5 @@ export const th: ProductTranslations = {
   'product.error.listVariantsFailed': 'ไม่สามารถแสดงรายการตัวเลือกสินค้าได้',
   'product.error.variantNameRequired': 'ต้องระบุชื่อตัวเลือก',
   'product.error.createVariantFailed': 'ไม่สามารถสร้างตัวเลือกสินค้าได้',
+  'product.error.forbidden': 'จำเป็นต้องมีสิทธิ์ผู้ดูแลระบบในการจัดการผลิตภัณฑ์',
 }

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Kyrgyz. */
 export const ky: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Кызмат табылган жок.',
   'status.error.incidentNotFound': 'Окуя табылган жок.',
   'status.error.validationFailed': 'Текшерүү ийгиликсиз: {{errors}}',
@@ -16,4 +15,5 @@ export const ky: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Окуялар тизмесин алуу ийгиликсиз болду.',
   'status.error.getStatusFailed': 'Система абалын алуу ийгиликсиз болду.',
   'status.error.getUptimeFailed': 'Иштөө убактысынын маалыматтарын алуу ийгиликсиз болду.',
+  'status.error.forbidden': 'Статус барагын башкаруу үчүн уруксат талап кылынат',
 }

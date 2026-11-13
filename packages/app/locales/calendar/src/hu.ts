@@ -3,5 +3,5 @@ import type { CalendarTranslations } from './types.js'
 /** Calendar translations for Hungarian. */
 export const hu: CalendarTranslations = {
   'calendar.error.noProvider':
-    '@molecule/app-calendar: Nincs szolgáltató beállítva. Hívja meg a setProvider()-t egy CalendarProvider implementációval.',
+    '`@molecule/app-device-calendar`: Nincs beállítva szolgáltató. Hívd meg `setProvider()` függvényt egy `CalendarProvider` implementációval — A Molecule nem szállít hozzá szolgáltatót; implementáld a felületet a natív futási környezetedben, és kösd össze.',
 }

@@ -7,8 +7,6 @@ export const fr: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Hors ligne',
   'statusDashboard.label.unknown': 'Inconnu',
   'statusDashboard.label.uptime': 'Disponibilité',
-  'statusDashboard.error.noProvider':
-    "Le fournisseur du tableau de bord d'état n'est pas configuré.",
   'statusDashboard.error.fetchFailed': 'Échec de la récupération du statut : HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Tous les systèmes sont opérationnels',
   'statusDashboard.label.someIssues': 'Certains systèmes rencontrent des problèmes',
@@ -18,4 +16,6 @@ export const fr: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Dernière vérification {{time}}',
   'statusDashboard.label.latency': '{{ms}} MS',
   'statusDashboard.label.noIncidents': "Aucun incident n'a été signalé.",
+  'statusDashboard.error.noProvider':
+    "Le fournisseur de tableau de bord d'état n'est pas configuré. Veuillez d'abord associer un fournisseur de tableau de bord d'état.",
 }

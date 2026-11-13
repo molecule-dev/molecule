@@ -4,6 +4,8 @@ export type AiTranslationKey =
   | 'ai.error.apiError'
   | 'ai.error.noResponseBody'
   | 'ai.error.ambiguousProvider'
+  | 'ai.error.responseIncomplete'
+  | 'ai.error.responseTokenLimit'
 
 /** Translation record mapping ai keys to translated strings. */
 export type AiTranslations = Record<AiTranslationKey, string>

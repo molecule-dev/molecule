@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Croatian. */
 export const hr: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Naziv proizvoda je obavezan',
   'product.error.invalidName': 'Naziv proizvoda nije valjan',
   'product.error.invalidPrice': 'Potrebna je valjana cijena',
@@ -15,4 +14,5 @@ export const hr: ProductTranslations = {
   'product.error.listVariantsFailed': 'Dohvaćanje popisa varijanti proizvoda nije uspjelo',
   'product.error.variantNameRequired': 'Naziv varijante je obavezan',
   'product.error.createVariantFailed': 'Stvaranje varijante proizvoda nije uspjelo',
+  'product.error.forbidden': 'Za upravljanje proizvodima potreban je administratorski pristup',
 }

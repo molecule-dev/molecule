@@ -129,7 +129,7 @@ describe('status-page admin gate', () => {
       const next = vi.fn()
       await requireAdmin()(mockRes({}), mockRes({}), next)
       // First positional arg is the forwarded error string.
-      expect(next).toHaveBeenCalledWith('Unauthorized')
+      expect(next).toHaveBeenCalledWith('Unauthorized.')
     })
 
     it('calls next(Forbidden) for an authenticated non-admin', async () => {

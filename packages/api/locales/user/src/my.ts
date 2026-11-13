@@ -79,4 +79,15 @@ export const my: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'ဤစာရင်းသွင်းမှုသည် သင့်အကောင့်နှင့် မသက်ဆိုင်ပါ။',
   'user.payment.transactionAlreadyClaimed':
     'ဤဝယ်ယူမှုကို အခြားအကောင့်တစ်ခုနှင့် ချိတ်ဆက်ပြီးဖြစ်သည်။',
+  'user.error.completeTargetMissing': 'completeId အဖြစ် ပေးထားသော id ဖြင့် အကောင့်မရှိပါ။',
+  'user.error.completeIdentityMismatch':
+    'ပေးထားသော အသုံးပြုသူအမည် သို့မဟုတ် အီးမေးလ်သည် completeId အကောင့်ကို မဖော်ပြပါ။',
+  'user.error.completeNotOwned':
+    'completeId အကောင့်သည် OAuth မှတစ်ဆင့် လက်မှတ်ထိုးဝင်သည်။ ၎င်း၏ အထောက်အထားများကို ဤနေရာတွင် ပံ့ပိုးပေးမထားပါ။',
+  'user.error.identityRequired':
+    'အကောင့်ကို ခွဲခြားသတ်မှတ်ရန်အတွက် ပံ့ပိုးပေးခြင်းသည် အသုံးပြုသူအမည် သို့မဟုတ် အီးမေးလ်တစ်ခု လိုအပ်သည်။',
+  'user.error.usernameEmailConflict':
+    'အသုံးပြုသူအမည်နှင့် အီးမေးလ်သည် ရှိပြီးသားအကောင့်နှစ်ခုနှင့် သက်ဆိုင်ပါသည်။',
+  'user.error.oauthEmailCollision':
+    'ဤအီးမေးလ်အတွက် အကောင့်တစ်ခု ရှိပြီးသားဖြစ်သည်။ သင်၏ မူရင်းနည်းလမ်းဖြင့် အကောင့်ဝင်ပါ၊ ထို့နောက် သင်၏အကောင့်ဆက်တင်များမှ ဤဝန်ဆောင်မှုပေးသူကို လင့်ခ်ချိတ်ပါ။',
 }

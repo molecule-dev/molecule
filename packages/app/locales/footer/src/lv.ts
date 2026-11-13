@@ -6,8 +6,6 @@ export const lv: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Privātuma politika',
   'footer.termsOfService': 'Pakalpojumu sniegšanas noteikumi',
   'footer.language': 'Valoda',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Šis saturs vēl nav konfigurēts. Tas ir jānodrošina lietotnes īpašniekam.',
   'footer.about': 'Par {{appName}}',

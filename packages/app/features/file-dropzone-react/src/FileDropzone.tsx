@@ -165,7 +165,7 @@ export function FileDropzone({
           </p>
           {accept && (
             <p className={cm.cn(cm.textSize('xs'), cm.sp('mt', 1))}>
-              {t('fileDropzone.accepts', { accept }, { defaultValue: `Accepts: ${accept}` })}
+              {t('fileDropzone.accepts', { accept }, { defaultValue: 'Accepts: {{accept}}' })}
             </p>
           )}
         </>

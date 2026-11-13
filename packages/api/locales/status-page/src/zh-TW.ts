@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Chinese (Traditional). */
 export const zhTW: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': '服務未找到。',
   'status.error.incidentNotFound': '事件未找到。',
   'status.error.validationFailed': '驗證失敗：{{errors}}',
@@ -16,4 +15,5 @@ export const zhTW: StatusTranslations = {
   'status.error.listIncidentsFailed': '取得事件列表失敗。',
   'status.error.getStatusFailed': '取得系統狀態失敗。',
   'status.error.getUptimeFailed': '取得運行時間資料失敗。',
+  'status.error.forbidden': '需要權限才能管理狀態頁面',
 }

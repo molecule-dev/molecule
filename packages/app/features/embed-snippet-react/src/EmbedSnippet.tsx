@@ -84,7 +84,7 @@ export function EmbedSnippet(props: EmbedSnippetProps): ReactElement {
   const ariaLabel = t(
     'embedSnippet.aria.region',
     { language },
-    { defaultValue: `Embed code (${language})` },
+    { defaultValue: 'Embed code ({{language}})' },
   )
 
   return (

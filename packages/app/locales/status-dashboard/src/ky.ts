@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Kyrgyz. */
 export const ky: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Статус панелинин провайдери конфигурацияланган эмес.',
   'statusDashboard.error.fetchFailed': 'Статусту алуу мүмкүн болгон жок: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Бардык системалар иштеп жатат',
   'statusDashboard.label.someIssues': 'Кээ бир системаларда көйгөйлөр бар',
@@ -17,4 +16,6 @@ export const ky: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Акыркы текшерүү {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Эч кандай окуя катталган жок.',
+  'statusDashboard.error.noProvider':
+    'Абалды башкаруу панелинин провайдери конфигурацияланган эмес. Алгач абалды башкаруу панелинин провайдерин байланыштырыңыз.',
 }

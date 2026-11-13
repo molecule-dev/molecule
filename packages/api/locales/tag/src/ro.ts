@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Romanian. */
 export const ro: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Numele etichetei este obligatoriu',
   'tag.error.invalidName': 'Numele etichetei este invalid',
   'tag.error.createFailed': 'Crearea etichetei a eșuat',
@@ -17,4 +16,5 @@ export const ro: TagTranslations = {
   'tag.error.associationNotFound': 'Asocierea etichetei nu a fost găsită',
   'tag.error.removeFailed': 'Eliminarea etichetei de la resursă a eșuat',
   'tag.error.getBySlugFailed': 'Obținerea resurselor după etichetă a eșuat',
+  'tag.error.forbidden': 'Acces de administrator necesar pentru gestionarea etichetelor',
 }

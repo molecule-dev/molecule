@@ -9,7 +9,6 @@ export const vi: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'Dịch vụ',
   'statusDashboard.label.incidents': 'Sự cố',
   'statusDashboard.label.uptime': 'Thời gian hoạt động',
-  'statusDashboard.error.noProvider': 'Nhà cung cấp bảng điều khiển trạng thái chưa được cấu hình.',
   'statusDashboard.error.fetchFailed': 'Không thể lấy trạng thái: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Tất cả các hệ thống đều đang hoạt động.',
   'statusDashboard.label.someIssues': 'Một số hệ thống đang gặp sự cố.',
@@ -17,4 +16,6 @@ export const vi: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Lần kiểm tra cuối cùng {{time}}',
   'statusDashboard.label.latency': '{{ms}} bệnh đa xơ cứng',
   'statusDashboard.label.noIncidents': 'Không có sự cố nào được báo cáo.',
+  'statusDashboard.error.noProvider':
+    'Chưa cấu hình nhà cung cấp bảng điều khiển trạng thái. Trước tiên, hãy liên kết nhà cung cấp bảng điều khiển trạng thái.',
 }

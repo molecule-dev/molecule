@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Yoruba. */
 export const yo: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Olùpèsè pánẹ́ẹ̀lì ipò kò tíì ṣètò.',
   'statusDashboard.error.fetchFailed': 'Kò le gba ipò: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Gbogbo Àwọn Ètò Ń Ṣiṣẹ́',
   'statusDashboard.label.someIssues': 'Àwọn Ètò Kan Ń Ní Ìṣòro',
@@ -17,4 +16,6 @@ export const yo: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Àyẹ̀wò ìkẹyìn {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Kò sí ìṣẹ̀lẹ̀ tí a ròyìn.',
+  'statusDashboard.error.noProvider':
+    'A kò ṣètò olùpèsè dashboard ipò. Kọ́kọ́ so olùpèsè dashboard ipò pọ̀.',
 }

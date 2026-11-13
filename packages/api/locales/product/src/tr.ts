@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Turkish. */
 export const tr: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Ürün adı gereklidir',
   'product.error.invalidName': 'Ürün adı geçersiz',
   'product.error.invalidPrice': 'Geçerli bir fiyat gereklidir',
@@ -15,4 +14,5 @@ export const tr: ProductTranslations = {
   'product.error.listVariantsFailed': 'Ürün varyantları listelenemedi',
   'product.error.variantNameRequired': 'Varyant adı gereklidir',
   'product.error.createVariantFailed': 'Ürün varyantı oluşturulamadı',
+  'product.error.forbidden': 'Ürünleri yönetmek için yönetici erişimi gereklidir.',
 }

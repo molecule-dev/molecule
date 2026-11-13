@@ -438,7 +438,7 @@ async function execDetached(
         'codeSandbox.flyio.error.launchFailed',
         { error: launch.stderr || launch.stdout },
         {
-          defaultValue: `Failed to launch detached command on Fly Machine: ${launch.stderr || launch.stdout}`,
+          defaultValue: 'Failed to launch detached command on Fly Machine: {{error}}',
         },
       ),
     )

@@ -12,10 +12,12 @@ const defaultPlan: Plan = {
   title: t('payment.plan.free.title', undefined, { defaultValue: 'Free' }),
   titleKey: 'payment.plan.free.title',
   description: t('payment.plan.free.description', undefined, {
-    defaultValue: 'Free plan with limited features',
+    defaultValue: 'Certain features are limited. Upgrade your plan to unlock premium features.',
   }),
   descriptionKey: 'payment.plan.free.description',
-  shortDescription: t('payment.plan.free.shortDescription', undefined, { defaultValue: 'Free' }),
+  shortDescription: t('payment.plan.free.shortDescription', undefined, {
+    defaultValue: 'Limited features and usage.',
+  }),
   shortDescriptionKey: 'payment.plan.free.shortDescription',
   capabilities: {
     premium: false,
@@ -34,7 +36,7 @@ export const stripeMonthly: Plan = {
   title: t('payment.plan.monthly.title', undefined, { defaultValue: 'Monthly' }),
   titleKey: 'payment.plan.monthly.title',
   description: t('payment.plan.premium.description', undefined, {
-    defaultValue: 'Full access to premium features',
+    defaultValue: 'Premium features and unlimited usage.',
   }),
   descriptionKey: 'payment.plan.premium.description',
   capabilities: { premium: true },
@@ -52,11 +54,11 @@ export const stripeYearly: Plan = {
   title: t('payment.plan.yearly.title', undefined, { defaultValue: 'Yearly' }),
   titleKey: 'payment.plan.yearly.title',
   description: t('payment.plan.premium.description', undefined, {
-    defaultValue: 'Full access to premium features',
+    defaultValue: 'Premium features and unlimited usage.',
   }),
   descriptionKey: 'payment.plan.premium.description',
   highlightedDescription: t('payment.plan.yearly.highlightedDescription', undefined, {
-    defaultValue: 'Save with annual billing',
+    defaultValue: 'Get one month free, every year.',
   }),
   highlightedDescriptionKey: 'payment.plan.yearly.highlightedDescription',
   capabilities: { premium: true },
@@ -74,7 +76,7 @@ export const appleMonthly: Plan = {
   title: t('payment.plan.monthly.title', undefined, { defaultValue: 'Monthly' }),
   titleKey: 'payment.plan.monthly.title',
   description: t('payment.plan.premium.description', undefined, {
-    defaultValue: 'Full access to premium features',
+    defaultValue: 'Premium features and unlimited usage.',
   }),
   descriptionKey: 'payment.plan.premium.description',
   capabilities: { premium: true },
@@ -92,11 +94,11 @@ export const appleYearly: Plan = {
   title: t('payment.plan.yearly.title', undefined, { defaultValue: 'Yearly' }),
   titleKey: 'payment.plan.yearly.title',
   description: t('payment.plan.premium.description', undefined, {
-    defaultValue: 'Full access to premium features',
+    defaultValue: 'Premium features and unlimited usage.',
   }),
   descriptionKey: 'payment.plan.premium.description',
   highlightedDescription: t('payment.plan.yearly.highlightedDescription', undefined, {
-    defaultValue: 'Save with annual billing',
+    defaultValue: 'Get one month free, every year.',
   }),
   highlightedDescriptionKey: 'payment.plan.yearly.highlightedDescription',
   capabilities: { premium: true },
@@ -114,7 +116,7 @@ export const googleMonthly: Plan = {
   title: t('payment.plan.monthly.title', undefined, { defaultValue: 'Monthly' }),
   titleKey: 'payment.plan.monthly.title',
   description: t('payment.plan.premium.description', undefined, {
-    defaultValue: 'Full access to premium features',
+    defaultValue: 'Premium features and unlimited usage.',
   }),
   descriptionKey: 'payment.plan.premium.description',
   capabilities: { premium: true },
@@ -132,11 +134,11 @@ export const googleYearly: Plan = {
   title: t('payment.plan.yearly.title', undefined, { defaultValue: 'Yearly' }),
   titleKey: 'payment.plan.yearly.title',
   description: t('payment.plan.premium.description', undefined, {
-    defaultValue: 'Full access to premium features',
+    defaultValue: 'Premium features and unlimited usage.',
   }),
   descriptionKey: 'payment.plan.premium.description',
   highlightedDescription: t('payment.plan.yearly.highlightedDescription', undefined, {
-    defaultValue: 'Save with annual billing',
+    defaultValue: 'Get one month free, every year.',
   }),
   highlightedDescriptionKey: 'payment.plan.yearly.highlightedDescription',
   capabilities: { premium: true },

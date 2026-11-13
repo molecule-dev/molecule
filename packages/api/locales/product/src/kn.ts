@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Kannada. */
 export const kn: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ಉತ್ಪನ್ನದ ಹೆಸರು ಅಗತ್ಯವಿದೆ',
   'product.error.invalidName': 'ಉತ್ಪನ್ನದ ಹೆಸರು ಅಮಾನ್ಯವಾಗಿದೆ',
   'product.error.invalidPrice': 'ಮಾನ್ಯ ಬೆಲೆ ಅಗತ್ಯವಿದೆ',
@@ -15,4 +14,5 @@ export const kn: ProductTranslations = {
   'product.error.listVariantsFailed': 'ಉತ್ಪನ್ನ ರೂಪಾಂತರಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ',
   'product.error.variantNameRequired': 'ರೂಪಾಂತರದ ಹೆಸರು ಅಗತ್ಯವಿದೆ',
   'product.error.createVariantFailed': 'ಉತ್ಪನ್ನ ರೂಪಾಂತರವನ್ನು ರಚಿಸಲು ವಿಫಲವಾಗಿದೆ',
+  'product.error.forbidden': 'ಉತ್ಪನ್ನಗಳನ್ನು ನಿರ್ವಹಿಸಲು ನಿರ್ವಾಹಕ ಪ್ರವೇಶದ ಅಗತ್ಯವಿದೆ',
 }

@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Nepali. */
 export const ne: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'उत्पादनको नाम आवश्यक छ',
   'product.error.invalidName': 'उत्पादनको नाम अमान्य छ',
   'product.error.invalidPrice': 'मान्य मूल्य आवश्यक छ',
@@ -15,4 +14,5 @@ export const ne: ProductTranslations = {
   'product.error.listVariantsFailed': 'उत्पादन भेरियन्टहरूको सूची बनाउन असफल भयो',
   'product.error.variantNameRequired': 'भेरियन्टको नाम आवश्यक छ',
   'product.error.createVariantFailed': 'उत्पादन भेरियन्ट सिर्जना गर्न असफल भयो',
+  'product.error.forbidden': 'उत्पादनहरू व्यवस्थापन गर्न व्यवस्थापक पहुँच आवश्यक छ',
 }

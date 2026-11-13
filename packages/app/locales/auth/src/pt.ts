@@ -10,4 +10,5 @@ export const pt: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'A sessão de perfil foi alterada antes do envio.',
   'auth.error.passwordRequiresSignIn': 'Faça login antes de alterar a senha.',
   'auth.error.passwordSessionChanged': 'A sessão de senha foi alterada antes do envio.',
+  'auth.error.requestTimedOut': 'A solicitação de autenticação expirou.',
 }

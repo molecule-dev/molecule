@@ -73,4 +73,11 @@ export const am: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} የክፍያ መግቢያ በር አያቀርብም።',
   'user.payment.subscriptionOwnershipMismatch': 'ይህ የደንበኝነት ምዝገባ የመለያዎ አካል አይደለም።',
   'user.payment.transactionAlreadyClaimed': 'ይህ ግዢ አስቀድሞ ከሌላ መለያ ጋር ተያይዟል።',
+  'user.error.completeTargetMissing': 'እንደ ሙሉ መታወቂያ የቀረበው መለያ የለም።',
+  'user.error.completeIdentityMismatch': 'የቀረበው የተጠቃሚ ስም ወይም ኢሜይል ሙሉውን የመታወቂያ መለያ አይለይም።',
+  'user.error.completeNotOwned': 'ሙሉው መለያ በOAuth በኩል ይገባል፤ የማረጋገጫ ሰነዶቹ እዚህ አልተሰጡም።',
+  'user.error.identityRequired': 'አቅርቦት መለያውን ለመለየት የተጠቃሚ ስም ወይም ኢሜይል ያስፈልገዋል።',
+  'user.error.usernameEmailConflict': 'የተጠቃሚ ስሙ እና ኢሜይሉ የሁለት የተለያዩ ነባር መለያዎች ናቸው።',
+  'user.error.oauthEmailCollision':
+    'ለዚህ ኢሜይል መለያ አስቀድሞ አለ። እባክዎ በመጀመሪያው ዘዴዎ ይግቡ፣ ከዚያም ይህንን አቅራቢ ከመለያ ቅንብሮችዎ ጋር ያገናኙት።',
 }

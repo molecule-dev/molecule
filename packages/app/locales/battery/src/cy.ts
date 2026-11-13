@@ -11,5 +11,5 @@ export const cy: Partial<BatteryTranslations> = {
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.full': "Wedi'i wefru'n llawn",
   'battery.error.noProvider':
-    "`@molecule/app-battery`: Dim darparwr wedi'i osod. Ffoniwch `setProvider()` gyda gweithrediad `BatteryProvider` — does dim darparwr yn dod gyda'r fflyd; gweithredwch y rhyngwyneb ar eich amser rhedeg brodorol a'i fondio.",
+    "`@molecule/app-battery`: Dim darparwr wedi'i osod. Ffoniwch `setProvider()` gyda gweithrediad `BatteryProvider` — Nid yw Molecule yn cludo darparwr ar ei gyfer; gweithredwch y rhyngwyneb ar eich amser rhedeg brodorol a'i fondio.",
 }

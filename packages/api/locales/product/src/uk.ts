@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Ukrainian. */
 export const uk: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': "Назва продукту є обов'язковою",
   'product.error.invalidName': 'Назва продукту є недійсною',
   'product.error.invalidPrice': 'Потрібна дійсна ціна',
@@ -15,4 +14,5 @@ export const uk: ProductTranslations = {
   'product.error.listVariantsFailed': 'Не вдалося отримати список варіантів продукту',
   'product.error.variantNameRequired': "Назва варіанту є обов'язковою",
   'product.error.createVariantFailed': 'Не вдалося створити варіант продукту',
+  'product.error.forbidden': 'Для керування продуктами потрібен доступ адміністратора',
 }

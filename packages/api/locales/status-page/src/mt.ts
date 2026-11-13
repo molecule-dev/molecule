@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Maltese. */
 export const mt: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Servizz ma nstabx.',
   'status.error.incidentNotFound': 'Inċident ma nstabx.',
   'status.error.validationFailed': 'Validazzjoni falliet: {{errors}}',
@@ -16,4 +15,5 @@ export const mt: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Naqas milli jelenka inċidenti.',
   'status.error.getStatusFailed': 'Naqas milli jikseb l-istatus tas-sistema.',
   'status.error.getUptimeFailed': 'Naqas milli jikseb id-data tal-uptime.',
+  'status.error.forbidden': 'Permess meħtieġ biex timmaniġġja l-paġna tal-istatus',
 }

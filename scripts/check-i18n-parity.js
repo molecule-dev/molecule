@@ -188,11 +188,16 @@ function loadUsage(root) {
  * The English text each locale bond's en.ts gives each key, as `stack::key` → text. Only
  * plain string values count; a computed value has no text to compare a default with.
  *
+ * A key two bonds define with different text has no single English; it is left out of `texts`
+ * and reported in `conflicts` (`stack::key` → the en.ts files that disagree).
+ *
  * @param root - The repo root.
- * @returns The texts.
+ * @returns The texts and the conflicting keys.
  */
 function loadEnTexts(root) {
   const texts = new Map()
+  const conflicts = new Map()
+  const seenIn = new Map()
   for (const stack of ['app', 'api']) {
     const locDir = join(root, 'packages', stack, 'locales')
     if (!existsSync(locDir)) continue
@@ -211,14 +216,22 @@ function loadEnTexts(root) {
           (ts.isStringLiteral(node.initializer) ||
             ts.isNoSubstitutionTemplateLiteral(node.initializer))
         ) {
-          texts.set(`${stack}::${node.name.text}`, node.initializer.text)
+          const id = `${stack}::${node.name.text}`
+          const file = enPath.slice(root.length + 1)
+          if (texts.has(id) && texts.get(id) !== node.initializer.text) {
+            conflicts.set(id, [...(conflicts.get(id) ?? [seenIn.get(id)]), file])
+          } else if (!texts.has(id)) {
+            texts.set(id, node.initializer.text)
+            seenIn.set(id, file)
+          }
         }
         ts.forEachChild(node, visit)
       }
       visit(source)
     }
   }
-  return texts
+  for (const id of conflicts.keys()) texts.delete(id)
+  return { texts, conflicts }
 }
 
 /**
@@ -241,7 +254,13 @@ function translationDefault(node) {
       (p) =>
         ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && p.name.text === 'defaultValue',
     )
-    return property ? { key: key.text, value: property.initializer } : undefined
+    const one = options.properties.find(
+      (p) =>
+        ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && p.name.text === 'defaultValue_one',
+    )
+    return property
+      ? { key: key.text, value: property.initializer, one: one?.initializer }
+      : undefined
   }
   if (ts.isNewExpression(node) && ts.isIdentifier(node.expression)) {
     const [key, , english] = node.arguments ?? []
@@ -266,7 +285,7 @@ function translationDefault(node) {
  *   `sites`, the `file:line` call sites behind each entry.
  */
 export function analyzeDefaults(root = ROOT) {
-  const enTexts = loadEnTexts(root)
+  const { texts: enTexts, conflicts } = loadEnTexts(root)
   const byKey = new Map() // stack::key → [{ site, text | null }]
   for (const stack of ['app', 'api']) {
     for (const file of collectSourceFiles(join(root, 'packages', stack))) {
@@ -282,9 +301,13 @@ export function analyzeDefaults(root = ROOT) {
             ts.isStringLiteral(found.value) || ts.isNoSubstitutionTemplateLiteral(found.value)
           const line = source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1
           if (!byKey.has(id)) byKey.set(id, [])
+          const isText = (node) =>
+            ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)
           byKey.get(id).push({
             site: `${file.slice(root.length + 1)}:${line}`,
             text: literal ? found.value.text : null,
+            // undefined: no defaultValue_one; null: one built in JavaScript.
+            one: found.one === undefined ? undefined : isText(found.one) ? found.one.text : null,
           })
         }
         ts.forEachChild(node, visit)
@@ -301,14 +324,30 @@ export function analyzeDefaults(root = ROOT) {
       list.map((s) => s.site),
     )
   }
+  for (const [id, files] of conflicts) {
+    entries.push(`${id} :: en.ts texts differ between bonds`)
+    sites.set(`${id} :: en.ts texts differ between bonds`, files)
+  }
   for (const [id, list] of byKey) {
     const interpolated = list.filter((s) => s.text === null)
     if (interpolated.length > 0) add(`${id} :: default built in JavaScript`, interpolated)
     const literals = list.filter((s) => s.text !== null)
     if (new Set(literals.map((s) => s.text)).size > 1) add(`${id} :: several defaults`, literals)
-    const english = enTexts.get(id)
-    const differing = literals.filter((s) => english !== undefined && s.text !== english)
+    // A plural key (en.ts defines key_one/key_other): defaultValue is the _other text and
+    // defaultValue_one the _one text, the two forms English has.
+    const plural = !enTexts.has(id) && enTexts.has(`${id}_other`)
+    const english = plural ? enTexts.get(`${id}_other`) : enTexts.get(id)
+    const englishOne = plural ? enTexts.get(`${id}_one`) : undefined
+    const differing = literals.filter(
+      (s) =>
+        (english !== undefined && s.text !== english) ||
+        (englishOne !== undefined && s.one !== undefined && s.one !== englishOne),
+    )
     if (differing.length > 0) add(`${id} :: default differs from en.ts`, differing)
+    if (englishOne !== undefined) {
+      const noOne = list.filter((s) => s.one === undefined)
+      if (noOne.length > 0) add(`${id} :: plural default missing`, noOne)
+    }
   }
   entries.sort()
   return { entries, sites }

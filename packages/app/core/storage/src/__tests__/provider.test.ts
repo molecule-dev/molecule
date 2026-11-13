@@ -11,7 +11,7 @@ describe('Storage Provider', () => {
 
   describe('setProvider / getProvider', () => {
     it('should throw when no provider has been set', () => {
-      expect(() => getProvider()).toThrow(/No provider set/)
+      expect(() => getProvider()).toThrow(/Storage provider not configured/)
     })
 
     it('should return the custom provider after setting it', () => {

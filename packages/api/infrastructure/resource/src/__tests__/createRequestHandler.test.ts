@@ -118,7 +118,7 @@ describe('createRequestHandler', () => {
 
     expect(res.status).not.toHaveBeenCalled()
     expect(res.send).not.toHaveBeenCalled()
-    expect(next).toHaveBeenCalledWith('Something went wrong.')
+    expect(next).toHaveBeenCalledWith('Unknown error.')
   })
 
   it('should handle sync handlers', async () => {

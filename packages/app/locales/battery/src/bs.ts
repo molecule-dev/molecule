@@ -11,5 +11,5 @@ export const bs: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}h {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Nije postavljen provajder. Pozovite `setProvider()` s implementacijom `BatteryProvider` — nijedan provajder se ne isporučuje s flotom; implementirajte interfejs na vašem izvornom okruženju za izvršavanje i povežite ga.',
+    '`@molecule/app-battery`: Nije postavljen provajder. Pozovite `setProvider()` s implementacijom `BatteryProvider` — Molecule ne isporučuje provajdera za njega; implementirajte interfejs na vašem izvornom okruženju za izvršavanje i povežite ga.',
 }

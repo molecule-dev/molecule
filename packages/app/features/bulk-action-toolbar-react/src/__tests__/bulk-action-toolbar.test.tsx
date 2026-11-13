@@ -25,8 +25,15 @@ vi.mock('@molecule/app-ui', () => ({
 
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+      let s = opts?.defaultValue ?? _key
+      if (values) {
+        for (const [k, v] of Object.entries(values)) {
+          s = s.replaceAll(`{{${k}}}`, String(v))
+        }
+      }
+      return s
+    },
   }),
 }))
 

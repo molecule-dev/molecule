@@ -10,4 +10,5 @@ export const ms: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Sesi profil telah diubah sebelum penyerahan',
   'auth.error.passwordRequiresSignIn': 'Log masuk sebelum menukar kata laluan',
   'auth.error.passwordSessionChanged': 'Sesi kata laluan telah diubah sebelum penyerahan',
+  'auth.error.requestTimedOut': 'Permintaan pengesahan telah tamat masa',
 }

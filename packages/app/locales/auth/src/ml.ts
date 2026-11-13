@@ -10,4 +10,5 @@ export const ml: AuthTranslations = {
   'auth.error.profileSessionChanged': 'സമർപ്പിക്കുന്നതിന് മുമ്പ് പ്രൊഫൈൽ സെഷൻ മാറി.',
   'auth.error.passwordRequiresSignIn': 'പാസ്‌വേഡ് മാറ്റുന്നതിന് മുമ്പ് സൈൻ ഇൻ ചെയ്യുക',
   'auth.error.passwordSessionChanged': 'സമർപ്പണത്തിന് മുമ്പ് പാസ്‌വേഡ് സെഷൻ മാറി.',
+  'auth.error.requestTimedOut': 'പ്രാമാണീകരണ അഭ്യർത്ഥനയുടെ സമയം കഴിഞ്ഞു.',
 }

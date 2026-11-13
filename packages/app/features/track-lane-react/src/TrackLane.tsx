@@ -147,7 +147,7 @@ export function TrackLane(props: TrackLaneProps): JSX.Element {
   const laneLabel = t(
     'trackLane.aria.lane',
     { name: typeof name === 'string' ? name : '' },
-    { defaultValue: 'Track lane' },
+    { defaultValue: 'Track lane {{name}}' },
   )
   const headerLabel = t('trackLane.header', {}, { defaultValue: 'Track' })
   const resizeLabel = t('trackLane.aria.resize', {}, { defaultValue: 'Resize clip' })

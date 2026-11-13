@@ -77,4 +77,15 @@ export const ka: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} არ გთავაზობთ გადახდის პორტალს.',
   'user.payment.subscriptionOwnershipMismatch': 'ეს გამოწერა თქვენს ანგარიშს არ ეკუთვნის.',
   'user.payment.transactionAlreadyClaimed': 'ეს შენაძენი უკვე დაკავშირებულია სხვა ანგარიშთან.',
+  'user.error.completeTargetMissing': 'completeId-ად მოწოდებული ID-ით ანგარიში არ არსებობს.',
+  'user.error.completeIdentityMismatch':
+    'მოწოდებული მომხმარებლის სახელი ან ელ. ფოსტა არ ახდენს completeId ანგარიშის იდენტიფიცირებას.',
+  'user.error.completeNotOwned':
+    'completeId ანგარიში OAuth-ის მეშვეობით შედის სისტემაში; მისი ავტორიზაციის მონაცემები აქ არ არის მოცემული.',
+  'user.error.identityRequired':
+    'ანგარიშის იდენტიფიცირებისთვის, პროგრამირებისთვის საჭიროა მომხმარებლის სახელი ან ელ. ფოსტა.',
+  'user.error.usernameEmailConflict':
+    'მომხმარებლის სახელი და ელ. ფოსტა ორ სხვადასხვა არსებულ ანგარიშს ეკუთვნის.',
+  'user.error.oauthEmailCollision':
+    'ამ ელფოსტისთვის ანგარიში უკვე არსებობს. გთხოვთ, შეხვიდეთ სისტემაში თქვენი საწყისი მეთოდით, შემდეგ კი დააკავშიროთ ეს პროვაიდერი თქვენი ანგარიშის პარამეტრებიდან.',
 }

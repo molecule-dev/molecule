@@ -1481,7 +1481,7 @@ describe('@molecule/app-routing-react-navigation', () => {
       })
 
       it('should throw for missing required param', () => {
-        expect(() => generatePath('/products/:id', {})).toThrow('Missing required param "id"')
+        expect(() => generatePath('/products/:id', {})).toThrow('Missing param "id"')
       })
 
       it('should encode param values', () => {

@@ -2,5 +2,6 @@ import type { ShareTranslations } from './types.js'
 
 /** Share translations for Nepali. */
 export const ne: ShareTranslations = {
-  'share.error.noProvider': 'साझा प्रोभाइडर कन्फिगर गरिएको छैन।',
+  'share.error.noProvider':
+    '`@molecule/app-share`: कुनै प्रदायक सेट गरिएको छैन। `ShareProvider` कार्यान्वयनको साथ `setProvider()` कल गर्नुहोस् — Molecule ले यसको लागि कुनै प्रदायक पठाउँदैन; तपाईंको नेटिभ रनटाइममा इन्टरफेस लागू गर्नुहोस् र यसलाई बन्ड गर्नुहोस्।',
 }

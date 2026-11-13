@@ -10,6 +10,7 @@
 import i18next, { type i18n as I18nInstance, type InitOptions } from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
+import type { TranslateOptions } from '@molecule/app-i18n'
 import { error, getLogger } from '@molecule/app-logger'
 
 import type {
@@ -425,14 +426,9 @@ export const createI18nextProvider = (
       if (createdLocale || (changed && readsLocale(locale))) notify()
     },
 
-    t(
-      key: string,
-      values?: InterpolationValues,
-      options?: { defaultValue?: string; count?: number },
-    ): string {
-      const opts: Record<string, unknown> = { ...values }
-      if (options?.defaultValue !== undefined) opts.defaultValue = options.defaultValue
-      if (options?.count !== undefined) opts.count = options.count
+    t(key: string, values?: InterpolationValues, options?: TranslateOptions): string {
+      // i18next reads the plural defaults (defaultValue_one, …) under the same names.
+      const opts: Record<string, unknown> = { ...values, ...options }
       return i18n.t(key, opts)
     },
 

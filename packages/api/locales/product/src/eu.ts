@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Basque. */
 export const eu: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Produktuaren izena beharrezkoa da',
   'product.error.invalidName': 'Produktuaren izena baliogabea da',
   'product.error.invalidPrice': 'Prezio baliozkoa beharrezkoa da',
@@ -15,4 +14,5 @@ export const eu: ProductTranslations = {
   'product.error.listVariantsFailed': 'Ezin izan dira produktuaren aldaerak zerrendatu',
   'product.error.variantNameRequired': 'Aldaeraren izena beharrezkoa da',
   'product.error.createVariantFailed': 'Ezin izan da produktuaren aldaera sortu',
+  'product.error.forbidden': 'Produktuak kudeatzeko administratzaile sarbidea behar da',
 }

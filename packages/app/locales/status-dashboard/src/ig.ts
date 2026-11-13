@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Igbo. */
 export const ig: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Onye na-enye dashboard ọnọdụ ekwunyeghị.',
   'statusDashboard.error.fetchFailed': 'Enweghị ike ịnata ọnọdụ: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Usoro Niile Na-arụ Ọrụ',
   'statusDashboard.label.someIssues': 'Ụfọdụ Usoro Nwere Nsogbu',
@@ -17,4 +16,6 @@ export const ig: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Elere anya ikpeazụ {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Enweghị ihe ndị a kọrọ.',
+  'statusDashboard.error.noProvider':
+    'Emebeghị ka onye na-enye dashboard ọnọdụ dị. Jikọọ onye na-enye dashboard ọnọdụ mbụ.',
 }

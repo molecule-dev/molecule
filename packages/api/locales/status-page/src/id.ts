@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Indonesian. */
 export const id: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Layanan tidak ditemukan.',
   'status.error.incidentNotFound': 'Insiden tidak ditemukan.',
   'status.error.validationFailed': 'Validasi gagal: {{errors}}',
@@ -16,4 +15,5 @@ export const id: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Gagal menampilkan daftar insiden.',
   'status.error.getStatusFailed': 'Gagal mengambil status sistem.',
   'status.error.getUptimeFailed': 'Gagal mengambil data uptime.',
+  'status.error.forbidden': 'Diperlukan izin untuk mengelola halaman status.',
 }

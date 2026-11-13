@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Macedonian. */
 export const mk: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Името на ознаката е задолжително',
   'tag.error.invalidName': 'Името на ознаката е невалидно',
   'tag.error.createFailed': 'Неуспешно создавање на ознака',
@@ -17,4 +16,5 @@ export const mk: TagTranslations = {
   'tag.error.associationNotFound': 'Поврзаноста на ознаката не е пронајдена',
   'tag.error.removeFailed': 'Неуспешно отстранување на ознака од ресурс',
   'tag.error.getBySlugFailed': 'Неуспешно добивање на ресурси по ознака',
+  'tag.error.forbidden': 'Потребен е администраторски пристап за управување со ознаки',
 }

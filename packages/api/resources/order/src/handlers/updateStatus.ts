@@ -77,9 +77,13 @@ export async function updateStatus(req: MoleculeRequest, res: MoleculeResponse):
     const allowedTransitions = STATUS_TRANSITIONS[orderRow.status as OrderStatus]
     if (!allowedTransitions || !allowedTransitions.includes(input.status)) {
       res.status(409).json({
-        error: t('order.error.invalidTransition', undefined, {
-          defaultValue: `Cannot transition from '${orderRow.status}' to '${input.status}'`,
-        }),
+        error: t(
+          'order.error.invalidTransition',
+          { from: orderRow.status, to: input.status },
+          {
+            defaultValue: "Cannot transition from '{{from}}' to '{{to}}'",
+          },
+        ),
         errorKey: 'order.error.invalidTransition',
       })
       return

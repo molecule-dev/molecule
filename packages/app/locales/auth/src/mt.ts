@@ -10,4 +10,5 @@ export const mt: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Is-sessjoni tal-profil inbidlet qabel is-sottomissjoni',
   'auth.error.passwordRequiresSignIn': 'Idħol qabel ma tibdel il-password',
   'auth.error.passwordSessionChanged': 'Il-password tas-sessjoni nbidlet qabel is-sottomissjoni',
+  'auth.error.requestTimedOut': 'It-talba għall-awtentikazzjoni skadiet',
 }

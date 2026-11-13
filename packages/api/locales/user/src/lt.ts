@@ -75,4 +75,15 @@ export const lt: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} nesiūlo atsiskaitymo portalo.',
   'user.payment.subscriptionOwnershipMismatch': 'Ši prenumerata nepriklauso jūsų paskyrai.',
   'user.payment.transactionAlreadyClaimed': 'Šis pirkinys jau susietas su kita paskyra.',
+  'user.error.completeTargetMissing': 'Nėra paskyros, kurios ID būtų nurodytas kaip „completeId“.',
+  'user.error.completeIdentityMismatch':
+    'Pateiktas vartotojo vardas arba el. pašto adresas neidentifikuoja „completeId“ paskyros.',
+  'user.error.completeNotOwned':
+    '„completeId“ paskyra prisijungia per „OAuth“; jos prisijungimo duomenys čia nepateikiami.',
+  'user.error.identityRequired':
+    'Paskyros identifikavimui reikalingas vartotojo vardas arba el. pašto adresas.',
+  'user.error.usernameEmailConflict':
+    'Vartotojo vardas ir el. pašto adresas priklauso dviem skirtingoms esamoms paskyroms.',
+  'user.error.oauthEmailCollision':
+    'Šiam el. pašto adresui jau yra sukurta paskyra. Prisijunkite naudodami pradinį metodą, tada paskyros nustatymuose susiekite šį teikėją.',
 }

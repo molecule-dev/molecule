@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Icelandic. */
 export const is: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Þjónusta fannst ekki.',
   'status.error.incidentNotFound': 'Atvik fannst ekki.',
   'status.error.validationFailed': 'Staðfesting mistókst: {{errors}}',
@@ -16,4 +15,5 @@ export const is: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Ekki tókst að skrá atvik.',
   'status.error.getStatusFailed': 'Ekki tókst að sækja kerfisstöðu.',
   'status.error.getUptimeFailed': 'Ekki tókst að sækja rekstrartímagögn.',
+  'status.error.forbidden': 'Heimild krafist til að stjórna stöðusíðunni',
 }

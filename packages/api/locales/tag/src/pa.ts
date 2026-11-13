@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Punjabi. */
 export const pa: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ਟੈਗ ਨਾਮ ਲੋੜੀਂਦਾ ਹੈ',
   'tag.error.invalidName': 'ਟੈਗ ਨਾਮ ਅਵੈਧ ਹੈ',
   'tag.error.createFailed': 'ਟੈਗ ਬਣਾਉਣ ਵਿੱਚ ਅਸਫਲ',
@@ -17,4 +16,5 @@ export const pa: TagTranslations = {
   'tag.error.associationNotFound': 'ਟੈਗ ਸੰਬੰਧ ਨਹੀਂ ਮਿਲਿਆ',
   'tag.error.removeFailed': 'ਸਰੋਤ ਤੋਂ ਟੈਗ ਹਟਾਉਣ ਵਿੱਚ ਅਸਫਲ',
   'tag.error.getBySlugFailed': 'ਟੈਗ ਅਨੁਸਾਰ ਸਰੋਤ ਪ੍ਰਾਪਤ ਕਰਨ ਵਿੱਚ ਅਸਫਲ',
+  'tag.error.forbidden': 'ਟੈਗਾਂ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰਨ ਲਈ ਪ੍ਰਸ਼ਾਸਕ ਪਹੁੰਚ ਦੀ ਲੋੜ ਹੈ',
 }

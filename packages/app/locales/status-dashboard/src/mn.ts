@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Mongolian. */
 export const mn: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Статусын хянах самбарын нийлүүлэгч тохируулагдаагүй байна.',
   'statusDashboard.error.fetchFailed': 'Статусыг татахад алдаа гарлаа: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Бүх системүүд хэвийн ажиллаж байна',
   'statusDashboard.label.someIssues': 'Зарим системүүд асуудалтай байна',
@@ -17,4 +16,6 @@ export const mn: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Сүүлд шалгасан {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Ямар ч зөрчил мэдээлэгдээгүй.',
+  'statusDashboard.error.noProvider':
+    'Статусын хяналтын самбарын үйлчилгээ үзүүлэгчийг тохируулаагүй байна. Эхлээд статусын хяналтын самбарын үйлчилгээ үзүүлэгчийг баталгаажуулна уу.',
 }

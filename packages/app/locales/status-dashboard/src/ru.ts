@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Russian. */
 export const ru: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Поставщик панели статуса не настроен.',
   'statusDashboard.error.fetchFailed': 'Не удалось получить статус: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Все системы работают нормально',
   'statusDashboard.label.someIssues': 'Некоторые системы испытывают проблемы',
@@ -17,4 +16,6 @@ export const ru: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Последняя проверка {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Инцидентов не зарегистрировано.',
+  'statusDashboard.error.noProvider':
+    'Поставщик панели мониторинга состояния не настроен. Сначала подключите поставщика панели мониторинга состояния.',
 }

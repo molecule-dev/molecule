@@ -32,5 +32,5 @@ export const authUser =
       // the correct outcome regardless of whether the device is missing or
       // unreachable. No logging needed — the caller receives a clear 401.
     }
-    return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
+    return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }))
   }

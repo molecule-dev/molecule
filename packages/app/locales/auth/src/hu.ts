@@ -10,4 +10,5 @@ export const hu: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'A profil munkamenete megváltozott a beküldés előtt',
   'auth.error.passwordRequiresSignIn': 'Jelentkezzen be jelszó módosítása előtt',
   'auth.error.passwordSessionChanged': 'A jelszó munkamenete megváltozott a beküldés előtt',
+  'auth.error.requestTimedOut': 'A hitelesítési kérés időtúllépést okozott.',
 }

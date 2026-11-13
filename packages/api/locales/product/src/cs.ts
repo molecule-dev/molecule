@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Czech. */
 export const cs: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Název produktu je povinný',
   'product.error.invalidName': 'Název produktu je neplatný',
   'product.error.invalidPrice': 'Je vyžadována platná cena',
@@ -15,4 +14,5 @@ export const cs: ProductTranslations = {
   'product.error.listVariantsFailed': 'Nepodařilo se zobrazit seznam variant produktu',
   'product.error.variantNameRequired': 'Název varianty je povinný',
   'product.error.createVariantFailed': 'Nepodařilo se vytvořit variantu produktu',
+  'product.error.forbidden': 'Pro správu produktů je vyžadován administrátorský přístup',
 }

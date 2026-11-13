@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Swedish. */
 export const sv: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Tjänst hittades inte.',
   'status.error.incidentNotFound': 'Incident hittades inte.',
   'status.error.validationFailed': 'Validering misslyckades: {{errors}}',
@@ -16,4 +15,5 @@ export const sv: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Kunde inte lista incidenter.',
   'status.error.getStatusFailed': 'Kunde inte hämta systemstatus.',
   'status.error.getUptimeFailed': 'Kunde inte hämta drifttidsdata.',
+  'status.error.forbidden': 'Tillstånd krävs för att hantera statussidan',
 }

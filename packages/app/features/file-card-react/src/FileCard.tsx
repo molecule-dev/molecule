@@ -159,20 +159,16 @@ export function FileCard({
   )
   const sizeText = file.kind === 'folder' ? '' : bytes(file.size)
   const sizeLabel = sizeText
-    ? t('file-card.aria.size', { size: sizeText }, { defaultValue: `Size ${sizeText}` })
+    ? t('file-card.aria.size', { size: sizeText }, { defaultValue: 'Size {{size}}' })
     : ''
   const modifiedText = file.modifiedAt ? relativeText(file.modifiedAt, t, now) : ''
   const modifiedLabel = modifiedText
-    ? t(
-        'file-card.aria.modified',
-        { when: modifiedText },
-        { defaultValue: `Modified ${modifiedText}` },
-      )
+    ? t('file-card.aria.modified', { when: modifiedText }, { defaultValue: 'Modified {{when}}' })
     : ''
   const ariaLabel = t(
     'file-card.aria.root',
     { name: file.name, kind: kindLabel },
-    { defaultValue: `${file.name}, ${kindLabel}` },
+    { defaultValue: '{{name}}, {{kind}}' },
   )
 
   const rootMolId = dataMolId ?? `file-card-${file.id}`

@@ -215,11 +215,7 @@ export interface I18nProvider {
    *
    * @returns The translated string, or the default value / key if not found.
    */
-  t(
-    key: string,
-    values?: InterpolationValues,
-    options?: { defaultValue?: string; count?: number },
-  ): string
+  t(key: string, values?: InterpolationValues, options?: TranslateOptions): string
 
   /**
    * Checks if a translation key exists.
@@ -331,10 +327,19 @@ export interface I18nProvider {
 export type TranslateFunction = (
   key: string,
   values?: InterpolationValues,
-  options?: { defaultValue?: string; count?: number },
+  options?: TranslateOptions,
 ) => string
 
+/** A CLDR plural category, the suffix of a plural key (`items_one`, `items_other`). */
+export type PluralCategory = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other'
+
 /**
- * Options for the translate function (default value, pluralization count).
+ * Options for the translate function. `defaultValue` is the English shown while the key is not
+ * loaded; with `count`, `defaultValue_<category>` (i18next's spelling) gives the English plural
+ * form that count takes (`defaultValue_one: '{{count}} file'` beside
+ * `defaultValue: '{{count}} files'`), which a single literal default cannot.
  */
-export type TranslateOptions = { defaultValue?: string; count?: number }
+export type TranslateOptions = {
+  defaultValue?: string
+  count?: number
+} & Partial<Record<`defaultValue_${PluralCategory}`, string>>

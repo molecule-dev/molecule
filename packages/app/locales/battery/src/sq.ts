@@ -11,5 +11,5 @@ export const sq: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}o {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Nuk është caktuar asnjë ofrues. Thirrni `setProvider()` me një implementim `BatteryProvider` — asnjë ofrues nuk vjen me flotën; implementoni ndërfaqen në kohën tuaj të ekzekutimit vendas dhe lidheni atë.',
+    '`@molecule/app-battery`: Nuk është caktuar asnjë ofrues. Thirrni `setProvider()` me një implementim `BatteryProvider` — Molecule nuk ofron asnjë ofrues për të; implementoni ndërfaqen në kohën tuaj të ekzekutimit nativ dhe lidheni atë.',
 }

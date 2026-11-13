@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for lt. */
 export const lt: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Įterpimo kodas ({language})',
   'embedSnippet.heading': 'Įterpimo kodas',
   'embedSnippet.eyebrow': 'Kopijuoti įterpimo kodą',
   'embedSnippet.copy': 'Kopijuoti',
@@ -13,4 +12,5 @@ export const lt: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Šviesa',
   'embedSnippet.theme.dark': 'Tamsu',
   'embedSnippet.theme.auto': 'Automatinis',
+  'embedSnippet.aria.region': 'Įterpimo kodas ({{language}})',
 }

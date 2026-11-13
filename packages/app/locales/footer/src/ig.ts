@@ -6,8 +6,6 @@ export const ig: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'amụma nzuzo',
   'footer.termsOfService': 'Usoro Ọrụ',
   'footer.language': 'Asụsụ',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured': 'A haziebeghị ọdịnaya a. Onye nwe ngwa ahụ ga-enyerịrị ya.',
   'footer.about': 'Gbasara {{appName}}',
 }

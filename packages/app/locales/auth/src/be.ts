@@ -10,4 +10,5 @@ export const be: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Сесія профілю змянілася перад адпраўкай',
   'auth.error.passwordRequiresSignIn': 'Увайдзіце перад зменай пароля',
   'auth.error.passwordSessionChanged': 'Сеанс пароля змяніўся перад адпраўкай',
+  'auth.error.requestTimedOut': 'Запыт на аўтэнтыфікацыю скончыўся',
 }

@@ -16,6 +16,7 @@ import type {
   InterpolationValues,
   LocaleConfig,
   NumberFormatOptions,
+  TranslateOptions,
   Translations,
 } from './types.js'
 
@@ -117,11 +118,8 @@ export const registerLocaleModule = (moduleExports: Record<string, unknown>): vo
  * @param options.count - Count value for pluralization.
  * @returns The translated string, or the `defaultValue` / key if not found.
  */
-export const t = (
-  key: string,
-  values?: InterpolationValues,
-  options?: { defaultValue?: string; count?: number },
-): string => getProvider().t(key, values, options)
+export const t = (key: string, values?: InterpolationValues, options?: TranslateOptions): string =>
+  getProvider().t(key, values, options)
 
 /**
  * Formats a number according to the current locale.

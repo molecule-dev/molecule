@@ -34,7 +34,7 @@ async function getReactNative(): Promise<typeof import('react-native')> {
       t(
         'lifecycle.error.missingDependency',
         { library: 'react-native' },
-        { defaultValue: 'react-native is required but not installed.' },
+        { defaultValue: '`{{library}}` is required but not installed.' },
       ),
       { cause: error },
     )

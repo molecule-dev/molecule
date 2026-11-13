@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Azerbaijani. */
 export const az: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Məhsul adı tələb olunur',
   'product.error.invalidName': 'Məhsul adı yanlışdır',
   'product.error.invalidPrice': 'Düzgün qiymət tələb olunur',
@@ -15,4 +14,5 @@ export const az: ProductTranslations = {
   'product.error.listVariantsFailed': 'Məhsul variantları siyahılana bilmədi',
   'product.error.variantNameRequired': 'Variant adı tələb olunur',
   'product.error.createVariantFailed': 'Məhsul variantı yaradıla bilmədi',
+  'product.error.forbidden': 'Məhsulları idarə etmək üçün administrator girişi tələb olunur',
 }

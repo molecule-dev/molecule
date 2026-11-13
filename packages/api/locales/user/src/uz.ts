@@ -74,4 +74,16 @@ export const uz: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} billing portalini taklif qilmaydi.',
   'user.payment.subscriptionOwnershipMismatch': 'Bu obuna sizning hisobingizga tegishli emas.',
   'user.payment.transactionAlreadyClaimed': "Bu xarid allaqachon boshqa hisob bilan bog'langan.",
+  'user.error.completeTargetMissing':
+    'completeId sifatida berilgan identifikator bilan hech qanday hisob mavjud emas.',
+  'user.error.completeIdentityMismatch':
+    "Berilgan foydalanuvchi nomi yoki elektron pochta manzili to'liq ID hisobini aniqlamaydi.",
+  'user.error.completeNotOwned':
+    "completeId hisobi OAuth orqali tizimga kiradi; uning hisob ma'lumotlari bu yerda taqdim etilmaydi.",
+  'user.error.identityRequired':
+    'Hisobni aniqlash uchun foydalanuvchi nomi yoki elektron pochta manzili kerak.',
+  'user.error.usernameEmailConflict':
+    'Foydalanuvchi nomi va elektron pochta manzili ikkita mavjud hisobga tegishli.',
+  'user.error.oauthEmailCollision':
+    "Ushbu elektron pochta uchun hisob allaqachon mavjud. Iltimos, asl usulingiz bilan tizimga kiring, so'ngra hisob sozlamalaringizdan ushbu provayderni ulang.",
 }

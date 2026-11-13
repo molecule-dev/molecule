@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Serbian. */
 export const sr: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Назив ознаке је обавезан',
   'tag.error.invalidName': 'Назив ознаке је неважећи',
   'tag.error.createFailed': 'Креирање ознаке није успело',
@@ -17,4 +16,5 @@ export const sr: TagTranslations = {
   'tag.error.associationNotFound': 'Веза ознаке није пронађена',
   'tag.error.removeFailed': 'Уклањање ознаке из ресурса није успело',
   'tag.error.getBySlugFailed': 'Преузимање ресурса по ознаци није успело',
+  'tag.error.forbidden': 'За управљање ознакама је потребан администраторски приступ',
 }

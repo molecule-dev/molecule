@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Uzbek. */
 export const uz: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Mahsulot nomi talab qilinadi',
   'product.error.invalidName': "Mahsulot nomi noto'g'ri",
   'product.error.invalidPrice': "To'g'ri narx talab qilinadi",
@@ -15,4 +14,5 @@ export const uz: ProductTranslations = {
   'product.error.listVariantsFailed': "Mahsulot variantlari ro'yxatini chiqarib bo'lmadi",
   'product.error.variantNameRequired': 'Variant nomi talab qilinadi',
   'product.error.createVariantFailed': "Mahsulot variantini yaratib bo'lmadi",
+  'product.error.forbidden': 'Mahsulotlarni boshqarish uchun administrator ruxsati talab qilinadi',
 }

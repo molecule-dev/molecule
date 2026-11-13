@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Chinese (Simplified). */
 export const zh: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': '产品名称为必填项',
   'product.error.invalidName': '产品名称无效',
   'product.error.invalidPrice': '需要有效的价格',
@@ -15,4 +14,5 @@ export const zh: ProductTranslations = {
   'product.error.listVariantsFailed': '获取产品变体列表失败',
   'product.error.variantNameRequired': '变体名称为必填项',
   'product.error.createVariantFailed': '创建产品变体失败',
+  'product.error.forbidden': '需要管理员权限才能管理产品',
 }

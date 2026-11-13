@@ -11,5 +11,5 @@ export const th: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}ชม. {{minutes}}น.',
   'battery.remainingMinutes': '{{minutes}}น.',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: ไม่ได้ตั้งค่าผู้ให้บริการ เรียกใช้ `setProvider()` ด้วยการใช้งาน `BatteryProvider` — ไม่มีผู้ให้บริการใด ๆ มาพร้อมกับกลุ่มอุปกรณ์ โปรดใช้งานอินเทอร์เฟซบนรันไทม์เนทีฟของคุณและเชื่อมต่อเข้าด้วยกัน',
+    '`@molecule/app-battery`: ไม่ได้ตั้งค่าผู้ให้บริการ เรียกใช้ `setProvider()` ด้วยการใช้งาน `BatteryProvider` — Molecule ไม่ได้จัดส่งผู้ให้บริการสำหรับอินเทอร์เฟซนี้ ให้ใช้งานอินเทอร์เฟซบนรันไทม์เนทีฟของคุณและเชื่อมโยงเข้าด้วยกัน',
 }

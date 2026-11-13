@@ -142,7 +142,7 @@ export function requireProviderByName(name: string): ChannelProvider {
         'channel.error.noNamedProvider',
         { name },
         {
-          defaultValue: `Channel provider "${name}" not configured. Bond it first.`,
+          defaultValue: 'Channel provider "{{name}}" not configured. Bond it first.',
         },
       ),
     )

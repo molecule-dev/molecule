@@ -10,4 +10,5 @@ export const pa: AuthTranslations = {
   'auth.error.profileSessionChanged': 'ਸਪੁਰਦਗੀ ਤੋਂ ਪਹਿਲਾਂ ਪ੍ਰੋਫਾਈਲ ਸੈਸ਼ਨ ਬਦਲ ਗਿਆ',
   'auth.error.passwordRequiresSignIn': 'ਪਾਸਵਰਡ ਬਦਲਣ ਤੋਂ ਪਹਿਲਾਂ ਸਾਈਨ ਇਨ ਕਰੋ',
   'auth.error.passwordSessionChanged': 'ਸਬਮਿਸ਼ਨ ਤੋਂ ਪਹਿਲਾਂ ਪਾਸਵਰਡ ਸੈਸ਼ਨ ਬਦਲ ਗਿਆ',
+  'auth.error.requestTimedOut': 'ਪ੍ਰਮਾਣੀਕਰਨ ਬੇਨਤੀ ਦਾ ਸਮਾਂ ਸਮਾਪਤ ਹੋ ਗਿਆ ਹੈ',
 }

@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Malayalam. */
 export const ml: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'സ്റ്റാറ്റസ് ഡാഷ്ബോർഡ് പ്രൊവൈഡർ കോൺഫിഗർ ചെയ്തിട്ടില്ല.',
   'statusDashboard.error.fetchFailed':
     'സ്റ്റാറ്റസ് ലഭ്യമാക്കുന്നതിൽ പരാജയപ്പെട്ടു: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'എല്ലാ സിസ്റ്റങ്ങളും പ്രവർത്തിക്കുന്നു',
@@ -18,4 +17,6 @@ export const ml: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'അവസാനം പരിശോധിച്ചത് {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'സംഭവങ്ങൾ ഒന്നും റിപ്പോർട്ട് ചെയ്തിട്ടില്ല.',
+  'statusDashboard.error.noProvider':
+    'സ്റ്റാറ്റസ് ഡാഷ്‌ബോർഡ് ദാതാവിനെ കോൺഫിഗർ ചെയ്‌തിട്ടില്ല. ആദ്യം ഒരു സ്റ്റാറ്റസ് ഡാഷ്‌ബോർഡ് ദാതാവിനെ ബോണ്ട് ചെയ്യുക.',
 }

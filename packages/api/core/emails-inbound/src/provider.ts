@@ -128,8 +128,7 @@ export const replyTo = async (
     throw new Error(
       t('emailsInbound.error.replyNotSupported', undefined, {
         defaultValue:
-          'Bonded inbound-emails provider does not support reply dispatch. ' +
-          'Use the outbound @molecule/api-emails bond instead.',
+          'Bonded inbound-emails provider does not support reply dispatch. Use the outbound @molecule/api-emails bond instead.',
       }),
     )
   }

@@ -75,4 +75,15 @@ export const fa: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} درگاه پرداخت ارائه نمی‌دهد.',
   'user.payment.subscriptionOwnershipMismatch': 'این اشتراک به حساب شما تعلق ندارد.',
   'user.payment.transactionAlreadyClaimed': 'این خرید قبلاً با حساب دیگری مرتبط است.',
+  'user.error.completeTargetMissing':
+    'هیچ حسابی با شناسه‌ی ارائه شده به عنوان completeId وجود ندارد.',
+  'user.error.completeIdentityMismatch':
+    'نام کاربری یا ایمیل ارائه شده، حساب completeId را شناسایی نمی‌کند.',
+  'user.error.completeNotOwned':
+    'حساب completeId از طریق OAuth وارد سیستم می‌شود؛ اعتبارنامه‌های آن در اینجا ارائه نشده است.',
+  'user.error.identityRequired':
+    'تأمین منابع برای شناسایی حساب به یک نام کاربری یا ایمیل نیاز دارد.',
+  'user.error.usernameEmailConflict': 'نام کاربری و ایمیل متعلق به دو حساب کاربری مختلف هستند.',
+  'user.error.oauthEmailCollision':
+    'یک حساب کاربری از قبل برای این ایمیل وجود دارد. لطفاً با روش اصلی خود وارد شوید، سپس این ارائه دهنده را از تنظیمات حساب خود پیوند دهید.',
 }

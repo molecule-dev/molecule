@@ -76,4 +76,14 @@ export const th: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch':
     'การสมัครสมาชิกนี้ไม่ได้เป็นส่วนหนึ่งของบัญชีของคุณ',
   'user.payment.transactionAlreadyClaimed': 'การซื้อครั้งนี้เชื่อมโยงกับบัญชีอื่นอยู่แล้ว',
+  'user.error.completeTargetMissing': 'ไม่มีบัญชีผู้ใช้ที่มีรหัสตรงกับ completeId ที่ระบุไว้',
+  'user.error.completeIdentityMismatch':
+    'ชื่อผู้ใช้หรืออีเมลที่ระบุมานั้นไม่สามารถระบุบัญชี completeId ได้',
+  'user.error.completeNotOwned':
+    'บัญชี completeId เข้าสู่ระบบผ่าน OAuth; ข้อมูลประจำตัวของบัญชีนี้ไม่ได้ถูกกำหนดไว้ในที่นี้',
+  'user.error.identityRequired': 'การสร้างบัญชีจำเป็นต้องใช้ชื่อผู้ใช้หรืออีเมลเพื่อระบุบัญชี',
+  'user.error.usernameEmailConflict':
+    'ชื่อผู้ใช้และอีเมลเป็นของบัญชีที่มีอยู่สองบัญชีที่แตกต่างกัน',
+  'user.error.oauthEmailCollision':
+    'มีบัญชีสำหรับอีเมลนี้อยู่แล้ว โปรดเข้าสู่ระบบด้วยวิธีการเดิมของคุณ จากนั้นเชื่อมโยงผู้ให้บริการนี้จากหน้าการตั้งค่าบัญชีของคุณ',
 }

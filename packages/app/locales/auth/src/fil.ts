@@ -10,4 +10,5 @@ export const fil: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Binago ang sesyon ng profile bago ang pagsusumite',
   'auth.error.passwordRequiresSignIn': 'Mag-sign in bago magpalit ng password',
   'auth.error.passwordSessionChanged': 'Binago ang sesyon ng password bago ang pagsusumite',
+  'auth.error.requestTimedOut': 'Naubusan ng oras ang kahilingan sa pagpapatotoo',
 }

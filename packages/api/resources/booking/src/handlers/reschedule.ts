@@ -57,9 +57,13 @@ export async function reschedule(req: MoleculeRequest, res: MoleculeResponse): P
 
     if (row.status !== 'pending' && row.status !== 'confirmed') {
       res.status(409).json({
-        error: t('booking.error.cannotReschedule', undefined, {
-          defaultValue: `Booking cannot be rescheduled from '${row.status}' status`,
-        }),
+        error: t(
+          'booking.error.cannotReschedule',
+          { status: row.status },
+          {
+            defaultValue: "Booking cannot be rescheduled from '{{status}}' status",
+          },
+        ),
         errorKey: 'booking.error.cannotReschedule',
       })
       return

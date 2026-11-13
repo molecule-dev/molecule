@@ -11,5 +11,5 @@ export const te: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}గం {{minutes}}ని',
   'battery.remainingMinutes': '{{minutes}}ని',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: ప్రొవైడర్ ఏదీ సెట్ చేయబడలేదు. `BatteryProvider` ఇంప్లిమెంటేషన్‌తో `setProvider()` కాల్ చేయండి — ఫ్లీట్‌తో పాటు ఏ ప్రొవైడర్ అందించబడదు; మీ నేటివ్ రన్‌టైమ్‌లో ఇంటర్‌ఫేస్‌ను ఇంప్లిమెంట్ చేసి, దానిని బాండ్ చేయండి.',
+    '`@molecule/app-battery`: ప్రొవైడర్ ఏదీ సెట్ చేయబడలేదు. `BatteryProvider` ఇంప్లిమెంటేషన్‌తో `setProvider()` కాల్ చేయండి — మాలిక్యూల్ దీని కోసం ఏ ప్రొవైడర్‌ను అందించదు; మీ నేటివ్ రన్‌టైమ్‌లో ఇంటర్‌ఫేస్‌ను ఇంప్లిమెంట్ చేసి, దానిని బాండ్ చేయండి.',
 }

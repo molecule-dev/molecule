@@ -14,7 +14,8 @@ export const ca: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.uptime': 'Temps de funcionament',
   'statusDashboard.label.lastChecked': 'Última comprovació {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
-  'statusDashboard.error.noProvider': "Proveïdor del tauler de control d'estat no configurat.",
   'statusDashboard.error.fetchFailed': "No s'ha pogut obtenir l'estat: HTTP {{status}}",
   'statusDashboard.label.noIncidents': "No s'han reportat incidents.",
+  'statusDashboard.error.noProvider':
+    "Proveïdor del tauler de control d'estat no configurat. Primer, vinculeu un proveïdor del tauler de control d'estat.",
 }

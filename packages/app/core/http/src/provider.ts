@@ -318,7 +318,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
               t(
                 'http.error.requestFailed',
                 { status: fetchResponse.status },
-                { defaultValue: `Request failed with status ${fetchResponse.status}` },
+                { defaultValue: 'Request failed with status {{status}}.' },
               ),
               fetchResponse.status,
               response,

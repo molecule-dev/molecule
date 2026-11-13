@@ -6,7 +6,6 @@ export const ro: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Indisponibil',
   'statusDashboard.label.services': 'Servicii',
   'statusDashboard.label.uptime': 'Timp activ',
-  'statusDashboard.error.noProvider': 'Furnizorul tabloului de bord de stare nu este configurat.',
   'statusDashboard.error.fetchFailed': 'Nu s-a putut prelua starea: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Toate sistemele funcționale',
   'statusDashboard.label.someIssues': 'Unele sisteme întâmpină probleme',
@@ -17,4 +16,6 @@ export const ro: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Ultima verificare {{time}}',
   'statusDashboard.label.latency': '{{ms}} Domnișoară',
   'statusDashboard.label.noIncidents': 'Nu au fost raportate incidente.',
+  'statusDashboard.error.noProvider':
+    'Furnizorul tabloului de bord de stare nu este configurat. Mai întâi conectați un furnizor de tablou de bord de stare.',
 }

@@ -33,7 +33,7 @@ export const createVersionChecker = (
           t(
             'version.error.fetchFailed',
             { status: String(response.status) },
-            { defaultValue: `Failed to fetch version: ${response.status}` },
+            { defaultValue: 'Failed to fetch version: {{status}}' },
           ),
         )
       }

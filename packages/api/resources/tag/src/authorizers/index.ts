@@ -172,7 +172,7 @@ export const requireAdmin =
   async (_req, res, next): Promise<void> => {
     const session = res.locals.session as TagSession | undefined
     if (!session?.userId) {
-      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
+      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }))
     }
     if (await isTagAdmin(res)) {
       return next()

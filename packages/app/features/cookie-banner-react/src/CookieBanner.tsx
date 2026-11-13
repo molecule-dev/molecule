@@ -99,7 +99,7 @@ export function CookieBanner({
     >
       <header className={cm.stack(1 as const)}>
         <h3 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
-          {title ?? t('cookieBanner.title', {}, { defaultValue: 'We use cookies' })}
+          {title ?? t('cookieBanner.title', {}, { defaultValue: 'Cookie preferences' })}
         </h3>
         <p className={cm.textSize('sm')}>
           {description ??

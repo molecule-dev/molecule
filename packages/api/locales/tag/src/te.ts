@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Telugu. */
 export const te: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ట్యాగ్ పేరు అవసరం',
   'tag.error.invalidName': 'ట్యాగ్ పేరు చెల్లదు',
   'tag.error.createFailed': 'ట్యాగ్ సృష్టించడంలో విఫలం',
@@ -17,4 +16,5 @@ export const te: TagTranslations = {
   'tag.error.associationNotFound': 'ట్యాగ్ అనుబంధం కనుగొనబడలేదు',
   'tag.error.removeFailed': 'వనరు నుండి ట్యాగ్ తొలగించడంలో విఫలం',
   'tag.error.getBySlugFailed': 'ట్యాగ్ ద్వారా వనరులను పొందడంలో విఫలం',
+  'tag.error.forbidden': 'ట్యాగ్‌లను నిర్వహించడానికి నిర్వాహక ప్రాప్యత అవసరం',
 }

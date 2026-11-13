@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Georgian. */
 export const ka: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'სტატუსის დაფის პროვაიდერი არ არის კონფიგურირებული.',
   'statusDashboard.error.fetchFailed': 'სტატუსის მიღება ვერ მოხერხდა: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'ყველა სისტემა მუშაობს',
   'statusDashboard.label.someIssues': 'ზოგიერთ სისტემას პრობლემები აქვს',
@@ -17,4 +16,6 @@ export const ka: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'ბოლოს შემოწმდა {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'ინციდენტები არ არის მოხსენებული.',
+  'statusDashboard.error.noProvider':
+    'სტატუსის დაფის პროვაიდერი კონფიგურირებული არ არის. ჯერ სტატუსის დაფის პროვაიდერი დააკავშირეთ.',
 }

@@ -6,8 +6,6 @@ export const de: Partial<FooterTranslations> = {
   'footer.termsOfService': 'Nutzungsbedingungen',
   'footer.language': 'Sprache',
   'footer.version': 'v {{version}}',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Dieser Inhalt wurde noch nicht konfiguriert. Der App-Inhaber muss ihn bereitstellen.',
   'footer.about': 'Über {{appName}}',

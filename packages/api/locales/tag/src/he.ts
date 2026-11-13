@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Hebrew. */
 export const he: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'שם התגית נדרש',
   'tag.error.invalidName': 'שם התגית אינו תקין',
   'tag.error.createFailed': 'יצירת התגית נכשלה',
@@ -17,4 +16,5 @@ export const he: TagTranslations = {
   'tag.error.associationNotFound': 'שיוך התגית לא נמצא',
   'tag.error.removeFailed': 'הסרת תגית מהמשאב נכשלה',
   'tag.error.getBySlugFailed': 'שליפת משאבים לפי תגית נכשלה',
+  'tag.error.forbidden': 'נדרשת גישת מנהל כדי לנהל תגים',
 }

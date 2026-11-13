@@ -9,7 +9,6 @@ export const ko: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': '서비스',
   'statusDashboard.label.incidents': '인시던트',
   'statusDashboard.label.uptime': '가동 시간',
-  'statusDashboard.error.noProvider': '상태 대시보드 제공자가 구성되지 않았습니다.',
   'statusDashboard.error.fetchFailed': 'HTTP 상태 정보를 가져오는 데 실패했습니다. {{status}}',
   'statusDashboard.label.allOperational': '모든 시스템 정상 작동',
   'statusDashboard.label.someIssues': '일부 시스템에서 문제가 발생하고 있습니다.',
@@ -17,4 +16,6 @@ export const ko: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': '마지막 확인 {{time}}',
   'statusDashboard.label.latency': '{{ms}} ms',
   'statusDashboard.label.noIncidents': '보고된 사건은 없습니다.',
+  'statusDashboard.error.noProvider':
+    '상태 대시보드 공급자가 구성되지 않았습니다. 먼저 상태 대시보드 공급자를 연결하십시오.',
 }

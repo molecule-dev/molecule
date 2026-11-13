@@ -77,4 +77,16 @@ export const sw: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} haitoi lango la malipo.',
   'user.payment.subscriptionOwnershipMismatch': 'Usajili huu si wa akaunti yako.',
   'user.payment.transactionAlreadyClaimed': 'Ununuzi huu tayari umehusishwa na akaunti nyingine.',
+  'user.error.completeTargetMissing':
+    'Hakuna akaunti iliyopo ikiwa na kitambulisho kilichotolewa kama Kitambulisho kamili.',
+  'user.error.completeIdentityMismatch':
+    'Jina la mtumiaji au barua pepe iliyotolewa haitambui akaunti kamili ya Kitambulisho.',
+  'user.error.completeNotOwned':
+    'Akaunti kamili ya Id huingia kupitia OAuth; sifa zake hazijatolewa hapa.',
+  'user.error.identityRequired':
+    'Utoaji unahitaji jina la mtumiaji au barua pepe ili kutambua akaunti.',
+  'user.error.usernameEmailConflict':
+    'Jina la mtumiaji na barua pepe ni mali ya akaunti mbili tofauti zilizopo.',
+  'user.error.oauthEmailCollision':
+    'Akaunti tayari ipo kwa barua pepe hii. Tafadhali ingia kwa kutumia njia yako ya asili, kisha unganisha mtoa huduma huyu kutoka kwa mipangilio ya akaunti yako.',
 }

@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Persian. */
 export const fa: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'نام محصول الزامی است',
   'product.error.invalidName': 'نام محصول نامعتبر است',
   'product.error.invalidPrice': 'یک قیمت معتبر الزامی است',
@@ -15,4 +14,5 @@ export const fa: ProductTranslations = {
   'product.error.listVariantsFailed': 'فهرست‌بندی انواع محصول ناموفق بود',
   'product.error.variantNameRequired': 'نام نوع الزامی است',
   'product.error.createVariantFailed': 'ایجاد نوع محصول ناموفق بود',
+  'product.error.forbidden': 'دسترسی ادمین برای مدیریت محصولات الزامی است',
 }

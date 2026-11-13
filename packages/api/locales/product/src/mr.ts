@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Marathi. */
 export const mr: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'उत्पादनाचे नाव आवश्यक आहे',
   'product.error.invalidName': 'उत्पादनाचे नाव अवैध आहे',
   'product.error.invalidPrice': 'वैध किंमत आवश्यक आहे',
@@ -15,4 +14,5 @@ export const mr: ProductTranslations = {
   'product.error.listVariantsFailed': 'उत्पादन प्रकारांची यादी करण्यात अयशस्वी',
   'product.error.variantNameRequired': 'प्रकाराचे नाव आवश्यक आहे',
   'product.error.createVariantFailed': 'उत्पादन प्रकार तयार करण्यात अयशस्वी',
+  'product.error.forbidden': 'उत्पादने व्यवस्थापित करण्यासाठी प्रशासकीय प्रवेश आवश्यक आहे.',
 }

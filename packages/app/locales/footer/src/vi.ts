@@ -6,8 +6,6 @@ export const vi: Partial<FooterTranslations> = {
   'footer.termsOfService': 'Điều khoản dịch vụ',
   'footer.language': 'Ngôn ngữ',
   'footer.version': 'v {{version}}',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Nội dung này chưa được cấu hình. Chủ sở hữu ứng dụng phải cung cấp nội dung này.',
   'footer.about': 'Giới thiệu về {{appName}}',

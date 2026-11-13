@@ -10,4 +10,5 @@ export const es: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'La sesión del perfil cambió antes de su envío.',
   'auth.error.passwordRequiresSignIn': 'Inicia sesión antes de cambiar tu contraseña.',
   'auth.error.passwordSessionChanged': 'La sesión de contraseña cambió antes del envío.',
+  'auth.error.requestTimedOut': 'La solicitud de autenticación ha caducado.',
 }

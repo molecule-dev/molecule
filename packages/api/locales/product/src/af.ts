@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Afrikaans. */
 export const af: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Produknaam is verpligtend',
   'product.error.invalidName': 'Produknaam is ongeldig',
   'product.error.invalidPrice': "'n Geldige prys is verpligtend",
@@ -15,4 +14,5 @@ export const af: ProductTranslations = {
   'product.error.listVariantsFailed': 'Kon nie produkvariante lys nie',
   'product.error.variantNameRequired': 'Variantnaam is verpligtend',
   'product.error.createVariantFailed': 'Kon nie produkvariant skep nie',
+  'product.error.forbidden': 'Administrateurtoegang word benodig om produkte te bestuur',
 }

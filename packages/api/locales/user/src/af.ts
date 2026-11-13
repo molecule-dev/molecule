@@ -77,4 +77,16 @@ export const af: UserTranslations = {
     'Hierdie intekening behoort nie aan jou rekening nie.',
   'user.payment.transactionAlreadyClaimed':
     "Hierdie aankoop is reeds met 'n ander rekening geassosieer.",
+  'user.error.completeTargetMissing':
+    'Geen rekening bestaan met die ID wat as volledigeId verskaf is nie.',
+  'user.error.completeIdentityMismatch':
+    'Die verskafde gebruikersnaam of e-posadres identifiseer nie die completeId-rekening nie.',
+  'user.error.completeNotOwned':
+    'Die completeId-rekening teken aan deur OAuth; die geloofsbriewe daarvan word nie hier verskaf nie.',
+  'user.error.identityRequired':
+    "Voorsiening benodig 'n gebruikersnaam of 'n e-posadres om die rekening te identifiseer.",
+  'user.error.usernameEmailConflict':
+    'Die gebruikersnaam en die e-posadres behoort aan twee verskillende bestaande rekeninge.',
+  'user.error.oauthEmailCollision':
+    "'n Rekening bestaan reeds vir hierdie e-posadres. Meld asseblief aan met jou oorspronklike metode en koppel dan hierdie verskaffer vanaf jou rekeninginstellings.",
 }

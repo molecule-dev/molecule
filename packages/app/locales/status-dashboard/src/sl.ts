@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Slovenian. */
 export const sl: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Ponudnik nadzorne plošče stanja ni konfiguriran.',
   'statusDashboard.error.fetchFailed': 'Pridobivanje stanja ni uspelo: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Vsi sistemi delujejo',
   'statusDashboard.label.someIssues': 'Nekateri sistemi imajo težave',
@@ -17,4 +16,6 @@ export const sl: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Nazadnje preverjeno {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Noben incident ni bil prijavljen.',
+  'statusDashboard.error.noProvider':
+    'Ponudnik nadzorne plošče stanja ni konfiguriran. Najprej povežite ponudnika nadzorne plošče stanja.',
 }

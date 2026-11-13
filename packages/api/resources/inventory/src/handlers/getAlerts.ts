@@ -25,7 +25,7 @@ export async function getAlerts(req: MoleculeRequest, res: MoleculeResponse): Pr
   // authorizer whose name has no handler-map entry). Fail closed.
   if (!getInventorySession(res)?.userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return

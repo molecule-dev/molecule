@@ -6,8 +6,6 @@ export const ru: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'политика конфиденциальности',
   'footer.termsOfService': 'Условия предоставления услуг',
   'footer.language': 'Язык',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Этот контент ещё не настроен. Его должен предоставить владелец приложения.',
   'footer.about': 'О приложении {{appName}}',

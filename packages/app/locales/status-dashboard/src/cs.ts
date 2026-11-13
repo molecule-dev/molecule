@@ -6,7 +6,6 @@ export const cs: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Nedostupný',
   'statusDashboard.label.services': 'Služby',
   'statusDashboard.label.uptime': 'Dostupnost',
-  'statusDashboard.error.noProvider': 'Poskytovatel řídicího panelu stavu není nakonfigurován.',
   'statusDashboard.error.fetchFailed': 'Nepodařilo se načíst stav: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Všechny systémy v provozu',
   'statusDashboard.label.someIssues': 'Některé systémy mají problémy',
@@ -17,4 +16,6 @@ export const cs: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Naposledy zkontrolováno {{time}}',
   'statusDashboard.label.latency': '{{ms}} paní',
   'statusDashboard.label.noIncidents': 'Nebyly hlášeny žádné incidenty.',
+  'statusDashboard.error.noProvider':
+    'Poskytovatel řídicího panelu stavu není nakonfigurován. Nejprve propojte poskytovatele řídicího panelu stavu.',
 }

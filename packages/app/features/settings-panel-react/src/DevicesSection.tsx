@@ -134,7 +134,7 @@ export function DevicesSection({
                   {device.name || device.platform}
                   {device.isCurrent ? (
                     <span className={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2))}>
-                      {t('settings.thisDevice', undefined, { defaultValue: 'This device' })}
+                      {t('settings.thisDevice', undefined, { defaultValue: 'This Device' })}
                     </span>
                   ) : null}
                 </span>
@@ -153,7 +153,7 @@ export function DevicesSection({
       ) : (
         !loading && (
           <p className={cm.cn(cm.textSize('sm'), cm.textMuted)}>
-            {t('settings.noDevices', undefined, { defaultValue: 'No devices' })}
+            {t('settings.noDevices', undefined, { defaultValue: 'No devices found' })}
           </p>
         )
       )}

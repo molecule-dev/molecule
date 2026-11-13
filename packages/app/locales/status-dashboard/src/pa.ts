@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Punjabi. */
 export const pa: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'ਸਥਿਤੀ ਡੈਸ਼ਬੋਰਡ ਪ੍ਰਦਾਤਾ ਕੌਂਫਿਗਰ ਨਹੀਂ ਕੀਤਾ ਗਿਆ।',
   'statusDashboard.error.fetchFailed': 'ਸਥਿਤੀ ਪ੍ਰਾਪਤ ਕਰਨ ਵਿੱਚ ਅਸਫਲ: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'ਸਾਰੇ ਸਿਸਟਮ ਚੱਲ ਰਹੇ ਹਨ',
   'statusDashboard.label.someIssues': 'ਕੁਝ ਸਿਸਟਮਾਂ ਵਿੱਚ ਸਮੱਸਿਆਵਾਂ ਆ ਰਹੀਆਂ ਹਨ',
@@ -17,4 +16,6 @@ export const pa: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'ਆਖਰੀ ਜਾਂਚ {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'ਕੋਈ ਘਟਨਾ ਰਿਪੋਰਟ ਨਹੀਂ ਕੀਤੀ ਗਈ।',
+  'statusDashboard.error.noProvider':
+    'ਸਟੇਟਸ ਡੈਸ਼ਬੋਰਡ ਪ੍ਰਦਾਤਾ ਕੌਂਫਿਗਰ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ। ਪਹਿਲਾਂ ਇੱਕ ਸਟੇਟਸ ਡੈਸ਼ਬੋਰਡ ਪ੍ਰਦਾਤਾ ਨੂੰ ਬਾਂਡ ਕਰੋ।',
 }

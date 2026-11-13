@@ -76,4 +76,16 @@ export const id: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} tidak menawarkan portal penagihan.',
   'user.payment.subscriptionOwnershipMismatch': 'Langganan ini bukan milik akun Anda.',
   'user.payment.transactionAlreadyClaimed': 'Pembelian ini sudah terkait dengan akun lain.',
+  'user.error.completeTargetMissing':
+    'Tidak ada akun yang terdaftar dengan ID yang diberikan sebagai completeId.',
+  'user.error.completeIdentityMismatch':
+    'Nama pengguna atau email yang diberikan tidak mengidentifikasi akun completeId.',
+  'user.error.completeNotOwned':
+    'Akun completeId masuk melalui OAuth; kredensialnya tidak disediakan di sini.',
+  'user.error.identityRequired':
+    'Proses penyediaan akun memerlukan nama pengguna atau alamat email untuk mengidentifikasi akun tersebut.',
+  'user.error.usernameEmailConflict':
+    'Nama pengguna dan email tersebut milik dua akun yang berbeda dan sudah ada.',
+  'user.error.oauthEmailCollision':
+    'Akun untuk email ini sudah ada. Silakan masuk menggunakan metode pembayaran awal Anda, lalu tautkan penyedia ini dari pengaturan akun Anda.',
 }

@@ -151,7 +151,7 @@ export function createMoleculeSecretsProvider(
           t(
             'secrets.molecule.error.vaultError',
             { status: String(response.status), error },
-            { defaultValue: `Molecule vault error: ${response.status} ${error}` },
+            { defaultValue: 'Molecule vault error: {{status}} {{error}}' },
           ),
         )
       }
@@ -223,7 +223,8 @@ export function createMoleculeSecretsProvider(
       if (!token) {
         throw new Error(
           t('secrets.molecule.error.tokenNotConfigured', undefined, {
-            defaultValue: 'Molecule vault token not configured',
+            defaultValue:
+              'Molecule vault token not configured. Set MOLECULE_VAULT_TOKEN or pass token option.',
           }),
         )
       }
@@ -240,7 +241,7 @@ export function createMoleculeSecretsProvider(
           t(
             'secrets.molecule.error.vaultError',
             { status: String(response.status), error },
-            { defaultValue: `Molecule vault error: ${response.status} ${error}` },
+            { defaultValue: 'Molecule vault error: {{status}} {{error}}' },
           ),
         )
       }
@@ -253,7 +254,8 @@ export function createMoleculeSecretsProvider(
       if (!token) {
         throw new Error(
           t('secrets.molecule.error.tokenNotConfigured', undefined, {
-            defaultValue: 'Molecule vault token not configured',
+            defaultValue:
+              'Molecule vault token not configured. Set MOLECULE_VAULT_TOKEN or pass token option.',
           }),
         )
       }
@@ -269,7 +271,7 @@ export function createMoleculeSecretsProvider(
           t(
             'secrets.molecule.error.vaultError',
             { status: String(response.status), error },
-            { defaultValue: `Molecule vault error: ${response.status} ${error}` },
+            { defaultValue: 'Molecule vault error: {{status}} {{error}}' },
           ),
         )
       }

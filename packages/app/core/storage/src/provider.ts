@@ -35,8 +35,7 @@ export const getProvider = (): StorageProvider => {
   if (!provider) {
     throw new Error(
       t('storage.error.noProvider', undefined, {
-        defaultValue:
-          '@molecule/app-storage: No provider set. Call setProvider() with a StorageProvider implementation (e.g., from @molecule/app-storage-localstorage).',
+        defaultValue: 'Storage provider not configured. Call setProvider() first.',
       }),
     )
   }

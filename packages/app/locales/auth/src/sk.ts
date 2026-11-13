@@ -10,4 +10,5 @@ export const sk: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Profilová relácia sa zmenila pred odoslaním',
   'auth.error.passwordRequiresSignIn': 'Prihláste sa pred zmenou hesla',
   'auth.error.passwordSessionChanged': 'Heslo relácie sa zmenilo pred odoslaním',
+  'auth.error.requestTimedOut': 'Časový limit žiadosti o overenie vypršal',
 }

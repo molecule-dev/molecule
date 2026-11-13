@@ -6,8 +6,6 @@ export const is: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Persónuverndarstefna',
   'footer.termsOfService': 'Þjónustuskilmálar',
   'footer.language': 'Tungumál',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Þetta efni hefur ekki verið stillt ennþá. Eigandi forritsins verður að útvega það.',
   'footer.about': 'Um {{appName}}',

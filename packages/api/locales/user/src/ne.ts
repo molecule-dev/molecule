@@ -75,4 +75,15 @@ export const ne: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} बिलिङ पोर्टल प्रदान गर्दैन।',
   'user.payment.subscriptionOwnershipMismatch': 'यो सदस्यता तपाईंको खातासँग सम्बन्धित छैन।',
   'user.payment.transactionAlreadyClaimed': 'यो खरिद पहिले नै अर्को खातासँग सम्बन्धित छ।',
+  'user.error.completeTargetMissing':
+    'पूर्ण आईडीको रूपमा प्रदान गरिएको आईडी भएको कुनै खाता अवस्थित छैन।',
+  'user.error.completeIdentityMismatch':
+    'प्रदान गरिएको प्रयोगकर्ता नाम वा इमेलले पूर्ण आईडी खाता पहिचान गर्दैन।',
+  'user.error.completeNotOwned':
+    'completeId खाताले OAuth मार्फत साइन इन गर्छ; यसको प्रमाणहरू यहाँ प्रावधान गरिएको छैन।',
+  'user.error.identityRequired': 'खाता पहिचान गर्न प्रोभिजनिङलाई प्रयोगकर्ता नाम वा इमेल चाहिन्छ।',
+  'user.error.usernameEmailConflict':
+    'प्रयोगकर्ता नाम र इमेल दुई फरक अवस्थित खाताहरूसँग सम्बन्धित छन्।',
+  'user.error.oauthEmailCollision':
+    'यो इमेलको लागि पहिले नै एउटा खाता अवस्थित छ। कृपया आफ्नो मूल विधि प्रयोग गरी साइन इन गर्नुहोस्, त्यसपछि आफ्नो खाता सेटिङहरूबाट यो प्रदायकलाई लिङ्क गर्नुहोस्।',
 }

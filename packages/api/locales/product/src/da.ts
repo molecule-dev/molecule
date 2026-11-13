@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Danish. */
 export const da: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Produktnavn er påkrævet',
   'product.error.invalidName': 'Produktnavn er ugyldigt',
   'product.error.invalidPrice': 'En gyldig pris er påkrævet',
@@ -15,4 +14,5 @@ export const da: ProductTranslations = {
   'product.error.listVariantsFailed': 'Kunne ikke vise produktvarianter',
   'product.error.variantNameRequired': 'Variantnavn er påkrævet',
   'product.error.createVariantFailed': 'Kunne ikke oprette produktvariant',
+  'product.error.forbidden': 'Administratoradgang kræves for at administrere produkter',
 }

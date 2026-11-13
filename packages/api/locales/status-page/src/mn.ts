@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Mongolian. */
 export const mn: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Үйлчилгээ олдсонгүй.',
   'status.error.incidentNotFound': 'Тохиолдол олдсонгүй.',
   'status.error.validationFailed': 'Баталгаажуулалт амжилтгүй: {{errors}}',
@@ -16,4 +15,5 @@ export const mn: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Тохиолдлын жагсаалт авч чадсангүй.',
   'status.error.getStatusFailed': 'Системийн төлөв авч чадсангүй.',
   'status.error.getUptimeFailed': 'Ажиллах хугацааны мэдээлэл авч чадсангүй.',
+  'status.error.forbidden': 'Статусын хуудсыг удирдахад зөвшөөрөл шаардлагатай',
 }

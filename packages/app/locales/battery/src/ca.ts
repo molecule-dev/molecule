@@ -11,5 +11,5 @@ export const ca: Partial<BatteryTranslations> = {
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.not-charging': 'No carregant',
   'battery.error.noProvider':
-    "`@molecule/app-battery`: No s'ha definit cap proveïdor. Crida `setProvider()` amb una implementació de `BatteryProvider` — cap proveïdor s'inclou amb la flota; implementa la interfície al teu temps d'execució natiu i vincula'l.",
+    "`@molecule/app-battery`: No s'ha definit cap proveïdor. Crida `setProvider()` amb una implementació de `BatteryProvider` — Molecule no envia cap proveïdor; implementa la interfície al teu temps d'execució natiu i vincula-la.",
 }

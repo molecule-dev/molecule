@@ -11,5 +11,5 @@ export const ta: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}ம {{minutes}}நி',
   'battery.remainingMinutes': '{{minutes}}நி',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: வழங்குநர் எதுவும் அமைக்கப்படவில்லை. `BatteryProvider` செயலாக்கத்துடன் `setProvider()` அழைக்கவும் — இந்தத் தொகுப்புடன் எந்த வழங்குநரும் அனுப்பப்படவில்லை; உங்கள் நேட்டிவ் ரன்டைமில் இடைமுகத்தைச் செயல்படுத்தி, அதை இணைக்கவும்.',
+    '`@molecule/app-battery`: வழங்குநர் எதுவும் அமைக்கப்படவில்லை. `BatteryProvider` செயலாக்கத்துடன் `setProvider()` அழைக்கவும் — Molecule அதற்கான வழங்குநரை வழங்கவில்லை; உங்கள் நேட்டிவ் ரன்டைமில் இடைமுகத்தைச் செயல்படுத்தி, அதை இணைக்கவும்.',
 }

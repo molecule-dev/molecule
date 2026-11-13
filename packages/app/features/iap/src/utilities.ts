@@ -51,5 +51,7 @@ export const getErrorMessage = (
   }
 
   const fallback = errorMessages.E_UNKNOWN
-  return t ? t('iap.error.E_UNKNOWN', undefined, { defaultValue: fallback }) : fallback
+  return t
+    ? t('iap.error.E_UNKNOWN', undefined, { defaultValue: 'An unknown error occurred.' })
+    : fallback
 }

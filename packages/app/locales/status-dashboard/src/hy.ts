@@ -2,8 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Armenian. */
 export const hy: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider':
-    '\u053F\u0561\u0580\u0563\u0561\u057E\u056B\u0573\u0561\u056F\u056B \u057E\u0561\u0570\u0561\u0576\u0561\u056F\u056B \u0574\u0561\u057F\u0561\u056F\u0561\u0580\u0561\u0580\u0568 \u056F\u0561\u0580\u0563\u0561\u057E\u0578\u0580\u057E\u0561\u056E \u0579\u0567:',
   'statusDashboard.error.fetchFailed':
     '\u0549\u0570\u0561\u057B\u0578\u0572\u057E\u0565\u0581 \u057D\u057F\u0561\u0576\u0561\u056C \u056F\u0561\u0580\u0563\u0561\u057E\u056B\u0573\u0561\u056F\u0568: HTTP {{status}}',
   'statusDashboard.label.allOperational':
@@ -26,4 +24,6 @@ export const hy: StatusDashboardTranslations = {
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents':
     '\u0544\u056B\u057B\u0561\u0564\u0565\u057A\u0565\u0580 \u0579\u0565\u0576 \u0563\u0580\u0561\u0576\u0581\u057E\u0565\u056C:',
+  'statusDashboard.error.noProvider':
+    'Կարգավիճակի վահանակի մատակարարը կարգավորված չէ: Նախ կապեք կարգավիճակի վահանակի մատակարարի հետ:',
 }

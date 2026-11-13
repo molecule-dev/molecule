@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for bn. */
 export const bn: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'এমবেড কোড ({ভাষা})',
   'embedSnippet.heading': 'এমবেড কোড',
   'embedSnippet.eyebrow': 'এমবেড কোড কপি করুন',
   'embedSnippet.copy': 'অনুলিপি',
@@ -13,4 +12,5 @@ export const bn: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'আলো',
   'embedSnippet.theme.dark': 'অন্ধকার',
   'embedSnippet.theme.auto': 'অটো',
+  'embedSnippet.aria.region': 'এমবেড কোড ({{language}})',
 }

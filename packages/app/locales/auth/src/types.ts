@@ -1,6 +1,7 @@
 /** Translation keys for the auth locale package. */
 export type AuthTranslationKey =
   | 'auth.error.requestFailed'
+  | 'auth.error.requestTimedOut'
   | 'auth.error.loginFailed'
   | 'auth.error.registrationFailed'
   | 'auth.error.noRefreshToken'

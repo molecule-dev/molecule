@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Georgian. */
 export const ka: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ტეგის სახელი აუცილებელია',
   'tag.error.invalidName': 'ტეგის სახელი არასწორია',
   'tag.error.createFailed': 'ტეგის შექმნა ვერ მოხერხდა',
@@ -17,4 +16,5 @@ export const ka: TagTranslations = {
   'tag.error.associationNotFound': 'ტეგის ასოციაცია ვერ მოიძებნა',
   'tag.error.removeFailed': 'ტეგის რესურსიდან წაშლა ვერ მოხერხდა',
   'tag.error.getBySlugFailed': 'რესურსების ტეგით მიღება ვერ მოხერხდა',
+  'tag.error.forbidden': 'თეგების სამართავად საჭიროა ადმინისტრატორის წვდომა',
 }

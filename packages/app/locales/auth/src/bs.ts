@@ -10,4 +10,5 @@ export const bs: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Sesija profila je promijenjena prije slanja',
   'auth.error.passwordRequiresSignIn': 'Prijavite se prije promjene lozinke',
   'auth.error.passwordSessionChanged': 'Sesija lozinke je promijenjena prije slanja',
+  'auth.error.requestTimedOut': 'Zahtjev za autentifikaciju je istekao',
 }

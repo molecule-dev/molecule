@@ -10,4 +10,5 @@ export const gu: AuthTranslations = {
   'auth.error.profileSessionChanged': 'સબમિશન પહેલાં પ્રોફાઇલ સત્ર બદલાઈ ગયું',
   'auth.error.passwordRequiresSignIn': 'પાસવર્ડ બદલતા પહેલા સાઇન ઇન કરો',
   'auth.error.passwordSessionChanged': 'સબમિશન પહેલાં પાસવર્ડ સત્ર બદલાઈ ગયું',
+  'auth.error.requestTimedOut': 'પ્રમાણીકરણ વિનંતીનો સમય સમાપ્ત થયો',
 }

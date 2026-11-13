@@ -72,4 +72,11 @@ export const zh: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}}不提供账单门户。',
   'user.payment.subscriptionOwnershipMismatch': '此订阅不属于您的帐户。',
   'user.payment.transactionAlreadyClaimed': '此次购买已关联至其他账户。',
+  'user.error.completeTargetMissing': '没有与提供的 completeId 对应的账户。',
+  'user.error.completeIdentityMismatch': '提供的用户名或电子邮件地址无法识别 completeId 帐户。',
+  'user.error.completeNotOwned': 'completeId 帐户通过 OAuth 登录；其凭据未在此处提供。',
+  'user.error.identityRequired': '配置过程需要用户名或电子邮件地址来识别帐户。',
+  'user.error.usernameEmailConflict': '用户名和邮箱地址属于两个不同的现有账户。',
+  'user.error.oauthEmailCollision':
+    '此邮箱已关联一个账户。请使用您原有的登录方式登录，然后在账户设置中关联此服务商。',
 }

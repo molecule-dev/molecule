@@ -11,5 +11,5 @@ export const uz: Partial<BatteryTranslations> = {
   'battery.unknown': "Noma'lum",
   'battery.remainingUnknown': "Noma'lum",
   'battery.error.noProvider':
-    "`@molecule/app-battery`: Provayder o'rnatilmagan. `setProvider()` `BatteryProvider` implementatsiyasi bilan chaqiring — hech qanday provayder flot bilan birga jo'natilmaydi; interfeysni o'zingizning mahalliy ish vaqtingizda amalga oshiring va uni bog'lang.",
+    "`@molecule/app-battery`: Provayder o'rnatilmagan. `BatteryProvider` implementatsiyasi bilan `setProvider()` chaqiring — Molecule buning uchun provayder yubormaydi; interfeysni o'zingizning mahalliy ish vaqtingizda amalga oshiring va uni bog'lang.",
 }

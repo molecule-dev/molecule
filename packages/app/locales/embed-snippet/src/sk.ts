@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for sk. */
 export const sk: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Vložený kód ({language})',
   'embedSnippet.heading': 'Vložiť kód',
   'embedSnippet.eyebrow': 'Kopírovať kód na vloženie',
   'embedSnippet.copy': 'Kopírovať',
@@ -13,4 +12,5 @@ export const sk: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Svetlo',
   'embedSnippet.theme.dark': 'Tmavé',
   'embedSnippet.theme.auto': 'Automaticky',
+  'embedSnippet.aria.region': 'Vložený kód ({{language}})',
 }

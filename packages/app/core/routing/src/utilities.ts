@@ -121,7 +121,7 @@ export const generatePath = (pattern: string, params: RouteParams = {}): string 
         t(
           'routing.error.missingParam',
           { name, pattern },
-          { defaultValue: `Missing param "${name}" for path "${pattern}"` },
+          { defaultValue: 'Missing param "{{name}}" for path "{{pattern}}"' },
         ),
       )
     }

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Catalan. */
 export const ca: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Servei no trobat.',
   'status.error.incidentNotFound': 'Incident no trobat.',
   'status.error.validationFailed': 'Validació fallida: {{errors}}',
@@ -16,4 +15,5 @@ export const ca: StatusTranslations = {
   'status.error.listIncidentsFailed': "No s'han pogut llistar els incidents.",
   'status.error.getStatusFailed': "No s'ha pogut obtenir l'estat del sistema.",
   'status.error.getUptimeFailed': "No s'han pogut obtenir les dades de disponibilitat.",
+  'status.error.forbidden': "Cal permís per gestionar la pàgina d'estat",
 }

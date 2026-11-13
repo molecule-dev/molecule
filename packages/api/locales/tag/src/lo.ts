@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Lao. */
 export const lo: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ຕ້ອງການຊື່ແທັກ',
   'tag.error.invalidName': 'ຊື່ແທັກບໍ່ຖືກຕ້ອງ',
   'tag.error.createFailed': 'ການສ້າງແທັກລົ້ມເຫລວ',
@@ -17,4 +16,5 @@ export const lo: TagTranslations = {
   'tag.error.associationNotFound': 'ບໍ່ພົບການເຊື່ອມຕໍ່ແທັກ',
   'tag.error.removeFailed': 'ການລຶບແທັກຈາກຊັບພະຍາກອນລົ້ມເຫລວ',
   'tag.error.getBySlugFailed': 'ການດຶງຊັບພະຍາກອນຕາມແທັກລົ້ມເຫລວ',
+  'tag.error.forbidden': 'ຕ້ອງການສິດການເຂົ້າເຖິງຂອງຜູ້ເບິ່ງແຍງລະບົບເພື່ອຈັດການແທັກ',
 }

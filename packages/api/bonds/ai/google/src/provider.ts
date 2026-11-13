@@ -693,7 +693,7 @@ class GoogleAIProvider implements AIProvider {
       yield {
         type: 'error',
         message: t('ai.error.noResponseBody', undefined, {
-          defaultValue: 'No response body from the AI provider.',
+          defaultValue: 'No response from AI service.',
         }),
         errorKey: 'ai.error.noResponseBody',
       }

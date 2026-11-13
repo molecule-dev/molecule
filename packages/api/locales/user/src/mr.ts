@@ -76,4 +76,16 @@ export const mr: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} बिलिंग पोर्टल देत नाही.',
   'user.payment.subscriptionOwnershipMismatch': 'ही सदस्यता तुमच्या खात्याशी संबंधित नाही.',
   'user.payment.transactionAlreadyClaimed': 'ही खरेदी आधीच दुसऱ्या खात्याशी जोडलेली आहे.',
+  'user.error.completeTargetMissing':
+    'completeId म्हणून दिलेल्या आयडीचे कोणतेही खाते अस्तित्वात नाही.',
+  'user.error.completeIdentityMismatch':
+    'दिलेले वापरकर्तानाव किंवा ईमेल हे completeId खात्याची ओळख पटवत नाही.',
+  'user.error.completeNotOwned':
+    'completeId खाते OAuth द्वारे साइन इन करते; त्याची क्रेडेन्शियल्स येथे प्रदान केली जात नाहीत.',
+  'user.error.identityRequired':
+    'खाते ओळखण्यासाठी प्रोव्हिजनिंगला वापरकर्तानाव किंवा ईमेलची आवश्यकता असते.',
+  'user.error.usernameEmailConflict':
+    'वापरकर्त्याचे नाव आणि ईमेल हे दोन वेगवेगळ्या, आधीपासून अस्तित्वात असलेल्या खात्यांचे आहेत.',
+  'user.error.oauthEmailCollision':
+    'या ईमेलसाठी आधीच एक खाते अस्तित्वात आहे. कृपया तुमच्या मूळ पद्धतीद्वारे साइन इन करा, त्यानंतर तुमच्या खाते सेटिंग्जमधून हा प्रदाता लिंक करा.',
 }

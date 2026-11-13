@@ -75,4 +75,16 @@ export const az: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ödəniş portalı təklif etmir.',
   'user.payment.subscriptionOwnershipMismatch': 'Bu abunəlik hesabınıza aid deyil.',
   'user.payment.transactionAlreadyClaimed': 'Bu alış artıq başqa bir hesabla əlaqələndirilib.',
+  'user.error.completeTargetMissing':
+    'completeId olaraq təqdim edilən identifikatorla heç bir hesab mövcud deyil.',
+  'user.error.completeIdentityMismatch':
+    'Təqdim edilən istifadəçi adı və ya e-poçt tam ID hesabını müəyyən etmir.',
+  'user.error.completeNotOwned':
+    'completeId hesabı OAuth vasitəsilə daxil olur; onun etimadnaməsi burada təmin edilmir.',
+  'user.error.identityRequired':
+    'Hesabı müəyyən etmək üçün təminat istifadəçi adı və ya e-poçt tələb edir.',
+  'user.error.usernameEmailConflict':
+    'İstifadəçi adı və e-poçt iki fərqli mövcud hesaba məxsusdur.',
+  'user.error.oauthEmailCollision':
+    'Bu e-poçt üçün artıq hesab mövcuddur. Zəhmət olmasa, orijinal metodunuzla daxil olun, sonra bu provayderi hesab parametrlərinizdən əlaqələndirin.',
 }

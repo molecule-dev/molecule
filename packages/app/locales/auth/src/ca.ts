@@ -11,4 +11,5 @@ export const ca: Partial<AuthTranslations> = {
   'auth.error.passwordRequiresSignIn': 'Inicia la sessió abans de canviar una contrasenya',
   'auth.error.passwordSessionChanged':
     "La contrasenya de la sessió ha canviat abans de l'enviament",
+  'auth.error.requestTimedOut': "La sol·licitud d'autenticació ha superat el temps d'espera",
 }

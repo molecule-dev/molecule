@@ -11,5 +11,5 @@ export const mk: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}ч {{minutes}}м',
   'battery.remainingMinutes': '{{minutes}}м',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Не е поставен провајдер. Повикајте `setProvider()` со имплементација на `BatteryProvider` — ниеден провајдер не се испорачува со флотата; имплементирајте го интерфејсот на вашето матичко извршување и поврзете го.',
+    '`@molecule/app-battery`: Не е поставен провајдер. Повикајте `setProvider()` со имплементација на `BatteryProvider` — Molecule не испорачува провајдер за тоа; имплементирајте го интерфејсот на вашето матичко извршување и поврзете го.',
 }

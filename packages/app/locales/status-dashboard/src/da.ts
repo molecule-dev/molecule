@@ -6,7 +6,6 @@ export const da: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Nede',
   'statusDashboard.label.services': 'Tjenester',
   'statusDashboard.label.uptime': 'Oppetid',
-  'statusDashboard.error.noProvider': 'Statusdashboardudbyder er ikke konfigureret.',
   'statusDashboard.error.fetchFailed': 'Status mislykkedes med at hente: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Alle systemer i drift',
   'statusDashboard.label.someIssues': 'Nogle systemer oplever problemer',
@@ -17,4 +16,6 @@ export const da: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Sidst kontrolleret {{time}}',
   'statusDashboard.label.latency': '{{ms}} ms',
   'statusDashboard.label.noIncidents': 'Ingen rapporterede hændelser.',
+  'statusDashboard.error.noProvider':
+    'Statusdashboardudbyder er ikke konfigureret. Forbind først en statusdashboardudbyder.',
 }

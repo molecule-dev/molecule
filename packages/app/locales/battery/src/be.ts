@@ -11,5 +11,5 @@ export const be: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}г {{minutes}}хв',
   'battery.remainingMinutes': '{{minutes}}хв',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Пастаўшчык не ўстаноўлены. Выклічце `setProvider()` з рэалізацыяй `BatteryProvider` — пастаўшчык не пастаўляецца з аўтаматычным кіраваннем; рэалізуйце інтэрфейс у вашым родным асяроддзі выканання і падключыце яго.',
+    '`@molecule/app-battery`: Пастаўшчык не ўстаноўлены. Выклічце `setProvider()` з рэалізацыяй `BatteryProvider` — Molecule не пастаўляе для яго пастаўшчыка; рэалізуйце інтэрфейс у вашым родным асяроддзі выканання і злучыце яго.',
 }

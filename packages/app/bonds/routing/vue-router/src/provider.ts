@@ -248,7 +248,7 @@ export const createVueRouter = (config: VueRouterConfig = {}): Router => {
       }
 
       throw new Error(
-        t('routing.error.routeNotFound', { name }, { defaultValue: `Route "${name}" not found` }),
+        t('routing.error.routeNotFound', { name }, { defaultValue: 'Route "{{name}}" not found' }),
       )
     },
 
@@ -333,7 +333,7 @@ export const createVueRouter = (config: VueRouterConfig = {}): Router => {
       }
 
       throw new Error(
-        t('routing.error.routeNotFound', { name }, { defaultValue: `Route "${name}" not found` }),
+        t('routing.error.routeNotFound', { name }, { defaultValue: 'Route "{{name}}" not found' }),
       )
     },
 

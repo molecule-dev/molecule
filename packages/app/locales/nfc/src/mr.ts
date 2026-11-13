@@ -3,5 +3,5 @@ import type { NfcTranslations } from './types.js'
 /** Nfc translations for Marathi. */
 export const mr: NfcTranslations = {
   'nfc.error.noProvider':
-    '@molecule/app-nfc: प्रदाता सेट केलेला नाही. NfcProvider अंमलबजावणीसह setProvider() कॉल करा.',
+    '`@molecule/app-nfc`: कोणताही प्रोव्हायडर सेट केलेला नाही. `NfcProvider` इम्प्लिमेंटेशनसह `setProvider()` कॉल करा — मॉलिक्यूलमध्ये त्यासाठी कोणताही प्रोव्हायडर दिलेला नाही; तुमच्या नेटिव्ह रनटाइमवर इंटरफेस इम्प्लिमेंट करा आणि त्याला बाँड करा.',
 }

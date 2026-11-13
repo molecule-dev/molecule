@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const he: ContactsTranslations = {
   'contacts.unknown': 'לא ידוע',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: לא הוגדר ספק. קרא ל `setProvider()` עם מימוש `ContactsProvider` - אף ספק לא מגיע עם הצי; הטמע את הממשק על זמן הריצה המקורי שלך וקשר אותו.',
+    '`@molecule/app-contacts`: לא הוגדר ספק. קריאה ל `setProvider()` עם מימוש של `ContactsProvider` — Molecule לא שולחת ספק עבורו; יש לממש את הממשק בזמן הריצה המקורי שלך וליצור קשר איתו.',
 }

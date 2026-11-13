@@ -2,7 +2,7 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** Embed-snippet translations for English. */
 export const en: EmbedSnippetTranslations = {
-  'embedSnippet.aria.region': 'Embed code ({language})',
+  'embedSnippet.aria.region': 'Embed code ({{language}})',
   'embedSnippet.heading': 'Embed code',
   'embedSnippet.eyebrow': 'Copy embed code',
   'embedSnippet.copy': 'Copy',

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Armenian. */
 export const hy: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Տվյալների բազայի ծառայությունը չի գտնվել.',
   'status.error.incidentNotFound': 'Կատարը չի գտնվել.',
   'status.error.validationFailed': 'Ստուգումը ձախողվել է: {{errors}}',
@@ -16,4 +15,5 @@ export const hy: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Կատարների ցուցակը ձախողվել է.',
   'status.error.getStatusFailed': 'Համակարգի կարգավիճակը ստանալը ձախողվել է.',
   'status.error.getUptimeFailed': 'Աշխատանքի տվյալները ստանալը ձախողվել է.',
+  'status.error.forbidden': 'Կարգավիճակի էջը կառավարելու համար անհրաժեշտ է թույլտվություն',
 }

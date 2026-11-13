@@ -75,4 +75,15 @@ export const hy: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} չի առաջարկում վճարման պորտալ։',
   'user.payment.subscriptionOwnershipMismatch': 'Այս բաժանորդագրությունը չի պատկանում ձեր հաշվին։',
   'user.payment.transactionAlreadyClaimed': 'Այս գնումն արդեն կապված է մեկ այլ հաշվի հետ։',
+  'user.error.completeTargetMissing': 'CompleteId-ով տրամադրված ID-ով հաշիվ գոյություն չունի։',
+  'user.error.completeIdentityMismatch':
+    'Տրամադրված օգտանունը կամ էլ․ հասցեն չեն նույնականացնում completeId հաշիվը։',
+  'user.error.completeNotOwned':
+    'CompleteId հաշիվը մուտք է գործում OAuth-ի միջոցով. նրա մուտքային տվյալները այստեղ չեն տրամադրվում։',
+  'user.error.identityRequired':
+    'Հաշիվը նույնականացնելու համար մատակարարմանը անհրաժեշտ է օգտատիրոջ անուն կամ էլ․ հասցե։',
+  'user.error.usernameEmailConflict':
+    'Օգտատիրոջ անունը և էլ․ հասցեն պատկանում են երկու տարբեր առկա հաշիվների։',
+  'user.error.oauthEmailCollision':
+    'Այս էլ. փոստի համար հաշիվ արդեն գոյություն ունի: Մուտք գործեք ձեր սկզբնական եղանակով, այնուհետև կապեք այս մատակարարին ձեր հաշվի կարգավորումներից:',
 }

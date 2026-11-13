@@ -15,5 +15,5 @@ export const auth = (): MoleculeRequestHandler => (req, res, next) => {
   } catch (_error) {
     // Safe to ignore: if session access throws, we fall through to Unauthorized below.
   }
-  return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
+  return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }))
 }

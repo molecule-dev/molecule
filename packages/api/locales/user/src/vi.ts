@@ -77,4 +77,16 @@ export const vi: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Gói đăng ký này không thuộc về tài khoản của bạn.',
   'user.payment.transactionAlreadyClaimed':
     'Giao dịch mua này đã được liên kết với một tài khoản khác.',
+  'user.error.completeTargetMissing':
+    'Hiện không có tài khoản nào có ID được cung cấp trong completeId.',
+  'user.error.completeIdentityMismatch':
+    'Tên người dùng hoặc email được cung cấp không xác định được tài khoản completeId.',
+  'user.error.completeNotOwned':
+    'Tài khoản completeId đăng nhập thông qua OAuth; thông tin đăng nhập của tài khoản này không được cung cấp ở đây.',
+  'user.error.identityRequired':
+    'Quá trình cấp phép yêu cầu tên người dùng hoặc email để xác định tài khoản.',
+  'user.error.usernameEmailConflict':
+    'Tên người dùng và địa chỉ email thuộc về hai tài khoản khác nhau hiện có.',
+  'user.error.oauthEmailCollision':
+    'Tài khoản cho địa chỉ email này đã tồn tại. Vui lòng đăng nhập bằng phương thức đăng nhập ban đầu của bạn, sau đó liên kết nhà cung cấp này từ cài đặt tài khoản.',
 }

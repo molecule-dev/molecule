@@ -10,4 +10,5 @@ export const mn: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Илгээхээс өмнө профайлын сесс өөрчлөгдсөн',
   'auth.error.passwordRequiresSignIn': 'Нууц үгээ солихоос өмнө нэвтэрнэ үү',
   'auth.error.passwordSessionChanged': 'Илгээхээс өмнө нууц үгийн сесс өөрчлөгдсөн',
+  'auth.error.requestTimedOut': 'Баталгаажуулах хүсэлтийн хугацаа дууссан',
 }

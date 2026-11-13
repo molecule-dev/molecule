@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Slovenian. */
 export const sl: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Ime izdelka je obvezno',
   'product.error.invalidName': 'Ime izdelka ni veljavno',
   'product.error.invalidPrice': 'Zahtevana je veljavna cena',
@@ -15,4 +14,5 @@ export const sl: ProductTranslations = {
   'product.error.listVariantsFailed': 'Variant izdelka ni bilo mogoče prikazati',
   'product.error.variantNameRequired': 'Ime variante je obvezno',
   'product.error.createVariantFailed': 'Variante izdelka ni bilo mogoče ustvariti',
+  'product.error.forbidden': 'Za upravljanje izdelkov je potreben skrbniški dostop',
 }

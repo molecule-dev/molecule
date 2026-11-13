@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for hy. */
 export const hy: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Ներդրման կոդ ({լեզու})',
   'embedSnippet.heading': 'Ներդրման կոդ',
   'embedSnippet.eyebrow': 'Պատճենել ներդրման կոդը',
   'embedSnippet.copy': 'Պատճենել',
@@ -13,4 +12,5 @@ export const hy: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Լույս',
   'embedSnippet.theme.dark': 'Մութ',
   'embedSnippet.theme.auto': 'Ավտոմատ',
+  'embedSnippet.aria.region': 'Ներդրման կոդ ({{language}})',
 }

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Lao. */
 export const lo: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'ບໍ່ພົບບໍລິການ.',
   'status.error.incidentNotFound': 'ບໍ່ພົບເຫດການ.',
   'status.error.validationFailed': 'ການກວດສອບລົ້ມເຫລວ: {{errors}}',
@@ -16,4 +15,5 @@ export const lo: StatusTranslations = {
   'status.error.listIncidentsFailed': 'ການລາຍຊື່ເຫດການລົ້ມເຫລວ.',
   'status.error.getStatusFailed': 'ການດຶງສະຖານະລະບົບລົ້ມເຫລວ.',
   'status.error.getUptimeFailed': 'ການດຶງຂໍ້ມູນເວລາເປີດໃຊ້ລົ້ມເຫລວ.',
+  'status.error.forbidden': 'ຕ້ອງການສິດອະນຸຍາດເພື່ອຈັດການໜ້າສະຖານະ',
 }

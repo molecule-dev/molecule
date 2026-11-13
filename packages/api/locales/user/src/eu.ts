@@ -77,4 +77,15 @@ export const eu: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Harpidetza hau ez dagokio zure kontuari.',
   'user.payment.transactionAlreadyClaimed':
     'Erosketa hau beste kontu batekin lotuta dago dagoeneko.',
+  'user.error.completeTargetMissing': 'Ez dago completeId gisa emandako IDa duen konturik.',
+  'user.error.completeIdentityMismatch':
+    'Emandako erabiltzaile-izenak edo helbide elektronikoak ez du completeId kontua identifikatzen.',
+  'user.error.completeNotOwned':
+    'completeId kontuak OAuth bidez hasten du saioa; bere kredentzialak ez dira hemen ematen.',
+  'user.error.identityRequired':
+    'Hornidurak erabiltzaile-izen edo helbide elektroniko bat behar du kontua identifikatzeko.',
+  'user.error.usernameEmailConflict':
+    'Erabiltzaile-izena eta helbide elektronikoa bi kontu desberdinei dagozkie.',
+  'user.error.oauthEmailCollision':
+    'Badago kontu bat posta elektroniko honetarako. Hasi saioa zure jatorrizko metodoarekin eta lotu hornitzaile hau zure kontuaren ezarpenetatik.',
 }

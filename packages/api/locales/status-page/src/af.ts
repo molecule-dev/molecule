@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Afrikaans. */
 export const af: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Diens nie gevind nie.',
   'status.error.incidentNotFound': 'Voorval nie gevind nie.',
   'status.error.validationFailed': 'Validering misluk: {{errors}}',
@@ -16,4 +15,5 @@ export const af: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Kon nie voorvalle lys nie.',
   'status.error.getStatusFailed': 'Kon nie stelselstatus ophaal nie.',
   'status.error.getUptimeFailed': 'Kon nie uptyd-data ophaal nie.',
+  'status.error.forbidden': 'Toestemming benodig om die statusbladsy te bestuur',
 }

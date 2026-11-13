@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Swahili. */
 export const sw: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Huduma haikupatikana.',
   'status.error.incidentNotFound': 'Tukio halikupatikana.',
   'status.error.validationFailed': 'Uthibitishaji umeshindwa: {{errors}}',
@@ -16,4 +15,5 @@ export const sw: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Imeshindwa kuorodhesha matukio.',
   'status.error.getStatusFailed': 'Imeshindwa kupata hali ya mfumo.',
   'status.error.getUptimeFailed': 'Imeshindwa kupata data ya muda wa uendeshaji.',
+  'status.error.forbidden': 'Ruhusa inahitajika ili kudhibiti ukurasa wa hali',
 }

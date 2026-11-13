@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Turkish. */
 export const tr: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Hizmet bulunamadı.',
   'status.error.incidentNotFound': 'Olay bulunamadı.',
   'status.error.validationFailed': 'Doğrulama başarısız: {{errors}}',
@@ -16,4 +15,5 @@ export const tr: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Olaylar listelenemedi.',
   'status.error.getStatusFailed': 'Sistem durumu alınamadı.',
   'status.error.getUptimeFailed': 'Çalışma süresi verileri alınamadı.',
+  'status.error.forbidden': 'Durum sayfasını yönetmek için izin gereklidir.',
 }

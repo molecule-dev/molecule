@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for fa. */
 export const fa: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'کد جاسازی ({language})',
   'embedSnippet.heading': 'کد جاسازی',
   'embedSnippet.eyebrow': 'کد جاسازی را کپی کنید',
   'embedSnippet.copy': 'کپی',
@@ -13,4 +12,5 @@ export const fa: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'نور',
   'embedSnippet.theme.dark': 'تیره',
   'embedSnippet.theme.auto': 'خودکار',
+  'embedSnippet.aria.region': 'کد جاسازی ({{language}})',
 }

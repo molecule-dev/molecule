@@ -79,4 +79,16 @@ export const ky: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Бул жазылуу сиздин аккаунтуңузга таандык эмес.',
   'user.payment.transactionAlreadyClaimed':
     'Бул сатып алуу мурунтан эле башка аккаунт менен байланышкан.',
+  'user.error.completeTargetMissing':
+    'completeId катары берилген идентификатор менен эч кандай аккаунт жок.',
+  'user.error.completeIdentityMismatch':
+    'Көрсөтүлгөн колдонуучу аты же электрондук почта дареги толук ID аккаунтун аныктабайт.',
+  'user.error.completeNotOwned':
+    'completeId аккаунту OAuth аркылуу кирет; анын грамоталары бул жерде берилген эмес.',
+  'user.error.identityRequired':
+    'Аккаунтту аныктоо үчүн камсыздоого колдонуучунун аты же электрондук почта дареги керек.',
+  'user.error.usernameEmailConflict':
+    'Колдонуучу аты жана электрондук почта эки башка учурдагы аккаунтка таандык.',
+  'user.error.oauthEmailCollision':
+    'Бул электрондук почта үчүн аккаунт мурунтан эле бар. Баштапкы ыкмаңыз менен кирип, андан кийин аккаунтуңуздун жөндөөлөрүнөн бул провайдерди байланыштырыңыз.',
 }

@@ -6,8 +6,6 @@ export const et: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Privaatsuspoliitika',
   'footer.termsOfService': 'Teenusetingimused',
   'footer.language': 'Keel',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Seda sisu pole veel konfigureeritud. Rakenduse omanik peab selle esitama.',
   'footer.about': 'Teave rakenduse {{appName}} kohta',

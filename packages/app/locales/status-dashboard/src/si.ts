@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Sinhala. */
 export const si: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'තත්ත්ව උපකරණ පුවරුව සපයන්නා වින්‍යාස කර නැත.',
   'statusDashboard.error.fetchFailed': 'තත්ත්වය ලබා ගැනීමට අසමත් විය: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'සියලුම පද්ධති ක්‍රියාත්මකයි',
   'statusDashboard.label.someIssues': 'සමහර පද්ධතිවලට ගැටලු ඇත',
@@ -17,4 +16,6 @@ export const si: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'අවසන් වරට පරීක්ෂා කළේ {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'සිදුවීම් කිසිවක් වාර්තා වී නැත.',
+  'statusDashboard.error.noProvider':
+    'තත්ව උපකරණ පුවරු සැපයුම්කරු වින්‍යාස කර නොමැත. පළමුව තත්ව උපකරණ පුවරු සැපයුම්කරුවෙකු බැඳ තබන්න.',
 }

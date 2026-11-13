@@ -9,7 +9,6 @@ export const es: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'Servicios',
   'statusDashboard.label.incidents': 'Incidentes',
   'statusDashboard.label.uptime': 'Disponibilidad',
-  'statusDashboard.error.noProvider': 'El proveedor del panel de estado no está configurado.',
   'statusDashboard.error.fetchFailed': 'No se pudo obtener el estado: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Todos los sistemas están operativos.',
   'statusDashboard.label.someIssues': 'Algunos sistemas están experimentando problemas.',
@@ -17,4 +16,6 @@ export const es: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Última comprobación {{time}}',
   'statusDashboard.label.latency': '{{ms}} EM',
   'statusDashboard.label.noIncidents': 'No se han reportado incidentes.',
+  'statusDashboard.error.noProvider':
+    'El proveedor del panel de estado no está configurado. Primero, configure un proveedor de panel de estado.',
 }

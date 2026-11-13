@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const nl: Partial<ContactsTranslations> = {
   'contacts.unknown': 'Onbekend',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: Geen provider ingesteld. Roep `setProvider()` aan met een `ContactsProvider` implementatie — er wordt geen provider meegeleverd; implementeer de interface in uw eigen runtime en koppel deze.',
+    '`@molecule/app-contacts`: Geen provider ingesteld. Roep `setProvider()` aan met een `ContactsProvider` implementatie — Molecule levert hiervoor geen provider mee; implementeer de interface in uw eigen runtime en koppel deze.',
 }

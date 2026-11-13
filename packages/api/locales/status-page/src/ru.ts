@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Russian. */
 export const ru: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Сервис не найден.',
   'status.error.incidentNotFound': 'Инцидент не найден.',
   'status.error.validationFailed': 'Ошибка валидации: {{errors}}',
@@ -16,4 +15,6 @@ export const ru: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Не удалось получить список инцидентов.',
   'status.error.getStatusFailed': 'Не удалось получить статус системы.',
   'status.error.getUptimeFailed': 'Не удалось получить данные о времени работы.',
+  'status.error.forbidden':
+    'Для управления страницей состояния требуются соответствующие разрешения.',
 }

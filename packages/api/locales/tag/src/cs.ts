@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Czech. */
 export const cs: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Název štítku je povinný',
   'tag.error.invalidName': 'Název štítku je neplatný',
   'tag.error.createFailed': 'Nepodařilo se vytvořit štítek',
@@ -17,4 +16,5 @@ export const cs: TagTranslations = {
   'tag.error.associationNotFound': 'Přiřazení štítku nenalezeno',
   'tag.error.removeFailed': 'Nepodařilo se odebrat štítek z prostředku',
   'tag.error.getBySlugFailed': 'Nepodařilo se získat prostředky podle štítku',
+  'tag.error.forbidden': 'Pro správu štítků je vyžadován administrátorský přístup',
 }

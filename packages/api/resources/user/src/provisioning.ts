@@ -383,8 +383,8 @@ const completeProvisioning = async ({
   if (!row) {
     return failed(
       'completeTargetMissing',
-      'user.error.badRequest',
-      t('user.error.badRequest', undefined, {
+      'user.error.completeTargetMissing',
+      t('user.error.completeTargetMissing', undefined, {
         defaultValue: 'No account exists with the id supplied as completeId.',
       }),
     )
@@ -398,8 +398,8 @@ const completeProvisioning = async ({
   ) {
     return failed(
       'completeIdentityMismatch',
-      'user.error.badRequest',
-      t('user.error.badRequest', undefined, {
+      'user.error.completeIdentityMismatch',
+      t('user.error.completeIdentityMismatch', undefined, {
         defaultValue: 'The supplied username or email does not identify the completeId account.',
       }),
     )
@@ -408,8 +408,8 @@ const completeProvisioning = async ({
   if (row.oauthServer) {
     return failed(
       'completeNotOwned',
-      'user.error.badRequest',
-      t('user.error.badRequest', undefined, {
+      'user.error.completeNotOwned',
+      t('user.error.completeNotOwned', undefined, {
         defaultValue:
           'The completeId account signs in through OAuth; its credentials are not provisioned here.',
       }),
@@ -706,8 +706,8 @@ export const provisionUser = async (
   if (!username && !email) {
     return failed(
       'identityRequired',
-      'user.error.badRequest',
-      t('user.error.badRequest', undefined, {
+      'user.error.identityRequired',
+      t('user.error.identityRequired', undefined, {
         defaultValue: 'Provisioning needs a username or an email to identify the account.',
       }),
     )
@@ -742,8 +742,8 @@ export const provisionUser = async (
   if (byUsername && byEmail && byUsername.id !== byEmail.id) {
     return failed(
       'conflict',
-      'user.error.badRequest',
-      t('user.error.badRequest', undefined, {
+      'user.error.usernameEmailConflict',
+      t('user.error.usernameEmailConflict', undefined, {
         defaultValue: 'The username and the email belong to two different existing accounts.',
       }),
     )
@@ -842,7 +842,13 @@ export const provisionUser = async (
       return failed(
         'userNotCreated',
         'resource.error.unableToCreate',
-        t('resource.error.unableToCreate', { name }, { defaultValue: `Unable to create ${name}.` }),
+        t(
+          'resource.error.unableToCreate',
+          { name },
+          {
+            defaultValue: 'Unable to create {{name}}.',
+          },
+        ),
       )
     }
 

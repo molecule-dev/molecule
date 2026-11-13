@@ -223,7 +223,7 @@ export function ModerationQueue({
               ? t(
                   'moderationQueue.selectedCount',
                   { count: selectionCount },
-                  { defaultValue: `${selectionCount} selected` },
+                  { defaultValue: '{{count}} selected' },
                 )
               : t('moderationQueue.selectAll', {}, { defaultValue: 'Select all' })}
           </span>

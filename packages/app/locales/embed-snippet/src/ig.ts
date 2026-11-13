@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for ig. */
 export const ig: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Tinye koodu ({asụsụ})',
   'embedSnippet.heading': 'Tinye koodu',
   'embedSnippet.eyebrow': 'Detuo koodu ntinye',
   'embedSnippet.copy': 'Detuo',
@@ -13,4 +12,5 @@ export const ig: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Ìhè',
   'embedSnippet.theme.dark': 'Ọchịchịrị',
   'embedSnippet.theme.auto': 'Ụgbọala',
+  'embedSnippet.aria.region': 'Tinye koodu ({{language}})',
 }

@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Welsh. */
 export const cy: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': "Mae angen enw'r cynnyrch",
   'product.error.invalidName': "Mae enw'r cynnyrch yn annilys",
   'product.error.invalidPrice': 'Mae angen pris dilys',
@@ -15,4 +14,5 @@ export const cy: ProductTranslations = {
   'product.error.listVariantsFailed': "Methwyd rhestru amrywiadau'r cynnyrch",
   'product.error.variantNameRequired': "Mae angen enw'r amrywiad",
   'product.error.createVariantFailed': 'Methwyd creu amrywiad y cynnyrch',
+  'product.error.forbidden': 'Mae angen mynediad gweinyddol i reoli cynhyrchion',
 }

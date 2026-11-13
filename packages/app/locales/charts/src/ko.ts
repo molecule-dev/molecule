@@ -2,7 +2,7 @@ import type { ChartsTranslations } from './types.js'
 
 /** Charts translations for Korean. */
 export const ko: ChartsTranslations = {
-  'charts.placeholder.label': '{{type}} 차트',
   'charts.placeholder.description': '적절한 차트 공급자를 사용하세요',
   'charts.error.noCanvasContext': '캔버스 2D 컨텍스트를 가져올 수 없습니다.',
+  'charts.placeholder.label': '{{type}} 차트 — 자리 표시자',
 }

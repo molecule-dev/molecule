@@ -136,7 +136,7 @@ export function assertInventoryAdmin(res: MoleculeResponse): boolean {
   const session = getInventorySession(res)
   if (!session?.userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return false
@@ -176,7 +176,7 @@ export function assertReservationActor(
   const userId = getInventorySession(res)?.userId
   if (!userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return false
@@ -213,7 +213,7 @@ export const requireInventoryAdmin =
   (req, res, next): void => {
     const session = getInventorySession(res)
     if (!session?.userId) {
-      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
+      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }))
     }
     if (isInventoryAdmin(res)) {
       return next()

@@ -77,4 +77,16 @@ export const ms: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} tidak menawarkan portal pengebilan.',
   'user.payment.subscriptionOwnershipMismatch': 'Langganan ini bukan milik akaun anda.',
   'user.payment.transactionAlreadyClaimed': 'Pembelian ini sudah dikaitkan dengan akaun lain.',
+  'user.error.completeTargetMissing':
+    'Tiada akaun wujud dengan id yang dibekalkan sebagai completeId.',
+  'user.error.completeIdentityMismatch':
+    'Nama pengguna atau e-mel yang diberikan tidak mengenal pasti akaun completeId.',
+  'user.error.completeNotOwned':
+    'Akaun completeId log masuk melalui OAuth; kelayakannya tidak diperuntukkan di sini.',
+  'user.error.identityRequired':
+    'Peruntukan memerlukan nama pengguna atau e-mel untuk mengenal pasti akaun tersebut.',
+  'user.error.usernameEmailConflict':
+    'Nama pengguna dan e-mel tersebut dimiliki oleh dua akaun sedia ada yang berbeza.',
+  'user.error.oauthEmailCollision':
+    'Akaun telah wujud untuk e-mel ini. Sila log masuk dengan kaedah asal anda, kemudian pautkan pembekal ini daripada tetapan akaun anda.',
 }

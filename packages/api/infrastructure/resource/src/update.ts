@@ -116,7 +116,9 @@ export const update =
           error: t(
             'resource.error.unableToUpdate',
             { name },
-            { defaultValue: `Unable to update ${name}.` },
+            {
+              defaultValue: 'Unable to update {{name}}.',
+            },
           ),
           errorKey: 'resource.error.unableToUpdate',
         },

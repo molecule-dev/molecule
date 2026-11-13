@@ -94,7 +94,7 @@ describe('@molecule/api-resource-subscriber — authorizers', () => {
       const next = vi.fn()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await requireAdmin()({} as any, res(), next)
-      expect(next).toHaveBeenCalledWith('Unauthorized')
+      expect(next).toHaveBeenCalledWith('Unauthorized.')
     })
 
     it('forwards Forbidden for an authenticated non-admin user', async () => {

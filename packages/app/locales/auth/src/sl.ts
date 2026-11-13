@@ -10,4 +10,5 @@ export const sl: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Seja profila se je spremenila pred oddajo',
   'auth.error.passwordRequiresSignIn': 'Prijava pred spremembo gesla',
   'auth.error.passwordSessionChanged': 'Geslo seje se je spremenilo pred oddajo',
+  'auth.error.requestTimedOut': 'Časovna omejitev zahteve za preverjanje pristnosti je potekla',
 }

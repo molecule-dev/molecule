@@ -11,4 +11,5 @@ export const it: Partial<AuthTranslations> = {
   'auth.error.passwordRequiresSignIn': 'Accedi prima di cambiare la password',
   'auth.error.passwordSessionChanged':
     "La password della sessione è stata modificata prima dell'invio.",
+  'auth.error.requestTimedOut': 'La richiesta di autenticazione è scaduta',
 }

@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Khmer. */
 export const km: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ឈ្មោះផលិតផលត្រូវបានទាមទារ',
   'product.error.invalidName': 'ឈ្មោះផលិតផលមិនត្រឹមត្រូវ',
   'product.error.invalidPrice': 'តម្លៃត្រឹមត្រូវត្រូវបានទាមទារ',
@@ -15,4 +14,6 @@ export const km: ProductTranslations = {
   'product.error.listVariantsFailed': 'បរាជ័យក្នុងការរាយបញ្ជីប្រភេទផលិតផល',
   'product.error.variantNameRequired': 'ឈ្មោះប្រភេទត្រូវបានទាមទារ',
   'product.error.createVariantFailed': 'បរាជ័យក្នុងការបង្កើតប្រភេទផលិតផល',
+  'product.error.forbidden':
+    'តម្រូវ​ឱ្យ​មាន​សិទ្ធិ​ចូល​ប្រើប្រាស់​ជា​អ្នក​គ្រប់គ្រង​ដើម្បី​គ្រប់គ្រង​ផលិតផល',
 }

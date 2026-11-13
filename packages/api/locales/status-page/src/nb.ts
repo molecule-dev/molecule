@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Norwegian Bokmål. */
 export const nb: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Tjeneste ikke funnet.',
   'status.error.incidentNotFound': 'Hendelse ikke funnet.',
   'status.error.validationFailed': 'Validering mislyktes: {{errors}}',
@@ -16,4 +15,5 @@ export const nb: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Kunne ikke liste hendelser.',
   'status.error.getStatusFailed': 'Kunne ikke hente systemstatus.',
   'status.error.getUptimeFailed': 'Kunne ikke hente oppetidsdata.',
+  'status.error.forbidden': 'Tillatelse kreves for å administrere statussiden',
 }

@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Hebrew. */
 export const he: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'ספק לוח המצב לא הוגדר.',
   'statusDashboard.error.fetchFailed': 'נכשל באחזור המצב: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'כל המערכות פועלות',
   'statusDashboard.label.someIssues': 'חלק מהמערכות חוות בעיות',
@@ -17,4 +16,6 @@ export const he: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'נבדק לאחרונה {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'לא דווחו תקריות.',
+  'statusDashboard.error.noProvider':
+    'ספק לוח מחוונים של סטטוס לא הוגדר. יש לקשר ספק לוח מחוונים של סטטוס תחילה.',
 }

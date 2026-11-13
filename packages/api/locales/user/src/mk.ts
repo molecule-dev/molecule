@@ -76,4 +76,16 @@ export const mk: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} не нуди портал за наплата.',
   'user.payment.subscriptionOwnershipMismatch': 'Оваа претплата не припаѓа на вашата сметка.',
   'user.payment.transactionAlreadyClaimed': 'Оваа купување е веќе поврзана со друга сметка.',
+  'user.error.completeTargetMissing':
+    'Не постои сметка со идентификаторот наведен како completeId.',
+  'user.error.completeIdentityMismatch':
+    'Наведеното корисничко име или е-пошта не ја идентификува сметката completeId.',
+  'user.error.completeNotOwned':
+    'Сметката completeId се најавува преку OAuth; нејзините акредитиви не се наведени тука.',
+  'user.error.identityRequired':
+    'За обезбедување е потребно корисничко име или е-пошта за да се идентификува сметката.',
+  'user.error.usernameEmailConflict':
+    'Корисничкото име и е-поштата припаѓаат на две различни постоечки сметки.',
+  'user.error.oauthEmailCollision':
+    'Веќе постои сметка за оваа е-пошта. Најавете се со вашиот оригинален метод, а потоа поврзете го овој провајдер од поставките на вашата сметка.',
 }

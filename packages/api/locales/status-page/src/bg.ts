@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Bulgarian. */
 export const bg: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Услугата не е намерена.',
   'status.error.incidentNotFound': 'Инцидентът не е намерен.',
   'status.error.validationFailed': 'Валидацията е неуспешна: {{errors}}',
@@ -16,4 +15,5 @@ export const bg: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Неуспешно извличане на списък с инциденти.',
   'status.error.getStatusFailed': 'Неуспешно извличане на състоянието на системата.',
   'status.error.getUptimeFailed': 'Неуспешно извличане на данни за времето на работа.',
+  'status.error.forbidden': 'Необходимо е разрешение за управление на страницата със състоянието',
 }

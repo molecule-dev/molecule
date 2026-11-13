@@ -205,13 +205,10 @@ export function assertTemplateId(templateId: string): void {
     throw new Error(
       t(
         'codeSandbox.flyio.error.badTemplateId',
-        { templateId: templateId.slice(0, 32) },
+        { templateId: templateId.slice(0, 32), pattern: String(VALID_TEMPLATE_ID) },
         {
           defaultValue:
-            `Invalid template id ${JSON.stringify(templateId.slice(0, 32))}: must match ` +
-            `${String(VALID_TEMPLATE_ID)} so it can be used verbatim as an object-storage key ` +
-            'segment. Ids are rejected rather than sanitized, because sanitizing would let two ' +
-            'distinct ids collide onto one template.',
+            'Invalid template id "{{templateId}}": must match {{pattern}} so it can be used verbatim as an object-storage key segment. Ids are rejected rather than sanitized, because sanitizing would let two distinct ids collide onto one template.',
         },
       ),
     )
@@ -238,8 +235,7 @@ export function assertCapturePath(path: string): void {
         { path: path.slice(0, 64) },
         {
           defaultValue:
-            `Invalid capture path ${JSON.stringify(path.slice(0, 64))}: must be an absolute path ` +
-            'with no ".." segment and no glob characters.',
+            'Invalid capture path "{{path}}": must be an absolute path with no ".." segment and no glob characters.',
         },
       ),
     )
@@ -303,11 +299,7 @@ export function requireStore(ctx: TemplateContext): ObjectStore {
     throw new Error(
       t('codeSandbox.flyio.error.noTemplateStore', undefined, {
         defaultValue:
-          'No template store is configured for the Fly.io sandbox provider. Fly cannot commit a ' +
-          'running Machine to an image, so templates are tar archives in S3-compatible object ' +
-          'storage: set templateBucket/templateAccessKeyId/templateSecretAccessKey (or ' +
-          'BUCKET_NAME/AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, which `fly storage create` sets) ' +
-          'plus templateEndpoint (AWS_ENDPOINT_URL_S3) for a non-AWS endpoint such as Tigris.',
+          'No template store is configured for the Fly.io sandbox provider. Fly cannot commit a running Machine to an image, so templates are tar archives in S3-compatible object storage: set templateBucket/templateAccessKeyId/templateSecretAccessKey (or BUCKET_NAME/AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, which `fly storage create` sets) plus templateEndpoint (AWS_ENDPOINT_URL_S3) for a non-AWS endpoint such as Tigris.',
       }),
     )
   }
@@ -648,9 +640,7 @@ export async function commitTemplate(
     throw new Error(
       t('codeSandbox.flyio.error.noCapturePaths', undefined, {
         defaultValue:
-          'commitTemplate on Fly requires capturePaths: the template IS the archive of those ' +
-          'paths, so committing none would store an empty template that later boots successfully ' +
-          'into an empty workspace. Pass the project root, e.g. ["/workspace"].',
+          'commitTemplate on Fly requires capturePaths: the template IS the archive of those paths, so committing none would store an empty template that later boots successfully into an empty workspace. Pass the project root, e.g. ["/workspace"].',
       }),
     )
   }
@@ -691,11 +681,14 @@ export async function commitTemplate(
     throw new Error(
       t(
         'codeSandbox.flyio.error.templateCaptureFailed',
-        { templateId: options.templateId, exitCode: String(result.exitCode) },
+        {
+          templateId: options.templateId,
+          exitCode: String(result.exitCode),
+          output: result.stderr.slice(0, 500) || result.stdout.slice(0, 500),
+        },
         {
           defaultValue:
-            `Capturing template "${options.templateId}" failed inside the sandbox ` +
-            `(exit ${result.exitCode}): ${result.stderr.slice(0, 500) || result.stdout.slice(0, 500)}`,
+            'Capturing template "{{templateId}}" failed inside the sandbox (exit {{exitCode}}): {{output}}',
         },
       ),
     )
@@ -711,9 +704,7 @@ export async function commitTemplate(
         { templateId: options.templateId },
         {
           defaultValue:
-            `Template "${options.templateId}" reported a successful capture but no archive is in ` +
-            'the store. Check that the sandbox can reach the storage endpoint — an egress policy ' +
-            'that does not allow it will block the upload.',
+            'Template "{{templateId}}" reported a successful capture but no archive is in the store. Check that the sandbox can reach the storage endpoint — an egress policy that does not allow it will block the upload.',
         },
       ),
     )
@@ -745,9 +736,9 @@ export async function commitTemplate(
     throw new Error(
       t(
         'codeSandbox.flyio.error.templateReadBackFailed',
-        { templateId: options.templateId },
+        { templateId: options.templateId, ref: templateRef(store, options.templateId) },
         {
-          defaultValue: `Template "${options.templateId}" was written to ${templateRef(store, options.templateId)} but cannot be read back.`,
+          defaultValue: 'Template "{{templateId}}" was written to {{ref}} but cannot be read back.',
         },
       ),
     )
@@ -777,8 +768,7 @@ export async function removeTemplate(ctx: TemplateContext, templateId: string): 
         { templateId },
         {
           defaultValue:
-            `Refusing to remove template "${templateId}": a sandbox is restoring from it right ` +
-            'now, and removing it would fail that boot.',
+            'Refusing to remove template "{{templateId}}": a sandbox is restoring from it right now, and removing it would fail that boot.',
         },
       ),
     )

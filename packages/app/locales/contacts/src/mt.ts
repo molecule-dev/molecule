@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const mt: ContactsTranslations = {
   'contacts.unknown': 'Mhux Maghruf',
   'contacts.error.noProvider':
-    "`@molecule/app-contacts`: L-ebda fornitur ma ġie stabbilit. Sejħa `setProvider()` b'implimentazzjoni ta `ContactsProvider` — l-ebda fornitur ma jiġi mal-flotta; implimenta l-interface fuq ir-runtime nattiv tiegħek u għaqqadha.",
+    "`@molecule/app-contacts`: L-ebda fornitur issettjat. Sejħa `setProvider()` b'implimentazzjoni ta `ContactsProvider` — Molecule ma tibgħat l-ebda fornitur għaliha; implimenta l-interface fuq ir-runtime nattiv tiegħek u għaqqadha.",
 }

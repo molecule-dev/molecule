@@ -75,4 +75,15 @@ export const hr: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ne nudi portal za naplatu.',
   'user.payment.subscriptionOwnershipMismatch': 'Ova pretplata ne pripada vašem računu.',
   'user.payment.transactionAlreadyClaimed': 'Ova kupnja je već povezana s drugim računom.',
+  'user.error.completeTargetMissing': 'Ne postoji račun s ID-om navedenim kao completeId.',
+  'user.error.completeIdentityMismatch':
+    'Navedeno korisničko ime ili e-pošta ne identificiraju completeId račun.',
+  'user.error.completeNotOwned':
+    'Račun completeId prijavljuje se putem OAuth-a; njegovi vjerodajnici nisu ovdje dodijeljeni.',
+  'user.error.identityRequired':
+    'Za dodjelu je potrebno korisničko ime ili e-pošta za identifikaciju računa.',
+  'user.error.usernameEmailConflict':
+    'Korisničko ime i e-pošta pripadaju dvama različitim postojećim računima.',
+  'user.error.oauthEmailCollision':
+    'Već postoji račun za ovu e-adresu. Prijavite se izvornom metodom, a zatim povežite ovog pružatelja usluga iz postavki računa.',
 }

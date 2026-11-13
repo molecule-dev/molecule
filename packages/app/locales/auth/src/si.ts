@@ -10,4 +10,5 @@ export const si: AuthTranslations = {
   'auth.error.profileSessionChanged': 'ඉදිරිපත් කිරීමට පෙර පැතිකඩ සැසිය වෙනස් විය.',
   'auth.error.passwordRequiresSignIn': 'මුරපදයක් වෙනස් කිරීමට පෙර පුරනය වන්න',
   'auth.error.passwordSessionChanged': 'ඉදිරිපත් කිරීමට පෙර මුරපද සැසිය වෙනස් විය.',
+  'auth.error.requestTimedOut': 'සත්‍යාපන ඉල්ලීම කල් ඉකුත් විය.',
 }

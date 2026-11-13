@@ -24,12 +24,18 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 // A spy `t` so tests can assert *which* key (and values) an aria-label routes
-// through, while still returning the English `defaultValue` for markup checks.
+// through, while still returning the English `defaultValue` — with `{{name}}`
+// placeholders filled from the values, the way the real providers interpolate.
 const { tSpy } = vi.hoisted(() => ({
-  tSpy: vi.fn(
-    (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
-  ),
+  tSpy: vi.fn((key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+    let s = opts?.defaultValue ?? key
+    if (values) {
+      for (const [k, v] of Object.entries(values)) {
+        s = s.replaceAll(`{{${k}}}`, String(v))
+      }
+    }
+    return s
+  }),
 }))
 
 vi.mock('@molecule/app-react', () => ({
@@ -109,12 +115,12 @@ describe('FilterBar', () => {
     expect(tSpy).toHaveBeenCalledWith(
       'filterBar.from',
       { label: 'Created' },
-      { defaultValue: 'Created from' },
+      { defaultValue: '{{label}} from' },
     )
     expect(tSpy).toHaveBeenCalledWith(
       'filterBar.to',
       { label: 'Created' },
-      { defaultValue: 'Created to' },
+      { defaultValue: '{{label}} to' },
     )
   })
 

@@ -9,7 +9,6 @@ export const zh: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': '服务',
   'statusDashboard.label.incidents': '事件',
   'statusDashboard.label.uptime': '可用率',
-  'statusDashboard.error.noProvider': '状态仪表盘提供程序未配置。',
   'statusDashboard.error.fetchFailed': '获取状态失败：HTTP {{status}}',
   'statusDashboard.label.allOperational': '所有系统运行正常',
   'statusDashboard.label.someIssues': '部分系统出现问题',
@@ -17,4 +16,5 @@ export const zh: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': '上次检查时间{{time}}',
   'statusDashboard.label.latency': '{{ms}}多发性硬化症',
   'statusDashboard.label.noIncidents': '未报告任何事件。',
+  'statusDashboard.error.noProvider': '状态仪表盘提供程序未配置。请先绑定状态仪表盘提供程序。',
 }

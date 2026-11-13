@@ -76,4 +76,16 @@ export const bg: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} не предлага портал за фактуриране.',
   'user.payment.subscriptionOwnershipMismatch': 'Този абонамент не принадлежи към вашия акаунт.',
   'user.payment.transactionAlreadyClaimed': 'Тази покупка вече е свързана с друг акаунт.',
+  'user.error.completeTargetMissing':
+    'Не съществува акаунт с предоставения идентификатор като completeId.',
+  'user.error.completeIdentityMismatch':
+    'Предоставеното потребителско име или имейл адрес не идентифицира акаунта completeId.',
+  'user.error.completeNotOwned':
+    'Акаунтът completeId влиза чрез OAuth; неговите идентификационни данни не са предоставени тук.',
+  'user.error.identityRequired':
+    'Осигуряването изисква потребителско име или имейл, за да идентифицира акаунта.',
+  'user.error.usernameEmailConflict':
+    'Потребителското име и имейлът принадлежат на два различни съществуващи акаунта.',
+  'user.error.oauthEmailCollision':
+    'Вече съществува акаунт за този имейл адрес. Моля, влезте с оригиналния си метод, след което свържете този доставчик от настройките на акаунта си.',
 }

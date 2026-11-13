@@ -10,4 +10,5 @@ export const ha: AuthTranslations = {
   'auth.error.profileSessionChanged': 'An canza zaman bayanin martaba kafin a gabatar da shi',
   'auth.error.passwordRequiresSignIn': 'Shiga kafin canza kalmar sirri',
   'auth.error.passwordSessionChanged': 'An canza zaman kalmar sirri kafin a gabatar da ita',
+  'auth.error.requestTimedOut': 'Buƙatar tabbatarwa ta ƙare lokaci',
 }

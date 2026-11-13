@@ -29,7 +29,7 @@ export function getProvider(): NetworkProvider {
     throw new Error(
       t('network.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-network: No provider set. Call setProvider() with a NetworkProvider implementation (e.g., from @molecule/app-network-react-native).',
+          '`@molecule/app-network`: No provider set. Call `setProvider()` with a `NetworkProvider` implementation (e.g., from `@molecule/app-network-react-native`).',
       }),
     )
   }

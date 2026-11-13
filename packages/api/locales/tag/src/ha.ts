@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Hausa. */
 export const ha: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Sunan tag yana da mahimmanci',
   'tag.error.invalidName': 'Sunan tag ba daidai ba ne',
   'tag.error.createFailed': 'An kasa ƙirƙirar tag',
@@ -17,4 +16,5 @@ export const ha: TagTranslations = {
   'tag.error.associationNotFound': 'Ba a sami alaƙar tag ba',
   'tag.error.removeFailed': 'An kasa cire tag daga albarkatu',
   'tag.error.getBySlugFailed': 'An kasa samun albarkatun ta tag',
+  'tag.error.forbidden': 'Ana buƙatar damar shiga mai gudanarwa don sarrafa alamun',
 }

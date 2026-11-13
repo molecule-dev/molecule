@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Slovak. */
 export const sk: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Názov produktu je povinný',
   'product.error.invalidName': 'Názov produktu je neplatný',
   'product.error.invalidPrice': 'Je potrebná platná cena',
@@ -15,4 +14,5 @@ export const sk: ProductTranslations = {
   'product.error.listVariantsFailed': 'Nepodarilo sa zobraziť zoznam variantov produktu',
   'product.error.variantNameRequired': 'Názov variantu je povinný',
   'product.error.createVariantFailed': 'Nepodarilo sa vytvoriť variant produktu',
+  'product.error.forbidden': 'Na správu produktov je potrebný administrátorský prístup',
 }

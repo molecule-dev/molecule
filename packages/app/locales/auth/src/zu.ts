@@ -10,4 +10,5 @@ export const zu: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Iseshini yephrofayela ishintshile ngaphambi kokuthunyelwa',
   'auth.error.passwordRequiresSignIn': 'Ngena ngemvume ngaphambi kokushintsha iphasiwedi',
   'auth.error.passwordSessionChanged': 'Isikhathi sephasiwedi sishintshile ngaphambi kokuthunyelwa',
+  'auth.error.requestTimedOut': 'Isicelo sokuqinisekisa siphelelwe yisikhathi',
 }

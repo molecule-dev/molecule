@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Khmer. */
 export const km: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ត្រូវការឈ្មោះស្លាក',
   'tag.error.invalidName': 'ឈ្មោះស្លាកមិនត្រឹមត្រូវ',
   'tag.error.createFailed': 'បរាជ័យក្នុងការបង្កើតស្លាក',
@@ -17,4 +16,6 @@ export const km: TagTranslations = {
   'tag.error.associationNotFound': 'រកមិនឃើញការភ្ជាប់ស្លាក',
   'tag.error.removeFailed': 'បរាជ័យក្នុងការដកស្លាកចេញពីធនធាន',
   'tag.error.getBySlugFailed': 'បរាជ័យក្នុងការទទួលបានធនធានតាមស្លាក',
+  'tag.error.forbidden':
+    'តម្រូវ​ឱ្យ​មាន​សិទ្ធិ​ចូល​ប្រើប្រាស់​ជា​អ្នក​គ្រប់គ្រង​ដើម្បី​គ្រប់គ្រង​ស្លាក',
 }

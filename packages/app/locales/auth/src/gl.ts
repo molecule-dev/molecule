@@ -10,4 +10,5 @@ export const gl: AuthTranslations = {
   'auth.error.profileSessionChanged': 'A sesión do perfil cambiou antes do envío',
   'auth.error.passwordRequiresSignIn': 'Iniciar sesión antes de cambiar un contrasinal',
   'auth.error.passwordSessionChanged': 'O contrasinal da sesión cambiou antes do envío',
+  'auth.error.requestTimedOut': 'Esgotouse o tempo de espera da solicitude de autenticación',
 }

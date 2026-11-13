@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Macedonian. */
 export const mk: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Името на производот е задолжително',
   'product.error.invalidName': 'Името на производот е невалидно',
   'product.error.invalidPrice': 'Потребна е валидна цена',
@@ -15,4 +14,5 @@ export const mk: ProductTranslations = {
   'product.error.listVariantsFailed': 'Неуспешно прикажување на варијантите на производот',
   'product.error.variantNameRequired': 'Името на варијантата е задолжително',
   'product.error.createVariantFailed': 'Неуспешно создавање на варијанта на производот',
+  'product.error.forbidden': 'Потребен е администраторски пристап за управување со производи',
 }

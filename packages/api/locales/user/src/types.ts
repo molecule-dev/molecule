@@ -1,6 +1,11 @@
 /** Translation keys for the user locale package. */
 export type UserTranslationKey =
   | 'user.error.badRequest'
+  | 'user.error.completeTargetMissing'
+  | 'user.error.completeIdentityMismatch'
+  | 'user.error.completeNotOwned'
+  | 'user.error.identityRequired'
+  | 'user.error.usernameEmailConflict'
   | 'user.error.notFound'
   | 'user.error.failedToCreateSession'
   | 'user.error.usernameRequired'
@@ -8,6 +13,7 @@ export type UserTranslationKey =
   | 'user.error.emailInvalid'
   | 'user.error.usernameUnavailable'
   | 'user.error.emailAlreadyRegistered'
+  | 'user.error.oauthEmailCollision'
   | 'user.error.failedToHashPassword'
   | 'user.error.invalidCredentials'
   | 'user.error.invalidTwoFactorToken'

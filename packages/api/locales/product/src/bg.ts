@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Bulgarian. */
 export const bg: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Името на продукта е задължително',
   'product.error.invalidName': 'Името на продукта е невалидно',
   'product.error.invalidPrice': 'Изисква се валидна цена',
@@ -15,4 +14,5 @@ export const bg: ProductTranslations = {
   'product.error.listVariantsFailed': 'Неуспешно извличане на списъка с варианти на продукта',
   'product.error.variantNameRequired': 'Името на варианта е задължително',
   'product.error.createVariantFailed': 'Неуспешно създаване на вариант на продукта',
+  'product.error.forbidden': 'За управление на продукти е необходим администраторски достъп',
 }

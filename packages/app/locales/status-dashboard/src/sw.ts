@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Swahili. */
 export const sw: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Mtoa huduma wa dashibodi ya hali haijasanidiwa.',
   'statusDashboard.error.fetchFailed': 'Imeshindwa kupata hali: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Mifumo yote inafanya kazi',
   'statusDashboard.label.someIssues': 'Mifumo mingine inakabiliwa na matatizo',
@@ -17,4 +16,6 @@ export const sw: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Imeangaliwa mwisho {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Hakuna matukio yaliyoripotiwa.',
+  'statusDashboard.error.noProvider':
+    'Mtoa huduma wa dashibodi ya hali hajasanidiwa. Weka msimbo wa mtoa huduma wa dashibodi ya hali kwanza.',
 }

@@ -45,7 +45,7 @@ export function getProvider(): CalendarProvider {
     throw new Error(
       t('calendar.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-device-calendar: No provider set. Call setProvider() with a CalendarProvider implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
+          '`@molecule/app-device-calendar`: No provider set. Call `setProvider()` with a `CalendarProvider` implementation — Molecule ships no provider for it; implement the interface on your native runtime and bond it.',
       }),
     )
   }

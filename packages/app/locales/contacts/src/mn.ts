@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const mn: ContactsTranslations = {
   'contacts.unknown': 'Тодорхойгүй',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: Үйлчилгээ үзүүлэгч тохируулагдаагүй байна. `setProvider()` `ContactsProvider` хэрэгжүүлэлтээр дууд - ямар ч үйлчилгээ үзүүлэгч флоттой хамт илгээгдэхгүй; интерфэйсийг өөрийн төрөлх ажиллах хугацаанд хэрэгжүүлж, холбоно уу.',
+    '`@molecule/app-contacts`: Үйлчилгээ үзүүлэгч тохируулагдаагүй байна. `setProvider()` `ContactsProvider` хэрэгжүүлэлтээр дуудна уу — Molecule үүнд ямар ч үйлчилгээ үзүүлэгч илгээдэггүй; интерфэйсийг өөрийн төрөлх ажиллах хугацаанд хэрэгжүүлж, холбоно.',
 }

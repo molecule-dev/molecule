@@ -10,4 +10,5 @@ export const ro: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Sesiunea de profil a fost modificată înainte de trimitere',
   'auth.error.passwordRequiresSignIn': 'Conectați-vă înainte de a schimba o parolă',
   'auth.error.passwordSessionChanged': 'Parola sesiunii a fost modificată înainte de trimitere',
+  'auth.error.requestTimedOut': 'Cererea de autentificare a expirat',
 }

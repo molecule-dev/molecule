@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Hebrew. */
 export const he: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'שירות לא נמצא.',
   'status.error.incidentNotFound': 'אירוע לא נמצא.',
   'status.error.validationFailed': 'אימות נכשל: {{errors}}',
@@ -16,4 +15,5 @@ export const he: StatusTranslations = {
   'status.error.listIncidentsFailed': 'רישום אירועים נכשל.',
   'status.error.getStatusFailed': 'שליפת מצב המערכת נכשלה.',
   'status.error.getUptimeFailed': 'שליפת נתוני זמינות נכשלה.',
+  'status.error.forbidden': 'נדרשת הרשאה לניהול דף הסטטוס',
 }

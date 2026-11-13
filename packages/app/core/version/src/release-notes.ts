@@ -77,29 +77,56 @@ export const summarizeReleaseNotes = (
 
   const parts: string[] = []
   if (features > 0) {
+    // The singular case points at the bond's `features_one` key and the rest at
+    // the base key (whose plural-suffixed form the count selects), so both the
+    // loaded-locale path and the inline English fallback read correctly.
     parts.push(
       compact
-        ? t('version.summary.featuresShort', undefined, {
-            count: features,
-            defaultValue: features === 1 ? '{{count}} feature' : '{{count}} features',
-          })
-        : t('version.summary.features', undefined, {
-            count: features,
-            defaultValue: features === 1 ? '{{count}} new feature' : '{{count}} new features',
-          }),
+        ? features === 1
+          ? t('version.summary.featuresShort_one', undefined, {
+              count: features,
+              defaultValue: '{{count}} feature',
+            })
+          : t('version.summary.featuresShort', undefined, {
+              count: features,
+              defaultValue: '{{count}} features',
+              defaultValue_one: '{{count}} feature',
+            })
+        : features === 1
+          ? t('version.summary.features_one', undefined, {
+              count: features,
+              defaultValue: '{{count}} new feature',
+            })
+          : t('version.summary.features', undefined, {
+              count: features,
+              defaultValue: '{{count}} new features',
+              defaultValue_one: '{{count}} new feature',
+            }),
     )
   }
   if (fixes > 0) {
     parts.push(
       compact
-        ? t('version.summary.fixesShort', undefined, {
-            count: fixes,
-            defaultValue: fixes === 1 ? '{{count}} fix' : '{{count}} fixes',
-          })
-        : t('version.summary.fixes', undefined, {
-            count: fixes,
-            defaultValue: fixes === 1 ? '{{count}} bug fixed' : '{{count}} bugs fixed',
-          }),
+        ? fixes === 1
+          ? t('version.summary.fixesShort_one', undefined, {
+              count: fixes,
+              defaultValue: '{{count}} fix',
+            })
+          : t('version.summary.fixesShort', undefined, {
+              count: fixes,
+              defaultValue: '{{count}} fixes',
+              defaultValue_one: '{{count}} fix',
+            })
+        : fixes === 1
+          ? t('version.summary.fixes_one', undefined, {
+              count: fixes,
+              defaultValue: '{{count}} bug fixed',
+            })
+          : t('version.summary.fixes', undefined, {
+              count: fixes,
+              defaultValue: '{{count}} bugs fixed',
+              defaultValue_one: '{{count}} bug fixed',
+            }),
     )
   }
   if (perf > 0) {

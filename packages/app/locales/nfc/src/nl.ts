@@ -3,5 +3,5 @@ import type { NfcTranslations } from './types.js'
 /** Nfc translations for Dutch. */
 export const nl: NfcTranslations = {
   'nfc.error.noProvider':
-    '@molecule/app-nfc: Geen provider ingesteld. Roep setProvider() aan met een NfcProvider-implementatie.',
+    '`@molecule/app-nfc`: Geen provider ingesteld. Roep `setProvider()` aan met een `NfcProvider`-implementatie — Molecule levert geen provider hiervoor; implementeer de interface in uw eigen runtime en koppel deze.',
 }

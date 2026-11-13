@@ -10,4 +10,5 @@ export const ne: AuthTranslations = {
   'auth.error.profileSessionChanged': 'पेश गर्नु अघि प्रोफाइल सत्र परिवर्तन भयो।',
   'auth.error.passwordRequiresSignIn': 'पासवर्ड परिवर्तन गर्नु अघि साइन इन गर्नुहोस्',
   'auth.error.passwordSessionChanged': 'पेस गर्नु अघि पासवर्ड सत्र परिवर्तन भयो।',
+  'auth.error.requestTimedOut': 'प्रमाणीकरण अनुरोधको समय सकियो',
 }

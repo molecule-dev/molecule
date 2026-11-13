@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Slovenian. */
 export const sl: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Storitev ni najdena.',
   'status.error.incidentNotFound': 'Incident ni najden.',
   'status.error.validationFailed': 'Preverjanje ni uspelo: {{errors}}',
@@ -16,4 +15,5 @@ export const sl: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Izpis incidentov ni uspel.',
   'status.error.getStatusFailed': 'Pridobivanje stanja sistema ni uspelo.',
   'status.error.getUptimeFailed': 'Pridobivanje podatkov o razpoložljivosti ni uspelo.',
+  'status.error.forbidden': 'Za upravljanje strani s stanjem je potrebno dovoljenje',
 }

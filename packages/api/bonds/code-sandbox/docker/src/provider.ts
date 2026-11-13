@@ -647,8 +647,7 @@ class DockerSandboxProvider implements SandboxProvider {
             { templateId: config.templateId },
             {
               defaultValue:
-                `Cannot create a sandbox from template "${config.templateId}": it does not exist. ` +
-                'Commit it first, or fetch it from the shared template store.',
+                'Cannot create a sandbox from template "{{templateId}}": it does not exist. Commit it first, or fetch it from the shared template store.',
             },
           ),
         )
@@ -1095,7 +1094,7 @@ class DockerSandboxProvider implements SandboxProvider {
             t(
               'codeSandbox.docker.error.readFailed',
               { path, error: result.stderr },
-              { defaultValue: `Failed to read ${path}: ${result.stderr}` },
+              { defaultValue: 'Failed to read {{path}}: {{error}}' },
             ),
           )
         return result.stdout
@@ -1110,7 +1109,7 @@ class DockerSandboxProvider implements SandboxProvider {
               t(
                 'codeSandbox.docker.error.writeFailed',
                 { path, error: result.stderr },
-                { defaultValue: `Failed to write ${path}: ${result.stderr}` },
+                { defaultValue: 'Failed to write {{path}}: {{error}}' },
               ),
             )
         }
@@ -1151,7 +1150,7 @@ class DockerSandboxProvider implements SandboxProvider {
             t(
               'codeSandbox.docker.error.readDirFailed',
               { path, error: result.stderr },
-              { defaultValue: `Failed to list ${path}: ${result.stderr}` },
+              { defaultValue: 'Failed to list {{path}}: {{error}}' },
             ),
           )
 
@@ -1192,7 +1191,7 @@ class DockerSandboxProvider implements SandboxProvider {
             t(
               'codeSandbox.docker.error.deleteFailed',
               { path, error: result.stderr },
-              { defaultValue: `Failed to delete ${path}: ${result.stderr}` },
+              { defaultValue: 'Failed to delete {{path}}: {{error}}' },
             ),
           )
       },
@@ -1801,7 +1800,7 @@ class DockerSandboxProvider implements SandboxProvider {
                   t(
                     'codeSandbox.docker.error.apiError',
                     { method, path, status: String(res.statusCode), error: text },
-                    { defaultValue: `Docker API ${method} ${path}: ${res.statusCode} ${text}` },
+                    { defaultValue: 'Docker API {{method}} {{path}}: {{status}} {{error}}' },
                   ),
                 ),
                 { status: res.statusCode },
@@ -1860,9 +1859,7 @@ class DockerSandboxProvider implements SandboxProvider {
                       status: String(res.statusCode),
                       error: Buffer.concat(chunks).toString(),
                     },
-                    {
-                      defaultValue: `Docker API GET ${path}: ${res.statusCode} ${Buffer.concat(chunks).toString()}`,
-                    },
+                    { defaultValue: 'Docker API {{method}} {{path}}: {{status}} {{error}}' },
                   ),
                 ),
               )
@@ -1920,9 +1917,7 @@ class DockerSandboxProvider implements SandboxProvider {
                       status: String(res.statusCode),
                       error: Buffer.concat(chunks).toString(),
                     },
-                    {
-                      defaultValue: `Docker API PUT ${path}: ${res.statusCode} ${Buffer.concat(chunks).toString()}`,
-                    },
+                    { defaultValue: 'Docker API {{method}} {{path}}: {{status}} {{error}}' },
                   ),
                 ),
               )
@@ -1987,9 +1982,7 @@ class DockerSandboxProvider implements SandboxProvider {
                 t(
                   'codeSandbox.docker.error.apiError',
                   { method, path, status: String(res.statusCode), error: buf.toString() },
-                  {
-                    defaultValue: `Docker API ${method} ${path}: ${res.statusCode} ${buf.toString()}`,
-                  },
+                  { defaultValue: 'Docker API {{method}} {{path}}: {{status}} {{error}}' },
                 ),
               ),
             )

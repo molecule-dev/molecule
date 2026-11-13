@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Lao. */
 export const lo: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'ຜູ້ໃຫ້ບໍລິການແດชບອດສະຖານະບໍ່ໄດ້ຖືກກຳນົດ.',
   'statusDashboard.error.fetchFailed': 'ລົ້ມເຫລວໃນການດຶງສະຖານະ: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'ທຸກລະບົບເຮັດວຽກປົກກະຕິ',
   'statusDashboard.label.someIssues': 'ບາງລະບົບກຳລັງປະສົບບັນຫາ',
@@ -17,4 +16,6 @@ export const lo: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'ກວດສອບຄັ້ງສຸດທ້າຍ {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'ບໍ່ມີເຫດການໃດຖືກລາຍງານ.',
+  'statusDashboard.error.noProvider':
+    'ຜູ້ໃຫ້ບໍລິການແຜງຄວບຄຸມສະຖານະບໍ່ໄດ້ຕັ້ງຄ່າ. ເຊື່ອມຕໍ່ຜູ້ໃຫ້ບໍລິການແຜງຄວບຄຸມສະຖານະກ່ອນ.',
 }

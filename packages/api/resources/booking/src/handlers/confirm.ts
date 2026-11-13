@@ -46,9 +46,13 @@ export async function confirm(req: MoleculeRequest, res: MoleculeResponse): Prom
     const allowedTransitions = STATUS_TRANSITIONS[row.status as BookingStatus]
     if (!allowedTransitions || !allowedTransitions.includes('confirmed')) {
       res.status(409).json({
-        error: t('booking.error.cannotConfirm', undefined, {
-          defaultValue: `Booking cannot be confirmed from '${row.status}' status`,
-        }),
+        error: t(
+          'booking.error.cannotConfirm',
+          { status: row.status },
+          {
+            defaultValue: "Booking cannot be confirmed from '{{status}}' status",
+          },
+        ),
         errorKey: 'booking.error.cannotConfirm',
       })
       return

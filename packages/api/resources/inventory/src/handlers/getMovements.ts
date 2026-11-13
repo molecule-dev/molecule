@@ -27,7 +27,7 @@ export async function getMovements(req: MoleculeRequest, res: MoleculeResponse):
   // The full stock ledger for a product — require auth in the handler. Fail closed.
   if (!getInventorySession(res)?.userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return

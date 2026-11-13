@@ -3,5 +3,5 @@ import type { BrightnessTranslations } from './types.js'
 /** Brightness translations for mt. */
 export const mt: Partial<BrightnessTranslations> = {
   'brightness.error.noProvider':
-    "@molecule/app-brightness: L-ebda fornitur ma ġie stabbilit. Sejħa setProvider() b'implimentazzjoni ta' BrightnessProvider.",
+    "`@molecule/app-brightness`: L-ebda fornitur ma ġie stabbilit. Sejħa `setProvider()` b'implimentazzjoni ta `BrightnessProvider` — Molecule ma tibgħat l-ebda fornitur għaliha; implimenta l-interface fuq ir-runtime nattiv tiegħek u għaqqadha.",
 }

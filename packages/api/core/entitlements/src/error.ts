@@ -70,15 +70,21 @@ export const buildLimitError = <TLimits = unknown>(
 
   const localizedMessage =
     message ??
-    t(
-      'entitlements.error.limitExceeded',
-      { limitType, currentLimit, currentTier: category },
-      {
-        defaultValue: requiresSignup
-          ? `Limit reached (${currentLimit}). Create a free account for more.`
-          : `Limit reached (${currentLimit}). Upgrade your plan for more.`,
-      },
-    )
+    (requiresSignup
+      ? t(
+          'entitlements.error.limitExceededSignup',
+          { limitType, currentLimit, currentTier: category },
+          {
+            defaultValue: 'Limit reached ({{currentLimit}}). Create a free account for more.',
+          },
+        )
+      : t(
+          'entitlements.error.limitExceeded',
+          { limitType, currentLimit, currentTier: category },
+          {
+            defaultValue: 'Limit reached ({{currentLimit}}). Upgrade your plan for more.',
+          },
+        ))
 
   return {
     error: localizedMessage,

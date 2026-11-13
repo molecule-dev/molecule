@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Hindi. */
 export const hi: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'उत्पाद का नाम आवश्यक है',
   'product.error.invalidName': 'उत्पाद का नाम अमान्य है',
   'product.error.invalidPrice': 'एक मान्य मूल्य आवश्यक है',
@@ -15,4 +14,5 @@ export const hi: ProductTranslations = {
   'product.error.listVariantsFailed': 'उत्पाद वेरिएंट की सूची प्राप्त करने में विफल',
   'product.error.variantNameRequired': 'वेरिएंट का नाम आवश्यक है',
   'product.error.createVariantFailed': 'उत्पाद वेरिएंट बनाने में विफल',
+  'product.error.forbidden': 'उत्पादों को प्रबंधित करने के लिए व्यवस्थापक पहुंच आवश्यक है',
 }

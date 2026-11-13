@@ -74,4 +74,14 @@ export const ar: UserTranslations = {
   'user.payment.portalNotSupported': 'لا يقدم {{provider}} بوابة للفواتير.',
   'user.payment.subscriptionOwnershipMismatch': 'هذا الاشتراك لا ينتمي إلى حسابك.',
   'user.payment.transactionAlreadyClaimed': 'هذه العملية الشرائية مرتبطة بالفعل بحساب آخر.',
+  'user.error.completeTargetMissing': 'لا يوجد حساب بالمعرف المقدم باسم completeId.',
+  'user.error.completeIdentityMismatch':
+    'لا يُحدد اسم المستخدم أو البريد الإلكتروني المُقدم حساب completeId.',
+  'user.error.completeNotOwned':
+    'يقوم حساب completeId بتسجيل الدخول من خلال OAuth؛ ولا يتم توفير بيانات اعتماده هنا.',
+  'user.error.identityRequired': 'يتطلب التزويد اسم مستخدم أو بريد إلكتروني لتحديد الحساب.',
+  'user.error.usernameEmailConflict':
+    'اسم المستخدم والبريد الإلكتروني ينتميان إلى حسابين موجودين مختلفين.',
+  'user.error.oauthEmailCollision':
+    'يوجد حساب بالفعل لهذا البريد الإلكتروني. يرجى تسجيل الدخول باستخدام طريقتك الأصلية، ثم ربط هذا المزوّد من إعدادات حسابك.',
 }

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Romanian. */
 export const ro: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Serviciul nu a fost găsit.',
   'status.error.incidentNotFound': 'Incidentul nu a fost găsit.',
   'status.error.validationFailed': 'Validarea a eșuat: {{errors}}',
@@ -16,4 +15,5 @@ export const ro: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Listarea incidentelor a eșuat.',
   'status.error.getStatusFailed': 'Obținerea stării sistemului a eșuat.',
   'status.error.getUptimeFailed': 'Obținerea datelor de disponibilitate a eșuat.',
+  'status.error.forbidden': 'Permisiune necesară pentru gestionarea paginii de stare',
 }

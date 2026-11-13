@@ -64,7 +64,8 @@ export const getProvider = (name: string): WearableProvider => {
         'wearable.error.noProvider',
         { name },
         {
-          defaultValue: `Wearable provider '${name}' not configured. Call setProvider('${name}', provider) first.`,
+          defaultValue:
+            "Wearable provider '{{name}}' not configured. Call setProvider('{{name}}', provider) first.",
         },
       ),
       { cause: error },

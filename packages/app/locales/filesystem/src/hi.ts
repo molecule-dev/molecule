@@ -3,5 +3,5 @@ import type { FilesystemTranslations } from './types.js'
 /** Filesystem translations for Hindi. */
 export const hi: FilesystemTranslations = {
   'filesystem.error.noProvider':
-    '@molecule/app-filesystem: कोई प्रोवाइडर सेट नहीं है। FilesystemProvider कार्यान्वयन के साथ setProvider() को कॉल करें।',
+    '`@molecule/app-filesystem`: कोई प्रदाता सेट नहीं है। `FilesystemProvider` कार्यान्वयन के साथ `setProvider()` कॉल करें — Molecule इसके लिए कोई प्रदाता प्रदान नहीं करता है; अपने नेटिव रनटाइम पर इंटरफ़ेस को लागू करें और इसे बॉन्ड करें।',
 }

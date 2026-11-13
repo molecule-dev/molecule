@@ -10,4 +10,5 @@ export const te: AuthTranslations = {
   'auth.error.profileSessionChanged': 'సమర్పణకు ముందు ప్రొఫైల్ సెషన్ మారింది',
   'auth.error.passwordRequiresSignIn': 'పాస్‌వర్డ్ మార్చే ముందు సైన్ ఇన్ చేయండి',
   'auth.error.passwordSessionChanged': 'సమర్పణకు ముందు పాస్‌వర్డ్ సెషన్ మారింది',
+  'auth.error.requestTimedOut': 'ప్రామాణీకరణ అభ్యర్థన గడువు ముగిసింది',
 }

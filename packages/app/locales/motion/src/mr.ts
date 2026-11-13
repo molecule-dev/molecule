@@ -3,5 +3,5 @@ import type { MotionTranslations } from './types.js'
 /** Motion translations for Marathi. */
 export const mr: MotionTranslations = {
   'motion.error.noProvider':
-    '@molecule/app-motion: प्रदाता सेट केलेला नाही. MotionProvider अंमलबजावणीसह setProvider() कॉल करा.',
+    '`@molecule/app-motion`: कोणताही प्रोव्हायडर सेट केलेला नाही. `MotionProvider` इम्प्लिमेंटेशनसह `setProvider()` कॉल करा — मॉलिक्यूलमध्ये यासाठी कोणताही प्रोव्हायडर दिलेला नाही; तुमच्या नेटिव्ह रनटाइमवर इंटरफेस इम्प्लिमेंट करा आणि त्याला बाँड करा.',
 }

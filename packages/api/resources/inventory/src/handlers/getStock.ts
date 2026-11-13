@@ -22,7 +22,7 @@ export async function getStock(req: MoleculeRequest, res: MoleculeResponse): Pro
   // Stock levels are business data — require auth in the handler. Fail closed.
   if (!getInventorySession(res)?.userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return

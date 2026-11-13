@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Amharic. */
 export const am: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'የመለያ ስም ያስፈልጋል',
   'tag.error.invalidName': 'የመለያ ስም ልክ አይደለም',
   'tag.error.createFailed': 'መለያ መፍጠር አልተሳካም',
@@ -17,4 +16,5 @@ export const am: TagTranslations = {
   'tag.error.associationNotFound': 'የመለያ ትስስር አልተገኘም',
   'tag.error.removeFailed': 'መለያ ከግብዓት ማስወገድ አልተሳካም',
   'tag.error.getBySlugFailed': 'ግብዓቶችን በመለያ ማግኘት አልተሳካም',
+  'tag.error.forbidden': 'መለያዎችን ለማስተዳደር የአስተዳዳሪ መዳረሻ ያስፈልጋል',
 }

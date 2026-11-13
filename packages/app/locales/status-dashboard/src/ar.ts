@@ -9,7 +9,6 @@ export const ar: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'الخدمات',
   'statusDashboard.label.incidents': 'الحوادث',
   'statusDashboard.label.uptime': 'وقت التشغيل',
-  'statusDashboard.error.noProvider': 'لم يتم تكوين موفر لوحة معلومات الحالة.',
   'statusDashboard.error.fetchFailed': 'فشل جلب الحالة: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'جميع الأنظمة تعمل',
   'statusDashboard.label.someIssues': 'بعض الأنظمة تواجه مشاكل',
@@ -17,4 +16,6 @@ export const ar: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'آخر فحص {{time}}',
   'statusDashboard.label.latency': '{{ms}} آنسة',
   'statusDashboard.label.noIncidents': 'لم يتم الإبلاغ عن أي حوادث.',
+  'statusDashboard.error.noProvider':
+    'لم يتم تكوين موفر لوحة معلومات الحالة. قم بربط موفر لوحة معلومات الحالة أولاً.',
 }

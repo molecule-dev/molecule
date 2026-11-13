@@ -1066,7 +1066,7 @@ describe('logInOAuth handler — email-collision account-takeover guard', () => 
     )
 
     expect(result?.statusCode).toBe(409)
-    expect(result?.body?.errorKey).toBe('user.error.emailAlreadyRegistered')
+    expect(result?.body?.errorKey).toBe('user.error.oauthEmailCollision')
     // Must NOT create a second account or auto-link the unverified email.
     expect(mockResourceCreate).not.toHaveBeenCalled()
   })
@@ -1650,7 +1650,7 @@ describe('logInOAuth handler — email verification + verified-trust linking', (
     )
 
     expect(result?.statusCode).toBe(409)
-    expect(result?.body?.errorKey).toBe('user.error.emailAlreadyRegistered')
+    expect(result?.body?.errorKey).toBe('user.error.oauthEmailCollision')
     expect(mockUpdateById).not.toHaveBeenCalled()
     expect(mockResourceCreate).not.toHaveBeenCalled()
   })
@@ -1737,7 +1737,7 @@ describe('logInOAuth handler — email verification + verified-trust linking', (
     )
 
     expect(result?.statusCode).toBe(409)
-    expect(result?.body?.errorKey).toBe('user.error.emailAlreadyRegistered')
+    expect(result?.body?.errorKey).toBe('user.error.oauthEmailCollision')
   })
 })
 

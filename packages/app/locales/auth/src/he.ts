@@ -10,4 +10,5 @@ export const he: AuthTranslations = {
   'auth.error.profileSessionChanged': 'סשן הפרופיל השתנה לפני השליחה',
   'auth.error.passwordRequiresSignIn': 'כניסה לפני שינוי סיסמה',
   'auth.error.passwordSessionChanged': 'הסיסמה של סשן השתנתה לפני השליחה',
+  'auth.error.requestTimedOut': 'תם הזמן שהוקצב לבקשת האימות',
 }

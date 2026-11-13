@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Azerbaijani. */
 export const az: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Etiket adı tələb olunur',
   'tag.error.invalidName': 'Etiket adı yanlışdır',
   'tag.error.createFailed': 'Etiket yaradıla bilmədi',
@@ -17,4 +16,5 @@ export const az: TagTranslations = {
   'tag.error.associationNotFound': 'Etiket əlaqəsi tapılmadı',
   'tag.error.removeFailed': 'Etiket resursdan silinə bilmədi',
   'tag.error.getBySlugFailed': 'Resurslar etiketə görə alına bilmədi',
+  'tag.error.forbidden': 'Etiketləri idarə etmək üçün administrator girişi tələb olunur',
 }

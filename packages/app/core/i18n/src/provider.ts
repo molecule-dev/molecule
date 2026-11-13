@@ -14,6 +14,8 @@ import type {
   InterpolationValues,
   LocaleConfig,
   NumberFormatOptions,
+  PluralCategory,
+  TranslateOptions,
   Translations,
 } from './types.js'
 import { deepMerge, getNestedValue, interpolate } from './utilities.js'
@@ -118,7 +120,7 @@ export const createSimpleI18nProvider = (
           t(
             'i18n.error.localeNotFound',
             { locale },
-            { defaultValue: `Locale "${locale}" not found` },
+            { defaultValue: 'Locale "{{locale}}" not found' },
           ),
         )
       }
@@ -199,11 +201,7 @@ export const createSimpleI18nProvider = (
       if (createdLocale || (changed && (locale === currentLocale || locale === 'en'))) notify()
     },
 
-    t(
-      key: string,
-      values?: InterpolationValues,
-      options?: { defaultValue?: string; count?: number },
-    ): string {
+    t(key: string, values?: InterpolationValues, options?: TranslateOptions): string {
       const config = locales.get(currentLocale)
       if (!config) {
         const fallback = options?.defaultValue || key
@@ -246,7 +244,12 @@ export const createSimpleI18nProvider = (
         if (!options?.defaultValue) {
           log().debug('Missing translation key', key, currentLocale)
         }
-        const fallback = options?.defaultValue || key
+        // A default is English, so its plural form follows English rules.
+        const pluralDefault =
+          options?.count !== undefined
+            ? options[`defaultValue_${getPluralForm(options.count, 'en') as PluralCategory}`]
+            : undefined
+        const fallback = pluralDefault || options?.defaultValue || key
         const allValues =
           options?.count !== undefined ? { count: options.count, ...values } : values
         return allValues ? interpolate(fallback, allValues) : fallback

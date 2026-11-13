@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Telugu. */
 export const te: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ఉత్పత్తి పేరు అవసరం',
   'product.error.invalidName': 'ఉత్పత్తి పేరు చెల్లదు',
   'product.error.invalidPrice': 'చెల్లుబాటు అయ్యే ధర అవసరం',
@@ -15,4 +14,5 @@ export const te: ProductTranslations = {
   'product.error.listVariantsFailed': 'ఉత్పత్తి రకాలను జాబితా చేయడం విఫలమైంది',
   'product.error.variantNameRequired': 'రకం పేరు అవసరం',
   'product.error.createVariantFailed': 'ఉత్పత్తి రకాన్ని సృష్టించడం విఫలమైంది',
+  'product.error.forbidden': 'ఉత్పత్తులను నిర్వహించడానికి నిర్వాహక ప్రాప్యత అవసరం',
 }

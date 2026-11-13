@@ -24,7 +24,7 @@ export const sessionUserId = (res: MoleculeResponse): string | undefined =>
 export const unauthorized = (): Response => ({
   statusCode: 401,
   body: {
-    error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+    error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
     errorKey: 'resource.error.unauthorized',
   },
 })

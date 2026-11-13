@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const lo: ContactsTranslations = {
   'contacts.unknown': 'ບໍ່ຮູ້',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: ບໍ່ມີຜູ້ໃຫ້ບໍລິການຖືກຕັ້ງໄວ້. ໂທຫາ `setProvider()` ດ້ວຍການຈັດຕັ້ງປະຕິບັດ `ContactsProvider` — ບໍ່ມີຜູ້ໃຫ້ບໍລິການໃດສົ່ງມາພ້ອມກັບກອງພາຫະນະ; ຈັດຕັ້ງປະຕິບັດອິນເຕີເຟດໃນ runtime ພື້ນເມືອງຂອງທ່ານ ແລະ ເຊື່ອມຕໍ່ມັນ.',
+    '`@molecule/app-contacts`: ບໍ່ໄດ້ຕັ້ງຜູ້ໃຫ້ບໍລິການໄວ້. ໂທຫາ `setProvider()` ດ້ວຍການຈັດຕັ້ງປະຕິບັດ `ContactsProvider` — Molecule ບໍ່ໄດ້ສົ່ງຜູ້ໃຫ້ບໍລິການໃດໆໃຫ້ມັນ; ຈັດຕັ້ງປະຕິບັດອິນເຕີເຟດໃນ runtime ພື້ນເມືອງຂອງທ່ານ ແລະ ເຊື່ອມຕໍ່ມັນ.',
 }

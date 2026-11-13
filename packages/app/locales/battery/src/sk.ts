@@ -11,5 +11,5 @@ export const sk: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}h {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Nie je nastavený žiadny poskytovateľ. Zavolajte `setProvider()` s implementáciou `BatteryProvider` – s flotilou nie je dodávaný žiadny poskytovateľ; implementujte rozhranie vo vašom natívnom runtime prostredí a prepojte ho.',
+    '`@molecule/app-battery`: Nie je nastavený žiadny poskytovateľ. Zavolajte `setProvider()` s implementáciou `BatteryProvider` — Molecule preň neponúka žiadneho poskytovateľa; implementujte rozhranie vo vašom natívnom runtime prostredí a prepojte ho.',
 }

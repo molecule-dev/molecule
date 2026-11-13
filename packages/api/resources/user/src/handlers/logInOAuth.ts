@@ -372,11 +372,11 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
               return {
                 statusCode: 409,
                 body: {
-                  error: t('user.error.emailAlreadyRegistered', undefined, {
+                  error: t('user.error.oauthEmailCollision', undefined, {
                     defaultValue:
                       'An account already exists for this email. Please sign in with your original method, then link this provider from your account settings.',
                   }),
-                  errorKey: 'user.error.emailAlreadyRegistered',
+                  errorKey: 'user.error.oauthEmailCollision',
                 },
               }
             }
@@ -491,11 +491,11 @@ export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.Hand
               return {
                 statusCode: 409,
                 body: {
-                  error: t('user.error.emailAlreadyRegistered', undefined, {
+                  error: t('user.error.oauthEmailCollision', undefined, {
                     defaultValue:
                       'An account already exists for this email. Please sign in with your original method, then link this provider from your account settings.',
                   }),
-                  errorKey: 'user.error.emailAlreadyRegistered',
+                  errorKey: 'user.error.oauthEmailCollision',
                 },
               }
             }

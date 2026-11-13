@@ -10,4 +10,5 @@ export const my: AuthTranslations = {
   'auth.error.profileSessionChanged': 'တင်သွင်းခြင်းမပြုမီ ပရိုဖိုင်အစည်းအဝေး ပြောင်းလဲသွားခဲ့သည်',
   'auth.error.passwordRequiresSignIn': 'စကားဝှက်မပြောင်းမီ လက်မှတ်ထိုးဝင်ပါ',
   'auth.error.passwordSessionChanged': 'တင်သွင်းခြင်းမပြုမီ စကားဝှက်အစည်းအဝေး ပြောင်းလဲခဲ့သည်',
+  'auth.error.requestTimedOut': 'အထောက်အထားစိစစ်ရန် တောင်းဆိုမှု အချိန်ကုန်သွားပါပြီ',
 }

@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Bosnian. */
 export const bs: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Pružalac statusne kontrolne ploče nije konfigurisan.',
   'statusDashboard.error.fetchFailed': 'Nije uspjelo preuzimanje statusa: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Svi sistemi rade normalno',
   'statusDashboard.label.someIssues': 'Neki sistemi imaju probleme',
@@ -17,4 +16,6 @@ export const bs: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Posljednja provjera {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Nema prijavljenih incidenata.',
+  'statusDashboard.error.noProvider':
+    'Pružatelj kontrolne ploče statusa nije konfiguriran. Prvo povežite pružatelja kontrolne ploče statusa.',
 }

@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Afrikaans. */
 export const af: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Etiketnaam is verpligtend',
   'tag.error.invalidName': 'Etiketnaam is ongeldig',
   'tag.error.createFailed': 'Kon nie etiket skep nie',
@@ -17,4 +16,5 @@ export const af: TagTranslations = {
   'tag.error.associationNotFound': 'Etiket-assosiasie nie gevind nie',
   'tag.error.removeFailed': 'Kon nie etiket van hulpbron verwyder nie',
   'tag.error.getBySlugFailed': 'Kon nie hulpbronne per etiket kry nie',
+  'tag.error.forbidden': 'Administrateurtoegang word benodig om etikette te bestuur',
 }

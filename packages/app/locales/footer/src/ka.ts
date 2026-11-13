@@ -6,8 +6,6 @@ export const ka: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'კონფიდენციალურობის პოლიტიკა',
   'footer.termsOfService': 'მომსახურების პირობები',
   'footer.language': 'ენა',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'ეს კონტენტი ჯერ არ არის კონფიგურირებული. ის აპლიკაციის მფლობელმა უნდა მოგვაწოდოს.',
   'footer.about': '{{appName}}-ის შესახებ',

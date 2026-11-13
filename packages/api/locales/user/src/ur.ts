@@ -74,4 +74,15 @@ export const ur: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} بلنگ پورٹل پیش نہیں کرتا ہے۔',
   'user.payment.subscriptionOwnershipMismatch': 'اس رکنیت کا تعلق آپ کے اکاؤنٹ سے نہیں ہے۔',
   'user.payment.transactionAlreadyClaimed': 'یہ خریداری پہلے ہی کسی دوسرے اکاؤنٹ سے وابستہ ہے۔',
+  'user.error.completeTargetMissing':
+    'مکمل آئی ڈی کے طور پر فراہم کردہ آئی ڈی کے ساتھ کوئی اکاؤنٹ موجود نہیں ہے۔',
+  'user.error.completeIdentityMismatch':
+    'فراہم کردہ صارف نام یا ای میل مکمل آئی ڈی اکاؤنٹ کی شناخت نہیں کرتا ہے۔',
+  'user.error.completeNotOwned':
+    'مکمل آئی ڈی اکاؤنٹ OAuth کے ذریعے سائن ان ہوتا ہے۔ اس کی اسناد یہاں فراہم نہیں کی گئی ہیں۔',
+  'user.error.identityRequired':
+    'فراہمی کو اکاؤنٹ کی شناخت کے لیے صارف نام یا ای میل کی ضرورت ہوتی ہے۔',
+  'user.error.usernameEmailConflict': 'صارف نام اور ای میل کا تعلق دو مختلف موجودہ اکاؤنٹس سے ہے۔',
+  'user.error.oauthEmailCollision':
+    'اس ای میل کے لیے ایک اکاؤنٹ پہلے سے موجود ہے۔ براہ کرم اپنے اصل طریقہ سے سائن ان کریں، پھر اس فراہم کنندہ کو اپنے اکاؤنٹ کی ترتیبات سے لنک کریں۔',
 }

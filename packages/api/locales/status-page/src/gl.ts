@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Galician. */
 export const gl: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Servizo non atopado.',
   'status.error.incidentNotFound': 'Incidente non atopado.',
   'status.error.validationFailed': 'Validación fallida: {{errors}}',
@@ -16,4 +15,5 @@ export const gl: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Erro ao listar os incidentes.',
   'status.error.getStatusFailed': 'Erro ao obter o estado do sistema.',
   'status.error.getUptimeFailed': 'Erro ao obter os datos de dispoñibilidade.',
+  'status.error.forbidden': 'Necesítase permiso para xestionar a páxina de estado',
 }

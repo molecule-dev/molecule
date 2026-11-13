@@ -75,4 +75,15 @@ export const fi: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ei tarjoa laskutusportaalia.',
   'user.payment.subscriptionOwnershipMismatch': 'Tämä tilaus ei kuulu tilillesi.',
   'user.payment.transactionAlreadyClaimed': 'Tämä ostos on jo liitetty toiseen tiliin.',
+  'user.error.completeTargetMissing': 'Annetulla tunnuksella completeId ei ole tiliä.',
+  'user.error.completeIdentityMismatch':
+    'Annettu käyttäjätunnus tai sähköpostiosoite ei yksilöi completeId-tiliä.',
+  'user.error.completeNotOwned':
+    'CompleteId-tili kirjautuu sisään OAuthin kautta; sen tunnistetietoja ei valmistella tässä.',
+  'user.error.identityRequired':
+    'Käyttöönotto vaatii käyttäjätunnuksen tai sähköpostiosoitteen tilin tunnistamiseksi.',
+  'user.error.usernameEmailConflict':
+    'Käyttäjätunnus ja sähköpostiosoite kuuluvat kahdelle eri olemassa olevalle tilille.',
+  'user.error.oauthEmailCollision':
+    'Tälle sähköpostiosoitteelle on jo tili. Kirjaudu sisään alkuperäisellä menetelmälläsi ja linkitä sitten tämä palveluntarjoaja tilisi asetuksista.',
 }

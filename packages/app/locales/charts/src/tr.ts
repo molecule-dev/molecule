@@ -2,7 +2,7 @@ import type { ChartsTranslations } from './types.js'
 
 /** Charts translations for Turkish. */
 export const tr: ChartsTranslations = {
-  'charts.placeholder.label': '{{type}} grafik',
   'charts.placeholder.description': 'Uygun bir grafik sağlayıcısı kullanın',
   'charts.error.noCanvasContext': 'Canvas 2B bağlamı alınamadı.',
+  'charts.placeholder.label': '{{type}} grafik — yer tutucu',
 }

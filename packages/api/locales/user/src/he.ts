@@ -73,4 +73,13 @@ export const he: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} אינו מציע פורטל חיוב.',
   'user.payment.subscriptionOwnershipMismatch': 'מנוי זה אינו שייך לחשבונך.',
   'user.payment.transactionAlreadyClaimed': 'רכישה זו כבר משויכת לחשבון אחר.',
+  'user.error.completeTargetMissing': 'לא קיים חשבון עם המזהה שסופק כ-completeId.',
+  'user.error.completeIdentityMismatch':
+    'שם המשתמש או הדוא"ל שסופקו אינם מזהים את חשבון completeId.',
+  'user.error.completeNotOwned':
+    'חשבון completeId מתחבר דרך OAuth; פרטי הכניסה שלו אינם מוגדרים כאן.',
+  'user.error.identityRequired': 'ניהול חשבונות דורש שם משתמש או כתובת דוא"ל כדי לזהות את החשבון.',
+  'user.error.usernameEmailConflict': 'שם המשתמש והאימייל שייכים לשני חשבונות קיימים שונים.',
+  'user.error.oauthEmailCollision':
+    'כבר קיים חשבון עבור כתובת דוא"ל זו. אנא התחבר באמצעות השיטה המקורית שלך, ולאחר מכן קשר ספק זה מהגדרות החשבון שלך.',
 }

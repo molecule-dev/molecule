@@ -11,8 +11,17 @@ import { createFetchDouble, mockLogger } from './helpers.js'
 
 vi.mock('@molecule/api-bond', () => ({ getLogger: () => mockLogger }))
 vi.mock('@molecule/api-i18n', () => ({
-  t: (key: string, _values?: unknown, opts?: { defaultValue?: string }) =>
-    opts?.defaultValue ?? key,
+  // Mirror the real t(): the defaultValue (or key) is returned with {{name}}
+  // placeholders interpolated from the values argument, so assertions on the
+  // thrown English text see what a user would see.
+  t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+    const text = opts?.defaultValue ?? key
+    if (!values) return text
+    return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, name: string) => {
+      const value = values[name]
+      return value === undefined ? match : String(value)
+    })
+  },
 }))
 
 const {

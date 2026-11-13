@@ -10,4 +10,5 @@ export const sq: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Seanca e profilit ndryshoi para dorëzimit',
   'auth.error.passwordRequiresSignIn': 'Hyr përpara se të ndryshosh fjalëkalimin',
   'auth.error.passwordSessionChanged': 'Seanca e fjalëkalimit ndryshoi para dorëzimit',
+  'auth.error.requestTimedOut': 'Kërkesa për vërtetim skadoi',
 }

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Hausa. */
 export const ha: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Ba a sami sabis ba.',
   'status.error.incidentNotFound': 'Ba a sami lamarin ba.',
   'status.error.validationFailed': 'Tabbatarwa ta kasa: {{errors}}',
@@ -16,4 +15,5 @@ export const ha: StatusTranslations = {
   'status.error.listIncidentsFailed': 'An kasa jera lamuran.',
   'status.error.getStatusFailed': 'An kasa samo matsayin tsarin.',
   'status.error.getUptimeFailed': 'An kasa samo bayanan lokacin aiki.',
+  'status.error.forbidden': 'Ana buƙatar izini don gudanar da shafin matsayi',
 }

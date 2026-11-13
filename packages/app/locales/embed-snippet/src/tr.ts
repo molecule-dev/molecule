@@ -10,7 +10,7 @@ export const tr: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Açık',
   'embedSnippet.theme.dark': 'Koyu',
   'embedSnippet.theme.auto': 'Oto',
-  'embedSnippet.aria.region': 'Gömme kodu ({language})',
   'embedSnippet.eyebrow': 'Gömme kodunu kopyala',
   'embedSnippet.controls.width': 'Genişlik',
+  'embedSnippet.aria.region': 'Gömme kodu ({{language}})',
 }

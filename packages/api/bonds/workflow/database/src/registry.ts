@@ -138,9 +138,14 @@ export class WorkflowGuardRejectedError extends Error {
    */
   constructor(instanceId: string, action: string, guard: string) {
     super(
-      t('workflow.error.guardRejected', undefined, {
-        defaultValue: `Transition '${action}' on instance '${instanceId}' was blocked by guard '${guard}'`,
-      }),
+      t(
+        'workflow.error.guardRejected',
+        { action, instanceId, guard },
+        {
+          defaultValue:
+            "Transition '{{action}}' on instance '{{instanceId}}' was blocked by guard '{{guard}}'",
+        },
+      ),
     )
     this.name = 'WorkflowGuardRejectedError'
     this.instanceId = instanceId

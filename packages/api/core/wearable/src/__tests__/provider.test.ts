@@ -38,10 +38,13 @@ vi.mock('@molecule/api-bond', () => {
 })
 
 vi.mock('@molecule/api-i18n', () => ({
-  t: vi.fn(
-    (_key: string, _values?: unknown, options?: { defaultValue?: string }) =>
-      options?.defaultValue ?? _key,
-  ),
+  t: vi.fn((key: string, values?: Record<string, unknown>, options?: { defaultValue?: string }) => {
+    const text = options?.defaultValue ?? key
+    // Mirror the real t(): placeholders in the default resolve from `values`.
+    return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (token, name: string) =>
+      values && values[name] !== undefined ? String(values[name]) : token,
+    )
+  }),
 }))
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'

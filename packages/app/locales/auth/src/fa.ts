@@ -10,4 +10,5 @@ export const fa: AuthTranslations = {
   'auth.error.profileSessionChanged': 'جلسه پروفایل قبل از ارسال تغییر کرد',
   'auth.error.passwordRequiresSignIn': 'قبل از تغییر رمز عبور، وارد شوید',
   'auth.error.passwordSessionChanged': 'رمز عبور جلسه قبل از ارسال تغییر کرد',
+  'auth.error.requestTimedOut': 'مهلت درخواست احراز هویت به پایان رسید',
 }

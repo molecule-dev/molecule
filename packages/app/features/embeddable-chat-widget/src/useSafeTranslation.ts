@@ -20,14 +20,14 @@
 
 import { useCallback, useContext, useEffect, useState } from 'react'
 
-import { interpolate, type InterpolationValues } from '@molecule/app-i18n'
+import { interpolate, type InterpolationValues, type TranslateOptions } from '@molecule/app-i18n'
 import { I18nContext } from '@molecule/app-react'
 
 /** Translation function shape used throughout the widget. */
 export type WidgetTranslate = (
   key: string,
   values?: InterpolationValues,
-  options?: { defaultValue?: string; count?: number },
+  options?: TranslateOptions,
 ) => string
 
 /**

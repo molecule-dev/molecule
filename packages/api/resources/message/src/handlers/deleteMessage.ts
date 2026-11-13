@@ -23,7 +23,7 @@ export async function deleteMessageHandler(
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return
@@ -45,7 +45,7 @@ export async function deleteMessageHandler(
     if (!deleted) {
       res.status(404).json({
         error: t('message.error.messageNotFound', undefined, {
-          defaultValue: 'Message not found or not deletable',
+          defaultValue: 'Message not found or not editable',
         }),
         errorKey: 'message.error.messageNotFound',
       })

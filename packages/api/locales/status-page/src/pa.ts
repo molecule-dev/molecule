@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Punjabi. */
 export const pa: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'ਸੇਵਾ ਨਹੀਂ ਮਿਲੀ।',
   'status.error.incidentNotFound': 'ਘਟਨਾ ਨਹੀਂ ਮਿਲੀ।',
   'status.error.validationFailed': 'ਪ੍ਰਮਾਣਿਕਤਾ ਅਸਫਲ: {{errors}}',
@@ -16,4 +15,5 @@ export const pa: StatusTranslations = {
   'status.error.listIncidentsFailed': 'ਘਟਨਾਵਾਂ ਦੀ ਸੂਚੀ ਪ੍ਰਾਪਤ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'status.error.getStatusFailed': 'ਸਿਸਟਮ ਸਥਿਤੀ ਪ੍ਰਾਪਤ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'status.error.getUptimeFailed': 'ਅੱਪਟਾਈਮ ਡੇਟਾ ਪ੍ਰਾਪਤ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
+  'status.error.forbidden': 'ਸਥਿਤੀ ਪੰਨੇ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰਨ ਲਈ ਇਜਾਜ਼ਤ ਦੀ ਲੋੜ ਹੈ',
 }

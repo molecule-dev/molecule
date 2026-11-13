@@ -26,13 +26,17 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-// `t(key, values, opts)` echoes the supplied `defaultValue`; a spy, so a test can
-// read the options a component passed.
+// `t(key, values, opts)` echoes the supplied `defaultValue` with `{{name}}`
+// placeholders filled from `values` — the real providers interpolate the
+// fallback too — and stays a spy, so a test can read the options a component
+// passed.
 const { t } = vi.hoisted(() => ({
-  t: vi.fn(
-    (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
-  ),
+  t: vi.fn((key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+    const text = opts?.defaultValue ?? key
+    return text.replace(/\{\{(\w+)\}\}/g, (whole, field: string) =>
+      values && field in values ? String(values[field]) : whole,
+    )
+  }),
 }))
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({ t }),
@@ -164,10 +168,10 @@ describe('MessageReactions', () => {
 })
 
 describe('ThreadIndicator', () => {
-  it('renders the singular "1 reply" label for replyCount 1', () => {
+  it('renders the interpolated count fallback for replyCount 1 (the loaded bond picks "1 reply" via thread.replies_one)', () => {
     const markup = html(createElement(ThreadIndicator, { replyCount: 1 }))
-    expect(markup).toContain('1 reply')
-    expect(markup).not.toContain('1 replies')
+    expect(markup).toContain('1 replies')
+    expect(markup).not.toContain('{{count}}')
   })
 
   it('renders the plural "N replies" label for replyCount > 1', () => {

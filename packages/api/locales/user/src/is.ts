@@ -76,4 +76,16 @@ export const is: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} býður ekki upp á greiðslugátt.',
   'user.payment.subscriptionOwnershipMismatch': 'Þessi áskrift tilheyrir ekki reikningnum þínum.',
   'user.payment.transactionAlreadyClaimed': 'Þessi kaup eru þegar tengd öðrum reikningi.',
+  'user.error.completeTargetMissing':
+    'Enginn reikningur er til með auðkenninu sem gefið er upp sem completeId.',
+  'user.error.completeIdentityMismatch':
+    'Notandanafnið eða netfangið sem gefið var upp auðkennir ekki completeId reikninginn.',
+  'user.error.completeNotOwned':
+    'completeId reikningurinn skráir sig inn í gegnum OAuth; innskráningarupplýsingar hans eru ekki gefnar hér.',
+  'user.error.identityRequired':
+    'Til að úthluta þarf notandanafn eða netfang til að bera kennsl á reikninginn.',
+  'user.error.usernameEmailConflict':
+    'Notandanafnið og netfangið tilheyra tveimur mismunandi núverandi reikningum.',
+  'user.error.oauthEmailCollision':
+    'Aðgangur er þegar til staðar fyrir þetta netfang. Vinsamlegast skráðu þig inn með upprunalegu aðferðinni þinni og tengdu síðan þennan þjónustuaðila úr stillingum reikningsins.',
 }

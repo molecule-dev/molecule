@@ -6,8 +6,6 @@ export const sq: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Politika e Privatësisë',
   'footer.termsOfService': 'Kushtet e Shërbimit',
   'footer.language': 'Gjuha',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Kjo përmbajtje nuk është konfiguruar ende. Pronari i aplikacionit duhet ta ofrojë atë.',
   'footer.about': 'Rreth {{appName}}',

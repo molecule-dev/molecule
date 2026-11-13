@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Kazakh. */
 export const kk: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Күй тақтасының провайдері конфигурацияланбаған.',
   'statusDashboard.error.fetchFailed': 'Күйді алу сәтсіз аяқталды: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Барлық жүйелер жұмыс істейді',
   'statusDashboard.label.someIssues': 'Кейбір жүйелерде ақаулар бар',
@@ -17,4 +16,6 @@ export const kk: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Соңғы тексеру {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Ешқандай оқиға хабарланбаған.',
+  'statusDashboard.error.noProvider':
+    'Күй тақтасының провайдері конфигурацияланбаған. Алдымен күй тақтасының провайдерін байланыстырыңыз.',
 }

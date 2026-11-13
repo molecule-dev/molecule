@@ -20,7 +20,7 @@ export async function deleteMsg(req: MoleculeRequest, res: MoleculeResponse): Pr
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return
@@ -41,7 +41,7 @@ export async function deleteMsg(req: MoleculeRequest, res: MoleculeResponse): Pr
     const deleted = await deleteMessage(messageId, userId)
     if (!deleted) {
       res.status(404).json({
-        error: t('resource.error.notFound', undefined, { defaultValue: 'Not found' }),
+        error: t('resource.error.notFound', undefined, { defaultValue: 'Not found.' }),
         errorKey: 'resource.error.notFound',
       })
       return

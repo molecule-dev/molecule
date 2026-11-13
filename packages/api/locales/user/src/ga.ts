@@ -76,4 +76,16 @@ export const ga: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Ní bhaineann an síntiús seo le do chuntas.',
   'user.payment.transactionAlreadyClaimed':
     'Tá an ceannachán seo ceangailte le cuntas eile cheana féin.',
+  'user.error.completeTargetMissing':
+    'Níl aon chuntas ann leis an aitheantas a cuireadh ar fáil mar completeId.',
+  'user.error.completeIdentityMismatch':
+    'Ní aithníonn an t-ainm úsáideora ná an ríomhphost a cuireadh ar fáil an cuntas completeId.',
+  'user.error.completeNotOwned':
+    'Síníonn an cuntas completeId isteach trí OAuth; níl a chuid dintiúir curtha ar fáil anseo.',
+  'user.error.identityRequired':
+    'Teastaíonn ainm úsáideora nó ríomhphost chun an cuntas a aithint le haghaidh soláthair.',
+  'user.error.usernameEmailConflict':
+    'Baineann an t-ainm úsáideora agus an ríomhphost le dhá chuntas éagsúla atá ann cheana féin.',
+  'user.error.oauthEmailCollision':
+    'Tá cuntas ann cheana féin don ríomhphost seo. Sínigh isteach le do mhodh bunaidh, agus ansin nasc an soláthraí seo ó shocruithe do chuntais.',
 }

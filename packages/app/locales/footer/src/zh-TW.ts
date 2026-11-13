@@ -6,8 +6,6 @@ export const zhTW: Partial<FooterTranslations> = {
   'footer.privacyPolicy': '隱私權政策',
   'footer.termsOfService': '服務條款',
   'footer.language': '語言',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured': '此內容尚未配置，需由應用程式擁有者提供。',
   'footer.about': '關於{{appName}}',
 }

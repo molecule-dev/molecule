@@ -48,7 +48,7 @@ describe('CookieBanner', () => {
 
   it('renders the default title and description', () => {
     const markup = html(createElement(CookieBanner, {}))
-    expect(markup).toContain('We use cookies')
+    expect(markup).toContain('Cookie preferences')
     expect(markup).toContain('improve your experience')
   })
 

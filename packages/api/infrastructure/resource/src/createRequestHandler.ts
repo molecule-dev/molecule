@@ -135,7 +135,7 @@ export const createRequestHandler = (handler: Handler, options: RequestHandlerOp
       }
     } catch (error) {
       logger.error(error)
-      next(t('resource.error.unknownError', undefined, { defaultValue: 'Something went wrong.' }))
+      next(t('resource.error.unknownError', undefined, { defaultValue: 'Unknown error.' }))
     }
   }
 }

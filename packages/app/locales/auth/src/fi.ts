@@ -10,4 +10,5 @@ export const fi: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Profiiliistunto muuttui ennen lähettämistä',
   'auth.error.passwordRequiresSignIn': 'Kirjaudu sisään ennen salasanan vaihtamista',
   'auth.error.passwordSessionChanged': 'Salasanaistunto vaihdettu ennen lähettämistä',
+  'auth.error.requestTimedOut': 'Todennuspyyntö aikakatkaistiin',
 }

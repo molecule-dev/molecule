@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Urdu. */
 export const ur: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'سروس نہیں ملی۔',
   'status.error.incidentNotFound': 'واقعہ نہیں ملا۔',
   'status.error.validationFailed': 'توثیق ناکام: {{errors}}',
@@ -16,4 +15,5 @@ export const ur: StatusTranslations = {
   'status.error.listIncidentsFailed': 'واقعات کی فہرست حاصل کرنے میں ناکام۔',
   'status.error.getStatusFailed': 'سسٹم کی حالت حاصل کرنے میں ناکام۔',
   'status.error.getUptimeFailed': 'اپ ٹائم ڈیٹا حاصل کرنے میں ناکام۔',
+  'status.error.forbidden': 'اسٹیٹس پیج کو منظم کرنے کے لیے اجازت درکار ہے۔',
 }

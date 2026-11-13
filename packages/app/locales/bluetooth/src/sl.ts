@@ -3,5 +3,5 @@ import type { BluetoothTranslations } from './types.js'
 /** Bluetooth translations for Slovenian. */
 export const sl: BluetoothTranslations = {
   'bluetooth.error.noProvider':
-    '@molecule/app-bluetooth: Ponudnik ni nastavljen. Pokličite setProvider() z implementacijo BluetoothProvider.',
+    '`@molecule/app-bluetooth`: Ponudnik ni nastavljen. Pokličite `setProvider()` z implementacijo `BluetoothProvider` – Molecule zanj ne dobavlja nobenega ponudnika; implementirajte vmesnik v svojem izvornem izvajalnem okolju in ga povežite.',
 }

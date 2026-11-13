@@ -177,14 +177,14 @@ export const requireAdmin =
   async (_req, res, next): Promise<void> => {
     const session = res.locals.session as GradeSession | undefined
     if (!session?.userId) {
-      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
+      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }))
     }
     if (await isGradeAdmin(res)) {
       return next()
     }
     return next(
       t('grade.error.forbidden', undefined, {
-        defaultValue: 'Permission required to manage grades',
+        defaultValue: 'Access denied',
       }),
     )
   }
@@ -209,7 +209,7 @@ export const authenticate =
   async (_req, res, next): Promise<void> => {
     const session = res.locals.session as GradeSession | undefined
     if (!session?.userId) {
-      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
+      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }))
     }
     return next()
   }
@@ -232,14 +232,14 @@ export const requireSelfOrAdmin =
   async (req, res, next): Promise<void> => {
     const session = res.locals.session as GradeSession | undefined
     if (!session?.userId) {
-      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
+      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }))
     }
     if (session.userId === req.params.userId || (await isGradeAdmin(res))) {
       return next()
     }
     return next(
       t('grade.error.forbidden', undefined, {
-        defaultValue: 'You do not have access to these grades',
+        defaultValue: 'Access denied',
       }),
     )
   }

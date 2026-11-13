@@ -36,7 +36,7 @@ async function getNetInfo(): Promise<NetInfoModule> {
         { library: '@react-native-community/netinfo' },
         {
           defaultValue:
-            '@react-native-community/netinfo is required but not installed. Install it with: npm install @react-native-community/netinfo',
+            '`{{library}}` is required but not installed. Install it with: `npm install {{library}}`',
         },
       ),
       { cause: error },

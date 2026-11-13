@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Finnish. */
 export const fi: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Tuotteen nimi on pakollinen',
   'product.error.invalidName': 'Tuotteen nimi on virheellinen',
   'product.error.invalidPrice': 'Kelvollinen hinta on pakollinen',
@@ -15,4 +14,5 @@ export const fi: ProductTranslations = {
   'product.error.listVariantsFailed': 'Tuotevarianttien listaus epäonnistui',
   'product.error.variantNameRequired': 'Variantin nimi on pakollinen',
   'product.error.createVariantFailed': 'Tuotevariantin luonti epäonnistui',
+  'product.error.forbidden': 'Tuotteiden hallintaan vaaditaan järjestelmänvalvojan oikeudet',
 }

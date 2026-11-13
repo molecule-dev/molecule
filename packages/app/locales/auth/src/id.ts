@@ -10,4 +10,5 @@ export const id: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Sesi profil berubah sebelum pengiriman.',
   'auth.error.passwordRequiresSignIn': 'Masuk terlebih dahulu sebelum mengubah kata sandi.',
   'auth.error.passwordSessionChanged': 'Sesi kata sandi diubah sebelum pengiriman.',
+  'auth.error.requestTimedOut': 'Permintaan otentikasi habis waktu.',
 }

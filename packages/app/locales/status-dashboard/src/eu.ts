@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Basque. */
 export const eu: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Egoera-panelaren hornitzailea ez dago konfiguratuta.',
   'statusDashboard.error.fetchFailed': 'Ezin izan da egoera eskuratu: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Sistema guztiak martxan',
   'statusDashboard.label.someIssues': 'Sistema batzuek arazoak dituzte',
@@ -17,4 +16,6 @@ export const eu: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Azken egiaztapena {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Ez da gertaerarik jakinarazi.',
+  'statusDashboard.error.noProvider':
+    'Egoera-panelaren hornitzailea ez dago konfiguratuta. Lehenik eta behin, lotu egoera-panelaren hornitzaile bat.',
 }

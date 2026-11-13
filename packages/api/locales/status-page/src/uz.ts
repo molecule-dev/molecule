@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Uzbek. */
 export const uz: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Xizmat topilmadi.',
   'status.error.incidentNotFound': 'Hodisa topilmadi.',
   'status.error.validationFailed': 'Tekshirish muvaffaqiyatsiz: {{errors}}',
@@ -16,4 +15,5 @@ export const uz: StatusTranslations = {
   'status.error.listIncidentsFailed': "Hodisalar ro'yxatini olish muvaffaqiyatsiz bo'ldi.",
   'status.error.getStatusFailed': "Tizim holatini olish muvaffaqiyatsiz bo'ldi.",
   'status.error.getUptimeFailed': "Ish vaqti ma'lumotlarini olish muvaffaqiyatsiz bo'ldi.",
+  'status.error.forbidden': 'Holat sahifasini boshqarish uchun ruxsat talab qilinadi',
 }

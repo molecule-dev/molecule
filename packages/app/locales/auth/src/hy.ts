@@ -10,4 +10,5 @@ export const hy: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Պրոֆիլի սեսիան փոխվել է ուղարկումից առաջ',
   'auth.error.passwordRequiresSignIn': 'Մուտք գործեք գաղտնաբառ փոխելուց առաջ',
   'auth.error.passwordSessionChanged': 'Գաղտնաբառի սեսիան փոխվել է ուղարկումից առաջ',
+  'auth.error.requestTimedOut': 'Նույնականացման հարցման ժամանակը սպառվել է',
 }

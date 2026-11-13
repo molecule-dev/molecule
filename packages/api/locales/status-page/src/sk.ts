@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Slovak. */
 export const sk: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Služba nenájdená.',
   'status.error.incidentNotFound': 'Incident nenájdený.',
   'status.error.validationFailed': 'Overenie zlyhalo: {{errors}}',
@@ -16,4 +15,5 @@ export const sk: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Nepodarilo sa zobraziť zoznam incidentov.',
   'status.error.getStatusFailed': 'Nepodarilo sa získať stav systému.',
   'status.error.getUptimeFailed': 'Nepodarilo sa získať údaje o dostupnosti.',
+  'status.error.forbidden': 'Na správu stránky so stavom je potrebné povolenie',
 }

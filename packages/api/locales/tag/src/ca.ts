@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Catalan. */
 export const ca: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': "El nom de l'etiqueta és obligatori",
   'tag.error.invalidName': "El nom de l'etiqueta no és vàlid",
   'tag.error.createFailed': "No s'ha pogut crear l'etiqueta",
@@ -17,4 +16,5 @@ export const ca: TagTranslations = {
   'tag.error.associationNotFound': "Associació d'etiqueta no trobada",
   'tag.error.removeFailed': "No s'ha pogut eliminar l'etiqueta del recurs",
   'tag.error.getBySlugFailed': "No s'han pogut obtenir els recursos per etiqueta",
+  'tag.error.forbidden': "Cal accés d'administrador per gestionar les etiquetes",
 }

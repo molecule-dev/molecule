@@ -150,7 +150,7 @@ export function FilterBar({
               aria-label={t(
                 'filterBar.from',
                 { label: f.label },
-                { defaultValue: `${f.label} from` },
+                { defaultValue: '{{label}} from' },
               )}
             />
             <span>–</span>
@@ -158,7 +158,7 @@ export function FilterBar({
               type="date"
               value={range.to ?? ''}
               onChange={(e) => set(f.id, { ...range, to: (e.target as HTMLInputElement).value })}
-              aria-label={t('filterBar.to', { label: f.label }, { defaultValue: `${f.label} to` })}
+              aria-label={t('filterBar.to', { label: f.label }, { defaultValue: '{{label}} to' })}
             />
           </span>,
         )

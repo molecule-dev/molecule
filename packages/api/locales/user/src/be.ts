@@ -76,4 +76,16 @@ export const be: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} не прапануе партал для выстаўлення рахункаў.',
   'user.payment.subscriptionOwnershipMismatch': 'Гэтая падпіска не належыць вашаму акаўнту.',
   'user.payment.transactionAlreadyClaimed': 'Гэтая пакупка ўжо звязана з іншым акаўнтам.',
+  'user.error.completeTargetMissing':
+    'Уліковага запісу з ідэнтыфікатарам, указаным як completeId, не існуе.',
+  'user.error.completeIdentityMismatch':
+    'Пададзенае імя карыстальніка або адрас электроннай пошты не ідэнтыфікуюць уліковы запіс completeId.',
+  'user.error.completeNotOwned':
+    'Уліковы запіс completeId уваходзіць праз OAuth; яго ўліковыя дадзеныя тут не прадастаўляюцца.',
+  'user.error.identityRequired':
+    'Для ідэнтыфікацыі ўліковага запісу патрабуецца імя карыстальніка або адрас электроннай пошты.',
+  'user.error.usernameEmailConflict':
+    'Імя карыстальніка і адрас электроннай пошты належаць двум розным існуючым акаўнтам.',
+  'user.error.oauthEmailCollision':
+    'Для гэтага адраса электроннай пошты ўжо існуе ўліковы запіс. Калі ласка, увайдзіце, выкарыстоўваючы свой зыходны метад, а затым прывяжыце гэтага пастаўшчыка ў наладах уліковага запісу.',
 }

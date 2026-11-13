@@ -6,8 +6,6 @@ export const af: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Privaatheidsbeleid',
   'footer.termsOfService': 'Diensbepalings',
   'footer.language': 'Taal',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Hierdie inhoud is nog nie gekonfigureer nie. Die app-eienaar moet dit verskaf.',
   'footer.about': 'Oor {{appName}}',

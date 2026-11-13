@@ -77,4 +77,16 @@ export const cy: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': "Nid yw'r tanysgrifiad hwn yn perthyn i'ch cyfrif.",
   'user.payment.transactionAlreadyClaimed':
     "Mae'r pryniant hwn eisoes wedi'i gysylltu â chyfrif arall.",
+  'user.error.completeTargetMissing':
+    "Nid oes cyfrif yn bodoli gyda'r ID a ddarparwyd fel completeId.",
+  'user.error.completeIdentityMismatch':
+    "Nid yw'r enw defnyddiwr na'r e-bost a ddarparwyd yn adnabod y cyfrif completeId.",
+  'user.error.completeNotOwned':
+    "Mae'r cyfrif completeId yn mewngofnodi drwy OAuth; nid yw ei fanylion mewngofnodi wedi'u darparu yma.",
+  'user.error.identityRequired':
+    'Mae angen enw defnyddiwr neu gyfeiriad e-bost ar gyfer darparu i adnabod y cyfrif.',
+  'user.error.usernameEmailConflict':
+    "Mae'r enw defnyddiwr a'r e-bost yn perthyn i ddau gyfrif gwahanol sy'n bodoli eisoes.",
+  'user.error.oauthEmailCollision':
+    "Mae cyfrif eisoes yn bodoli ar gyfer yr e-bost hwn. Mewngofnodwch gyda'ch dull gwreiddiol, yna cysylltwch y darparwr hwn o osodiadau eich cyfrif.",
 }

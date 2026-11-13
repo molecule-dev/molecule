@@ -75,4 +75,14 @@ export const lo: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ບໍ່ມີລະບົບປະຕູເກັບເງິນ.',
   'user.payment.subscriptionOwnershipMismatch': 'ການສະໝັກໃຊ້ນີ້ບໍ່ແມ່ນຂອງບັນຊີຂອງທ່ານ.',
   'user.payment.transactionAlreadyClaimed': 'ການຊື້ນີ້ຖືກເຊື່ອມໂຍງກັບບັນຊີອື່ນແລ້ວ.',
+  'user.error.completeTargetMissing': 'ບໍ່ມີບັນຊີທີ່ໃຊ້ ID ທີ່ສະໜອງໃຫ້ເປັນ completeId.',
+  'user.error.completeIdentityMismatch':
+    'ຊື່ຜູ້ໃຊ້ ຫຼື ອີເມວທີ່ສະໜອງໃຫ້ບໍ່ໄດ້ລະບຸບັນຊີ completeId.',
+  'user.error.completeNotOwned':
+    'ບັນຊີ completeId ເຂົ້າສູ່ລະບົບຜ່ານ OAuth; ຂໍ້ມູນປະຈຳຕົວຂອງມັນບໍ່ໄດ້ຖືກຈັດສັນຢູ່ທີ່ນີ້.',
+  'user.error.identityRequired': 'ການຈັດສັນຕ້ອງການຊື່ຜູ້ໃຊ້ ຫຼື ອີເມວເພື່ອລະບຸບັນຊີ.',
+  'user.error.usernameEmailConflict':
+    'ຊື່ຜູ້ໃຊ້ ແລະ ອີເມວເປັນຂອງສອງບັນຊີທີ່ມີຢູ່ແລ້ວທີ່ແຕກຕ່າງກັນ.',
+  'user.error.oauthEmailCollision':
+    'ມີບັນຊີສຳລັບອີເມວນີ້ຢູ່ແລ້ວ. ກະລຸນາເຂົ້າສູ່ລະບົບດ້ວຍວິທີການເດີມຂອງທ່ານ, ຈາກນັ້ນເຊື່ອມຕໍ່ຜູ້ໃຫ້ບໍລິການນີ້ຈາກການຕັ້ງຄ່າບັນຊີຂອງທ່ານ.',
 }

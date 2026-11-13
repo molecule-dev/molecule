@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Bulgarian. */
 export const bg: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Доставчикът на табло за състоянието не е конфигуриран.',
   'statusDashboard.error.fetchFailed': 'Неуспешно извличане на състоянието: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Всички системи работят нормално',
   'statusDashboard.label.someIssues': 'Някои системи изпитват проблеми',
@@ -17,4 +16,6 @@ export const bg: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Последна проверка {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Няма докладвани инциденти.',
+  'statusDashboard.error.noProvider':
+    'Доставчикът на табло за състояние не е конфигуриран. Първо свържете доставчик на табло за състояние.',
 }

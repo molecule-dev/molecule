@@ -10,4 +10,5 @@ export const ig: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Oge profaịlụ gbanwere tupu e nyefee ya',
   'auth.error.passwordRequiresSignIn': 'Banye tupu ị gbanwee paswọọdụ',
   'auth.error.passwordSessionChanged': 'Oge okwuntughe agbanweela tupu e nyefee ya',
+  'auth.error.requestTimedOut': 'Arịrịọ nyocha ahụ agwụla oge',
 }

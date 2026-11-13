@@ -77,4 +77,15 @@ export const sq: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Ky abonim nuk i përket llogarisë suaj.',
   'user.payment.transactionAlreadyClaimed':
     'Kjo blerje është tashmë e lidhur me një llogari tjetër.',
+  'user.error.completeTargetMissing': 'Nuk ekziston asnjë llogari me ID-në e dhënë si CompleteId.',
+  'user.error.completeIdentityMismatch':
+    'Emri i përdoruesit ose email-i i dhënë nuk e identifikon llogarinë completeId.',
+  'user.error.completeNotOwned':
+    'Llogaria completeId identifikohet përmes OAuth; kredencialet e saj nuk jepen këtu.',
+  'user.error.identityRequired':
+    'Përgatitja kërkon një emër përdoruesi ose një email për të identifikuar llogarinë.',
+  'user.error.usernameEmailConflict':
+    'Emri i përdoruesit dhe emaili i përkasin dy llogarive të ndryshme ekzistuese.',
+  'user.error.oauthEmailCollision':
+    'Një llogari ekziston tashmë për këtë email. Ju lutemi identifikoheni me metodën tuaj origjinale dhe më pas lidhni këtë ofrues nga cilësimet e llogarisë suaj.',
 }

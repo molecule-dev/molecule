@@ -11,5 +11,5 @@ export const bg: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}ч {{minutes}}м',
   'battery.remainingMinutes': '{{minutes}}м',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Няма зададен доставчик. Извикайте `setProvider()` с имплементация на `BatteryProvider` — с флота не се доставя доставчик; имплементирайте интерфейса в собствената си среда за изпълнение и го свържете.',
+    '`@molecule/app-battery`: Няма зададен доставчик. Извикайте `setProvider()` с имплементация на `BatteryProvider` — Molecule не предоставя доставчик за него; имплементирайте интерфейса в собствената си среда за изпълнение и го свържете.',
 }

@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const am: ContactsTranslations = {
   'contacts.unknown': 'ያልታወቀ',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`፦ ምንም አቅራቢ አልተዘጋጀም። `setProvider()`ን በ`ContactsProvider` ትግበራ ይጥሩ። አብሮ የሚመጣ አቅራቢ የለም፤ በይነገጹን በመሣሪያዎ የሩጫ አካባቢ ይተግብሩ እና ያገናኙት።',
+    '`@molecule/app-contacts`: ምንም አቅራቢ አልተዘጋጀም። `setProvider()`ን በ`ContactsProvider` ትግበራ ይጥሩ — Molecule ለዚህ አቅራቢ አያቀርብም፤ በመሣሪያዎ የአሂድ አካባቢ ላይ በይነገጹን ተግብረው ያገናኙት።',
 }

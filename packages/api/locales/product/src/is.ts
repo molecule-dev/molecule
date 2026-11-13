@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Icelandic. */
 export const is: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Heiti vöru er nauðsynlegt',
   'product.error.invalidName': 'Heiti vöru er ógilt',
   'product.error.invalidPrice': 'Gilt verð er nauðsynlegt',
@@ -15,4 +14,5 @@ export const is: ProductTranslations = {
   'product.error.listVariantsFailed': 'Ekki tókst að skrá vöruafbrigði',
   'product.error.variantNameRequired': 'Heiti afbrigðis er nauðsynlegt',
   'product.error.createVariantFailed': 'Ekki tókst að búa til vöruafbrigði',
+  'product.error.forbidden': 'Aðgangur stjórnanda er nauðsynlegur til að stjórna vörum',
 }

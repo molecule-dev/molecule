@@ -11,5 +11,5 @@ export const zu: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}h {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Akukho umhlinzeki osethiwe. Shayela `setProvider()` ngokusebenzisa i `BatteryProvider` — akukho umhlinzeki othunyelwa neqembu; sebenzisa isikhombimsebenzisi ngesikhathi sakho sokusebenza bese usibopha.',
+    '`@molecule/app-battery`: Akukho umhlinzeki osethiwe. Shayela `setProvider()` ngokusetshenziswa kwe `BatteryProvider` — I-Molecule ayithumeli umhlinzeki wayo; sebenzisa isikhombimsebenzisi kusikhathi sakho sokusebenza bese usibopha.',
 }

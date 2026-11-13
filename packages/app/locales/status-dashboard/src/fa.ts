@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Persian. */
 export const fa: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'ارائه‌دهنده داشبورد وضعیت پیکربندی نشده است.',
   'statusDashboard.error.fetchFailed': 'دریافت وضعیت ناموفق بود: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'تمام سیستم‌ها عملیاتی هستند',
   'statusDashboard.label.someIssues': 'برخی سیستم‌ها با مشکل مواجه هستند',
@@ -17,4 +16,6 @@ export const fa: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'آخرین بررسی {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'هیچ رخدادی گزارش نشده است.',
+  'statusDashboard.error.noProvider':
+    'ارائه دهنده داشبورد وضعیت پیکربندی نشده است. ابتدا یک ارائه دهنده داشبورد وضعیت ایجاد کنید.',
 }

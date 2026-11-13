@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Lao. */
 export const lo: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ຕ້ອງການຊື່ຜະລິດຕະພັນ',
   'product.error.invalidName': 'ຊື່ຜະລິດຕະພັນບໍ່ຖືກຕ້ອງ',
   'product.error.invalidPrice': 'ຕ້ອງການລາຄາທີ່ຖືກຕ້ອງ',
@@ -15,4 +14,5 @@ export const lo: ProductTranslations = {
   'product.error.listVariantsFailed': 'ການສະແດງລາຍການຕົວແປຜະລິດຕະພັນລົ້ມເຫລວ',
   'product.error.variantNameRequired': 'ຕ້ອງການຊື່ຕົວແປ',
   'product.error.createVariantFailed': 'ການສ້າງຕົວແປຜະລິດຕະພັນລົ້ມເຫລວ',
+  'product.error.forbidden': 'ຕ້ອງການສິດອະນຸຍາດຂອງຜູ້ເບິ່ງແຍງລະບົບເພື່ອຈັດການຜະລິດຕະພັນ',
 }

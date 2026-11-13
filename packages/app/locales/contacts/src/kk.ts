@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const kk: ContactsTranslations = {
   'contacts.unknown': 'Белгісіз',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: Провайдер орнатылмаған. `setProvider()` функциясын `ContactsProvider` іске асыруымен шақырыңыз — ешбір провайдер флотпен бірге жеткізілмейді; интерфейсті өзіңіздің жергілікті жұмыс уақытыңызда іске қосып, оны байланыстырыңыз.',
+    '`@molecule/app-contacts`: Провайдер орнатылмаған. `setProvider()` функциясын `ContactsProvider` іске асыруымен шақырыңыз — Molecule оған ешқандай провайдер жібермейді; интерфейсті өзіңіздің жергілікті жұмыс уақытыңызда іске қосып, оны байланыстырыңыз.',
 }

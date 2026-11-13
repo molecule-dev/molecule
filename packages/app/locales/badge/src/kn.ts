@@ -2,5 +2,6 @@ import type { BadgeTranslations } from './types.js'
 
 /** Badge translations for Kannada. */
 export const kn: BadgeTranslations = {
-  'badge.error.noProvider': 'ಬ್ಯಾಡ್ಜ್ ಪ್ರೊವೈಡರ್ ಕಾನ್ಫಿಗರ್ ಆಗಿಲ್ಲ.',
+  'badge.error.noProvider':
+    '`@molecule/app-badge`: ಯಾವುದೇ ಪೂರೈಕೆದಾರರನ್ನು ಹೊಂದಿಸಲಾಗಿಲ್ಲ. `BadgeProvider` ಅನುಷ್ಠಾನದೊಂದಿಗೆ `setProvider()` ಗೆ ಕರೆ ಮಾಡಿ — ಮಾಲಿಕ್ಯೂಲ್ ಅದಕ್ಕೆ ಯಾವುದೇ ಪೂರೈಕೆದಾರರನ್ನು ಕಳುಹಿಸುವುದಿಲ್ಲ; ನಿಮ್ಮ ಸ್ಥಳೀಯ ರನ್‌ಟೈಮ್‌ನಲ್ಲಿ ಇಂಟರ್ಫೇಸ್ ಅನ್ನು ಕಾರ್ಯಗತಗೊಳಿಸಿ ಮತ್ತು ಅದನ್ನು ಬಾಂಡ್ ಮಾಡಿ.',
 }

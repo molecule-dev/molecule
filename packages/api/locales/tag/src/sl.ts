@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Slovenian. */
 export const sl: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Ime oznake je obvezno',
   'tag.error.invalidName': 'Ime oznake ni veljavno',
   'tag.error.createFailed': 'Ustvarjanje oznake ni uspelo',
@@ -17,4 +16,5 @@ export const sl: TagTranslations = {
   'tag.error.associationNotFound': 'Povezava oznake ni najdena',
   'tag.error.removeFailed': 'Odstranjevanje oznake iz vira ni uspelo',
   'tag.error.getBySlugFailed': 'Pridobivanje virov po oznaki ni uspelo',
+  'tag.error.forbidden': 'Za upravljanje oznak je potreben skrbniški dostop',
 }

@@ -78,4 +78,14 @@ export const bn: UserTranslations = {
     'এই সাবস্ক্রিপশনটি আপনার অ্যাকাউন্টের অন্তর্ভুক্ত নয়।',
   'user.payment.transactionAlreadyClaimed':
     'এই কেনাকাটাটি ইতিমধ্যেই অন্য একটি অ্যাকাউন্টের সাথে যুক্ত আছে।',
+  'user.error.completeTargetMissing': 'completeId হিসেবে প্রদত্ত আইডি দিয়ে কোনো অ্যাকাউন্ট নেই।',
+  'user.error.completeIdentityMismatch':
+    'প্রদত্ত ইউজারনেম বা ইমেল completeId অ্যাকাউন্টটিকে শনাক্ত করে না।',
+  'user.error.completeNotOwned':
+    'completeId অ্যাকাউন্টটি OAuth-এর মাধ্যমে সাইন ইন করে; এর ক্রেডেনশিয়াল এখানে সরবরাহ করা হয় না।',
+  'user.error.identityRequired':
+    'অ্যাকাউন্ট শনাক্ত করার জন্য প্রোভিশনিং-এর ক্ষেত্রে একটি ইউজারনেম বা ইমেইল প্রয়োজন হয়।',
+  'user.error.usernameEmailConflict': 'ইউজারনেম এবং ইমেইলটি দুটি ভিন্ন বিদ্যমান অ্যাকাউন্টের।',
+  'user.error.oauthEmailCollision':
+    'এই ইমেইলের জন্য ইতিমধ্যেই একটি অ্যাকাউন্ট রয়েছে। অনুগ্রহ করে আপনার আগের পদ্ধতিতে সাইন ইন করুন, তারপর আপনার অ্যাকাউন্ট সেটিংস থেকে এই প্রোভাইডারটিকে লিঙ্ক করুন।',
 }

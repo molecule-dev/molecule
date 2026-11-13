@@ -10,4 +10,5 @@ export const ky: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Профиль сессиясы тапшыраардан мурун өзгөртүлдү',
   'auth.error.passwordRequiresSignIn': 'Сырсөздү өзгөртүүдөн мурун кириңиз',
   'auth.error.passwordSessionChanged': 'Сырсөз сеансы тапшырылганга чейин өзгөртүлдү',
+  'auth.error.requestTimedOut': 'Аутентификация сурамынын күтүү убактысы бүттү',
 }

@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for mt. */
 export const mt: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Kodiċi inkorporat ({lingwa})',
   'embedSnippet.heading': 'Inkorpora l-kodiċi',
   'embedSnippet.eyebrow': 'Ikkopja l-kodiċi embed',
   'embedSnippet.copy': 'Kopja',
@@ -13,4 +12,5 @@ export const mt: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Dawl',
   'embedSnippet.theme.dark': 'Dlam',
   'embedSnippet.theme.auto': 'Karozza',
+  'embedSnippet.aria.region': 'Kodiċi inkorporat ({{language}})',
 }

@@ -76,4 +76,15 @@ export const mn: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Энэ захиалга таны бүртгэлд хамаарахгүй.',
   'user.payment.transactionAlreadyClaimed':
     'Энэ худалдан авалт аль хэдийн өөр бүртгэлтэй холбогдсон байна.',
+  'user.error.completeTargetMissing': 'completeId гэж өгөгдсөн ID-тай бүртгэл байхгүй байна.',
+  'user.error.completeIdentityMismatch':
+    'Өгөгдсөн хэрэглэгчийн нэр эсвэл имэйл нь бүрэн Id бүртгэлийг тодорхойлохгүй байна.',
+  'user.error.completeNotOwned':
+    'completeId бүртгэл нь OAuth-ээр нэвтэрдэг; түүний итгэмжлэлийг энд оруулаагүй болно.',
+  'user.error.identityRequired':
+    'Хангамжид бүртгэлийг тодорхойлохын тулд хэрэглэгчийн нэр эсвэл имэйл шаардлагатай.',
+  'user.error.usernameEmailConflict':
+    'Хэрэглэгчийн нэр болон имэйл нь хоёр өөр одоо байгаа бүртгэлд хамаарна.',
+  'user.error.oauthEmailCollision':
+    'Энэ имэйлд бүртгэл аль хэдийн байна. Анхны аргаар нэвтэрч ороод, дараа нь бүртгэлийн тохиргооноосоо энэ үйлчилгээ үзүүлэгчийг холбоно уу.',
 }

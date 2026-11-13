@@ -11,4 +11,5 @@ export const nl: Partial<AuthTranslations> = {
   'auth.error.passwordRequiresSignIn': 'Meld u aan voordat u uw wachtwoord wijzigt.',
   'auth.error.passwordSessionChanged':
     'Het wachtwoord van de sessie is gewijzigd vóór het verzenden.',
+  'auth.error.requestTimedOut': 'De authenticatieaanvraag is verlopen.',
 }

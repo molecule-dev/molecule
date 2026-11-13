@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for ha. */
 export const ha: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Saka lambar ({harshe})',
   'embedSnippet.heading': 'Saka lambar',
   'embedSnippet.eyebrow': 'Kwafi lambar sakawa',
   'embedSnippet.copy': 'Kwafi',
@@ -13,4 +12,5 @@ export const ha: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Haske',
   'embedSnippet.theme.dark': 'Duhu',
   'embedSnippet.theme.auto': 'Mota',
+  'embedSnippet.aria.region': 'Saka lambar ({{language}})',
 }

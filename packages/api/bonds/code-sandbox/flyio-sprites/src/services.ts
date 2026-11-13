@@ -121,8 +121,7 @@ export async function ensureService(sprite: SpriteLike, spec: ServiceSpec): Prom
         { name: spec.name },
         {
           defaultValue:
-            `Service "${spec.name}" did not take the requested definition — a running ` +
-            'service silently keeps its old command (stop it first).',
+            'Service "{{name}}" did not take the requested definition — a running service silently keeps its old command (stop it first).',
         },
       ),
     )

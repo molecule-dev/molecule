@@ -331,7 +331,7 @@ describe('@molecule/app-storage', () => {
     })
 
     it('should throw when getting provider without setting one', () => {
-      expect(() => getProvider()).toThrow(/No provider set/)
+      expect(() => getProvider()).toThrow(/Storage provider not configured/)
     })
 
     it('should handle provider errors propagating correctly', async () => {

@@ -74,4 +74,15 @@ export const te: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} బిల్లింగ్ పోర్టల్‌ను అందించదు.',
   'user.payment.subscriptionOwnershipMismatch': 'ఈ సబ్‌స్క్రిప్షన్ మీ ఖాతాకు చెందినది కాదు.',
   'user.payment.transactionAlreadyClaimed': 'ఈ కొనుగోలు ఇప్పటికే మరొక ఖాతాతో అనుసంధానించబడి ఉంది.',
+  'user.error.completeTargetMissing': 'completeId గా అందించబడిన ఐడితో ఏ ఖాతా లేదు.',
+  'user.error.completeIdentityMismatch':
+    'అందించిన యూజర్‌నేమ్ లేదా ఇమెయిల్ completeId ఖాతాను గుర్తించదు.',
+  'user.error.completeNotOwned':
+    'completeId ఖాతా OAuth ద్వారా సైన్ ఇన్ చేస్తుంది; దాని ఆధారాలు ఇక్కడ అందించబడవు.',
+  'user.error.identityRequired':
+    'ఖాతాను గుర్తించడానికి ప్రొవిజనింగ్‌కు యూజర్‌నేమ్ లేదా ఇమెయిల్ అవసరం.',
+  'user.error.usernameEmailConflict':
+    'యూజర్‌నేమ్ మరియు ఇమెయిల్ రెండు వేర్వేరు ప్రస్తుత ఖాతాలకు చెందినవి.',
+  'user.error.oauthEmailCollision':
+    'ఈ ఇమెయిల్ కోసం ఇప్పటికే ఒక ఖాతా ఉంది. దయచేసి మీ అసలు పద్ధతితో సైన్ ఇన్ చేసి, ఆపై మీ ఖాతా సెట్టింగ్‌ల నుండి ఈ ప్రొవైడర్‌ను లింక్ చేయండి.',
 }

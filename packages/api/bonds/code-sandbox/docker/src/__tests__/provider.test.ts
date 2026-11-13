@@ -25,8 +25,17 @@ vi.mock('@molecule/api-bond', () => ({
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
-  t: (_key: string, _values?: unknown, opts?: { defaultValue?: string }) =>
-    opts?.defaultValue ?? _key,
+  // Mirror the real t(): the defaultValue (or key) is returned with {{name}}
+  // placeholders interpolated from the values argument, so assertions on the
+  // thrown English text see what a user would see.
+  t: (_key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+    const text = opts?.defaultValue ?? _key
+    if (!values) return text
+    return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, name: string) => {
+      const value = values[name]
+      return value === undefined ? match : String(value)
+    })
+  },
 }))
 
 // ─── HTTP mock helpers ────────────────────────────────────────────────────────

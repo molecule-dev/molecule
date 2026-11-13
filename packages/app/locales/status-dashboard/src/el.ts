@@ -6,7 +6,6 @@ export const el: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Μη διαθέσιμο',
   'statusDashboard.label.services': 'Υπηρεσίες',
   'statusDashboard.label.uptime': 'Λειτουργία',
-  'statusDashboard.error.noProvider': 'Ο πάροχος του πίνακα ελέγχου κατάστασης δεν έχει ρυθμιστεί.',
   'statusDashboard.error.fetchFailed': 'Αποτυχία ανάκτησης κατάστασης: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Όλα τα συστήματα λειτουργούν',
   'statusDashboard.label.someIssues': 'Ορισμένα συστήματα αντιμετωπίζουν προβλήματα',
@@ -17,4 +16,6 @@ export const el: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Τελευταίος έλεγχος {{time}}',
   'statusDashboard.label.latency': '{{ms}} ms',
   'statusDashboard.label.noIncidents': 'Δεν αναφέρθηκαν περιστατικά.',
+  'statusDashboard.error.noProvider':
+    'Δεν έχει ρυθμιστεί ο πάροχος του πίνακα ελέγχου κατάστασης. Συνδέστε πρώτα έναν πάροχο του πίνακα ελέγχου κατάστασης.',
 }

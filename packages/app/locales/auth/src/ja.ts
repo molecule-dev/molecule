@@ -10,4 +10,5 @@ export const ja: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'プロファイルセッションは送信前に変更されました',
   'auth.error.passwordRequiresSignIn': 'パスワードを変更する前にサインインしてください',
   'auth.error.passwordSessionChanged': '送信前にパスワードセッションが変更されました',
+  'auth.error.requestTimedOut': '認証要求がタイムアウトしました',
 }

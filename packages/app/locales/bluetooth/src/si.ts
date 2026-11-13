@@ -3,5 +3,5 @@ import type { BluetoothTranslations } from './types.js'
 /** Bluetooth translations for Sinhala. */
 export const si: BluetoothTranslations = {
   'bluetooth.error.noProvider':
-    '@molecule/app-bluetooth: සපයන්නෙකු සකසා නැත. BluetoothProvider ක්‍රියාත්මක කිරීමක් සමඟ setProvider() අමතන්න.',
+    '`@molecule/app-bluetooth`: සැපයුම්කරු සකසා නැත. `BluetoothProvider` ක්‍රියාත්මක කිරීමක් සමඟ `setProvider()` අමතන්න — Molecule ඒ සඳහා සැපයුම්කරුවෙකු නොයවයි; ඔබගේ ස්වදේශීය ධාවන වේලාවේ අතුරු මුහුණත ක්‍රියාත්මක කර එය බැඳ තබන්න.',
 }

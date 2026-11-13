@@ -586,8 +586,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       throw new Error(
         t('codeSandbox.flyio.error.noAppName', undefined, {
           defaultValue:
-            'Shared-app mode needs an app name — set FLY_SANDBOX_APP or config.appName, ' +
-            'or leave config.appPerProject at its default (true).',
+            'Shared-app mode needs an app name — set FLY_SANDBOX_APP or config.appName, or leave config.appPerProject at its default (true).',
         }),
       )
     }
@@ -1015,15 +1014,16 @@ class FlyioSandboxProvider implements SandboxProvider {
       throw new Error(
         t(
           'codeSandbox.flyio.error.privateRouteFailed',
-          { app: service.app, network },
+          {
+            app: service.app,
+            network,
+            host: flycastHost(service.app),
+            port: String(service.port),
+            org: this.orgSlug(),
+          },
           {
             defaultValue:
-              `Could not allocate a Flycast private address on Fly app "${service.app}" for ` +
-              `network "${network}", so a sandbox in that network cannot reach ` +
-              `"${flycastHost(service.app)}:${service.port}". Check that the API token may ` +
-              `allocate IPs on "${service.app}", that the app exists in organization ` +
-              `"${this.orgSlug()}", and that it declares an [http_service] or [services] section ` +
-              '— Flycast routes through Fly Proxy and does nothing without one.',
+              'Could not allocate a Flycast private address on Fly app "{{app}}" for network "{{network}}", so a sandbox in that network cannot reach "{{host}}:{{port}}". Check that the API token may allocate IPs on "{{app}}", that the app exists in organization "{{org}}", and that it declares an [http_service] or [services] section — Flycast routes through Fly Proxy and does nothing without one.',
           },
         ),
         { cause: error },
@@ -1037,9 +1037,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           { app: service.app, network },
           {
             defaultValue:
-              `Fly allocated a private address on app "${service.app}" for network "${network}" ` +
-              'but returned no address, so it can never be released. Check ' +
-              `\`fly ips list --app ${service.app}\` and remove the orphan.`,
+              'Fly allocated a private address on app "{{app}}" for network "{{network}}" but returned no address, so it can never be released. Check `fly ips list --app {{app}}` and remove the orphan.',
           },
         ),
       )
@@ -1141,9 +1139,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         throw new Error(
           t('codeSandbox.flyio.error.emptyEgressPorts', undefined, {
             defaultValue:
-              'config.egressAllowedPorts is empty. Fly derives its deny-all default from an ' +
-              'existing allow rule and does not document a rule with no ports, so this provider ' +
-              'refuses to send one. Omit the option for no policy, or allow at least one port.',
+              'config.egressAllowedPorts is empty. Fly derives its deny-all default from an existing allow rule and does not document a rule with no ports, so this provider refuses to send one. Omit the option for no policy, or allow at least one port.',
           }),
         )
       }
@@ -1527,7 +1523,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         t(
           'codeSandbox.flyio.error.volumeCreateFailed',
           { name: flyName },
-          { defaultValue: `Fly volume "${flyName}" was created but the API returned no id.` },
+          { defaultValue: 'Fly volume "{{name}}" was created but the API returned no id.' },
         ),
       )
     }
@@ -1612,8 +1608,7 @@ class FlyioSandboxProvider implements SandboxProvider {
             { templateId: config.templateId },
             {
               defaultValue:
-                `Cannot create a sandbox from template "${config.templateId}": it does not exist. ` +
-                'Commit it first with commitTemplate().',
+                'Cannot create a sandbox from template "{{templateId}}": it does not exist. Commit it first with commitTemplate().',
             },
           ),
         )
@@ -1871,7 +1866,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         t(
           'codeSandbox.flyio.error.createFailed',
           { app },
-          { defaultValue: `Fly Machine creation in app "${app}" returned no Machine id.` },
+          { defaultValue: 'Fly Machine creation in app "{{app}}" returned no Machine id.' },
         ),
       )
     }
@@ -1953,9 +1948,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           { id },
           {
             defaultValue:
-              `Cannot read Fly sandbox "${id}": the Fly API lookup failed, so whether it exists ` +
-              'is UNKNOWN — the Machine may still be running. This is not an absence answer; ' +
-              'retry or surface the error rather than treating the sandbox as gone.',
+              'Cannot read Fly sandbox "{{id}}": the Fly API lookup failed, so whether it exists is UNKNOWN — the Machine may still be running. This is not an absence answer; retry or surface the error rather than treating the sandbox as gone.',
           },
         ),
         { cause: error },
@@ -2096,9 +2089,7 @@ class FlyioSandboxProvider implements SandboxProvider {
             { app },
             {
               defaultValue:
-                `Cannot enumerate Fly sandboxes: listing Machines in app "${app}" failed. ` +
-                'Refusing to report a partial result — a caller reconciling against it would ' +
-                'treat every unseen sandbox as gone.',
+                'Cannot enumerate Fly sandboxes: listing Machines in app "{{app}}" failed. Refusing to report a partial result — a caller reconciling against it would treat every unseen sandbox as gone.',
             },
           ),
           { cause: error },
@@ -2171,8 +2162,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           { org },
           {
             defaultValue:
-              `Cannot enumerate Fly sandboxes: listing the apps of org "${org}" failed. ` +
-              'Refusing to report a partial result.',
+              'Cannot enumerate Fly sandboxes: listing the apps of org "{{org}}" failed. Refusing to report a partial result.',
           },
         ),
         { cause: error },
@@ -2206,8 +2196,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           { org, returned: String(apps.length), total: String(total) },
           {
             defaultValue:
-              `Fly returned ${apps.length} of ${total} apps for org "${org}" — this listing is ` +
-              'TRUNCATED, so some sandboxes would be missing from the result.',
+              'Fly returned {{returned}} of {{total}} apps for org "{{org}}" — this listing is TRUNCATED, so some sandboxes would be missing from the result.',
           },
         ),
       )
@@ -2224,9 +2213,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           { count: String(owned.length), max: String(FIND_MAX_APPS) },
           {
             defaultValue:
-              `Refusing to enumerate ${owned.length} Fly sandbox apps (cap ${FIND_MAX_APPS}): ` +
-              'requests are paced account-wide, so this sweep would take longer than the caller ' +
-              'can wait. Raise FLY_FIND_MAX_APPS deliberately rather than reading a partial sweep.',
+              'Refusing to enumerate {{count}} Fly sandbox apps (cap {{max}}): requests are paced account-wide, so this sweep would take longer than the caller can wait. Raise FLY_FIND_MAX_APPS deliberately rather than reading a partial sweep.',
           },
         ),
       )
@@ -3562,11 +3549,15 @@ class FlyioSandboxProvider implements SandboxProvider {
         throw new Error(
           t(
             'codeSandbox.flyio.error.templateRestoreFailed',
-            { templateId, exitCode: String(result.exitCode) },
+            {
+              templateId,
+              machineId,
+              exitCode: String(result.exitCode),
+              output: result.stderr.slice(0, 500) || result.stdout.slice(0, 500),
+            },
             {
               defaultValue:
-                `Restoring template "${templateId}" into Fly Machine ${machineId} failed ` +
-                `(exit ${result.exitCode}): ${result.stderr.slice(0, 500) || result.stdout.slice(0, 500)}`,
+                'Restoring template "{{templateId}}" into Fly Machine {{machineId}} failed (exit {{exitCode}}): {{output}}',
             },
           ),
         )
@@ -3765,7 +3756,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         t(
           'codeSandbox.flyio.error.probeCreateFailed',
           { app },
-          { defaultValue: `Fly egress probe Machine creation in app "${app}" returned no id.` },
+          { defaultValue: 'Fly egress probe Machine creation in app "{{app}}" returned no id.' },
         ),
       )
     }
@@ -4123,8 +4114,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         { app, machineId, seconds: String(totalSeconds), state: lastState ?? 'unknown' },
         {
           defaultValue:
-            `Fly Machine ${machineId} in app "${app}" did not reach "started" within ` +
-            `${totalSeconds}s (last observed state: ${lastState ?? 'unknown'}).`,
+            'Fly Machine {{machineId}} in app "{{app}}" did not reach "started" within {{seconds}}s (last observed state: {{state}}).',
         },
       ),
       { cause: lastError },
@@ -4187,8 +4177,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           { machineId },
           {
             defaultValue:
-              `Cannot change the idle policy of Fly Machine ${machineId}: its config could not be ` +
-              'read, so the Machine is left exactly as it is.',
+              'Cannot change the idle policy of Fly Machine {{machineId}}: its config could not be read, so the Machine is left exactly as it is.',
           },
         ),
       )
@@ -4299,7 +4288,7 @@ class FlyioSandboxProvider implements SandboxProvider {
             t(
               'codeSandbox.flyio.error.readFailed',
               { path, error: result.stderr },
-              { defaultValue: `Failed to read ${path}: ${result.stderr}` },
+              { defaultValue: 'Failed to read {{path}}: {{error}}' },
             ),
           )
         }
@@ -4315,7 +4304,7 @@ class FlyioSandboxProvider implements SandboxProvider {
               t(
                 'codeSandbox.flyio.error.writeFailed',
                 { path, error: result.stderr },
-                { defaultValue: `Failed to write ${path}: ${result.stderr}` },
+                { defaultValue: 'Failed to write {{path}}: {{error}}' },
               ),
             )
           }
@@ -4359,7 +4348,7 @@ class FlyioSandboxProvider implements SandboxProvider {
             t(
               'codeSandbox.flyio.error.readDirFailed',
               { path, error: result.stderr },
-              { defaultValue: `Failed to list ${path}: ${result.stderr}` },
+              { defaultValue: 'Failed to list {{path}}: {{error}}' },
             ),
           )
         }
@@ -4401,7 +4390,7 @@ class FlyioSandboxProvider implements SandboxProvider {
             t(
               'codeSandbox.flyio.error.deleteFailed',
               { path, error: result.stderr },
-              { defaultValue: `Failed to delete ${path}: ${result.stderr}` },
+              { defaultValue: 'Failed to delete {{path}}: {{error}}' },
             ),
           )
         }
@@ -4636,9 +4625,9 @@ class FlyioSandboxProvider implements SandboxProvider {
             throw new Error(
               t(
                 'codeSandbox.flyio.error.importFailed',
-                { path, step, error: result.stderr },
+                { path, step, error: result.stderr || result.stdout },
                 {
-                  defaultValue: `Failed to import files into ${path} (${step}): ${result.stderr || result.stdout}`,
+                  defaultValue: 'Failed to import files into {{path}} ({{step}}): {{error}}',
                 },
               ),
             )

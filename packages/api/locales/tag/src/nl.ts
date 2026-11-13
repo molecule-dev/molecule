@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Dutch. */
 export const nl: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tagnaam is verplicht',
   'tag.error.invalidName': 'Tagnaam is ongeldig',
   'tag.error.createFailed': 'Tag aanmaken mislukt',
@@ -17,4 +16,5 @@ export const nl: TagTranslations = {
   'tag.error.associationNotFound': 'Tagkoppeling niet gevonden',
   'tag.error.removeFailed': 'Tag verwijderen van bron mislukt',
   'tag.error.getBySlugFailed': 'Bronnen ophalen op tag mislukt',
+  'tag.error.forbidden': 'Beheerdersrechten zijn vereist om tags te beheren.',
 }

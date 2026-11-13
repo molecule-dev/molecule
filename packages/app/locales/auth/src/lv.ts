@@ -10,4 +10,5 @@ export const lv: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Profila sesija tika mainīta pirms iesniegšanas',
   'auth.error.passwordRequiresSignIn': 'Pierakstieties pirms paroles maiņas',
   'auth.error.passwordSessionChanged': 'Paroles sesija tika mainīta pirms iesniegšanas.',
+  'auth.error.requestTimedOut': 'Autentifikācijas pieprasījumam iestājās taimauts.',
 }

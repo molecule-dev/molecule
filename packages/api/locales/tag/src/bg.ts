@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Bulgarian. */
 export const bg: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Името на етикета е задължително',
   'tag.error.invalidName': 'Името на етикета е невалидно',
   'tag.error.createFailed': 'Неуспешно създаване на етикет',
@@ -17,4 +16,5 @@ export const bg: TagTranslations = {
   'tag.error.associationNotFound': 'Връзката на етикета не е намерена',
   'tag.error.removeFailed': 'Неуспешно премахване на етикет от ресурс',
   'tag.error.getBySlugFailed': 'Неуспешно извличане на ресурси по етикет',
+  'tag.error.forbidden': 'За управление на тагове е необходим администраторски достъп',
 }

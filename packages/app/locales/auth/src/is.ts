@@ -10,4 +10,5 @@ export const is: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Prófíllotan breyttist fyrir innsendingu',
   'auth.error.passwordRequiresSignIn': 'Innskráning áður en lykilorði er breytt',
   'auth.error.passwordSessionChanged': 'Lykilorðið breyttist fyrir innsendingu',
+  'auth.error.requestTimedOut': 'Beiðnin um auðkenningu rann út á tíma',
 }

@@ -10,4 +10,5 @@ export const vi: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Phiên hồ sơ đã được thay đổi trước khi gửi.',
   'auth.error.passwordRequiresSignIn': 'Đăng nhập trước khi thay đổi mật khẩu.',
   'auth.error.passwordSessionChanged': 'Phiên mật khẩu đã được thay đổi trước khi gửi.',
+  'auth.error.requestTimedOut': 'Yêu cầu xác thực đã hết thời gian chờ.',
 }

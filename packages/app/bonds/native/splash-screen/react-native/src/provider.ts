@@ -33,7 +33,7 @@ async function getExpoSplashScreen(): Promise<typeof import('expo-splash-screen'
         { library: 'expo-splash-screen' },
         {
           defaultValue:
-            'expo-splash-screen is required but not installed. Install it with: npx expo install expo-splash-screen',
+            '`{{library}}` is required but not installed. Install it with: `npx expo install {{library}}`',
         },
       ),
       { cause: error },

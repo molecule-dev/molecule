@@ -11,5 +11,5 @@ export const hu: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}ó {{minutes}}p',
   'battery.remainingMinutes': '{{minutes}}p',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Nincs beállítva szolgáltató. Hívd meg `setProvider()` függvényt egy `BatteryProvider` implementációval – a flottához nem tartozik szolgáltató; implementáld a felületet a natív futtatókörnyezeteden, és kösd össze.',
+    '`@molecule/app-battery`: Nincs beállítva szolgáltató. Hívd meg `setProvider()` függvényt egy `BatteryProvider` implementációval — A Molecule nem szállít hozzá szolgáltatót; implementáld a felületet a natív futtatókörnyezeteden, és bondold azt.',
 }

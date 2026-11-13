@@ -74,4 +74,15 @@ export const gu: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} બિલિંગ પોર્ટલ ઓફર કરતું નથી.',
   'user.payment.subscriptionOwnershipMismatch': 'આ સબ્સ્ક્રિપ્શન તમારા ખાતાનું નથી.',
   'user.payment.transactionAlreadyClaimed': 'આ ખરીદી પહેલાથી જ બીજા એકાઉન્ટ સાથે સંકળાયેલી છે.',
+  'user.error.completeTargetMissing':
+    'પૂર્ણ આઈડી તરીકે આપેલ આઈડી સાથે કોઈ એકાઉન્ટ અસ્તિત્વમાં નથી.',
+  'user.error.completeIdentityMismatch':
+    'આપેલ વપરાશકર્તા નામ અથવા ઇમેઇલ સંપૂર્ણ આઈડી એકાઉન્ટને ઓળખતો નથી.',
+  'user.error.completeNotOwned':
+    'completeId એકાઉન્ટ OAuth દ્વારા સાઇન ઇન કરે છે; તેના ઓળખપત્રો અહીં પૂરા પાડવામાં આવ્યા નથી.',
+  'user.error.identityRequired':
+    'એકાઉન્ટ ઓળખવા માટે પ્રોવિઝનિંગને વપરાશકર્તાનામ અથવા ઇમેઇલની જરૂર છે.',
+  'user.error.usernameEmailConflict': 'વપરાશકર્તા નામ અને ઇમેઇલ બે અલગ અલગ હાલના એકાઉન્ટ્સના છે.',
+  'user.error.oauthEmailCollision':
+    'આ ઇમેઇલ માટે પહેલેથી જ એક એકાઉન્ટ અસ્તિત્વમાં છે. કૃપા કરીને તમારી મૂળ પદ્ધતિથી સાઇન ઇન કરો, પછી તમારા એકાઉન્ટ સેટિંગ્સમાંથી આ પ્રદાતાને લિંક કરો.',
 }

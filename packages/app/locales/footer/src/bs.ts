@@ -6,8 +6,6 @@ export const bs: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Politika privatnosti',
   'footer.termsOfService': 'Uslovi korištenja usluge',
   'footer.language': 'Jezik',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Ovaj sadržaj još nije konfiguriran. Vlasnik aplikacije ga mora osigurati.',
   'footer.about': 'O aplikaciji {{appName}}',

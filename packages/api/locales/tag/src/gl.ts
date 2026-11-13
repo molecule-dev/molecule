@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Galician. */
 export const gl: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'O nome da etiqueta é obrigatorio',
   'tag.error.invalidName': 'O nome da etiqueta non é válido',
   'tag.error.createFailed': 'Non se puido crear a etiqueta',
@@ -17,4 +16,5 @@ export const gl: TagTranslations = {
   'tag.error.associationNotFound': 'Asociación da etiqueta non atopada',
   'tag.error.removeFailed': 'Non se puido eliminar a etiqueta do recurso',
   'tag.error.getBySlugFailed': 'Non se puideron obter os recursos por etiqueta',
+  'tag.error.forbidden': 'Necesítase acceso de administrador para xestionar as etiquetas',
 }

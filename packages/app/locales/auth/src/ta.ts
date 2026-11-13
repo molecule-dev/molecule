@@ -10,4 +10,5 @@ export const ta: AuthTranslations = {
   'auth.error.profileSessionChanged': 'சமர்ப்பிப்பதற்கு முன்பு சுயவிவர அமர்வு மாற்றப்பட்டது',
   'auth.error.passwordRequiresSignIn': 'கடவுச்சொல்லை மாற்றுவதற்கு முன் உள்நுழையவும்',
   'auth.error.passwordSessionChanged': 'சமர்ப்பிப்பதற்கு முன்பு கடவுச்சொல் அமர்வு மாற்றப்பட்டது',
+  'auth.error.requestTimedOut': 'அங்கீகாரக் கோரிக்கை காலாவதியானது',
 }

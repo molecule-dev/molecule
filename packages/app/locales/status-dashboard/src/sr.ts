@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Serbian. */
 export const sr: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Провајдер статусне контролне табле није конфигурисан.',
   'statusDashboard.error.fetchFailed': 'Није успело преузимање статуса: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Сви системи раде нормално',
   'statusDashboard.label.someIssues': 'Неки системи имају проблеме',
@@ -17,4 +16,6 @@ export const sr: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Последња провера {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Нема пријављених инцидената.',
+  'statusDashboard.error.noProvider':
+    'Добављач контролне табле статуса није конфигурисан. Прво повежите добављача контролне табле статуса.',
 }

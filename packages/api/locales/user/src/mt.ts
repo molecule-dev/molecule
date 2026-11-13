@@ -76,4 +76,15 @@ export const mt: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ma joffrix portal tal-kontijiet.',
   'user.payment.subscriptionOwnershipMismatch': 'Din l-abbonament mhijiex tal-kont tiegħek.',
   'user.payment.transactionAlreadyClaimed': "Din ix-xirija diġà hija assoċjata ma' kont ieħor.",
+  'user.error.completeTargetMissing': 'Ma jeżisti l-ebda kont bl-ID ipprovdut bħala completeId.',
+  'user.error.completeIdentityMismatch':
+    'L-isem tal-utent jew l-email ipprovdut ma jidentifikax il-kont completeId.',
+  'user.error.completeNotOwned':
+    "Il-kont completeId jilloggja permezz ta' OAuth; il-kredenzjali tiegħu mhumiex ipprovduti hawn.",
+  'user.error.identityRequired':
+    'Il-provvediment jeħtieġ isem tal-utent jew indirizz elettroniku biex jiġi identifikat il-kont.',
+  'user.error.usernameEmailConflict':
+    'L-isem tal-utent u l-email jappartjenu għal żewġ kontijiet eżistenti differenti.',
+  'user.error.oauthEmailCollision':
+    'Diġà jeżisti kont għal din l-email. Jekk jogħġbok idħol bil-metodu oriġinali tiegħek, imbagħad waħħal dan il-fornitur mis-settings tal-kont tiegħek.',
 }

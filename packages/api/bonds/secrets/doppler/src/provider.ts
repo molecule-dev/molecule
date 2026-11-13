@@ -137,7 +137,7 @@ export function createDopplerProvider(options: DopplerProviderOptions = {}): Sec
         t(
           'secrets.doppler.error.apiError',
           { status: String(response.status), error },
-          { defaultValue: `Doppler API error: ${response.status} ${error}` },
+          { defaultValue: 'Doppler API error: {{status}} {{error}}' },
         ),
       )
     }
@@ -211,7 +211,7 @@ export function createDopplerProvider(options: DopplerProviderOptions = {}): Sec
       if (!token) {
         throw new Error(
           t('secrets.doppler.error.tokenNotConfigured', undefined, {
-            defaultValue: 'Doppler token not configured',
+            defaultValue: 'Doppler token not configured. Set DOPPLER_TOKEN or pass token option.',
           }),
         )
       }
@@ -244,7 +244,7 @@ export function createDopplerProvider(options: DopplerProviderOptions = {}): Sec
           t(
             'secrets.doppler.error.apiError',
             { status: String(response.status), error },
-            { defaultValue: `Doppler API error: ${response.status} ${error}` },
+            { defaultValue: 'Doppler API error: {{status}} {{error}}' },
           ),
         )
       }

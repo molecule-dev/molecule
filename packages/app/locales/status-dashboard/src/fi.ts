@@ -6,7 +6,6 @@ export const fi: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Alhaalla',
   'statusDashboard.label.services': 'Palvelut',
   'statusDashboard.label.uptime': 'Käyttöaika',
-  'statusDashboard.error.noProvider': 'Tilanäkymän tarjoajaa ei ole määritetty.',
   'statusDashboard.error.fetchFailed': 'Tilan hakeminen epäonnistui: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Kaikki järjestelmät toiminnassa',
   'statusDashboard.label.someIssues': 'Joissakin järjestelmissä on ongelmia',
@@ -17,4 +16,6 @@ export const fi: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Viimeksi tarkistettu {{time}}',
   'statusDashboard.label.latency': '{{ms}} neiti',
   'statusDashboard.label.noIncidents': 'Ei raportoituja tapauksia.',
+  'statusDashboard.error.noProvider':
+    'Tilaraportointipaneelin tarjoajaa ei ole määritetty. Luo ensin tilaraportointipaneelin tarjoaja.',
 }

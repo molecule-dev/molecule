@@ -5,9 +5,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // -------------------------------------------------------------------
 
 vi.mock('@molecule/app-storage', () => ({}))
+// Mirrors the real provider: a default's {{name}} placeholders are filled from the values.
 vi.mock('@molecule/app-i18n', () => ({
-  t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-    opts?.defaultValue ?? _key,
+  t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
+    (opts?.defaultValue ?? key).replace(/\{\{(\w+)\}\}/g, (match, name: string) =>
+      values && name in values ? String(values[name]) : match,
+    ),
 }))
 vi.mock('@molecule/app-logger', () => ({
   getLogger: () => ({

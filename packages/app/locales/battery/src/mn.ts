@@ -11,5 +11,5 @@ export const mn: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}ц {{minutes}}м',
   'battery.remainingMinutes': '{{minutes}}м',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Үйлчилгээ үзүүлэгч тохируулагдаагүй байна. `setProvider()` `BatteryProvider` хэрэгжүүлэлтээр дууд - ямар ч үйлчилгээ үзүүлэгч флоттой хамт ирдэггүй; интерфэйсийг өөрийн төрөлх ажиллах хугацаанд хэрэгжүүлж, холбоно уу.',
+    '`@molecule/app-battery`: Үйлчилгээ үзүүлэгч тохируулагдаагүй байна. `BatteryProvider` хэрэгжүүлэлттэй `setProvider()` дуудна уу — Molecule үүнд ямар ч үйлчилгээ үзүүлэгч илгээдэггүй; интерфэйсийг өөрийн төрөлх ажиллах хугацаанд хэрэгжүүлж, холбоно уу.',
 }

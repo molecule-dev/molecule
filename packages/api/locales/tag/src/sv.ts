@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Swedish. */
 export const sv: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Taggnamn krävs',
   'tag.error.invalidName': 'Taggnamn är ogiltigt',
   'tag.error.createFailed': 'Kunde inte skapa tagg',
@@ -17,4 +16,5 @@ export const sv: TagTranslations = {
   'tag.error.associationNotFound': 'Taggtillhörighet hittades inte',
   'tag.error.removeFailed': 'Kunde inte ta bort tagg från resurs',
   'tag.error.getBySlugFailed': 'Kunde inte hämta resurser efter tagg',
+  'tag.error.forbidden': 'Administratörsåtkomst krävs för att hantera taggar',
 }

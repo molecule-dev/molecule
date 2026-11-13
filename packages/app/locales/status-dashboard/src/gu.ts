@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Gujarati. */
 export const gu: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'સ્ટેટસ ડેશબોર્ડ પ્રદાતા ગોઠવાયેલ નથી.',
   'statusDashboard.error.fetchFailed': 'સ્ટેટસ મેળવવામાં નિષ્ફળ: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'બધી સિસ્ટમો ચાલુ છે',
   'statusDashboard.label.someIssues': 'કેટલીક સિસ્ટમોમાં સમસ્યાઓ આવી રહી છે',
@@ -17,4 +16,6 @@ export const gu: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'છેલ્લે તપાસ્યું {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'કોઈ ઘટનાઓ નોંધાઈ નથી.',
+  'statusDashboard.error.noProvider':
+    'સ્ટેટસ ડેશબોર્ડ પ્રદાતા ગોઠવેલ નથી. પહેલા સ્ટેટસ ડેશબોર્ડ પ્રદાતાને બોન્ડ કરો.',
 }

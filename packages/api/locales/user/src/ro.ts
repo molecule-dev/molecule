@@ -77,4 +77,15 @@ export const ro: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} nu oferă un portal de facturare.',
   'user.payment.subscriptionOwnershipMismatch': 'Acest abonament nu aparține contului tău.',
   'user.payment.transactionAlreadyClaimed': 'Această achiziție este deja asociată cu un alt cont.',
+  'user.error.completeTargetMissing': 'Nu există niciun cont cu ID-ul furnizat ca completeId.',
+  'user.error.completeIdentityMismatch':
+    'Numele de utilizator sau adresa de e-mail furnizate nu identifică contul completeId.',
+  'user.error.completeNotOwned':
+    'Contul completeId se conectează prin OAuth; acreditările sale nu sunt furnizate aici.',
+  'user.error.identityRequired':
+    'Provisionarea necesită un nume de utilizator sau o adresă de e-mail pentru a identifica contul.',
+  'user.error.usernameEmailConflict':
+    'Numele de utilizator și adresa de e-mail aparțin a două conturi existente diferite.',
+  'user.error.oauthEmailCollision':
+    'Există deja un cont pentru această adresă de e-mail. Vă rugăm să vă conectați cu metoda originală, apoi să conectați acest furnizor din setările contului.',
 }

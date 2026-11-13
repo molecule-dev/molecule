@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Romanian. */
 export const ro: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Numele produsului este obligatoriu',
   'product.error.invalidName': 'Numele produsului este invalid',
   'product.error.invalidPrice': 'Este necesar un preț valid',
@@ -15,4 +14,5 @@ export const ro: ProductTranslations = {
   'product.error.listVariantsFailed': 'Nu s-au putut lista variantele produsului',
   'product.error.variantNameRequired': 'Numele variantei este obligatoriu',
   'product.error.createVariantFailed': 'Nu s-a putut crea varianta produsului',
+  'product.error.forbidden': 'Acces de administrator necesar pentru gestionarea produselor',
 }

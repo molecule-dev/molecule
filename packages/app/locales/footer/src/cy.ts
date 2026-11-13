@@ -6,8 +6,6 @@ export const cy: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Polisi Preifatrwydd',
   'footer.termsOfService': 'Telerau Gwasanaeth',
   'footer.language': 'Iaith',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     "Nid yw'r cynnwys hwn wedi'i ffurfweddu eto. Rhaid i berchennog yr ap ei ddarparu.",
   'footer.about': 'Ynglŷn â {{appName}}',

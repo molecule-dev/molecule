@@ -10,4 +10,5 @@ export const cs: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Profilová relace se před odesláním změnila.',
   'auth.error.passwordRequiresSignIn': 'Přihlášení před změnou hesla',
   'auth.error.passwordSessionChanged': 'Heslo relace se před odesláním změnilo.',
+  'auth.error.requestTimedOut': 'Časový limit požadavku na ověření vypršel.',
 }

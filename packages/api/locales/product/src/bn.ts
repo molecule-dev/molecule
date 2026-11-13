@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Bengali. */
 export const bn: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'পণ্যের নাম আবশ্যক',
   'product.error.invalidName': 'পণ্যের নাম অবৈধ',
   'product.error.invalidPrice': 'একটি বৈধ মূল্য আবশ্যক',
@@ -15,4 +14,5 @@ export const bn: ProductTranslations = {
   'product.error.listVariantsFailed': 'পণ্যের ভ্যারিয়েন্টের তালিকা করতে ব্যর্থ',
   'product.error.variantNameRequired': 'ভ্যারিয়েন্টের নাম আবশ্যক',
   'product.error.createVariantFailed': 'পণ্যের ভ্যারিয়েন্ট তৈরি করতে ব্যর্থ',
+  'product.error.forbidden': 'পণ্য পরিচালনা করার জন্য অ্যাডমিন অ্যাক্সেস প্রয়োজন।',
 }

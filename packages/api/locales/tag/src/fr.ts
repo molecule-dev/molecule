@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for French. */
 export const fr: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Le nom du tag est requis',
   'tag.error.invalidName': 'Le nom du tag est invalide',
   'tag.error.createFailed': 'Échec de la création du tag',
@@ -17,4 +16,5 @@ export const fr: TagTranslations = {
   'tag.error.associationNotFound': 'Association de tag non trouvée',
   'tag.error.removeFailed': 'Échec de la suppression du tag de la ressource',
   'tag.error.getBySlugFailed': 'Échec de la récupération des ressources par tag',
+  'tag.error.forbidden': 'Accès administrateur requis pour gérer les balises',
 }

@@ -53,7 +53,7 @@ export const defineTiers = <TLimits = unknown>(
         'entitlements.error.missingDefaultTier',
         { planKey: defaultPlanKey },
         {
-          defaultValue: `defineTiers: defaultPlanKey "${defaultPlanKey}" not found in tiers record.`,
+          defaultValue: 'defineTiers: defaultPlanKey "{{planKey}}" not found in tiers record.',
         },
       ),
     )
@@ -71,7 +71,8 @@ export const defineTiers = <TLimits = unknown>(
           'entitlements.error.missingCategory',
           { planKey, category: tier.category },
           {
-            defaultValue: `defineTiers: tier "${planKey}" has category "${tier.category}" which is not in categoryOrder.`,
+            defaultValue:
+              'defineTiers: tier "{{planKey}}" has category "{{category}}" which is not in categoryOrder.',
           },
         ),
       )

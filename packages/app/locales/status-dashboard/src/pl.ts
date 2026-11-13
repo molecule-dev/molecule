@@ -9,8 +9,6 @@ export const pl: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'Usługi',
   'statusDashboard.label.incidents': 'Incydenty',
   'statusDashboard.label.uptime': 'Dostępność',
-  'statusDashboard.error.noProvider':
-    'Dostawca pulpitu nawigacyjnego stanu nie został skonfigurowany.',
   'statusDashboard.error.fetchFailed': 'Nie udało się pobrać statusu: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Wszystkie systemy działają',
   'statusDashboard.label.someIssues': 'Niektóre systemy doświadczają problemów',
@@ -18,4 +16,6 @@ export const pl: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Ostatnio sprawdzono {{time}}',
   'statusDashboard.label.latency': '{{ms}} SM',
   'statusDashboard.label.noIncidents': 'Nie zgłoszono żadnych incydentów.',
+  'statusDashboard.error.noProvider':
+    'Dostawca pulpitu nawigacyjnego statusu nie został skonfigurowany. Najpierw należy połączyć dostawcę pulpitu nawigacyjnego statusu.',
 }

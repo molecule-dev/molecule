@@ -36,9 +36,7 @@ export function getProvider(): ShareProvider {
     throw new Error(
       t('share.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-share: No provider set. ' +
-          'Call setProvider() with a ShareProvider implementation ' +
-          '— no provider ships with the fleet; implement the interface on your native runtime and bond it.',
+          '`@molecule/app-share`: No provider set. Call `setProvider()` with a `ShareProvider` implementation — Molecule ships no provider for it; implement the interface on your native runtime and bond it.',
       }),
     )
   }

@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const lv: ContactsTranslations = {
   'contacts.unknown': 'Nezināms',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: Nav iestatīts nodrošinātājs. Izsauciet `setProvider()` ar `ContactsProvider` ieviešanu — flotē nav iekļauts nodrošinātājs; ieviesiet saskarni savā vietējā izpildlaikā un sasaistiet to.',
+    '`@molecule/app-contacts`: Nav iestatīts nodrošinātājs. Izsauciet `setProvider()` ar `ContactsProvider` ieviešanu — Molecule nenodrošina tam nodrošinātāju; ieviesiet saskarni savā vietējā izpildlaikā un sasaistiet to.',
 }

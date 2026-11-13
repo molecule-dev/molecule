@@ -7,7 +7,6 @@ export const nl: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Offline',
   'statusDashboard.label.unknown': 'Onbekend',
   'statusDashboard.label.incidents': 'Incidenten',
-  'statusDashboard.error.noProvider': 'Statusdashboardprovider niet geconfigureerd.',
   'statusDashboard.error.fetchFailed': 'Status ophalen mislukt: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Alle systemen zijn operationeel.',
   'statusDashboard.label.someIssues': 'Sommige systemen ondervinden problemen.',
@@ -17,4 +16,6 @@ export const nl: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Laatst gecontroleerd {{time}}',
   'statusDashboard.label.latency': '{{ms}} mevrouw',
   'statusDashboard.label.noIncidents': 'Geen incidenten gemeld.',
+  'statusDashboard.error.noProvider':
+    'Statusdashboardprovider is niet geconfigureerd. Koppel eerst een statusdashboardprovider.',
 }

@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Kyrgyz. */
 export const ky: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Тег аталышы талап кылынат',
   'tag.error.invalidName': 'Тег аталышы жараксыз',
   'tag.error.createFailed': 'Тег түзүү ишке ашпады',
@@ -17,4 +16,5 @@ export const ky: TagTranslations = {
   'tag.error.associationNotFound': 'Тег байланышы табылган жок',
   'tag.error.removeFailed': 'Ресурстан тегди алып салуу ишке ашпады',
   'tag.error.getBySlugFailed': 'Ресурстарды тег боюнча алуу ишке ашпады',
+  'tag.error.forbidden': 'Тегдерди башкаруу үчүн администратордун уруксаты талап кылынат',
 }

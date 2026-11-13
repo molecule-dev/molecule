@@ -39,6 +39,14 @@ const LOCALES: LocaleConfig[] = [
 ]
 
 describe('@molecule/app-i18n-i18next × REAL i18next', () => {
+  it('gives a missing key the plural default its count takes, as the simple provider does', async () => {
+    const p = createI18nextProvider({ detection: false, locales: LOCALES })
+    await p.initialize()
+    const options = { defaultValue: '{{count}} files', defaultValue_one: '{{count}} file' }
+    expect(p.t('missing.files', undefined, { ...options, count: 1 })).toBe('1 file')
+    expect(p.t('missing.files', undefined, { ...options, count: 4 })).toBe('4 files')
+  })
+
   it('full lifecycle: init → translate → interpolate → pluralize → switch locale → format', async () => {
     const p = createI18nextProvider({ detection: false, locales: LOCALES })
     await p.initialize()

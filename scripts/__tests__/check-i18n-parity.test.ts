@@ -160,6 +160,55 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
       ])
     })
 
+    it('holds a plural key to its en.ts _other and _one texts', () => {
+      // A single literal default says "1 files" while the bond is not loaded.
+      const root = fixture()
+      write(
+        root,
+        'packages/app/locales/owned/src/en.ts',
+        "export const en = {\n  'owned.title': 'Title',\n  'owned.files_one': '{{count}} file',\n  'owned.files_other': '{{count}} files',\n}\n",
+      )
+      write(
+        root,
+        'packages/app/features/plural/src/plural.ts',
+        [
+          "t('owned.files', { n }, { count: n, defaultValue: '{{count}} files' })",
+          "t('owned.files', { n }, { count: n, defaultValue: '{{count}} files', defaultValue_one: '{{count}} file' })",
+          "t('owned.files', { n }, { count: n, defaultValue: '{{count}} files', defaultValue_one: 'one file' })",
+          '',
+        ].join('\n'),
+      )
+      const { entries, sites } = analyzeDefaults(root)
+      expect(entries).toEqual([
+        'app::owned.files :: default differs from en.ts',
+        'app::owned.files :: plural default missing',
+      ])
+      expect(sites.get('app::owned.files :: plural default missing')).toEqual([
+        'packages/app/features/plural/src/plural.ts:1',
+      ])
+      expect(sites.get('app::owned.files :: default differs from en.ts')).toEqual([
+        'packages/app/features/plural/src/plural.ts:3',
+      ])
+    })
+
+    it('names a key two bonds define with different English', () => {
+      // Whichever bond registers last would decide what the user reads (two AI bonds once
+      // gave ai.error.apiError different sentences; the footer bond blanked the app's
+      // legal text with an empty value).
+      const root = fixture()
+      write(
+        root,
+        'packages/app/locales/other/src/en.ts',
+        "export const en = {\n  'owned.title': 'Heading',\n}\n",
+      )
+      const { entries, sites } = analyzeDefaults(root)
+      expect(entries).toEqual(['app::owned.title :: en.ts texts differ between bonds'])
+      expect(sites.get('app::owned.title :: en.ts texts differ between bonds')).toEqual([
+        'packages/app/locales/other/src/en.ts',
+        'packages/app/locales/owned/src/en.ts',
+      ])
+    })
+
     it('accepts a literal default equal to en.ts, from t() or a provider method', () => {
       const root = fixture()
       write(

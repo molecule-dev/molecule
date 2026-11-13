@@ -11,5 +11,5 @@ export const sw: BatteryTranslations = {
   'battery.remainingTime': 'saa {{hours}} dk {{minutes}}',
   'battery.remainingMinutes': 'dk {{minutes}}',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Hakuna mtoa huduma aliyewekwa. Piga simu `setProvider()` ukitumia utekelezaji wa `BatteryProvider` — hakuna mtoa huduma anayesafirishwa na kundi la watu; tekeleza kiolesura kwenye muda wako asilia wa utekelezaji na ukiunganishe.',
+    '`@molecule/app-battery`: Hakuna mtoa huduma aliyewekwa. Piga simu `setProvider()` ukitumia utekelezaji wa `BatteryProvider` — Molekuli haitoi mtoa huduma kwa ajili yake; tekeleza kiolesura kwenye muda wako asilia wa utekelezaji na ukiunganishe.',
 }

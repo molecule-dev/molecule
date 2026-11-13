@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Kazakh. */
 export const kk: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Тег атауы міндетті',
   'tag.error.invalidName': 'Тег атауы жарамсыз',
   'tag.error.createFailed': 'Тегті жасау сәтсіз аяқталды',
@@ -17,4 +16,5 @@ export const kk: TagTranslations = {
   'tag.error.associationNotFound': 'Тег байланысы табылмады',
   'tag.error.removeFailed': 'Тегті ресурстан жою сәтсіз аяқталды',
   'tag.error.getBySlugFailed': 'Ресурстарды тег бойынша алу сәтсіз аяқталды',
+  'tag.error.forbidden': 'Тегтерді басқару үшін әкімші рұқсаты қажет',
 }

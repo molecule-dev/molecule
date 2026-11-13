@@ -14,7 +14,7 @@
 
 import { signal } from '@angular/core'
 
-import type { InterpolationValues } from '@molecule/app-i18n'
+import type { InterpolationValues, TranslateOptions } from '@molecule/app-i18n'
 import { t as originalT } from '@molecule/app-i18n'
 
 const localeVersion = signal(0)
@@ -47,7 +47,7 @@ export function bumpLocaleVersion(): void {
 export const t = (
   key: string,
   values?: InterpolationValues,
-  options?: { defaultValue?: string; count?: number },
+  options?: TranslateOptions,
 ): string => {
   localeVersion() // read signal to establish Angular reactivity tracking
   return originalT(key, values, options)

@@ -26,7 +26,7 @@ export async function courseAverage(req: MoleculeRequest, res: MoleculeResponse)
   const sessionUserId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!sessionUserId) {
     res.status(401).json({
-      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized.' }),
       errorKey: 'resource.error.unauthorized',
     })
     return
@@ -40,7 +40,7 @@ export async function courseAverage(req: MoleculeRequest, res: MoleculeResponse)
     if (!average) {
       res.status(404).json({
         error: t('grade.error.noGrades', undefined, {
-          defaultValue: 'No grades found for enrollment',
+          defaultValue: 'No grades found',
         }),
         errorKey: 'grade.error.noGrades',
       })
@@ -50,7 +50,7 @@ export async function courseAverage(req: MoleculeRequest, res: MoleculeResponse)
     if (average.userId !== sessionUserId && !(await isGradeAdmin(res))) {
       res.status(403).json({
         error: t('grade.error.forbidden', undefined, {
-          defaultValue: 'You do not have access to these grades',
+          defaultValue: 'Access denied',
         }),
         errorKey: 'grade.error.forbidden',
       })

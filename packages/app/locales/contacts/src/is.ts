@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const is: ContactsTranslations = {
   'contacts.unknown': 'Óþekkt',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: Enginn þjónustuaðili stilltur. Kallaðu á `setProvider()` með `ContactsProvider` útfærslu — enginn þjónustuaðili fylgir flotanum; útfærðu viðmótið á innbyggða keyrslutímanum þínum og tengdu það.',
+    '`@molecule/app-contacts`: Enginn veitandi stilltur. Kallaðu á `setProvider()` með `ContactsProvider` útfærslu — Molecule sendir engan veitanda fyrir það; útfærðu viðmótið á innfædda keyrslutímanum þínum og tengdu það.',
 }

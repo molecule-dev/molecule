@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Estonian. */
 export const et: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Teenust ei leitud.',
   'status.error.incidentNotFound': 'Intsidenti ei leitud.',
   'status.error.validationFailed': 'Valideerimine ebaõnnestus: {{errors}}',
@@ -16,4 +15,5 @@ export const et: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Intsidentide loetlemine ebaõnnestus.',
   'status.error.getStatusFailed': 'Süsteemi oleku toomine ebaõnnestus.',
   'status.error.getUptimeFailed': 'Tööaja andmete toomine ebaõnnestus.',
+  'status.error.forbidden': 'Olekulehe haldamiseks on vaja luba',
 }

@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Indonesian. */
 export const id: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Nama tag wajib diisi',
   'tag.error.invalidName': 'Nama tag tidak valid',
   'tag.error.createFailed': 'Gagal membuat tag',
@@ -17,4 +16,5 @@ export const id: TagTranslations = {
   'tag.error.associationNotFound': 'Asosiasi tag tidak ditemukan',
   'tag.error.removeFailed': 'Gagal menghapus tag dari sumber daya',
   'tag.error.getBySlugFailed': 'Gagal mendapatkan sumber daya berdasarkan tag',
+  'tag.error.forbidden': 'Akses admin diperlukan untuk mengelola tag.',
 }

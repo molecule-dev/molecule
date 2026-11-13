@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Malay. */
 export const ms: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Perkhidmatan tidak dijumpai.',
   'status.error.incidentNotFound': 'Insiden tidak dijumpai.',
   'status.error.validationFailed': 'Pengesahan gagal: {{errors}}',
@@ -16,4 +15,5 @@ export const ms: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Gagal menyenaraikan insiden.',
   'status.error.getStatusFailed': 'Gagal mendapatkan status sistem.',
   'status.error.getUptimeFailed': 'Gagal mendapatkan data masa aktif.',
+  'status.error.forbidden': 'Kebenaran diperlukan untuk mengurus halaman status',
 }

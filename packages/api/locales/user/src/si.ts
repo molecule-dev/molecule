@@ -76,4 +76,15 @@ export const si: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'මෙම දායකත්වය ඔබගේ ගිණුමට අයත් නොවේ.',
   'user.payment.transactionAlreadyClaimed':
     'මෙම මිලදී ගැනීම දැනටමත් වෙනත් ගිණුමක් සමඟ සම්බන්ධ වී ඇත.',
+  'user.error.completeTargetMissing': 'completeId ලෙස සපයා ඇති id සහිත ගිණුමක් නොමැත.',
+  'user.error.completeIdentityMismatch':
+    'සපයන ලද පරිශීලක නාමය හෝ විද්‍යුත් තැපෑල completeId ගිණුම හඳුනා නොගනී.',
+  'user.error.completeNotOwned':
+    'completeId ගිණුම OAuth හරහා පුරනය වේ; එහි අක්තපත්‍ර මෙහි සපයා නොමැත.',
+  'user.error.identityRequired':
+    'ගිණුම හඳුනා ගැනීමට ප්‍රතිපාදනයට පරිශීලක නාමයක් හෝ විද්‍යුත් තැපෑලක් අවශ්‍ය වේ.',
+  'user.error.usernameEmailConflict':
+    'පරිශීලක නාමය සහ විද්‍යුත් තැපෑල පවතින වෙනස් ගිණුම් දෙකකට අයත් වේ.',
+  'user.error.oauthEmailCollision':
+    'මෙම විද්‍යුත් තැපෑල සඳහා දැනටමත් ගිණුමක් පවතී. කරුණාකර ඔබගේ මුල් ක්‍රමය සමඟ පුරනය වී, පසුව ඔබගේ ගිණුම් සැකසුම් වලින් මෙම සැපයුම්කරු සම්බන්ධ කරන්න.',
 }

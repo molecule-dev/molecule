@@ -12,4 +12,5 @@ export const fr: Partial<AuthTranslations> = {
     'Veuillez vous connecter avant de modifier votre mot de passe.',
   'auth.error.passwordSessionChanged':
     'La session de mot de passe a été modifiée avant la soumission.',
+  'auth.error.requestTimedOut': "La requête d'authentification a expiré.",
 }

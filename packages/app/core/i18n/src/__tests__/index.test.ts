@@ -213,6 +213,18 @@ describe('@molecule/app-i18n', () => {
   describe('createSimpleI18nProvider', () => {
     let provider: I18nProvider
 
+    it('picks the English plural form of a default while the key is not loaded', () => {
+      // A single literal default cannot say both "1 file" and "2 files";
+      // defaultValue_<category> carries the other forms, chosen by English plural rules.
+      const bare = createSimpleI18nProvider()
+      const options = { defaultValue: '{{count}} files', defaultValue_one: '{{count}} file' }
+      expect(bare.t('ide.files', undefined, { ...options, count: 1 })).toBe('1 file')
+      expect(bare.t('ide.files', undefined, { ...options, count: 3 })).toBe('3 files')
+      expect(bare.t('ide.files', undefined, { defaultValue: '{{count}} files', count: 1 })).toBe(
+        '1 files',
+      )
+    })
+
     beforeEach(() => {
       provider = createSimpleI18nProvider('en', [
         {
@@ -838,6 +850,17 @@ describe('@molecule/app-i18n', () => {
     it('should use fallback as message when provided', () => {
       const error = new I18nError('some.key', undefined, 'Human readable fallback')
       expect(error.message).toBe('Human readable fallback')
+    })
+
+    it("fills the fallback's placeholders from the values for the message", () => {
+      // The fallback is the key\'s en.ts text; a logger reading message must see the value, not {{name}}.
+      const error = new I18nError(
+        'routing.error.routeNotFound',
+        { name: 'home' },
+        'Route "{{name}}" not found',
+      )
+      expect(error.message).toBe('Route "home" not found')
+      expect(error.i18nValues).toEqual({ name: 'home' })
     })
 
     it('should set i18nValues when provided', () => {

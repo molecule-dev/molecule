@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Swahili. */
 export const sw: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Jina la bidhaa linahitajika',
   'product.error.invalidName': 'Jina la bidhaa si sahihi',
   'product.error.invalidPrice': 'Bei sahihi inahitajika',
@@ -15,4 +14,5 @@ export const sw: ProductTranslations = {
   'product.error.listVariantsFailed': 'Imeshindwa kuorodhesha aina za bidhaa',
   'product.error.variantNameRequired': 'Jina la aina linahitajika',
   'product.error.createVariantFailed': 'Imeshindwa kuunda aina ya bidhaa',
+  'product.error.forbidden': 'Ufikiaji wa msimamizi unahitajika ili kudhibiti bidhaa',
 }

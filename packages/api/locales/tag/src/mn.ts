@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Mongolian. */
 export const mn: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Тегийн нэр шаардлагатай',
   'tag.error.invalidName': 'Тегийн нэр буруу байна',
   'tag.error.createFailed': 'Тег үүсгэж чадсангүй',
@@ -17,4 +16,5 @@ export const mn: TagTranslations = {
   'tag.error.associationNotFound': 'Тегийн холболт олдсонгүй',
   'tag.error.removeFailed': 'Нөөцөөс тег устгаж чадсангүй',
   'tag.error.getBySlugFailed': 'Тегээр нөөцүүдийг авч чадсангүй',
+  'tag.error.forbidden': 'Шошгыг удирдахын тулд админы хандалт шаардлагатай',
 }

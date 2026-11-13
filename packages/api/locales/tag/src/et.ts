@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Estonian. */
 export const et: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Sildi nimi on nõutav',
   'tag.error.invalidName': 'Sildi nimi on kehtetu',
   'tag.error.createFailed': 'Sildi loomine ebaõnnestus',
@@ -17,4 +16,5 @@ export const et: TagTranslations = {
   'tag.error.associationNotFound': 'Sildi seost ei leitud',
   'tag.error.removeFailed': 'Sildi eemaldamine ressursilt ebaõnnestus',
   'tag.error.getBySlugFailed': 'Ressursside toomine sildi järgi ebaõnnestus',
+  'tag.error.forbidden': 'Siltide haldamiseks on vaja administraatori juurdepääsu',
 }

@@ -4,5 +4,5 @@ import type { ContactsTranslations } from './types.js'
 export const ka: ContactsTranslations = {
   'contacts.unknown': 'Uchnobi',
   'contacts.error.noProvider':
-    '`@molecule/app-contacts`: პროვაიდერი არ არის დაყენებული. გამოიძახეთ `setProvider()` `ContactsProvider` იმპლემენტაციით — ფლოტს არცერთი პროვაიდერი არ მოყვება; იმპლემენტირეთ ინტერფეისი თქვენს მშობლიურ გაშვებულ სივრცეზე და დააკავშირეთ იგი.',
+    '`@molecule/app-contacts`: პროვაიდერი არ არის დაყენებული. გამოიძახეთ `setProvider()` `ContactsProvider` იმპლემენტაციით — Molecule მისთვის პროვაიდერს არ აწვდის; დანერგეთ ინტერფეისი თქვენს მშობლიურ გაშვების დროს და დააკავშირეთ იგი.',
 }

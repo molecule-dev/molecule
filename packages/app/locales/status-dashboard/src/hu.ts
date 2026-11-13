@@ -6,7 +6,6 @@ export const hu: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Leállt',
   'statusDashboard.label.services': 'Szolgáltatások',
   'statusDashboard.label.uptime': 'Üzemidő',
-  'statusDashboard.error.noProvider': 'Az állapotjelző műszerfal szolgáltatója nincs konfigurálva.',
   'statusDashboard.error.fetchFailed': 'Nem sikerült lekérni az állapotot: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Minden rendszer működőképes',
   'statusDashboard.label.someIssues': 'Néhány rendszer problémákat tapasztal',
@@ -17,4 +16,6 @@ export const hu: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Utolsó ellenőrzés {{time}}',
   'statusDashboard.label.latency': '{{ms}} kisasszony',
   'statusDashboard.label.noIncidents': 'Nem jelentettek incidenseket.',
+  'statusDashboard.error.noProvider':
+    'Állapotjelző műszerfal szolgáltatója nincs konfigurálva. Először kössön egy állapotjelző műszerfal szolgáltatót.',
 }

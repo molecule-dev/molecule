@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Igbo. */
 export const ig: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'A chọrọ aha tag',
   'tag.error.invalidName': 'Aha tag ezighi ezi',
   'tag.error.createFailed': 'Enweghị ike ịmepụta tag',
@@ -17,4 +16,5 @@ export const ig: TagTranslations = {
   'tag.error.associationNotFound': 'Ahụghị njikọ tag',
   'tag.error.removeFailed': "Enweghị ike iwepụ tag n'ime ngwaahịa",
   'tag.error.getBySlugFailed': 'Enweghị ike ịnweta ngwaahịa site na tag',
+  'tag.error.forbidden': 'Achọrọ ịnweta onye nchịkwa iji jikwaa mkpado',
 }

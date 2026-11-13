@@ -11,5 +11,5 @@ export const hr: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}h {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Nije postavljen pružatelj usluga. Pozovite `setProvider()` s implementacijom `BatteryProvider` — nijedan pružatelj usluga ne dolazi s flotom; implementirajte sučelje u svom izvornom okruženju za izvođenje i povežite ga.',
+    '`@molecule/app-battery`: Nije postavljen pružatelj usluga. Pozovite `setProvider()` s implementacijom `BatteryProvider` — Molecule ne isporučuje pružatelja usluga za to; implementirajte sučelje u svom izvornom okruženju za izvođenje i povežite ga.',
 }

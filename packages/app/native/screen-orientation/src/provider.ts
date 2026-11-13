@@ -34,7 +34,7 @@ export function getProvider(): ScreenOrientationProvider {
     throw new Error(
       t('screenOrientation.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-screen-orientation: No provider set. Call setProvider() with a ScreenOrientationProvider implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
+          '`@molecule/app-screen-orientation`: No provider set. Call `setProvider()` with a `ScreenOrientationProvider` implementation — Molecule ships no provider for it; implement the interface on your native runtime and bond it.',
       }),
     )
   }

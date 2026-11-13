@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Thai. */
 export const th: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ต้องระบุชื่อแท็ก',
   'tag.error.invalidName': 'ชื่อแท็กไม่ถูกต้อง',
   'tag.error.createFailed': 'สร้างแท็กไม่สำเร็จ',
@@ -17,4 +16,5 @@ export const th: TagTranslations = {
   'tag.error.associationNotFound': 'ไม่พบการเชื่อมโยงแท็ก',
   'tag.error.removeFailed': 'ลบแท็กจากทรัพยากรไม่สำเร็จ',
   'tag.error.getBySlugFailed': 'ดึงทรัพยากรตามแท็กไม่สำเร็จ',
+  'tag.error.forbidden': 'จำเป็นต้องมีสิทธิ์ผู้ดูแลระบบในการจัดการแท็ก',
 }

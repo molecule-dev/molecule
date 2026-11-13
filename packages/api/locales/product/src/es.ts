@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Spanish. */
 export const es: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'El nombre del producto es obligatorio',
   'product.error.invalidName': 'El nombre del producto no es válido',
   'product.error.invalidPrice': 'Se requiere un precio válido',
@@ -15,4 +14,5 @@ export const es: ProductTranslations = {
   'product.error.listVariantsFailed': 'No se pudieron listar las variantes del producto',
   'product.error.variantNameRequired': 'El nombre de la variante es obligatorio',
   'product.error.createVariantFailed': 'No se pudo crear la variante del producto',
+  'product.error.forbidden': 'Se requiere acceso de administrador para gestionar los productos.',
 }

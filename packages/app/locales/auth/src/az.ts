@@ -10,4 +10,5 @@ export const az: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Təqdim etməzdən əvvəl profil sessiyası dəyişdirildi',
   'auth.error.passwordRequiresSignIn': 'Şifrəni dəyişdirməzdən əvvəl daxil olun',
   'auth.error.passwordSessionChanged': 'Şifrə sessiyası təqdim etməzdən əvvəl dəyişdirildi',
+  'auth.error.requestTimedOut': 'Doğrulama sorğusunun vaxtı bitdi',
 }

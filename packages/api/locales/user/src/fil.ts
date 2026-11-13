@@ -79,4 +79,16 @@ export const fil: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch':
     'Ang subscription na ito ay hindi pagmamay-ari ng iyong account.',
   'user.payment.transactionAlreadyClaimed': 'Ang pagbiling ito ay nauugnay na sa isa pang account.',
+  'user.error.completeTargetMissing':
+    'Walang account na umiiral na may ibinigay na id bilang completeId.',
+  'user.error.completeIdentityMismatch':
+    'Hindi tinutukoy ng ibinigay na username o email ang kumpletong ID ng account.',
+  'user.error.completeNotOwned':
+    'Nagsa-sign in ang completeId account sa pamamagitan ng OAuth; hindi naka-provision dito ang mga credential nito.',
+  'user.error.identityRequired':
+    'Kailangan ng provisioning ng username o email para matukoy ang account.',
+  'user.error.usernameEmailConflict':
+    'Ang username at ang email ay pagmamay-ari ng dalawang magkaibang umiiral na account.',
+  'user.error.oauthEmailCollision':
+    'Mayroon nang account para sa email na ito. Mangyaring mag-sign in gamit ang iyong orihinal na paraan, pagkatapos ay i-link ang provider na ito mula sa mga setting ng iyong account.',
 }

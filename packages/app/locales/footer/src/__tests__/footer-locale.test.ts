@@ -34,12 +34,12 @@ describe('app-locales-footer canonical en', () => {
     expect(en['footer.legalNotConfigured']).toMatch(/app owner must provide it/i)
   })
 
-  it('ships content.privacyPolicy / content.termsOfService EMPTY by design (app-supplied)', () => {
-    // Empty is intentional — a generic default policy would be legally wrong to
-    // present as the app's own. The footer renders `footer.legalNotConfigured`
-    // (not a blank modal) until the app registers real content. Do NOT seed
-    // fake legal text here.
-    expect(en['content.privacyPolicy']).toBe('')
-    expect(en['content.termsOfService']).toBe('')
+  it('never defines the legal content keys, which the app supplies', () => {
+    // A generic default policy would be legally wrong to present as the app's own, so
+    // the footer renders `footer.legalNotConfigured` until the app registers real
+    // content (its call site defaults content.* to ''). The bond carried those keys as
+    // '' once; loading its language after the app's content then blanked the policy.
+    expect(en).not.toHaveProperty('content.privacyPolicy')
+    expect(en).not.toHaveProperty('content.termsOfService')
   })
 })

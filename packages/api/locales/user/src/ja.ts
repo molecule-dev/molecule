@@ -78,4 +78,16 @@ export const ja: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch':
     'このサブスクリプションはあなたのアカウントには紐づいていません。',
   'user.payment.transactionAlreadyClaimed': 'この購入は既に別のアカウントに関連付けられています。',
+  'user.error.completeTargetMissing':
+    'completeIdとして指定されたIDを持つアカウントは存在しません。',
+  'user.error.completeIdentityMismatch':
+    '提供されたユーザー名またはメールアドレスでは、completeIdアカウントを特定できません。',
+  'user.error.completeNotOwned':
+    'completeIdアカウントはOAuth経由でサインインします。その認証情報はここでは提供されません。',
+  'user.error.identityRequired':
+    'プロビジョニングには、アカウントを識別するためのユーザー名またはメールアドレスが必要です。',
+  'user.error.usernameEmailConflict':
+    'ユーザー名とメールアドレスは、それぞれ別の既存のアカウントに属しています。',
+  'user.error.oauthEmailCollision':
+    'このメールアドレスには既にアカウントが存在します。元のログイン方法でログイン後、アカウント設定からこのプロバイダをリンクしてください。',
 }

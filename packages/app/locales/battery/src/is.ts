@@ -11,5 +11,5 @@ export const is: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}klst {{minutes}}mín',
   'battery.remainingMinutes': '{{minutes}}mín',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Enginn veitandi stilltur. Kallaðu á `setProvider()` með `BatteryProvider` útfærslu — enginn veitandi fylgir flotanum; útfærðu viðmótið á innfædda keyrslutímanum þínum og tengdu það.',
+    '`@molecule/app-battery`: Enginn veitandi stilltur. Kallaðu á `setProvider()` með `BatteryProvider` útfærslu — Molecule sendir engan veitanda fyrir það; útfærðu viðmótið á innfædda keyrslutímanum þínum og tengdu það.',
 }

@@ -10,4 +10,5 @@ export const zh: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': '提交前个人资料会话已更改',
   'auth.error.passwordRequiresSignIn': '请先登录再更改密码',
   'auth.error.passwordSessionChanged': '提交前密码会话已更改',
+  'auth.error.requestTimedOut': '身份验证请求超时',
 }

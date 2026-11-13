@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Tamil. */
 export const ta: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'நிலை டாஷ்போர்டு வழங்குநர் கட்டமைக்கப்படவில்லை.',
   'statusDashboard.error.fetchFailed': 'நிலையைப் பெற இயலவில்லை: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'அனைத்து அமைப்புகளும் இயங்குகின்றன',
   'statusDashboard.label.someIssues': 'சில அமைப்புகளில் சிக்கல்கள் உள்ளன',
@@ -17,4 +16,6 @@ export const ta: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'கடைசியாக சரிபார்க்கப்பட்டது {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'எந்த சம்பவங்களும் புகாரளிக்கப்படவில்லை.',
+  'statusDashboard.error.noProvider':
+    'நிலைமை டாஷ்போர்டு வழங்குநர் உள்ளமைக்கப்படவில்லை. முதலில் ஒரு நிலைமை டாஷ்போர்டு வழங்குநரை இணைக்கவும்.',
 }

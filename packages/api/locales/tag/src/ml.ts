@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Malayalam. */
 export const ml: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ടാഗ് പേര് ആവശ്യമാണ്',
   'tag.error.invalidName': 'ടാഗ് പേര് അസാധുവാണ്',
   'tag.error.createFailed': 'ടാഗ് സൃഷ്ടിക്കുന്നതിൽ പരാജയപ്പെട്ടു',
@@ -17,4 +16,5 @@ export const ml: TagTranslations = {
   'tag.error.associationNotFound': 'ടാഗ് ബന്ധം കണ്ടെത്തിയില്ല',
   'tag.error.removeFailed': 'ഉറവിടത്തിൽ നിന്ന് ടാഗ് നീക്കം ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു',
   'tag.error.getBySlugFailed': 'ടാഗ് അനുസരിച്ച് ഉറവിടങ്ങൾ ലഭ്യമാക്കുന്നതിൽ പരാജയപ്പെട്ടു',
+  'tag.error.forbidden': 'ടാഗുകൾ മാനേജ് ചെയ്യാൻ അഡ്മിൻ ആക്‌സസ് ആവശ്യമാണ്.',
 }

@@ -5,7 +5,6 @@ export const fil: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.degraded': 'Bumaba',
   'statusDashboard.label.down': 'Hindi available',
   'statusDashboard.label.services': 'Mga serbisyo',
-  'statusDashboard.error.noProvider': 'Hindi na-configure ang provider ng status dashboard.',
   'statusDashboard.error.fetchFailed': 'Nabigong makuha ang katayuan: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Lahat ng Sistema ay Operasyonal',
   'statusDashboard.label.someIssues': 'Ang Ilang Sistema ay Nakakaranas ng mga Problema',
@@ -17,4 +16,6 @@ export const fil: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Huling nasuri {{time}}',
   'statusDashboard.label.latency': '{{ms}} MS',
   'statusDashboard.label.noIncidents': 'Walang naiulat na insidente.',
+  'statusDashboard.error.noProvider':
+    'Hindi na-configure ang status dashboard provider. Makipag-ugnayan muna sa isang status dashboard provider.',
 }

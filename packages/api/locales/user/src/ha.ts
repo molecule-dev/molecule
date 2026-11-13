@@ -78,4 +78,16 @@ export const ha: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ba ya bayar da hanyar biyan kuɗi.',
   'user.payment.subscriptionOwnershipMismatch': 'Wannan biyan kuɗin ba na asusunka bane.',
   'user.payment.transactionAlreadyClaimed': 'An riga an haɗa wannan siyan da wani asusu.',
+  'user.error.completeTargetMissing':
+    'Babu wani asusu da ke da id ɗin da aka bayar a matsayin completeId.',
+  'user.error.completeIdentityMismatch':
+    'Sunan mai amfani ko imel ɗin da aka bayar bai gano cikakken asusun ID ba.',
+  'user.error.completeNotOwned':
+    'Asusun cikakken Id yana shiga ta hanyar OAuth; ba a bayar da takardun shaidarsa a nan ba.',
+  'user.error.identityRequired':
+    'Samar da kayayyaki yana buƙatar sunan mai amfani ko imel don gano asusun.',
+  'user.error.usernameEmailConflict':
+    'Sunan mai amfani da imel ɗin suna cikin asusun guda biyu daban-daban da ke akwai.',
+  'user.error.oauthEmailCollision':
+    'Akwai asusu na wannan imel ɗin. Da fatan za a shiga da hanyarka ta asali, sannan a haɗa wannan mai bada sabis ɗin daga saitunan asusunka.',
 }

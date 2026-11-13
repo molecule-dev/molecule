@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Albanian. */
 export const sq: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Emri i etiketës është i detyrueshëm',
   'tag.error.invalidName': 'Emri i etiketës është i pavlefshëm',
   'tag.error.createFailed': 'Dështoi krijimi i etiketës',
@@ -17,4 +16,5 @@ export const sq: TagTranslations = {
   'tag.error.associationNotFound': 'Lidhja e etiketës nuk u gjet',
   'tag.error.removeFailed': 'Dështoi heqja e etiketës nga burimi',
   'tag.error.getBySlugFailed': 'Dështoi marrja e burimeve sipas etiketës',
+  'tag.error.forbidden': 'Kërkohet qasje administratori për të menaxhuar etiketat',
 }

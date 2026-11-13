@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Greek. */
 export const el: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Το όνομα ετικέτας είναι υποχρεωτικό',
   'tag.error.invalidName': 'Το όνομα ετικέτας δεν είναι έγκυρο',
   'tag.error.createFailed': 'Αποτυχία δημιουργίας ετικέτας',
@@ -17,4 +16,5 @@ export const el: TagTranslations = {
   'tag.error.associationNotFound': 'Η σύνδεση ετικέτας δεν βρέθηκε',
   'tag.error.removeFailed': 'Αποτυχία αφαίρεσης ετικέτας από τον πόρο',
   'tag.error.getBySlugFailed': 'Αποτυχία ανάκτησης πόρων ανά ετικέτα',
+  'tag.error.forbidden': 'Απαιτείται πρόσβαση διαχειριστή για τη διαχείριση ετικετών',
 }

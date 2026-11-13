@@ -76,4 +76,12 @@ export const yo: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ko funni ni oju opo wẹẹbu isanwo.',
   'user.payment.subscriptionOwnershipMismatch': 'Iforukosile yii ko si ninu akoto re.',
   'user.payment.transactionAlreadyClaimed': 'Rira yii ti ni asopọ pẹlu akọọlẹ miiran tẹlẹ.',
+  'user.error.completeTargetMissing': 'Kò sí àkọọ́lẹ̀ kankan pẹ̀lú id tí a pèsè gẹ́gẹ́ bí completeId.',
+  'user.error.completeIdentityMismatch': 'Orúkọ tàbí ìmeeli tí a pèsè kò dá àkọọ́lẹ̀ Id pípé mọ̀.',
+  'user.error.completeNotOwned':
+    'Àkọọ́lẹ̀ Id pípé náà wọlé nípasẹ̀ OAuth; a kò pèsè àwọn ìwé ẹ̀rí rẹ̀ níbí.',
+  'user.error.identityRequired': 'Ìpèsè nílò orúkọ olùlò tàbí ìmeeli láti fi dá àkọọ́lẹ̀ náà mọ̀.',
+  'user.error.usernameEmailConflict': 'Orúkọ àti ìmeeli náà jẹ́ ti àwọn àkọọ́lẹ̀ méjì tó yàtọ̀ síra.',
+  'user.error.oauthEmailCollision':
+    'Àkọọ́lẹ̀ kan ti wà fún ìmeeli yìí tẹ́lẹ̀. Jọ̀wọ́ wọlé pẹ̀lú ọ̀nà ìpilẹ̀ṣẹ̀ rẹ, lẹ́yìn náà so olùpèsè yìí pọ̀ láti inú àwọn ètò àkọọ́lẹ̀ rẹ.',
 }

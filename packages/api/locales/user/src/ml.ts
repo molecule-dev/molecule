@@ -80,4 +80,16 @@ export const ml: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'ഈ സബ്‌സ്‌ക്രിപ്‌ഷൻ നിങ്ങളുടെ അക്കൗണ്ടിന്റേതല്ല.',
   'user.payment.transactionAlreadyClaimed':
     'ഈ വാങ്ങൽ ഇതിനകം തന്നെ മറ്റൊരു അക്കൗണ്ടുമായി ബന്ധപ്പെട്ടിരിക്കുന്നു.',
+  'user.error.completeTargetMissing':
+    'completeId എന്ന് നൽകിയിരിക്കുന്ന ഐഡി ഉള്ള ഒരു അക്കൗണ്ടും നിലവിലില്ല.',
+  'user.error.completeIdentityMismatch':
+    'നൽകിയിരിക്കുന്ന ഉപയോക്തൃനാമമോ ഇമെയിലോ completeId അക്കൗണ്ടിനെ തിരിച്ചറിയുന്നില്ല.',
+  'user.error.completeNotOwned':
+    'completeId അക്കൗണ്ട് OAuth വഴിയാണ് സൈൻ ഇൻ ചെയ്യുന്നത്; അതിന്റെ ക്രെഡൻഷ്യലുകൾ ഇവിടെ പ്രൊവിഷൻ ചെയ്തിട്ടില്ല.',
+  'user.error.identityRequired':
+    'അക്കൗണ്ട് തിരിച്ചറിയാൻ പ്രൊവിഷനിംഗിന് ഒരു ഉപയോക്തൃനാമമോ ഇമെയിലോ ആവശ്യമാണ്.',
+  'user.error.usernameEmailConflict':
+    'ഉപയോക്തൃനാമവും ഇമെയിലും നിലവിലുള്ള രണ്ട് വ്യത്യസ്ത അക്കൗണ്ടുകളുടേതാണ്.',
+  'user.error.oauthEmailCollision':
+    'ഈ ഇമെയിലിനായി ഇതിനകം ഒരു അക്കൗണ്ട് നിലവിലുണ്ട്. നിങ്ങളുടെ യഥാർത്ഥ രീതി ഉപയോഗിച്ച് സൈൻ ഇൻ ചെയ്യുക, തുടർന്ന് നിങ്ങളുടെ അക്കൗണ്ട് ക്രമീകരണങ്ങളിൽ നിന്ന് ഈ ദാതാവിനെ ലിങ്ക് ചെയ്യുക.',
 }

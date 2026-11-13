@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Amharic. */
 export const am: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'የምርት ስም ያስፈልጋል',
   'product.error.invalidName': 'የምርት ስም ልክ አይደለም',
   'product.error.invalidPrice': 'ትክክለኛ ዋጋ ያስፈልጋል',
@@ -15,4 +14,5 @@ export const am: ProductTranslations = {
   'product.error.listVariantsFailed': 'የምርት ልዩነቶችን መዘርዘር አልተሳካም',
   'product.error.variantNameRequired': 'የልዩነት ስም ያስፈልጋል',
   'product.error.createVariantFailed': 'የምርት ልዩነት መፍጠር አልተሳካም',
+  'product.error.forbidden': 'ምርቶችን ለማስተዳደር የአስተዳዳሪ መዳረሻ ያስፈልጋል',
 }

@@ -10,4 +10,5 @@ export const eu: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Profil saioa bidali aurretik aldatu da',
   'auth.error.passwordRequiresSignIn': 'Pasahitza aldatu aurretik saioa hasi',
   'auth.error.passwordSessionChanged': 'Bidali aurretik saioaren pasahitza aldatu da',
+  'auth.error.requestTimedOut': 'Autentifikazio eskaerak denbora-muga gainditu du',
 }

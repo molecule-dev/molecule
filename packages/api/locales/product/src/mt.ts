@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Maltese. */
 export const mt: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'L-isem tal-prodott huwa meħtieġ',
   'product.error.invalidName': 'L-isem tal-prodott mhuwiex validu',
   'product.error.invalidPrice': 'Huwa meħtieġ prezz validu',
@@ -15,4 +14,5 @@ export const mt: ProductTranslations = {
   'product.error.listVariantsFailed': 'Ma rnexxiex jitniżżlu l-varjanti tal-prodott',
   'product.error.variantNameRequired': 'L-isem tal-varjant huwa meħtieġ',
   'product.error.createVariantFailed': 'Ma rnexxiex jinħoloq il-varjant tal-prodott',
+  'product.error.forbidden': "Aċċess ta' amministratur meħtieġ biex jiġu ġestiti l-prodotti",
 }

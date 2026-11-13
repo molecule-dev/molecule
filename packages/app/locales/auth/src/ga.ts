@@ -10,4 +10,5 @@ export const ga: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Athraíodh an seisiún próifíle roimh an seoladh',
   'auth.error.passwordRequiresSignIn': 'Sínigh isteach sula n-athraítear pasfhocal',
   'auth.error.passwordSessionChanged': 'Athraíodh an seisiún pasfhocail roimh an seoladh',
+  'auth.error.requestTimedOut': 'Chuaigh an t-am isteach don iarratas fíordheimhnithe',
 }

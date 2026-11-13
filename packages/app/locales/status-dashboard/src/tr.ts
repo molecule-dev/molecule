@@ -9,7 +9,6 @@ export const tr: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'Hizmetler',
   'statusDashboard.label.incidents': 'Olaylar',
   'statusDashboard.label.uptime': 'Çalışma süresi',
-  'statusDashboard.error.noProvider': 'Durum kontrol paneli sağlayıcısı yapılandırılmamış.',
   'statusDashboard.error.fetchFailed': 'HTTP durumunu alma işlemi başarısız oldu. {{status}}',
   'statusDashboard.label.allOperational': 'Tüm Sistemler Çalışır Durumda',
   'statusDashboard.label.someIssues': 'Bazı sistemlerde sorunlar yaşanıyor.',
@@ -17,4 +16,6 @@ export const tr: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Son kontrol {{time}}',
   'statusDashboard.label.latency': '{{ms}} Bayan',
   'statusDashboard.label.noIncidents': 'Herhangi bir olay bildirilmedi.',
+  'statusDashboard.error.noProvider':
+    'Durum kontrol paneli sağlayıcısı yapılandırılmamış. Öncelikle bir durum kontrol paneli sağlayıcısı bağlayın.',
 }

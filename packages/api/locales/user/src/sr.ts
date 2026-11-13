@@ -75,4 +75,15 @@ export const sr: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} не нуди портал за наплату.',
   'user.payment.subscriptionOwnershipMismatch': 'Ова претплата не припада вашем налогу.',
   'user.payment.transactionAlreadyClaimed': 'Ова куповина је већ повезана са другим налогом.',
+  'user.error.completeTargetMissing': 'Не постоји налог са ИД-ом наведеним као completeId.',
+  'user.error.completeIdentityMismatch':
+    'Наведено корисничко име или имејл адреса не идентификују completeId налог.',
+  'user.error.completeNotOwned':
+    'Налог completeId се пријављује путем OAuth-а; његови акредитиви нису овде обезбеђени.',
+  'user.error.identityRequired':
+    'За обезбеђивање је потребно корисничко име или имејл адреса да би се идентификовао налог.',
+  'user.error.usernameEmailConflict':
+    'Корисничко име и имејл припадају два различита постојећа налога.',
+  'user.error.oauthEmailCollision':
+    'Већ постоји налог за ову имејл адресу. Пријавите се оригиналним методом, а затим повежите овог добављача из подешавања налога.',
 }

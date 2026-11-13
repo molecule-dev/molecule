@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Irish. */
 export const ga: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tá ainm an chlib riachtanach',
   'tag.error.invalidName': 'Tá ainm an chlib neamhbhailí',
   'tag.error.createFailed': 'Theip ar chruthú an chlib',
@@ -17,4 +16,5 @@ export const ga: TagTranslations = {
   'tag.error.associationNotFound': 'Comhlachas clib gan aimsiú',
   'tag.error.removeFailed': 'Theip ar bhaint an chlib ón acmhainn',
   'tag.error.getBySlugFailed': 'Theip ar fháil na n-acmhainní de réir clib',
+  'tag.error.forbidden': 'Tá rochtain riarthóra ag teastáil chun clibeanna a bhainistiú',
 }

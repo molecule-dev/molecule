@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Marathi. */
 export const mr: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'टॅग नाव आवश्यक आहे',
   'tag.error.invalidName': 'टॅग नाव अवैध आहे',
   'tag.error.createFailed': 'टॅग तयार करण्यात अयशस्वी',
@@ -17,4 +16,5 @@ export const mr: TagTranslations = {
   'tag.error.associationNotFound': 'टॅग संबंध सापडला नाही',
   'tag.error.removeFailed': 'संसाधनातून टॅग काढण्यात अयशस्वी',
   'tag.error.getBySlugFailed': 'टॅगनुसार संसाधने मिळवण्यात अयशस्वी',
+  'tag.error.forbidden': 'टॅग व्यवस्थापित करण्यासाठी प्रशासकीय प्रवेश आवश्यक आहे.',
 }

@@ -10,4 +10,5 @@ export const zhTW: AuthTranslations = {
   'auth.error.profileSessionChanged': '提交前個人資料會話已更改',
   'auth.error.passwordRequiresSignIn': '請先登入再更改密碼',
   'auth.error.passwordSessionChanged': '提交前密碼會話已更改',
+  'auth.error.requestTimedOut': '身份驗證請求逾時',
 }

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Hindi. */
 export const hi: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'सेवा नहीं मिली।',
   'status.error.incidentNotFound': 'घटना नहीं मिली।',
   'status.error.validationFailed': 'सत्यापन विफल: {{errors}}',
@@ -16,4 +15,5 @@ export const hi: StatusTranslations = {
   'status.error.listIncidentsFailed': 'घटनाओं की सूची प्राप्त करने में विफल।',
   'status.error.getStatusFailed': 'सिस्टम स्थिति प्राप्त करने में विफल।',
   'status.error.getUptimeFailed': 'अपटाइम डेटा प्राप्त करने में विफल।',
+  'status.error.forbidden': 'स्थिति पृष्ठ को प्रबंधित करने के लिए अनुमति आवश्यक है',
 }

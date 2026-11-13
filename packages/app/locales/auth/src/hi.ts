@@ -10,4 +10,5 @@ export const hi: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'सबमिशन से पहले प्रोफ़ाइल सत्र में बदलाव हुआ।',
   'auth.error.passwordRequiresSignIn': 'पासवर्ड बदलने से पहले साइन इन करें',
   'auth.error.passwordSessionChanged': 'सबमिशन से पहले पासवर्ड सेशन बदल गया था',
+  'auth.error.requestTimedOut': 'प्रमाणीकरण अनुरोध का समय समाप्त हो गया',
 }

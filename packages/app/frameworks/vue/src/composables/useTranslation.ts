@@ -145,11 +145,7 @@ export function useTranslation(): UseTranslationReturn {
   // Translation function (reactive — re-renders on locale or translation
   // change; reads the provider on every call so a replaced provider's own
   // values show immediately).
-  const t = (
-    key: string,
-    values?: InterpolationValues,
-    options?: { defaultValue?: string; count?: number },
-  ): string => {
+  const t = (key: string, values?: InterpolationValues, options?: TranslateOptions): string => {
     void version.value
     return provider.t(key, values, options)
   }

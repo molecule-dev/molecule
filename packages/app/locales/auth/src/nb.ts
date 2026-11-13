@@ -10,4 +10,5 @@ export const nb: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Profiløkten ble endret før innsending',
   'auth.error.passwordRequiresSignIn': 'Logg inn før du endrer et passord',
   'auth.error.passwordSessionChanged': 'Passordøkten ble endret før innsending',
+  'auth.error.requestTimedOut': 'Autentiseringsforespørselen ble tidsavbrutt',
 }

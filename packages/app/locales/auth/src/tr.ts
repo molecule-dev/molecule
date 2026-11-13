@@ -10,4 +10,5 @@ export const tr: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Profil oturumu gönderimden önce değişti.',
   'auth.error.passwordRequiresSignIn': 'Şifrenizi değiştirmeden önce oturum açın.',
   'auth.error.passwordSessionChanged': 'Gönderimden önce parola oturumu değiştirildi.',
+  'auth.error.requestTimedOut': 'Kimlik doğrulama isteği zaman aşımına uğradı.',
 }

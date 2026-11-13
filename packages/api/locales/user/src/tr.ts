@@ -76,4 +76,15 @@ export const tr: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Bu abonelik sizin hesabınıza ait değil.',
   'user.payment.transactionAlreadyClaimed':
     'Bu satın alma işlemi zaten başka bir hesapla ilişkilendirilmiş durumda.',
+  'user.error.completeTargetMissing': 'completeId olarak verilen kimliğe sahip bir hesap yok.',
+  'user.error.completeIdentityMismatch':
+    'Verilen kullanıcı adı veya e-posta adresi completeId hesabını tanımlamaz.',
+  'user.error.completeNotOwned':
+    'completeId hesabı OAuth üzerinden oturum açar; kimlik bilgileri burada sağlanmaz.',
+  'user.error.identityRequired':
+    'Hesabın tanımlanması için kullanıcı adı veya e-posta adresi gereklidir.',
+  'user.error.usernameEmailConflict':
+    'Kullanıcı adı ve e-posta adresi, mevcut iki farklı hesaba aittir.',
+  'user.error.oauthEmailCollision':
+    'Bu e-posta adresi için zaten bir hesap mevcut. Lütfen orijinal giriş yönteminizle oturum açın, ardından hesap ayarlarınızdan bu sağlayıcıyı bağlayın.',
 }

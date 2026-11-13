@@ -3,5 +3,5 @@ import type { CalendarTranslations } from './types.js'
 /** Calendar translations for Sinhala. */
 export const si: CalendarTranslations = {
   'calendar.error.noProvider':
-    '@molecule/app-calendar: සපයන්නෙකු සකසා නැත. CalendarProvider ක්‍රියාත්මක කිරීමක් සමඟ setProvider() අමතන්න.',
+    '`@molecule/app-device-calendar`: සැපයුම්කරු සකසා නැත. `CalendarProvider` ක්‍රියාත්මක කිරීමක් සමඟ `setProvider()` අමතන්න — Molecule ඒ සඳහා සැපයුම්කරුවෙකු නොයවයි; ඔබගේ ස්වදේශීය ධාවන වේලාවේ අතුරු මුහුණත ක්‍රියාත්මක කර එය බැඳ තබන්න.',
 }

@@ -75,4 +75,16 @@ export const uk: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} не пропонує платіжний портал.',
   'user.payment.subscriptionOwnershipMismatch': 'Ця підписка не належить вашому обліковому запису.',
   'user.payment.transactionAlreadyClaimed': "Ця покупка вже пов'язана з іншим обліковим записом.",
+  'user.error.completeTargetMissing':
+    'Не існує облікового запису з ідентифікатором, наданим як completeId.',
+  'user.error.completeIdentityMismatch':
+    "Надане ім'я користувача або електронна адреса не ідентифікують обліковий запис completeId.",
+  'user.error.completeNotOwned':
+    'Обліковий запис completeId входить через OAuth; його облікові дані тут не надаються.',
+  'user.error.identityRequired':
+    "Для налаштування потрібне ім'я користувача або електронна адреса для ідентифікації облікового запису.",
+  'user.error.usernameEmailConflict':
+    "Ім'я користувача та електронна адреса належать до двох різних існуючих облікових записів.",
+  'user.error.oauthEmailCollision':
+    'Для цієї електронної адреси вже існує обліковий запис. Будь ласка, увійдіть, використовуючи свій оригінальний метод, а потім підключіть цього постачальника послуг у налаштуваннях облікового запису.',
 }

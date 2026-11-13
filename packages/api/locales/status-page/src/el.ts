@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Greek. */
 export const el: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Η υπηρεσία δεν βρέθηκε.',
   'status.error.incidentNotFound': 'Το περιστατικό δεν βρέθηκε.',
   'status.error.validationFailed': 'Η επικύρωση απέτυχε: {{errors}}',
@@ -16,4 +15,5 @@ export const el: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Αποτυχία εμφάνισης περιστατικών.',
   'status.error.getStatusFailed': 'Αποτυχία ανάκτησης κατάστασης συστήματος.',
   'status.error.getUptimeFailed': 'Αποτυχία ανάκτησης δεδομένων διαθεσιμότητας.',
+  'status.error.forbidden': 'Απαιτείται άδεια για τη διαχείριση της σελίδας κατάστασης',
 }

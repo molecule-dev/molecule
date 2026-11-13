@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for kn. */
 export const kn: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'ಎಂಬೆಡ್ ಕೋಡ್ ({ಭಾಷೆ})',
   'embedSnippet.heading': 'ಎಂಬೆಡ್ ಕೋಡ್',
   'embedSnippet.eyebrow': 'ಎಂಬೆಡ್ ಕೋಡ್ ನಕಲಿಸಿ',
   'embedSnippet.copy': 'ನಕಲಿಸಿ',
@@ -13,4 +12,5 @@ export const kn: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'ಬೆಳಕು',
   'embedSnippet.theme.dark': 'ಕತ್ತಲೆ',
   'embedSnippet.theme.auto': 'ಆಟೋ',
+  'embedSnippet.aria.region': 'ಎಂಬೆಡ್ ಕೋಡ್ ({{language}})',
 }

@@ -114,7 +114,9 @@ export const create =
           error: t(
             'resource.error.unableToCreate',
             { name },
-            { defaultValue: `Unable to create ${name}.` },
+            {
+              defaultValue: 'Unable to create {{name}}.',
+            },
           ),
           errorKey: 'resource.error.unableToCreate',
         },

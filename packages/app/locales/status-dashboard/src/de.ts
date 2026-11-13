@@ -9,8 +9,6 @@ export const de: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'Dienste',
   'statusDashboard.label.incidents': 'Vorfälle',
   'statusDashboard.label.uptime': 'Verfügbarkeit',
-  'statusDashboard.error.noProvider':
-    'Der Anbieter für das Status-Dashboard ist nicht konfiguriert.',
   'statusDashboard.error.fetchFailed': 'Status konnte nicht abgerufen werden: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Alle Systeme betriebsbereit',
   'statusDashboard.label.someIssues': 'Bei einigen Systemen treten Probleme auf',
@@ -18,4 +16,6 @@ export const de: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Zuletzt geprüft {{time}}',
   'statusDashboard.label.latency': '{{ms}} MS',
   'statusDashboard.label.noIncidents': 'Es wurden keine Vorfälle gemeldet.',
+  'statusDashboard.error.noProvider':
+    'Der Status-Dashboard-Anbieter ist nicht konfiguriert. Binden Sie zuerst einen Status-Dashboard-Anbieter ein.',
 }

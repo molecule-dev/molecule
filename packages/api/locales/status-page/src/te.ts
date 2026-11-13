@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Telugu. */
 export const te: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'సేవ కనుగొనబడలేదు.',
   'status.error.incidentNotFound': 'సంఘటన కనుగొనబడలేదు.',
   'status.error.validationFailed': 'ధృవీకరణ విఫలమైంది: {{errors}}',
@@ -16,4 +15,5 @@ export const te: StatusTranslations = {
   'status.error.listIncidentsFailed': 'సంఘటనలను జాబితా చేయడంలో విఫలమైంది.',
   'status.error.getStatusFailed': 'వ్యవస్థ స్థితి పొందడంలో విఫలమైంది.',
   'status.error.getUptimeFailed': 'అప్‌టైమ్ డేటా పొందడంలో విఫలమైంది.',
+  'status.error.forbidden': 'స్టేటస్ పేజీని నిర్వహించడానికి అనుమతి అవసరం',
 }

@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Mongolian. */
 export const mn: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Бүтээгдэхүүний нэр шаардлагатай',
   'product.error.invalidName': 'Бүтээгдэхүүний нэр буруу байна',
   'product.error.invalidPrice': 'Зөв үнэ шаардлагатай',
@@ -15,4 +14,5 @@ export const mn: ProductTranslations = {
   'product.error.listVariantsFailed': 'Бүтээгдэхүүний хувилбаруудын жагсаалт гаргаж чадсангүй',
   'product.error.variantNameRequired': 'Хувилбарын нэр шаардлагатай',
   'product.error.createVariantFailed': 'Бүтээгдэхүүний хувилбар үүсгэж чадсангүй',
+  'product.error.forbidden': 'Бүтээгдэхүүнийг удирдахын тулд админы хандалт шаардлагатай',
 }

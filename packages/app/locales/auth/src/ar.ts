@@ -10,4 +10,5 @@ export const ar: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'تم تغيير جلسة الملف الشخصي قبل الإرسال',
   'auth.error.passwordRequiresSignIn': 'قم بتسجيل الدخول قبل تغيير كلمة المرور',
   'auth.error.passwordSessionChanged': 'تم تغيير جلسة كلمة المرور قبل الإرسال',
+  'auth.error.requestTimedOut': 'انتهت مهلة طلب المصادقة',
 }

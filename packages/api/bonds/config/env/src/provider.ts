@@ -26,7 +26,7 @@ export const envProvider: ConfigProvider = {
         t(
           'config.error.required',
           { key },
-          { defaultValue: `Required configuration '${key}' is not set.` },
+          { defaultValue: "Required configuration '{{key}}' is not set." },
         ),
       )
     }
@@ -58,7 +58,7 @@ export const envProvider: ConfigProvider = {
           message: t(
             'config.error.required',
             { key: config.key },
-            { defaultValue: `Required configuration '${config.key}' is not set.` },
+            { defaultValue: "Required configuration '{{key}}' is not set." },
           ),
         })
         continue
@@ -76,7 +76,7 @@ export const envProvider: ConfigProvider = {
             message: t(
               'config.error.mustBeNumber',
               { key: config.key },
-              { defaultValue: `Configuration '${config.key}' must be a number.` },
+              { defaultValue: "Configuration '{{key}}' must be a number." },
             ),
           })
         } else {
@@ -86,7 +86,7 @@ export const envProvider: ConfigProvider = {
               message: t(
                 'config.error.minValue',
                 { key: config.key, min: String(config.min) },
-                { defaultValue: `Configuration '${config.key}' must be at least ${config.min}.` },
+                { defaultValue: "Configuration '{{key}}' must be at least {{min}}." },
               ),
             })
           }
@@ -96,7 +96,7 @@ export const envProvider: ConfigProvider = {
               message: t(
                 'config.error.maxValue',
                 { key: config.key, max: String(config.max) },
-                { defaultValue: `Configuration '${config.key}' must be at most ${config.max}.` },
+                { defaultValue: "Configuration '{{key}}' must be at most {{max}}." },
               ),
             })
           }
@@ -110,7 +110,7 @@ export const envProvider: ConfigProvider = {
             message: t(
               'config.error.mustBeBoolean',
               { key: config.key },
-              { defaultValue: `Configuration '${config.key}' must be a boolean (true/false/1/0).` },
+              { defaultValue: "Configuration '{{key}}' must be a boolean (true/false/1/0)." },
             ),
           })
         }
@@ -127,7 +127,7 @@ export const envProvider: ConfigProvider = {
             message: t(
               'config.error.mustBeJson',
               { key: config.key },
-              { defaultValue: `Configuration '${config.key}' must be valid JSON.` },
+              { defaultValue: "Configuration '{{key}}' must be valid JSON." },
             ),
           })
         }
@@ -141,9 +141,7 @@ export const envProvider: ConfigProvider = {
             message: t(
               'config.error.patternMismatch',
               { key: config.key, pattern: config.pattern },
-              {
-                defaultValue: `Configuration '${config.key}' does not match pattern '${config.pattern}'.`,
-              },
+              { defaultValue: "Configuration '{{key}}' does not match pattern '{{pattern}}'." },
             ),
           })
         }
@@ -155,9 +153,7 @@ export const envProvider: ConfigProvider = {
           message: t(
             'config.error.invalidEnum',
             { key: config.key, values: config.enum.join(', ') },
-            {
-              defaultValue: `Configuration '${config.key}' must be one of: ${config.enum.join(', ')}.`,
-            },
+            { defaultValue: "Configuration '{{key}}' must be one of: {{values}}." },
           ),
         })
       }

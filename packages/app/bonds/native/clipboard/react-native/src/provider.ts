@@ -36,7 +36,7 @@ async function getRNClipboard(): Promise<
         { library: '@react-native-clipboard/clipboard' },
         {
           defaultValue:
-            '@react-native-clipboard/clipboard is required but not installed. Install it with: npm install @react-native-clipboard/clipboard',
+            '`{{library}}` is required but not installed. Install it with: `npm install {{library}}`',
         },
       ),
       { cause: error },

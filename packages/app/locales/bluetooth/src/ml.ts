@@ -3,5 +3,5 @@ import type { BluetoothTranslations } from './types.js'
 /** Bluetooth translations for Malayalam. */
 export const ml: BluetoothTranslations = {
   'bluetooth.error.noProvider':
-    '@molecule/app-bluetooth: പ്രൊവൈഡര്‍ സെറ്റ് ചെയ്തിട്ടില്ല. BluetoothProvider നടപ്പിലാക്കലുമായി setProvider() വിളിക്കുക.',
+    '`@molecule/app-bluetooth`: ദാതാവിനെ സജ്ജമാക്കിയിട്ടില്ല. `BluetoothProvider` നടപ്പിലാക്കൽ ഉപയോഗിച്ച് `setProvider()` വിളിക്കുക — മോളിക്യൂൾ അതിനായി ഒരു ദാതാവിനെയും അയയ്ക്കുന്നില്ല; നിങ്ങളുടെ നേറ്റീവ് റൺടൈമിൽ ഇന്റർഫേസ് നടപ്പിലാക്കി അത് ബോണ്ട് ചെയ്യുക.',
 }

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Filipino. */
 export const fil: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Hindi nahanap ang serbisyo.',
   'status.error.incidentNotFound': 'Hindi nahanap ang insidente.',
   'status.error.validationFailed': 'Nabigong mag-validate: {{errors}}',
@@ -16,4 +15,5 @@ export const fil: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Nabigong ilista ang mga insidente.',
   'status.error.getStatusFailed': 'Nabigong kunin ang status ng system.',
   'status.error.getUptimeFailed': 'Nabigong kunin ang uptime data.',
+  'status.error.forbidden': 'Kinakailangan ang pahintulot upang pamahalaan ang pahina ng katayuan',
 }

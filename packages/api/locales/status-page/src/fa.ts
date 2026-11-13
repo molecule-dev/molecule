@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Persian. */
 export const fa: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'سرویس یافت نشد.',
   'status.error.incidentNotFound': 'رویداد یافت نشد.',
   'status.error.validationFailed': 'اعتبارسنجی ناموفق: {{errors}}',
@@ -16,4 +15,5 @@ export const fa: StatusTranslations = {
   'status.error.listIncidentsFailed': 'فهرست‌کردن رویدادها ناموفق بود.',
   'status.error.getStatusFailed': 'دریافت وضعیت سیستم ناموفق بود.',
   'status.error.getUptimeFailed': 'دریافت داده‌های آپتایم ناموفق بود.',
+  'status.error.forbidden': 'برای مدیریت صفحه وضعیت، مجوز لازم است',
 }

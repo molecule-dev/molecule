@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Kannada. */
 export const kn: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'ಸ್ಥಿತಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಪೂರೈಕೆದಾರ ಕಾನ್ಫಿಗರ್ ಆಗಿಲ್ಲ.',
   'statusDashboard.error.fetchFailed': 'ಸ್ಥಿತಿಯನ್ನು ಪಡೆಯಲು ವಿಫಲವಾಯಿತು: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'ಎಲ್ಲಾ ವ್ಯವಸ್ಥೆಗಳು ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತಿವೆ',
   'statusDashboard.label.someIssues': 'ಕೆಲವು ವ್ಯವಸ್ಥೆಗಳು ಸಮಸ್ಯೆಗಳನ್ನು ಎದುರಿಸುತ್ತಿವೆ',
@@ -17,4 +16,6 @@ export const kn: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'ಕೊನೆಯ ಪರಿಶೀಲನೆ {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'ಯಾವುದೇ ಘಟನೆಗಳು ವರದಿಯಾಗಿಲ್ಲ.',
+  'statusDashboard.error.noProvider':
+    'ಸ್ಥಿತಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಪೂರೈಕೆದಾರರನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ. ಮೊದಲು ಸ್ಥಿತಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಪೂರೈಕೆದಾರರನ್ನು ಬಾಂಡ್ ಮಾಡಿ.',
 }

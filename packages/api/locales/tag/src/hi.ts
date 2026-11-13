@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Hindi. */
 export const hi: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'टैग नाम आवश्यक है',
   'tag.error.invalidName': 'टैग नाम अमान्य है',
   'tag.error.createFailed': 'टैग बनाने में विफल',
@@ -17,4 +16,5 @@ export const hi: TagTranslations = {
   'tag.error.associationNotFound': 'टैग संबंध नहीं मिला',
   'tag.error.removeFailed': 'संसाधन से टैग हटाने में विफल',
   'tag.error.getBySlugFailed': 'टैग द्वारा संसाधन प्राप्त करने में विफल',
+  'tag.error.forbidden': 'टैग प्रबंधित करने के लिए व्यवस्थापक पहुंच आवश्यक है',
 }

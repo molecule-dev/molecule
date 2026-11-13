@@ -309,9 +309,13 @@ function buildSandbox(sprite: SpriteLike, status: Sandbox['status']): Sandbox {
         })
       if ((result.exitCode ?? 0) !== 0) {
         throw new Error(
-          t('codeSandbox.sprites.error.importExtract', undefined, {
-            defaultValue: `Extracting the imported archive failed: ${String(result.stderr ?? '')}`,
-          }),
+          t(
+            'codeSandbox.sprites.error.importExtract',
+            { error: String(result.stderr ?? '') },
+            {
+              defaultValue: 'Extracting the imported archive failed: {{error}}',
+            },
+          ),
         )
       }
     },
@@ -409,8 +413,7 @@ export class SpritesSandboxProvider implements SandboxProvider {
           { templateId: config.templateId },
           {
             defaultValue:
-              `Sprites cannot boot from template "${config.templateId}": checkpoints are ` +
-              'per-sprite and cannot seed a new one. Warm the pool instead.',
+              'Sprites cannot boot from template "{{templateId}}": checkpoints are per-sprite and cannot seed a new one. Warm the pool instead.',
           },
         ),
       )
@@ -503,9 +506,13 @@ export class SpritesSandboxProvider implements SandboxProvider {
       })
     if ((result.exitCode ?? 0) !== 0) {
       throw new Error(
-        t('codeSandbox.sprites.error.envWrite', undefined, {
-          defaultValue: `Writing the /etc/mol platform files failed: ${String(result.stderr ?? '')}`,
-        }),
+        t(
+          'codeSandbox.sprites.error.envWrite',
+          { error: String(result.stderr ?? '') },
+          {
+            defaultValue: 'Writing the /etc/mol platform files failed: {{error}}',
+          },
+        ),
       )
     }
 

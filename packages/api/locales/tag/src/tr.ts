@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Turkish. */
 export const tr: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Etiket adı gereklidir',
   'tag.error.invalidName': 'Etiket adı geçersiz',
   'tag.error.createFailed': 'Etiket oluşturulamadı',
@@ -17,4 +16,5 @@ export const tr: TagTranslations = {
   'tag.error.associationNotFound': 'Etiket ilişkilendirmesi bulunamadı',
   'tag.error.removeFailed': 'Kaynaktan etiket kaldırılamadı',
   'tag.error.getBySlugFailed': 'Etikete göre kaynaklar alınamadı',
+  'tag.error.forbidden': 'Etiketleri yönetmek için yönetici erişimi gereklidir.',
 }

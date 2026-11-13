@@ -3,5 +3,5 @@ import type { NfcTranslations } from './types.js'
 /** Nfc translations for Bengali. */
 export const bn: NfcTranslations = {
   'nfc.error.noProvider':
-    '@molecule/app-nfc: কোনো প্রোভাইডার সেট করা হয়নি। একটি NfcProvider ইমপ্লিমেন্টেশন দিয়ে setProvider() কল করুন।',
+    '`@molecule/app-nfc`: কোনো প্রোভাইডার সেট করা নেই। একটি `NfcProvider` ইমপ্লিমেন্টেশন দিয়ে `setProvider()` কল করুন — Molecule এর জন্য কোনো প্রোভাইডার সরবরাহ করে না; আপনার নেটিভ রানটাইমে ইন্টারফেসটি ইমপ্লিমেন্ট করুন এবং এটিকে বন্ড করুন।',
 }

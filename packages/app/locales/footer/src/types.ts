@@ -6,8 +6,6 @@ export type FooterTranslationKey =
   | 'footer.termsOfService'
   | 'footer.language'
   | 'footer.legalNotConfigured'
-  | 'content.privacyPolicy'
-  | 'content.termsOfService'
 
 /** Translation record mapping footer-react keys to translated strings. */
 export type FooterTranslations = Record<FooterTranslationKey, string>

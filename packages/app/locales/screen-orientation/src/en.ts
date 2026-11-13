@@ -3,5 +3,5 @@ import type { ScreenOrientationTranslations } from './types.js'
 /** Screen Orientation translations for English. */
 export const en: ScreenOrientationTranslations = {
   'screenOrientation.error.noProvider':
-    '@molecule/app-screen-orientation: No provider set. Call setProvider() with a ScreenOrientationProvider implementation.',
+    '`@molecule/app-screen-orientation`: No provider set. Call `setProvider()` with a `ScreenOrientationProvider` implementation — Molecule ships no provider for it; implement the interface on your native runtime and bond it.',
 }

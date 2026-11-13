@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Lithuanian. */
 export const lt: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Paslauga nerasta.',
   'status.error.incidentNotFound': 'Incidentas nerastas.',
   'status.error.validationFailed': 'Patvirtinimas nepavyko: {{errors}}',
@@ -16,4 +15,5 @@ export const lt: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Nepavyko išvardyti incidentų.',
   'status.error.getStatusFailed': 'Nepavyko gauti sistemos būsenos.',
   'status.error.getUptimeFailed': 'Nepavyko gauti veikimo laiko duomenų.',
+  'status.error.forbidden': 'Norint tvarkyti būsenos puslapį, reikalingas leidimas',
 }

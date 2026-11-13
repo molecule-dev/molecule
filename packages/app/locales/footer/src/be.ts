@@ -6,8 +6,6 @@ export const be: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Палітыка прыватнасці',
   'footer.termsOfService': 'Умовы абслугоўвання',
   'footer.language': 'Мова',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Гэты кантэнт яшчэ не настроены. Уладальнік праграмы павінен яго забяспечыць.',
   'footer.about': 'Пра праграму {{appName}}',

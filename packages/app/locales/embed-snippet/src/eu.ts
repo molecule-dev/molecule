@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for eu. */
 export const eu: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Txertatutako kodea ({hizkuntza})',
   'embedSnippet.heading': 'Txertatutako kodea',
   'embedSnippet.eyebrow': 'Kopiatu txertatze-kodea',
   'embedSnippet.copy': 'Kopiatu',
@@ -13,4 +12,5 @@ export const eu: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Argia',
   'embedSnippet.theme.dark': 'Iluna',
   'embedSnippet.theme.auto': 'Autoa',
+  'embedSnippet.aria.region': 'Txertatutako kodea ({{language}})',
 }

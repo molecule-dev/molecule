@@ -161,7 +161,7 @@ export function createBillingRouter<TLimits>(opts: {
     if (!userId) {
       res.status(401).json({
         error: t('auth.unauthorized', undefined, {
-          defaultValue: 'Authentication required.',
+          defaultValue: 'Unauthorized',
         }),
       })
       return
@@ -173,7 +173,7 @@ export function createBillingRouter<TLimits>(opts: {
           'billing.error.unknownPriceId',
           { priceId },
           {
-            defaultValue: `Unknown priceId "${priceId}".`,
+            defaultValue: 'Unknown priceId "{{priceId}}".',
           },
         ),
       })
@@ -209,7 +209,7 @@ export function createBillingRouter<TLimits>(opts: {
     if (!userId) {
       res.status(401).json({
         error: t('auth.unauthorized', undefined, {
-          defaultValue: 'Authentication required.',
+          defaultValue: 'Unauthorized',
         }),
       })
       return
@@ -240,7 +240,7 @@ export function createBillingRouter<TLimits>(opts: {
     if (!userId) {
       res.status(401).json({
         error: t('auth.unauthorized', undefined, {
-          defaultValue: 'Authentication required.',
+          defaultValue: 'Unauthorized',
         }),
       })
       return

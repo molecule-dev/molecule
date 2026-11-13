@@ -3,5 +3,5 @@ import type { MotionTranslations } from './types.js'
 /** Motion translations for Russian. */
 export const ru: MotionTranslations = {
   'motion.error.noProvider':
-    '@molecule/app-motion: Провайдер не установлен. Вызовите setProvider() с реализацией MotionProvider.',
+    '`@molecule/app-motion`: Провайдер не установлен. Вызовите `setProvider()` с реализацией `MotionProvider` — Molecule не предоставляет для него провайдер; реализуйте интерфейс в своей собственной среде выполнения и свяжите его.',
 }

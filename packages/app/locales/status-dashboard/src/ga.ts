@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Irish. */
 export const ga: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Níl soláthraí deais stádais cumraithe.',
   'statusDashboard.error.fetchFailed': 'Theip ar fháil an stádais: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Gach córas ag feidhmiú',
   'statusDashboard.label.someIssues': 'Tá fadhbanna ag roinnt córas',
@@ -17,4 +16,6 @@ export const ga: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Seiceáilte go deireanach {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Níor tuairiscíodh aon teagmhas.',
+  'statusDashboard.error.noProvider':
+    'Níl soláthraí painéil stádais cumraithe. Ceangail soláthraí painéil stádais ar dtús.',
 }

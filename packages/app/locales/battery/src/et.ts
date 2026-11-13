@@ -11,5 +11,5 @@ export const et: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}t {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Pakkujat pole määratud. Kutsu `setProvider()` välja `BatteryProvider` implementatsiooniga – pakkujat laevastikuga kaasas ei ole; implementeeri liides oma natiivses käituskeskkonnas ja seo see.',
+    '`@molecule/app-battery`: Pakkujat pole määratud. Kutsu `setProvider()` välja `BatteryProvider` implementatsiooniga — Molecule ei paku selle jaoks pakkujat; implementeeri liides oma natiivses käituskeskkonnas ja seo see.',
 }

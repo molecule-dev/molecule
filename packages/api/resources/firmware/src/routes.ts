@@ -57,7 +57,7 @@ interface DeviceAuthLocals {
 /** Responds with a 401 Unauthorized JSON error. */
 function unauthorized(res: Response): Response {
   return res.status(401).json({
-    error: t('auth.unauthorized', undefined, { defaultValue: 'Authentication required.' }),
+    error: t('auth.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
   })
 }
 
@@ -71,7 +71,7 @@ function firmwareNotFound(res: Response): Response {
 /** Responds with a 500 Internal Server Error JSON error. */
 function internalError(res: Response): Response {
   return res.status(500).json({
-    error: t('errors.internalServer', undefined, { defaultValue: 'Internal server error.' }),
+    error: t('errors.internalServer', undefined, { defaultValue: 'Internal server error' }),
   })
 }
 

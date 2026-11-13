@@ -78,4 +78,16 @@ export const fr: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ne propose pas de portail de facturation.',
   'user.payment.subscriptionOwnershipMismatch': "Cet abonnement n'est pas associé à votre compte.",
   'user.payment.transactionAlreadyClaimed': 'Cet achat est déjà associé à un autre compte.',
+  'user.error.completeTargetMissing':
+    "Aucun compte n'existe avec l'identifiant fourni comme completeId.",
+  'user.error.completeIdentityMismatch':
+    "Le nom d'utilisateur ou l'adresse électronique fournis ne permettent pas d'identifier le compte completeId.",
+  'user.error.completeNotOwned':
+    'Le compte completeId se connecte via OAuth ; ses identifiants ne sont pas fournis ici.',
+  'user.error.identityRequired':
+    "Le provisionnement nécessite un nom d'utilisateur ou une adresse e-mail pour identifier le compte.",
+  'user.error.usernameEmailConflict':
+    "Le nom d'utilisateur et l'adresse e-mail appartiennent à deux comptes existants différents.",
+  'user.error.oauthEmailCollision':
+    'Un compte existe déjà pour cette adresse e-mail. Veuillez vous connecter avec votre méthode habituelle, puis associer ce fournisseur dans les paramètres de votre compte.',
 }

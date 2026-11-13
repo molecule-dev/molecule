@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Latvian. */
 export const lv: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Birkas nosaukums ir obligāts',
   'tag.error.invalidName': 'Birkas nosaukums ir nederīgs',
   'tag.error.createFailed': 'Neizdevās izveidot birku',
@@ -17,4 +16,5 @@ export const lv: TagTranslations = {
   'tag.error.associationNotFound': 'Birkas saistība nav atrasta',
   'tag.error.removeFailed': 'Neizdevās noņemt birku no resursa',
   'tag.error.getBySlugFailed': 'Neizdevās iegūt resursus pēc birkas',
+  'tag.error.forbidden': 'Lai pārvaldītu tagus, nepieciešama administratora piekļuve.',
 }

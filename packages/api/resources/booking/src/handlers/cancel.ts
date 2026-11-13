@@ -48,9 +48,13 @@ export async function cancel(req: MoleculeRequest, res: MoleculeResponse): Promi
     const allowedTransitions = STATUS_TRANSITIONS[row.status as BookingStatus]
     if (!allowedTransitions || !allowedTransitions.includes('cancelled')) {
       res.status(409).json({
-        error: t('booking.error.cannotCancel', undefined, {
-          defaultValue: `Booking cannot be cancelled from '${row.status}' status`,
-        }),
+        error: t(
+          'booking.error.cannotCancel',
+          { status: row.status },
+          {
+            defaultValue: "Booking cannot be cancelled from '{{status}}' status",
+          },
+        ),
         errorKey: 'booking.error.cannotCancel',
       })
       return

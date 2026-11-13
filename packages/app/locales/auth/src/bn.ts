@@ -10,4 +10,5 @@ export const bn: AuthTranslations = {
   'auth.error.profileSessionChanged': 'জমা দেওয়ার আগে প্রোফাইল সেশনটি পরিবর্তিত হয়েছে।',
   'auth.error.passwordRequiresSignIn': 'পাসওয়ার্ড পরিবর্তন করার আগে সাইন ইন করুন।',
   'auth.error.passwordSessionChanged': 'জমা দেওয়ার আগে পাসওয়ার্ড সেশন পরিবর্তন করা হয়েছে।',
+  'auth.error.requestTimedOut': 'প্রমাণীকরণ অনুরোধের সময়সীমা শেষ হয়ে গেছে।',
 }

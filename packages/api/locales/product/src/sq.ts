@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Albanian. */
 export const sq: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Emri i produktit është i detyrueshëm',
   'product.error.invalidName': 'Emri i produktit është i pavlefshëm',
   'product.error.invalidPrice': 'Kërkohet një çmim i vlefshëm',
@@ -15,4 +14,5 @@ export const sq: ProductTranslations = {
   'product.error.listVariantsFailed': 'Dështoi listimi i varianteve të produktit',
   'product.error.variantNameRequired': 'Emri i variantit është i detyrueshëm',
   'product.error.createVariantFailed': 'Dështoi krijimi i variantit të produktit',
+  'product.error.forbidden': 'Kërkohet qasje administratori për të menaxhuar produktet',
 }

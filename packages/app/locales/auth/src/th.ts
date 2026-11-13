@@ -10,4 +10,5 @@ export const th: AuthTranslations = {
   'auth.error.profileSessionChanged': 'มีการเปลี่ยนแปลงการตั้งค่าโปรไฟล์ก่อนการส่งข้อมูล',
   'auth.error.passwordRequiresSignIn': 'ลงชื่อเข้าใช้ก่อนเปลี่ยนรหัสผ่าน',
   'auth.error.passwordSessionChanged': 'รหัสผ่านของเซสชันถูกเปลี่ยนก่อนส่งข้อมูล',
+  'auth.error.requestTimedOut': 'การร้องขอการตรวจสอบสิทธิ์หมดเวลา',
 }

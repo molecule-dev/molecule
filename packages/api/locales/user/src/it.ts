@@ -79,4 +79,15 @@ export const it: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch':
     'Questo abbonamento non è associato al tuo account.',
   'user.payment.transactionAlreadyClaimed': 'Questo acquisto è già associato a un altro account.',
+  'user.error.completeTargetMissing': "Non esiste alcun account con l'ID fornito come completeId.",
+  'user.error.completeIdentityMismatch':
+    "Il nome utente o l'indirizzo email forniti non identificano l'account completeId.",
+  'user.error.completeNotOwned':
+    "L'account completeId effettua l'accesso tramite OAuth; le sue credenziali non vengono fornite qui.",
+  'user.error.identityRequired':
+    "Per effettuare il provisioning è necessario un nome utente o un indirizzo email per identificare l'account.",
+  'user.error.usernameEmailConflict':
+    "Il nome utente e l'indirizzo email appartengono a due account diversi già esistenti.",
+  'user.error.oauthEmailCollision':
+    'Esiste già un account per questo indirizzo email. Accedi con il tuo metodo di accesso abituale, quindi collega questo provider dalle impostazioni del tuo account.',
 }

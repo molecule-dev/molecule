@@ -147,9 +147,14 @@ function parseScores(raw: string, labels: string[]): LabelScore[] {
   const jsonStr = extractJsonObject(raw)
   const fail = (): never => {
     throw new Error(
-      t('ai-classification.error.parseFailed', undefined, {
-        defaultValue: `AI classification could not parse a JSON scores object from the model output: ${raw.slice(0, 200)}`,
-      }),
+      t(
+        'ai-classification.error.parseFailed',
+        { snippet: raw.slice(0, 200) },
+        {
+          defaultValue:
+            'AI classification could not parse a JSON scores object from the model output: {{snippet}}',
+        },
+      ),
     )
   }
   if (!jsonStr) return fail()
@@ -216,9 +221,7 @@ export const provider: AIClassificationProvider = {
           t(
             'ai-classification.error.aiProviderNotFound',
             { name: providerName },
-            {
-              defaultValue: `AI provider "${providerName}" is not bonded. Bond it before classifying.`,
-            },
+            { defaultValue: 'AI provider "{{name}}" is not bonded. Bond it before classifying.' },
           ),
         )
       }

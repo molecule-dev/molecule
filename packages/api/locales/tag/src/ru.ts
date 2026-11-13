@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Russian. */
 export const ru: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Название тега обязательно',
   'tag.error.invalidName': 'Название тега недопустимо',
   'tag.error.createFailed': 'Не удалось создать тег',
@@ -17,4 +16,5 @@ export const ru: TagTranslations = {
   'tag.error.associationNotFound': 'Связь тега не найдена',
   'tag.error.removeFailed': 'Не удалось удалить тег из ресурса',
   'tag.error.getBySlugFailed': 'Не удалось получить ресурсы по тегу',
+  'tag.error.forbidden': 'Для управления тегами требуются права администратора.',
 }

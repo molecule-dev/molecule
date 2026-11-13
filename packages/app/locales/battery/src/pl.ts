@@ -11,5 +11,5 @@ export const pl: Partial<BatteryTranslations> = {
   'battery.remainingTime': '{{hours}} H {{minutes}} M',
   'battery.remainingMinutes': '{{minutes}} M',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Nie ustawiono dostawcy. Wywołaj `setProvider()` z implementacją `BatteryProvider` — żaden dostawca nie jest dostarczany z flotą; zaimplementuj interfejs w swoim natywnym środowisku wykonawczym i powiąż go.',
+    '`@molecule/app-battery`: Nie ustawiono dostawcy. Wywołaj `setProvider()` z implementacją `BatteryProvider` — Molecule nie dostarcza dla niego żadnego dostawcy; zaimplementuj interfejs w swoim natywnym środowisku wykonawczym i powiąż go.',
 }

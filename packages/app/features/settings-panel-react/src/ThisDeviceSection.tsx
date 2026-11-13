@@ -16,7 +16,9 @@ export function ThisDeviceSection(): JSX.Element {
   const { deviceInfo } = useDevice()
   return (
     <section>
-      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>{t('settings.thisDevice')}</h3>
+      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+        {t('settings.thisDevice', undefined, { defaultValue: 'This Device' })}
+      </h3>
       <dl className={cm.cn(cm.stack(1), cm.textSize('sm'))}>
         <Flex justify="between">
           <dt className={cm.textMuted}>{t('settings.platform')}</dt>

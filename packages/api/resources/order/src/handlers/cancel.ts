@@ -67,9 +67,13 @@ export async function cancel(req: MoleculeRequest, res: MoleculeResponse): Promi
     const allowedTransitions = STATUS_TRANSITIONS[orderRow.status as OrderStatus]
     if (!allowedTransitions || !allowedTransitions.includes('cancelled')) {
       res.status(409).json({
-        error: t('order.error.cannotCancel', undefined, {
-          defaultValue: `Order cannot be cancelled from '${orderRow.status}' status`,
-        }),
+        error: t(
+          'order.error.cannotCancel',
+          { status: orderRow.status },
+          {
+            defaultValue: "Order cannot be cancelled from '{{status}}' status",
+          },
+        ),
         errorKey: 'order.error.cannotCancel',
       })
       return

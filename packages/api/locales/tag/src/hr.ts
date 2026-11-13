@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Croatian. */
 export const hr: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Naziv oznake je obavezan',
   'tag.error.invalidName': 'Naziv oznake je nevažeći',
   'tag.error.createFailed': 'Stvaranje oznake nije uspjelo',
@@ -17,4 +16,5 @@ export const hr: TagTranslations = {
   'tag.error.associationNotFound': 'Povezanost oznake nije pronađena',
   'tag.error.removeFailed': 'Uklanjanje oznake s resursa nije uspjelo',
   'tag.error.getBySlugFailed': 'Dohvaćanje resursa po oznaci nije uspjelo',
+  'tag.error.forbidden': 'Za upravljanje oznakama potreban je administratorski pristup',
 }

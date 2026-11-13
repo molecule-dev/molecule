@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Zulu. */
 export const zu: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Umhlinzeki wedashubhodi yesimo awulungisiwe.',
   'statusDashboard.error.fetchFailed': 'Yehlulekile ukuthola isimo: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Zonke izinhlelo ziyasebenza',
   'statusDashboard.label.someIssues': 'Ezinye izinhlelo zinezinkinga',
@@ -17,4 +16,6 @@ export const zu: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Ihlolwe okokugcina {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Azikho izehlakalo ezibikiwe.',
+  'statusDashboard.error.noProvider':
+    'Umhlinzeki wedeshibhodi yesimo akalungiselelwanga. Bopha umhlinzeki wedeshibhodi yesimo kuqala.',
 }

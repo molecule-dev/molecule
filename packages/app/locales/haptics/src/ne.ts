@@ -3,5 +3,5 @@ import type { HapticsTranslations } from './types.js'
 /** Haptics translations for Nepali. */
 export const ne: HapticsTranslations = {
   'haptics.error.noProvider':
-    '@molecule/app-haptics: प्रदायक सेट गरिएको छैन। HapticsProvider कार्यान्वयनसँग setProvider() कल गर्नुहोस्।',
+    '`@molecule/app-haptics`: कुनै प्रदायक सेट गरिएको छैन। `HapticsProvider` कार्यान्वयनको साथ `setProvider()` कल गर्नुहोस् — Molecule ले यसको लागि कुनै प्रदायक पठाउँदैन; तपाईंको नेटिभ रनटाइममा इन्टरफेस लागू गर्नुहोस् र यसलाई बन्ड गर्नुहोस्।',
 }

@@ -10,4 +10,5 @@ export const uk: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Сеанс профілю змінився перед надсиланням',
   'auth.error.passwordRequiresSignIn': 'Увійдіть перед зміною пароля',
   'auth.error.passwordSessionChanged': 'Сеанс пароля змінено перед надсиланням',
+  'auth.error.requestTimedOut': 'Час очікування запиту на автентифікацію минув',
 }

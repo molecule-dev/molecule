@@ -76,4 +76,16 @@ export const ru: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} не предоставляет портал для выставления счетов.',
   'user.payment.subscriptionOwnershipMismatch': 'Эта подписка не относится к вашему аккаунту.',
   'user.payment.transactionAlreadyClaimed': 'Эта покупка уже связана с другим аккаунтом.',
+  'user.error.completeTargetMissing':
+    'Учетная запись с указанным идентификатором completeId не существует.',
+  'user.error.completeIdentityMismatch':
+    'Указанное имя пользователя или адрес электронной почты не идентифицируют учетную запись completeId.',
+  'user.error.completeNotOwned':
+    'Учетная запись completeId входит в систему через OAuth; ее учетные данные здесь не предоставляются.',
+  'user.error.identityRequired':
+    'Для идентификации учетной записи при создании учетной записи требуется имя пользователя или адрес электронной почты.',
+  'user.error.usernameEmailConflict':
+    'Имя пользователя и адрес электронной почты принадлежат двум разным существующим учетным записям.',
+  'user.error.oauthEmailCollision':
+    'Для этого адреса электронной почты уже существует учетная запись. Пожалуйста, войдите в систему, используя первоначальный способ, а затем свяжите этот почтовый сервис в настройках своей учетной записи.',
 }

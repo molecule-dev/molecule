@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Thai. */
 export const th: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'ไม่ได้กำหนดค่าผู้ให้บริการแดชบอร์ดสถานะ',
   'statusDashboard.error.fetchFailed': 'ไม่สามารถดึงสถานะได้: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'ระบบทั้งหมดทำงานปกติ',
   'statusDashboard.label.someIssues': 'บางระบบกำลังประสบปัญหา',
@@ -17,4 +16,6 @@ export const th: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'ตรวจสอบล่าสุด {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'ไม่มีเหตุการณ์ที่รายงาน',
+  'statusDashboard.error.noProvider':
+    'ผู้ให้บริการแดชบอร์ดสถานะยังไม่ได้กำหนดค่า โปรดเชื่อมต่อผู้ให้บริการแดชบอร์ดสถานะก่อน',
 }

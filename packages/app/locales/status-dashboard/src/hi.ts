@@ -9,7 +9,6 @@ export const hi: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'सेवाएं',
   'statusDashboard.label.incidents': 'घटनाएँ',
   'statusDashboard.label.uptime': 'अपटाइम',
-  'statusDashboard.error.noProvider': 'स्टेटस डैशबोर्ड प्रदाता कॉन्फ़िगर नहीं किया गया है।',
   'statusDashboard.error.fetchFailed': 'स्थिति प्राप्त करने में विफल: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'सभी प्रणालियाँ चालू हैं',
   'statusDashboard.label.someIssues': 'कुछ सिस्टमों में समस्याएँ आ रही हैं।',
@@ -17,4 +16,6 @@ export const hi: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'पिछली बार जाँच की गई {{time}}',
   'statusDashboard.label.latency': '{{ms}} एमएस',
   'statusDashboard.label.noIncidents': 'कोई घटना दर्ज नहीं की गई।',
+  'statusDashboard.error.noProvider':
+    'स्टेटस डैशबोर्ड प्रदाता कॉन्फ़िगर नहीं किया गया है। पहले एक स्टेटस डैशबोर्ड प्रदाता को कॉन्फ़िगर करें।',
 }

@@ -53,7 +53,7 @@ async function getAsyncStorage(): Promise<AsyncStorageAPI> {
         {},
         {
           defaultValue:
-            '@react-native-async-storage/async-storage is not installed. Install it with: npm install @react-native-async-storage/async-storage',
+            '`@react-native-async-storage/async-storage` is not installed. Install it with: `npm install @react-native-async-storage/async-storage`',
         },
       ),
       { cause: error },
@@ -129,7 +129,7 @@ export function createAsyncStorageProvider(config: AsyncStorageConfig = {}): Sto
           t(
             'storage.error.setFailed',
             { key },
-            { defaultValue: `Failed to set value for key "${key}" in AsyncStorage` },
+            { defaultValue: 'Failed to set value for key "{{key}}" in AsyncStorage' },
           ),
           { cause: error },
         )

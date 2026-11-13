@@ -6,8 +6,6 @@ export const ca: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Política de privacitat',
   'footer.termsOfService': 'Condicions del servei',
   'footer.language': 'Llengua',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     "Aquest contingut encara no s'ha configurat. El propietari de l'aplicació l'ha de proporcionar.",
   'footer.about': 'Quant a {{appName}}',

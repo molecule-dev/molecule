@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for German. */
 export const de: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tag-Name ist erforderlich',
   'tag.error.invalidName': 'Tag-Name ist ungültig',
   'tag.error.createFailed': 'Tag konnte nicht erstellt werden',
@@ -17,4 +16,5 @@ export const de: TagTranslations = {
   'tag.error.associationNotFound': 'Tag-Zuordnung nicht gefunden',
   'tag.error.removeFailed': 'Tag konnte nicht von der Ressource entfernt werden',
   'tag.error.getBySlugFailed': 'Ressourcen konnten nicht nach Tag abgerufen werden',
+  'tag.error.forbidden': 'Für die Verwaltung von Tags ist ein Administratorzugriff erforderlich.',
 }

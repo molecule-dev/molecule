@@ -10,4 +10,5 @@ export const ka: AuthTranslations = {
   'auth.error.profileSessionChanged': 'პროფილის სესია გაგზავნამდე შეიცვალა',
   'auth.error.passwordRequiresSignIn': 'პაროლის შეცვლამდე შედით სისტემაში',
   'auth.error.passwordSessionChanged': 'პაროლის სესიის გაგზავნამდე შეიცვალა',
+  'auth.error.requestTimedOut': 'ავტორიზაციის მოთხოვნის დრო ამოიწურა',
 }

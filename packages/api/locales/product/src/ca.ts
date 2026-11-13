@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Catalan. */
 export const ca: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'El nom del producte és obligatori',
   'product.error.invalidName': 'El nom del producte no és vàlid',
   'product.error.invalidPrice': 'Es requereix un preu vàlid',
@@ -15,4 +14,5 @@ export const ca: ProductTranslations = {
   'product.error.listVariantsFailed': "No s'han pogut llistar les variants del producte",
   'product.error.variantNameRequired': 'El nom de la variant és obligatori',
   'product.error.createVariantFailed': "No s'ha pogut crear la variant del producte",
+  'product.error.forbidden': "Cal accés d'administrador per gestionar productes",
 }

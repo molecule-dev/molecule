@@ -26,10 +26,10 @@ export async function unsubscribe(req: MoleculeRequest, res: MoleculeResponse): 
   const token = req.params.token
   if (!token) {
     res.status(400).json({
-      error: t('subscriber.error.tokenRequired', undefined, {
+      error: t('subscriber.error.unsubscribeTokenRequired', undefined, {
         defaultValue: 'Unsubscribe token is required',
       }),
-      errorKey: 'subscriber.error.tokenRequired',
+      errorKey: 'subscriber.error.unsubscribeTokenRequired',
     })
     return
   }
@@ -41,10 +41,10 @@ export async function unsubscribe(req: MoleculeRequest, res: MoleculeResponse): 
 
     if (!row) {
       res.status(404).json({
-        error: t('subscriber.error.invalidToken', undefined, {
+        error: t('subscriber.error.unsubscribeTokenInvalid', undefined, {
           defaultValue: 'Invalid or expired unsubscribe token',
         }),
-        errorKey: 'subscriber.error.invalidToken',
+        errorKey: 'subscriber.error.unsubscribeTokenInvalid',
       })
       return
     }

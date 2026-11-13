@@ -9,7 +9,6 @@ export const id: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'Layanan',
   'statusDashboard.label.incidents': 'Insiden',
   'statusDashboard.label.uptime': 'Waktu aktif',
-  'statusDashboard.error.noProvider': 'Penyedia dasbor status belum dikonfigurasi.',
   'statusDashboard.error.fetchFailed': 'Gagal mengambil status: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Semua Sistem Beroperasi',
   'statusDashboard.label.someIssues': 'Beberapa Sistem Mengalami Masalah',
@@ -17,4 +16,6 @@ export const id: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Terakhir diperiksa {{time}}',
   'statusDashboard.label.latency': '{{ms}} MS',
   'statusDashboard.label.noIncidents': 'Tidak ada insiden yang dilaporkan.',
+  'statusDashboard.error.noProvider':
+    'Penyedia dasbor status belum dikonfigurasi. Hubungkan penyedia dasbor status terlebih dahulu.',
 }

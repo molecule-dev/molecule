@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Arabic. */
 export const ar: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'اسم الوسم مطلوب',
   'tag.error.invalidName': 'اسم الوسم غير صالح',
   'tag.error.createFailed': 'فشل في إنشاء الوسم',
@@ -17,4 +16,5 @@ export const ar: TagTranslations = {
   'tag.error.associationNotFound': 'ارتباط الوسم غير موجود',
   'tag.error.removeFailed': 'فشل في إزالة الوسم من المورد',
   'tag.error.getBySlugFailed': 'فشل في الحصول على الموارد حسب الوسم',
+  'tag.error.forbidden': 'يلزم الوصول إلى حساب المسؤول لإدارة العلامات',
 }

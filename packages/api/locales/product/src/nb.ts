@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Norwegian Bokmål. */
 export const nb: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Produktnavn er påkrevd',
   'product.error.invalidName': 'Produktnavnet er ugyldig',
   'product.error.invalidPrice': 'En gyldig pris er påkrevd',
@@ -15,4 +14,5 @@ export const nb: ProductTranslations = {
   'product.error.listVariantsFailed': 'Kunne ikke liste produktvarianter',
   'product.error.variantNameRequired': 'Variantnavn er påkrevd',
   'product.error.createVariantFailed': 'Kunne ikke opprette produktvariant',
+  'product.error.forbidden': 'Administratortilgang kreves for å administrere produkter',
 }

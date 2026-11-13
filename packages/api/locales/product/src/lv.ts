@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Latvian. */
 export const lv: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Produkta nosaukums ir obligāts',
   'product.error.invalidName': 'Produkta nosaukums ir nederīgs',
   'product.error.invalidPrice': 'Nepieciešama derīga cena',
@@ -15,4 +14,5 @@ export const lv: ProductTranslations = {
   'product.error.listVariantsFailed': 'Neizdevās uzskaitīt produkta variantus',
   'product.error.variantNameRequired': 'Varianta nosaukums ir obligāts',
   'product.error.createVariantFailed': 'Neizdevās izveidot produkta variantu',
+  'product.error.forbidden': 'Produktu pārvaldībai nepieciešama administratora piekļuve',
 }

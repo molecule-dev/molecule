@@ -75,4 +75,15 @@ export const pa: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} ਬਿਲਿੰਗ ਪੋਰਟਲ ਦੀ ਪੇਸ਼ਕਸ਼ ਨਹੀਂ ਕਰਦਾ।',
   'user.payment.subscriptionOwnershipMismatch': 'ਇਹ ਗਾਹਕੀ ਤੁਹਾਡੇ ਖਾਤੇ ਨਾਲ ਸਬੰਧਤ ਨਹੀਂ ਹੈ।',
   'user.payment.transactionAlreadyClaimed': 'ਇਹ ਖਰੀਦ ਪਹਿਲਾਂ ਹੀ ਕਿਸੇ ਹੋਰ ਖਾਤੇ ਨਾਲ ਜੁੜੀ ਹੋਈ ਹੈ।',
+  'user.error.completeTargetMissing':
+    "ਪੂਰਾ ਆਈਡੀ ਦੇ ਤੌਰ 'ਤੇ ਦਿੱਤੀ ਗਈ ਆਈਡੀ ਵਾਲਾ ਕੋਈ ਖਾਤਾ ਮੌਜੂਦ ਨਹੀਂ ਹੈ।",
+  'user.error.completeIdentityMismatch':
+    'ਦਿੱਤਾ ਗਿਆ ਯੂਜ਼ਰਨੇਮ ਜਾਂ ਈਮੇਲ ਪੂਰਾ ਆਈਡੀ ਖਾਤੇ ਦੀ ਪਛਾਣ ਨਹੀਂ ਕਰਦਾ।',
+  'user.error.completeNotOwned':
+    'completeId ਖਾਤਾ OAuth ਰਾਹੀਂ ਸਾਈਨ ਇਨ ਕਰਦਾ ਹੈ; ਇਸਦੇ ਪ੍ਰਮਾਣ ਪੱਤਰ ਇੱਥੇ ਪ੍ਰਦਾਨ ਨਹੀਂ ਕੀਤੇ ਗਏ ਹਨ।',
+  'user.error.identityRequired':
+    'ਪ੍ਰੋਵਿਜ਼ਨਿੰਗ ਨੂੰ ਖਾਤੇ ਦੀ ਪਛਾਣ ਕਰਨ ਲਈ ਇੱਕ ਉਪਭੋਗਤਾ ਨਾਮ ਜਾਂ ਈਮੇਲ ਦੀ ਲੋੜ ਹੁੰਦੀ ਹੈ।',
+  'user.error.usernameEmailConflict': 'ਯੂਜ਼ਰਨੇਮ ਅਤੇ ਈਮੇਲ ਦੋ ਵੱਖ-ਵੱਖ ਮੌਜੂਦਾ ਖਾਤਿਆਂ ਨਾਲ ਸਬੰਧਤ ਹਨ।',
+  'user.error.oauthEmailCollision':
+    'ਇਸ ਈਮੇਲ ਲਈ ਪਹਿਲਾਂ ਹੀ ਇੱਕ ਖਾਤਾ ਮੌਜੂਦ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਮੂਲ ਢੰਗ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ, ਫਿਰ ਆਪਣੀਆਂ ਖਾਤਾ ਸੈਟਿੰਗਾਂ ਤੋਂ ਇਸ ਪ੍ਰਦਾਤਾ ਨੂੰ ਲਿੰਕ ਕਰੋ।',
 }

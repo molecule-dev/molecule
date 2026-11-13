@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for mk. */
 export const mk: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Код за вградување ({јазик})',
   'embedSnippet.heading': 'Код за вградување',
   'embedSnippet.eyebrow': 'Копирај го кодот за вградување',
   'embedSnippet.copy': 'Копирај',
@@ -13,4 +12,5 @@ export const mk: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Светло',
   'embedSnippet.theme.dark': 'Темно',
   'embedSnippet.theme.auto': 'Автоматски',
+  'embedSnippet.aria.region': 'Код за вградување ({{language}})',
 }

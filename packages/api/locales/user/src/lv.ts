@@ -76,4 +76,15 @@ export const lv: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} nepiedāvā norēķinu portālu.',
   'user.payment.subscriptionOwnershipMismatch': 'Šis abonements nepieder jūsu kontam.',
   'user.payment.transactionAlreadyClaimed': 'Šis pirkums jau ir saistīts ar citu kontu.',
+  'user.error.completeTargetMissing': 'Nav konta ar norādīto ID kā completeId.',
+  'user.error.completeIdentityMismatch':
+    'Norādītais lietotājvārds vai e-pasta adrese neidentificē completeId kontu.',
+  'user.error.completeNotOwned':
+    '“completeId” konts piesakās, izmantojot OAuth; tā akreditācijas dati šeit netiek nodrošināti.',
+  'user.error.identityRequired':
+    'Nodrošināšanai ir nepieciešams lietotājvārds vai e-pasts, lai identificētu kontu.',
+  'user.error.usernameEmailConflict':
+    'Lietotājvārds un e-pasts pieder diviem dažādiem esošiem kontiem.',
+  'user.error.oauthEmailCollision':
+    'Šim e-pastam jau pastāv konts. Lūdzu, piesakieties, izmantojot sākotnējo metodi, un pēc tam konta iestatījumos saistiet šo pakalpojumu sniedzēju.',
 }

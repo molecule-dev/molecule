@@ -10,7 +10,7 @@ export const id: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Terang',
   'embedSnippet.theme.dark': 'Gelap',
   'embedSnippet.theme.auto': 'Otomatis',
-  'embedSnippet.aria.region': 'Kode sematan ({bahasa})',
   'embedSnippet.eyebrow': 'Salin kode sematan',
   'embedSnippet.controls.width': 'Lebar',
+  'embedSnippet.aria.region': 'Kode sematan ({{language}})',
 }

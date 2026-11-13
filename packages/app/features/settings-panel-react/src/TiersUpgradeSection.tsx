@@ -145,7 +145,7 @@ export function TiersUpgradeSection(): JSX.Element {
         </h3>
         <Flex align="center" justify="between">
           <span className={cm.textSize('sm')}>
-            {t('settings.plan', undefined, { defaultValue: 'Plan' })}
+            {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
             <strong>{plan}</strong>
           </span>
           {planKey === 'free' ? (

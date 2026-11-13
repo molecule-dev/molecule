@@ -9,7 +9,6 @@ export const sv: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'Tjänster',
   'statusDashboard.label.incidents': 'Incidenter',
   'statusDashboard.label.uptime': 'Drifttid',
-  'statusDashboard.error.noProvider': 'Statusöversiktsleverantören har inte konfigurerats.',
   'statusDashboard.error.fetchFailed': 'Misslyckades med att hämta status: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Alla system i drift',
   'statusDashboard.label.someIssues': 'Vissa system upplever problem',
@@ -17,4 +16,6 @@ export const sv: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Senast kontrollerad {{time}}',
   'statusDashboard.label.latency': '{{ms}} ms',
   'statusDashboard.label.noIncidents': 'Inga incidenter rapporterade.',
+  'statusDashboard.error.noProvider':
+    'Statusdashboardleverantören är inte konfigurerad. Koppla först en statusdashboardleverantör.',
 }

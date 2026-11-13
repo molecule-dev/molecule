@@ -54,7 +54,7 @@ async function getReactNativeStatusBar(): Promise<StatusBarStatic> {
       t(
         'statusBar.error.missingDependency',
         { library: 'react-native' },
-        { defaultValue: 'react-native is required but not installed.' },
+        { defaultValue: '`{{library}}` is required but not installed.' },
       ),
       { cause: error },
     )

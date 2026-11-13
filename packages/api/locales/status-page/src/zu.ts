@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Zulu. */
 export const zu: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Isevisi ayitholakalanga.',
   'status.error.incidentNotFound': 'Isigameko asitholakalanga.',
   'status.error.validationFailed': 'Ukuqinisekisa kwehlulekile: {{errors}}',
@@ -16,4 +15,5 @@ export const zu: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Ukufaka uhlu lwezigameko kwehlulekile.',
   'status.error.getStatusFailed': 'Ukuthola isimo sohlelo kwehlulekile.',
   'status.error.getUptimeFailed': 'Ukuthola idatha yesikhathi sokusebenza kwehlulekile.',
+  'status.error.forbidden': 'Imvume iyadingeka ukuphatha ikhasi lesimo',
 }

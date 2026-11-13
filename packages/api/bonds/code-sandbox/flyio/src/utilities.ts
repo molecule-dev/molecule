@@ -43,7 +43,8 @@ export function renderEnvExports(env: Record<string, string> | undefined): strin
           'codeSandbox.flyio.error.badEnvName',
           { name },
           {
-            defaultValue: `Invalid environment variable name "${name}" — must match [A-Za-z_][A-Za-z0-9_]*.`,
+            defaultValue:
+              'Invalid environment variable name "{{name}}" — must match [A-Za-z_][A-Za-z0-9_]*.',
           },
         ),
       )

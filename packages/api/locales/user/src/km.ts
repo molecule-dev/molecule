@@ -76,4 +76,15 @@ export const km: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} មិនផ្តល់ជូនវិបផតថលសម្រាប់គិតប្រាក់ទេ។',
   'user.payment.subscriptionOwnershipMismatch': 'ការជាវនេះមិនមែនជារបស់គណនីរបស់អ្នកទេ។',
   'user.payment.transactionAlreadyClaimed': 'ការទិញនេះត្រូវបានភ្ជាប់ជាមួយគណនីមួយផ្សេងទៀតរួចហើយ។',
+  'user.error.completeTargetMissing': 'គ្មានគណនីដែលមានលេខសម្គាល់ដែលបានផ្គត់ផ្គង់ជា completeId ទេ។',
+  'user.error.completeIdentityMismatch':
+    'ឈ្មោះ​អ្នកប្រើប្រាស់ ឬអ៊ីមែល​ដែលបានផ្តល់​មិនកំណត់អត្តសញ្ញាណគណនី completeId ទេ។',
+  'user.error.completeNotOwned':
+    'គណនី completeId ចូលតាមរយៈ OAuth; ព័ត៌មានសម្គាល់របស់វាមិនត្រូវបានផ្តល់ជូននៅទីនេះទេ។',
+  'user.error.identityRequired':
+    'ការផ្តល់ត្រូវការឈ្មោះអ្នកប្រើប្រាស់ ឬអ៊ីមែល ដើម្បីកំណត់អត្តសញ្ញាណគណនី។',
+  'user.error.usernameEmailConflict':
+    'ឈ្មោះ​អ្នកប្រើប្រាស់ និង​អ៊ីមែល​នេះ​ជា​របស់​គណនី​ពីរ​ផ្សេង​គ្នា​ដែល​មាន​ស្រាប់។',
+  'user.error.oauthEmailCollision':
+    'មានគណនីមួយរួចហើយសម្រាប់អ៊ីមែលនេះ។ សូមចូលដោយប្រើវិធីសាស្ត្រដើមរបស់អ្នក បន្ទាប់មកភ្ជាប់អ្នកផ្តល់សេវានេះពីការកំណត់គណនីរបស់អ្នក។',
 }

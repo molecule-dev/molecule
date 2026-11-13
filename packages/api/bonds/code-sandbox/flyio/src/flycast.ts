@@ -137,9 +137,7 @@ export function parsePrivateServices(raw: string | undefined): FlyPrivateService
           { entry },
           {
             defaultValue:
-              `Invalid Fly private service "${entry}" — expected "<fly-app>:<port>", e.g. ` +
-              '"molecule-pg-tenant:5432". The app is the Fly app a Flycast address is allocated ' +
-              'on; the port is the one a sandbox dials it at.',
+              'Invalid Fly private service "{{entry}}" — expected "<fly-app>:<port>", e.g. "molecule-pg-tenant:5432". The app is the Fly app a Flycast address is allocated on; the port is the one a sandbox dials it at.',
           },
         ),
       )
@@ -302,13 +300,10 @@ export function assertPrivateRoutesForEnv(
       throw new Error(
         t(
           'codeSandbox.flyio.error.undeclaredPrivateRoute',
-          { key, app: target.app },
+          { key, app: target.app, host: flycastHost(target.app) },
           {
             defaultValue:
-              `${key} points at "${flycastHost(target.app)}", but "${target.app}" is not a ` +
-              'declared Fly private service, so no Flycast address is allocated into this ' +
-              "project's 6PN and the name will not resolve inside the sandbox. Add " +
-              `"${target.app}:<port>" to FLY_SANDBOX_PRIVATE_SERVICES (or config.privateServices).`,
+              '{{key}} points at "{{host}}", but "{{app}}" is not a declared Fly private service, so no Flycast address is allocated into this project\'s 6PN and the name will not resolve inside the sandbox. Add "{{app}}:<port>" to FLY_SANDBOX_PRIVATE_SERVICES (or config.privateServices).',
           },
         ),
       )
@@ -317,13 +312,16 @@ export function assertPrivateRoutesForEnv(
       throw new Error(
         t(
           'codeSandbox.flyio.error.privateRoutePortMismatch',
-          { key, app: target.app, port: String(target.port) },
+          {
+            key,
+            app: target.app,
+            port: String(target.port),
+            host: flycastHost(target.app),
+            declaredPorts: forApp.map((service) => service.port).join(', '),
+          },
           {
             defaultValue:
-              `${key} dials "${flycastHost(target.app)}" on port ${target.port}, but the declared ` +
-              `Fly private service for "${target.app}" is on port ` +
-              `${forApp.map((service) => service.port).join(', ')}. The sandbox egress policy ` +
-              'allows the declared port, so the connection would be dropped. Make the two match.',
+              '{{key}} dials "{{host}}" on port {{port}}, but the declared Fly private service for "{{app}}" is on port {{declaredPorts}}. The sandbox egress policy allows the declared port, so the connection would be dropped. Make the two match.',
           },
         ),
       )

@@ -65,7 +65,7 @@ export class FlyApiError extends Error {
       t(
         'codeSandbox.flyio.error.apiError',
         { method, path, status: String(status), error: body },
-        { defaultValue: `Fly API ${method} ${path}: ${status} ${body}` },
+        { defaultValue: 'Fly API {{method}} {{path}}: {{status}} {{error}}' },
       ),
       options,
     )
@@ -179,7 +179,7 @@ export function normalizeApiUrl(value: string | undefined): string {
       t(
         'codeSandbox.flyio.error.badApiUrl',
         { value: raw },
-        { defaultValue: `Invalid Fly API URL "${raw}" — expected an absolute URL.` },
+        { defaultValue: 'Invalid Fly API URL "{{value}}" — expected an absolute URL.' },
       ),
       { cause: error },
     )

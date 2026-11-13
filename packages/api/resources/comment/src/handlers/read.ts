@@ -30,7 +30,7 @@ export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise
     const comment = await getCommentById(commentId)
     if (!comment) {
       res.status(404).json({
-        error: t('resource.error.notFound', undefined, { defaultValue: 'Not found' }),
+        error: t('resource.error.notFound', undefined, { defaultValue: 'Not found.' }),
         errorKey: 'resource.error.notFound',
       })
       return

@@ -80,4 +80,16 @@ export const zu: UserTranslations = {
   'user.payment.subscriptionOwnershipMismatch': 'Lokhu okubhaliselwe akuyona eye-akhawunti yakho.',
   'user.payment.transactionAlreadyClaimed':
     'Lokhu kuthenga sekuvele kuhlotshaniswa nenye i-akhawunti.',
+  'user.error.completeTargetMissing':
+    'Akukho akhawunti ekhona lapho i-id inikezwe njenge-Id ephelele.',
+  'user.error.completeIdentityMismatch':
+    'Igama lomsebenzisi noma i-imeyili enikeziwe ayibonisi i-akhawunti ephelele ye-Id.',
+  'user.error.completeNotOwned':
+    'I-akhawunti ephelele ye-Id ingena nge-OAuth; iziqinisekiso zayo azinikezwa lapha.',
+  'user.error.identityRequired':
+    'Ukunikeza kudinga igama lomsebenzisi noma i-imeyili ukuze kuhlonzwe i-akhawunti.',
+  'user.error.usernameEmailConflict':
+    'Igama lomsebenzisi kanye ne-imeyili kungokwama-akhawunti amabili ahlukene akhona.',
+  'user.error.oauthEmailCollision':
+    'I-akhawunti isivele ikhona yale imeyili. Sicela ungene ngemvume ngendlela yakho yokuqala, bese uxhumanisa lo mhlinzeki kusuka kuzilungiselelo ze-akhawunti yakho.',
 }

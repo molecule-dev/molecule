@@ -77,4 +77,16 @@ export const gl: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} non ofrece un portal de facturación.',
   'user.payment.subscriptionOwnershipMismatch': 'Esta subscrición non pertence á túa conta.',
   'user.payment.transactionAlreadyClaimed': 'Esta compra xa está asociada a outra conta.',
+  'user.error.completeTargetMissing':
+    'Non existe ningunha conta co ID proporcionado como completeId.',
+  'user.error.completeIdentityMismatch':
+    'O nome de usuario ou correo electrónico proporcionado non identifica a conta completeId.',
+  'user.error.completeNotOwned':
+    'A conta completeId inicia sesión a través de OAuth; as súas credenciais non se fornecen aquí.',
+  'user.error.identityRequired':
+    'O aprovisionamento require un nome de usuario ou un correo electrónico para identificar a conta.',
+  'user.error.usernameEmailConflict':
+    'O nome de usuario e o correo electrónico pertencen a dúas contas existentes diferentes.',
+  'user.error.oauthEmailCollision':
+    'Xa existe unha conta para este correo electrónico. Inicia sesión co teu método orixinal e, a seguir, vincula este provedor desde a configuración da túa conta.',
 }

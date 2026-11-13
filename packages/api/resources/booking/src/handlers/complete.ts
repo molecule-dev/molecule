@@ -46,9 +46,13 @@ export async function complete(req: MoleculeRequest, res: MoleculeResponse): Pro
     const allowedTransitions = STATUS_TRANSITIONS[row.status as BookingStatus]
     if (!allowedTransitions || !allowedTransitions.includes('completed')) {
       res.status(409).json({
-        error: t('booking.error.cannotComplete', undefined, {
-          defaultValue: `Booking cannot be completed from '${row.status}' status`,
-        }),
+        error: t(
+          'booking.error.cannotComplete',
+          { status: row.status },
+          {
+            defaultValue: "Booking cannot be completed from '{{status}}' status",
+          },
+        ),
         errorKey: 'booking.error.cannotComplete',
       })
       return

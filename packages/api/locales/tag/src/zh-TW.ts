@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Chinese Traditional. */
 export const zhTW: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': '標籤名稱為必填項',
   'tag.error.invalidName': '標籤名稱無效',
   'tag.error.createFailed': '建立標籤失敗',
@@ -17,4 +16,5 @@ export const zhTW: TagTranslations = {
   'tag.error.associationNotFound': '找不到標籤關聯',
   'tag.error.removeFailed': '從資源移除標籤失敗',
   'tag.error.getBySlugFailed': '依標籤取得資源失敗',
+  'tag.error.forbidden': '需要管理員權限才能管理標籤',
 }

@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Maltese. */
 export const mt: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Il-fornitur tad-dashboard tal-istatus mhuwiex ikkonfigurat.',
   'statusDashboard.error.fetchFailed': 'Ma rnexxielekx tikseb l-istatus: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Is-sistemi kollha qed jahdmu',
   'statusDashboard.label.someIssues': 'Xi sistemi qed jesperjenzaw problemi',
@@ -17,4 +16,6 @@ export const mt: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'L-ahhar iccekjat {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'L-ebda incident irrappurtat.',
+  'statusDashboard.error.noProvider':
+    'Il-fornitur tad-dashboard tal-istatus mhux ikkonfigurat. L-ewwel waħħal fornitur tad-dashboard tal-istatus.',
 }

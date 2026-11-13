@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Yoruba. */
 export const yo: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'A kò rí iṣẹ́ náà.',
   'status.error.incidentNotFound': 'A kò rí ìṣẹ̀lẹ̀ náà.',
   'status.error.validationFailed': 'Ìfọwọ́sí kùnà: {{errors}}',
@@ -16,4 +15,5 @@ export const yo: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Kò lè ṣàkójọ àwọn ìṣẹ̀lẹ̀.',
   'status.error.getStatusFailed': 'Kò lè gba ipò ètò.',
   'status.error.getUptimeFailed': 'Kò lè gba dátà àkókò ṣíṣẹ́.',
+  'status.error.forbidden': 'A nilo igbanilaaye lati ṣakoso oju-iwe ipo',
 }

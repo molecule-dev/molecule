@@ -11,5 +11,5 @@ export const tr: Partial<BatteryTranslations> = {
   'battery.not-charging': 'Şarj Edilmiyor',
   'battery.remainingTime': '{{hours}} H {{minutes}} M',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Sağlayıcı ayarlanmadı. `setProvider()` işlevini bir `BatteryProvider` uygulamasıyla çağırın — filoda hiçbir sağlayıcı bulunmuyor; arayüzü yerel çalışma zamanınızda uygulayın ve bağlayın.',
+    '`@molecule/app-battery`: Sağlayıcı ayarlanmadı. `setProvider()` işlevini bir `BatteryProvider` uygulamasıyla çağırın — Molecule bunun için bir sağlayıcı sunmuyor; arayüzü yerel çalışma ortamınızda uygulayın ve bağlayın.',
 }

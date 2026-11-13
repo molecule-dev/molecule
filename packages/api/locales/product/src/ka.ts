@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Georgian. */
 export const ka: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'პროდუქტის სახელი აუცილებელია',
   'product.error.invalidName': 'პროდუქტის სახელი არასწორია',
   'product.error.invalidPrice': 'საჭიროა სწორი ფასი',
@@ -15,4 +14,5 @@ export const ka: ProductTranslations = {
   'product.error.listVariantsFailed': 'პროდუქტის ვარიანტების სიის მიღება ვერ მოხერხდა',
   'product.error.variantNameRequired': 'ვარიანტის სახელი აუცილებელია',
   'product.error.createVariantFailed': 'პროდუქტის ვარიანტის შექმნა ვერ მოხერხდა',
+  'product.error.forbidden': 'პროდუქტების სამართავად საჭიროა ადმინისტრატორის წვდომა',
 }

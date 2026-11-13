@@ -10,4 +10,5 @@ export const am: AuthTranslations = {
   'auth.error.profileSessionChanged': 'የመገለጫው ክፍለ ጊዜ ከማስገባቱ በፊት ተቀይሯል',
   'auth.error.passwordRequiresSignIn': 'የይለፍ ቃል ከመቀየርዎ በፊት ይግቡ',
   'auth.error.passwordSessionChanged': 'የይለፍ ቃል ክፍለ ጊዜ ከማስገባትዎ በፊት ተቀይሯል',
+  'auth.error.requestTimedOut': 'የማረጋገጫ ጥያቄው ጊዜው አልፎበታል',
 }

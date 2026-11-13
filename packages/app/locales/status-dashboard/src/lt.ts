@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Lithuanian. */
 export const lt: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Būsenos skydelio teikėjas nesukonfigūruotas.',
   'statusDashboard.error.fetchFailed': 'Nepavyko gauti būsenos: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Visos sistemos veikia',
   'statusDashboard.label.someIssues': 'Kai kuriose sistemose kilo problemų',
@@ -17,4 +16,6 @@ export const lt: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Paskutinį kartą tikrinta {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Incidentų nepranešta.',
+  'statusDashboard.error.noProvider':
+    'Būsenos ataskaitų srities teikėjas nesukonfigūruotas. Pirmiausia susiekite būsenos ataskaitų srities teikėją.',
 }

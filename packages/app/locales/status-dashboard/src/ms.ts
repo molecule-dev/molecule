@@ -6,7 +6,6 @@ export const ms: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Tidak tersedia',
   'statusDashboard.label.services': 'Perkhidmatan',
   'statusDashboard.label.uptime': 'Masa operasi',
-  'statusDashboard.error.noProvider': 'Pembekal papan pemuka status tidak dikonfigurasikan.',
   'statusDashboard.error.fetchFailed': 'Gagal mengambil status: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Semua Sistem Operasi',
   'statusDashboard.label.someIssues': 'Sesetengah Sistem Mengalami Masalah',
@@ -17,4 +16,6 @@ export const ms: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Semakan terakhir {{time}}',
   'statusDashboard.label.latency': '{{ms}} ms',
   'statusDashboard.label.noIncidents': 'Tiada insiden yang dilaporkan.',
+  'statusDashboard.error.noProvider':
+    'Pembekal papan pemuka status tidak dikonfigurasikan. Ikat pembekal papan pemuka status terlebih dahulu.',
 }

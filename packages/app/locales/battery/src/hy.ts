@@ -11,5 +11,5 @@ export const hy: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}zh {{minutes}}r',
   'battery.remainingMinutes': '{{minutes}}r',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Մատակարար սահմանված չէ։ Կանչեք `setProvider()` ը `BatteryProvider` իրականացման դեպքում՝ ոչ մի մատակարար չի մատակարարվում նավատորմի հետ։ Իրականացրեք ինտերֆեյսը ձեր բնօրինակ գործարկման ժամանակի վրա և կապեք այն։',
+    '`@molecule/app-battery`: Մատակարար սահմանված չէ։ Կանչեք `setProvider()` ը `BatteryProvider` իրականացմամբ։ Molecule-ը դրա համար մատակարար չի տրամադրում։ Իրականացրեք ինտերֆեյսը ձեր բնօրինակ գործարկման ժամանակի վրա և կապեք այն։',
 }

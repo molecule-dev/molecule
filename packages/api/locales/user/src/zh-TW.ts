@@ -72,4 +72,11 @@ export const zhTW: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}}不提供帳單入口網站。',
   'user.payment.subscriptionOwnershipMismatch': '此訂閱不屬於您的帳戶。',
   'user.payment.transactionAlreadyClaimed': '此次購買已關聯至其他帳戶。',
+  'user.error.completeTargetMissing': '沒有與提供的 completeId 對應的帳戶。',
+  'user.error.completeIdentityMismatch': '提供的使用者名稱或電子郵件地址無法識別 completeId 帳戶。',
+  'user.error.completeNotOwned': 'completeId 帳戶透過 OAuth 登入；其憑證未在此提供。',
+  'user.error.identityRequired': '配置過程需要使用者名稱或電子郵件地址來識別帳戶。',
+  'user.error.usernameEmailConflict': '使用者名稱和郵箱地址屬於兩個不同的現有帳戶。',
+  'user.error.oauthEmailCollision':
+    '此郵箱已關聯一個帳戶。請使用您原有的登入方式登錄，然後在帳戶設定中關聯此服務提供者。',
 }

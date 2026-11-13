@@ -10,4 +10,5 @@ export const km: AuthTranslations = {
   'auth.error.profileSessionChanged': 'វគ្គប្រវត្តិរូបត្រូវបានផ្លាស់ប្តូរមុនពេលដាក់ស្នើ',
   'auth.error.passwordRequiresSignIn': 'ចូលគណនីមុនពេលផ្លាស់ប្តូរពាក្យសម្ងាត់',
   'auth.error.passwordSessionChanged': 'វគ្គពាក្យសម្ងាត់ត្រូវបានផ្លាស់ប្តូរមុនពេលដាក់ស្នើ',
+  'auth.error.requestTimedOut': 'សំណើ​ផ្ទៀងផ្ទាត់​បាន​អស់​ពេល',
 }

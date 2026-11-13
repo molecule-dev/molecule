@@ -6,8 +6,6 @@ export const lt: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Privatumo politika',
   'footer.termsOfService': 'Paslaugų teikimo sąlygos',
   'footer.language': 'Kalba',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Šis turinys dar nebuvo sukonfigūruotas. Jį turi pateikti programos savininkas.',
   'footer.about': 'Apie {{appName}}',

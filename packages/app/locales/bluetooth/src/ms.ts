@@ -3,5 +3,5 @@ import type { BluetoothTranslations } from './types.js'
 /** Bluetooth translations for Malay. */
 export const ms: BluetoothTranslations = {
   'bluetooth.error.noProvider':
-    '@molecule/app-bluetooth: Tiada pembekal ditetapkan. Panggil setProvider() dengan pelaksanaan BluetoothProvider.',
+    '`@molecule/app-bluetooth`: Tiada pembekal ditetapkan. Panggil `setProvider()` dengan pelaksanaan `BluetoothProvider` — Molecule tidak menghantar sebarang pembekal untuknya; laksanakan antara muka pada runtime natif anda dan ikatkannya.',
 }

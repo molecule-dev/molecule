@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Burmese. */
 export const my: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'ဝန်ဆောင်မှု မတွေ့ပါ။',
   'status.error.incidentNotFound': 'ဖြစ်ရပ် မတွေ့ပါ။',
   'status.error.validationFailed': 'အတည်ပြုခြင်း မအောင်မြင်ပါ: {{errors}}',
@@ -16,4 +15,5 @@ export const my: StatusTranslations = {
   'status.error.listIncidentsFailed': 'ဖြစ်ရပ်များ စာရင်းပြုခြင်း မအောင်မြင်ပါ။',
   'status.error.getStatusFailed': 'စနစ်အခြေအနေ ရယူခြင်း မအောင်မြင်ပါ။',
   'status.error.getUptimeFailed': 'အပ်တိုင်းဒေတာ ရယူခြင်း မအောင်မြင်ပါ။',
+  'status.error.forbidden': 'အခြေအနေစာမျက်နှာကို စီမံခန့်ခွဲရန် ခွင့်ပြုချက် လိုအပ်သည်',
 }

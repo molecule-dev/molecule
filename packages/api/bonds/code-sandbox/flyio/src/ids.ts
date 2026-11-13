@@ -48,8 +48,7 @@ export function parseSandboxId(id: string): { app: string; machineId: string } {
         { id },
         {
           defaultValue:
-            `Invalid Fly sandbox id "${id}" — expected "<app>:<machineId>". ` +
-            'Fly Machine ids are only unique within an app, so a bare Machine id cannot be addressed.',
+            'Invalid Fly sandbox id "{{id}}" — expected "<app>:<machineId>". Fly Machine ids are only unique within an app, so a bare Machine id cannot be addressed.',
         },
       ),
     )
@@ -99,7 +98,8 @@ export function appNameForProject(prefix: string, projectId: string): string {
         'codeSandbox.flyio.error.badProjectId',
         { projectId },
         {
-          defaultValue: `Cannot derive a Fly app name from projectId "${projectId}" — no DNS-safe characters.`,
+          defaultValue:
+            'Cannot derive a Fly app name from projectId "{{projectId}}" — no DNS-safe characters.',
         },
       ),
     )

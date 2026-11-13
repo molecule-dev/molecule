@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Icelandic. */
 export const is: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Merkimiðanafn er nauðsynlegt',
   'tag.error.invalidName': 'Merkimiðanafn er ógilt',
   'tag.error.createFailed': 'Ekki tókst að búa til merkimiða',
@@ -17,4 +16,5 @@ export const is: TagTranslations = {
   'tag.error.associationNotFound': 'Tengsl merkimiða fundust ekki',
   'tag.error.removeFailed': 'Ekki tókst að fjarlægja merkimiða af auðlind',
   'tag.error.getBySlugFailed': 'Ekki tókst að sækja auðlindir eftir merkimiða',
+  'tag.error.forbidden': 'Aðgangur stjórnanda er nauðsynlegur til að stjórna merkjum',
 }

@@ -2,5 +2,6 @@ import type { BadgeTranslations } from './types.js'
 
 /** Badge translations for Hindi. */
 export const hi: BadgeTranslations = {
-  'badge.error.noProvider': 'बैज प्रोवाइडर कॉन्फ़िगर नहीं किया गया है।',
+  'badge.error.noProvider':
+    '`@molecule/app-badge`: कोई प्रदाता सेट नहीं है। `BadgeProvider` कार्यान्वयन के साथ `setProvider()` कॉल करें — Molecule इसके लिए कोई प्रदाता प्रदान नहीं करता है; अपने नेटिव रनटाइम पर इंटरफ़ेस को लागू करें और इसे बॉन्ड करें।',
 }

@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Azerbaijani. */
 export const az: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Xidmət tapılmadı.',
   'status.error.incidentNotFound': 'Hadisə tapılmadı.',
   'status.error.validationFailed': 'Doğrulama uğursuz oldu: {{errors}}',
@@ -16,4 +15,5 @@ export const az: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Hadisələr siyahıya alına bilmədi.',
   'status.error.getStatusFailed': 'Sistem statusu əldə edilə bilmədi.',
   'status.error.getUptimeFailed': 'İşləmə müddəti məlumatları əldə edilə bilmədi.',
+  'status.error.forbidden': 'Status səhifəsini idarə etmək üçün icazə tələb olunur',
 }

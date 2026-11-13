@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for et. */
 export const et: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Manustamiskood ({language})',
   'embedSnippet.heading': 'Manustamiskood',
   'embedSnippet.eyebrow': 'Kopeeri manustamiskood',
   'embedSnippet.copy': 'Kopeeri',
@@ -13,4 +12,5 @@ export const et: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Valgus',
   'embedSnippet.theme.dark': 'Tume',
   'embedSnippet.theme.auto': 'Automaatne',
+  'embedSnippet.aria.region': 'Manustamiskood ({{language}})',
 }

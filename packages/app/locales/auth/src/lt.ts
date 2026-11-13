@@ -10,4 +10,5 @@ export const lt: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Profilio sesija pakeista prieš pateikimą',
   'auth.error.passwordRequiresSignIn': 'Prisijunkite prieš keisdami slaptažodį',
   'auth.error.passwordSessionChanged': 'Slaptažodis sesijos metu pakeistas prieš pateikimą',
+  'auth.error.requestTimedOut': 'Autentifikavimo užklausos skirtasis laikas baigėsi',
 }

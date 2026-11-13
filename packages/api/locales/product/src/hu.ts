@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Hungarian. */
 export const hu: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'A termék neve kötelező',
   'product.error.invalidName': 'A termék neve érvénytelen',
   'product.error.invalidPrice': 'Érvényes ár megadása kötelező',
@@ -15,4 +14,5 @@ export const hu: ProductTranslations = {
   'product.error.listVariantsFailed': 'A termékváltozatok listázása sikertelen',
   'product.error.variantNameRequired': 'A változat neve kötelező',
   'product.error.createVariantFailed': 'A termékváltozat létrehozása sikertelen',
+  'product.error.forbidden': 'A termékek kezeléséhez rendszergazdai hozzáférés szükséges',
 }

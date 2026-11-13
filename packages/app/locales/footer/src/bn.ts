@@ -6,8 +6,6 @@ export const bn: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'গোপনীয়তা নীতি',
   'footer.termsOfService': 'পরিষেবার শর্তাবলী',
   'footer.language': 'ভাষা',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'এই বিষয়বস্তুটি এখনও কনফিগার করা হয়নি। অ্যাপের মালিককে এটি প্রদান করতে হবে।',
   'footer.about': '{{appName}} সম্পর্কে',

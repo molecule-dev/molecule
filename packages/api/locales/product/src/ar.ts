@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Arabic. */
 export const ar: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'اسم المنتج مطلوب',
   'product.error.invalidName': 'اسم المنتج غير صالح',
   'product.error.invalidPrice': 'السعر الصالح مطلوب',
@@ -15,4 +14,5 @@ export const ar: ProductTranslations = {
   'product.error.listVariantsFailed': 'فشل في عرض متغيرات المنتج',
   'product.error.variantNameRequired': 'اسم المتغير مطلوب',
   'product.error.createVariantFailed': 'فشل في إنشاء متغير المنتج',
+  'product.error.forbidden': 'يلزم الوصول إلى حساب المسؤول لإدارة المنتجات',
 }

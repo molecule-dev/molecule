@@ -10,4 +10,5 @@ export const sw: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Kipindi cha wasifu kilibadilika kabla ya kuwasilisha',
   'auth.error.passwordRequiresSignIn': 'Ingia kabla ya kubadilisha nenosiri',
   'auth.error.passwordSessionChanged': 'Kipindi cha nenosiri kilibadilika kabla ya kuwasilisha',
+  'auth.error.requestTimedOut': 'Ombi la uthibitishaji limepitwa na wakati',
 }

@@ -36,7 +36,7 @@ export const sendTemplate = async (
         'emailTemplates.error.unknownTemplate',
         { key },
         {
-          defaultValue: `sendTemplate: no template registered with key "${key}".`,
+          defaultValue: 'sendTemplate: no template registered with key "{{key}}".',
         },
       ),
     )

@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Belarusian. */
 export const be: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Назва тэга абавязковая',
   'tag.error.invalidName': 'Назва тэга несапраўдная',
   'tag.error.createFailed': 'Не ўдалося стварыць тэг',
@@ -17,4 +16,5 @@ export const be: TagTranslations = {
   'tag.error.associationNotFound': 'Сувязь тэга не знойдзена',
   'tag.error.removeFailed': 'Не ўдалося выдаліць тэг з рэсурсу',
   'tag.error.getBySlugFailed': 'Не ўдалося атрымаць рэсурсы па тэгу',
+  'tag.error.forbidden': 'Для кіравання тэгамі патрабуецца доступ адміністратара',
 }

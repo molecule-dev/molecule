@@ -45,7 +45,7 @@ async function getExpoNotifications(): Promise<typeof import('expo-notifications
         { library: 'expo-notifications' },
         {
           defaultValue:
-            'expo-notifications is required but not installed. Install it with: npx expo install expo-notifications',
+            '`{{library}}` is required but not installed. Install it with: `npx expo install {{library}}`',
         },
       ),
       { cause: error },

@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Nepali. */
 export const ne: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ट्याग नाम आवश्यक छ',
   'tag.error.invalidName': 'ट्याग नाम अमान्य छ',
   'tag.error.createFailed': 'ट्याग बनाउन असफल',
@@ -17,4 +16,5 @@ export const ne: TagTranslations = {
   'tag.error.associationNotFound': 'ट्याग सम्बन्ध फेला परेन',
   'tag.error.removeFailed': 'स्रोतबाट ट्याग हटाउन असफल',
   'tag.error.getBySlugFailed': 'ट्यागद्वारा स्रोतहरू प्राप्त गर्न असफल',
+  'tag.error.forbidden': 'ट्यागहरू व्यवस्थापन गर्न व्यवस्थापक पहुँच आवश्यक छ',
 }

@@ -3,5 +3,5 @@ import type { BrightnessTranslations } from './types.js'
 /** Brightness translations for Basque. */
 export const eu: BrightnessTranslations = {
   'brightness.error.noProvider':
-    '@molecule/app-brightness: Ez da hornitzailerik ezarri. Deitu setProvider() BrightnessProvider inplementazio batekin.',
+    '`@molecule/app-brightness`: Ez da hornitzailerik ezarri. Deitu `setProvider()` `BrightnessProvider` inplementazio batekin — Molekulek ez du hornitzailerik bidaltzen berarentzat; inplementatu interfazea zure jatorrizko exekuzio-denboran eta lotu ezazu.',
 }

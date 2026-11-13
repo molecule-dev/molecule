@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Albanian. */
 export const sq: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Ofruesi i panelit të statusit nuk është konfiguruar.',
   'statusDashboard.error.fetchFailed': 'Dështoi marrja e statusit: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Të gjitha sistemet janë funksionale',
   'statusDashboard.label.someIssues': 'Disa sisteme po përjetojnë probleme',
@@ -17,4 +16,6 @@ export const sq: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Kontrolluar për herë të fundit {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Nuk ka incidente të raportuara.',
+  'statusDashboard.error.noProvider':
+    'Ofruesi i panelit të statusit nuk është konfiguruar. Lidhni së pari një ofrues të panelit të statusit.',
 }

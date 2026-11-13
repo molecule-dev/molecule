@@ -10,4 +10,5 @@ export const da: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Profilsessionen blev ændret før indsendelse',
   'auth.error.passwordRequiresSignIn': 'Log ind, før du ændrer en adgangskode',
   'auth.error.passwordSessionChanged': 'Adgangskodesessionen blev ændret før indsendelse',
+  'auth.error.requestTimedOut': 'Godkendelsesanmodningen udløb',
 }

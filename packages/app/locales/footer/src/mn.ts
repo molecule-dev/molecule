@@ -6,8 +6,6 @@ export const mn: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Нууцлалын бодлого',
   'footer.termsOfService': 'Үйлчилгээний нөхцөл',
   'footer.language': 'Хэл',
-  'content.privacyPolicy': '',
-  'content.termsOfService': '',
   'footer.legalNotConfigured':
     'Энэ контентыг хараахан тохируулаагүй байна. Апп эзэмшигч үүнийг өгөх ёстой.',
   'footer.about': '{{appName}} н тухай',

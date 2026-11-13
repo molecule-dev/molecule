@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Czech. */
 export const cs: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Služba nenalezena.',
   'status.error.incidentNotFound': 'Incident nenalezen.',
   'status.error.validationFailed': 'Ověření selhalo: {{errors}}',
@@ -16,4 +15,5 @@ export const cs: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Nepodařilo se vypsat incidenty.',
   'status.error.getStatusFailed': 'Nepodařilo se načíst stav systému.',
   'status.error.getUptimeFailed': 'Nepodařilo se načíst data o dostupnosti.',
+  'status.error.forbidden': 'Pro správu stránky stavu je vyžadováno oprávnění',
 }

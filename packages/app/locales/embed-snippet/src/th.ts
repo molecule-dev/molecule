@@ -2,7 +2,6 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for th. */
 export const th: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'โค้ดฝังตัว ({language})',
   'embedSnippet.heading': 'โค้ดฝังตัว',
   'embedSnippet.eyebrow': 'คัดลอกโค้ดฝังตัว',
   'embedSnippet.copy': 'สำเนา',
@@ -13,4 +12,5 @@ export const th: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'แสงสว่าง',
   'embedSnippet.theme.dark': 'มืด',
   'embedSnippet.theme.auto': 'อัตโนมัติ',
+  'embedSnippet.aria.region': 'โค้ดฝังตัว ({{language}})',
 }

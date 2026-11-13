@@ -10,4 +10,5 @@ export const el: Partial<AuthTranslations> = {
   'auth.error.profileSessionChanged': 'Η περίοδος σύνδεσης προφίλ άλλαξε πριν από την υποβολή',
   'auth.error.passwordRequiresSignIn': 'Συνδεθείτε πριν αλλάξετε έναν κωδικό πρόσβασης',
   'auth.error.passwordSessionChanged': 'Η συνεδρία κωδικού πρόσβασης άλλαξε πριν από την υποβολή',
+  'auth.error.requestTimedOut': 'Το χρονικό όριο του αιτήματος ελέγχου ταυτότητας έληξε',
 }

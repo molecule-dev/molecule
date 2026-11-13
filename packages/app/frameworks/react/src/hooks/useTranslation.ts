@@ -121,11 +121,8 @@ export function useTranslation(): UseTranslationResult {
 
   // Memoized translation function
   const t: I18nProvider['t'] = useCallback(
-    (
-      key: string,
-      values?: InterpolationValues,
-      options?: { defaultValue?: string; count?: number },
-    ) => provider.t(key, values, options),
+    (key: string, values?: InterpolationValues, options?: TranslateOptions) =>
+      provider.t(key, values, options),
     [provider, locale],
   )
 

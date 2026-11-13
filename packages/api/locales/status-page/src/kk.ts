@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Kazakh. */
 export const kk: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Қызмет табылмады.',
   'status.error.incidentNotFound': 'Оқиға табылмады.',
   'status.error.validationFailed': 'Тексеру сәтсіз: {{errors}}',
@@ -16,4 +15,5 @@ export const kk: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Оқиғалар тізімін алу сәтсіз болды.',
   'status.error.getStatusFailed': 'Жүйе күйін алу сәтсіз болды.',
   'status.error.getUptimeFailed': 'Жұмыс уақыты деректерін алу сәтсіз болды.',
+  'status.error.forbidden': 'Күй бетін басқару үшін рұқсат қажет',
 }

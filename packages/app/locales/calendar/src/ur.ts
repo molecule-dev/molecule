@@ -3,5 +3,5 @@ import type { CalendarTranslations } from './types.js'
 /** Calendar translations for Urdu. */
 export const ur: CalendarTranslations = {
   'calendar.error.noProvider':
-    '@molecule/app-calendar: کوئی فراہم کنندہ مقرر نہیں ہے۔ CalendarProvider کے نفاذ کے ساتھ setProvider() کو کال کریں۔',
+    '`@molecule/app-device-calendar`: کوئی فراہم کنندہ سیٹ نہیں ہے۔ `CalendarProvider` نفاذ کے ساتھ `setProvider()` کال کریں — مالیکیول اس کے لیے کوئی فراہم کنندہ نہیں بھیجتا ہے۔ انٹرفیس کو اپنے مقامی رن ٹائم پر لاگو کریں اور اسے بانڈ کریں۔',
 }

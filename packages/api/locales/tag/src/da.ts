@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Danish. */
 export const da: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tagnavn er påkrævet',
   'tag.error.invalidName': 'Tagnavn er ugyldigt',
   'tag.error.createFailed': 'Kunne ikke oprette tag',
@@ -17,4 +16,5 @@ export const da: TagTranslations = {
   'tag.error.associationNotFound': 'Tagforbindelse ikke fundet',
   'tag.error.removeFailed': 'Kunne ikke fjerne tag fra ressource',
   'tag.error.getBySlugFailed': 'Kunne ikke hente ressourcer efter tag',
+  'tag.error.forbidden': 'Administratoradgang kræves for at administrere tags',
 }

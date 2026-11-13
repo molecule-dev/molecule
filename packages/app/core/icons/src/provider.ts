@@ -70,7 +70,7 @@ export function getIcon(name: IconName): IconData {
       t(
         'icons.error.notFound',
         { name },
-        { defaultValue: `Icon "${name}" not found in the current icon set.` },
+        { defaultValue: 'Icon "{{name}}" not found in the current icon set.' },
       ),
     )
   }

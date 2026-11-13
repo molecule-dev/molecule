@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Georgian. */
 export const ka: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'სერვისი ვერ მოიძებნა.',
   'status.error.incidentNotFound': 'ინციდენტი ვერ მოიძებნა.',
   'status.error.validationFailed': 'ვალიდაცია ვერ მოხერხდა: {{errors}}',
@@ -16,4 +15,5 @@ export const ka: StatusTranslations = {
   'status.error.listIncidentsFailed': 'ინციდენტების ჩამონათვალი ვერ მოხერხდა.',
   'status.error.getStatusFailed': 'სისტემის სტატუსის მიღება ვერ მოხერხდა.',
   'status.error.getUptimeFailed': 'აპტაიმის მონაცემების მიღება ვერ მოხერხდა.',
+  'status.error.forbidden': 'სტატუსის გვერდის სამართავად საჭიროა ნებართვა',
 }

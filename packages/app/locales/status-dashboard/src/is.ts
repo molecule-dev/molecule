@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Icelandic. */
 export const is: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Stöðuyfirlit veitandi er ekki stilltur.',
   'statusDashboard.error.fetchFailed': 'Ekki tókst að sækja stöðu: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Öll kerfi eru í gangi',
   'statusDashboard.label.someIssues': 'Sum kerfi eru að lenda í vandræðum',
@@ -17,4 +16,6 @@ export const is: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'Síðast athugað {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Engin atvik tilkynnt.',
+  'statusDashboard.error.noProvider':
+    'Veitandi stöðumælaborðs er ekki stilltur. Tengdu fyrst veitanda stöðumælaborðs.',
 }

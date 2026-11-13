@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Belarusian. */
 export const be: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Сэрвіс не знойдзены.',
   'status.error.incidentNotFound': 'Інцыдэнт не знойдзены.',
   'status.error.validationFailed': 'Праверка не атрымалася: {{errors}}',
@@ -16,4 +15,5 @@ export const be: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Не ўдалося атрымаць спіс інцыдэнтаў.',
   'status.error.getStatusFailed': 'Не ўдалося атрымаць стан сістэмы.',
   'status.error.getUptimeFailed': 'Не ўдалося атрымаць даныя аптайму.',
+  'status.error.forbidden': 'Для кіравання старонкай стану патрабуецца дазвол',
 }

@@ -7,7 +7,6 @@ export const uk: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'Сервіси',
   'statusDashboard.label.uptime': 'Час роботи',
   'statusDashboard.label.latency': '{{ms}}мс',
-  'statusDashboard.error.noProvider': 'Постачальника панелі керування статусом не налаштовано.',
   'statusDashboard.error.fetchFailed': 'Не вдалося отримати статус: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Всі системи працюють',
   'statusDashboard.label.someIssues': 'Деякі системи мають проблеми',
@@ -17,4 +16,6 @@ export const uk: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.incidents': 'Інциденти',
   'statusDashboard.label.lastChecked': 'Остання перевірка {{time}}',
   'statusDashboard.label.noIncidents': 'Про жодні інциденти не повідомлялося.',
+  'statusDashboard.error.noProvider':
+    'Постачальника панелі керування статусом не налаштовано. Спочатку прив’яжіть постачальника панелі керування статусом.',
 }

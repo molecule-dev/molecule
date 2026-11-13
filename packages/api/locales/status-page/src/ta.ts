@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Tamil. */
 export const ta: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'சேவை கிடைக்கவில்லை.',
   'status.error.incidentNotFound': 'சம்பவம் கிடைக்கவில்லை.',
   'status.error.validationFailed': 'சரிபார்ப்பு தோல்வியடைந்தது: {{errors}}',
@@ -16,4 +15,5 @@ export const ta: StatusTranslations = {
   'status.error.listIncidentsFailed': 'சம்பவங்களை பட்டியலிடுவதில் தோல்வி.',
   'status.error.getStatusFailed': 'கணினி நிலையை பெறுவதில் தோல்வி.',
   'status.error.getUptimeFailed': 'இயக்க நேர தரவு பெறுவதில் தோல்வி.',
+  'status.error.forbidden': 'நிலைமைப் பக்கத்தை நிர்வகிக்க அனுமதி தேவை',
 }

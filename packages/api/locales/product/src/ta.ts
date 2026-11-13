@@ -2,7 +2,6 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Tamil. */
 export const ta: ProductTranslations = {
-  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'தயாரிப்பு பெயர் தேவை',
   'product.error.invalidName': 'தயாரிப்பு பெயர் தவறானது',
   'product.error.invalidPrice': 'சரியான விலை தேவை',
@@ -15,4 +14,5 @@ export const ta: ProductTranslations = {
   'product.error.listVariantsFailed': 'தயாரிப்பு மாறுபாடுகளை பட்டியலிட இயலவில்லை',
   'product.error.variantNameRequired': 'மாறுபாட்டின் பெயர் தேவை',
   'product.error.createVariantFailed': 'தயாரிப்பு மாறுபாட்டை உருவாக்க இயலவில்லை',
+  'product.error.forbidden': 'தயாரிப்புகளை நிர்வகிக்க நிர்வாகி அணுகல் தேவை.',
 }

@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Maltese. */
 export const mt: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'L-isem tat-tag huwa meħtieġ',
   'tag.error.invalidName': 'L-isem tat-tag mhuwiex validu',
   'tag.error.createFailed': 'Naqas milli noħloq it-tag',
@@ -17,4 +16,5 @@ export const mt: TagTranslations = {
   'tag.error.associationNotFound': 'L-assoċjazzjoni tat-tag ma nstabx',
   'tag.error.removeFailed': 'Naqas milli nneħħu t-tag mir-riżorsa',
   'tag.error.getBySlugFailed': 'Naqas milli nġibu r-riżorsi skont it-tag',
+  'tag.error.forbidden': "Aċċess ta' amministratur meħtieġ biex jiġu ġestiti t-tikketti",
 }

@@ -2,7 +2,8 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for English. */
 export const en: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Status dashboard provider not configured.',
+  'statusDashboard.error.noProvider':
+    'Status dashboard provider not configured. Bond a status dashboard provider first.',
   'statusDashboard.error.fetchFailed': 'Failed to fetch status: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'All Systems Operational',
   'statusDashboard.label.someIssues': 'Some Systems Experiencing Issues',

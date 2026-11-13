@@ -75,4 +75,15 @@ export const ko: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} 결제 포털을 제공하지 않습니다.',
   'user.payment.subscriptionOwnershipMismatch': '이 구독은 귀하의 계정에 속하지 않습니다.',
   'user.payment.transactionAlreadyClaimed': '이 구매는 이미 다른 계정과 연결되어 있습니다.',
+  'user.error.completeTargetMissing': 'completeId로 제공된 ID를 가진 계정이 없습니다.',
+  'user.error.completeIdentityMismatch':
+    '제공된 사용자 이름 또는 이메일로는 completeId 계정을 식별할 수 없습니다.',
+  'user.error.completeNotOwned':
+    'completeId 계정은 OAuth를 통해 로그인하며, 해당 계정의 자격 증명은 여기에 제공되지 않습니다.',
+  'user.error.identityRequired':
+    '계정을 생성하려면 계정을 식별하기 위한 사용자 이름 또는 이메일 주소가 필요합니다.',
+  'user.error.usernameEmailConflict':
+    '해당 사용자 이름과 이메일 주소는 서로 다른 기존 계정에 속합니다.',
+  'user.error.oauthEmailCollision':
+    '이미 해당 이메일 주소로 계정이 존재합니다. 기존에 사용하시던 방법으로 로그인하신 후, 계정 설정에서 해당 제공업체를 연결해 주세요.',
 }

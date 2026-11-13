@@ -208,7 +208,7 @@ export function GraphView(props: GraphViewProps): ReactElement {
               const aria = t(
                 'graphView.aria.node',
                 { label: node.label },
-                { defaultValue: `Node ${node.label}` },
+                { defaultValue: 'Node {{label}}' },
               )
               return (
                 <g

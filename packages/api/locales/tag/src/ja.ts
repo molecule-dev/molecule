@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Japanese. */
 export const ja: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'タグ名は必須です',
   'tag.error.invalidName': 'タグ名が無効です',
   'tag.error.createFailed': 'タグの作成に失敗しました',
@@ -17,4 +16,5 @@ export const ja: TagTranslations = {
   'tag.error.associationNotFound': 'タグの関連付けが見つかりません',
   'tag.error.removeFailed': 'リソースからのタグ削除に失敗しました',
   'tag.error.getBySlugFailed': 'タグによるリソース取得に失敗しました',
+  'tag.error.forbidden': 'タグを管理するには管理者権限が必要です',
 }

@@ -2,7 +2,6 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Bengali. */
 export const bn: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'স্ট্যাটাস ড্যাশবোর্ড প্রদানকারী কনফিগার করা হয়নি।',
   'statusDashboard.error.fetchFailed': 'স্ট্যাটাস আনতে ব্যর্থ: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'সমস্ত সিস্টেম চালু আছে',
   'statusDashboard.label.someIssues': 'কিছু সিস্টেমে সমস্যা হচ্ছে',
@@ -17,4 +16,6 @@ export const bn: StatusDashboardTranslations = {
   'statusDashboard.label.lastChecked': 'সর্বশেষ পরীক্ষা {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'কোনো ঘটনা রিপোর্ট করা হয়নি।',
+  'statusDashboard.error.noProvider':
+    'স্ট্যাটাস ড্যাশবোর্ড প্রোভাইডার কনফিগার করা নেই। প্রথমে একটি স্ট্যাটাস ড্যাশবোর্ড প্রোভাইডার বন্ড করুন।',
 }

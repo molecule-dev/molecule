@@ -11,5 +11,5 @@ export const ms: BatteryTranslations = {
   'battery.remainingTime': '{{hours}}j {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
   'battery.error.noProvider':
-    '`@molecule/app-battery`: Tiada pembekal ditetapkan. Panggil `setProvider()` dengan pelaksanaan `BatteryProvider` — tiada pembekal yang dihantar bersama armada; laksanakan antara muka pada masa jalan natif anda dan ikatkannya.',
+    '`@molecule/app-battery`: Tiada pembekal ditetapkan. Panggil `setProvider()` dengan pelaksanaan `BatteryProvider` — Molecule tidak menghantar sebarang pembekal untuknya; laksanakan antara muka pada runtime natif anda dan ikatkannya.',
 }

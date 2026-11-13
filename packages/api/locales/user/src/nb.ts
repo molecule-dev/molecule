@@ -76,4 +76,16 @@ export const nb: UserTranslations = {
   'user.payment.portalNotSupported': '{{provider}} tilbyr ikke en faktureringsportal.',
   'user.payment.subscriptionOwnershipMismatch': 'Dette abonnementet tilhører ikke kontoen din.',
   'user.payment.transactionAlreadyClaimed': 'Dette kjøpet er allerede knyttet til en annen konto.',
+  'user.error.completeTargetMissing':
+    'Det finnes ingen konto med ID-en som er oppgitt som completeId.',
+  'user.error.completeIdentityMismatch':
+    'Det oppgitte brukernavnet eller e-postadressen identifiserer ikke completeId-kontoen.',
+  'user.error.completeNotOwned':
+    'completeId-kontoen logger seg på via OAuth; legitimasjonene er ikke oppgitt her.',
+  'user.error.identityRequired':
+    'Provisionering krever et brukernavn eller en e-postadresse for å identifisere kontoen.',
+  'user.error.usernameEmailConflict':
+    'Brukernavnet og e-postadressen tilhører to forskjellige eksisterende kontoer.',
+  'user.error.oauthEmailCollision':
+    'Det finnes allerede en konto for denne e-postadressen. Logg inn med den opprinnelige metoden din, og koble deretter til denne leverandøren fra kontoinnstillingene dine.',
 }

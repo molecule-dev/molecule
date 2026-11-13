@@ -10,4 +10,5 @@ export const kk: AuthTranslations = {
   'auth.error.profileSessionChanged': 'Профиль сеансы жібермес бұрын өзгертілді',
   'auth.error.passwordRequiresSignIn': 'Құпия сөзді өзгертпес бұрын жүйеге кіріңіз',
   'auth.error.passwordSessionChanged': 'Құпия сөз сеансы жібермес бұрын өзгертілді',
+  'auth.error.requestTimedOut': 'Аутентификация сұрауының уақыты аяқталды',
 }

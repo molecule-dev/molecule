@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Latvian. */
 export const lv: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Pakalpojums nav atrasts.',
   'status.error.incidentNotFound': 'Incidents nav atrasts.',
   'status.error.validationFailed': 'Validācija neizdevās: {{errors}}',
@@ -16,4 +15,5 @@ export const lv: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Neizdevās uzskaitīt incidentus.',
   'status.error.getStatusFailed': 'Neizdevās iegūt sistēmas statusu.',
   'status.error.getUptimeFailed': 'Neizdevās iegūt darbības laika datus.',
+  'status.error.forbidden': 'Statusa lapas pārvaldībai nepieciešama atļauja',
 }

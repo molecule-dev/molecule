@@ -2,7 +2,6 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Danish. */
 export const da: StatusTranslations = {
-  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Tjeneste ikke fundet.',
   'status.error.incidentNotFound': 'Hændelse ikke fundet.',
   'status.error.validationFailed': 'Validering fejlede: {{errors}}',
@@ -16,4 +15,5 @@ export const da: StatusTranslations = {
   'status.error.listIncidentsFailed': 'Kunne ikke liste hændelser.',
   'status.error.getStatusFailed': 'Kunne ikke hente systemstatus.',
   'status.error.getUptimeFailed': 'Kunne ikke hente oppetidsdata.',
+  'status.error.forbidden': 'Tilladelse kræves for at administrere statussiden',
 }

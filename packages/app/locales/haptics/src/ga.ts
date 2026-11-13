@@ -3,5 +3,5 @@ import type { HapticsTranslations } from './types.js'
 /** Haptics translations for Irish. */
 export const ga: HapticsTranslations = {
   'haptics.error.noProvider':
-    '@molecule/app-haptics: Níl aon soláthraí socraithe. Glaoigh ar setProvider() le cur i bhfeidhm HapticsProvider.',
+    '`@molecule/app-haptics`: Níl aon soláthraí socraithe. Glaoigh ar `setProvider()` le cur i bhfeidhm `HapticsProvider` — Ní sheolann Molecule aon soláthraí dó; cuir an comhéadan i bhfeidhm ar do rith-am dúchais agus ceangail é.',
 }

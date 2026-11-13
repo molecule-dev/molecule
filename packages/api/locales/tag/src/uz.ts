@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Uzbek. */
 export const uz: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Teg nomi talab qilinadi',
   'tag.error.invalidName': "Teg nomi noto'g'ri",
   'tag.error.createFailed': "Teg yaratib bo'lmadi",
@@ -17,4 +16,5 @@ export const uz: TagTranslations = {
   'tag.error.associationNotFound': "Teg bog'lanishi topilmadi",
   'tag.error.removeFailed': "Resursdan tegni olib tashlab bo'lmadi",
   'tag.error.getBySlugFailed': "Resurslarni teg bo'yicha olib bo'lmadi",
+  'tag.error.forbidden': 'Teglarni boshqarish uchun administrator ruxsati talab qilinadi',
 }

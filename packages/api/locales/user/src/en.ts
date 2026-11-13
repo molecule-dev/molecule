@@ -3,6 +3,15 @@ import type { UserTranslations } from './types.js'
 /** User translations for English. */
 export const en: UserTranslations = {
   'user.error.badRequest': 'Bad request.',
+  'user.error.completeTargetMissing': 'No account exists with the id supplied as completeId.',
+  'user.error.completeIdentityMismatch':
+    'The supplied username or email does not identify the completeId account.',
+  'user.error.completeNotOwned':
+    'The completeId account signs in through OAuth; its credentials are not provisioned here.',
+  'user.error.identityRequired':
+    'Provisioning needs a username or an email to identify the account.',
+  'user.error.usernameEmailConflict':
+    'The username and the email belong to two different existing accounts.',
   'user.error.notFound': 'Not found.',
   'user.error.failedToCreateSession': 'Failed to create session.',
   'user.error.usernameRequired': 'Username is required.',
@@ -10,6 +19,8 @@ export const en: UserTranslations = {
   'user.error.emailInvalid': 'Email is invalid.',
   'user.error.usernameUnavailable': 'Username is unavailable.',
   'user.error.emailAlreadyRegistered': 'Email is already registered.',
+  'user.error.oauthEmailCollision':
+    'An account already exists for this email. Please sign in with your original method, then link this provider from your account settings.',
   'user.error.failedToHashPassword': 'Failed to hash password.',
   'user.error.invalidCredentials': 'Invalid credentials.',
   'user.error.invalidTwoFactorToken': 'Invalid two-factor token.',

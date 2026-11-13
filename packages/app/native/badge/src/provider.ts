@@ -34,9 +34,7 @@ export function getProvider(): BadgeProvider {
     throw new Error(
       t('badge.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-badge: No provider set. ' +
-          'Call setProvider() with a BadgeProvider implementation ' +
-          '— no provider ships with the fleet; implement the interface on your native runtime and bond it.',
+          '`@molecule/app-badge`: No provider set. Call `setProvider()` with a `BadgeProvider` implementation — Molecule ships no provider for it; implement the interface on your native runtime and bond it.',
       }),
     )
   }

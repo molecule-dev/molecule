@@ -2,7 +2,6 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Yoruba. */
 export const yo: TagTranslations = {
-  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Orúkọ àmì jẹ́ dandan',
   'tag.error.invalidName': 'Orúkọ àmì kò wúlò',
   'tag.error.createFailed': 'Kò le dá àmì',
@@ -17,4 +16,5 @@ export const yo: TagTranslations = {
   'tag.error.associationNotFound': 'A kò rí ìsopọ̀ àmì',
   'tag.error.removeFailed': 'Kò le yọ àmì kúrò nínú ohun ìní',
   'tag.error.getBySlugFailed': 'Kò le gba àwọn ohun ìní nípasẹ̀ àmì',
+  'tag.error.forbidden': 'Iwọle si alabojuto nilo lati ṣakoso awọn afi',
 }

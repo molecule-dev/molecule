@@ -121,9 +121,14 @@ function resolveAction(key: string | undefined): WorkflowActionFn | undefined {
   const fn = getAction(key)
   if (!fn) {
     throw new Error(
-      t('workflow.error.actionNotRegistered', undefined, {
-        defaultValue: `Action handler '${key}' is referenced by this transition but no handler is registered. Register it with registerAction('${key}', fn).`,
-      }),
+      t(
+        'workflow.error.actionNotRegistered',
+        { key },
+        {
+          defaultValue:
+            "Action handler '{{key}}' is referenced by this transition but no handler is registered. Register it with registerAction('{{key}}', fn).",
+        },
+      ),
     )
   }
   return fn
@@ -149,9 +154,14 @@ function resolveHook(
   const fn = getHook(key)
   if (!fn) {
     throw new Error(
-      t('workflow.error.hookNotRegistered', undefined, {
-        defaultValue: `${kind} hook '${key}' is referenced by this state but no handler is registered. Register it with registerHook('${key}', fn).`,
-      }),
+      t(
+        'workflow.error.hookNotRegistered',
+        { kind, key },
+        {
+          defaultValue:
+            "{{kind}} hook '{{key}}' is referenced by this state but no handler is registered. Register it with registerHook('{{key}}', fn).",
+        },
+      ),
     )
   }
   return fn
@@ -193,9 +203,13 @@ export const provider: WorkflowProvider = {
     const workflowRow = await findById<WorkflowRow>('workflows', workflowId)
     if (!workflowRow) {
       throw new Error(
-        t('workflow.error.workflowNotFound', undefined, {
-          defaultValue: `Workflow '${workflowId}' not found`,
-        }),
+        t(
+          'workflow.error.workflowNotFound',
+          { workflowId },
+          {
+            defaultValue: "Workflow '{{workflowId}}' not found",
+          },
+        ),
       )
     }
 
@@ -221,18 +235,26 @@ export const provider: WorkflowProvider = {
     const instanceRow = await findById<WorkflowInstanceRow>('workflow_instances', instanceId)
     if (!instanceRow) {
       throw new Error(
-        t('workflow.error.instanceNotFound', undefined, {
-          defaultValue: `Workflow instance '${instanceId}' not found`,
-        }),
+        t(
+          'workflow.error.instanceNotFound',
+          { instanceId },
+          {
+            defaultValue: "Workflow instance '{{instanceId}}' not found",
+          },
+        ),
       )
     }
 
     const workflowRow = await findById<WorkflowRow>('workflows', instanceRow.workflowId)
     if (!workflowRow) {
       throw new Error(
-        t('workflow.error.workflowNotFound', undefined, {
-          defaultValue: `Workflow '${instanceRow.workflowId}' not found`,
-        }),
+        t(
+          'workflow.error.workflowNotFound',
+          { workflowId: instanceRow.workflowId },
+          {
+            defaultValue: "Workflow '{{workflowId}}' not found",
+          },
+        ),
       )
     }
 
@@ -241,18 +263,26 @@ export const provider: WorkflowProvider = {
 
     if (!currentState) {
       throw new Error(
-        t('workflow.error.invalidState', undefined, {
-          defaultValue: `State '${instanceRow.state}' not found in workflow definition`,
-        }),
+        t(
+          'workflow.error.invalidState',
+          { state: instanceRow.state },
+          {
+            defaultValue: "State '{{state}}' not found in workflow definition",
+          },
+        ),
       )
     }
 
     const transitionDef = currentState.transitions[action]
     if (!transitionDef) {
       throw new Error(
-        t('workflow.error.invalidAction', undefined, {
-          defaultValue: `Action '${action}' is not available from state '${instanceRow.state}'`,
-        }),
+        t(
+          'workflow.error.invalidAction',
+          { action, state: instanceRow.state },
+          {
+            defaultValue: "Action '{{action}}' is not available from state '{{state}}'",
+          },
+        ),
       )
     }
 
@@ -279,9 +309,14 @@ export const provider: WorkflowProvider = {
       const guardFn = getGuard(transitionDef.guard)
       if (!guardFn) {
         throw new Error(
-          t('workflow.error.guardNotRegistered', undefined, {
-            defaultValue: `Guard '${transitionDef.guard}' is referenced by this transition but no handler is registered. Register it with registerGuard('${transitionDef.guard}', fn).`,
-          }),
+          t(
+            'workflow.error.guardNotRegistered',
+            { guard: transitionDef.guard },
+            {
+              defaultValue:
+                "Guard '{{guard}}' is referenced by this transition but no handler is registered. Register it with registerGuard('{{guard}}', fn).",
+            },
+          ),
         )
       }
       const allowed = await guardFn(context)
@@ -332,9 +367,13 @@ export const provider: WorkflowProvider = {
     const row = await findById<WorkflowInstanceRow>('workflow_instances', instanceId)
     if (!row) {
       throw new Error(
-        t('workflow.error.instanceNotFound', undefined, {
-          defaultValue: `Workflow instance '${instanceId}' not found`,
-        }),
+        t(
+          'workflow.error.instanceNotFound',
+          { instanceId },
+          {
+            defaultValue: "Workflow instance '{{instanceId}}' not found",
+          },
+        ),
       )
     }
     return row.state
@@ -352,18 +391,26 @@ export const provider: WorkflowProvider = {
     const instanceRow = await findById<WorkflowInstanceRow>('workflow_instances', instanceId)
     if (!instanceRow) {
       throw new Error(
-        t('workflow.error.instanceNotFound', undefined, {
-          defaultValue: `Workflow instance '${instanceId}' not found`,
-        }),
+        t(
+          'workflow.error.instanceNotFound',
+          { instanceId },
+          {
+            defaultValue: "Workflow instance '{{instanceId}}' not found",
+          },
+        ),
       )
     }
 
     const workflowRow = await findById<WorkflowRow>('workflows', instanceRow.workflowId)
     if (!workflowRow) {
       throw new Error(
-        t('workflow.error.workflowNotFound', undefined, {
-          defaultValue: `Workflow '${instanceRow.workflowId}' not found`,
-        }),
+        t(
+          'workflow.error.workflowNotFound',
+          { workflowId: instanceRow.workflowId },
+          {
+            defaultValue: "Workflow '{{workflowId}}' not found",
+          },
+        ),
       )
     }
 
