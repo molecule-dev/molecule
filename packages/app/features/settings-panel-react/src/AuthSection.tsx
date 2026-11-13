@@ -39,7 +39,7 @@ export function AuthSection(): JSX.Element | null {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
 
-  const userId = (user as unknown as { id?: string })?.id
+  const userId = user?.id
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
   const [tfModal, setTfModal] = useState<null | 'enable' | 'disable'>(null)
   const [tfSetup, setTfSetup] = useState<TwoFactorSetup | null>(null)
@@ -69,7 +69,7 @@ export function AuthSection(): JSX.Element | null {
   }, [http])
 
   // OAuth users skip this section entirely.
-  if ((user as unknown as Record<string, unknown>)?.oauthServer) return null
+  if (user?.oauthServer) return null
 
   const closeTf = (): void => {
     setTfModal(null)
