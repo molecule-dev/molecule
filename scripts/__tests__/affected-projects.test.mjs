@@ -142,7 +142,7 @@ describe('trust-only affected scope', () => {
       '.trust-state.json': '["@molecule/a"]\n',
       'packages/api/core/a/src/index.ts': 'export const value=2\n',
     })
-    expect(f.select().stdout).toBe('packages/api/core/a packages/api/core/b')
+    expect(f.select().stdout).toBe('packages/api/core/a packages/api/core/b scripts/__tests__')
   })
 
   it('fails a real source regression while retaining its dependents', () => {
@@ -152,11 +152,38 @@ describe('trust-only affected scope', () => {
       'packages/api/core/a/src/__tests__/sample.test.ts':
         "import {it,expect} from 'vitest';it('a package',()=>expect(1).toBe(2))\n",
     })
-    expect(f.select().stdout).toBe('packages/api/core/a packages/api/core/b')
+    expect(f.select().stdout).toBe('packages/api/core/a packages/api/core/b scripts/__tests__')
     const actual = f.consume()
     expect(actual.status).toBe(1)
     expect(actual.stdout + actual.stderr).toContain('a package')
     expect(actual.stdout + actual.stderr).not.toContain('unrelated package')
+  }, 30000)
+})
+
+describe('source-only affected scope', () => {
+  it('runs the repository guards with the affected packages', () => {
+    const f = fixture()
+    f.change({ 'packages/api/core/c/src/index.ts': 'export const value=2\n' })
+    expect(f.select().stdout).toBe('packages/api/core/c scripts/__tests__')
+    const actual = f.consume()
+    expect(actual.status, actual.stdout + actual.stderr).toBe(0)
+    expect(actual.stdout).toMatch(/2 passed/)
+    expect(actual.stdout + actual.stderr).not.toContain('unrelated package')
+  }, 30000)
+
+  it('fails a package-only push when a repository guard fails', () => {
+    const f = fixture()
+    // A guard that a package change (not a scripts/ change) turns red, the way
+    // a new UI bond without a conformance test turns the conformance gate red.
+    f.change({
+      'scripts/__tests__/meta.test.ts':
+        "import {it,expect} from 'vitest';import {existsSync} from 'node:fs';it('meta guard',()=>expect(existsSync(new URL('../../packages/api/core/c/src/forbidden.ts', import.meta.url))).toBe(false))\n",
+    })
+    f.change({ 'packages/api/core/c/src/forbidden.ts': 'export const forbidden=1\n' })
+    expect(f.select().stdout).toBe('packages/api/core/c scripts/__tests__')
+    const actual = f.consume()
+    expect(actual.status).toBe(1)
+    expect(actual.stdout + actual.stderr).toContain('meta guard')
   }, 30000)
 
   it('uses a known pull-request merge base for the same exact metadata scope', () => {

@@ -7,9 +7,11 @@
  * ~914-package fleet's 47k tests on every commit.
  *
  * Output contract (this is consumed as `npm test -- $(node scripts/affected-projects.mjs)`):
- *   - STDOUT: a space-separated list of package dirs to pass to `vitest run`, OR
- *     EMPTY. Empty means "run everything" — `vitest run` with no filter does
- *     exactly that, so empty is the safe default the fallbacks below fall into.
+ *   - STDOUT: a space-separated list of package dirs to pass to `vitest run`,
+ *     always followed by scripts/__tests__ (the repository guards, which check
+ *     package trees fleet-wide), OR EMPTY. Empty means "run everything" —
+ *     `vitest run` with no filter does exactly that, so empty is the safe
+ *     default the fallbacks below fall into.
  *   - A proven trust-ledger-only diff selects scripts/__tests__, retaining repository
  *     tooling guards without rerunning unchanged package tests.
  *   - STDERR: a one-line human summary of the decision (full vs scoped + count).
@@ -169,6 +171,10 @@ if (affected.size > pkgDirs.length * 0.6)
 
 const out = [...affected].sort()
 console.error(
-  `affected: SCOPED — ${changedDirs.length} changed, ${out.length}/${pkgDirs.length} with dependents`,
+  `affected: SCOPED — ${changedDirs.length} changed, ${out.length}/${pkgDirs.length} with dependents, plus repository guards`,
 )
-process.stdout.write(out.join(' '))
+// The repository guards are fleet-wide checks over package trees (every UI bond
+// runs the framework conformance kit, every import is declared, …). A package
+// change can break one without being their dependent, so they run on every
+// scoped push too; they take seconds.
+process.stdout.write([...out, 'scripts/__tests__'].join(' '))
