@@ -6,7 +6,9 @@ import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import {
+  analyzeDefaults,
   analyzeParity,
+  newDefaultProblems,
   newMissing,
   newUnowned,
   staleBaselineEntries,
@@ -54,6 +56,14 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
     // package can ship text with no companion bond and every non-English locale
     // shows English for it.
     expect(newUnowned()).toEqual([])
+  })
+
+  it("reports no NEW default problems: every default is its key's en.ts text, as a literal", () => {
+    // A default is what a user reads whenever the key is not loaded and the text every
+    // translation was made from. One built in JavaScript bakes its values in before
+    // translation; one that differs from en.ts, or from another call site of the same key,
+    // shows a sentence no translation says.
+    expect(newDefaultProblems()).toEqual([])
   })
 
   it('keeps no fixed entry in the baseline, so a fixed key cannot go missing again unnoticed', () => {
@@ -122,6 +132,46 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
         'app/owned::owned.subtitle',
         'app/owned::owned.thrown',
       ])
+    })
+
+    it("names every default that is not its key's en.ts text, as a literal, at each call site", () => {
+      const root = fixture()
+      write(
+        root,
+        'packages/app/features/defaults/src/defaults.ts',
+        [
+          "t('owned.title', undefined, { defaultValue: 'Title' })",
+          "t('owned.title', undefined, { defaultValue: 'Heading' })",
+          "t('owned.count', { n }, { defaultValue: `${n} items` })",
+          "throw new I18nError('owned.thrown', undefined, 'Thrown')",
+          "throw new I18nError('owned.thrown', undefined, 'Thrown again')",
+          '',
+        ].join('\n'),
+      )
+      const { entries, sites } = analyzeDefaults(root)
+      expect(entries).toEqual([
+        'app::owned.count :: default built in JavaScript',
+        'app::owned.thrown :: several defaults',
+        'app::owned.title :: default differs from en.ts',
+        'app::owned.title :: several defaults',
+      ])
+      expect(sites.get('app::owned.title :: default differs from en.ts')).toEqual([
+        'packages/app/features/defaults/src/defaults.ts:2',
+      ])
+    })
+
+    it('accepts a literal default equal to en.ts, from t() or a provider method', () => {
+      const root = fixture()
+      write(
+        root,
+        'packages/app/features/defaults/src/defaults.ts',
+        [
+          "t('owned.title', undefined, { defaultValue: 'Title' })",
+          "provider.t('owned.title', {}, { defaultValue: 'Title' })",
+          '',
+        ].join('\n'),
+      )
+      expect(analyzeDefaults(root).entries).toEqual([])
     })
 
     it('ignores a private package, whose keys never reach an app', () => {

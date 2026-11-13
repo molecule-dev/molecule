@@ -49,6 +49,8 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import ts from 'typescript'
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const BASELINE_PATH = join(ROOT, 'scripts', 'i18n-parity-baseline.json')
 
@@ -183,6 +185,136 @@ function loadUsage(root) {
 }
 
 /**
+ * The English text each locale bond's en.ts gives each key, as `stack::key` → text. Only
+ * plain string values count; a computed value has no text to compare a default with.
+ *
+ * @param root - The repo root.
+ * @returns The texts.
+ */
+function loadEnTexts(root) {
+  const texts = new Map()
+  for (const stack of ['app', 'api']) {
+    const locDir = join(root, 'packages', stack, 'locales')
+    if (!existsSync(locDir)) continue
+    for (const name of readdirSync(locDir)) {
+      const enPath = join(locDir, name, 'src', 'en.ts')
+      if (!existsSync(enPath)) continue
+      const source = ts.createSourceFile(
+        enPath,
+        readFileSync(enPath, 'utf8'),
+        ts.ScriptTarget.Latest,
+      )
+      const visit = (node) => {
+        if (
+          ts.isPropertyAssignment(node) &&
+          ts.isStringLiteral(node.name) &&
+          (ts.isStringLiteral(node.initializer) ||
+            ts.isNoSubstitutionTemplateLiteral(node.initializer))
+        ) {
+          texts.set(`${stack}::${node.name.text}`, node.initializer.text)
+        }
+        ts.forEachChild(node, visit)
+      }
+      visit(source)
+    }
+  }
+  return texts
+}
+
+/**
+ * The English default a translation call site gives its key: `t('key', values, { defaultValue })`
+ * (also `provider.t(…)`) or `new I18nError('key', values, english)`.
+ *
+ * @param node - A call or `new` expression.
+ * @returns The key and the default's expression, or undefined when the node is neither.
+ */
+function translationDefault(node) {
+  if (ts.isCallExpression(node)) {
+    const callee = node.expression
+    const isT =
+      (ts.isIdentifier(callee) && callee.text === 't') ||
+      (ts.isPropertyAccessExpression(callee) && callee.name.text === 't')
+    const [key, , options] = node.arguments
+    if (!isT || !key || !ts.isStringLiteral(key) || !options) return undefined
+    if (!ts.isObjectLiteralExpression(options)) return undefined
+    const property = options.properties.find(
+      (p) =>
+        ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && p.name.text === 'defaultValue',
+    )
+    return property ? { key: key.text, value: property.initializer } : undefined
+  }
+  if (ts.isNewExpression(node) && ts.isIdentifier(node.expression)) {
+    const [key, , english] = node.arguments ?? []
+    if (node.expression.text !== 'I18nError' || !key || !ts.isStringLiteral(key) || !english) {
+      return undefined
+    }
+    return { key: key.text, value: english }
+  }
+  return undefined
+}
+
+/**
+ * Translation call sites that break "one key, one English text". A default is the text a user
+ * reads whenever the key is not loaded, and the text every translation was made from, so it
+ * must be a literal (a value interpolated in JavaScript is baked in before translation, where
+ * no language can move or translate it), equal to the key's en.ts text, and the same at every
+ * call site of the key. Svelte and Vue files are not parsed here; their scripts call the same
+ * helpers through `.ts` modules or are covered by their framework's own checks.
+ *
+ * @param root - The repo root.
+ * @returns `entries`, one `stack::key :: problem` string per key and problem, sorted, and
+ *   `sites`, the `file:line` call sites behind each entry.
+ */
+export function analyzeDefaults(root = ROOT) {
+  const enTexts = loadEnTexts(root)
+  const byKey = new Map() // stack::key → [{ site, text | null }]
+  for (const stack of ['app', 'api']) {
+    for (const file of collectSourceFiles(join(root, 'packages', stack))) {
+      if (!/\.tsx?$/.test(file)) continue
+      const text = readFileSync(file, 'utf8')
+      if (!text.includes('defaultValue') && !text.includes('I18nError')) continue
+      const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
+      const visit = (node) => {
+        const found = translationDefault(node)
+        if (found) {
+          const id = `${stack}::${found.key}`
+          const literal =
+            ts.isStringLiteral(found.value) || ts.isNoSubstitutionTemplateLiteral(found.value)
+          const line = source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1
+          if (!byKey.has(id)) byKey.set(id, [])
+          byKey.get(id).push({
+            site: `${file.slice(root.length + 1)}:${line}`,
+            text: literal ? found.value.text : null,
+          })
+        }
+        ts.forEachChild(node, visit)
+      }
+      visit(source)
+    }
+  }
+  const entries = []
+  const sites = new Map()
+  const add = (entry, list) => {
+    entries.push(entry)
+    sites.set(
+      entry,
+      list.map((s) => s.site),
+    )
+  }
+  for (const [id, list] of byKey) {
+    const interpolated = list.filter((s) => s.text === null)
+    if (interpolated.length > 0) add(`${id} :: default built in JavaScript`, interpolated)
+    const literals = list.filter((s) => s.text !== null)
+    if (new Set(literals.map((s) => s.text)).size > 1) add(`${id} :: several defaults`, literals)
+    const english = enTexts.get(id)
+    const differing = literals.filter((s) => english !== undefined && s.text !== english)
+    if (differing.length > 0) add(`${id} :: default differs from en.ts`, differing)
+  }
+  entries.sort()
+  return { entries, sites }
+}
+
+/**
  * Compute missing (used-but-undefined), unowned (no bond owns the namespace) and
  * orphan (defined-but-unused) keys.
  *
@@ -247,9 +379,13 @@ export function analyzeParity(root = ROOT) {
 
 /** Load the accepted-debt baseline (missing keys allowed to remain for now). */
 export function loadBaseline() {
-  if (!existsSync(BASELINE_PATH)) return { missing: [], unowned: [] }
+  if (!existsSync(BASELINE_PATH)) return { missing: [], unowned: [], defaults: [] }
   const baseline = JSON.parse(readFileSync(BASELINE_PATH, 'utf8'))
-  return { missing: baseline.missing ?? [], unowned: baseline.unowned ?? [] }
+  return {
+    missing: baseline.missing ?? [],
+    unowned: baseline.unowned ?? [],
+    defaults: baseline.defaults ?? [],
+  }
 }
 
 /**
@@ -261,12 +397,17 @@ export function loadBaseline() {
  * @param current - The analysis to compare with (defaults to the live tree).
  * @returns The fixed entries, `missing` ones first.
  */
-export function staleBaselineEntries(baseline = loadBaseline(), current = analyzeParity()) {
+export function staleBaselineEntries(
+  baseline = loadBaseline(),
+  current = { ...analyzeParity(), defaults: analyzeDefaults().entries },
+) {
   const missing = new Set(current.missing)
   const unowned = new Set(current.unowned)
+  const defaults = new Set(current.defaults ?? [])
   return [
     ...baseline.missing.filter((entry) => !missing.has(entry)),
     ...baseline.unowned.filter((entry) => !unowned.has(entry)),
+    ...(baseline.defaults ?? []).filter((entry) => !defaults.has(entry)),
   ]
 }
 
@@ -284,6 +425,12 @@ export function newUnowned() {
   return unowned.filter((k) => !allowed.has(k))
 }
 
+/** Default problems present now but NOT in the baseline — a key whose English drifted. */
+export function newDefaultProblems() {
+  const allowed = new Set(loadBaseline().defaults)
+  return analyzeDefaults().entries.filter((entry) => !allowed.has(entry))
+}
+
 // ── CLI ──────────────────────────────────────────────────────────────────────
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
 if (isMain) {
@@ -293,11 +440,12 @@ if (isMain) {
       ? 'update'
       : 'report'
   const { missing, unowned, orphans } = analyzeParity()
+  const { entries: defaults, sites: defaultSites } = analyzeDefaults()
 
   if (mode === 'update') {
-    writeFileSync(BASELINE_PATH, `${JSON.stringify({ missing, unowned }, null, 2)}\n`)
+    writeFileSync(BASELINE_PATH, `${JSON.stringify({ missing, unowned, defaults }, null, 2)}\n`)
     console.log(
-      `✓ wrote baseline with ${missing.length} known-missing and ${unowned.length} unowned key(s) → ${BASELINE_PATH}`,
+      `✓ wrote baseline with ${missing.length} known-missing, ${unowned.length} unowned key(s) and ${defaults.length} default problem(s) → ${BASELINE_PATH}`,
     )
     process.exit(0)
   }
@@ -305,7 +453,8 @@ if (isMain) {
   const baseline = loadBaseline()
   const regressions = missing.filter((m) => !new Set(baseline.missing).has(m))
   const unownedRegressions = unowned.filter((k) => !new Set(baseline.unowned).has(k))
-  const stale = staleBaselineEntries(baseline, { missing, unowned })
+  const defaultRegressions = defaults.filter((d) => !new Set(baseline.defaults).has(d))
+  const stale = staleBaselineEntries(baseline, { missing, unowned, defaults })
 
   if (mode === 'check') {
     if (stale.length > 0) {
@@ -319,11 +468,31 @@ if (isMain) {
       for (const entry of stale.slice(0, 20)) console.error(`  - ${entry}`)
       if (stale.length > 20) console.error(`  … and ${stale.length - 20} more`)
     }
-    if (regressions.length === 0 && unownedRegressions.length === 0 && stale.length === 0) {
+    if (
+      regressions.length === 0 &&
+      unownedRegressions.length === 0 &&
+      defaultRegressions.length === 0 &&
+      stale.length === 0
+    ) {
       console.log(
-        `✓ i18n parity: no NEW missing or unowned keys (${missing.length} + ${unowned.length} baselined, ${orphans.length} orphans reported)`,
+        `✓ i18n parity: no NEW missing or unowned keys or default problems (${missing.length} + ${unowned.length} + ${defaults.length} baselined, ${orphans.length} orphans reported)`,
       )
       process.exit(0)
+    }
+    if (defaultRegressions.length > 0) {
+      console.error(
+        `✗ ${defaultRegressions.length} translation default(s) break "one key, one English text".`,
+      )
+      console.error(
+        "  Pass the key's en.ts text verbatim as the default, as a literal: a variable goes in",
+      )
+      console.error(
+        "  the values argument and in the text as {{name}} (t('k', { name }, { defaultValue: 'Hi {{name}}' })).",
+      )
+      console.error('  A key that needs another sentence gets its own key. Offenders:')
+      for (const d of defaultRegressions) {
+        console.error(`  - ${d}  (${defaultSites.get(d).join(', ')})`)
+      }
     }
     if (regressions.length > 0) {
       console.error(
