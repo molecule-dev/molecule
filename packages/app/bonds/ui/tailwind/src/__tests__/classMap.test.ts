@@ -568,7 +568,7 @@ describe('classMap', () => {
 
 describe('base.css @source inline safelist renders every cm.* dynamic value', () => {
   // cm.sp(side, scale) / cm.stack / cm.textSize / cm.fontWeight and the sizing
-  // methods cm.w / cm.h / cm.minH / cm.maxW emit their value DIRECTLY (cm.sp('p',
+  // methods cm.w / cm.h / cm.minH / cm.minW / cm.maxW emit their value DIRECTLY (cm.sp('p',
   // 24) -> "p-24"). A dynamically-built class renders ONLY if Tailwind's JIT sees
   // it — hence the @source inline safelist in base.css. If a value the TYPE admits
   // is missing from the safelist, the call type-checks but renders NOTHING. This
@@ -581,6 +581,7 @@ describe('base.css @source inline safelist renders every cm.* dynamic value', ()
   const FONT = ['normal', 'medium', 'semibold', 'bold', 'extrabold'] as const
   const WIDTH = ['full', 'auto', 'screen', 'fit', '1/2', '1/3', '2/3', '1/4', '3/4'] as const
   const HEIGHT = ['full', 'screen', 'auto', '1/2', '1/3', '2/3', '1/4', '3/4'] as const
+  const NUMERIC = [0, 0.5, 1.5, 2.5, 3.5, ...Array.from({ length: 96 }, (_v, i) => i + 1)]
   const MAXW = [
     'none',
     'xs',
@@ -621,6 +622,9 @@ describe('base.css @source inline safelist renders every cm.* dynamic value', ()
       ...WIDTH.map((v) => classMap.w(v)),
       ...HEIGHT.map((v) => classMap.h(v)),
       ...HEIGHT.map((v) => classMap.minH(v)),
+      ...WIDTH.map((v) => classMap.minW(v)),
+      // Numeric sizes on the spacing scale (0–96, plus the half steps below 4).
+      ...NUMERIC.flatMap((v) => [classMap.w(v), classMap.h(v), classMap.minW(v), classMap.minH(v)]),
       ...MAXW.map((v) => classMap.maxW(v)),
       // cm.gridRows(rows) → grid-rows-{rows}; Tailwind's default grid-rows range is
       // 1-6, which is exactly what the safelist covers.

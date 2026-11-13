@@ -41,7 +41,7 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, content, className, 
 
       <RNModal visible={isVisible} transparent animationType="fade">
         <Pressable className={cm.dialogOverlay} onPress={() => setIsVisible(false)}>
-          <View className={cm.cn(cm.dialogWrapper, 'pointer-events-auto')}>
+          <View className={cm.cn(cm.dialogWrapper, cm.pointerEventsAuto)}>
             <View className={cm.tooltip()}>
               <Text>{content as React.ReactNode}</Text>
             </View>

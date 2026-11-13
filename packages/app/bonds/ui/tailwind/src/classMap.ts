@@ -937,6 +937,13 @@ export const classMap: UIClassMap = {
   pageShellTopbar,
   pageShellContent,
   pageShellSidebarToggle,
+  sidebarUserCardTrigger:
+    'w-full text-left rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors',
+  userMenuPopoverTrigger:
+    'w-full text-left rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors border border-border-secondary',
+  userMenuPopoverPanel: 'absolute bottom-full mb-2 z-50 rounded-xl border border-outline-variant',
+  userMenuPopoverHeader: 'border-b border-outline-variant',
+  userMenuPopoverSignOut: 'text-left rounded-md hover:bg-error/10 transition-colors',
   emptyState,
   emptyStateIcon,
   emptyStateTitle,
@@ -1010,6 +1017,7 @@ export const classMap: UIClassMap = {
     // active scrollbars once the content grew; the base dialogContent
     // overflow-hidden applies, leaving dialogBody as the single scroller.
     '!fixed !inset-y-0 !right-0 !left-auto !w-full !max-w-sm !h-full !rounded-none !translate-x-0 !translate-y-0 !p-0 bg-surface z-50 shadow-xl',
+  drawerLeft: '!right-auto !left-0',
 
   // ---- Text color tokens ----
 
@@ -1125,8 +1133,12 @@ export const classMap: UIClassMap = {
     return `h-${value}`
   },
 
-  minH(value: HeightValue): string {
+  minH(value: HeightValue | number): string {
     return `min-h-${value}`
+  },
+
+  minW(value: WidthValue | number): string {
+    return `min-w-${value}`
   },
 
   maxW(value: MaxWidthScale): string {
@@ -1134,6 +1146,9 @@ export const classMap: UIClassMap = {
   },
 
   shrink0: 'shrink-0',
+  objectCover: 'object-cover',
+  textTruncate: 'truncate',
+  pointerEventsAuto: 'pointer-events-auto',
 
   // Touch target (WCAG 2.5.5): grow small controls to >=44x44px ONLY on
   // coarse-pointer (touch) devices — iPhone/iPad/touch laptops — via the

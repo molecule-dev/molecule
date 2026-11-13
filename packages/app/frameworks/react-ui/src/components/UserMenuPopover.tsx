@@ -209,7 +209,7 @@ export function UserMenuPopoverTrigger({
         cm.flex({ align: 'center', gap: 'sm' }),
         cm.sp('px', 3),
         cm.sp('py', 3),
-        'w-full text-left rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors border border-border-secondary',
+        cm.userMenuPopoverTrigger,
         className,
       )}
     >
@@ -231,19 +231,21 @@ export function UserMenuPopoverTrigger({
       >
         {getInitials(displayName)}
       </span>
-      <span className={cm.cn(cm.flex1, 'min-w-0')}>
+      <span className={cm.cn(cm.flex1, cm.minW(0))}>
         <span
           className={cm.cn(
             cm.textSize('sm'),
             cm.fontWeight('semibold'),
             cm.displayBlock,
-            'truncate',
+            cm.textTruncate,
           )}
         >
           {displayName}
         </span>
         {email ? (
-          <span className={cm.cn(cm.textSize('xs'), cm.displayBlock, 'truncate', cm.textMuted)}>
+          <span
+            className={cm.cn(cm.textSize('xs'), cm.displayBlock, cm.textTruncate, cm.textMuted)}
+          >
             {email}
           </span>
         ) : null}
@@ -307,15 +309,8 @@ export function UserMenuPopoverPanel({
     // trigger's `aria-controls`; the accessible name lives on the `<nav>`
     // landmark below (a bare, roleless `<div>` does not expose
     // `aria-label` to the accessibility tree the way a real landmark does).
-    <div
-      id={panelId}
-      data-mol-id={dataMolId}
-      className={cm.cn(
-        'absolute bottom-full mb-2 z-50 rounded-xl border border-outline-variant',
-        className,
-      )}
-    >
-      <header className={cm.cn(cm.sp('pb', 4), 'border-b border-outline-variant')}>
+    <div id={panelId} data-mol-id={dataMolId} className={cm.cn(cm.userMenuPopoverPanel, className)}>
+      <header className={cm.cn(cm.sp('pb', 4), cm.userMenuPopoverHeader)}>
         <p className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{displayName}</p>
         {email ? <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{email}</p> : null}
       </header>
@@ -396,7 +391,7 @@ export function UserMenuPopoverSignOut({
         cm.displayBlock,
         cm.w('full'),
         cm.textError,
-        'text-left rounded-md hover:bg-error/10 transition-colors',
+        cm.userMenuPopoverSignOut,
         className,
       )}
     >

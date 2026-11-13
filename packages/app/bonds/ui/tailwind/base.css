@@ -76,6 +76,12 @@
 @source inline("h-{1/2,1/3,2/3,1/4,3/4}");
 @source inline("min-h-{auto,1/2,1/3,2/3,1/4,3/4}");
 @source inline("max-w-{3xl,4xl,5xl,6xl,7xl,screen-2xl}");
+/* Numeric sizes: cm.w(n) / cm.h(n) / cm.minH(n) / cm.minW(n) emit {w,h,min-h,min-w}-{n}
+ * on the spacing scale. Before this line a numeric size rendered only when the same
+ * class happened to be written literally in some scanned file. cm.minW() also takes
+ * every WidthValue keyword and fraction. */
+@source inline("{w,h,min-w,min-h}-{0,0.5,1.5,2.5,3.5,{1..96}}");
+@source inline("min-w-{full,auto,screen,fit,1/2,1/3,2/3,1/4,3/4}");
 /* cm.flex({ direction, align, justify, wrap }) variants — referenced via runtime
  * function calls inside @molecule/app-sidebar-layout-react and other shared
  * packages, so Tailwind's static scanner cannot detect them in this app's source. */

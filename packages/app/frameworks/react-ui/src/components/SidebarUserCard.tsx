@@ -122,7 +122,7 @@ export function SidebarUserCard({
           cm.flex({ align: 'center', gap: 'sm' }),
           cm.sp('px', 3),
           cm.sp('py', 3),
-          'w-full text-left rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors',
+          cm.sidebarUserCardTrigger,
           className,
         )}
         {...rest}
@@ -131,7 +131,7 @@ export function SidebarUserCard({
           <img
             src={displayAvatarUrl}
             alt=""
-            className={cm.cn(cm.w(10), cm.h(10), cm.roundedFull, 'shrink-0 object-cover')}
+            className={cm.cn(cm.w(10), cm.h(10), cm.roundedFull, cm.shrink0, cm.objectCover)}
           />
         ) : (
           <span
@@ -143,7 +143,7 @@ export function SidebarUserCard({
               cm.flex({ align: 'center', justify: 'center' }),
               cm.textSize('sm'),
               cm.fontWeight('bold'),
-              'shrink-0',
+              cm.shrink0,
             )}
             style={{
               backgroundColor: 'var(--color-primary)',
@@ -153,12 +153,21 @@ export function SidebarUserCard({
             {getInitials(displayName)}
           </span>
         )}
-        <span className={cm.cn('min-w-0 flex-1')}>
-          <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'), 'block truncate')}>
+        <span className={cm.cn(cm.minW(0), cm.flex1)}>
+          <span
+            className={cm.cn(
+              cm.textSize('sm'),
+              cm.fontWeight('semibold'),
+              cm.displayBlock,
+              cm.textTruncate,
+            )}
+          >
             {displayName}
           </span>
           {displaySecondary ? (
-            <span className={cm.cn(cm.textSize('xs'), 'block truncate text-on-surface-variant')}>
+            <span
+              className={cm.cn(cm.textSize('xs'), cm.displayBlock, cm.textTruncate, cm.textMuted)}
+            >
               {displaySecondary}
             </span>
           ) : null}

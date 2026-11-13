@@ -109,7 +109,7 @@ export function UserMenu({
         // 40x40 trigger floor: the icon-only `size="sm"` button measured
         // 42x26px fleet-wide (flagged as a tiny target in every app QA).
         // Apps can still widen via `className`; the floor is the default.
-        className={cm.cn('min-h-10 min-w-10', className)}
+        className={cm.cn(cm.minH(10), cm.minW(10), className)}
         disabled={disabled}
       >
         <Icon name={triggerIcon} size={triggerIconSize} />
@@ -117,7 +117,7 @@ export function UserMenu({
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        className={side === 'left' ? cm.cn(cm.drawer, '!right-auto !left-0') : cm.drawer}
+        className={side === 'left' ? cm.cn(cm.drawer, cm.drawerLeft) : cm.drawer}
         // The drawer has no `title`, so without an explicit label the
         // dialog is announced as an unnamed "dialog" — give it a name.
         aria-label={t('userMenu.panelLabel', {}, { defaultValue: 'Account menu' })}

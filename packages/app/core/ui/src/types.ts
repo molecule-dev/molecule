@@ -2386,6 +2386,8 @@ export interface UIClassMap {
   headerBar: string
   /** Right-side drawer panel: fixed, full-height, scrollable. */
   drawer: string
+  /** Composed after {@link drawer}: docks the drawer on the left edge instead of the right. */
+  drawerLeft: string
 
   // ---- Text color tokens ----
 
@@ -2545,15 +2547,26 @@ export interface UIClassMap {
    */
   h(value: HeightValue | number): string
   /**
-   * Returns minimum height class.
+   * Returns minimum height class (a number is a spacing-scale step).
    */
-  minH(value: HeightValue): string
+  minH(value: HeightValue | number): string
+  /**
+   * Returns minimum width class (a number is a spacing-scale step; `0` lets a
+   * flex child shrink below its content width so its text can truncate).
+   */
+  minW(value: WidthValue | number): string
   /**
    * Returns maximum width constraint class.
    */
   maxW(value: MaxWidthScale): string
   /** Prevent flex shrinking. */
   shrink0: string
+  /** An image or video fills its box, cropped, keeping its aspect ratio. */
+  objectCover: string
+  /** One line of text, cut with an ellipsis when it overflows. */
+  textTruncate: string
+  /** The element receives pointer/touch events (re-enables them inside a parent that turned them off). */
+  pointerEventsAuto: string
 
   // ---- Touch / pointer utilities ----
 
@@ -2696,6 +2709,16 @@ export interface UIClassMap {
   pageShellContent: string
   /** PageShell sidebar toggle button. */
   pageShellSidebarToggle: string
+  /** SidebarUserCard trigger button: full-width, left-aligned, rounded, tonal surface with hover. */
+  sidebarUserCardTrigger: string
+  /** UserMenuPopover trigger button: the SidebarUserCard trigger look plus a border. */
+  userMenuPopoverTrigger: string
+  /** UserMenuPopover panel: opens upward above its trigger, rounded, bordered, above page content. */
+  userMenuPopoverPanel: string
+  /** UserMenuPopover panel header: the divider under the user's name and email. */
+  userMenuPopoverHeader: string
+  /** UserMenuPopover sign-out button: left-aligned, rounded, error-tinted hover. */
+  userMenuPopoverSignOut: string
   /** EmptyState root container (centered column). */
   emptyState: string
   /** EmptyState icon/illustration wrapper. */

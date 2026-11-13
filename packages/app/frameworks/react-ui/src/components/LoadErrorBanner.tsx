@@ -108,9 +108,7 @@ export function LoadErrorBanner({
       <Alert status="error" live={false}>
         <div className={cm.stack(2)}>
           <p className={cm.textSize('sm')}>{message}</p>
-          {detail ? (
-            <p className={cm.cn(cm.textSize('xs'), 'text-on-surface-variant')}>{detail}</p>
-          ) : null}
+          {detail ? <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{detail}</p> : null}
           {children}
           {onRetry ? (
             <div className={cm.flex({ justify: 'start' })}>
