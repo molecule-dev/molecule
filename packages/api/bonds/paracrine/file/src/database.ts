@@ -37,6 +37,8 @@ const DELIVERY_SUFFIX = '.delivered'
 const EPOCH = '1970-01-01T00:00:00.000Z'
 const LEGACY_UNREADABLE = 'legacy-unreadable'
 const RECENT_WRITE_MS = 60_000
+/** Base-36 digits of the largest SQLite rowid, so the id's sequence part sorts numerically. */
+const SEQUENCE_WIDTH = 13
 const UNREADABLE = Symbol('unreadable legacy JSON')
 
 interface MessageRow {
@@ -418,19 +420,27 @@ export class ParacrineDatabase {
     this.transaction(() => this.registerTransaction(recipient))
   }
 
-  /** Insert a message and all initial deliveries atomically. */
+  /**
+   * Insert a message and all initial deliveries atomically. The id carries the store's insertion
+   * sequence between its millisecond and its random part, so "sentAt, then id" is send order even
+   * for sends in the same millisecond, from any process: writers are serialized by the
+   * transaction, and a random suffix alone ordered same-millisecond messages by chance.
+   */
   send(input: ParacrineSendInput): ParacrineMessage {
-    const sentMs = Date.now()
-    const message: ParacrineMessage = {
-      id: `${sentMs.toString(36)}-${randomUUID()}`,
-      from: input.from,
-      to: input.to,
-      ...(input.subject === undefined ? {} : { subject: input.subject }),
-      body: input.body,
-      sentAt: new Date(sentMs).toISOString(),
-      ...(input.threadId === undefined ? {} : { threadId: input.threadId }),
-    }
-    this.transaction(() => {
+    return this.transaction(() => {
+      const sentMs = Date.now()
+      const { next } = this.db
+        .prepare('SELECT COALESCE(MAX(rowid), 0) + 1 AS next FROM messages')
+        .get() as { next: number }
+      const message: ParacrineMessage = {
+        id: `${sentMs.toString(36)}-${next.toString(36).padStart(SEQUENCE_WIDTH, '0')}-${randomUUID()}`,
+        from: input.from,
+        to: input.to,
+        ...(input.subject === undefined ? {} : { subject: input.subject }),
+        body: input.body,
+        sentAt: new Date(sentMs).toISOString(),
+        ...(input.threadId === undefined ? {} : { threadId: input.threadId }),
+      }
       this.db
         .prepare(
           `INSERT INTO messages(id, sender, recipient, subject, body, sent_at, sent_ms, thread_id)
@@ -463,8 +473,8 @@ export class ParacrineDatabase {
           )
           .run(message.id, input.to, sentMs)
       }
+      return message
     })
-    return message
   }
 
   /** Read the recipient's pending ids through the delivery index. */
@@ -597,7 +607,7 @@ export class ParacrineDatabase {
         (left, right) =>
           left.selection_group - right.selection_group ||
           left.sent_ms - right.sent_ms ||
-          left.id.localeCompare(right.id),
+          (left.id < right.id ? -1 : left.id > right.id ? 1 : 0),
       )
       const selected = candidates.slice(0, maximum)
       const update = this.db.prepare(
