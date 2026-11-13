@@ -4,7 +4,7 @@
  * @module
  */
 
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import type {
   DiffFile,
@@ -38,42 +38,46 @@ export function useEditorProvider(): EditorProvider {
 /**
  * Hook for code editor management.
  *
+ * `tabs` and `activeFile` always come from the provider's own tab list:
+ * `activeFile` is the path of the tab marked `isActive`, or `null` when no
+ * tab is. They are read at mount (tabs opened before the component mounted
+ * show at once), on every provider change event, and after each action that
+ * changes the tab list (`openFile`, `closeFile`, `setActiveTab`, `openDiff`,
+ * `closeDiff`, `pinTab`).
+ *
  * @returns Editor state and controls: tabs, activeFile, openFile, closeFile, getContent, setContent, setActiveTab, mount, dispose, and focus.
  */
 export function useEditor(): UseEditorResult {
   const provider = useEditorProvider()
   const [tabs, setTabs] = useState<EditorTab[]>(() => provider.getTabs())
-  const [activeFile, setActiveFile] = useState<string | null>(null)
+  const activeFile = useMemo(() => tabs.find((tab) => tab.isActive)?.path ?? null, [tabs])
 
-  // Subscribe to changes to update tabs and active file
+  // Re-reads the provider's tab list, which also carries the active tab.
+  const syncTabs = useCallback(() => setTabs(provider.getTabs()), [provider])
+
+  // Subscribe to changes to update tabs and active file. Read once on
+  // subscribing too: a change between the first render and this effect, or a
+  // replaced provider, sends no event this subscription could see.
   useEffect(() => {
-    const unsubscribe = provider.onChange(() => {
-      const currentTabs = provider.getTabs()
-      setTabs(currentTabs)
-      const active = currentTabs.find((tab) => tab.isActive)
-      setActiveFile(active?.path ?? null)
-    })
+    const unsubscribe = provider.onChange(syncTabs)
+    syncTabs()
     return unsubscribe
-  }, [provider])
+  }, [provider, syncTabs])
 
   const openFile = useCallback(
     (file: EditorFile) => {
       provider.openFile(file)
-      setTabs(provider.getTabs())
-      setActiveFile(file.path)
+      syncTabs()
     },
-    [provider],
+    [provider, syncTabs],
   )
 
   const closeFile = useCallback(
     (path: string) => {
       provider.closeFile(path)
-      const updatedTabs = provider.getTabs()
-      setTabs(updatedTabs)
-      const active = updatedTabs.find((t) => t.isActive)
-      setActiveFile(active?.path ?? null)
+      syncTabs()
     },
-    [provider],
+    [provider, syncTabs],
   )
 
   const getContent = useCallback(() => provider.getContent(), [provider])
@@ -86,10 +90,9 @@ export function useEditor(): UseEditorResult {
   const setActiveTab = useCallback(
     (path: string) => {
       provider.setActiveTab(path)
-      setTabs(provider.getTabs())
-      setActiveFile(path)
+      syncTabs()
     },
-    [provider],
+    [provider, syncTabs],
   )
 
   const mount = useCallback(
@@ -103,19 +106,21 @@ export function useEditor(): UseEditorResult {
   const openDiff = useCallback(
     (file: DiffFile) => {
       provider.openDiff?.(file)
+      syncTabs()
     },
-    [provider],
+    [provider, syncTabs],
   )
   const closeDiff = useCallback(() => {
     provider.closeDiff?.()
-  }, [provider])
+    syncTabs()
+  }, [provider, syncTabs])
 
   const pinTab = useCallback(
     (path: string) => {
       provider.pinTab?.(path)
-      setTabs(provider.getTabs())
+      syncTabs()
     },
-    [provider],
+    [provider, syncTabs],
   )
 
   const addExtraLib = useCallback(

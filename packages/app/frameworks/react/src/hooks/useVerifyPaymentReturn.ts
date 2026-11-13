@@ -96,6 +96,12 @@ export interface UseVerifyPaymentReturnResult {
  * Safe on pages that are also reached normally: with no id in the URL it stays
  * `idle` and issues no request.
  *
+ * If the component unmounts while the request is in flight, a verified
+ * purchase still refreshes the cached profile (the plan is paid for), but the
+ * hook calls neither `onVerified` nor `onError` and leaves the URL alone: by
+ * then the address may belong to another page. A failure after unmount is
+ * logged instead.
+ *
  * @param options - Provider fallback + lifecycle callbacks (see
  *   {@link UseVerifyPaymentReturnOptions}).
  * @returns The verification state (see {@link UseVerifyPaymentReturnResult}).
@@ -139,6 +145,17 @@ export function useVerifyPaymentReturn(
 
   const userId = state.user?.id ?? null
 
+  // Whether the component is mounted when a verification settles. A ref set by
+  // an effect, not a flag per call: StrictMode re-runs effects on mount, and
+  // the request started by the first run must still report its result.
+  const mountedRef = useRef(false)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
   const verify = useCallback(async () => {
     if (!transactionId || !provider || !userId) return
 
@@ -157,6 +174,7 @@ export function useVerifyPaymentReturn(
           error,
         })
       })
+      if (!mountedRef.current) return
       setStatus('verified')
       callbacksRef.current.onVerified?.()
 
@@ -168,6 +186,13 @@ export function useVerifyPaymentReturn(
       }
     } catch (caught) {
       const failure = caught instanceof Error ? caught : new Error(String(caught))
+      if (!mountedRef.current) {
+        getLogger('useVerifyPaymentReturn').warn(
+          'Verifying the payment failed after the page unmounted',
+          { error: failure, provider },
+        )
+        return
+      }
       setStatus('failed')
       setError(failure)
       callbacksRef.current.onError?.(failure)

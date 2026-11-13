@@ -257,3 +257,81 @@ describe('useVerifyPaymentReturn', () => {
     expect(post).not.toHaveBeenCalled()
   })
 })
+
+describe('useVerifyPaymentReturn after unmount', () => {
+  beforeEach(() => {
+    setSearch('?provider=stripe&sessionId=cs_live_9')
+  })
+
+  it('refreshes the profile, but calls no callback and leaves the next page URL alone', async () => {
+    let answer: (value: unknown) => void = () => {}
+    const post = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          answer = resolve
+        }),
+    )
+    const { client, refresh } = makeAuthClient()
+    const onVerified = vi.fn()
+    const { unmount } = renderHook(() => useVerifyPaymentReturn({ onVerified }), {
+      wrapper: wrapper(client, makeHttpClient(post)),
+    })
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
+    unmount()
+    // The buyer has moved on to another page by the time the request settles.
+    window.history.replaceState({ page: 'next' }, '', '/next?tab=2&provider=stripe&sessionId=x')
+
+    answer({ data: {}, status: 200, statusText: 'OK', headers: {} })
+    await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1))
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(onVerified).not.toHaveBeenCalled()
+    expect(`${window.location.pathname}${window.location.search}`).toBe(
+      '/next?tab=2&provider=stripe&sessionId=x',
+    )
+    expect(window.history.state).toEqual({ page: 'next' })
+  })
+
+  it('logs a failure that settles after unmount instead of calling onError', async () => {
+    const warn = vi.fn()
+    setLoggerProvider({ getLogger: () => ({ warn }) } as unknown as LoggerProvider)
+    let fail: (error: Error) => void = () => {}
+    const post = vi.fn(
+      () =>
+        new Promise((_resolve, reject) => {
+          fail = reject
+        }),
+    )
+    const { client } = makeAuthClient()
+    const onError = vi.fn()
+    const { unmount } = renderHook(() => useVerifyPaymentReturn({ onError }), {
+      wrapper: wrapper(client, makeHttpClient(post)),
+    })
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
+    unmount()
+
+    fail(new Error('card declined'))
+    await waitFor(() =>
+      expect(warn).toHaveBeenCalledWith('Verifying the payment failed after the page unmounted', {
+        error: expect.objectContaining({ message: 'card declined' }),
+        provider: 'stripe',
+      }),
+    )
+    expect(onError).not.toHaveBeenCalled()
+  })
+
+  it('still reports the result under StrictMode', async () => {
+    const post = vi.fn().mockResolvedValue({ data: {}, status: 200, statusText: 'OK', headers: {} })
+    const { client } = makeAuthClient()
+    const onVerified = vi.fn()
+    const { result } = renderHook(() => useVerifyPaymentReturn({ onVerified }), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <React.StrictMode>{wrapper(client, makeHttpClient(post))({ children })}</React.StrictMode>
+      ),
+    })
+
+    await waitFor(() => expect(result.current.status).toBe('verified'))
+    expect(onVerified).toHaveBeenCalledTimes(1)
+    expect(post).toHaveBeenCalledTimes(1)
+  })
+})

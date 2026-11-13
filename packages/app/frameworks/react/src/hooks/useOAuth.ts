@@ -21,6 +21,11 @@
  *   - The opener tears down its listener + timers on result, on user-close, and on
  *     a hard timeout, so no stale handler lingers.
  *
+ * Unmounting does not cancel a flow that has started. A popup result or a
+ * callback exchange that settles afterwards still establishes the session on
+ * the shared auth client, because the user did sign in. `onSuccess` and
+ * `onError` are not called after unmount: they belong to the unmounted view.
+ *
  * @module
  */
 
@@ -120,6 +125,18 @@ export function useOAuth(config?: {
   onError?: (error: string) => void
 }): UseOAuthReturn {
   const authClient = useAuthClient()
+
+  // Whether the component is mounted, read when a flow settles. A ref set by an
+  // effect, not a flag per call, so StrictMode's effect re-run on mount is not
+  // taken for an unmount: the callback exchange started by the first run then
+  // still reports its result.
+  const mountedRef = useRef(false)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
 
   const providers = useMemo(() => config?.oauthProviders ?? [], [config?.oauthProviders])
   const baseURL = config?.baseURL ?? ''
@@ -259,10 +276,11 @@ export function useOAuth(config?: {
         }
         if (data.ok) {
           void establishSession(data.token, data.user).then((ok) => {
+            if (!mountedRef.current) return
             if (ok) config?.onSuccess?.()
             else config?.onError?.(oauthFailed())
           })
-        } else {
+        } else if (mountedRef.current) {
           config?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
         }
       }
@@ -367,7 +385,7 @@ export function useOAuth(config?: {
             relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
             return
           }
-          config?.onError?.(error)
+          if (mountedRef.current) config?.onError?.(error)
           return
         }
 
@@ -398,6 +416,7 @@ export function useOAuth(config?: {
         // Full-page callback: establish the session here, then fire onSuccess —
         // unchanged behavior.
         const ok = await establishSession(token, user)
+        if (!mountedRef.current) return
         if (ok) config?.onSuccess?.()
         else config?.onError?.(oauthFailed())
       } catch (err) {
@@ -406,7 +425,7 @@ export function useOAuth(config?: {
           relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
           return
         }
-        config?.onError?.(error)
+        if (mountedRef.current) config?.onError?.(error)
       }
     }
 
