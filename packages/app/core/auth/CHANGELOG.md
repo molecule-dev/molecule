@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.4.0
+
+### Minor Changes
+
+- `UserProfile` declares `oauthServer`, the OAuth provider an account signs in through, so settings can hide password controls without casting the profile.
+
 ## 3.3.7
 
 ### Patch Changes

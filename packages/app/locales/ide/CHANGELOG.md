@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.11.1
+
+### Patch Changes
+
+- Command help and the thinking-duration labels read in English in every language again, replacing machine translations that changed their meaning.
+
 ## 1.11.0
 
 ### Minor Changes

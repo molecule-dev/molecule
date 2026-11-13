@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.18.5
+
+### Patch Changes
+
+- A known-failures checkpoint re-runs only the tests a stopped background run saw fail, instead of every test in that file.
+
 ## 1.18.4
 
 ### Patch Changes

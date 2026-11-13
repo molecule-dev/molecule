@@ -1,5 +1,11 @@
 # @molecule/api-database-remote
 
+## 1.0.5
+
+### Patch Changes
+
+- Peer dependency ranges now include the versions these packages are tested with (vue-router 5, better-sqlite3 13).
+
 ## 1.0.4
 
 ### Patch Changes
