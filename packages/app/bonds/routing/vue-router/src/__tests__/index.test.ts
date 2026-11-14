@@ -5,6 +5,8 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('vue-router', () => ({
   useRouter: vi.fn(),
   useRoute: vi.fn(),
+  // Vue Router's route before its first navigation; no mock route is this object.
+  START_LOCATION: { path: '/', fullPath: '/', hash: '', params: {} },
 }))
 
 // The REAL @molecule/app-routing: the bond builds on its createHistoryRouter /

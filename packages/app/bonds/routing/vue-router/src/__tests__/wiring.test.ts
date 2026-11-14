@@ -59,6 +59,8 @@ vi.mock('@molecule/app-routing', async (importOriginal) => {
 vi.mock('vue-router', () => ({
   useRouter: () => mockVueRouter,
   useRoute: () => mockRoute,
+  // Vue Router's route before its first navigation; no mock route is this object.
+  START_LOCATION: { path: '/', fullPath: '/', hash: '', params: {} },
 }))
 
 // computed → { value }, watch → run immediately with the unwrapped value.

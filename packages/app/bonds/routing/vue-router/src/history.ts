@@ -13,6 +13,7 @@ import type {
   RouteLocationRaw,
   Router as VueRouterInstance,
 } from 'vue-router'
+import { START_LOCATION } from 'vue-router'
 
 import type {
   NavigationAction,
@@ -23,6 +24,12 @@ import type {
 import { fromHistoryStateRecord, toHistoryStateRecord } from '@molecule/app-routing'
 
 import { normalizeParams } from './utilities.js'
+
+/** The fields a molecule location and its params are read from, on a Vue Router route. */
+type VueRouteFields = Pick<
+  VueRouterInstance['currentRoute']['value'],
+  'path' | 'fullPath' | 'hash' | 'params'
+>
 
 /**
  * The keys Vue Router itself writes into every history entry
@@ -139,6 +146,17 @@ export const vueRouterHistory = (router: VueRouterInstance): RouterHistory => {
   let pendingOwn: { state: unknown } | undefined
   const listeners = new Set<(action?: NavigationAction) => void>()
 
+  // Until Vue Router's first navigation commits, `currentRoute` is its `START_LOCATION`
+  // (`/`), not the address being opened. React Router reads the address at once; reading
+  // the start route instead sent a deep link to a public page through a signed-in-only
+  // guard (`/` is private), which redirected it to the login page. So before the first
+  // navigation, the location is the one the browser history is opening.
+  const current = (): VueRouteFields => {
+    const route = router.currentRoute.value
+    if (route !== START_LOCATION) return route
+    return router.resolve(router.options.history.location)
+  }
+
   // Registered once, before any listener: the history listener hears only moves the
   // browser itself made (back/forward), every one of them a pop.
   const stopHistory = router.options.history.listen((_to, _from, info) => {
@@ -166,7 +184,7 @@ export const vueRouterHistory = (router: VueRouterInstance): RouterHistory => {
   }
 
   const location = (): RouteLocation => {
-    const route = router.currentRoute.value
+    const route = current()
     const state = rawState(router)
     return {
       pathname: route.path,
@@ -196,7 +214,7 @@ export const vueRouterHistory = (router: VueRouterInstance): RouterHistory => {
 
   return {
     location,
-    params: (): RouteParams => normalizeParams(router.currentRoute.value.params),
+    params: (): RouteParams => normalizeParams(current().params),
     push: (path, state) => commit(path, state, (target) => router.push(target)),
     replace: (path, state) => commit(path, state, (target) => router.replace(target)),
     go: (delta) => router.go(delta),
