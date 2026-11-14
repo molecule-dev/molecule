@@ -81,3 +81,35 @@ export function isNoResponse(err: unknown): boolean {
 export function isAborted(err: unknown): boolean {
   return isHttpError(err) && err.aborted
 }
+
+/**
+ * The message the server sent with a failed request: the `error` (else
+ * `message`) string of its JSON body, or `undefined` when the server sent none
+ * (no response, an empty body, a non-JSON body).
+ *
+ * Show this, then a translated fallback, never `err.message`: an
+ * `HttpError`'s own message is the transport's status line (`Request failed
+ * with status code 403`), written for logs. Molecule API routes answer a
+ * refused request with `{ error }` already translated for the user (a wrong
+ * password, an invalid two-factor code, a declined checkout).
+ *
+ * ```typescript
+ * catch (err) {
+ *   setError(serverErrorMessage(err) ?? t('settings.failedToDeleteAccount', undefined, {
+ *     defaultValue: 'Failed to delete account.',
+ *   }))
+ * }
+ * ```
+ *
+ * @param err - Any thrown value.
+ * @returns The server's non-empty message, or `undefined`.
+ */
+export function serverErrorMessage(err: unknown): string | undefined {
+  if (!isHttpError(err)) return undefined
+  const body = err.response?.data
+  if (typeof body !== 'object' || body === null) return undefined
+  const { error, message } = body as { error?: unknown; message?: unknown }
+  for (const candidate of [error, message])
+    if (typeof candidate === 'string' && candidate.trim()) return candidate
+  return undefined
+}

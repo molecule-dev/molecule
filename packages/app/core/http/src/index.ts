@@ -133,6 +133,12 @@
  * brand across duplicated package copies. Subclass checks keep their ordinary
  * prototype semantics; a branded base error is not an instance of every subclass.
  *
+ * **Show a failed request as `serverErrorMessage(err) ?? t(fallbackKey, …)`, never
+ * `err.message`.** An `HttpError`'s message is the transport's status line (`Request
+ * failed with status code 403`), written for logs; molecule API routes answer a refused
+ * request with a translated `{ error }` body (a wrong password, an invalid code), which
+ * `serverErrorMessage` returns.
+ *
  * @module
  */
 
