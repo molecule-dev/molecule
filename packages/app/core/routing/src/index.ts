@@ -17,6 +17,11 @@
  * - **Never put a secret or token in a route param or query string.** URLs leak into browser
  *   history, server logs, and the `Referer` header — deliver a reset/verify token as a
  *   one-time link you validate server-side, and don't persist it client-side afterward.
+ * - **In-app links come from the framework binding's `Link`** (`@molecule/app-vue`,
+ *   `-solid`, `-svelte`, `-angular`; react-router's `<Link>` in React). Each one calls
+ *   {@link followRouterLink}, so a modified click, a `target="_blank"` anchor or another
+ *   origin is left to the browser the same way in every framework. Do not hand-write an
+ *   anchor click handler that calls {@link navigate}.
  *
  * @example
  * ```ts
@@ -47,6 +52,7 @@
 export * from './consumed-search-param.js'
 export * from './history-router.js'
 export * from './history-state.js'
+export * from './link.js'
 export * from './list-route.js'
 export * from './list-route-types.js'
 export * from './provider.js'
