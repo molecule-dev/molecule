@@ -288,15 +288,42 @@ describe('@molecule/api-queue-memory', () => {
     })
 
     it('long-polls until a message arrives (waitTimeSeconds)', async () => {
+      // Fake clock: on real time, a stall longer than waitTimeSeconds before the send would end
+      // the poll empty. Virtual time also proves the poll is still open just before its window ends.
+      vi.useFakeTimers()
+      vi.setSystemTime(0)
       const queue = makeProvider().queue('long-poll')
 
       const pending = queue.receive({ waitTimeSeconds: 2 })
-      await sleep(30)
+      await vi.advanceTimersByTimeAsync(1999)
       await queue.send({ body: 'awaited' })
 
       const messages = await pending
       expect(messages).toHaveLength(1)
       expect(messages[0].body).toBe('awaited')
+    })
+
+    it('a long poll gets a message that comes due between two clock readings', async () => {
+      // The poll judged visibility by one Date.now reading and armed its wake by a second one;
+      // a message due in the millisecond between was neither returned nor waited for, so the
+      // poll sat out its whole waitTimeSeconds. Date.now is driven by hand to land that tick.
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      let clock = 0
+      const early: number[] = []
+      vi.spyOn(Date, 'now').mockImplementation(() => early.shift() ?? clock)
+      const queue = makeProvider().queue('poll-due-between-readings')
+      await queue.send({ body: 'later', delaySeconds: 0.05 })
+
+      // The poll starts while the clock reads one millisecond short, then the clock reaches visibleAt.
+      clock = 50
+      early.push(49)
+      let bodies: unknown[] | undefined
+      void queue.receive({ waitTimeSeconds: 5 }).then((messages) => {
+        bodies = messages.map((message) => message.body)
+      })
+      await vi.advanceTimersByTimeAsync(10)
+
+      expect(bodies).toEqual(['later'])
     })
 
     it('long-poll resolves with [] when waitTimeSeconds elapses with no message', async () => {
@@ -343,6 +370,9 @@ describe('@molecule/api-queue-memory', () => {
     })
 
     it('delivers delayed messages once they become visible', async () => {
+      // Fake clock: the delivery lands at exactly 50ms, with no wall-clock budget to run out.
+      vi.useFakeTimers()
+      vi.setSystemTime(0)
       const queue = makeProvider().queue('sub-delayed')
       const received: unknown[] = []
       const unsubscribe = queue.subscribe(async (message) => {
@@ -350,10 +380,38 @@ describe('@molecule/api-queue-memory', () => {
       })
 
       await queue.send({ body: 'later', delaySeconds: 0.05 })
+      await vi.advanceTimersByTimeAsync(49)
       expect(received).toHaveLength(0)
 
-      await waitFor(() => received.length === 1)
-      expect(received[0]).toBe('later')
+      await vi.advanceTimersByTimeAsync(1)
+      expect(received).toEqual(['later'])
+      unsubscribe()
+    })
+
+    it('delivers a message that comes due between two clock readings', async () => {
+      // A wake timer can fire a fraction of a millisecond before Date.now reaches the message's
+      // visibleAt, and the clock can tick before the next wake is armed. The queue then saw the
+      // message as neither visible nor in the future, armed nothing, and an idle queue never
+      // delivered it (about 1 run in 300, 2026-11-14). Date.now is driven by hand so that tick
+      // lands between the two readings.
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      let clock = 0
+      const early: number[] = []
+      vi.spyOn(Date, 'now').mockImplementation(() => early.shift() ?? clock)
+      const queue = makeProvider().queue('due-between-readings')
+      const received: unknown[] = []
+      const unsubscribe = queue.subscribe(async (message) => {
+        received.push(message.body)
+      })
+      await queue.send({ body: 'later', delaySeconds: 0.05 })
+
+      // The wake fires while the clock reads one millisecond short, then the clock reaches visibleAt.
+      clock = 50
+      early.push(49)
+      await vi.advanceTimersByTimeAsync(50)
+      await vi.advanceTimersByTimeAsync(1000)
+
+      expect(received).toEqual(['later'])
       unsubscribe()
     })
 
@@ -583,8 +641,11 @@ describe('@molecule/api-queue-memory', () => {
       const providerInstance = makeProvider()
       const queue = providerInstance.queue('poll-close')
 
+      // Fake clock: the poll's own 5s timer never fires here, so only close() can end it (on
+      // real time, that timer could resolve it with the same [] and hide a close() that did not).
+      vi.useFakeTimers()
       const pending = queue.receive({ waitTimeSeconds: 5 })
-      await sleep(10)
+      await vi.advanceTimersByTimeAsync(10)
       await providerInstance.close!()
 
       expect(await pending).toEqual([])

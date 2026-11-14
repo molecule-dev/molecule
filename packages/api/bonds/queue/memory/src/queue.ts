@@ -155,10 +155,14 @@ export const createQueue = (queueName: string, config: MemoryQueueConfig): Memor
    * Collects and leases up to `max` deliverable messages, applying delayed
    * visibility, retention expiry, FIFO group head-of-line blocking, and the
    * dead-letter delivery cap. Mutates lease state (at-least-once bookkeeping).
+   * `now` is the caller's clock reading, the same one its {@link scheduleNextWake} uses.
    */
-  const leaseMessages = (max: number, visibilityTimeoutMs: number): StoredMessage[] => {
+  const leaseMessages = (
+    max: number,
+    visibilityTimeoutMs: number,
+    now = Date.now(),
+  ): StoredMessage[] => {
     if (max <= 0) return []
-    const now = Date.now()
     const leased: StoredMessage[] = []
     const blockedGroups = new Set<string>()
     if (config.fifo) {
@@ -275,15 +279,19 @@ export const createQueue = (queueName: string, config: MemoryQueueConfig): Memor
    * Arms the single wake timer for the earliest future event (delayed
    * visibility or lease expiry) — only while someone (subscriber or long-poll
    * waiter) is waiting for delivery; a fully idle queue holds no timer.
+   *
+   * `now` must be the reading the preceding {@link leaseMessages} judged visibility by.
+   * With a second reading, a message that came due in the millisecond between the two was
+   * neither leased (not yet visible) nor waited for (no longer in the future), and an idle
+   * queue never delivered it.
    */
-  const scheduleNextWake = (): void => {
+  const scheduleNextWake = (now = Date.now()): void => {
     if (wakeTimer) {
       clearTimeout(wakeTimer)
       wakeTimer = null
     }
     if (closed) return
     if (subscribers.size === 0 && waiters.size === 0) return
-    const now = Date.now()
     let next = Infinity
     for (const message of messages) {
       if (message.leaseExpiresAt !== null && message.leaseExpiresAt > now) {
@@ -298,7 +306,8 @@ export const createQueue = (queueName: string, config: MemoryQueueConfig): Memor
         wakeTimer = null
         pump()
       },
-      Math.max(1, next - now),
+      // The delay is measured from the clock as it reads now, so it never fires late.
+      Math.max(1, next - Date.now()),
     )
     wakeTimer.unref?.()
   }
@@ -310,23 +319,24 @@ export const createQueue = (queueName: string, config: MemoryQueueConfig): Memor
    */
   const pump = (): void => {
     if (closed) return
+    const now = Date.now()
     for (const subscriber of subscribers.values()) {
       while (subscriber.active < subscriber.concurrency) {
-        const [message] = leaseMessages(1, subscriber.visibilityTimeoutMs)
+        const [message] = leaseMessages(1, subscriber.visibilityTimeoutMs, now)
         if (!message) break
         subscriber.active += 1
         dispatch(subscriber, message)
       }
     }
     for (const waiter of [...waiters]) {
-      const leased = leaseMessages(waiter.maxMessages, waiter.visibilityTimeoutMs)
+      const leased = leaseMessages(waiter.maxMessages, waiter.visibilityTimeoutMs, now)
       if (leased.length > 0) {
         waiters.delete(waiter)
         clearTimeout(waiter.timer)
         waiter.resolve(leased.map((message) => toReceivedMessage<unknown>(message)))
       }
     }
-    scheduleNextWake()
+    scheduleNextWake(now)
   }
 
   const assertOpen = (): void => {
@@ -381,9 +391,10 @@ export const createQueue = (queueName: string, config: MemoryQueueConfig): Memor
       const maxMessages = options?.maxMessages ?? 10
       const visibilityTimeoutMs =
         (options?.visibilityTimeout ?? config.defaultVisibilityTimeoutSeconds) * 1000
-      const leased = leaseMessages(maxMessages, visibilityTimeoutMs)
+      const now = Date.now()
+      const leased = leaseMessages(maxMessages, visibilityTimeoutMs, now)
       if (leased.length > 0 || !options?.waitTimeSeconds) {
-        scheduleNextWake()
+        scheduleNextWake(now)
         return leased.map((message) => toReceivedMessage<T>(message))
       }
       // Long poll: resolve as soon as a message becomes available, or with
@@ -401,7 +412,7 @@ export const createQueue = (queueName: string, config: MemoryQueueConfig): Memor
         }
         waiter.timer.unref?.()
         waiters.add(waiter)
-        scheduleNextWake()
+        scheduleNextWake(now)
       })
     },
 
