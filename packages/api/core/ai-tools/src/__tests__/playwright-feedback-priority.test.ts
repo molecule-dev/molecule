@@ -266,16 +266,70 @@ it('aborts the real native process group, removes its private reports, and retur
   const time = performance.now()
   abort.abort()
   expect((await run).status).toBe('cancelled')
-  expect(performance.now() - time).toBeLessThan(1500)
-  await vi.waitFor(async () => {
-    expect(await alive(owned.pid)).toBe(false)
-    expect(await alive(owned.child)).toBe(false)
-  })
+  // Well before the loop's own 6 s, including the time its killed processes take to exit.
+  expect(performance.now() - time).toBeLessThan(2500)
+  // The run returns only once its processes are gone: no waiting here.
+  expect(await alive(owned.pid)).toBe(false)
+  expect(await alive(owned.child)).toBe(false)
   expect(owned.nice).toBe(19)
   expect(owned.internal).toBe('1')
   expect(owned.idle).toBe(true)
   expect(owned.io).toBe('idle')
 }, 10_000)
+
+it('returns only after its killed processes exit, even on a CPU that normal work saturates', async () => {
+  const f = await fixture(),
+    abort = new AbortController()
+  // One CPU this test may use, for the run and for a loop that saturates it.
+  const cpu = /Cpus_allowed_list:\s*(\d+)/.exec(await readFile('/proc/self/status', 'utf8'))?.[1]
+  if (!cpu) throw new Error('no allowed CPU in /proc/self/status')
+  // A browser run is busy, not asleep: a sleeping process is woken by the kill and can exit at
+  // once, so the run's processes compute until they are killed. One process can still happen to
+  // be scheduled at once; five together make every one of them dying quickly vanishingly rare
+  // (all five were gone within 150 ms in none of 12 measured trials, and within 0.75 s in all).
+  const program = join(f.root, 'spin.cjs')
+  await writeFile(
+    program,
+    `const fs=require('node:fs'),cp=require('node:child_process');
+const children=[1,2,3,4].map(()=>cp.spawn(process.execPath,['-e','for(;;){}'],{stdio:'ignore'}).pid);
+fs.writeFileSync('started.json',JSON.stringify({pid:process.pid,child:children[0],children}));
+for(;;){}`,
+  )
+  // Its output goes elsewhere, as a browser's does (Playwright pipes Chromium's): a process holding
+  // the supervisor's inherited stdio would keep the host's wait open by itself.
+  const command = `taskset -c ${cpu} ${shellQuote(process.execPath)} ${shellQuote(program)} </dev/null >/dev/null 2>&1`
+  const run = runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
+    command: () => command,
+    signal: abort.signal,
+    scratchRoot: join(f.root, 'scratch'),
+  })
+  const owned = await started(f.root)
+  const children: number[] = JSON.parse(
+    await readFile(join(f.root, 'started.json'), 'utf8'),
+  ).children
+  // The run's processes are on the idle CPU class. Beside a normal-priority loop on their CPU they
+  // get almost no time, so a SIGKILLed one stays runnable for hundreds of milliseconds before it
+  // can exit (measured 0.7 s with one loop, 4.6 s with four). A supervisor that exited at once
+  // told the host the run was gone while it still held its port and memory.
+  const busy = spawn('taskset', ['-c', cpu, process.execPath, '-e', 'for(;;){}'], {
+    stdio: 'ignore',
+  })
+  try {
+    await new Promise((done) => setTimeout(done, 300))
+    abort.abort()
+    // A supervisor that does not wait returns within ~100 ms, while the loop still starves its
+    // killed processes. Ending the loop a second later bounds how long a waiting one takes.
+    const release = setTimeout(() => busy.kill('SIGKILL'), 1000)
+    try {
+      expect((await run).status).toBe('cancelled')
+    } finally {
+      clearTimeout(release)
+    }
+    expect(await Promise.all([owned.pid, ...children].map(alive))).not.toContain(true)
+  } finally {
+    busy.kill('SIGKILL')
+  }
+}, 20_000)
 
 it('yields to an independent native Playwright command without stopping or refusing that explicit run', async () => {
   const f = await fixture(),
@@ -314,11 +368,9 @@ it('yields to an independent native Playwright command without stopping or refus
   const time = performance.now()
   try {
     expect((await run).status).toBe('cancelled')
-    expect(performance.now() - time).toBeLessThan(1500)
-    await vi.waitFor(async () => {
-      expect(await alive(owned.pid)).toBe(false)
-      expect(await alive(owned.child)).toBe(false)
-    })
+    expect(performance.now() - time).toBeLessThan(2500)
+    expect(await alive(owned.pid)).toBe(false)
+    expect(await alive(owned.child)).toBe(false)
     expect(await finished).toBe(0)
     expect(output).toContain('1 passed')
   } finally {

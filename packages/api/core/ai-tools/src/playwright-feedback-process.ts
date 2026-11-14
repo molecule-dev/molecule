@@ -214,11 +214,28 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
   process.on('SIGINT', terminate)
   process.on('SIGTERM', terminate)
   process.on('exit', terminate)
-  child.on('error', () => {
-    stop()
-    finish(1)
-  })
+  // Whether a process this run owns still exists and has not exited: a remembered descendant whose
+  // start ticks still match (a reused PID is someone else's), or a member of the run's own group.
+  const ownedAlive = (): boolean => {
+    if (process.platform !== 'linux') return false
+    for (const pid of fs.readdirSync('/proc')) {
+      if (!/^\d+$/.test(pid) || Number(pid) === process.pid) continue
+      try {
+        const stat = fs.readFileSync(`/proc/${pid}/stat`, 'utf8')
+        const fields = stat.slice(stat.lastIndexOf(')') + 2).split(' ')
+        if (fields[0] === 'Z' || fields[0] === 'X') continue
+        if (owned.get(Number(pid)) === fields[19] || Number(fields[2]) === child?.pid) return true
+      } catch (_error) {
+        /* exited between the listing and the read */
+      }
+    }
+    return false
+  }
+  let finished = false
   const finish = (code: number): void => {
+    // A spawn error can be followed by 'close'; the first outcome is the run's.
+    if (finished) return
+    finished = true
     stop()
     watch.close()
     clearInterval(poll)
@@ -226,7 +243,18 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
     process.off('SIGTERM', terminate)
     process.off('exit', terminate)
     process.exitCode = code
+    // SIGKILL is not instant: a killed process on the idle CPU class keeps running, holding its
+    // port and memory, until a saturated CPU schedules it to die. The host treats this
+    // supervisor's exit as "the speculative run is gone" and then starts the foreground command,
+    // so stay alive (the pending timer keeps the event loop open) until every owned process has
+    // exited, bounded so a process stuck in uninterruptible sleep cannot hold the host.
+    const deadline = Date.now() + 10_000
+    const settle = (): void => {
+      if (ownedAlive() && Date.now() < deadline) setTimeout(settle, 20)
+    }
+    settle()
   }
+  child.on('error', () => finish(1))
   child.on('close', (code) => finish(done ? 125 : (code ?? 1)))
   // An abort can arrive between the first check and installing fs.watch.
   if (fs.existsSync(stopFile)) stop()
