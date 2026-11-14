@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process'
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
@@ -65,22 +65,31 @@ async function fixture(latency = 0) {
 }
 
 describe('write/edit sandbox round trips and exact results', () => {
-  it.each(['write_file', 'edit_file'])('%s uses two calls instead of four', async (name) => {
+  it.each([
+    ['write_file', 'no callbacks'],
+    ['edit_file', 'no callbacks'],
+    // The host configuration molecule.dev runs: an IDE broadcast on every change. It used to
+    // switch the batched transport off, so every production write paid a third round trip.
+    ['write_file', 'a change notification'],
+    ['edit_file', 'a change notification'],
+  ] as const)('%s uses two calls instead of four with %s', async (name, config) => {
     const f = await fixture(100)
     const path = join(f.root, 'invoice.json')
     const input =
       name === 'write_file'
         ? { path, content: '{"paid":true}\n' }
         : { path, old_string: 'false', new_string: 'true' }
+    const callbacks: ToolBuildConfig =
+      config === 'a change notification' ? { onFileChange: () => undefined } : {}
     await writeFile(path, '{"paid":false}\n')
     const start = performance.now()
-    const bad = await f.tool(name, false).execute(input)
+    const bad = await f.tool(name, false, callbacks).execute(input)
     const legacyMs = performance.now() - start
     const oldCalls = f.calls.splice(0)
     expect(oldCalls.map((c) => c.kind)).toEqual(['exec', 'read', 'write', 'exec'])
     await writeFile(path, '{"paid":false}\n')
     const fastStart = performance.now()
-    const good = await f.tool(name).execute(input)
+    const good = await f.tool(name, true, callbacks).execute(input)
     const fastMs = performance.now() - fastStart
     expect(good).toEqual(bad)
     expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
@@ -126,7 +135,7 @@ describe('write/edit sandbox round trips and exact results', () => {
     expect(await run(true)).toEqual(legacy)
     if (kind === 'syntax') expect(legacy.json).toContain('syntaxError')
     if (kind === 'redaction') expect(legacy.json).toContain('Refused:')
-    if (kind === 'created') expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'write', 'exec'])
+    if (kind === 'created') expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
   })
 
   it.each(['write_file', 'edit_file'])(
@@ -163,21 +172,29 @@ describe('write/edit sandbox round trips and exact results', () => {
     },
   )
 
-  it.each(['write_file', 'edit_file'])('%s parses after its change callback', async (name) => {
-    const f = await fixture()
-    const path = join(f.root, 'invoice.json')
-    const run = async (fast: boolean) => {
+  it.each(['write_file', 'edit_file'])(
+    '%s notifies a change once it is on disk, and a formatter rewrite reaches the check',
+    async (name) => {
+      const f = await fixture()
+      const path = join(f.root, 'invoice.json')
       await writeFile(path, '{"amount":10}\n')
-      return f
-        .tool(name, fast, {
-          onFileChange: () => writeFileSync(path, '{"amount":}\n'),
+      const seen: string[] = []
+      const result = await f
+        .tool(name, true, {
+          onFileChange: () => seen.push(readFileSync(path, 'utf8')),
         })
         .execute({ path, content: '{"amount":12}', old_string: '10', new_string: '12' })
-    }
-    const legacy = await run(false)
-    expect(legacy).toHaveProperty('syntaxError')
-    expect(await run(true)).toEqual(legacy)
-  })
+      expect(seen).toEqual(['{"amount":12}' + (name === 'edit_file' ? '\n' : '')])
+      expect(result).not.toHaveProperty('syntaxError')
+      expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
+      // A hook that changes the file it was told about is `onAfterWrite`: awaited, then checked.
+      await writeFile(path, '{"amount":10}\n')
+      const formatted = await f
+        .tool(name, true, { onAfterWrite: async (p) => writeFileSync(p, '{"amount":}\n') })
+        .execute({ path, content: '{"amount":12}', old_string: '10', new_string: '12' })
+      expect(formatted).toHaveProperty('syntaxError')
+    },
+  )
 
   it('retains large native reads/writes instead of truncated transport content', async () => {
     const f = await fixture()

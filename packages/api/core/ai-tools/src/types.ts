@@ -302,7 +302,13 @@ export interface ToolBuildConfig {
   /** Diff tracking callback. Called before writes with old/new content. */
   onFileDiff?: (event: FileDiffEvent) => void
 
-  /** Structural change callback. Called on create_directory, delete_file, rename_file. */
+  /**
+   * Change notification, called once the change is on disk: on write_file, edit_file,
+   * create_directory, delete_file and rename_file. It only reports; the tool does not wait for it
+   * and does not re-read the file after it, so a hook that changes the file it was told about
+   * (a formatter) belongs in {@link ToolBuildConfig.onAfterWrite}, which is awaited before the
+   * parse check. Setting it keeps the batched write-and-check transport.
+   */
   onFileChange?: (event: FileChangeEvent) => void
 }
 

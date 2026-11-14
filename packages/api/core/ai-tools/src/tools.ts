@@ -1691,7 +1691,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     return { error: null, content }
   }
 
-  /** A formatter needs its original write/hook/reread/check ordering. */
+  /**
+   * A formatter needs its original write/hook/reread/check ordering. A change notification
+   * (`onFileChange`) does not: it reports a change already on disk and is never waited on.
+   */
   async function writeAndCheck(
     path: string,
     content: string,
@@ -1701,7 +1704,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     exitCode: number
   } | null> {
     const command = parseCheckCommand(path)
-    if (!onAfterWrite && !onFileChange && command && backend.writeFileAndCheck) {
+    if (!onAfterWrite && command && backend.writeFileAndCheck) {
       const result = await backend.writeFileAndCheck(path, content, command)
       if (result !== null) return result
     }
