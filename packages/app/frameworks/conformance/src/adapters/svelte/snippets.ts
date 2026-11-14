@@ -14,16 +14,19 @@ import {
   isComponentSpec,
   materializeProps,
   type NodeSpec,
-} from '@molecule/app-framework-conformance/ui'
+} from '../../ui/index.js'
 
 /** A compiled snippet's calling convention: `(anchor, ...argument getters)`. */
 type CompiledSnippet = (anchor: unknown, ...args: (() => unknown)[]) => void
+
+/** Builds the recording spy for a nested `{ $callback }` in the running case. */
+type CallbackSpy = (name: string) => (...args: unknown[]) => unknown
 
 /** Builders bound to one `.svelte` file's `tree` snippet. */
 export interface SnippetBuilders {
   /** A zero-argument snippet rendering a node list. */
   snippetOf(list: NodeSpec[]): Snippet
-  /** Props with `{ $nodes }` → snippets and render functions → `Snippet<[args]>`. */
+  /** Props with `{ $nodes }` → snippets, render functions → `Snippet<[args]>` and `{ $callback }` → spies. */
   materialize(props: Record<string, unknown>): Record<string, unknown>
   /** A component node's props, slots and children, ready to spread. */
   propsOf(node: NodeSpec): Record<string, unknown>
@@ -33,9 +36,13 @@ export interface SnippetBuilders {
  * Creates the builders for one `.svelte` file.
  *
  * @param tree - That file's `{#snippet tree(list)}` snippet.
+ * @param callback - Builds the recording spy for a nested `{ $callback }` in a data prop.
  * @returns The builders.
  */
-export function snippetBuilders(tree: Snippet<[NodeSpec[]]>): SnippetBuilders {
+export function snippetBuilders(
+  tree: Snippet<[NodeSpec[]]>,
+  callback?: CallbackSpy,
+): SnippetBuilders {
   const compiled = tree as unknown as CompiledSnippet
   const snippetOf = (list: NodeSpec[]): Snippet =>
     ((anchor: unknown) => compiled(anchor, () => list)) as unknown as Snippet
@@ -49,7 +56,7 @@ export function snippetBuilders(tree: Snippet<[NodeSpec[]]>): SnippetBuilders {
         ),
       )) as unknown as Snippet<unknown[]>
   const materialize = (props: Record<string, unknown>): Record<string, unknown> =>
-    materializeProps(props, { nodes: snippetOf, renderFn: renderSnippet })
+    materializeProps(props, { nodes: snippetOf, renderFn: renderSnippet, callback })
   const propsOf = (node: NodeSpec): Record<string, unknown> => {
     if (!isComponentSpec(node)) return {}
     const out = materialize(node.props ?? {})

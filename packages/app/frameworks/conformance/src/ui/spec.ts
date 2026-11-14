@@ -15,6 +15,10 @@
  * @module
  */
 
+import type { Translations } from '@molecule/app-i18n'
+
+import type { BindingServices } from '../bindings/spec.js'
+
 /**
  * A neutral node: plain text, an element with attributes and children, or one
  * of the UI package's own components (for compound components such as
@@ -114,6 +118,28 @@ export interface FnValue {
 }
 
 /**
+ * A callback placed inside a data prop (`oauthConfig.navigate`), where a
+ * top-level {@link UICase.callbacks} entry cannot reach. Each adapter installs
+ * the same recording spy it installs for a callback prop, so its calls are
+ * recorded under `$callback` and it returns what {@link UICase.callbackResults}
+ * says for that name.
+ */
+export interface CallbackValue {
+  $callback: string
+}
+
+/**
+ * Narrows a value to a nested callback marker.
+ *
+ * @param value - Any prop value.
+ * @returns Whether it is `{ $callback }`.
+ */
+export const isCallbackValue = (value: unknown): value is CallbackValue =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as CallbackValue).$callback === 'string'
+
+/**
  * Narrows a value to a node value.
  *
  * @param value - Any prop value.
@@ -182,6 +208,30 @@ export type Interaction =
    * re-created has lost its mark. React keeps a node while its `key` is unchanged.
    */
   | { type: 'mark'; selector: string }
+  /**
+   * Answers the oldest pending request for this method + URL, one the case's
+   * scripted HTTP held back (a `context.http` entry with `defer: true`), so the
+   * snapshots before it show the loading state. Needs the full composition
+   * (`composition: 'app'`).
+   */
+  | {
+      type: 'http'
+      method: string
+      url: string
+      status?: number
+      data?: unknown
+      networkError?: string
+    }
+  /**
+   * Changes auth state from outside the component, as a sign-in elsewhere,
+   * another account or an expired session would. Needs the full composition
+   * (`composition: 'app'`).
+   */
+  | {
+      type: 'auth'
+      status: 'authenticated' | 'unauthenticated' | 'loading' | 'unavailable'
+      user?: Record<string, unknown>
+    }
 
 /** Framework-neutral app context a component may read (auth, theme, route, locale). */
 export interface CaseContext {
@@ -196,6 +246,38 @@ export interface CaseContext {
   route?: string
   /** Initial locale for the i18n provider (default `en`). */
   locale?: string
+  /**
+   * Translations the bonded i18n provider serves for this case only, per
+   * locale (`{ en: { content: { privacyPolicy: '…' } } }`). A locale without
+   * the key falls back to `en`. Values interpolate `{{name}}` like any translation.
+   */
+  translations?: Partial<Record<string, Translations>>
+  /** Browser state outside the router, for components that read the page itself. */
+  window?: WindowContext
+}
+
+/**
+ * Browser state a case starts from. The kit sets it before mount and restores
+ * it after, so every framework sees the same page.
+ */
+export interface WindowContext {
+  /** `window.location` path and query (`/login?code=c1&state=s1`), set with `history.replaceState`. */
+  url?: string
+  /** `sessionStorage` entries. */
+  sessionStorage?: Record<string, string>
+  /**
+   * What `fetch` answers, for every request. Each request is recorded as a
+   * `fetch` call: `[url, { method, body }]`, with a JSON body parsed.
+   */
+  fetch?: FetchAnswer
+}
+
+/** One `fetch` answer. */
+export interface FetchAnswer {
+  status: number
+  /** JSON body. */
+  body?: unknown
+  headers?: Record<string, string>
 }
 
 /** One render case of one component. */
@@ -300,5 +382,48 @@ export interface FrameworkAdapter {
   /** Every name the UI package exports (components, hooks, utilities). */
   exportNames: readonly string[]
   /** Mount, run interactions, snapshot after each step, unmount. */
-  run(component: string, testCase: UICase): Promise<CaseResult>
+  run(component: string, testCase: UICase, options?: RunOptions): Promise<CaseResult>
+}
+
+/** How one case is mounted, beyond the case itself. */
+export interface RunOptions {
+  /**
+   * Mount through the framework binding's full composition root (React's
+   * `MoleculeProvider`, Vue's `moleculePlugin`, …) with these services, instead
+   * of the UI providers (i18n, theme, router, auth). Feature packages whose
+   * components read HTTP, push, device or storage run this way.
+   */
+  app?: AppComposition
+}
+
+/** Builds the full service set one case mounts with. */
+export interface AppComposition {
+  /**
+   * Builds the case's services.
+   *
+   * @param testCase - The case (its context seeds the services).
+   * @param record - Receives every service call.
+   * @returns The services and what undoes their global changes after the case.
+   */
+  services(testCase: UICase, record: (name: string, args: unknown[]) => void): AppServices
+}
+
+/** One case's full service set. */
+export interface AppServices {
+  services: BindingServices
+  /** What the case's `http` and `auth` interactions drive. */
+  controls: AppControls
+  /** Undoes the services' global changes (bonds, stubs) after the case. */
+  dispose(): Promise<void>
+}
+
+/** Kit-side handles the `http` and `auth` interactions use to change the services from outside. */
+export interface AppControls {
+  /** Answers the oldest deferred request for this method + URL. */
+  answerHttp(answer: Omit<Extract<Interaction, { type: 'http' }>, 'type'>): void
+  /** Sets auth state as another tab, account switch or token refresh would. */
+  setAuth(
+    status: Extract<Interaction, { type: 'auth' }>['status'],
+    user?: Record<string, unknown>,
+  ): void
 }

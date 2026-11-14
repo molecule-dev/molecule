@@ -13,9 +13,13 @@
 
 import '@molecule/app-framework-conformance/ui/setup'
 
+import { createSolidAdapter } from '@molecule/app-framework-conformance/adapters/solid'
 import { runUIConformance, type UIKnownGaps } from '@molecule/app-framework-conformance/ui'
+import * as AppSolid from '@molecule/app-solid'
 
-import { solidAdapter } from './conformance/adapter.js'
+import * as SolidUI from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
+
+const solidAdapter = createSolidAdapter({ exports: SolidUI, binding: AppSolid })
 
 runUIConformance(solidAdapter, { knownGaps: knownGaps as UIKnownGaps })

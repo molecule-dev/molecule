@@ -13,9 +13,13 @@
 
 import '@molecule/app-framework-conformance/ui/setup'
 
+import { createSvelteAdapter } from '@molecule/app-framework-conformance/adapters/svelte'
 import { runUIConformance, type UIKnownGaps } from '@molecule/app-framework-conformance/ui'
+import * as AppSvelte from '@molecule/app-svelte'
 
-import { svelteAdapter } from './conformance/adapter.js'
+import * as SvelteUI from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
+
+const svelteAdapter = createSvelteAdapter({ exports: SvelteUI, binding: AppSvelte })
 
 runUIConformance(svelteAdapter, { knownGaps: knownGaps as UIKnownGaps })

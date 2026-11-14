@@ -5,7 +5,8 @@
  * comment nodes (Vue/Svelte/Angular anchors), whitespace that does not draw,
  * Angular's own compile-time attributes (`_ngcontent-*`, `_nghost-*`,
  * `ng-version`, `ng-reflect-*`), the Angular component's attribute selector
- * (`mol-*` attributes such as `mol-button`), and the harness's own
+ * (`mol-*` attributes such as `mol-button`), React Router's `data-discover`
+ * link marker, and the harness's own
  * `data-parity-unwrap` scaffolding elements. Generated ids (`useId`, Vue/Svelte
  * counters) are renumbered in order of appearance, together with every
  * attribute that references them, so `:r1:` and `v-0` compare equal. A
@@ -54,13 +55,19 @@ const ID_REFERENCE_ATTRS = new Set([
   'popovertarget',
 ])
 
-/** Angular attributes that exist only because Angular compiled the template. */
-const isAngularArtifact = (name: string): boolean =>
+/**
+ * Attributes a framework or router library adds for its own bookkeeping:
+ * Angular's compile-time attributes, and React Router's `data-discover` (its
+ * `<Link>` marks every in-app link for its own lazy route discovery). Neither
+ * draws a pixel or reaches the accessibility tree.
+ */
+const isFrameworkArtifact = (name: string): boolean =>
   name.startsWith('_ngcontent-') ||
   name.startsWith('_nghost-') ||
   name === 'ng-version' ||
   name.startsWith('ng-reflect-') ||
-  /^mol-[a-z-]+$/.test(name)
+  /^mol-[a-z-]+$/.test(name) ||
+  name === 'data-discover'
 
 const escapeText = (s: string): string =>
   s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -261,7 +268,7 @@ const serializeElement = (
   const attrs: string[] = []
   for (const attr of Array.from(el.attributes).sort((a, b) => a.name.localeCompare(b.name))) {
     const name = attr.name.toLowerCase()
-    if (isAngularArtifact(name)) continue
+    if (isFrameworkArtifact(name)) continue
     let value = attr.value
     if (name === 'class') {
       value = normalizeClass(value, hash)

@@ -31,6 +31,7 @@ import {
   runHookCase,
 } from '../bindings/index.js'
 import { reactBindingAdapter } from './react-bindings-adapter.js'
+import { assertCompleteRecording, missingRecordings } from './recording.js'
 
 const RECORD = process.env.RECORD_GOLDENS === '1'
 const SKIP_GOLDENS = process.env.CONFORMANCE_SKIP_GOLDENS === '1'
@@ -86,6 +87,13 @@ describe('React reference runs', () => {
   afterAll(() => {
     if (DUMP) writeFileSync(DUMP, `${JSON.stringify(recorded.cases, null, 1)}\n`)
     if (!RECORD) return
+    assertCompleteRecording(
+      missingRecordings(
+        Object.fromEntries(families.map((f) => [f.hook, f.cases.map((c) => c.name)])),
+        recorded.cases,
+      ),
+      GOLDENS_FILE,
+    )
     writeFileSync(GOLDENS_FILE, `${JSON.stringify(recorded, null, 1)}\n`)
   })
 

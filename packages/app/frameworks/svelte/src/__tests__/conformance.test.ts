@@ -12,12 +12,18 @@
  * @module
  */
 
+import { createSvelteBindingAdapter } from '@molecule/app-framework-conformance/adapters/svelte-bindings'
 import {
   type BindingKnownGaps,
   runBindingConformance,
 } from '@molecule/app-framework-conformance/bindings'
 
-import { svelteBindingAdapter } from './conformance/binding-adapter.js'
+import * as SvelteBindings from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
+
+const svelteBindingAdapter = createSvelteBindingAdapter({
+  exports: SvelteBindings,
+  binding: SvelteBindings,
+})
 
 runBindingConformance(svelteBindingAdapter, { knownGaps: knownGaps as BindingKnownGaps })

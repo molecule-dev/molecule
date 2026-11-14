@@ -10,6 +10,7 @@ import { createAuthFlowsFakes } from './auth-flows.js'
 import { createChatFakes } from './chat.js'
 import { createCoreFakes } from './core.js'
 import { createNativeFakes } from './native.js'
+import { createQueryFakes } from './query.js'
 
 /** The area fakes factories every binding case runs. */
 export const areaFakesFactories: readonly AreaFakesFactory[] = [
@@ -18,4 +19,5 @@ export const areaFakesFactories: readonly AreaFakesFactory[] = [
   createAsyncFakes,
   createNativeFakes,
   createChatFakes,
+  createQueryFakes,
 ]

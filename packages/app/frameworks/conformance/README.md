@@ -16,7 +16,10 @@ itself is wrong; then React is fixed first and its goldens are re-recorded.
   context). `src/ui/goldens.json` holds React's recorded result for every case.
 - **Every UI bond runs it.** Each `@molecule/app-ui-*` package has
   `src/__tests__/conformance.test.ts`, which calls `runUIConformance(adapter, { knownGaps })`
-  with its own adapter (`src/__tests__/conformance/adapter.ts`). The adapter turns a case
+  with the kit's adapter for its framework, built over the package's own exports:
+  `createVueAdapter({ exports: VueUI, binding: AppVue })` from
+  `@molecule/app-framework-conformance/adapters/vue` (`createSolidAdapter`,
+  `createSvelteAdapter`, `createAngularAdapter` likewise; `src/adapters/`). The adapter turns a case
   into that framework's idiom, mounts it in jsdom against the same bonds (the real
   `@molecule/app-ui-tailwind` ClassMap, the molecule icon set, the simple i18n provider, a
   memory router and the fakes in `src/ui/fakes.ts`), runs the interactions and returns the
@@ -159,8 +162,10 @@ The same contract holds the framework bindings (`@molecule/app-vue`, `-solid`, `
   in React and fails on a stale golden, a React error or warning, a required export with
   no case family, or two families for one export.
 - **Each binding package** calls `runBindingConformance(adapter, { knownGaps })` from
-  `src/__tests__/conformance.test.ts`, with its adapter in
-  `src/__tests__/conformance/binding-adapter.ts`.
+  `src/__tests__/conformance.test.ts`, with the kit's binding adapter for its framework over
+  its own exports: `createVueBindingAdapter({ exports: AppVue, binding: AppVue })` from
+  `@molecule/app-framework-conformance/adapters/vue-bindings` (Solid, Svelte, Angular
+  likewise).
 - **A result** is, after mount and after every step, the hook's result read under React's
   shape (value fields normalized, methods as `'[method]'`) plus the router location; then
   every service call (`auth.login`, `http.get`, `storage.set`, …), every call of a
@@ -205,4 +210,63 @@ CONFORMANCE_HOOKS=useAuth,useForm npx vitest run src/__tests__/conformance.test.
 
 # in this kit, while writing cases: run them in React only, and see what React produced
 CONFORMANCE_HOOKS=useAuth CONFORMANCE_SKIP_GOLDENS=1 CONFORMANCE_DUMP=/tmp/react.json npx vitest run src/__tests__/bindings-goldens.test.ts
+```
+
+## Feature packages
+
+A feature package (`@molecule/app-header-react`, `@molecule/app-settings-panel-react`,
+`@molecule/app-query-react`, …) has one counterpart per framework
+(`@molecule/app-header-vue`, `-solid`, `-svelte`, `-angular`) that exports the same names,
+renders the same DOM and makes the same calls (`src/features/`, imported from
+`@molecule/app-framework-conformance/features`). An app swaps framework by swapping the
+package name in its imports.
+
+- **Cases:** `src/features/cases/<feature>.ts`, one `FeatureCases` per React package:
+  - `families`: component cases, written like UI cases (`UICase`) and run with the
+    framework's UI adapter over its UI package plus the feature package.
+  - `composition: 'app'`: the components read HTTP, push, device, auth …, so every case
+    mounts through the binding's full composition root (React `MoleculeProvider`, Vue
+    `moleculePlugin`, Solid `MoleculeProvider`, Svelte `setMoleculeContext`, Angular
+    `provideMolecule`) with the binding kit's fake services, and `context` may seed them
+    like a binding case (`http`, `authErrors`, `areas`).
+  - `hooks`: hook cases for the package's hooks (`useQuery`), written like binding cases
+    and run with the framework's binding adapter over its binding plus the feature package.
+    `areas.query` (`src/bindings/fakes/query.ts`) gives them a fresh in-memory query cache.
+  - `values`: plain exports compared by value (a constant, or each call's result).
+  - `shared`: framework-neutral exports that live in one package
+    (`enablePushOnCurrentDevice` in `@molecule/app-push`); every framework, React included,
+    must re-export that same value, never a copy.
+  - `frameworkShaped`: exports whose value is the framework's own (a React context object,
+    an inline style object, event-handler prop names), with the reason. The name must still
+    be exported; the rendered DOM is where the effect is compared.
+- **Goldens:** `src/features/goldens.json`. `src/__tests__/features-goldens.test.ts` re-runs
+  every case in React and fails on a stale golden, a React error or warning, or a runtime
+  export that no case renders, compares, shares or names as framework-shaped.
+- **Each counterpart** calls, from `src/__tests__/conformance.test.ts`:
+
+  ```ts
+  runFeatureConformance(
+    '@molecule/app-header-react',
+    createVueAdapter({ exports: { ...VueUI, ...Header }, binding: AppVue }),
+    {
+      module: Header,
+      knownGaps,
+      // only for a package with hook cases or shared exports:
+      bindingAdapter: createVueBindingAdapter({
+        exports: { ...AppVue, ...Header },
+        binding: AppVue,
+      }),
+      sharedModules: { '@molecule/app-push': AppPush },
+    },
+  )
+  ```
+
+  `check-framework-conformance.mjs` puts every `packages/app/features/<x>-<fw>` whose
+  `<x>-react` exists in the "feature bond" group: it must make this call, keep a
+  `known-gaps.json` and list this kit in `devDependencies`.
+
+```bash
+# in this kit: check the feature goldens, or re-record them after changing a case or a React package
+npx vitest run src/__tests__/features-goldens.test.ts
+RECORD_GOLDENS=1 npx vitest run src/__tests__/features-goldens.test.ts
 ```

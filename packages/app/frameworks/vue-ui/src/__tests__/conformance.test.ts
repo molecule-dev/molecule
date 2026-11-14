@@ -13,9 +13,13 @@
 
 import '@molecule/app-framework-conformance/ui/setup'
 
+import { createVueAdapter } from '@molecule/app-framework-conformance/adapters/vue'
 import { runUIConformance, type UIKnownGaps } from '@molecule/app-framework-conformance/ui'
+import * as AppVue from '@molecule/app-vue'
 
-import { vueAdapter } from './conformance/adapter.js'
+import * as VueUI from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
+
+const vueAdapter = createVueAdapter({ exports: VueUI, binding: AppVue })
 
 runUIConformance(vueAdapter, { knownGaps: knownGaps as UIKnownGaps })

@@ -20,12 +20,18 @@ vi.mock('solid-js/web', () => vi.importActual('solid-js/web/dist/web.js'))
 
 import { vi } from 'vitest'
 
+import { createSolidBindingAdapter } from '@molecule/app-framework-conformance/adapters/solid-bindings'
 import {
   type BindingKnownGaps,
   runBindingConformance,
 } from '@molecule/app-framework-conformance/bindings'
 
-import { solidBindingAdapter } from './conformance/binding-adapter.js'
+import * as SolidBindings from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
+
+const solidBindingAdapter = createSolidBindingAdapter({
+  exports: SolidBindings,
+  binding: SolidBindings,
+})
 
 runBindingConformance(solidBindingAdapter, { knownGaps: knownGaps as BindingKnownGaps })

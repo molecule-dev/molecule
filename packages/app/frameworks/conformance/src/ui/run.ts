@@ -18,7 +18,13 @@ import { describe, expect, it } from 'vitest'
 import * as allCases from './cases/index.js'
 import { PSEUDO_LOCALE } from './environment.js'
 import goldensJson from './goldens.json' with { type: 'json' }
-import type { CaseResult, FrameworkAdapter, UICase, UIComponentCases } from './spec.js'
+import type {
+  AppComposition,
+  CaseResult,
+  FrameworkAdapter,
+  UICase,
+  UIComponentCases,
+} from './spec.js'
 
 /** The React reference, recorded by the kit's goldens test. */
 export interface UIGoldens {
@@ -35,7 +41,7 @@ export interface UIGoldens {
  * @param family - One component's cases.
  * @returns The family with that case added.
  */
-const withLocaleSwitch = (family: UIComponentCases): UIComponentCases => {
+export const withLocaleSwitch = (family: UIComponentCases): UIComponentCases => {
   const [first] = family.cases
   if (!first) return family
   const switched: UICase = {
@@ -54,7 +60,7 @@ const withLocaleSwitch = (family: UIComponentCases): UIComponentCases => {
  * @param family - One component's cases.
  * @returns The family with those cases added.
  */
-const withKeyedLists = (family: UIComponentCases): UIComponentCases => {
+export const withKeyedLists = (family: UIComponentCases): UIComponentCases => {
   const derived = (family.keyedLists ?? []).flatMap(({ prop, selector, caseName }) => {
     const base = caseName ? family.cases.find((c) => c.name === caseName) : family.cases[0]
     if (!base) throw new Error(`${family.component}: keyed list case "${caseName}" not found`)
@@ -102,60 +108,86 @@ export interface UIConformanceOptions {
 }
 
 const here = dirname(fileURLToPath(import.meta.url))
-/** Written by the golden recorder with real class names, for local failure messages only (never committed). */
-const READABLE_GOLDENS = join(
-  here,
-  '..',
-  '..',
-  'node_modules',
-  '.cache',
-  'framework-conformance',
-  'goldens.readable.json',
-)
 
-const readableGoldens = (): UIGoldens['cases'] | null => {
-  if (!existsSync(READABLE_GOLDENS)) return null
+/**
+ * Where the golden recorders write copies with real class names, for local
+ * failure messages only (never committed).
+ *
+ * @param file - The cache file name.
+ * @returns Its path under the kit's `node_modules/.cache`.
+ */
+export const goldensCachePath = (file: string): string =>
+  join(here, '..', '..', 'node_modules', '.cache', 'framework-conformance', file)
+
+const READABLE_GOLDENS = goldensCachePath('goldens.readable.json')
+
+/**
+ * Reads a readable-goldens cache file, when the recorder wrote one.
+ *
+ * @param path - The cache file.
+ * @returns Its contents, or null when absent.
+ */
+export function readGoldensCache<T>(path: string): T | null {
+  if (!existsSync(path)) return null
   try {
-    return (JSON.parse(readFileSync(READABLE_GOLDENS, 'utf8')) as UIGoldens).cases
+    return JSON.parse(readFileSync(path, 'utf8')) as T
   } catch (error) {
-    throw new Error(`framework-conformance: ${READABLE_GOLDENS} is not valid JSON; delete it`, {
+    throw new Error(`framework-conformance: ${path} is not valid JSON; delete it`, {
       cause: error,
     })
   }
 }
 
-const only = (name: string): string[] | null =>
+/**
+ * A comma-separated list from an environment variable.
+ *
+ * @param name - The variable.
+ * @returns Its entries, or null when unset.
+ */
+export const onlyFromEnv = (name: string): string[] | null =>
   process.env[name]
     ? process.env[name]!.split(',')
         .map((s) => s.trim())
         .filter(Boolean)
     : null
 
-/**
- * Registers the UI conformance suite for one framework.
- *
- * `CONFORMANCE_COMPONENTS=Button,Modal` narrows a local run.
- *
- * @param adapter - The framework's adapter.
- * @param options - Known gaps.
- */
-export function runUIConformance(
-  adapter: FrameworkAdapter,
-  options: UIConformanceOptions = {},
-): void {
-  const gaps = options.knownGaps ?? {}
-  const filter = only('CONFORMANCE_COMPONENTS')
-  const families = uiCaseFamilies.filter((f) => !filter || filter.includes(f.component))
-  const readable = readableGoldens()
+/** One reference package's cases and goldens, as {@link runCaseSuite} compares them. */
+export interface CaseSuite {
+  /** The describe title (`vue UI conformance`). */
+  title: string
+  /** The React reference package, named in failure messages. */
+  reference: string
+  /** Every runtime name the reference exports. */
+  exports: readonly string[]
+  /** Case families, each with its derived cases. */
+  families: UIComponentCases[]
+  /** Component → case name → React result. */
+  goldens: Record<string, Record<string, CaseResult>>
+  /** The same goldens with real class names, for failure messages, when recorded locally. */
+  readable: Record<string, Record<string, CaseResult>> | null
+  /** Whether `CONFORMANCE_COMPONENTS` narrowed the families (skips the exports check). */
+  narrowed: boolean
+  /** Mount every case through the binding's full composition root (`RunOptions.app`). */
+  app?: AppComposition
+}
 
-  describe(`${adapter.name} UI conformance`, () => {
+/**
+ * Registers one conformance suite: the known gaps name real cases, every
+ * reference export exists, and every case reproduces its React golden.
+ *
+ * @param suite - The reference package's cases and goldens.
+ * @param adapter - The framework's adapter.
+ * @param gaps - Cases this package does not match yet.
+ */
+export function runCaseSuite(suite: CaseSuite, adapter: FrameworkAdapter, gaps: UIKnownGaps): void {
+  describe(suite.title, () => {
     it('lists only components and cases that exist', () => {
       for (const [component, names] of Object.entries(gaps)) {
         expect(
-          uiGoldens.exports,
-          `known gap names ${component}, which React does not export`,
+          suite.exports,
+          `known gap names ${component}, which ${suite.reference} does not export`,
         ).toContain(component)
-        const family = uiCaseFamilies.find((f) => f.component === component)
+        const family = suite.families.find((f) => f.component === component)
         for (const name of names) {
           if (name === '(export)') continue
           expect(
@@ -166,8 +198,8 @@ export function runUIConformance(
       }
     })
 
-    describe.skipIf(filter !== null)('exports', () => {
-      for (const name of uiGoldens.exports) {
+    describe.skipIf(suite.narrowed)('exports', () => {
+      for (const name of suite.exports) {
         const gap = gaps[name]?.includes('(export)') ?? false
         ;(gap ? it.fails : it)(name, () => {
           expect(adapter.exportNames, `${adapter.name} exports ${name}`).toContain(name)
@@ -175,7 +207,7 @@ export function runUIConformance(
       }
     })
 
-    for (const family of families) {
+    for (const family of suite.families) {
       describe(family.component, () => {
         const exportGap = gaps[family.component]?.includes('(export)') ?? false
         ;(exportGap ? it.fails : it)('is exported', () => {
@@ -186,7 +218,7 @@ export function runUIConformance(
         for (const testCase of family.cases) {
           const gap = exportGap || (gaps[family.component]?.includes(testCase.name) ?? false)
           ;(gap ? it.fails : it)(testCase.name, async () => {
-            const expected = uiGoldens.cases[family.component]?.[testCase.name]
+            const expected = suite.goldens[family.component]?.[testCase.name]
             if (!expected) {
               throw new Error(
                 `no golden for ${family.component} / ${testCase.name}: record them in @molecule/app-framework-conformance`,
@@ -194,8 +226,12 @@ export function runUIConformance(
             }
             if (!adapter.has(family.component))
               throw new Error(`${adapter.name} does not export ${family.component}`)
-            const actual = await adapter.run(family.component, testCase)
-            const readableExpected = readable?.[family.component]?.[testCase.name]?.snapshots
+            const actual = await adapter.run(
+              family.component,
+              testCase,
+              suite.app ? { app: suite.app } : undefined,
+            )
+            const readableExpected = suite.readable?.[family.component]?.[testCase.name]?.snapshots
             for (let i = 0; i < expected.snapshots.length; i++) {
               const step =
                 i === 0
@@ -217,4 +253,32 @@ export function runUIConformance(
       })
     }
   })
+}
+
+/**
+ * Registers the UI conformance suite for one framework.
+ *
+ * `CONFORMANCE_COMPONENTS=Button,Modal` narrows a local run.
+ *
+ * @param adapter - The framework's adapter.
+ * @param options - Known gaps.
+ */
+export function runUIConformance(
+  adapter: FrameworkAdapter,
+  options: UIConformanceOptions = {},
+): void {
+  const filter = onlyFromEnv('CONFORMANCE_COMPONENTS')
+  runCaseSuite(
+    {
+      title: `${adapter.name} UI conformance`,
+      reference: '@molecule/app-ui-react',
+      exports: uiGoldens.exports,
+      families: uiCaseFamilies.filter((f) => !filter || filter.includes(f.component)),
+      goldens: uiGoldens.cases,
+      readable: readGoldensCache<UIGoldens>(READABLE_GOLDENS)?.cases ?? null,
+      narrowed: filter !== null,
+    },
+    adapter,
+    options.knownGaps ?? {},
+  )
 }

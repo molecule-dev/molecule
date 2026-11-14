@@ -10,6 +10,7 @@ import {
   createSimpleI18nProvider,
   type I18nProvider,
   setProvider as setI18nProvider,
+  type Translations,
 } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { iconSet } from '@molecule/app-icons-molecule'
@@ -27,6 +28,28 @@ let installed = false
  */
 export const PSEUDO_LOCALE = 'en-XA'
 
+/** The running case's own translations (`CaseContext.translations`). */
+let caseTranslations: Partial<Record<string, Translations>> = {}
+
+/** The text at a dotted key, when the tree has a string there. */
+const lookup = (tree: Translations | undefined, key: string): string | undefined => {
+  let node: unknown = tree
+  for (const part of key.split('.')) node = (node as Record<string, unknown> | undefined)?.[part]
+  return typeof node === 'string' ? node : undefined
+}
+
+/**
+ * Serves translations for one case. The kit's locales carry none, so a case
+ * translation is the only value for its key; `null` clears them.
+ *
+ * @param translations - Per-locale translations, or null.
+ */
+export function setCaseTranslations(
+  translations: Partial<Record<string, Translations>> | null,
+): void {
+  caseTranslations = translations ?? {}
+}
+
 /**
  * The simple provider with English and {@link PSEUDO_LOCALE}. Neither locale carries
  * translations: a component's own English defaults are what it renders, bracketed in the
@@ -42,7 +65,13 @@ function createConformanceI18nProvider(): I18nProvider {
   return {
     ...base,
     t: (key, values, options) => {
-      const text = base.t(key, values, options)
+      const own =
+        lookup(caseTranslations[base.getLocale()], key) ?? lookup(caseTranslations.en, key)
+      const text = base.t(
+        key,
+        values,
+        own === undefined ? options : { ...options, defaultValue: own },
+      )
       return base.getLocale() === PSEUDO_LOCALE ? `⟦${text}⟧` : text
     },
   }
@@ -230,6 +259,8 @@ export function performDomInteraction(step: Interaction): void {
     case 'settle':
     case 'navigate':
     case 'locale':
+    case 'http':
+    case 'auth':
       return
   }
 }

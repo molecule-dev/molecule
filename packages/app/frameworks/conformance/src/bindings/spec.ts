@@ -30,6 +30,7 @@ import type { AuthFlowsSeed } from './fakes/auth-flows.js'
 import type { ChatSeed } from './fakes/chat.js'
 import type { CoreSeed } from './fakes/core.js'
 import type { NativeSeed } from './fakes/native.js'
+import type { QuerySeed } from './fakes/query.js'
 
 /**
  * A function argument, created by the kit and recorded under `$fn`.
@@ -115,6 +116,8 @@ export interface AreaSeeds {
   native?: NativeSeed
   /** `fakes/chat.ts`: the chat provider and its streams. */
   chat?: ChatSeed
+  /** `fakes/query.ts`: the shared query cache (`useQuery`, `usePrefetch`). */
+  query?: QuerySeed
 }
 
 /** One step of a binding case. */

@@ -11,10 +11,19 @@ import { getProvider as getI18nProvider, type I18nProvider } from '@molecule/app
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
 import type { ThemeProvider } from '@molecule/app-theme'
 
-import { freshContainer, performDomInteraction } from './environment.js'
+import { freshContainer, performDomInteraction, setCaseTranslations } from './environment.js'
 import { createFakeAuthClient, createFakeThemeProvider } from './fakes.js'
 import { normalizeArg, normalizeDom } from './normalize.js'
-import type { CallbackResult, CaseResult, Interaction, RecordedCall, UICase } from './spec.js'
+import type {
+  AppComposition,
+  AppServices,
+  CallbackResult,
+  CaseResult,
+  Interaction,
+  RecordedCall,
+  UICase,
+  WindowContext,
+} from './spec.js'
 import { loadReferenceStylesheet, referenceStyles } from './stylesheet.js'
 
 /** The services one case runs against, identical for every adapter. */
@@ -44,6 +53,26 @@ export function buildServices(testCase: UICase, recorder: CallRecorder): CaseSer
     theme: createFakeThemeProvider(testCase.context?.theme ?? 'light', sink),
     auth: testCase.context?.auth ? createFakeAuthClient(testCase.context.auth, sink) : undefined,
   }
+}
+
+/**
+ * Builds a case's full service set for an adapter mounting through the
+ * binding's composition root (`RunOptions.app`); service calls land
+ * on the recorder like the UI services' calls.
+ *
+ * @param testCase - The case.
+ * @param recorder - The case's recorder.
+ * @param app - The composition the suite runs with.
+ * @returns The services and their cleanup.
+ */
+export function buildAppServices(
+  testCase: UICase,
+  recorder: CallRecorder,
+  app: AppComposition,
+): AppServices {
+  return app.services(testCase, (name, args) => {
+    recorder.calls.push({ name, args: args.map(normalizeArg) })
+  })
 }
 
 /** Records calls under their React callback name. */
@@ -182,6 +211,74 @@ export function caseStrings(testCase: UICase): Set<string> {
   return out
 }
 
+/**
+ * Puts the page into a case's {@link WindowContext}: URL, `sessionStorage` and
+ * a recording `fetch`. Every request is recorded as a `fetch` call.
+ *
+ * @param context - The case's window context.
+ * @param recorder - The case's recorder.
+ * @returns Records the final URL (when the case set one) and restores the page.
+ */
+export function applyWindowContext(
+  context: WindowContext | undefined,
+  recorder: CallRecorder,
+): () => void {
+  if (!context) return () => {}
+  const url = `${location.pathname}${location.search}${location.hash}`
+  const storage = Object.fromEntries(
+    Array.from({ length: sessionStorage.length }, (_v, i) => sessionStorage.key(i)!).map((k) => [
+      k,
+      sessionStorage.getItem(k)!,
+    ]),
+  )
+  const realFetch = globalThis.fetch
+  if (context.url !== undefined) history.replaceState(null, '', context.url)
+  for (const [key, value] of Object.entries(context.sessionStorage ?? {}))
+    sessionStorage.setItem(key, value)
+  if (context.fetch) {
+    const answer = context.fetch
+    const record = recorder.spy('fetch')
+    const headers = Object.fromEntries(
+      Object.entries(answer.headers ?? {}).map(([k, v]) => [k.toLowerCase(), v]),
+    )
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const raw = init?.body
+      let body: unknown = raw
+      if (typeof raw === 'string') {
+        try {
+          body = JSON.parse(raw)
+        } catch (_error) {
+          // A body that is not JSON is recorded as the string it is.
+          body = raw
+        }
+      }
+      record(String(input instanceof Request ? input.url : input), {
+        method: init?.method ?? 'GET',
+        credentials: init?.credentials,
+        body,
+      })
+      return {
+        ok: answer.status >= 200 && answer.status < 300,
+        status: answer.status,
+        headers: { get: (name: string) => headers[name.toLowerCase()] ?? null },
+        json: async () => answer.body,
+        text: async () => JSON.stringify(answer.body ?? null),
+      } as unknown as Response
+    }) as typeof fetch
+  }
+  return () => {
+    if (context.url !== undefined)
+      recorder.calls.push({
+        name: 'window.location',
+        args: [`${location.pathname}${location.search}`],
+      })
+    globalThis.fetch = realFetch
+    sessionStorage.clear()
+    for (const [key, value] of Object.entries(storage)) sessionStorage.setItem(key, value)
+    history.replaceState(null, '', url)
+  }
+}
+
 /** What an adapter supplies to {@link runSteps} for one mounted case. */
 export interface MountedCase {
   /** Flush the framework's pending work (effects, microtasks, change detection). */
@@ -211,12 +308,15 @@ export interface MountedCase {
  * @param testCase - The case.
  * @param mount - Adapter-specific mount into the container.
  * @param recorder - The recorder the adapter wired into the callbacks.
+ * @param app - The full service set, when the case mounts through the binding's
+ *   composition root (`RunOptions.app`); its controls run `http` and `auth` steps.
  * @returns Snapshots and calls.
  */
 export async function runSteps(
   testCase: UICase,
   mount: (container: HTMLElement) => Promise<MountedCase>,
   recorder: CallRecorder,
+  app: AppServices | null = null,
 ): Promise<CaseResult> {
   if (testCase.fakeTimers)
     vi.useFakeTimers({
@@ -231,12 +331,21 @@ export async function runSteps(
       ],
     })
   await getI18nProvider().setLocale(testCase.context?.locale ?? 'en')
+  setCaseTranslations(testCase.context?.translations ?? null)
+  const restoreWindow = applyWindowContext(testCase.context?.window, recorder)
   const container = freshContainer(testCase)
   const keepReferences = caseStrings(testCase)
   await loadReferenceStylesheet()
   const snapshots: string[] = []
   const readable: string[] = []
-  const mounted = await mount(container)
+  let mounted: MountedCase
+  try {
+    mounted = await mount(container)
+  } catch (error) {
+    restoreWindow()
+    setCaseTranslations(null)
+    throw error
+  }
   try {
     const snap = (): void => {
       const focus = focusPath()
@@ -254,11 +363,13 @@ export async function runSteps(
     await mounted.flush()
     snap()
     for (const step of testCase.interactions ?? []) {
-      await runStep(step, mounted, recorder)
+      await runStep(step, mounted, recorder, app)
       snap()
     }
   } finally {
     await mounted.unmount()
+    restoreWindow()
+    setCaseTranslations(null)
     if (testCase.fakeTimers) vi.useRealTimers()
     document.body.innerHTML = ''
   }
@@ -269,7 +380,15 @@ const runStep = async (
   step: Interaction,
   mounted: MountedCase,
   recorder: CallRecorder,
+  app: AppServices | null,
 ): Promise<void> => {
+  const controls = (): AppServices['controls'] => {
+    if (!app)
+      throw new Error(
+        `conformance: a ${step.type} step needs the full composition (the feature's composition: 'app')`,
+      )
+    return app.controls
+  }
   if (step.type === 'props') {
     await mounted.setProps(step.props)
   } else {
@@ -278,6 +397,10 @@ const runStep = async (
       else if (step.type === 'settle') recorder.settle(step.callback, step.value, step.error)
       else if (step.type === 'navigate') mounted.navigate(step.to)
       else if (step.type === 'locale') await getI18nProvider().setLocale(step.code)
+      else if (step.type === 'http') {
+        const { method, url, status, data, networkError } = step
+        controls().answerHttp({ method, url, status, data, networkError })
+      } else if (step.type === 'auth') controls().setAuth(step.status, step.user)
       else performDomInteraction(step)
     }
     await (mounted.wrap ? mounted.wrap(perform) : perform())

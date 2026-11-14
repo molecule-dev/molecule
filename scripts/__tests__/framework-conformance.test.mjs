@@ -16,6 +16,8 @@ import {
   BINDING_EXEMPT,
   BINDING_REFERENCE,
   EXEMPT,
+  FEATURE_FRAMEWORKS,
+  featureReference,
   findConformanceViolations,
   KIT,
   REFERENCE,
@@ -343,6 +345,129 @@ runRouterConformance('foo-router', createHarness)
     it('exempts only React Navigation, with its reason', () => {
       expect(Object.keys(ROUTING_EXEMPT)).toEqual(['@molecule/app-routing-react-navigation'])
       for (const reason of Object.values(ROUTING_EXEMPT)) expect(reason.length).toBeGreaterThan(20)
+    })
+  })
+
+  describe('feature bonds', () => {
+    const REACT_FEATURE = '@molecule/app-widget-react'
+    const FEATURE_TEST_FILE = `import { runFeatureConformance } from '${KIT}/features'
+import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
+runFeatureConformance('${REACT_FEATURE}', adapter, { module, knownGaps })
+`
+
+    /**
+     * The standard tree plus a React feature package and its Vue counterpart.
+     *
+     * @param [options] - Overrides: the Vue package's fields, test (null for none), gaps
+     *   (null for none) and files; `kit` fields; `goldens` false to drop the kit's feature
+     *   goldens test; `react` false to drop the React package.
+     * @returns The fixture root.
+     */
+    function featureTree(options = {}) {
+      const root = tree({
+        kit: {
+          devDependencies: {
+            [REFERENCE]: '4.0.0',
+            [BINDING_REFERENCE]: '4.0.0',
+            [REACT_FEATURE]: '1.0.0',
+          },
+          ...options.kit,
+        },
+      })
+      const write = (file, text) => {
+        mkdirSync(dirname(join(root, file)), { recursive: true })
+        writeFileSync(join(root, file), text)
+      }
+      if (options.goldens !== false)
+        write('packages/app/frameworks/conformance/src/__tests__/features-goldens.test.ts', '')
+      if (options.react !== false)
+        write(
+          'packages/app/features/widget-react/package.json',
+          JSON.stringify({ name: REACT_FEATURE }),
+        )
+      const dir = 'packages/app/features/widget-vue'
+      write(
+        `${dir}/package.json`,
+        JSON.stringify({
+          name: '@molecule/app-widget-vue',
+          devDependencies: { [KIT]: '0.0.0' },
+          ...options.pkg,
+        }),
+      )
+      if (options.test !== null)
+        write(`${dir}/src/__tests__/conformance.test.ts`, options.test ?? FEATURE_TEST_FILE)
+      if (options.gaps !== null)
+        write(`${dir}/src/__tests__/conformance/known-gaps.json`, options.gaps ?? '{}')
+      for (const [file, text] of Object.entries(options.files ?? {})) write(`${dir}/${file}`, text)
+      return root
+    }
+
+    it('names the React counterpart of each framework feature package', () => {
+      expect(featureReference('@molecule/app-header-vue')).toBe('@molecule/app-header-react')
+      expect(featureReference('@molecule/app-oauth-buttons-angular')).toBe(
+        '@molecule/app-oauth-buttons-react',
+      )
+      expect(featureReference('@molecule/app-header-react')).toBeNull()
+      expect(FEATURE_FRAMEWORKS).toEqual(['vue', 'solid', 'svelte', 'angular'])
+    })
+
+    it('passes a feature package that runs the feature suite against its React package', () => {
+      expect(findConformanceViolations(featureTree())).toEqual([])
+    })
+
+    it('fails a new feature package with no conformance test, no gaps file and no kit dependency', () => {
+      const violations = findConformanceViolations(
+        featureTree({ pkg: { devDependencies: {} }, test: null, gaps: null }),
+      ).join('\n')
+      expect(violations).toMatch(
+        /widget-vue: src\/__tests__\/conformance\.test\.ts \(or \.tsx\) is missing/,
+      )
+      expect(violations).toMatch(
+        /widget-vue: src\/__tests__\/conformance\/known-gaps\.json is missing/,
+      )
+      expect(violations).toMatch(
+        /widget-vue: devDependencies must list @molecule\/app-framework-conformance/,
+      )
+    })
+
+    it('fails a feature package measured against another React package, or not at all', () => {
+      const other = featureTree({
+        test: FEATURE_TEST_FILE.replace(REACT_FEATURE, '@molecule/app-gadget-react'),
+      })
+      expect(findConformanceViolations(other).join('\n')).toMatch(
+        /widget-vue: conformance\.test\.ts must measure the package against '@molecule\/app-widget-react'/,
+      )
+      const ui = featureTree({ test: TEST_FILE })
+      expect(findConformanceViolations(ui).join('\n')).toMatch(
+        /widget-vue: conformance\.test\.ts does not import '@molecule\/app-framework-conformance\/features'/,
+      )
+    })
+
+    it('fails a kit that does not depend on the React package or lacks the feature goldens test', () => {
+      const noDep = featureTree({
+        kit: { devDependencies: { [REFERENCE]: '4.0.0', [BINDING_REFERENCE]: '4.0.0' } },
+      })
+      expect(findConformanceViolations(noDep)).toEqual([
+        'packages/app/frameworks/conformance: must depend on @molecule/app-widget-react so a React change re-checks the goldens',
+      ])
+      expect(findConformanceViolations(featureTree({ goldens: false }))).toEqual([
+        'packages/app/frameworks/conformance: src/__tests__/features-goldens.test.ts is missing (it keeps the goldens equal to React)',
+      ])
+    })
+
+    it("fails raw class names in a feature package's component markup", () => {
+      const root = featureTree({
+        files: { 'src/AppWidget.vue': '<template><div class="flex">x</div></template>\n' },
+      })
+      expect(findConformanceViolations(root)).toEqual([
+        'packages/app/features/widget-vue/src/AppWidget.vue:1: class="flex" is a raw class list; use a ClassMap token (class={cm.…})',
+      ])
+    })
+
+    it('leaves a framework package without a React counterpart alone', () => {
+      expect(
+        findConformanceViolations(featureTree({ react: false, test: null, gaps: null, kit: {} })),
+      ).toEqual([])
     })
   })
 

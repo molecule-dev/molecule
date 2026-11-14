@@ -7,30 +7,44 @@
 <script lang="ts">
   import { type Component, untrack } from 'svelte'
 
-  import type { NodeSpec } from '@molecule/app-framework-conformance/ui'
-  import { setMoleculeContext } from '@molecule/app-svelte'
-
+  import type { NodeSpec } from '../../ui/index.js'
+  import type { SvelteMoleculeConfig } from '../svelte.js'
   import { snippetBuilders } from './snippets.js'
   import Tree from './Tree.svelte'
 
   let {
     component: Target,
+    exports: exportsOf,
+    setMoleculeContext,
+    callback,
     config,
+    awaitSession,
     bag,
     slots,
     children,
   }: {
     component: Component<Record<string, unknown>>
-    config: Parameters<typeof setMoleculeContext>[0]
+    /** Every component and composable the cases may render or call. */
+    exports: Record<string, unknown>
+    setMoleculeContext: (config: SvelteMoleculeConfig) => void
+    /** Builds the recording spy for a nested `{ $callback }` in the running case. */
+    callback?: (name: string) => (...args: unknown[]) => unknown
+    config: SvelteMoleculeConfig
+    /** Hold the component until the auth client decides the session (React's AuthProvider default). */
+    awaitSession: boolean
     bag: { props: Record<string, unknown> }
     slots: Record<string, NodeSpec[]>
     children?: NodeSpec[]
   } = $props()
 
-  // The case's services are fixed for its whole run.
-  setMoleculeContext(untrack(() => config))
+  // The case's services, the binding's context setter and the callback spy are
+  // fixed for its whole run.
+  untrack(() => setMoleculeContext(config))
 
-  const builders = snippetBuilders(tree)
+  const builders = snippetBuilders(
+    tree,
+    untrack(() => callback),
+  )
 
   const nodeProps = $derived.by(() => {
     const out: Record<string, unknown> = {}
@@ -44,12 +58,15 @@
   // behind SessionReady (fallback null) until the auth client decides the
   // session: while a case's auth status is 'loading' the component under test
   // is not rendered at all. The fakes never transition out of 'loading'.
+  // The full composition root (React's MoleculeProvider, `awaitSession: false`)
+  // does not wait.
   const authClient = untrack(() => config.auth)
-  const sessionDecided = !authClient || authClient.getState().status !== 'loading'
+  const sessionDecided =
+    !untrack(() => awaitSession) || !authClient || authClient.getState().status !== 'loading'
 </script>
 
 {#snippet tree(list: NodeSpec[])}
-  <Tree nodes={list} />
+  <Tree nodes={list} exports={exportsOf} {callback} />
 {/snippet}
 
 <!-- Mirrors the React reference adapter, which renders the case inside its own

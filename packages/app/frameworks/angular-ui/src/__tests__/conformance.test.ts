@@ -11,11 +11,16 @@
  * @module
  */
 
+import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
 
+import * as AppAngular from '@molecule/app-angular'
+import { createAngularAdapter } from '@molecule/app-framework-conformance/adapters/angular'
 import { runUIConformance, type UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 
-import { angularAdapter } from './conformance/adapter.js'
+import * as AngularUI from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
 
-runUIConformance(angularAdapter, { knownGaps: knownGaps as UIKnownGaps })
+runUIConformance(createAngularAdapter({ exports: AngularUI, binding: AppAngular }), {
+  knownGaps: knownGaps as UIKnownGaps,
+})

@@ -23,7 +23,11 @@
  *   packages/app/bonds/routing/): the same `Router` behaviour over each bond's
  *   real native router, through `runRouterConformance` from `${KIT}/routing`.
  *   The cases state the behaviour directly, so there are no React goldens and
- *   no known gaps: every bond passes every case.
+ *   no known gaps: every bond passes every case;
+ * - feature bonds (every `packages/app/features/<x>-{vue,solid,svelte,angular}`
+ *   whose `<x>-react` exists, each measured against that React package): the
+ *   same components rendering the same DOM and the same plain exports, through
+ *   `runFeatureConformance('<React package>', …)` from `${KIT}/features`.
  *
  * Rules, for every bond of a group except its exemptions:
  * - `src/__tests__/conformance.test.ts` (or `.tsx`) exists, imports the group's kit entry
@@ -40,7 +44,8 @@
  *   Rule 5). ESLint's `no-raw-class-names` covers `.ts`/`.tsx`; it does not
  *   parse component markup, so this gate does.
  * The kit itself must stay private, keep each group's goldens test, and depend
- * on each React reference so a React change re-checks the goldens.
+ * on each React reference (for feature bonds: each one's React package) so a
+ * React change re-checks the goldens.
  *
  * @module
  */
@@ -83,6 +88,20 @@ export const BINDING_EXEMPT = {
     're-exports every @molecule/app-react hook unchanged (export * from), so it is the reference itself',
 }
 
+/** The frameworks a React feature package has counterparts in. */
+export const FEATURE_FRAMEWORKS = ['vue', 'solid', 'svelte', 'angular']
+
+const FEATURE_SUFFIX = new RegExp(`-(${FEATURE_FRAMEWORKS.join('|')})$`)
+
+/**
+ * The React feature package a framework feature package is the counterpart of.
+ *
+ * @param name - A feature package name (`@molecule/app-header-vue`).
+ * @returns `@molecule/app-header-react`, or null when the name has no framework suffix.
+ */
+export const featureReference = (name) =>
+  FEATURE_SUFFIX.test(name) ? name.replace(FEATURE_SUFFIX, '-react') : null
+
 /**
  * Each group of swappable framework bonds: which packages belong to it, the
  * React package they are measured against, and how they run the kit.
@@ -110,6 +129,22 @@ export const GROUPS = [
     runner: 'runBindingConformance',
     call: 'runBindingConformance(adapter, { knownGaps })',
     goldensTest: 'bindings-goldens.test.ts',
+    gapsKey: 'export',
+  },
+  {
+    kind: 'feature bond',
+    packages: (root) => featurePackages(root),
+    member: (name, all) => {
+      const reference = featureReference(name)
+      return reference !== null && all.some((p) => p.pkg.name === reference)
+    },
+    reference: null,
+    referenceOf: featureReference,
+    exempt: {},
+    entry: `${KIT}/features`,
+    runner: 'runFeatureConformance',
+    call: "runFeatureConformance('<React package>', adapter, { module, knownGaps })",
+    goldensTest: 'features-goldens.test.ts',
     gapsKey: 'export',
   },
   {
@@ -205,6 +240,24 @@ export function frameworkPackages(root = ROOT) {
 }
 
 /**
+ * Lists the feature packages under `packages/app/features/`.
+ *
+ * @param root - The molecule repository root.
+ * @returns Each package dir (repo-relative) and its package.json.
+ */
+export function featurePackages(root = ROOT) {
+  const base = join(root, 'packages', 'app', 'features')
+  if (!existsSync(base)) return []
+  return readdirSync(base, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && existsSync(join(base, e.name, 'package.json')))
+    .map((e) => ({
+      dir: `packages/app/features/${e.name}`,
+      pkg: readJson(join(base, e.name, 'package.json')),
+    }))
+    .sort((a, b) => a.dir.localeCompare(b.dir))
+}
+
+/**
  * Lists the routing core and the routing bonds under `packages/app/bonds/routing/`.
  *
  * @param root - The molecule repository root.
@@ -252,6 +305,9 @@ function bondViolations(root, { dir, pkg }, group) {
       out.push(`${dir}: ${testName} does not import '${group.entry}'`)
     if (!new RegExp(`\\b${group.runner}\\s*\\(`).test(text))
       out.push(`${dir}: ${testName} does not call ${group.runner}(`)
+    const reference = group.referenceOf?.(pkg.name)
+    if (reference && !text.includes(`'${reference}'`))
+      out.push(`${dir}: ${testName} must measure the package against '${reference}'`)
   }
   const gapsFile = join(root, dir, 'src', '__tests__', 'conformance', 'known-gaps.json')
   if (!group.gapsKey) {
@@ -301,12 +357,26 @@ export function findConformanceViolations(root = ROOT) {
     if (kit.pkg.private !== true)
       out.push(`${kit.dir}: the kit must be "private": true (it is never published)`)
     for (const group of GROUPS) {
-      if (!group.reference) continue
-      if (!kit.pkg.devDependencies?.[group.reference] && !kit.pkg.dependencies?.[group.reference]) {
-        out.push(
-          `${kit.dir}: must depend on ${group.reference} so a React change re-checks the goldens`,
-        )
+      const all = group.packages(root)
+      const references = group.reference
+        ? [group.reference]
+        : group.referenceOf
+          ? [
+              ...new Set(
+                all
+                  .filter((b) => b.pkg.name && group.member(b.pkg.name, all))
+                  .map((b) => group.referenceOf(b.pkg.name)),
+              ),
+            ].sort()
+          : []
+      for (const reference of references) {
+        if (!kit.pkg.devDependencies?.[reference] && !kit.pkg.dependencies?.[reference]) {
+          out.push(
+            `${kit.dir}: must depend on ${reference} so a React change re-checks the goldens`,
+          )
+        }
       }
+      if (!group.goldensTest || !references.length) continue
       if (!existsSync(join(root, kit.dir, 'src', '__tests__', group.goldensTest))) {
         out.push(
           `${kit.dir}: src/__tests__/${group.goldensTest} is missing (it keeps the goldens equal to React)`,
@@ -315,15 +385,21 @@ export function findConformanceViolations(root = ROOT) {
     }
   }
 
+  const featureBonds = []
   for (const group of GROUPS) {
-    for (const bond of group.packages(root)) {
-      if (!bond.pkg.name || !group.member(bond.pkg.name) || group.exempt[bond.pkg.name]) continue
+    const all = group.packages(root)
+    for (const bond of all) {
+      if (!bond.pkg.name || !group.member(bond.pkg.name, all) || group.exempt[bond.pkg.name])
+        continue
+      if (group.kind === 'feature bond') featureBonds.push(bond)
       out.push(...bondViolations(root, bond, group))
     }
   }
 
-  for (const { dir, pkg } of packages) {
-    if (pkg.name?.startsWith('@molecule/app-ui-')) out.push(...rawMarkupClasses(root, dir))
+  // Component markup of every UI bond and every feature bond takes its classes from the ClassMap.
+  for (const { dir, pkg } of [...packages, ...featureBonds]) {
+    if (pkg.name?.startsWith('@molecule/app-ui-') || featureBonds.some((b) => b.dir === dir))
+      out.push(...rawMarkupClasses(root, dir))
   }
   return out
 }
@@ -334,6 +410,6 @@ if (isMain) {
   for (const v of violations) console.error(`framework-conformance: ${v}`)
   if (violations.length) process.exit(1)
   console.log(
-    'framework-conformance: every UI bond, framework binding and routing bond runs the conformance kit',
+    'framework-conformance: every UI bond, framework binding, feature bond and routing bond runs the conformance kit',
   )
 }

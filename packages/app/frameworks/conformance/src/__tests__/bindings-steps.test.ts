@@ -9,7 +9,14 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { type HookCase, runHookCase } from '../bindings/index.js'
+import { getProvider as getI18nProvider } from '@molecule/app-i18n'
+
+import {
+  type BindingAdapter,
+  type HookCase,
+  type MountOptions,
+  runHookCase,
+} from '../bindings/index.js'
 import { reactBindingAdapter } from './react-bindings-adapter.js'
 
 const run = (hook: string, testCase: Omit<HookCase, 'name'>) =>
@@ -32,6 +39,17 @@ describe('binding kit steps', () => {
     await expect(
       run('useLogger', { args: ['app'], steps: [{ type: 'call', on: 'db', method: 'info' }] }),
     ).rejects.toThrow('no call kept a value as db')
+  })
+
+  it('restores the bonds after a case that throws mid-run, so later cases are unaffected', async () => {
+    const i18nBefore = getI18nProvider()
+    await expect(
+      run('useLogger', { args: ['app'], steps: [{ type: 'call', on: 'db', method: 'info' }] }),
+    ).rejects.toThrow('no call kept a value as db')
+    // The case bonded its own i18n provider (en/fr/de/ar); the one before it is back.
+    expect(getI18nProvider()).toBe(i18nBefore)
+    const result = await run('useTranslation', {})
+    expect(result.snapshots).toHaveLength(1)
   })
 
   it('records whether a method is the same function across re-renders', async () => {
@@ -71,5 +89,34 @@ describe('binding kit steps', () => {
     expect(result.snapshots.map((s) => (s as { result: { value: unknown } }).result.value)).toEqual(
       ['light', 'dark'],
     )
+  })
+})
+
+describe('runHookCase mount flags', () => {
+  /** An adapter whose host records the options it was mounted with. */
+  const recordingAdapter = (seen: (MountOptions | undefined)[]): BindingAdapter => ({
+    name: 'recording',
+    has: () => true,
+    mount: async (_hook, _args, _services, _shape, options) => {
+      seen.push(options)
+      return {
+        result: () => 1,
+        read: (value) => value,
+        setArgs: async () => undefined,
+        flush: async () => undefined,
+        unmount: async () => undefined,
+      }
+    },
+  })
+
+  it("mounts a feature hook with its own family's flags, not the binding kit's", async () => {
+    const seen: (MountOptions | undefined)[] = []
+    const adapter = recordingAdapter(seen)
+    await runHookCase(adapter, 'useFeatureOnly', { name: 'flags' }, undefined, {
+      reactiveArgs: true,
+    })
+    // Without a family, a hook the binding kit has no family for mounts with no flags.
+    await runHookCase(adapter, 'useFeatureOnly', { name: 'flags' })
+    expect(seen).toEqual([{ reactiveArgs: true }, undefined])
   })
 })

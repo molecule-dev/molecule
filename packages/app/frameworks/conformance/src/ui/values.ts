@@ -1,5 +1,5 @@
 /**
- * Turns the neutral `{ $nodes }` and `{ $fn }` markers inside a case's props
+ * Turns the neutral `{ $nodes }`, `{ $fn }` and `{ $callback }` markers inside a case's props
  * into each framework's own values, so every adapter interprets them the same
  * way and only supplies its node type.
  *
@@ -8,6 +8,7 @@
 
 import {
   type FnValue,
+  isCallbackValue,
   isComponentSpec,
   isFnValue,
   isNodesValue,
@@ -27,6 +28,11 @@ export interface Materializer {
    * Angular passes a `TemplateRef` instead.
    */
   renderFn?(spec: FnValue & { nodes: NodeSpec[] }): unknown
+  /**
+   * Builds the recording spy for a nested `{ $callback }` (the case recorder's
+   * `spy(name)`). A case that uses the marker fails on an adapter without it.
+   */
+  callback?(name: string): (...args: unknown[]) => unknown
 }
 
 const fieldOf = (args: unknown[], path: string): unknown => {
@@ -87,7 +93,7 @@ export function fnFromSpec(
 }
 
 /**
- * Replaces every `{ $nodes }` and `{ $fn }` marker anywhere inside a value.
+ * Replaces every `{ $nodes }`, `{ $fn }` and `{ $callback }` marker anywhere inside a value.
  *
  * @param value - A prop value (or a whole props object).
  * @param m - The framework's builders.
@@ -96,6 +102,13 @@ export function fnFromSpec(
 export function materializeProps<T>(value: T, m: Materializer): T {
   const walk = (v: unknown): unknown => {
     if (isNodesValue(v)) return m.nodes(v.$nodes)
+    if (isCallbackValue(v)) {
+      if (!m.callback)
+        throw new Error(
+          `conformance: this adapter cannot record the nested callback ${v.$callback}`,
+        )
+      return m.callback(v.$callback)
+    }
     if (isFnValue(v)) {
       if (v.nodes && m.renderFn) return m.renderFn(v as FnValue & { nodes: NodeSpec[] })
       return fnFromSpec(v, m.nodes)
@@ -116,7 +129,7 @@ export function materializeProps<T>(value: T, m: Materializer): T {
  * @returns True when `materializeProps` would change it.
  */
 export function hasMarkers(value: unknown): boolean {
-  if (isNodesValue(value) || isFnValue(value)) return true
+  if (isNodesValue(value) || isFnValue(value) || isCallbackValue(value)) return true
   if (Array.isArray(value)) return value.some(hasMarkers)
   if (value && typeof value === 'object') return Object.values(value).some(hasMarkers)
   return false

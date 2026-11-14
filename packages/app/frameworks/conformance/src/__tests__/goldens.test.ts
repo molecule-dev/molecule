@@ -31,6 +31,7 @@ import {
   uiGoldens,
 } from '../ui/index.js'
 import { reactAdapter } from './react-adapter.js'
+import { assertCompleteRecording, missingRecordings } from './recording.js'
 
 const RECORD = process.env.RECORD_GOLDENS === '1'
 const SKIP_GOLDENS = process.env.CONFORMANCE_SKIP_GOLDENS === '1'
@@ -99,6 +100,13 @@ describe('React reference renders', () => {
   })
   afterAll(() => {
     if (!RECORD) return
+    assertCompleteRecording(
+      missingRecordings(
+        Object.fromEntries(families.map((f) => [f.component, f.cases.map((c) => c.name)])),
+        recorded.cases,
+      ),
+      GOLDENS_FILE,
+    )
     writeFileSync(GOLDENS_FILE, `${JSON.stringify(recorded, null, 1)}\n`)
     mkdirSync(dirname(READABLE_FILE), { recursive: true })
     writeFileSync(READABLE_FILE, JSON.stringify(recordedReadable))

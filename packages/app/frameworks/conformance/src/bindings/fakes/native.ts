@@ -19,7 +19,6 @@
  * @module
  */
 
-import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
 import type {
   DiffFile,
   EditorChangeEvent,
@@ -75,6 +74,7 @@ import { DEFAULT_CHECK_INTERVAL, setProvider as setVersionProvider } from '@mole
 
 import { CONFORMANCE_USER_AGENT, patchEnv, patchProperty } from '../environment.js'
 import type { AreaFakes, AreaFakesFactory } from '../spec.js'
+import { saveBonds } from './bonds.js'
 
 /**
  * What a case can seed for this area (`context.areas.native`). Each key turns
@@ -247,26 +247,6 @@ interface Driven<T> {
   provider: T
   /** Outside actions on the fake (NOT recorded — they are not hook calls). */
   driver: Record<string, (...args: unknown[]) => void>
-}
-
-/**
- * Saves a set of bond slots and returns a function restoring each to its
- * previous provider — or to "no provider" (`bond(type, null)`) when it had
- * none, so an auto-created default keeps being auto-created after the case.
- * Call BEFORE bonding the fake.
- *
- * @param types - The bond category strings ('device', 'push', …).
- * @returns The restore function for `dispose`.
- */
-function saveBonds(types: readonly string[]): () => void {
-  const saved = types.map((type) => ({
-    type,
-    had: isBonded(type),
-    provider: bondGet<unknown>(type),
-  }))
-  return () => {
-    for (const { type, had, provider } of saved) bond(type, had ? provider : null)
-  }
 }
 
 /**

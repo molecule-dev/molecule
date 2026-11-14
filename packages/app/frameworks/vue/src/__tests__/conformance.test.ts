@@ -12,12 +12,15 @@
  * @module
  */
 
+import { createVueBindingAdapter } from '@molecule/app-framework-conformance/adapters/vue-bindings'
 import {
   type BindingKnownGaps,
   runBindingConformance,
 } from '@molecule/app-framework-conformance/bindings'
 
-import { vueBindingAdapter } from './conformance/binding-adapter.js'
+import * as VueBindings from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
+
+const vueBindingAdapter = createVueBindingAdapter({ exports: VueBindings, binding: VueBindings })
 
 runBindingConformance(vueBindingAdapter, { knownGaps: knownGaps as BindingKnownGaps })

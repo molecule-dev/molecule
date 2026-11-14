@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/adapters/svelte*.ts", "src/adapters/svelte*/**/*"],
+  "exclude": []
+}

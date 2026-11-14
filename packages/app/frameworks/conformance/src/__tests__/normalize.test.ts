@@ -166,6 +166,26 @@ describe('normalizeDom text', () => {
   })
 })
 
+describe('normalizeDom framework bookkeeping attributes', () => {
+  it("drops React Router's data-discover link marker and keeps every other attribute", () => {
+    const link = (discover: boolean): HTMLElement =>
+      container((root) => {
+        const a = h('a', ['Home'])
+        a.setAttribute('href', '/')
+        if (discover) a.setAttribute('data-discover', 'true')
+        root.append(a)
+      })
+    expect(norm(link(true))).toBe(norm(link(false)))
+    expect(norm(link(true))).toContain('href="/"')
+    const other = container((root) => {
+      const a = h('a', ['Home'])
+      a.setAttribute('data-discovered', 'true')
+      root.append(a)
+    })
+    expect(norm(other)).toContain('data-discovered="true"')
+  })
+})
+
 describe('normalizeDom id references', () => {
   it('renumbers ids and the references that resolve to them', () => {
     const render = (prefix: string): HTMLElement =>

@@ -7,9 +7,10 @@
 import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 
-import Host from './conformance/Host.svelte'
+import { setMoleculeContext } from '../context.js'
 import Translated from './translation/Translated.svelte'
 
 const provider = () =>
@@ -38,7 +39,7 @@ describe('translated text in a Svelte component', () => {
     const i18n = provider()
     instance = mount(Host, {
       target: document.body,
-      props: { config: { i18n }, component: Translated, props: {} },
+      props: { config: { i18n }, setMoleculeContext, component: Translated, props: {} },
     })
     flushSync()
     expect([text('useTranslation'), text('useT'), text('createI18nStores')]).toEqual([

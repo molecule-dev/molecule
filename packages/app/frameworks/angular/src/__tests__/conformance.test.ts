@@ -12,12 +12,18 @@
  * @module
  */
 
+import { createAngularBindingAdapter } from '@molecule/app-framework-conformance/adapters/angular-bindings'
 import {
   type BindingKnownGaps,
   runBindingConformance,
 } from '@molecule/app-framework-conformance/bindings'
 
-import { angularBindingAdapter } from './conformance/binding-adapter.js'
+import * as AngularBindings from '../index.js'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
+
+const angularBindingAdapter = createAngularBindingAdapter({
+  exports: AngularBindings,
+  binding: AngularBindings,
+})
 
 runBindingConformance(angularBindingAdapter, { knownGaps: knownGaps as BindingKnownGaps })
