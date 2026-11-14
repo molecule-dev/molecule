@@ -131,6 +131,16 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   let cancellation: AbortController | undefined
   let paused = 0
   let stopped = false
+  let lastWriteAt = -Infinity
+  let selectionRevision = 0
+  let root: string | undefined
+  let testRoots: string[] | undefined
+  const testIsCurrent = (result: PlaywrightFeedbackResult, startedAfter: number): boolean =>
+    result.revision >= selectionRevision &&
+    (result.revision === revision || startedAfter > lastWriteAt)
+  const coverage = new Map<string, Map<string, { revision: number; status: string }>>()
+  const inventories = new Map<string, string[]>()
+  const commands = new Map<string, string>()
   const changed = new Set<string>(),
     waiting: PlaywrightFeedbackResult[] = []
   const delivered = new Map<string, Set<string>>()
@@ -186,6 +196,19 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   // already keep the failures they saw.
   const recheckRecord = (path: string): string | undefined =>
     failing.has(path) && !resumes.has(path) ? failedRecords.get(path) : undefined
+  // A file may span many source writes. Only a test that began after the latest write can
+  // answer for that source. Earlier tests are re-run by id, without repeating the later ones.
+  const learnTests = (path: string, result: PlaywrightFeedbackResult): void => {
+    if (result.revision < selectionRevision) return
+    if (result.selectedTests && !result.selection) inventories.set(path, result.selectedTests)
+    const tests = coverage.get(path) ?? new Map<string, { revision: number; status: string }>()
+    for (const test of result.tests ?? [])
+      if (testIsCurrent(result, test.startedAfter))
+        tests.set(test.id, { revision, status: test.status })
+    coverage.set(path, tests)
+  }
+  const pendingTests = (path: string): string[] | undefined =>
+    inventories.get(path)?.filter((id) => coverage.get(path)?.get(id)?.revision !== revision)
   const revisionSources = new Set<string>()
   // Attempts determine fairness, not coverage. A foreground tool may interrupt a long file
   // every time; repeating it first on every release would starve every later file forever.
@@ -199,6 +222,26 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   const yieldRetryDelay = (): number =>
     yieldRetryMs * 2 ** Math.min(Math.max(yieldsInARow - 1, 0), 4)
   let checking: Promise<PlaywrightFeedbackResult[]> | undefined
+  const learnProject = (project: FeedbackProject): void => {
+    root = project.root
+    testRoots = project.testRoots
+    for (const spec of project.specs) {
+      const identity = JSON.stringify([spec.cwd, spec.command])
+      const previous = commands.get(spec.path)
+      commands.set(spec.path, identity)
+      if (previous === undefined || previous === identity) continue
+      inventories.delete(spec.path)
+      coverage.delete(spec.path)
+      resumes.delete(spec.path)
+      failedRecords.delete(spec.path)
+      serialGroups.delete(spec.path)
+      completed.delete(spec.path)
+      outcomes.delete(spec.path)
+      delivered.delete(spec.path)
+      for (let i = waiting.length - 1; i >= 0; i--)
+        if (waiting[i].spec === spec.path) waiting.splice(i, 1)
+    }
+  }
   const start = (): void => {
     if (active || stopped || paused || changed.size === 0) return
     const version = revision,
@@ -218,9 +261,14 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         return
       }
       if (!current()) return
+      learnProject(project)
       const sourcePaths = project.root ? paths.map((p) => posix.resolve(project.root!, p)) : paths
       // An edited spec file may have other tests now: its next run is the whole file.
-      for (const path of sourcePaths) resumes.delete(path)
+      for (const path of sourcePaths) {
+        resumes.delete(path)
+        inventories.delete(path)
+        coverage.delete(path)
+      }
       // A file with a known failure goes first, and runs only the tests its latest failed run
       // named: the same selection the deploy's known-failure check runs. Its pass clears the known
       // failure before a deploy asks for it, and its failure answers whether the write fixed it.
@@ -237,14 +285,30 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       for (const { spec, sourceFiles } of selected) {
         if (!current()) break
         const emit = (result: PlaywrightFeedbackResult): void => {
-          if (!live() || result.status !== 'failed') return
+          if (!live()) return
+          learnTests(spec.path, result)
+          if (result.status !== 'failed') return
           failing.add(spec.path)
           // A native failure stays known even after a write. Deploy may cancel this run before
           // it finishes, so remember the event now and recheck current source at its checkpoint.
           // Only a current revision may deliver the diagnostic itself.
-          if (!current()) return
+          const freshIds = new Set(
+            (result.tests ?? [])
+              .filter((test) => testIsCurrent(result, test.startedAfter))
+              .map((test) => test.id),
+          )
+          const native = current()
+            ? result
+            : {
+                ...result,
+                revision,
+                failures: result.failures.filter(
+                  (failure) => failure.testId && freshIds.has(failure.testId),
+                ),
+              }
+          if (!native.failures.length) return
           const identities = delivered.get(spec.path) ?? new Set<string>()
-          const failures = result.failures.filter((f) => {
+          const failures = native.failures.filter((f) => {
             const identity = JSON.stringify(f)
             if (identities.has(identity)) return false
             identities.add(identity)
@@ -252,18 +316,21 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           })
           delivered.set(spec.path, identities)
           if (!failures.length) return
-          const fresh = { ...result, failures }
+          const fresh = { ...native, failures }
           waiting.push(fresh)
           options.onFailures?.(fresh)
         }
         let result: PlaywrightFeedbackResult
+        let combinedTests = false
         lastAttempt.set(spec.path, ++attemptedRuns)
         const known = recheckRecord(spec.path)
         const resume = known === undefined ? resumes.get(spec.path) : undefined
         try {
           // A whole-file run calls the host exactly as before; only a known failure's re-run and a
           // resumed file add a record.
-          const record = known ?? resume?.record
+          const pending = pendingTests(spec.path)
+          const record =
+            known ?? (pending?.length ? grouped(spec.path, pending) : undefined) ?? resume?.record
           running =
             record !== undefined
               ? options.run(
@@ -283,6 +350,34 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           running = undefined
         } // runner availability is not a markup defect
         learnGroups(spec.path, result)
+        learnTests(spec.path, result)
+        if (live() && result.status !== 'cancelled' && result.tests?.length) {
+          emit(result)
+          const pending = pendingTests(spec.path)
+          if (pending === undefined && result.selection) for (const path of paths) changed.add(path)
+          if (pending?.length) {
+            resumes.set(spec.path, { record: grouped(spec.path, pending)!, version: revision })
+            for (const path of paths) changed.add(path)
+          } else if (
+            pending &&
+            settledClean(result) &&
+            inventories.get(spec.path)?.length &&
+            inventories
+              .get(spec.path)!
+              .every((id) => coverage.get(spec.path)?.get(id)?.status !== 'failed')
+          ) {
+            // Every test has a current clean outcome. Earlier failures are superseded, even if
+            // this file began before the last write. Do not attach one partial run's native count
+            // to the combined file outcome.
+            failing.delete(spec.path)
+            failedRecords.delete(spec.path)
+            combinedTests = true
+            const whole = { ...wholeFile(result), revision, nativeStats: undefined }
+            completed.add(spec.path)
+            outcomes.set(spec.path, whole)
+            resumes.delete(spec.path)
+          }
+        }
         // A pause (a checkpoint, a deploy, the sandbox's own build) stops a started file. The
         // tests it already saw fail stay known by id, so the checkpoint re-runs those, not the file,
         // and its next background run starts at the tests it never finished.
@@ -298,7 +393,18 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
             resumes.set(spec.path, { record: unfinished, version: resume?.version ?? version })
           else if (known === undefined && result.unfinishedTests) resumes.delete(spec.path)
         }
-        options.onResult?.(live() ? result : { ...result, status: 'cancelled', failures: [] })
+        const measured = {
+          ...result,
+          ...(result.tests
+            ? {
+                tests: result.tests.map((test) => ({
+                  ...test,
+                  ...(testIsCurrent(result, test.startedAfter) ? { revision } : {}),
+                })),
+              }
+            : {}),
+        }
+        options.onResult?.(live() ? measured : { ...measured, status: 'cancelled', failures: [] })
         if (!live()) break
         if (result.status === 'cancelled') {
           yielded = true
@@ -356,11 +462,11 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           !resumed ||
           result.status === 'failed' ||
           (resume.version === version && !failing.has(spec.path))
-        if (whole) {
+        if (whole && !combinedTests) {
           completed.add(spec.path)
           outcomes.set(spec.path, resumed && settledClean(result) ? wholeFile(result) : result)
         }
-        if (result.status !== 'failed') delivered.delete(spec.path)
+        if (result.status !== 'failed' && current()) delivered.delete(spec.path)
         emit(result)
       }
     })().finally(() => {
@@ -425,6 +531,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         cancellation = abort
         if (stopped || version !== revision) return results
         const project = await options.load()
+        learnProject(project)
         const paths = [...revisionSources].map((p) =>
           project.root ? posix.resolve(project.root, p) : p,
         )
@@ -533,6 +640,24 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
     changed(paths) {
       if (stopped || paths.length === 0) return
       revision++
+      lastWriteAt = performance.now()
+      if (
+        !testRoots ||
+        paths.some((path) => {
+          const absolute = root ? posix.resolve(root, path) : path
+          return (
+            commands.has(absolute) ||
+            testRoots!.some((input) => absolute === input || absolute.startsWith(input + '/'))
+          )
+        })
+      ) {
+        selectionRevision = revision
+        inventories.clear()
+        coverage.clear()
+        failedRecords.clear()
+        serialGroups.clear()
+        if (testRoots) resumes.clear()
+      }
       for (const path of paths) changed.add(path)
       for (const path of paths) revisionSources.add(path)
       waiting.length = 0
@@ -707,11 +832,23 @@ export async function runPlaywrightFeedback(
   const passedIds = new Set<string>()
   const skippedIds = new Set<string>()
   let selectedIds: string[] | undefined
+  let dispatchedAt = 0
+  const testResults = new Map<string, NonNullable<PlaywrightFeedbackResult['tests']>[number]>()
   let serial: string[][] = []
   const readEvents = async (): Promise<void> => {
     try {
       const text = await backend.readFile(eventsPath)
       const ended = nativeTestOutcomes(text)
+      const freshTests: NonNullable<PlaywrightFeedbackResult['tests']> = []
+      for (const test of ended.tests) {
+        const outcome = {
+          id: test.id,
+          status: test.status,
+          startedAfter: dispatchedAt + test.startedAfterMs,
+        }
+        if (!testResults.has(test.id)) freshTests.push(outcome)
+        testResults.set(test.id, outcome)
+      }
       for (const id of ended.failed) failedIds.add(id)
       for (const id of ended.passed) passedIds.add(id)
       for (const id of ended.skipped) skippedIds.add(id)
@@ -728,6 +865,8 @@ export async function runPlaywrightFeedback(
         options.emit?.({
           ...base,
           failures: [failure],
+          tests: freshTests,
+          ...(selectedIds ? { selectedTests: selectedIds } : {}),
           status: 'failed',
           durationMs: Date.now() - started,
         })
@@ -737,8 +876,11 @@ export async function runPlaywrightFeedback(
     }
   }
   // Serial groups this run selected, and a record naming whole groups (see playwright-feedback-records).
-  const groups = (): Partial<PlaywrightFeedbackResult> =>
-    serial.length ? { serialGroups: serial.map((group) => [...group]) } : {}
+  const groups = (): Partial<PlaywrightFeedbackResult> => ({
+    ...(serial.length ? { serialGroups: serial.map((group) => [...group]) } : {}),
+    tests: [...testResults.values()],
+    ...(selectedIds ? { selectedTests: selectedIds } : {}),
+  })
   const grouped = (ids: readonly string[]): string | undefined =>
     failedTestsRecord(withSerialGroups(ids, serial))
   // A run stopped before it finished (cancelled, or yielded to the sandbox's own foreground
@@ -796,6 +938,7 @@ export async function runPlaywrightFeedback(
       return cancelled()
     }
     if (options.emit) tick()
+    dispatchedAt = performance.now()
     const result = await backend.run(command, {
       cwd: spec.cwd,
       timeout: timeout + 10_000,

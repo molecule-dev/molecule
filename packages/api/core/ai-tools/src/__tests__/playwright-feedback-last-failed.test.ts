@@ -49,6 +49,7 @@ function fixture(run: PlaywrightFeedbackOptions['run']) {
   const watcher = createPlaywrightFeedback({
     load: async () => ({
       sources: [],
+      testRoots: ['/clinic/e2e'],
       specs: [{ path: SPEC, content: '', command: '', cwd: '/clinic' }],
     }),
     run: spy,

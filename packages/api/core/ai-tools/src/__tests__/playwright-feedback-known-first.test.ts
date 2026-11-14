@@ -68,6 +68,7 @@ function fixture(recheck: PlaywrightFeedbackResult['status']) {
   const watcher = createPlaywrightFeedback({
     load: async () => ({
       sources: [],
+      testRoots: ['/shop/e2e'],
       specs: [B, A].map((path) => ({ path, content: '', command: '', cwd: '/shop' })),
     }),
     run,

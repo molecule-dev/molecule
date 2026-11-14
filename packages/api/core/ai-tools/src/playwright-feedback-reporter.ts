@@ -18,8 +18,12 @@ export function feedbackReporterSource(): string {
   return String.raw`
 const fs = require('node:fs');
 module.exports = class FeedbackReporter {
+  began = performance.now();
+  starts = new Map();
+  onTestBegin(test) { this.starts.set(test.id, performance.now() - this.began); }
   onBegin(config, suite) {
     if (!process.env.MOL_TEST_FEEDBACK_EVENTS) return;
+    this.began = performance.now();
     // The selected tests, and the tests of each outermost serial group (describe.serial or
     // describe.configure({mode:'serial'})): those depend on each other and only run together.
     const serial = [];
@@ -29,12 +33,13 @@ module.exports = class FeedbackReporter {
   }
   onTestEnd(test, result) {
     if (!process.env.MOL_TEST_FEEDBACK_EVENTS) return;
-    if (result.status === 'passed' && test.expectedStatus === 'passed') {
-      fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS, JSON.stringify({id: test.id, passed: true}) + '\n');
+    const timing = this.starts.has(test.id) ? {startedAfterMs: this.starts.get(test.id)} : {};
+    if (result.status !== 'skipped' && result.status === test.expectedStatus) {
+      fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS, JSON.stringify({id: test.id, passed: true, ...timing}) + '\n');
       return;
     }
     if (result.status === 'skipped') {
-      fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS, JSON.stringify({id: test.id, skipped: true}) + '\n');
+      fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS, JSON.stringify({id: test.id, skipped: true, ...timing}) + '\n');
       return;
     }
     if (result.status === test.expectedStatus || !['failed','timedOut'].includes(result.status)) return;
@@ -54,7 +59,7 @@ module.exports = class FeedbackReporter {
       }
     } catch {}
     fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS,
-      JSON.stringify({id: test.id, spec: location.file, line: location.line, error: error.slice(0, 6000), rendered}) + '\n');
+      JSON.stringify({id: test.id, ...timing, spec: location.file, line: location.line, error: error.slice(0, 6000), rendered}) + '\n');
   }
 };`
 }
@@ -71,6 +76,8 @@ export interface NativeTestOutcomes {
   selected?: string[]
   /** Each outermost serial group the run selected: its tests run only together. */
   serial: string[][]
+  /** Monotonic offsets from reporter onBegin, independent of the backend's wall clock. */
+  tests: Array<{ id: string; status: 'passed' | 'failed' | 'skipped'; startedAfterMs: number }>
 }
 
 const testId = (value: unknown): value is string =>
@@ -87,9 +94,10 @@ export function nativeTestOutcomes(text: string): NativeTestOutcomes {
   const failed = new Set<string>()
   const passed = new Set<string>()
   const skipped = new Set<string>()
+  const tests: NativeTestOutcomes['tests'] = []
   let selected: string[] | undefined
   let serial: string[][] = []
-  if (text.length > 1_000_000) return { failed: [], passed: [], skipped: [], serial: [] }
+  if (text.length > 1_000_000) return { failed: [], passed: [], skipped: [], serial: [], tests: [] }
   for (const line of text.split('\n').slice(0, -1)) {
     try {
       const event = JSON.parse(line) as {
@@ -99,6 +107,7 @@ export function nativeTestOutcomes(text: string): NativeTestOutcomes {
         error?: unknown
         selected?: unknown
         serial?: unknown
+        startedAfterMs?: unknown
       }
       if (Array.isArray(event.selected)) {
         selected = event.selected.filter(testId).slice(0, 1000)
@@ -114,6 +123,21 @@ export function nativeTestOutcomes(text: string): NativeTestOutcomes {
       if (event.passed === true) passed.add(event.id)
       else if (event.skipped === true) skipped.add(event.id)
       else if (typeof event.error === 'string') failed.add(event.id)
+      if (
+        typeof event.startedAfterMs === 'number' &&
+        Number.isFinite(event.startedAfterMs) &&
+        event.startedAfterMs >= 0
+      ) {
+        const status =
+          event.passed === true
+            ? 'passed'
+            : event.skipped === true
+              ? 'skipped'
+              : typeof event.error === 'string'
+                ? 'failed'
+                : undefined
+        if (status) tests.push({ id: event.id, status, startedAfterMs: event.startedAfterMs })
+      }
     } catch (_error) {
       /* not a completed native event */
     }
@@ -124,6 +148,7 @@ export function nativeTestOutcomes(text: string): NativeTestOutcomes {
     skipped: [...skipped],
     ...(selected ? { selected } : {}),
     serial,
+    tests,
   }
 }
 
@@ -143,6 +168,7 @@ export function nativeFeedbackFailures(
     try {
       const event = JSON.parse(line) as {
         spec?: unknown
+        id?: unknown
         line?: unknown
         error?: unknown
         rendered?: unknown
@@ -178,6 +204,7 @@ export function nativeFeedbackFailures(
         line: event.line,
         error,
         locator: operation,
+        ...(testId(event.id) ? { testId: event.id } : {}),
         ...(typeof event.rendered === 'string' && event.rendered
           ? { rendered: redactSecrets(event.rendered.slice(0, 2000)) }
           : {}),

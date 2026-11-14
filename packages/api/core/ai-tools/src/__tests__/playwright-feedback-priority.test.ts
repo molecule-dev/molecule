@@ -329,7 +329,6 @@ it('yields to an independent native Playwright command without stopping or refus
 
 it.each([
   ['playwright/cli.js', 'test'],
-  ['bin/hurl', '--test'],
   ['tools/cli.js', 'build'],
   ['tools/cli.js', 'deploy'],
 ])(
@@ -429,3 +428,25 @@ it('ignores a native run in a different project and leaves a passing diagnosis s
   expect(result.failures).toEqual([])
   await expect(readFile(join(f.root, '.mol/test-feedback'))).rejects.toThrow(/ENOENT/)
 })
+
+it.each(['hurl', 'curl'])(
+  'keeps a browser diagnosis running beside a light %s HTTP client',
+  async (client) => {
+    const f = await fixture()
+    const entry = join(f.root, client + '.cjs')
+    await writeFile(
+      entry,
+      `process.title=${JSON.stringify(client)};require('node:fs').writeFileSync('client-ready','yes');setTimeout(()=>{},1500)`,
+    )
+    children.push(spawn(process.execPath, [entry], { cwd: f.root, stdio: 'ignore' }))
+    await vi.waitFor(async () =>
+      expect(await readFile(join(f.root, 'client-ready'), 'utf8')).toBe('yes'),
+    )
+    const command = `${shellQuote(process.execPath)} -e ${shellQuote(`require('node:fs').writeFileSync(process.env.PLAYWRIGHT_JSON_OUTPUT_FILE,JSON.stringify({suites:[],stats:{expected:1,unexpected:0,flaky:0,skipped:0,duration:1}}))`)}`
+    const result = await runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
+      command: () => command,
+    })
+    expect(result.status).toBe('passed')
+    expect(result.failures).toEqual([])
+  },
+)

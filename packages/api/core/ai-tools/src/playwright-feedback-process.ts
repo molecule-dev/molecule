@@ -107,6 +107,8 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
   // stops for them. A type-check or lint changes nothing the run reads and only competes
   // for CPU, which idle scheduling already gives up, so the run keeps going during one;
   // a test or build such a script starts is still found here by its own process.
+  // HTTP clients (including Hurl) neither own a browser nor rebuild/restart the target. They
+  // run beside it like curl; suites needing exclusive shared data can use the host's pause().
   const foreground = (): boolean => {
     if (config.foreground) return false
     if (process.platform !== 'linux') return false
@@ -149,9 +151,8 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
           return true
         const native = argv
           .slice(0, 3)
-          .some((a) => /(?:^|\/)(?:@playwright\/test|playwright(?:-core)?|hurl)(?:\/|$)/.test(a))
-        if (native || /^(?:hurl|playwright|fly|flyctl|vercel|netlify)$/.test(executable))
-          return true
+          .some((a) => /(?:^|\/)(?:@playwright\/test|playwright(?:-core)?)(?:\/|$)/.test(a))
+        if (native || /^(?:playwright|fly|flyctl|vercel|netlify)$/.test(executable)) return true
         if (argv.slice(1, 4).some((a) => a === 'deploy' || a === 'build')) return true
         if (
           /^(?:npm|npx|pnpm|yarn|bun|corepack)(?:\.c?js)?$/.test(executable) ||

@@ -23,6 +23,12 @@ export interface FeedbackProject {
   root?: string
   sources: FeedbackSource[]
   specs: FeedbackSpec[]
+  /**
+   * Complete, absolute roots/files of test definitions, config and selection inputs, when
+   * the caller knows them. Writes there invalidate test identities as well as results.
+   * Omit when unknown: every source write then invalidates the native selection.
+   */
+  testRoots?: string[]
 }
 
 /** A native failure, never a static prediction or a completed-suite proof. */
@@ -32,10 +38,27 @@ export interface PlaywrightFeedbackFailure {
   error: string
   /** The native runner's locator, assertion or timed-out browser operation, apart from redaction. */
   locator: string
+  /** Native test identity, when the reporter provided one. */
+  testId?: string
   /** Playwright's own failure-time accessibility snapshot, when recorded. */
   rendered?: string
   /** The paths that triggered this run. They do not establish a failure cause. */
   sourceFiles: string[]
+}
+
+/** A completed native test with a conservative source-freshness clock. */
+interface FeedbackTestOutcome {
+  /** Playwright TestCase.id, also used by its last-run record. */
+  id: string
+  status: 'passed' | 'failed' | 'skipped'
+  /** Source revision certified by the scheduler, absent for an obsolete or untracked test. */
+  revision?: number
+  /**
+   * Earliest possible test start on the host monotonic clock (`performance.now()`): dispatch plus the reporter's
+   * monotonic time since onBegin. Runner startup makes this conservative; remote wall-clock
+   * skew cannot make a test appear newer than a write it overlapped.
+   */
+  startedAfter: number
 }
 
 /**
@@ -52,6 +75,10 @@ export interface PlaywrightFeedbackResult {
   /** Native counts for this one diagnostic selection, never whole-suite proof. */
   nativeStats?: PlaywrightReportStats
   reason?: string
+  /** Native completed tests, including tests from a stopped file. */
+  tests?: FeedbackTestOutcome[]
+  /** This run’s native selection. Partial selections never replace a file’s full inventory. */
+  selectedTests?: string[]
   /**
    * Playwright's own last-run record (`.last-run.json`: the ids of the tests that failed or did
    * not run) from a failed run, when the runner wrote one. A later checkpoint hands it back so

@@ -288,6 +288,13 @@ test('prints the stock list', async () => { if (state() !== 'fixed') await new P
     )
     const stopped = await stoppedAtFailure(spec)
     expect(stopped.status).toBe('cancelled')
+    expect(stopped.tests).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ status: 'passed', startedAfter: expect.any(Number) }),
+        expect.objectContaining({ status: 'failed' }),
+      ]),
+    )
+    expect(stopped.selectedTests).toHaveLength(3)
     expect(stopped.passedTests).toHaveLength(1)
     expect(stopped.unfinishedTests).toHaveLength(1)
     expect(stopped.unfinishedTests).not.toContain(stopped.passedTests![0])
@@ -299,6 +306,21 @@ test('prints the stock list', async () => { if (state() !== 'fixed') await new P
     expect(rest.nativeStats).toMatchObject({ expected: 1, unexpected: 0 })
     expect(rest.passedTests).toEqual(stopped.unfinishedTests)
   }, 60_000)
+
+  it('records an expected failure as a completed test, without a failure diagnosis', async () => {
+    const spec = await file(
+      'expected.spec.ts',
+      `${header}test('known unsupported feature', () => {test.fail(); expect(false).toBe(true)})`,
+    )
+    const completed = await runPlaywrightFeedback(backend, spec, [], 1, {
+      command: (flags) => `${spec.command} ${flags.join(' ')}`,
+    })
+    expect(completed.status).toBe('passed')
+    expect(completed.tests).toHaveLength(1)
+    expect(completed.tests![0].status).toBe('passed')
+    expect(completed.selectedTests).toEqual(completed.tests!.map((test) => test.id))
+    expect(completed.failures).toEqual([])
+  })
 
   it('a failed serial group is recorded whole, so its fixed re-run passes', async () => {
     await state('broken')
