@@ -1,5 +1,11 @@
 # @molecule/app-ui-vue
 
+## 1.1.2
+
+### Patch Changes
+
+- A controlled checkbox, switch or radio group now updates only the `checked` property after creation, as React does.
+
 ## 1.1.1
 
 ### Patch Changes

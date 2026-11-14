@@ -1,5 +1,11 @@
 # @molecule/app-routing
 
+## 1.3.0
+
+### Minor Changes
+
+- Add `followRouterLink`, `isRouterLinkClick` and `resolveLinkPath`: the click rule of react-router's `<Link>` for in-app links in any framework.
+
 ## 1.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-auth-ui-react",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "React auth-kit components (OAuthButtons, LoginForm scaffolds)",
   "homepage": "https://www.molecule.dev/packages/app-auth-ui-react",
   "type": "module",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@molecule/app-oauth-buttons-react": "4.0.0",
-    "@molecule/app-react": "4.5.0",
+    "@molecule/app-react": "4.6.0",
     "@molecule/app-ui": "1.3.11",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

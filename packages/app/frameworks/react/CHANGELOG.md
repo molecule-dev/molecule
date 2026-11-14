@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.6.0
+
+### Minor Changes
+
+- Export `UseOAuthConfig`, the `useOAuth` configuration type, under the same name in every framework binding.
+
 ## 4.5.0
 
 ### Minor Changes

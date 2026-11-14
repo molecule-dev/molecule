@@ -1,5 +1,13 @@
 # @molecule/app-vue
 
+## 3.6.0
+
+### Minor Changes
+
+- Add `Link` (Angular: the `<a molLink>` directive), an in-app anchor that navigates through the molecule router with react-router `<Link>`'s click rules.
+- `useAIModels`, `useAuth`, `useForm`, `useHttp`, `useI18nError`, `useIsActive`, `useOAuth`, `useOptimisticValue`, `usePush`, `useStorageValue`, `useStoragePreference` and `useStore` accept each argument as a plain value or as the framework's reactive source (Vue ref or getter, Solid accessor, Svelte readable store, Angular signal) and follow changes on the same instance, as the React hooks follow a re-render.
+- Export `UseOAuthConfig`, the `useOAuth` configuration type, under the same name in every framework binding.
+
 ## 3.5.0
 
 ### Minor Changes

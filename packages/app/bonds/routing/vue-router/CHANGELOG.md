@@ -1,5 +1,11 @@
 # @molecule/app-routing-vue-router
 
+## 1.0.9
+
+### Patch Changes
+
+- Before Vue Router's first navigation, the location and params are read from the address being opened instead of Vue Router's start route.
+
 ## 1.0.8
 
 ### Patch Changes

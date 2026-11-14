@@ -1,5 +1,11 @@
 # @molecule/app-auth-ui-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Type `oauthConfig` as `UseOAuthConfig` from `@molecule/app-react` instead of `any`.
+
 ## 4.0.0
 
 ### Patch Changes

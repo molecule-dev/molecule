@@ -1,5 +1,11 @@
 # @molecule/app-ui-svelte
 
+## 1.1.3
+
+### Patch Changes
+
+- A controlled checkbox, switch or radio group now updates only the `checked` property after creation, as React does.
+
 ## 1.1.2
 
 ### Patch Changes

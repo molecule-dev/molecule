@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.18.10
+
+### Patch Changes
+
+- A cancelled background Playwright run now returns only after every process it started has exited.
+
 ## 1.18.9
 
 ### Patch Changes
