@@ -27,6 +27,11 @@
  * --otp we could satisfy); the trust endpoint takes the code as an `npm-otp`
  * HEADER, so one code covers every package in the sweep.
  *
+ * The placeholder is built and published from an export of the committed HEAD
+ * (lib/committed-export.mjs), never from the checkout, which other sessions
+ * share: their uncommitted edits can neither fail the build nor reach npm. A
+ * package that is not committed yet is refused until it is.
+ *
  * Non-interactive callers (CI, a piped shell) warn and exit 0 — a hook that
  * hangs on a tty nobody is watching is worse than a late failure.
  *
@@ -43,6 +48,7 @@ import { ReadStream, WriteStream } from 'node:tty'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
 import { commitTrustState } from './lib/commit-trust-state.mjs'
+import { createCommittedExport } from './lib/committed-export.mjs'
 import {
   loadSeed,
   parseSecret,
@@ -332,6 +338,34 @@ const ledger = readTrustLedger()
 const ledgerBefore = new Set(ledger)
 const failed = []
 
+/**
+ * This run's export of HEAD, once a first publish needs it.
+ *
+ * @type {ReturnType<typeof createCommittedExport> | null}
+ */
+let exported = null
+
+/**
+ * The committed tree every first publish builds from: one export of HEAD per run, made on first
+ * use (a relink-only run never pays for it) and removed when the run exits.
+ *
+ * @returns The export.
+ */
+const committedTree = () => {
+  if (exported) return exported
+  exported = createCommittedExport({ root: ROOT })
+  console.log(
+    `  building from committed HEAD ${exported.sha.slice(0, 12)} — uncommitted edits in the checkout are not built or published`,
+  )
+  return exported
+}
+process.on('exit', () => exported?.dispose())
+for (const signal of ['SIGINT', 'SIGTERM'])
+  process.once(signal, () => {
+    exported?.dispose()
+    process.exit(130)
+  })
+
 // One code up front; the endpoint takes it as a header, so it covers every
 // package until npm says it is spent.
 if (!CI) await ensureOtp('trust config')
@@ -365,9 +399,21 @@ for (const pkg of untrusted) {
   }
   if (!CI && !(await existsOnRegistry(pkg.name))) {
     console.log(`\n  ${pkg.name}: npm has never seen this — publishing it first`)
+    // Built and published from the committed tree only: the checkout is shared, and another
+    // session's uncommitted edit to a dependency failed this build (or was published) when it
+    // read the working tree (lib/committed-export.mjs).
+    const tree = committedTree()
+    const pkgDir = join(tree.dir, pkg.dir)
+    if (!existsSync(join(pkgDir, 'package.json'))) {
+      console.error(
+        `  ✗ ${pkg.name}: not committed yet — only committed code is published; commit it, then run trust:new again`,
+      )
+      failed.push(pkg.name)
+      continue
+    }
     try {
       execFileSync('node', ['scripts/build.js', `--only=${pkg.name}`], {
-        cwd: ROOT,
+        cwd: tree.dir,
         stdio: 'inherit',
       })
       // The build must have produced every entry point before anything uploads.
@@ -377,7 +423,7 @@ for (const pkg of untrusted) {
       // wall the 2026-10-05 geocoding + ai-decisions wave hit twice. Generate
       // it here the same way the hook does, so trust time never depends on
       // commit time. Skipped in a standalone clone (no ../mlcl).
-      const readme = join(ROOT, pkg.dir, 'README.md')
+      const readme = join(pkgDir, 'README.md')
       if (!existsSync(readme)) {
         // tsx lives at mlcl/node_modules/.bin in a STANDALONE mlcl clone, but
         // this workspace makes mlcl a root npm-workspace member, which hoists
@@ -403,8 +449,11 @@ for (const pkg of untrusted) {
           )
         } else {
           console.log(`    regenerating the missing README.md (commit-time step, run early)`)
+          // MOLECULE_PACKAGES_DIR points the generator at the export, so it reads the committed
+          // source and writes there; the checkout is never touched.
           execFileSync(tsx, [regen, pkg.dir], {
             cwd: mlclDir,
+            env: { ...process.env, MOLECULE_PACKAGES_DIR: join(tree.dir, 'packages') },
             stdio: 'inherit',
           })
         }
@@ -419,7 +468,7 @@ for (const pkg of untrusted) {
         // samples on purpose: README text travels inside the publish PUT
         // body, and sample code is what trips npm's Cloudflare WAF (the
         // 2026-09-24 app-margin-notes-react incident).
-        const manifest = JSON.parse(readFileSync(join(ROOT, pkg.dir, 'package.json'), 'utf8'))
+        const manifest = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'))
         console.error(
           `    ⚠ ${manifest.name} is not in mlcl's registry yet (authoring session mid-flight, or registration forgotten) — writing a minimal README so the publish can proceed; full docs arrive with its commit`,
         )
@@ -432,7 +481,7 @@ for (const pkg of untrusted) {
             `License: ${manifest.license ?? 'Apache-2.0'}\n`,
         )
       }
-      assertPackComplete(join(ROOT, pkg.dir))
+      assertPackComplete(pkgDir)
       // ONE code per run is the contract: the up-front prompt (or --otp, or
       // the stored seed) is reused for every publish and trust call — npm
       // keeps accepting the same TOTP code until its window tolerance runs
@@ -442,62 +491,49 @@ for (const pkg of untrusted) {
       // network) surface immediately instead of triggering a prompt. Without
       // any code available, stdio: 'inherit' keeps npm's OWN interactive
       // prompt as the fallback.
-      // Publish the placeholder: the manifest says 0.0.0-stage for this one
-      // command only, and the real version is restored before anything else.
-      const manifestPath = join(ROOT, pkg.dir, 'package.json')
-      let manifestText = readFileSync(manifestPath, 'utf8')
-      // An interrupted earlier run leaves the placeholder in the manifest; restoring
-      // "what was there" would then keep it. Take the committed text instead.
-      if (/-stage"/.test(manifestText)) {
-        manifestText = execFileSync('git', ['show', `HEAD:${pkg.dir}/package.json`], {
-          cwd: ROOT,
-          encoding: 'utf8',
-        })
-      }
-      const staged = JSON.parse(manifestText)
-      try {
-        if ((otp && /^\d{6}$/.test(otp)) || loadSeed()) {
-          // npm answers a 403 "You cannot publish using the version" for a
-          // version its policy refuses (0.0.0-stage is refused), so walk a
-          // list of placeholder versions until one is accepted.
-          const placeholders = ['0.0.1-stage', '0.0.1-stage.0', '0.1.0-stage']
-          let result
-          for (const version of placeholders) {
-            staged.version = version
-            writeFileSync(manifestPath, `${JSON.stringify(staged, null, 2)}\n`)
-            const attempt = async (force) => {
-              const code = await ensureOtp(`${pkg.name} publish`, force)
-              return npmPublish(
-                ['publish', '--access', 'public', '--tag', 'stage', '--otp', code],
-                join(ROOT, pkg.dir),
-              )
-            }
-            result = await attempt(false)
-            if (result.status !== 0 && isOtpRejection(result)) {
-              result = await attempt(true)
-            }
-            if (
-              result.status === 0 ||
-              !/cannot publish using the version/i.test(
-                `${result.stderr ?? ''}${result.stdout ?? ''}`,
-              )
-            ) {
-              break
-            }
-          }
-          if (result.status !== 0) {
-            throw new Error('npm publish exited non-zero — npm printed the reason above')
-          }
-        } else {
-          staged.version = '0.0.1-stage'
+      // Publish the placeholder: the EXPORT's manifest carries the placeholder version. The
+      // export is removed when this run ends, so the checkout's manifest is never rewritten.
+      const manifestPath = join(pkgDir, 'package.json')
+      const staged = JSON.parse(readFileSync(manifestPath, 'utf8'))
+      if ((otp && /^\d{6}$/.test(otp)) || loadSeed()) {
+        // npm answers a 403 "You cannot publish using the version" for a
+        // version its policy refuses (0.0.0-stage is refused), so walk a
+        // list of placeholder versions until one is accepted.
+        const placeholders = ['0.0.1-stage', '0.0.1-stage.0', '0.1.0-stage']
+        let result
+        for (const version of placeholders) {
+          staged.version = version
           writeFileSync(manifestPath, `${JSON.stringify(staged, null, 2)}\n`)
-          execFileSync('npm', ['publish', '--access', 'public', '--tag', 'stage'], {
-            cwd: join(ROOT, pkg.dir),
-            stdio: 'inherit',
-          })
+          const attempt = async (force) => {
+            const code = await ensureOtp(`${pkg.name} publish`, force)
+            return npmPublish(
+              ['publish', '--access', 'public', '--tag', 'stage', '--otp', code],
+              pkgDir,
+            )
+          }
+          result = await attempt(false)
+          if (result.status !== 0 && isOtpRejection(result)) {
+            result = await attempt(true)
+          }
+          if (
+            result.status === 0 ||
+            !/cannot publish using the version/i.test(
+              `${result.stderr ?? ''}${result.stdout ?? ''}`,
+            )
+          ) {
+            break
+          }
         }
-      } finally {
-        writeFileSync(manifestPath, manifestText)
+        if (result.status !== 0) {
+          throw new Error('npm publish exited non-zero — npm printed the reason above')
+        }
+      } else {
+        staged.version = '0.0.1-stage'
+        writeFileSync(manifestPath, `${JSON.stringify(staged, null, 2)}\n`)
+        execFileSync('npm', ['publish', '--access', 'public', '--tag', 'stage'], {
+          cwd: pkgDir,
+          stdio: 'inherit',
+        })
       }
     } catch (error) {
       // `npm publish` with stdio: 'inherit' prints its own reason, so its
