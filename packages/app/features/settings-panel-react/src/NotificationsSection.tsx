@@ -1,16 +1,15 @@
 import type { JSX } from 'react'
 import { useEffect, useState } from 'react'
 
-import { useHttpClient, usePush, useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-import { Flex, Switch } from '@molecule/app-ui-react'
-
-import type { PushToggleResult } from './pushToggle.js'
+import type { PushToggleResult } from '@molecule/app-push'
 import {
   disablePushOnCurrentDevice,
   enablePushOnCurrentDevice,
   readCurrentDevicePushEnabled,
-} from './pushToggle.js'
+} from '@molecule/app-push'
+import { useHttpClient, usePush, useTranslation } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
+import { Flex, Switch } from '@molecule/app-ui-react'
 
 /**
  * Push-notification toggle section — the full receive-side enable chain:
@@ -66,6 +65,8 @@ export function NotificationsSection(): JSX.Element {
           })
         )
       case 'persist-failed':
+        // `result.message` here is the HTTP client's error (a status line or a
+        // network error), not text written for the user, so it is not shown.
         return t('settings.pushUpdateFailed', undefined, {
           defaultValue: 'Could not update push notification settings.',
         })
@@ -100,15 +101,21 @@ export function NotificationsSection(): JSX.Element {
 
   return (
     <section>
-      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>{t('settings.notifications')}</h3>
+      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+        {t('settings.notifications', undefined, { defaultValue: 'Notifications' })}
+      </h3>
       <Flex align="center" justify="between">
-        <span className={cm.textSize('sm')}>{t('settings.pushNotifications')}</span>
+        <span className={cm.textSize('sm')}>
+          {t('settings.pushNotifications', undefined, { defaultValue: 'Push notifications' })}
+        </span>
         <Switch
           checked={enabled}
           disabled={busy}
           // The visible text is a SIBLING span, not the Switch's label —
           // without aria-label the control is announced as just "switch".
-          aria-label={t('settings.pushNotifications')}
+          aria-label={t('settings.pushNotifications', undefined, {
+            defaultValue: 'Push notifications',
+          })}
           onChange={(e) => handleToggle((e.target as HTMLInputElement).checked)}
           size="sm"
           data-mol-id="settings-push-toggle"

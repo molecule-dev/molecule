@@ -101,7 +101,7 @@ describe('AccountSection actual caller', () => {
     await act(async () => {
       client.setUser({ ...first, name: 'Server name', email: 'fresh@example.test' })
     })
-    await waitFor(() => expect(control('settings.email').value).toBe('fresh@example.test'))
+    await waitFor(() => expect(control('Email').value).toBe('fresh@example.test'))
     expect(control('Name').value).toBe('Typed name')
   })
 
@@ -117,7 +117,7 @@ describe('AccountSection actual caller', () => {
       client.setSession({ accessToken: token, user: second })
     })
     await waitFor(() => expect(control('Name').value).toBe('Bob'))
-    expect(control('settings.email').value).toBe('bob@example.test')
+    expect(control('Email').value).toBe('bob@example.test')
   })
 
   it('submits only the changed field through the configured bonded profile transport on blur', async () => {
@@ -143,7 +143,7 @@ describe('AccountSection actual caller', () => {
         <AccountSection />
       </AuthProvider>,
     )
-    expect(control('settings.email').value).toBe('')
+    expect(control('Email').value).toBe('')
     fireEvent.change(control('Name'), { target: { value: 'Pat renamed' } })
     fireEvent.blur(control('Name'))
     await waitFor(() => expect(update).toHaveBeenCalledWith({ name: 'Pat renamed' }))
@@ -159,14 +159,14 @@ describe('AccountSection actual caller', () => {
         <AccountSection />
       </AuthProvider>,
     )
-    fireEvent.change(control('settings.email'), { target: { value: 'not-an-email' } })
-    fireEvent.blur(control('settings.email'))
+    fireEvent.change(control('Email'), { target: { value: 'not-an-email' } })
+    fireEvent.blur(control('Email'))
     expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'Invalid email address')
-    expect(control('settings.email').getAttribute('aria-invalid')).toBe('true')
+    expect(control('Email').getAttribute('aria-invalid')).toBe('true')
     expect(update).not.toHaveBeenCalled()
 
-    fireEvent.change(control('settings.email'), { target: { value: 'alice@new.example.test' } })
-    fireEvent.blur(control('settings.email'))
+    fireEvent.change(control('Email'), { target: { value: 'alice@new.example.test' } })
+    fireEvent.blur(control('Email'))
     await waitFor(() => expect(update).toHaveBeenCalledWith({ email: 'alice@new.example.test' }))
   })
 
@@ -187,8 +187,8 @@ describe('AccountSection actual caller', () => {
         <AccountSection />
       </AuthProvider>,
     )
-    fireEvent.change(control('settings.email'), { target: { value: 'not-an-email' } })
-    fireEvent.blur(control('settings.email'))
+    fireEvent.change(control('Email'), { target: { value: 'not-an-email' } })
+    fireEvent.blur(control('Email'))
     expect(await screen.findByRole('alert')).toHaveProperty(
       'textContent',
       'Adresse e-mail invalide',
@@ -204,7 +204,7 @@ describe('AccountSection actual caller', () => {
         <AccountSection />
       </AuthProvider>,
     )
-    fireEvent.change(control('settings.email'), { target: { value: '' } })
+    fireEvent.change(control('Email'), { target: { value: '' } })
     fireEvent.change(control('Name'), { target: { value: 'Alice cleared' } })
     fireEvent.blur(control('Name'))
     await waitFor(() => expect(update).toHaveBeenCalledWith({ name: 'Alice cleared' }))

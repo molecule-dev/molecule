@@ -52,14 +52,16 @@ export function BillingSection({
 
   return (
     <section>
-      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>{t('settings.billing')}</h3>
+      <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+        {t('settings.billing', undefined, { defaultValue: 'Billing' })}
+      </h3>
       <Flex align="center" justify="between">
         <span className={cm.textSize('sm')}>
-          {t('settings.plan')}
+          {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
           <strong>{livePlan ?? plan}</strong>
         </span>
         <Button variant="outline" size="sm" onClick={() => navigate(upgradeTo)}>
-          {t('settings.upgrade')}
+          {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
         </Button>
       </Flex>
     </section>

@@ -1,5 +1,5 @@
 /**
- * Tests for the push-toggle logic behind `NotificationsSection` — the full
+ * Tests for the current-device push toggle (`device-toggle.ts`) — the full
  * receive-side enable chain: permission → runtime VAPID key fetch →
  * `register({ vapidPublicKey })` → PATCH the subscription onto the current
  * device row (the contract the api push fan-outs read).
@@ -7,14 +7,14 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
-import type { PushToggleDevice, PushToggleHttp, PushToggleToken } from '../pushToggle.js'
+import type { PushToggleDevice, PushToggleHttp, PushToggleToken } from '../device-toggle.js'
 import {
   disablePushOnCurrentDevice,
   enablePushOnCurrentDevice,
   findCurrentDevice,
   readCurrentDevicePushEnabled,
   subscriptionFromToken,
-} from '../pushToggle.js'
+} from '../device-toggle.js'
 
 const WEB_SUBSCRIPTION = {
   endpoint: 'https://push.example/sub-1',

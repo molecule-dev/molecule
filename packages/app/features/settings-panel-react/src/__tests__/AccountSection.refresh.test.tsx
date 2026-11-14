@@ -97,7 +97,7 @@ describe('AccountSection configured session refresh', () => {
       </AuthProvider>,
     )
     fireEvent.change(control('Name'), { target: { value: 'Typed name' } })
-    await waitFor(() => expect(control('settings.email').value).toBe('fresh@example.test'))
+    await waitFor(() => expect(control('Email').value).toBe('fresh@example.test'))
     expect(control('Name').value).toBe('Typed name')
     expect(fetch).toHaveBeenCalledExactlyOnceWith(
       '/configured-current',

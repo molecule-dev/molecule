@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { useEffect, useState } from 'react'
 
 import type { UserProfile } from '@molecule/app-auth'
+import { serverErrorMessage } from '@molecule/app-http'
 import { useAuth, useChangePassword, useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button, Flex, Input, Modal } from '@molecule/app-ui-react'
@@ -90,11 +91,10 @@ export function AuthSection(): JSX.Element | null {
       setTfSetup(data)
     } catch (err) {
       setTfError(
-        err instanceof Error
-          ? err.message
-          : t('settings.twoFactorUnavailable', undefined, {
-              defaultValue: 'Two-factor authentication is not available for this app.',
-            }),
+        serverErrorMessage(err) ??
+          t('settings.twoFactorUnavailable', undefined, {
+            defaultValue: 'Two-factor authentication is not available for this app.',
+          }),
       )
     } finally {
       setTfLoading(false)
@@ -110,9 +110,8 @@ export function AuthSection(): JSX.Element | null {
       closeTf()
     } catch (err) {
       setTfError(
-        err instanceof Error
-          ? err.message
-          : t('settings.twoFactorInvalidCode', undefined, { defaultValue: 'Invalid code' }),
+        serverErrorMessage(err) ??
+          t('settings.twoFactorInvalidCode', undefined, { defaultValue: 'Invalid code' }),
       )
     } finally {
       setTfLoading(false)
@@ -135,14 +134,16 @@ export function AuthSection(): JSX.Element | null {
   return (
     <>
       <section>
-        <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>{t('settings.authentication')}</h3>
+        <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+          {t('settings.authentication', undefined, { defaultValue: 'Authentication' })}
+        </h3>
         <div className={cm.stack(3)}>
           <Button variant="outline" size="sm" onClick={() => setShowModal(true)}>
-            {t('settings.changePassword')}
+            {t('settings.changePassword', undefined, { defaultValue: 'Change password' })}
           </Button>
           <Flex align="center" justify="between">
             <span className={cm.textSize('sm')}>
-              {t('settings.twoFactor')}
+              {t('settings.twoFactor', undefined, { defaultValue: 'Two-factor authentication' })}
               {twoFactorEnabled ? (
                 <span className={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.sp('ml', 2))}>
                   {t('settings.twoFactorOn', undefined, { defaultValue: 'On' })}
@@ -182,17 +183,24 @@ export function AuthSection(): JSX.Element | null {
           setShowModal(false)
           reset()
         }}
-        title={t('settings.changePasswordModal.title')}
+        title={t('settings.changePasswordModal.title', undefined, {
+          defaultValue: 'Change Password',
+        })}
       >
         {error && (
           <Alert status="error" className={cm.sp('mb', 4)}>
-            {error.message || t('settings.changePasswordModal.error')}
+            {error.message ||
+              t('settings.changePasswordModal.error', undefined, {
+                defaultValue: 'Failed to change password.',
+              })}
           </Alert>
         )}
         <form onSubmit={handleChangePassword} className={cm.stack(4)}>
           <div>
             <label htmlFor="current-pw" className={cm.formLabel}>
-              {t('settings.changePasswordModal.currentPassword')}
+              {t('settings.changePasswordModal.currentPassword', undefined, {
+                defaultValue: 'Current Password',
+              })}
             </label>
             <Input
               id="current-pw"
@@ -205,7 +213,9 @@ export function AuthSection(): JSX.Element | null {
           </div>
           <div>
             <label htmlFor="new-pw" className={cm.formLabel}>
-              {t('settings.changePasswordModal.newPassword')}
+              {t('settings.changePasswordModal.newPassword', undefined, {
+                defaultValue: 'New Password',
+              })}
             </label>
             <Input
               id="new-pw"
@@ -218,8 +228,10 @@ export function AuthSection(): JSX.Element | null {
           </div>
           <Button type="submit" fullWidth loading={status === 'pending'}>
             {status === 'pending'
-              ? t('settings.changePasswordModal.changing')
-              : t('settings.changePassword')}
+              ? t('settings.changePasswordModal.changing', undefined, {
+                  defaultValue: 'Changing...',
+                })
+              : t('settings.changePassword', undefined, { defaultValue: 'Change password' })}
           </Button>
         </form>
       </Modal>

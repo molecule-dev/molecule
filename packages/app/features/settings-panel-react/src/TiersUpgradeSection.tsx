@@ -1,13 +1,24 @@
 import { type JSX, useEffect, useState } from 'react'
 
+import { serverErrorMessage } from '@molecule/app-http'
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button, ConfirmButton, Flex, Modal } from '@molecule/app-ui-react'
+import { openUrl } from '@molecule/app-utilities'
 
 interface TierPrice {
   stripePriceId?: string
   interval: string
   priceLabel: string
+}
+
+/** Props for {@link TiersUpgradeSection}. */
+export interface TiersUpgradeSectionProps {
+  /**
+   * How the page leaves for the checkout URL the server returns. Defaults to a
+   * full-page navigation (`openUrl` from `@molecule/app-utilities`).
+   */
+  redirectToCheckout?: (checkoutUrl: string) => void
 }
 
 interface Tier {
@@ -26,9 +37,17 @@ interface Tier {
  * Upgrade modal with a Subscribe button per tier price. Subscribe
  * POSTs to `/api/billing/checkout` and redirects to the Stripe
  * checkout URL; paid users see a Cancel button that POSTs to
- * `/api/billing/cancel`.
+ * `/api/billing/cancel`. A refused request shows the server's message.
+ *
+ * @param props - Component props.
+ * @param props.redirectToCheckout - How the page leaves for the checkout URL the
+ *   server returns. Defaults to a full-page navigation (`openUrl`, which refuses
+ *   anything but http(s)); pass an in-app browser opener on native.
+ * @returns The billing section.
  */
-export function TiersUpgradeSection(): JSX.Element {
+export function TiersUpgradeSection({
+  redirectToCheckout = openUrl,
+}: TiersUpgradeSectionProps = {}): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const http = useHttpClient()
@@ -95,7 +114,7 @@ export function TiersUpgradeSection(): JSX.Element {
       )
       const data = res.data
       if (data?.checkoutUrl) {
-        window.location.href = data.checkoutUrl
+        redirectToCheckout(data.checkoutUrl)
         return
       }
       if (data?.updated) {
@@ -109,11 +128,10 @@ export function TiersUpgradeSection(): JSX.Element {
       )
     } catch (err) {
       setUpgradeError(
-        err instanceof Error
-          ? err.message
-          : t('settings.billing.checkoutFailed', undefined, {
-              defaultValue: 'Could not start checkout.',
-            }),
+        serverErrorMessage(err) ??
+          t('settings.billing.checkoutFailed', undefined, {
+            defaultValue: 'Could not start checkout.',
+          }),
       )
     } finally {
       setUpgradeLoading(null)
@@ -128,11 +146,10 @@ export function TiersUpgradeSection(): JSX.Element {
       setPlanKey('free')
     } catch (err) {
       setUpgradeError(
-        err instanceof Error
-          ? err.message
-          : t('settings.billing.cancelFailed', undefined, {
-              defaultValue: 'Could not cancel.',
-            }),
+        serverErrorMessage(err) ??
+          t('settings.billing.cancelFailed', undefined, {
+            defaultValue: 'Could not cancel.',
+          }),
       )
     }
   }

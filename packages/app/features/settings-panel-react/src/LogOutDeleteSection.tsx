@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import type { UserProfile } from '@molecule/app-auth'
+import { serverErrorMessage } from '@molecule/app-http'
 import { useAuth, useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Alert, Button, Input, Modal } from '@molecule/app-ui-react'
@@ -45,7 +46,12 @@ export function LogOutDeleteSection(): React.JSX.Element {
       onClose()
       navigate('/login')
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('settings.failedToDeleteAccount'))
+      setError(
+        serverErrorMessage(err) ??
+          t('settings.failedToDeleteAccount', undefined, {
+            defaultValue: 'Failed to delete account.',
+          }),
+      )
     } finally {
       setLoading(false)
     }
@@ -70,10 +76,14 @@ export function LogOutDeleteSection(): React.JSX.Element {
       <Modal
         open={showModal}
         onClose={() => setShowModal(false)}
-        title={t('settings.deleteAccountModal.title')}
+        title={t('settings.deleteAccountModal.title', undefined, {
+          defaultValue: 'Delete Account',
+        })}
       >
         <p className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mb', 4))}>
-          {t('settings.deleteAccountModal.warning')}
+          {t('settings.deleteAccountModal.warning', undefined, {
+            defaultValue: 'This action cannot be undone. Please enter your password to confirm.',
+          })}
         </p>
         {error && (
           <Alert status="error" className={cm.sp('mb', 4)}>
@@ -83,7 +93,7 @@ export function LogOutDeleteSection(): React.JSX.Element {
         <form onSubmit={handleDelete} className={cm.stack(4)}>
           <div>
             <label htmlFor="delete-pw" className={cm.formLabel}>
-              {t('settings.deleteAccountModal.password')}
+              {t('settings.deleteAccountModal.password', undefined, { defaultValue: 'Password' })}
             </label>
             <Input
               id="delete-pw"
@@ -94,7 +104,11 @@ export function LogOutDeleteSection(): React.JSX.Element {
             />
           </div>
           <Button type="submit" color="error" fullWidth loading={loading}>
-            {loading ? t('settings.deleteAccountModal.deleting') : t('settings.deleteAccount')}
+            {loading
+              ? t('settings.deleteAccountModal.deleting', undefined, {
+                  defaultValue: 'Deleting...',
+                })
+              : t('settings.deleteAccount', undefined, { defaultValue: 'Delete account' })}
           </Button>
         </form>
       </Modal>

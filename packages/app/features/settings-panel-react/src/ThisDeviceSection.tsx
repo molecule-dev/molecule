@@ -7,13 +7,14 @@ import { Flex } from '@molecule/app-ui-react'
 /**
  * "This device" detail strip — OS, browser, online/offline.
  *
- * Reads from `@molecule/app-device` (useDevice hook) + browser
- * `navigator.onLine`. No side effects, no app-specific state.
+ * Reads everything from `@molecule/app-device` through the `useDevice` hook
+ * (`deviceInfo` and `isOnline()`), so the bonded device provider decides what
+ * it shows. No side effects, no app-specific state.
  */
 export function ThisDeviceSection(): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { deviceInfo } = useDevice()
+  const { deviceInfo, isOnline } = useDevice()
   return (
     <section>
       <h3 className={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
@@ -21,16 +22,31 @@ export function ThisDeviceSection(): JSX.Element {
       </h3>
       <dl className={cm.cn(cm.stack(1), cm.textSize('sm'))}>
         <Flex justify="between">
-          <dt className={cm.textMuted}>{t('settings.platform')}</dt>
-          <dd>{deviceInfo.os.name || t('settings.unknown')}</dd>
+          <dt className={cm.textMuted}>
+            {t('settings.platform', undefined, { defaultValue: 'Platform' })}
+          </dt>
+          <dd>
+            {deviceInfo.os.name || t('settings.unknown', undefined, { defaultValue: 'Unknown' })}
+          </dd>
         </Flex>
         <Flex justify="between">
-          <dt className={cm.textMuted}>{t('settings.browser')}</dt>
-          <dd>{deviceInfo.browser.name || t('settings.unknown')}</dd>
+          <dt className={cm.textMuted}>
+            {t('settings.browser', undefined, { defaultValue: 'Browser' })}
+          </dt>
+          <dd>
+            {deviceInfo.browser.name ||
+              t('settings.unknown', undefined, { defaultValue: 'Unknown' })}
+          </dd>
         </Flex>
         <Flex justify="between">
-          <dt className={cm.textMuted}>{t('settings.network')}</dt>
-          <dd>{navigator.onLine ? t('settings.online') : t('settings.offline')}</dd>
+          <dt className={cm.textMuted}>
+            {t('settings.network', undefined, { defaultValue: 'Network' })}
+          </dt>
+          <dd>
+            {isOnline()
+              ? t('settings.online', undefined, { defaultValue: 'Online' })
+              : t('settings.offline', undefined, { defaultValue: 'Offline' })}
+          </dd>
         </Flex>
       </dl>
     </section>

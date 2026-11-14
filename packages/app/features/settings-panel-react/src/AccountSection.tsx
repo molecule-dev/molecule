@@ -53,7 +53,9 @@ export function AccountSection(): JSX.Element {
   return (
     <section>
       <Flex align="center" gap="sm" className={cm.sp('mb', 3)}>
-        <h3 className={cm.sectionHeading}>{t('settings.account')}</h3>
+        <h3 className={cm.sectionHeading}>
+          {t('settings.account', undefined, { defaultValue: 'Account' })}
+        </h3>
         {profile.isSubmitting && <Spinner size="xs" />}
       </Flex>
       <form {...profile.formProps} className={cm.stack(3)}>
@@ -72,7 +74,7 @@ export function AccountSection(): JSX.Element {
         </div>
         <div>
           <label htmlFor="settings-email" className={cm.formLabelSmall}>
-            {t('settings.email')}
+            {t('settings.email', undefined, { defaultValue: 'Email' })}
           </label>
           <Input
             {...email}

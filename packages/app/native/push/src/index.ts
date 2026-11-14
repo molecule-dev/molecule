@@ -52,10 +52,19 @@
  *   delivery send a real push from the server.
  * - `token.value` on web is a JSON-serialized PushSubscription (not an FCM
  *   token) — store it opaquely; platform is in `token.platform`.
+ * - **A settings toggle for the current device** needs no code of its own:
+ *   `enablePushOnCurrentDevice({ http, requestPermission, register })`,
+ *   `disablePushOnCurrentDevice({ http, unregister })` and
+ *   `readCurrentDevicePushEnabled(http)` run the whole chain against the
+ *   molecule device API (`GET /api/devices/push/public-key`,
+ *   `GET /api/devices`, `PATCH /api/devices/:id`) and return a typed result
+ *   instead of throwing. Every framework's settings panel package re-exports
+ *   them.
  *
  * @module
  */
 
+export * from './device-toggle.js'
 export * from './provider.js'
 export * from './types.js'
 export * from './web-provider.js'
