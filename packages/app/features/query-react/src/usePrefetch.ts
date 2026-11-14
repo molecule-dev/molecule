@@ -1,5 +1,6 @@
 /**
- * Warm the cache ahead of a navigation.
+ * Warm the cache ahead of a navigation. `prefetchQuery` itself is framework-neutral and lives in
+ * `@molecule/app-query`; this module re-exports it and adds the React hook and link handlers.
  *
  * @module
  */
@@ -7,19 +8,9 @@
 import { useCallback } from 'react'
 
 import type { QueryOptions } from '@molecule/app-query'
-import { getQueryClient, shouldPrefetch } from '@molecule/app-query'
+import { prefetchQuery } from '@molecule/app-query'
 
-/**
- * Warms the cache for a document, when the connection can afford it (see
- * `shouldPrefetch()` in the core). Safe to call repeatedly: a fresh or
- * in-flight document is skipped, and failures are swallowed.
- *
- * @param options - Key, fetch, freshness.
- */
-export function prefetchQuery<T>(options: QueryOptions<T>): void {
-  if (!shouldPrefetch()) return
-  getQueryClient().prefetch(options)
-}
+export { prefetchQuery } from '@molecule/app-query'
 
 /**
  * A stable `prefetch(options)` function for event handlers.

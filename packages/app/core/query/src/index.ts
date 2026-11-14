@@ -75,5 +75,7 @@
 
 export * from './keys.js'
 export * from './network.js'
+export * from './prefetch.js'
 export * from './provider.js'
+export * from './resource.js'
 export * from './types.js'
