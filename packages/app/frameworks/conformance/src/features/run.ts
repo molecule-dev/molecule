@@ -203,15 +203,20 @@ export function runFeatureConformance(
       })
     })
   }
-  describe.skipIf(filter !== null)(`${adapter.name} ${reactPackage} values`, () => {
-    for (const check of feature.values ?? []) {
-      const gap = gaps[check.export]?.includes('(export)') ?? false
-      ;(gap ? it.fails : it)(check.export, () => {
-        expect(check.export in options.module, `exports ${check.export}`).toBe(true)
-        expect(featureValue(check, options.module[check.export])).toEqual(
-          goldens.values[check.export],
-        )
-      })
-    }
-  })
+  // A feature with no value checks registers NO suite: like the hooks and
+  // shared suites above, an empty `describe` is itself a vitest failure
+  // ("No test found in suite").
+  if ((feature.values ?? []).length > 0) {
+    describe.skipIf(filter !== null)(`${adapter.name} ${reactPackage} values`, () => {
+      for (const check of feature.values ?? []) {
+        const gap = gaps[check.export]?.includes('(export)') ?? false
+        ;(gap ? it.fails : it)(check.export, () => {
+          expect(check.export in options.module, `exports ${check.export}`).toBe(true)
+          expect(featureValue(check, options.module[check.export])).toEqual(
+            goldens.values[check.export],
+          )
+        })
+      }
+    })
+  }
 }
