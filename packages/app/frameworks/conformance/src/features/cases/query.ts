@@ -263,8 +263,8 @@ const useQueryCases: HookCases = {
       ],
     },
     {
-      // The recorded fetch arguments carry the signal as it was handed over;
-      // the cache is what shows the abort left nothing behind.
+      // The last observer leaving aborts the fetch (`fetch aborted`), and the cache
+      // shows the late answer left nothing behind.
       name: 'unmount while a fetch is pending leaves nothing cached',
       args: [observing(['pkg', 'a'])],
       context: empty,
@@ -330,6 +330,33 @@ const usePrefetchCases: HookCases = {
         {
           type: 'call',
           args: [{ key: ['pkg', 'a'], fetch: { $fn: 'fetch', reject: 'warm failed' } }],
+        },
+        { type: 'control', name: 'query.peek', args: [['pkg', 'a']] },
+      ],
+    },
+    {
+      name: 'the data-saver setting prefetches nothing',
+      context: { areas: { query: { connection: { saveData: true } } } },
+      steps: [
+        { type: 'call', args: [{ key: ['pkg', 'a'], fetch: { $fn: 'fetch', resolve: 'unused' } }] },
+        { type: 'control', name: 'query.peek', args: [['pkg', 'a']] },
+      ],
+    },
+    {
+      name: 'a 2G connection prefetches nothing',
+      context: { areas: { query: { connection: { effectiveType: 'slow-2g' } } } },
+      steps: [
+        { type: 'call', args: [{ key: ['pkg', 'a'], fetch: { $fn: 'fetch', resolve: 'unused' } }] },
+        { type: 'control', name: 'query.peek', args: [['pkg', 'a']] },
+      ],
+    },
+    {
+      name: 'a 4G connection prefetches',
+      context: { areas: { query: { connection: { effectiveType: '4g' } } } },
+      steps: [
+        {
+          type: 'call',
+          args: [{ key: ['pkg', 'a'], fetch: { $fn: 'fetch', resolve: { name: 'pkg-a' } } }],
         },
         { type: 'control', name: 'query.peek', args: [['pkg', 'a']] },
       ],

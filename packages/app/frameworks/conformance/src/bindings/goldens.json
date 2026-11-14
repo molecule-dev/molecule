@@ -51114,15 +51114,21 @@
    "empty when nothing matches, filled when it does": {
     "shape": {
      "kind": "object",
-     "fields": {}
+     "fields": {
+      "id": "value"
+     }
     },
     "snapshots": [
      {
-      "result": {},
+      "result": {
+       "id": null
+      },
       "route": "/users"
      },
      {
-      "result": {},
+      "result": {
+       "id": "9"
+      },
       "route": "/items/9"
      }
     ],
@@ -60751,19 +60757,22 @@
     "shape": {
      "kind": "object",
      "fields": {
-      "page": "value"
+      "page": "value",
+      "tag": "value"
      }
     },
     "snapshots": [
      {
       "result": {
-       "page": "2"
+       "page": "2",
+       "tag": null
       },
       "route": "/list?page=2"
      },
      {
       "result": {
-       "page": "3"
+       "page": "3",
+       "tag": "new"
       },
       "route": "/list?page=3&tag=new"
      }

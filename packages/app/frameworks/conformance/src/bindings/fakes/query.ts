@@ -36,6 +36,7 @@ import {
 } from '@molecule/app-query'
 import { createProvider as createMemoryQueryProvider } from '@molecule/app-query-memory'
 
+import { patchProperty } from '../environment.js'
 import type { AreaFakesFactory } from '../spec.js'
 import { saveBonds } from './bonds.js'
 
@@ -53,6 +54,11 @@ export interface QuerySeed {
   readonly config?: QueryClientConfig
   /** Documents already cached (fresh) when the hook mounts. */
   readonly cached?: readonly QuerySeedDocument[]
+  /**
+   * The browser's Network Information (`navigator.connection`) for the case: `saveData` or a
+   * 2G `effectiveType` is where `shouldPrefetch()` declines speculative loads.
+   */
+  readonly connection?: { readonly saveData?: boolean; readonly effectiveType?: string }
 }
 
 /**
@@ -73,6 +79,9 @@ export const createQueryFakes: AreaFakesFactory = (context, record) => {
   resetQueryClient()
   const client = getQueryClient()
   for (const document of seed.cached ?? []) client.set(document.key, document.data)
+  const restoreConnection = seed.connection
+    ? patchProperty(navigator, 'connection', { ...seed.connection })
+    : undefined
 
   return {
     controls: {
@@ -90,6 +99,7 @@ export const createQueryFakes: AreaFakesFactory = (context, record) => {
       },
     },
     dispose: () => {
+      restoreConnection?.()
       resetQueryClient()
       configureQueryClient(undefined)
       restoreBonds()

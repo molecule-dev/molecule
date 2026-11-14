@@ -266,6 +266,56 @@ export function resultShape(result: unknown): ResultShape {
 }
 
 /**
+ * React's result shape widened by the fields a later result has. A field React
+ * sets only after the first render (`useQuery`'s `isPreviousData`, present once
+ * the key changes) belongs to the shape every framework is held to; a field's
+ * first kind wins, and a shape that is not an object is kept as it is.
+ *
+ * @param shape - The shape so far; undefined before the first result.
+ * @param result - React's current result (never a throw: a throw has no shape).
+ * @returns The widened shape (the same object when nothing was added).
+ */
+export function widenShape(shape: ResultShape | undefined, result: unknown): ResultShape {
+  const next = resultShape(result)
+  if (!shape) return next
+  if (shape.kind !== 'object' || next.kind !== 'object') return shape
+  const added = Object.keys(next.fields).filter((field) => !(field in shape.fields))
+  if (added.length === 0) return shape
+  const fields: Record<string, 'value' | 'method'> = {}
+  for (const field of [...Object.keys(shape.fields), ...added].sort())
+    fields[field] = shape.fields[field] ?? next.fields[field]!
+  return { kind: 'object', fields }
+}
+
+/**
+ * Gives each recorded snapshot every field of the final shape: a field that did
+ * not exist yet reads exactly as {@link snapshotResult} reads an absent field
+ * (`null` for a value, `$missingMethod` for a method), so the React goldens are
+ * what React would have produced had the widened shape been known from the start.
+ *
+ * @param snapshots - React's snapshots (`null` while unmounted).
+ * @param shape - The final, widened shape.
+ * @returns The completed snapshots.
+ */
+export function completeSnapshots(snapshots: unknown[], shape: ResultShape): unknown[] {
+  if (shape.kind !== 'object') return snapshots
+  return snapshots.map((snapshot) => {
+    const result = (snapshot as { result?: unknown } | null)?.result
+    if (!result || typeof result !== 'object' || Array.isArray(result) || '$threw' in result)
+      return snapshot
+    const completed: Record<string, unknown> = {}
+    for (const [field, kind] of Object.entries(shape.fields))
+      completed[field] =
+        field in result
+          ? (result as Record<string, unknown>)[field]
+          : kind === 'method'
+            ? { $missingMethod: null }
+            : null
+    return { ...(snapshot as object), result: completed }
+  })
+}
+
+/**
  * The object a framework returned for an `object`-shaped hook: the result
  * itself, or the value inside its reactive container (a Vue ref, a Svelte
  * store, an Angular signal, a Solid accessor).

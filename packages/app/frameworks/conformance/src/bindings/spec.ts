@@ -250,7 +250,7 @@ export type ResultShape =
 
 /** What one framework produced for one case. */
 export interface HookCaseResult {
-  /** The result's shape (from the first snapshot). */
+  /** The result's shape: React's first result, widened by fields later results add. */
   shape: ResultShape
   /** Normalized result after mount and after each step (`null` after unmount). */
   snapshots: unknown[]

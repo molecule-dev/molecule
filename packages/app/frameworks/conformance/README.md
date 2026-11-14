@@ -169,8 +169,12 @@ The same contract holds the framework bindings (`@molecule/app-vue`, `-solid`, `
 - **A result** is, after mount and after every step, the hook's result read under React's
   shape (value fields normalized, methods as `'[method]'`) plus the router location; then
   every service call (`auth.login`, `http.get`, `storage.set`, …), every call of a
-  function argument, every method outcome (`=> login` with `returned`, `threw`,
+  function argument (and `<name> aborted`, with the call's number, when an AbortSignal it
+  received aborts later), every method outcome (`=> login` with `returned`, `threw`,
   `resolved` or `rejected`), and the subscriptions each service still holds after unmount.
+  React's shape is every field its result has at ANY snapshot: a field that appears later
+  (`useParams`' `id` after a navigation, `useQuery`'s `isPreviousData` after a key change)
+  reads `null` in the snapshots before it, and every framework is compared on it.
 
 | React                            | Vue (`app-vue`)                        | Solid (`app-solid`)                     | Svelte (`app-svelte`)                      | Angular (`app-angular`)                              |
 | -------------------------------- | -------------------------------------- | --------------------------------------- | ------------------------------------------ | ---------------------------------------------------- |
@@ -231,7 +235,9 @@ package name in its imports.
     like a binding case (`http`, `authErrors`, `areas`).
   - `hooks`: hook cases for the package's hooks (`useQuery`), written like binding cases
     and run with the framework's binding adapter over its binding plus the feature package.
-    `areas.query` (`src/bindings/fakes/query.ts`) gives them a fresh in-memory query cache.
+    `areas.query` (`src/bindings/fakes/query.ts`) gives them a fresh in-memory query cache,
+    optionally with the browser's Network Information (`connection: { saveData }` or a 2G
+    `effectiveType`, where prefetching declines); without it there is none.
   - `values`: plain exports compared by value (a constant, or each call's result).
   - `shared`: framework-neutral exports that live in one package
     (`enablePushOnCurrentDevice` in `@molecule/app-push`); every framework, React included,

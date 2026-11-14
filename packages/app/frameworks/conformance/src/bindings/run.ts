@@ -29,13 +29,16 @@ import type {
   ResultShape,
 } from './spec.js'
 import {
+  completeSnapshots,
   fnResults,
   functionOf,
+  HookThrew,
   materializeArgs,
   methodOf,
   normalizeValue,
   resultShape,
   snapshotResult,
+  widenShape,
 } from './values.js'
 
 /** The React reference, recorded by the kit's bindings goldens test. */
@@ -174,12 +177,18 @@ export async function runHookCase(
       )
     const state: RunState = { mounted: await mountHost(testCase.args ?? []), unmounted: false }
     let resolvedShape = shape
+    const recording = shape === undefined
     const snap = (): void => {
       if (state.unmounted) {
         snapshots.push(null)
         return
       }
-      resolvedShape ??= resultShape(state.mounted.result())
+      // Recording React: the shape grows with fields that appear after the first render.
+      // A framework run reads React's final shape as given.
+      const result = state.mounted.result()
+      if (recording && !(result instanceof HookThrew))
+        resolvedShape = widenShape(resolvedShape, result)
+      resolvedShape ??= resultShape(result)
       const location = services.router.getLocation()
       snapshots.push({
         result: snapshotResult(state.mounted, resolvedShape),
@@ -343,9 +352,10 @@ export async function runHookCase(
       if (testCase.fakeTimers) vi.useRealTimers()
     }
     const listenersAfterUnmount = controls.listeners()
+    const finalShape = resolvedShape ?? { kind: 'value' }
     return {
-      shape: resolvedShape ?? { kind: 'value' },
-      snapshots,
+      shape: finalShape,
+      snapshots: recording ? completeSnapshots(snapshots, finalShape) : snapshots,
       calls: recorder.calls,
       listenersAfterUnmount,
     }

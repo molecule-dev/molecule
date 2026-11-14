@@ -101,6 +101,9 @@ export function pinBrowserEnvironment(): () => void {
       maxTouchPoints: 0,
       hardwareConcurrency: 4,
       onLine: true,
+      // No Network Information: every speculative load is allowed. A query case seeds one
+      // (`context.areas.query.connection`) to pin data-saver or 2G behavior.
+      connection: undefined,
     }
     for (const [key, value] of Object.entries(fixed)) {
       restore.push(patchProperty(navigator, key, value))

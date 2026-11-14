@@ -104,6 +104,7 @@ export class CallRecorder {
   spy(name: string): (...args: unknown[]) => unknown {
     return (...args: unknown[]) => {
       this.calls.push({ name, args: args.map((arg) => this.normalize(arg)) })
+      this.watchSignals(name, args)
       const result = this.results[name]
       if (!result) return undefined
       if ('returns' in result) return result.returns
@@ -123,6 +124,29 @@ export class CallRecorder {
         queue.push({ resolve, reject })
         this.pending.set(name, queue)
       })
+    }
+  }
+
+  /**
+   * Records when an AbortSignal handed to a callback aborts, as a call
+   * `<name> aborted` whose argument is the 0-based number of the call that got
+   * the signal. Arguments are normalized when the call is made, so without this
+   * a later abort (a query fetch cancelled because its page unmounted) would
+   * leave no trace.
+   *
+   * @param name - The callback.
+   * @param args - The arguments of the call just recorded.
+   */
+  private watchSignals(name: string, args: unknown[]): void {
+    if (typeof AbortSignal === 'undefined') return
+    const callNumber = this.calls.filter((call) => call.name === name).length - 1
+    for (const arg of args) {
+      if (!(arg instanceof AbortSignal) || arg.aborted) continue
+      arg.addEventListener(
+        'abort',
+        () => this.calls.push({ name: `${name} aborted`, args: [callNumber] }),
+        { once: true },
+      )
     }
   }
 
