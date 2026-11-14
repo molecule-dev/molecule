@@ -595,7 +595,15 @@ export function createAngularAdapter({
               navigate: (to) => {
                 router.navigate(to)
               },
+              // A page leaving destroys its component; the application and its
+              // environment injector live on, so a hook bound to them (instead of
+              // the component's own injector) still runs after an `unmount` step.
               unmount: async () => {
+                const element = ref.location.nativeElement as HTMLElement
+                ref.destroy()
+                element.remove()
+              },
+              dispose: async () => {
                 appRef.destroy()
               },
             }

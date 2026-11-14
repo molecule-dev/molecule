@@ -17,6 +17,7 @@
  */
 
 import { type Component, flushSync, mount, unmount } from 'svelte'
+import { vi } from 'vitest'
 
 import type { AuthClient } from '@molecule/app-auth'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -146,6 +147,14 @@ export function createSvelteAdapter({
               },
               unmount: async () => {
                 await unmount(instance)
+                // The binding's same-turn handoff lanes (`useForm`/`useHttp`)
+                // disarm through a `setTimeout(0)` so a mount after the case's
+                // final unmount starts a genuinely fresh controller. Yield one
+                // macrotask here, or that timer never fires between two cases
+                // (the runner only churns microtasks) and the next case adopts
+                // this case's form state.
+                if (vi.isFakeTimers()) await vi.advanceTimersByTimeAsync(0)
+                else await new Promise((resolve) => setTimeout(resolve, 0))
               },
             }
           },

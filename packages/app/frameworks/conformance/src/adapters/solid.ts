@@ -17,7 +17,7 @@
  */
 
 import { type Component, createComponent, createRenderEffect, type JSX } from 'solid-js'
-import { createStore } from 'solid-js/store'
+import { createStore, produce } from 'solid-js/store'
 import { render } from 'solid-js/web'
 
 import type { AuthClient } from '@molecule/app-auth'
@@ -262,9 +262,15 @@ export function createSolidAdapter({
                 await settle()
               },
               setProps: async (next) => {
-                // A store setter treats a function as an updater; wrap function values so they are stored.
-                for (const [k, v] of Object.entries(solidProps(next)))
-                  setProps(k, typeof v === 'function' ? () => v : v)
+                // Each named prop is replaced wholesale, as React's next render passes it. A store
+                // setter would merge an object onto the previous one (a later `query` without
+                // `data` would keep the old `data`) and call a function value as an updater; an
+                // assignment inside `produce` does neither.
+                setProps(
+                  produce((draft) => {
+                    for (const [k, v] of Object.entries(solidProps(next))) draft[k] = v
+                  }),
+                )
               },
               location: () => {
                 const l = router.getLocation()

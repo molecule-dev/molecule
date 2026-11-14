@@ -237,17 +237,27 @@ export function caseStrings(testCase: UICase): Set<string> {
 
 /**
  * Puts the page into a case's {@link WindowContext}: URL, `sessionStorage` and
- * a recording `fetch`. Every request is recorded as a `fetch` call.
+ * a recording `fetch`. Every request is recorded as a `fetch` call; with
+ * `fetch.defer` each one waits for {@link PageControls.answerFetch}.
  *
  * @param context - The case's window context.
  * @param recorder - The case's recorder.
- * @returns Records the final URL (when the case set one) and restores the page.
+ * @returns What answers held requests, and what restores the page.
  */
 export function applyWindowContext(
   context: WindowContext | undefined,
   recorder: CallRecorder,
-): () => void {
-  if (!context) return () => {}
+): PageControls {
+  const held: (() => void)[] = []
+  const answerFetch = (): void => {
+    const next = held.shift()
+    if (!next)
+      throw new Error(
+        'conformance: a fetch step found no request waiting (set context.window.fetch.defer)',
+      )
+    next()
+  }
+  if (!context) return { restore: () => {}, answerFetch }
   const url = `${location.pathname}${location.search}${location.hash}`
   const storage = Object.fromEntries(
     Array.from({ length: sessionStorage.length }, (_v, i) => sessionStorage.key(i)!).map((k) => [
@@ -281,6 +291,7 @@ export function applyWindowContext(
         credentials: init?.credentials,
         body,
       })
+      if (answer.defer) await new Promise<void>((resolve) => held.push(resolve))
       return {
         ok: answer.status >= 200 && answer.status < 300,
         status: answer.status,
@@ -290,17 +301,28 @@ export function applyWindowContext(
       } as unknown as Response
     }) as typeof fetch
   }
-  return () => {
-    if (context.url !== undefined)
-      recorder.calls.push({
-        name: 'window.location',
-        args: [`${location.pathname}${location.search}`],
-      })
-    globalThis.fetch = realFetch
-    sessionStorage.clear()
-    for (const [key, value] of Object.entries(storage)) sessionStorage.setItem(key, value)
-    history.replaceState(null, '', url)
+  return {
+    answerFetch,
+    restore: () => {
+      if (context.url !== undefined)
+        recorder.calls.push({
+          name: 'window.location',
+          args: [`${location.pathname}${location.search}`],
+        })
+      globalThis.fetch = realFetch
+      sessionStorage.clear()
+      for (const [key, value] of Object.entries(storage)) sessionStorage.setItem(key, value)
+      history.replaceState(null, '', url)
+    },
   }
+}
+
+/** What {@link applyWindowContext} hands back for one case. */
+export interface PageControls {
+  /** Answers the oldest held page request (a `fetch` step). */
+  answerFetch(): void
+  /** Records the final URL (when the case set one) and restores the page. */
+  restore(): void
 }
 
 /** What an adapter supplies to {@link runSteps} for one mounted case. */
@@ -309,8 +331,16 @@ export interface MountedCase {
   flush(): Promise<void>
   /** Re-render with these props merged over the current ones. */
   setProps(props: Record<string, unknown>): Promise<void>
-  /** Tear the component down. */
+  /**
+   * Tear the component down, and only the component: what an app keeps alive
+   * past one page (Angular's application and its environment injector, Vue's
+   * app) stays until {@link MountedCase.dispose}, so work tied to the app
+   * instead of the component is still running when an `unmount` step's later
+   * steps settle it, as it would be in a real app.
+   */
   unmount(): Promise<void>
+  /** Tear down what outlives the component (the application), after the case. */
+  dispose?(): Promise<void>
   /** Current route (`pathname` + `search`) of the router the component sees. */
   location(): string
   /** The current history entry's state (`navigate(to, { state })`), when the router has one. */
@@ -356,7 +386,7 @@ export async function runSteps(
     })
   await getI18nProvider().setLocale(testCase.context?.locale ?? 'en')
   setCaseTranslations(testCase.context?.translations ?? null)
-  const restoreWindow = applyWindowContext(testCase.context?.window, recorder)
+  const page = applyWindowContext(testCase.context?.window, recorder)
   const container = freshContainer(testCase)
   const keepReferences = caseStrings(testCase)
   await loadReferenceStylesheet()
@@ -366,15 +396,23 @@ export async function runSteps(
   try {
     mounted = await mount(container)
   } catch (error) {
-    restoreWindow()
+    page.restore()
     setCaseTranslations(null)
     throw error
   }
+  // Set by an `unmount` step: the end of the case then has nothing left to tear down, and
+  // the snapshots after it keep the route the component last saw.
+  const state: { unmounted: boolean; location?: string; locationState?: unknown } = {
+    unmounted: false,
+  }
   try {
-    const snap = (): void => {
+    const snap = (note?: string): void => {
       const focus = focusPath()
-      const state = routeStateText(mounted.locationState?.())
-      const tail = `\n@route ${mounted.location()}${state ? ` state=${state}` : ''}${focus ? `\n@focus ${focus}` : ''}`
+      const where = state.unmounted ? (state.location ?? '') : mounted.location()
+      const route = routeStateText(
+        state.unmounted ? state.locationState : mounted.locationState?.(),
+      )
+      const tail = `\n@route ${where}${route ? ` state=${route}` : ''}${focus ? `\n@focus ${focus}` : ''}${note ? `\n${note}` : ''}`
       const styles = referenceStyles(document)
       try {
         const options = { keepReferences, computedStyle: styles.computedStyle }
@@ -387,12 +425,12 @@ export async function runSteps(
     await mounted.flush()
     snap()
     for (const step of testCase.interactions ?? []) {
-      await runStep(step, mounted, recorder, app)
-      snap()
+      snap(await runStep(step, mounted, recorder, app, page, state))
     }
   } finally {
-    await mounted.unmount()
-    restoreWindow()
+    if (!state.unmounted) await mounted.unmount()
+    await mounted.dispose?.()
+    page.restore()
     setCaseTranslations(null)
     if (testCase.fakeTimers) vi.useRealTimers()
     document.body.innerHTML = ''
@@ -400,12 +438,17 @@ export async function runSteps(
   return { snapshots, readable, calls: recorder.calls }
 }
 
+/** The steps that still mean something once the component is gone: they settle what it started. */
+const AFTER_UNMOUNT = new Set<Interaction['type']>(['fetch', 'settle', 'advance', 'http', 'auth'])
+
 const runStep = async (
   step: Interaction,
   mounted: MountedCase,
   recorder: CallRecorder,
   app: AppServices | null,
-): Promise<void> => {
+  page: PageControls,
+  state: { unmounted: boolean; location?: string; locationState?: unknown },
+): Promise<string | undefined> => {
   const controls = (): AppServices['controls'] => {
     if (!app)
       throw new Error(
@@ -413,23 +456,47 @@ const runStep = async (
       )
     return app.controls
   }
+  if (state.unmounted && !AFTER_UNMOUNT.has(step.type))
+    throw new Error(
+      `conformance: a ${step.type} step after unmount has no component to act on (only ${[...AFTER_UNMOUNT].join(', ')})`,
+    )
+  if (step.type === 'unmount') {
+    if (state.unmounted) throw new Error('conformance: the case already unmounted')
+    // The route the component last saw stays in the snapshots that follow.
+    state.location = mounted.location()
+    state.locationState = mounted.locationState?.()
+    await mounted.unmount()
+    state.unmounted = true
+    await settle()
+    return undefined
+  }
+  // A DOM step's note for the snapshot after it (whether an anchor click's default was prevented).
+  let note: string | undefined
   if (step.type === 'props') {
     await mounted.setProps(step.props)
   } else {
     const perform = async (): Promise<void> => {
       if (step.type === 'advance') await vi.advanceTimersByTimeAsync(step.ms)
       else if (step.type === 'settle') recorder.settle(step.callback, step.value, step.error)
+      else if (step.type === 'fetch') page.answerFetch()
       else if (step.type === 'navigate') mounted.navigate(step.to)
       else if (step.type === 'locale') await getI18nProvider().setLocale(step.code)
       else if (step.type === 'http') {
         const { method, url, status, data, networkError } = step
         controls().answerHttp({ method, url, status, data, networkError })
       } else if (step.type === 'auth') controls().setAuth(step.status, step.user)
-      else performDomInteraction(step)
+      else note = performDomInteraction(step)
+    }
+    // A torn-down component has no update scope or change detection left to run.
+    if (state.unmounted) {
+      await perform()
+      await settle()
+      return note
     }
     await (mounted.wrap ? mounted.wrap(perform) : perform())
   }
   await mounted.flush()
+  return note
 }
 
 /**

@@ -44,6 +44,18 @@ export const headerFeature: FeatureCases = {
           interactions: [{ type: 'click', selector: 'a' }],
         },
         {
+          // A new-tab, new-window or download click is the browser's, as with react-router's Link.
+          name: 'modified clicks on the brand link are left to the browser',
+          props: { appName: 'Acme' },
+          context: { route: '/settings' },
+          interactions: [
+            { type: 'click', selector: 'a', modifiers: { ctrlKey: true } },
+            { type: 'click', selector: 'a', modifiers: { metaKey: true } },
+            { type: 'click', selector: 'a', modifiers: { shiftKey: true } },
+            { type: 'click', selector: 'a', modifiers: { altKey: true } },
+          ],
+        },
+        {
           name: 'the default toggle switches the theme',
           props: { appName: 'Acme' },
           context: { theme: 'light' },

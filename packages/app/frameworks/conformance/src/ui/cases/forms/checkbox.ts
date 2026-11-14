@@ -77,5 +77,31 @@ export const checkboxCases: UIComponentCases = {
       callbacks: ['onChange'],
       interactions: [{ type: 'check', selector: 'input[type="checkbox"]', checked: false }],
     },
+    // A controlled `checked` the parent changes after mount: React writes the property on
+    // update and leaves the attribute it mounted with.
+    {
+      name: 'controlled checked turned on, then off',
+      props: { label: 'Subscribe', checked: false, name: 'news' },
+      callbacks: ['onChange'],
+      interactions: [
+        { type: 'props', props: { checked: true } },
+        { type: 'props', props: { checked: false } },
+      ],
+    },
+    {
+      name: 'controlled checked turned off, then on',
+      props: { label: 'Subscribe', checked: true, name: 'news' },
+      callbacks: ['onChange'],
+      interactions: [
+        { type: 'props', props: { checked: false } },
+        { type: 'props', props: { checked: true } },
+      ],
+    },
+    {
+      name: 'controlled indeterminate cleared',
+      props: { label: 'All items', indeterminate: true, checked: false, name: 'bulk' },
+      callbacks: ['onChange'],
+      interactions: [{ type: 'props', props: { indeterminate: false, checked: true } }],
+    },
   ],
 }

@@ -62,6 +62,26 @@ export const switchCases: UIComponentCases = {
       callbacks: ['onChange'],
       interactions: [{ type: 'click', selector: 'button[role="switch"]' }],
     },
+    // A controlled `checked` the parent changes after mount (a theme or a setting loaded
+    // late): React writes the property on update and leaves the attribute it mounted with.
+    {
+      name: 'controlled checked turned on, then off',
+      props: { label: 'Sync', checked: false },
+      callbacks: ['onChange'],
+      interactions: [
+        { type: 'props', props: { checked: true } },
+        { type: 'props', props: { checked: false } },
+      ],
+    },
+    {
+      name: 'controlled checked turned off, then on',
+      props: { label: 'Sync', checked: true },
+      callbacks: ['onChange'],
+      interactions: [
+        { type: 'props', props: { checked: false } },
+        { type: 'props', props: { checked: true } },
+      ],
+    },
     {
       name: 'disabled click does not report change',
       props: { label: 'Sync', disabled: true },

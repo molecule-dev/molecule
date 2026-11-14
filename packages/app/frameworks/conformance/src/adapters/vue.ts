@@ -27,6 +27,7 @@ import {
   type Plugin,
   type PropType,
   reactive,
+  ref,
   unref,
   type VNode,
   type VNodeChild,
@@ -172,6 +173,8 @@ export function createVueAdapter({
       const state = reactive<{ props: Record<string, unknown> }>({
         props: vueProps(testCase.props ?? {}),
       })
+      // Whether the case's component is mounted inside the app (an `unmount` step clears it).
+      const shown = ref(true)
       const nodeProps: Record<string, unknown> = {}
       const slots: Record<string, () => VNodeChild[]> = {}
       for (const [slot, nodes] of Object.entries(testCase.slots ?? {})) {
@@ -203,11 +206,17 @@ export function createVueAdapter({
               // With the full composition root, React's MoleculeProvider renders
               // with `awaitSession: false`: no SessionReady gate.
               render: () =>
-                h('div', { 'data-parity-unwrap': '' }, [
-                  services.auth && !full
-                    ? h(SessionReady, null, { default: () => [hostTree()] })
-                    : hostTree(),
-                ]),
+                h(
+                  'div',
+                  { 'data-parity-unwrap': '' },
+                  shown.value
+                    ? [
+                        services.auth && !full
+                          ? h(SessionReady, null, { default: () => [hostTree()] })
+                          : hostTree(),
+                      ]
+                    : [],
+                ),
             })
             if (full) {
               app.use(moleculePlugin, full.services)
@@ -236,7 +245,13 @@ export function createVueAdapter({
               navigate: (to) => {
                 router.navigate(to)
               },
+              // A page leaving unmounts its component; the app lives on, so work
+              // tied to the app (not the component) still runs after an `unmount` step.
               unmount: async () => {
+                shown.value = false
+                await nextTick()
+              },
+              dispose: async () => {
                 app.unmount()
               },
             }

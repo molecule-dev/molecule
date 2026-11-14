@@ -70,6 +70,17 @@ export const radioGroupCases: UIComponentCases = {
       callbacks: ['onChange'],
       interactions: [{ type: 'check', selector: 'input[value="strawberry"]', checked: true }],
     },
+    // A controlled `value` the parent changes after mount: React writes each radio's
+    // property on update and leaves the attributes they mounted with.
+    {
+      name: 'controlled value moved, then cleared',
+      props: { options: flavors, value: 'vanilla', name: 'flavor' },
+      callbacks: ['onChange'],
+      interactions: [
+        { type: 'props', props: { value: 'chocolate' } },
+        { type: 'props', props: { value: undefined } },
+      ],
+    },
     {
       name: 'className, style and testId',
       props: {

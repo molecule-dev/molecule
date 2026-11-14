@@ -121,7 +121,37 @@ A case (`UICase`, `src/ui/spec.ts`) is plain data, so every framework reads the 
 Interactions: `click`, `dblclick`, `focus`, `blur`, `mouseenter`, `mouseleave`, `pointerdown`,
 `keydown`, `input`, `check`, `submit`, `event` (any DOM event on a selector, `window` or
 `document`), `props` (re-render with new props), `advance` (timers), `settle` (a deferred
-callback), `navigate` (the router, from outside).
+callback), `navigate` (the router, from outside), `fetch` (answers the oldest page request
+held by `context.window.fetch` with `defer: true`), `unmount` (tears the component down; only
+`fetch`, `settle`, `advance`, `http` and `auth` may follow, so a case shows whether work that
+settles after the page is left still reaches a callback, which React's never do).
+
+A `props` step that changes a controlled value (`checked`, `value`) holds a framework to
+React's update path, which differs from its mount path: React sets the `checked` attribute
+when it creates a checkbox and only the property afterwards.
+
+A `click` takes optional `modifiers` (`{ ctrlKey, metaKey, shiftKey, altKey }`). A click
+inside an `a[href]` adds `@click default prevented` or `@click default kept` to the snapshot
+after it: whether the browser would still follow the anchor. An in-app link must prevent a
+plain click and keep a modified one (a new tab, a new window, a download).
+
+## In-app links
+
+`runLinkConformance(name, mountLink)` (`@molecule/app-framework-conformance/link`) holds each
+binding's `Link` component to react-router `<Link>`'s behavior: plain and modified clicks,
+`target`, the caller's own `onClick`, same-origin and external URLs, `replace` (and the
+replace a link to the current location does), `state`, and a destination changed without a
+remount. Every case clicks the real anchor and reads where the memory router went. The kit's
+own test proves a hand-written click handler that skips the target, origin and replace rules
+fails those cases.
+
+```ts
+// a binding's src/__tests__/link.test.ts
+runLinkConformance('@molecule/app-vue', async (container, router, props) => {
+  // mount the binding's real Link with props.to / replace / state / attrs / onClick / text,
+  // inside the binding's provider carrying `router`; return { setTo, unmount }
+})
+```
 
 ## Running it
 

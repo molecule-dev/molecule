@@ -22,6 +22,7 @@ const callback = (answer: {
   status: number
   body?: unknown
   headers?: Record<string, string>
+  defer?: boolean
 }): CaseContext => ({
   ...signedOut,
   window: {
@@ -90,6 +91,44 @@ export const authUiFeature: FeatureCases = {
           props: { oauthConfig },
           callbacks: ['onSuccess', 'onError'],
           context: callback({ status: 500, body: {} }),
+        },
+        {
+          // The user signed in, so the session is still established; the page that
+          // asked is gone, so neither callback runs.
+          name: 'an exchange that settles after leaving the page reports to nobody',
+          props: { oauthConfig },
+          callbacks: ['onSuccess', 'onError'],
+          context: callback({
+            status: 200,
+            body: { props: { id: 'u1', name: 'Ada' } },
+            headers: { Authorization: 'Bearer t1' },
+            defer: true,
+          }),
+          interactions: [{ type: 'unmount' }, { type: 'fetch' }],
+        },
+        {
+          name: 'a rejection that settles after leaving the page reports to nobody',
+          props: { oauthConfig },
+          callbacks: ['onSuccess', 'onError'],
+          context: callback({
+            status: 400,
+            body: { error: 'This sign-in link expired.' },
+            defer: true,
+          }),
+          interactions: [{ type: 'unmount' }, { type: 'fetch' }],
+        },
+        {
+          // Counterexample: answered while mounted, the same exchange reports success.
+          name: 'an exchange held, then answered on the page, reports success',
+          props: { oauthConfig },
+          callbacks: ['onSuccess', 'onError'],
+          context: callback({
+            status: 200,
+            body: { props: { id: 'u1', name: 'Ada' } },
+            headers: { Authorization: 'Bearer t1' },
+            defer: true,
+          }),
+          interactions: [{ type: 'fetch' }],
         },
       ],
     },

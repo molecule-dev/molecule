@@ -53,6 +53,20 @@ export const footerFeature: FeatureCases = {
           interactions: [{ type: 'click', selector: 'a[href="/about"]' }],
         },
         {
+          name: 'modified clicks on the internal links are left to the browser',
+          props: { appName: 'Acme', aboutHref: '/about', legalMode: 'route' },
+          interactions: [
+            { type: 'click', selector: 'a[href="/about"]', modifiers: { metaKey: true } },
+            { type: 'click', selector: 'a[href="/privacy"]', modifiers: { ctrlKey: true } },
+            { type: 'click', selector: 'a[href="/terms"]', modifiers: { shiftKey: true } },
+          ],
+        },
+        {
+          name: 'the external about link is left to the browser',
+          props: { appName: 'Acme', aboutHref: 'https://acme.example' },
+          interactions: [{ type: 'click', selector: 'a[href="https://acme.example"]' }],
+        },
+        {
           name: 'privacy modal without content shows the placeholder',
           props: { appName: 'Acme', aboutHref: '/about' },
           interactions: [

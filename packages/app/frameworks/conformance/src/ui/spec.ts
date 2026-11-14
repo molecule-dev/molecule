@@ -167,11 +167,27 @@ export const isComponentSpec = (node: NodeSpec): node is ComponentSpec =>
   typeof node === 'object' && 'component' in node
 
 /**
+ * Modifier keys held during a `click` step (a ctrl/cmd-click opens a new tab,
+ * shift-click a new window, alt-click downloads).
+ */
+export interface ClickModifiers {
+  metaKey?: boolean
+  ctrlKey?: boolean
+  shiftKey?: boolean
+  altKey?: boolean
+}
+
+/**
  * One user action, run against `document` after mount. `selector` is a CSS
  * selector resolved with `document.querySelector` (portals included).
+ *
+ * A `click` inside an `a[href]` adds `@click default prevented` or
+ * `@click default kept` to the snapshot after it: whether the browser would
+ * still follow the anchor. A router link must prevent a plain click and keep a
+ * modified one.
  */
 export type Interaction =
-  | { type: 'click'; selector: string }
+  | { type: 'click'; selector: string; modifiers?: ClickModifiers }
   | { type: 'dblclick'; selector: string }
   | { type: 'focus'; selector: string }
   | { type: 'blur'; selector: string }
@@ -232,6 +248,18 @@ export type Interaction =
       status: 'authenticated' | 'unauthenticated' | 'loading' | 'unavailable'
       user?: Record<string, unknown>
     }
+  /**
+   * Answers the oldest page `fetch` still waiting, with the case's
+   * `context.window.fetch` answer (one with `defer: true`).
+   */
+  | { type: 'fetch' }
+  /**
+   * Tears the component down, as leaving the page would. Later steps (`fetch`,
+   * `settle`, `advance`, `http`, `auth`) settle what it started; each snapshot
+   * shows the page it left. React calls no callback prop after unmount, so work
+   * that settles afterwards must not reach one.
+   */
+  | { type: 'unmount' }
 
 /** Framework-neutral app context a component may read (auth, theme, route, locale). */
 export interface CaseContext {
@@ -278,6 +306,8 @@ export interface FetchAnswer {
   /** JSON body. */
   body?: unknown
   headers?: Record<string, string>
+  /** Holds every request until a `fetch` step answers it, oldest first. */
+  defer?: boolean
 }
 
 /** One render case of one component. */

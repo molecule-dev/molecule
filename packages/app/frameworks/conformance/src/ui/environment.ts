@@ -17,7 +17,7 @@ import { iconSet } from '@molecule/app-icons-molecule'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import type { Interaction, UICase } from './spec.js'
+import type { ClickModifiers, Interaction, UICase } from './spec.js'
 
 let installed = false
 
@@ -153,9 +153,53 @@ const setNativeValue = (
 }
 
 /** Clicks like a user: `el.click()` where the element has it (HTML), a bubbling click event otherwise (jsdom SVG). */
-const click = (el: Element): void => {
-  if (el instanceof HTMLElement) el.click()
-  else el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+const click = (el: Element, modifiers: ClickModifiers = {}): void => {
+  if (el instanceof HTMLElement && Object.keys(modifiers).length === 0) el.click()
+  else el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ...modifiers }))
+}
+
+/**
+ * The pointer and mouse presses a real click starts with.
+ *
+ * @param el - The element pressed.
+ * @param modifiers - Modifier keys held during the press.
+ */
+const press = (el: Element, modifiers: ClickModifiers = {}): void => {
+  for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup'])
+    el.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, ...modifiers }))
+}
+
+/**
+ * Clicks an element and reports, for a click inside an `a[href]`, whether the
+ * click's default (following the anchor) was prevented. A window listener reads
+ * it after every framework's own handler (element, root or document level) ran,
+ * then prevents it, because jsdom cannot leave the page.
+ *
+ * @param el - The element to click.
+ * @param modifiers - Modifier keys held during the click.
+ * @returns The snapshot note for an anchor click, or `undefined`.
+ */
+const clickReportingAnchorDefault = (
+  el: Element,
+  modifiers: ClickModifiers = {},
+): string | undefined => {
+  if (!el.closest('a[href]')) {
+    click(el, modifiers)
+    return undefined
+  }
+  const seen: { prevented?: boolean } = {}
+  const observe = (event: Event): void => {
+    seen.prevented = event.defaultPrevented
+    event.preventDefault()
+  }
+  window.addEventListener('click', observe)
+  try {
+    click(el, modifiers)
+  } finally {
+    window.removeEventListener('click', observe)
+  }
+  if (seen.prevented === undefined) return '@click propagation stopped before the window'
+  return seen.prevented ? '@click default prevented' : '@click default kept'
 }
 
 const setNativeChecked = (el: HTMLInputElement, checked: boolean): void => {
@@ -166,25 +210,27 @@ const setNativeChecked = (el: HTMLInputElement, checked: boolean): void => {
 
 /**
  * Performs one DOM interaction exactly the same way for every framework.
- * `props`, `advance`, `settle` and `navigate` steps are handled by the step runner, not here.
+ * `props`, `advance`, `settle`, `navigate`, `locale`, `http`, `auth`, `fetch` and `unmount`
+ * steps are handled by the step runner, not here.
  *
  * @param step - The interaction to perform.
+ * @returns A note for the snapshot after the step (a `click` inside an anchor reports
+ *   whether the anchor's default was prevented), or `undefined`.
  */
-export function performDomInteraction(step: Interaction): void {
+export function performDomInteraction(step: Interaction): string | undefined {
   switch (step.type) {
-    case 'click':
+    case 'click': {
+      const el = query(step.selector)
+      press(el, step.modifiers)
+      return clickReportingAnchorDefault(el, step.modifiers)
+    }
     case 'dblclick': {
       const el = query(step.selector)
-      el.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, cancelable: true }))
-      el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
-      el.dispatchEvent(new MouseEvent('pointerup', { bubbles: true, cancelable: true }))
-      el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }))
+      press(el)
       click(el)
-      if (step.type === 'dblclick') {
-        click(el)
-        el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }))
-      }
-      return
+      click(el)
+      el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }))
+      return undefined
     }
     case 'focus':
       query(step.selector).focus()
@@ -261,6 +307,8 @@ export function performDomInteraction(step: Interaction): void {
     case 'locale':
     case 'http':
     case 'auth':
+    case 'fetch':
+    case 'unmount':
       return
   }
 }
