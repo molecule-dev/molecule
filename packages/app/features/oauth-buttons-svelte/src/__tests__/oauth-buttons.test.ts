@@ -81,10 +81,13 @@ describe('<OAuthButtons />', () => {
     expect(container.querySelector('button[data-provider="gitlab"]')).not.toBeNull()
   })
 
-  it('renders nothing when providers list is empty', () => {
+  it('returns null when providers list is empty', () => {
+    // React asserts `container.firstChild === null` (the component returned
+    // null). Svelte's mount stamps comment anchors for the root `{#if}`
+    // block, so the exact DOM-equivalent is "no element content at all".
     const container = render(OAuthButtons, { providers: [] })
-    expect(container.querySelector('[data-mol-id="oauth-buttons"]')).toBeNull()
-    expect(container.querySelectorAll('button')).toHaveLength(0)
+    expect(container.firstElementChild).toBeNull()
+    expect(container.textContent).toBe('')
   })
 
   it('de-duplicates providers while preserving order', () => {

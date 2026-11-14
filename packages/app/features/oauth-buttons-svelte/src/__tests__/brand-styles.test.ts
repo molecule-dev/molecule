@@ -43,7 +43,10 @@ describe('getBrandStyle', () => {
     expect(github).not.toContain('border-color')
   })
 
-  it('returns an empty style for unknown providers (ClassMap takes over)', () => {
+  it('returns an empty object for unknown providers (ClassMap takes over)', () => {
+    // Svelte's `getBrandStyle` is framework-shaped (the brief's decision):
+    // it returns a CSS declaration string for `style={…}`, so React's
+    // `toEqual({})` empty payload is the empty string here.
     expect(getBrandStyle('keycloak')).toBe('')
   })
 })

@@ -29,7 +29,7 @@ describe('getBrandStyle', () => {
     expect(style.color).toBeDefined()
   })
 
-  it('adds border-color + 1px border-width only for light-bg providers', () => {
+  it('adds borderColor + borderWidth only for light-bg providers', () => {
     // Solid's style runtime applies kebab-case keys verbatim, so React's
     // unitless `borderWidth: 1` (React appends px) is written out as `1px`.
     const google = getBrandStyle('google')

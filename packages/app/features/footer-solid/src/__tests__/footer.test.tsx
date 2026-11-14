@@ -113,9 +113,12 @@ describe('AppFooter', () => {
     expect(html).toContain('target="_blank"')
   })
 
-  it('renders an internal About href as an in-app router link', () => {
+  it('renders an internal About href as a router Link', () => {
     const html = footerHtml({ appName: 'Acme', aboutHref: '/about' })
     expect(html).toContain('href="/about"')
+    // It went through the binding's Link, not the external-anchor branch
+    // (React's test proves the same with its mock Link's `data-link=""`).
+    expect(html).not.toContain('target="_blank"')
     // The anchor navigates in-app instead of the browser default reload.
     const container = mount(() => <AppFooter appName="Acme" aboutHref="/about" />)
     container.querySelector('a')?.click()
@@ -137,7 +140,7 @@ describe('AppFooter', () => {
     expect(terms?.getAttribute('type')).toBe('button')
   })
 
-  it('renders Privacy/Terms as router links in route mode', () => {
+  it('renders Privacy/Terms as router Links in route mode', () => {
     const html = footerHtml({ appName: 'Acme', aboutHref: '/about', legalMode: 'route' })
     expect(html).toContain('href="/privacy"')
     expect(html).toContain('href="/terms"')

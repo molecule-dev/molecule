@@ -177,8 +177,12 @@ describe('AppFooter', () => {
     expect(markup).toContain('rel="noopener noreferrer"')
   })
 
-  it('renders an internal About href as a router link', () => {
+  it('renders an internal About href as a router Link', () => {
     const markup = render({ appName: 'Acme', aboutHref: '/about' })
+    // React asserts its mocked react-router Link's `data-link=""` marker; the
+    // real binding Link renders a plain anchor with no marker attribute, so
+    // the internal href plus the ABSENCE of the external branch's
+    // `target="_blank"` is the same evidence here.
     expect(markup).toContain('href="/about"')
     expect(markup).not.toContain('target="_blank"')
   })
@@ -190,27 +194,30 @@ describe('AppFooter', () => {
     expect(markup).toMatch(/<button[^>]*>Privacy Policy/)
   })
 
-  it('renders Privacy/Terms as router links in route mode', () => {
+  it('renders Privacy/Terms as router Links in route mode', () => {
     const markup = render({ appName: 'Acme', aboutHref: '/about', legalMode: 'route' })
     expect(markup).toContain('href="/privacy"')
     expect(markup).toContain('href="/terms"')
     expect(markup).not.toMatch(/<button[^>]*>Privacy Policy/)
   })
 
-  it('renders the language button with the globe icon and the current locale name', () => {
+  it('renders the language button and the version string', () => {
     const markup = render({ appName: 'Acme', aboutHref: '/about' })
     expect(markup).toContain('aria-label="Language"')
+    // React's mocked Icon asserts `data-icon="globe"`; the real Icon renders
+    // the bonded globe glyph, whose unique path data is the same evidence.
     expect(markup).toContain('<svg')
+    expect(markup).toContain('M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0Z')
     expect(markup).toContain('English')
-  })
-
-  it('renders the version string', () => {
-    const markup = render({ appName: 'Acme', aboutHref: '/about' })
     expect(markup).toContain('v2.0.0')
   })
 
-  it('keeps the privacy/terms/language modals closed initially', () => {
+  it('keeps the privacy/terms modals closed initially', () => {
     render({ appName: 'Acme', aboutHref: '/about' })
+    // React asserts its mocked Modal's `data-modal=""` marker is absent; the
+    // real Vue Modal teleports an OPEN dialog to <body> with role="dialog",
+    // so this one absent selector covers the privacy, terms AND language
+    // modals.
     expect(document.querySelector('[role="dialog"]')).toBeNull()
   })
 

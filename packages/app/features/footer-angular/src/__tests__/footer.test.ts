@@ -24,7 +24,7 @@ import { type ApplicationRef, createApplication } from '@angular/platform-browse
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AngularBinding from '@molecule/app-angular'
-import { createMemoryRouter } from '@molecule/app-routing'
+import { createMemoryRouter, type Router } from '@molecule/app-routing'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `footerBar`),
 // so tests can assert which cm.* class was applied without a real bond.
@@ -142,10 +142,12 @@ const footerTemplate = `<mol-app-footer
   [dataMolId]="p['dataMolId']"
 ></mol-app-footer>`
 
-/** A mounted spec host: its DOM and a teardown. */
+/** A mounted spec host: its DOM, its memory router and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** The memory router the footer's `Link` anchors navigate. */
+  readonly router: Router
   /** Runs change detection to settle a click's updates. */
   flush(): Promise<void>
   /** Destroys the app and removes the host. */
@@ -178,11 +180,9 @@ async function mount(
       p: Record<string, unknown> = props
     },
   )
+  const router: Router = createMemoryRouter({ initialEntries: ['/'] })
   const appRef: ApplicationRef = await createApplication({
-    providers: [
-      provideZonelessChangeDetection(),
-      provideRouter(createMemoryRouter({ initialEntries: ['/'] })),
-    ],
+    providers: [provideZonelessChangeDetection(), provideRouter(router)],
   })
   const ref: ComponentRef<{ p: Record<string, unknown> }> = createComponent(Host, {
     environmentInjector: appRef.injector,
@@ -193,6 +193,7 @@ async function mount(
   appRef.tick()
   return {
     host,
+    router,
     flush: async () => {
       appRef.tick()
       await Promise.resolve()
@@ -237,6 +238,31 @@ describe('AppFooter', () => {
     expect(about.getAttribute('rel')).toBe('noopener noreferrer')
   })
 
+  it('renders an internal About href as a router Link', async () => {
+    const m = await renderFooter({ appName: 'Acme', aboutHref: '/about' })
+    const about = m.host.querySelector<HTMLAnchorElement>('a[href="/about"]')
+    if (!about) throw new Error('no internal About anchor rendered')
+    // React asserts the mocked react-router Link's `data-link` marker; the
+    // Angular binding's real `Link` directive leaves no DOM attribute, so the
+    // same behavior is asserted the conformance kit's way: the anchor's click
+    // is taken in-app by the router (prevented from the browser) instead of
+    // being left to a plain anchor's navigation.
+    let prevented: boolean | undefined
+    const observe = (event: Event): void => {
+      prevented = event.defaultPrevented
+    }
+    window.addEventListener('click', observe)
+    try {
+      about.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    } finally {
+      window.removeEventListener('click', observe)
+    }
+    expect(prevented).toBe(true)
+    await m.flush()
+    const location = m.router.getLocation()
+    expect(location.pathname + location.search + location.hash).toBe('/about')
+  })
+
   it('renders an internal About href as an in-app anchor without a target', async () => {
     const m = await renderFooter({ appName: 'Acme', aboutHref: '/about' })
     const about = m.host.querySelector<HTMLAnchorElement>('a[href="/about"]')
@@ -254,7 +280,7 @@ describe('AppFooter', () => {
     expect(buttons).toContain('Terms of Service')
   })
 
-  it('renders Privacy/Terms as route links in route mode', async () => {
+  it('renders Privacy/Terms as router Links in route mode', async () => {
     const m = await renderFooter({ appName: 'Acme', aboutHref: '/about', legalMode: 'route' })
     expect(m.host.querySelector('a[href="/privacy"]')?.textContent?.trim()).toBe('Privacy Policy')
     expect(m.host.querySelector('a[href="/terms"]')?.textContent?.trim()).toBe('Terms of Service')

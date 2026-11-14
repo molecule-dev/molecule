@@ -25,12 +25,13 @@ describe.each([
 ] as const)('mounted refetch over %s', (_name, bond: QueryProvider) => {
   beforeEach(() => setProvider(bond))
 
-  it('refreshes the rendered collection through the optional-method wrapper', async () => {
+  it('refreshes the rendered collection through the optional-method wrapper used by l2433', async () => {
     let serverRows = ['existing']
     const fetch = vi.fn(async () => [...serverRows])
     const page = mountQuery<string[]>({ key: ['comments', 'viewer', 'record'], fetch })
     await settle()
     expect(page.value().data).toEqual(['existing'])
+    expect(page.text()).toBe('["existing"]')
     // The retained wrapper casts the query to { refetch?: () => Promise<unknown> } and calls
     // it optionally. Before the hook supplied this method, a successful write was a no-op.
     const refresh = async (): Promise<void> => {
@@ -40,11 +41,11 @@ describe.each([
     serverRows = ['new', 'existing']
     await refresh()
     await settle()
-    expect(page.value().data).toEqual(['new', 'existing'])
+    expect(page.text()).toBe('["new","existing"]')
     serverRows = ['existing']
     await refresh()
     await settle()
-    expect(page.value().data).toEqual(['existing'])
+    expect(page.text()).toBe('["existing"]')
     expect(fetch).toHaveBeenCalledTimes(3)
   })
 

@@ -90,7 +90,7 @@ function compile(http: ResourceHttp): Example {
 }
 
 /** The complete resource example compiles against the installed public contracts. */
-it('compiles the complete resource example under strict TypeScript', () => {
+it('the complete resource example compiles against the installed public contracts', () => {
   const file = join(here, '__resource-example__.ts')
   const options: ts.CompilerOptions = {
     strict: true,

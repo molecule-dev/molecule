@@ -67,11 +67,9 @@ describe('OAuthButtons', () => {
     await fixture.destroy()
   })
 
-  it('renders nothing when providers list is empty', async () => {
+  it('returns null when providers list is empty', async () => {
     const fixture = await renderRow({ providers: [] })
     // React returns null: the host element is detached from the document.
-    const row = document.querySelector('[data-mol-id="oauth-buttons"]')
-    expect(row).toBeNull()
     expect(document.querySelector('[data-mol-id="oauth-buttons"]')).toBeNull()
     await fixture.destroy()
   })
@@ -92,7 +90,7 @@ describe('OAuthButtons', () => {
     await fixture.destroy()
   })
 
-  it('fires success with the provider id when an inline onSelect promise resolves', async () => {
+  it('fires onSuccess with the provider id when an inline onSelect promise resolves', async () => {
     // An inline flow (popup/PKCE, e.g. an auth bond's signInWithProvider) returns
     // a promise that settles when the handshake completes.
     const onSuccess = vi.fn()
@@ -107,7 +105,7 @@ describe('OAuthButtons', () => {
     await fixture.destroy()
   })
 
-  it('does NOT fire success for a fire-and-navigate (void) onSelect', async () => {
+  it('does NOT fire onSuccess for a fire-and-navigate (void) onSelect', async () => {
     // redirect(provider) returns void and navigates away — there is nothing to
     // await, so success must not fire (completion is observed elsewhere).
     const onSelect = vi.fn(() => undefined)
@@ -120,7 +118,7 @@ describe('OAuthButtons', () => {
     await fixture.destroy()
   })
 
-  it('does NOT fire success when the inline onSelect promise rejects', async () => {
+  it('does NOT fire onSuccess when the inline onSelect promise rejects', async () => {
     // A failed/aborted handshake — success must stay unfired; the initiating
     // onSelect handler owns error surfacing.
     const onSuccess = vi.fn()

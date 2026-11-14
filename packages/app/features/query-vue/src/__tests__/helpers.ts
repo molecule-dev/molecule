@@ -9,7 +9,7 @@ import {
   type App,
   createApp,
   defineComponent,
-  type h,
+  h,
   nextTick,
   ref,
   shallowRef,
@@ -38,8 +38,12 @@ export async function unmountAll(): Promise<void> {
 export interface MountedQuery<T> {
   /** The options source the composable reads (React's "re-render with new arguments"). */
   source: { value: QueryOptions<T> | null }
+  /** The element the app was mounted into. */
+  host: HTMLElement
   /** The current result, read at call time. */
   value: () => UseQueryResult<T>
+  /** The rendered `JSON.stringify(data)` text, the way the React tests read the page. */
+  text(): string | null
   /** Swaps the options on the SAME mount (visible on the next read). */
   setOptions(next: QueryOptions<T> | null): void
   /** Re-renders the host without changing anything the composable reads. */
@@ -63,10 +67,12 @@ export function mountQuery<T>(options: QueryOptions<T> | null): MountedQuery<T> 
   const Host = defineComponent({
     setup() {
       result = useQuery<T>(source)
-      // Reading the tick in render makes a parent re-render observable.
+      // Reading the tick in render makes a parent re-render observable; reading
+      // the document makes a cache update observable on the page, the way the
+      // React tests' `output` element paints `JSON.stringify(latest.data)`.
       return () => {
         void tick.value
-        return null
+        return h('output', JSON.stringify(result!.value.data))
       }
     },
   })
@@ -88,10 +94,12 @@ export function mountQuery<T>(options: QueryOptions<T> | null): MountedQuery<T> 
   }
   return {
     source,
+    host: container,
     value: () => {
       if (setupError !== undefined) throw setupError
       return result!.value
     },
+    text: () => container.textContent,
     // React's rerender applies new arguments without draining microtasks: the
     // swap is visible on the next read, the new fetch lands later. The source
     // write is synchronous for the same reason.

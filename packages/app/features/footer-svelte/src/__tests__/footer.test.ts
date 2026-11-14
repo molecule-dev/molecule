@@ -80,12 +80,16 @@ describe('AppFooter', () => {
     expect(anchor?.getAttribute('rel')).toBe('noopener noreferrer')
   })
 
-  it('renders an internal About href as an in-app link that navigates', async () => {
+  it('renders an internal About href as a router Link', async () => {
     const { footer, router: mountedRouter } = render({ appName: 'Acme', aboutHref: '/about' })
     const anchor = footer?.querySelector<HTMLAnchorElement>('a[href="/about"]')
     expect(anchor).not.toBeNull()
-    // An unmodified primary click is react-router's in-app navigation case:
-    // the default is prevented and the router moves to the href.
+    // React asserts its react-router mock's `data-link` marker; the Svelte
+    // binding's `Link` renders a plain `<a href>` with the router's click
+    // handler and no marker attribute, so the same contract is asserted
+    // behaviorally: an unmodified primary click is react-router's in-app
+    // navigation case — the default is prevented and the router moves to
+    // the href.
     const event = new MouseEvent('click', { bubbles: true, cancelable: true })
     anchor?.dispatchEvent(event)
     flushSync()
@@ -103,7 +107,7 @@ describe('AppFooter', () => {
     expect(labels).toContain('Terms of Service')
   })
 
-  it('renders Privacy/Terms as in-app links in route mode', async () => {
+  it('renders Privacy/Terms as router Links in route mode', async () => {
     const { footer } = render({ appName: 'Acme', aboutHref: '/about', legalMode: 'route' })
     expect(footer?.querySelector('a[href="/privacy"]')).not.toBeNull()
     expect(footer?.querySelector('a[href="/terms"]')).not.toBeNull()

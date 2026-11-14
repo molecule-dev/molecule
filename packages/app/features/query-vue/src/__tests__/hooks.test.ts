@@ -23,7 +23,7 @@ afterEach(async () => {
 })
 
 describe('useQuery', () => {
-  it('returns cached data on the first read without a loading state', async () => {
+  it('returns cached data on the first render without a loading state', async () => {
     getQueryClient().set(['doc', 1], 'cached')
     const fetch = vi.fn(async () => 'fresh')
     const h = mountQuery<string>({ key: ['doc', 1], fetch })

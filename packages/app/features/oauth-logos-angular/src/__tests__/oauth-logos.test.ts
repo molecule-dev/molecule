@@ -24,18 +24,18 @@ import {
 } from '../index.js'
 import { renderFixture } from './render.js'
 
-// [component class, default aria-label]. Twitter's mark is the post-rebrand
-// "X", but its accessible name still carries "(Twitter)".
+// [test name, component class, default aria-label]. Twitter's mark is the
+// post-rebrand "X", but its accessible name still carries "(Twitter)".
 const LOGOS = [
-  [GitHubLogo, 'GitHub'],
-  [GitLabLogo, 'GitLab'],
-  [GoogleLogo, 'Google'],
-  [TwitterLogo, 'X (Twitter)'],
-  [AppleLogo, 'Apple'],
-  [FacebookLogo, 'Facebook'],
-  [MicrosoftLogo, 'Microsoft'],
-  [LinkedInLogo, 'LinkedIn'],
-  [DiscordLogo, 'Discord'],
+  ['GitHubLogo', GitHubLogo, 'GitHub'],
+  ['GitLabLogo', GitLabLogo, 'GitLab'],
+  ['GoogleLogo', GoogleLogo, 'Google'],
+  ['TwitterLogo', TwitterLogo, 'X (Twitter)'],
+  ['AppleLogo', AppleLogo, 'Apple'],
+  ['FacebookLogo', FacebookLogo, 'Facebook'],
+  ['MicrosoftLogo', MicrosoftLogo, 'Microsoft'],
+  ['LinkedInLogo', LinkedInLogo, 'LinkedIn'],
+  ['DiscordLogo', DiscordLogo, 'Discord'],
 ] as const
 
 /** The host attribute of a component whose selector is `svg[mol-x-logo]`. */
@@ -48,17 +48,20 @@ const selectorOf = (component: Type<unknown>): string => {
 }
 
 describe('individual provider logos', () => {
-  it.each(LOGOS)('%p renders an <svg> with its default brand aria-label', async (logo, label) => {
-    const { host, destroy } = await renderFixture(`<svg ${selectorOf(logo)} />`, {}, [logo])
-    const svg = host.querySelector('svg')
-    expect(svg).not.toBeNull()
-    expect(svg!.getAttribute('aria-label')).toBe(label)
-    expect(svg!.getAttribute('role')).toBe('img')
-    expect(svg!.getAttribute('viewBox')).toBe('0 0 24 24')
-    await destroy()
-  })
+  it.each(LOGOS)(
+    '%s renders an <svg> with its default brand aria-label',
+    async (_n, logo, label) => {
+      const { host, destroy } = await renderFixture(`<svg ${selectorOf(logo)} />`, {}, [logo])
+      const svg = host.querySelector('svg')
+      expect(svg).not.toBeNull()
+      expect(svg!.getAttribute('aria-label')).toBe(label)
+      expect(svg!.getAttribute('role')).toBe('img')
+      expect(svg!.getAttribute('viewBox')).toBe('0 0 24 24')
+      await destroy()
+    },
+  )
 
-  it.each(LOGOS)('%p defaults to a 20px square', async (logo) => {
+  it.each(LOGOS)('%s defaults to a 20px square', async (_n, logo) => {
     const { host, destroy } = await renderFixture(`<svg ${selectorOf(logo)} />`, {}, [logo])
     const svg = host.querySelector('svg')!
     expect(svg.getAttribute('width')).toBe('20')
@@ -66,7 +69,7 @@ describe('individual provider logos', () => {
     await destroy()
   })
 
-  it.each(LOGOS)('%p honours an explicit size', async (logo) => {
+  it.each(LOGOS)('%s honours an explicit size', async (_n, logo) => {
     const { host, destroy } = await renderFixture(
       `<svg ${selectorOf(logo)} [size]="p['size']" />`,
       { size: 32 },
@@ -78,20 +81,23 @@ describe('individual provider logos', () => {
     await destroy()
   })
 
-  it.each(LOGOS)('%p renders aria-hidden (no role/label) when ariaLabel is ""', async (logo) => {
-    const { host, destroy } = await renderFixture(
-      `<svg ${selectorOf(logo)} [ariaLabel]="p['ariaLabel']" />`,
-      { ariaLabel: '' },
-      [logo],
-    )
-    const svg = host.querySelector('svg')!
-    expect(svg.getAttribute('aria-hidden')).toBe('true')
-    expect(svg.getAttribute('role')).toBeNull()
-    expect(svg.getAttribute('aria-label')).toBeNull()
-    await destroy()
-  })
+  it.each(LOGOS)(
+    '%s renders aria-hidden (no role/label) when ariaLabel is ""',
+    async (_n, logo) => {
+      const { host, destroy } = await renderFixture(
+        `<svg ${selectorOf(logo)} [ariaLabel]="p['ariaLabel']" />`,
+        { ariaLabel: '' },
+        [logo],
+      )
+      const svg = host.querySelector('svg')!
+      expect(svg.getAttribute('aria-hidden')).toBe('true')
+      expect(svg.getAttribute('role')).toBeNull()
+      expect(svg.getAttribute('aria-label')).toBeNull()
+      await destroy()
+    },
+  )
 
-  it.each(LOGOS)('%p renders a <title> element when title is set', async (logo) => {
+  it.each(LOGOS)('%s renders a <title> element when title is set', async (_n, logo) => {
     const { host, destroy } = await renderFixture(
       `<svg ${selectorOf(logo)} [title]="p['title']" />`,
       { title: 'Sign in' },
@@ -102,7 +108,7 @@ describe('individual provider logos', () => {
     await destroy()
   })
 
-  it.each(LOGOS)('%p forwards className to the <svg>', async (logo) => {
+  it.each(LOGOS)('%s forwards className to the <svg>', async (_n, logo) => {
     const { host, destroy } = await renderFixture(
       `<svg ${selectorOf(logo)} [className]="p['className']" />`,
       { className: 'logo-cls' },
@@ -113,7 +119,7 @@ describe('individual provider logos', () => {
     await destroy()
   })
 
-  it.each(LOGOS)('%p emits drawable geometry (<path> or <rect>)', async (logo) => {
+  it.each(LOGOS)('%s emits drawable geometry (<path> or <rect>)', async (_n, logo) => {
     const { host, destroy } = await renderFixture(`<svg ${selectorOf(logo)} />`, {}, [logo])
     // 8 marks use <path>; Microsoft's mark is 4 colored <rect> squares.
     expect(host.querySelector('path, rect')).not.toBeNull()

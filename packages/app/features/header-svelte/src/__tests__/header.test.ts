@@ -90,6 +90,11 @@ describe('AppHeader', () => {
     expect(themeToggle).toBeNull()
   })
 
+  it('omits the default theme toggle when Theme/I18n providers are absent', async () => {
+    await render({ appName: 'Acme' })
+    expect(document.body.querySelector('[data-mol-id="theme-toggle"]')).toBeNull()
+  })
+
   it('omits the default toggle when only ONE of the two providers is present', async () => {
     const onlyTheme = await render({ appName: 'Acme' }, { theme: true })
     expect(onlyTheme.themeToggle).toBeNull()

@@ -105,7 +105,7 @@ describe.each([
     await remount.unmount()
   })
 
-  it("keeps another principal's documents out of a scoped invalidation", async () => {
+  it('keeps another principal’s documents out of a scoped invalidation', async () => {
     const client = getQueryClient()
     const mine = ['feed', 'u1', 'following', 1]
     const theirs = ['feed', 'u2', 'following', 1]

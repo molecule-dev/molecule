@@ -174,17 +174,18 @@ describe('AppHeader', () => {
     expect(markup).toContain('data-theme-toggle=""')
   })
 
-  it('hides the toggle when themeToggle is null even with providers', () => {
-    const markup = render({ appName: 'Acme', themeToggle: null }, undefined, {
-      theme: true,
-      i18n: true,
-    })
-    expect(markup).not.toContain('data-theme-toggle')
+  it('hides the toggle when themeToggle is null even with providers, and honours a custom node', () => {
+    expect(
+      render({ appName: 'Acme', themeToggle: null }, undefined, { theme: true, i18n: true }),
+    ).not.toContain('data-theme-toggle')
+    // React passes the custom node WITHOUT providers: the prop form renders it
+    // as-is (and the header still does not throw without theme/i18n).
+    expect(
+      render({ appName: 'Acme', themeToggle: h('span', { 'data-custom-toggle': '' }) }),
+    ).toContain('data-custom-toggle=""')
   })
 
-  it('honours a custom toggle node (prop and same-named slot)', () => {
-    const asProp = render({ appName: 'Acme', themeToggle: h('span', { 'data-custom-toggle': '' }) })
-    expect(asProp).toContain('data-custom-toggle=""')
+  it('honours a custom toggle node as a same-named slot', () => {
     const asSlot = render(
       { appName: 'Acme' },
       {
@@ -194,9 +195,10 @@ describe('AppHeader', () => {
     expect(asSlot).toContain('data-custom-toggle=""')
   })
 
-  it('renders the documented UserMenu-as-userMenu composition (default-slot API, no renderPanel)', () => {
+  it('renders the documented UserMenu-as-userMenu composition (children API, no renderPanel)', () => {
     // Mirrors the module @example: UserMenu receives its settings panel as
-    // its DEFAULT SLOT — proving the documented prop shape is the real one.
+    // its DEFAULT SLOT (the Vue counterpart of React's children API) —
+    // proving the documented prop shape is the real one.
     const markup = render(
       {
         appName: 'Bearing',
