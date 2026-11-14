@@ -1,5 +1,11 @@
 # @molecule/api-deploy-rollout-fly
 
+## 2.0.2
+
+### Patch Changes
+
+- A Machine listing whose image is missing its registry or repository now reads as unreadable instead of as a second build.
+
 ## 2.0.0
 
 ### Major Changes

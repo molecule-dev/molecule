@@ -1,5 +1,11 @@
 # @molecule/api-ai-decisions-liquid-d1
 
+## 1.1.5
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.1.4
 
 ### Patch Changes

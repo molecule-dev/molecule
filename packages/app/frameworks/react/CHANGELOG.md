@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.5.0
+
+### Minor Changes
+
+- Add `useListRoute` (URL-backed pagination, filters and views, with a sign-in redirect for protected views) and `useConsumedSearchParam` (takes a one-time credential such as a reset token out of the URL), with the same options and results in every binding.
+
 ## 4.4.0
 
 ### Minor Changes

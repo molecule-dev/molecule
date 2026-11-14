@@ -1,5 +1,11 @@
 # @molecule/api-ai-alibaba
 
+## 1.2.1
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.2.0
 
 ### Minor Changes

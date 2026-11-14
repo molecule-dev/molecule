@@ -1,5 +1,13 @@
 # @molecule/app-ui-svelte
 
+## 1.1.1
+
+### Patch Changes
+
+- An open `Dropdown` no longer pulls focus back to its menu on a re-render after focus has left it, matching `@molecule/app-ui-react`.
+- Lists keep each item's DOM node, and the focused item its focus, when items are replaced by equal ones or reordered, keyed the same way as `@molecule/app-ui-react`.
+- Drop the unused `@molecule/app-auth` and `@molecule/app-routing` peer dependencies.
+
 ## 1.1.0
 
 ### Minor Changes

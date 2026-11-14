@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-feature-thread-tree-react",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Nested comment tree with collapse / collapse-deep / parent-line indicator. Recursive renderer with depth-based indentation, per-node collapse, and reply / vote slots.",
   "homepage": "https://www.molecule.dev/packages/app-feature-thread-tree-react",
   "type": "module",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.2.0",
-    "@molecule/app-react": "4.4.0",
+    "@molecule/app-react": "4.5.0",
     "@molecule/app-ui": "1.3.11",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

@@ -1,5 +1,11 @@
 # @molecule/api-ai-moonshot
 
+## 1.3.1
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.3.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.6.0
+
+### Minor Changes
+
+- Render lists and resource actions only when their query data is ready with QueryContent.
+
 ## 1.5.0
 
 ### Minor Changes

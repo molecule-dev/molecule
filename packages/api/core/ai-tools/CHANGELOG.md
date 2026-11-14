@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.18.8
+
+### Patch Changes
+
+- Normalize native test input roots and retain the reason for interrupted browser diagnostics.
+- Retain current-source browser test results across writes and keep diagnosis running beside HTTP clients.
+
 ## 1.18.7
 
 ### Patch Changes

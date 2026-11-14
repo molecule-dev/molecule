@@ -1,5 +1,11 @@
 # @molecule/api-ai-openai
 
+## 1.5.2
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.5.1
 
 ### Patch Changes

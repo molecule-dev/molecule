@@ -1,5 +1,11 @@
 # @molecule/app-realtime-socketio
 
+## 1.1.3
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.1.2
 
 ### Patch Changes

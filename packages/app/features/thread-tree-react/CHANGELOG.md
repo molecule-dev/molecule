@@ -1,5 +1,11 @@
 # @molecule/app-feature-thread-tree-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Render plain-text replies as complete, safely wrapped paragraphs while preserving rich content.
+
 ## 4.0.0
 
 ### Patch Changes

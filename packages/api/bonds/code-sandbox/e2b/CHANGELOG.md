@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.4.4
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.4.3
 
 ### Patch Changes

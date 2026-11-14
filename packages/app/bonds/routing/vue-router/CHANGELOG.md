@@ -1,5 +1,11 @@
 # @molecule/app-routing-vue-router
 
+## 1.0.8
+
+### Patch Changes
+
+- Navigation state of any kind stays with its history entry and the location key names the entry, so Back returns the state and key it had. `useListRoute` in the React Router bond is built on `resolveListRoute` from `@molecule/app-routing`.
+
 ## 1.0.7
 
 ### Patch Changes

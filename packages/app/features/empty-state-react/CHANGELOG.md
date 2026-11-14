@@ -1,5 +1,11 @@
 # @molecule/app-empty-state-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Pair a selected list view's empty message with a required recovery action.
+
 ## 4.0.0
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-detail-header-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Keep detail-header action composition in its existing actions slot.
+
 ## 4.0.0
 
 ### Patch Changes

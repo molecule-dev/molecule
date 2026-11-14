@@ -1,5 +1,11 @@
 # @molecule/api-ai-anthropic
 
+## 1.3.8
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.3.7
 
 ### Patch Changes

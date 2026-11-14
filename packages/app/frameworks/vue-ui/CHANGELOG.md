@@ -1,5 +1,11 @@
 # @molecule/app-ui-vue
 
+## 1.1.1
+
+### Patch Changes
+
+- Lists keep each item's DOM node, and the focused item its focus, when items are replaced by equal ones or reordered, keyed the same way as `@molecule/app-ui-react`.
+
 ## 1.1.0
 
 ### Minor Changes

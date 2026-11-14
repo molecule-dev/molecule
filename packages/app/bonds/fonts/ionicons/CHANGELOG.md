@@ -1,5 +1,11 @@
 # @molecule/app-fonts-ionicons
 
+## 1.1.5
+
+### Patch Changes
+
+- Declare `ioniconsUtilityCss` as `string`, so the type declarations no longer repeat the 59 KB stylesheet as a literal type.
+
 ## 1.1.3
 
 ### Patch Changes

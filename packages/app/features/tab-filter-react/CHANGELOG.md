@@ -1,5 +1,11 @@
 # @molecule/app-tab-filter-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Keep a default collection tab available across contextual view changes.
+
 ## 4.0.0
 
 ### Patch Changes

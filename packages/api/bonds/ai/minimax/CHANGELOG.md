@@ -1,5 +1,11 @@
 # @molecule/api-ai-minimax
 
+## 1.2.3
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.2.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-scheduler-postgresql
 
+## 1.1.4
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.1.3
 
 ### Patch Changes

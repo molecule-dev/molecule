@@ -1,5 +1,11 @@
 # @molecule/app-locales-routing
 
+## 1.0.5
+
+### Patch Changes
+
+- Translate the list-route and router-setup errors in every language, and drop the unused `routing.error.useMoleculeRouterOutsideProvider` key.
+
 ## 1.0.4
 
 ### Patch Changes

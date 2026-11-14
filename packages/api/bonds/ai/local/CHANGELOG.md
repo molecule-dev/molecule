@@ -1,5 +1,11 @@
 # @molecule/api-ai-local
 
+## 1.0.9
+
+### Patch Changes
+
+- Raise the `@molecule/*` peer dependency floor to the first version that exports everything this package imports.
+
 ## 1.0.8
 
 ### Patch Changes
