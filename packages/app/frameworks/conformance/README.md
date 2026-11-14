@@ -57,7 +57,15 @@ element (`@focus body>div:0>button:1`), plus every callback call and every servi
 
 Equal normalized DOM means equal pixels: the same elements, attributes, class tokens,
 inline styles and text, styled by the same ClassMap stylesheet, with no framework wrapper
-elements and no framework-injected styles. The normalizer removes only what cannot change
+elements and no framework-injected styles. A browser checks that claim: with
+`CONFORMANCE_PIXEL_DIR=<dir>` set, the step runner also stores every snapshot as a static
+page (`src/ui/pixel-capture.ts`: the raw `<html>` and `<body>`, live form state written into
+attributes, any stylesheet a framework injected; only the harness's `data-parity-unwrap`
+mount wrappers are unwrapped), and the workspace's `scripts/framework-pixel-parity.mjs`
+renders React's page and each framework's page for every case and step in Chromium with
+the ClassMap's real CSS and fails on any differing pixel, saving the React shot, the
+framework's shot and a diff. It first proves it can fail: one page rendered twice must
+match and the same page moved by 1px must not. The normalizer removes only what cannot change
 rendering: comment anchors, Angular compile-time attributes (`_ngcontent-*`, `_nghost-*`,
 `ng-reflect-*`, `ng-version`, the `mol-*` selector attribute), the harness's own
 `data-parity-unwrap` scaffolding, and whitespace that does not draw. Class tokens and

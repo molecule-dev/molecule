@@ -42,7 +42,7 @@ import {
   featureValue,
   sharedExportProblems,
 } from '../features/index.js'
-import { caseExports, type CaseResult } from '../ui/index.js'
+import { caseExports, type CaseResult, writePixelCapture } from '../ui/index.js'
 import { createReactAdapter } from './react-adapter.js'
 import { createReactBindingAdapter } from './react-bindings-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
@@ -182,6 +182,14 @@ for (const [name, module] of Object.entries(MODULES)) {
               testCase,
               feature.composition === 'app' ? { app: featureAppComposition } : undefined,
             )
+            if (result.pages) {
+              writePixelCapture('react', {
+                reference: name,
+                component: family.component,
+                case: testCase.name,
+                pages: result.pages,
+              })
+            }
             expect(errors, 'React logged errors or warnings').toEqual([])
             expect(result.snapshots.length).toBe((testCase.interactions ?? []).length + 1)
             const golden: CaseResult = { snapshots: result.snapshots, calls: result.calls }

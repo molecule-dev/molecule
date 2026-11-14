@@ -18,6 +18,7 @@ import { describe, expect, it } from 'vitest'
 import * as allCases from './cases/index.js'
 import { PSEUDO_LOCALE } from './environment.js'
 import goldensJson from './goldens.json' with { type: 'json' }
+import { writePixelCapture } from './pixel-capture.js'
 import type {
   AppComposition,
   CaseResult,
@@ -231,6 +232,14 @@ export function runCaseSuite(suite: CaseSuite, adapter: FrameworkAdapter, gaps: 
               testCase,
               suite.app ? { app: suite.app } : undefined,
             )
+            if (actual.pages) {
+              writePixelCapture(adapter.name, {
+                reference: suite.reference,
+                component: family.component,
+                case: testCase.name,
+                pages: actual.pages,
+              })
+            }
             const readableExpected = suite.readable?.[family.component]?.[testCase.name]?.snapshots
             for (let i = 0; i < expected.snapshots.length; i++) {
               const step =

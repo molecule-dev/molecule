@@ -8,6 +8,7 @@
 export * from './environment.js'
 export * from './fakes.js'
 export * from './normalize.js'
+export * from './pixel-capture.js'
 export * from './run.js'
 export * from './spec.js'
 export * from './steps.js'

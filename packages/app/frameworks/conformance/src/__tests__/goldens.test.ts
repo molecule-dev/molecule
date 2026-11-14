@@ -29,6 +29,7 @@ import {
   uiCaseFamilies,
   type UIGoldens,
   uiGoldens,
+  writePixelCapture,
 } from '../ui/index.js'
 import { reactAdapter } from './react-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
@@ -121,6 +122,14 @@ describe('React reference renders', () => {
       for (const testCase of family.cases) {
         it(testCase.name, async () => {
           const result = await reactAdapter.run(family.component, testCase)
+          if (result.pages) {
+            writePixelCapture('react', {
+              reference: '@molecule/app-ui-react',
+              component: family.component,
+              case: testCase.name,
+              pages: result.pages,
+            })
+          }
           expect(errors, 'React logged errors or warnings').toEqual([])
           expect(result.snapshots.length).toBe((testCase.interactions ?? []).length + 1)
           const golden: CaseResult = { snapshots: result.snapshots, calls: result.calls }

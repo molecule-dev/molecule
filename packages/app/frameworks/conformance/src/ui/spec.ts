@@ -399,6 +399,11 @@ export interface CaseResult {
   snapshots: string[]
   /** The same snapshots with real class names, for failure messages only. */
   readable?: string[]
+  /**
+   * Each snapshot as a static page for the pixel comparison, only while
+   * `CONFORMANCE_PIXEL_DIR` is set (see `pixel-capture.ts`). Never compared here.
+   */
+  pages?: string[]
   /** Callback and service calls, in order. */
   calls: RecordedCall[]
 }

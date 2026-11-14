@@ -14,6 +14,7 @@ import type { ThemeProvider } from '@molecule/app-theme'
 import { freshContainer, performDomInteraction, setCaseTranslations } from './environment.js'
 import { createFakeAuthClient, createFakeThemeProvider } from './fakes.js'
 import { normalizeArg, normalizeDom } from './normalize.js'
+import { capturePage, pixelCaptureDir } from './pixel-capture.js'
 import type {
   AppComposition,
   AppServices,
@@ -392,6 +393,7 @@ export async function runSteps(
   await loadReferenceStylesheet()
   const snapshots: string[] = []
   const readable: string[] = []
+  const pages: string[] | null = pixelCaptureDir() ? [] : null
   let mounted: MountedCase
   try {
     mounted = await mount(container)
@@ -421,6 +423,7 @@ export async function runSteps(
       } finally {
         styles.detach()
       }
+      pages?.push(capturePage(document))
     }
     await mounted.flush()
     snap()
@@ -435,7 +438,7 @@ export async function runSteps(
     if (testCase.fakeTimers) vi.useRealTimers()
     document.body.innerHTML = ''
   }
-  return { snapshots, readable, calls: recorder.calls }
+  return { snapshots, readable, ...(pages ? { pages } : {}), calls: recorder.calls }
 }
 
 /** The steps that still mean something once the component is gone: they settle what it started. */
