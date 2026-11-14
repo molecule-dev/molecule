@@ -23,6 +23,16 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
   const path: typeof Path = loadModule('node:path')
   const stopFile = path.join(config.directory, 'stop')
   const yielded = path.join(config.directory, 'yielded')
+  const reasonPath = path.join(config.directory, 'yield-reason.json')
+  let reason: { pid: number; kind: string } | undefined
+  const preemptedBy = (pid: string, kind: string): true => {
+    reason = { pid: Number(pid), kind }
+    return true
+  }
+  const recordYield = (): void => {
+    fs.writeFileSync(yielded, 'foreground')
+    if (reason) fs.writeFileSync(reasonPath, JSON.stringify(reason))
+  }
   if (!config.foreground)
     try {
       os.setPriority(0, 19)
@@ -66,7 +76,7 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
   const stop = (foreground = false): void => {
     if (done) return
     done = true
-    if (foreground) fs.writeFileSync(yielded, 'foreground')
+    if (foreground) recordYield()
     rememberChildren()
     // Chromium creates a separate process group. Remember descendants before
     // killing the launcher and verify start ticks so a reused PID is never hit.
@@ -148,18 +158,23 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
             executable,
           )
         )
-          return true
+          return preemptedBy(pid, 'package script')
         const native = argv
           .slice(0, 3)
           .some((a) => /(?:^|\/)(?:@playwright\/test|playwright(?:-core)?)(?:\/|$)/.test(a))
-        if (native || /^(?:playwright|fly|flyctl|vercel|netlify)$/.test(executable)) return true
-        if (argv.slice(1, 4).some((a) => a === 'deploy' || a === 'build')) return true
+        if (native || /^(?:playwright|fly|flyctl|vercel|netlify)$/.test(executable))
+          return preemptedBy(
+            pid,
+            native || executable === 'playwright' ? 'browser work' : 'deployment',
+          )
+        if (argv.slice(1, 4).some((a) => a === 'deploy' || a === 'build'))
+          return preemptedBy(pid, 'build/deploy')
         if (
           /^(?:npm|npx|pnpm|yarn|bun|corepack)(?:\.c?js)?$/.test(executable) ||
           argv.some((a) => /\/(?:npm|npx)-cli\.js$/.test(a))
         ) {
           if (argv.some((a) => /^(?:test(?::[\w-]+)?|e2e|build|deploy|install|ci|i|add)$/.test(a)))
-            return true
+            return preemptedBy(pid, 'test/build/deploy/install')
         }
       } catch (_error) {
         /* processes can exit between reads */
@@ -168,7 +183,7 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
     return false
   }
   if (fs.existsSync(stopFile) || foreground()) {
-    fs.writeFileSync(yielded, 'foreground')
+    recordYield()
     process.exitCode = 125
     return
   }

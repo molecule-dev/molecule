@@ -390,3 +390,35 @@ it('validates cached checkpoint outcomes against the newly loaded command withou
   expect((await watcher.check())[0].status).toBe('failed')
   expect(run).toHaveBeenCalledTimes(2)
 })
+
+it.each(['/inventory/e2e/', '/inventory/e2e/.', '/'])(
+  'invalidates selection under an absolute test root written as %s',
+  async (testRoot) => {
+    vi.useFakeTimers({ toFake: ['Date', 'performance', 'setTimeout', 'clearTimeout'] })
+    const run = vi.fn<PlaywrightFeedbackOptions['run']>(async (_spec, _files, revision) => {
+      if (run.mock.calls.length === 1) {
+        await vi.advanceTimersByTimeAsync(10)
+        watcher.changed(['/inventory/e2e/helpers/data.ts'])
+        await vi.advanceTimersByTimeAsync(10)
+      }
+      return result(revision, {
+        selectedTests: ['save'],
+        tests: [{ id: 'save', status: 'passed', startedAfter: performance.now() }],
+      })
+    })
+    const watcher = createPlaywrightFeedback({
+      load: async () => ({
+        sources: [],
+        testRoots: [testRoot],
+        specs: [{ path: SPEC, content: '', command: '', cwd: '/inventory' }],
+      }),
+      run,
+      debounceMs: 1,
+    })
+    watchers.push(watcher)
+    watcher.changed([source])
+    await watcher.settled()
+    expect(run).toHaveBeenCalledTimes(2)
+    expect(run.mock.calls[1][6]).toBeUndefined()
+  },
+)

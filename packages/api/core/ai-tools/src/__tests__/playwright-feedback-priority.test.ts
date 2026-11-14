@@ -345,6 +345,7 @@ it.each([
       command: () => command,
     })
     expect(result.status).toBe('cancelled')
+    expect(result.reason).toEqual(expect.stringMatching(/^yielded to .+ \(pid \d+\)$/))
     await expect(readFile(join(f.root, 'started.json'))).rejects.toThrow(/ENOENT/)
   },
 )

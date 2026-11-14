@@ -224,7 +224,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   let checking: Promise<PlaywrightFeedbackResult[]> | undefined
   const learnProject = (project: FeedbackProject): void => {
     root = project.root
-    testRoots = project.testRoots
+    testRoots = project.testRoots?.map((input) => posix.resolve(input))
     for (const spec of project.specs) {
       const identity = JSON.stringify([spec.cwd, spec.command])
       const previous = commands.get(spec.path)
@@ -647,7 +647,9 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           const absolute = root ? posix.resolve(root, path) : path
           return (
             commands.has(absolute) ||
-            testRoots!.some((input) => absolute === input || absolute.startsWith(input + '/'))
+            testRoots!.some(
+              (input) => input === '/' || absolute === input || absolute.startsWith(input + '/'),
+            )
           )
         })
       ) {
@@ -818,10 +820,16 @@ export async function runPlaywrightFeedback(
     // lever — the run's own global timeout bounds it.
     cancelling ??= backend.writeFile(posix.join(dir, 'stop'), '').catch((_error) => undefined)
   }
+  let yieldReason: string | undefined
   const cancelled = (): PlaywrightFeedbackResult => ({
     ...base,
     status: 'cancelled',
     durationMs: Date.now() - started,
+    ...(options.signal?.aborted
+      ? { reason: 'cancelled by host' }
+      : yieldReason
+        ? { reason: yieldReason }
+        : {}),
   })
   let poll: ReturnType<typeof setTimeout> | undefined,
     reading: Promise<void> | undefined,
@@ -951,7 +959,19 @@ export async function runPlaywrightFeedback(
     } catch (_error1) {
       /* the native run was not preempted */
     }
-    if (preempted) return await stoppedEarly()
+    if (preempted) {
+      try {
+        const reason = JSON.parse(await backend.readFile(posix.join(dir, 'yield-reason.json'))) as {
+          pid?: unknown
+          kind?: unknown
+        }
+        if (typeof reason.pid === 'number' && typeof reason.kind === 'string')
+          yieldReason = `yielded to ${reason.kind} (pid ${reason.pid})`
+      } catch (_error) {
+        // Older supervisors wrote only the yield marker; the reason remains unknown.
+      }
+      return await stoppedEarly()
+    }
     done = true
     if (poll) clearTimeout(poll)
     if (reading) await reading

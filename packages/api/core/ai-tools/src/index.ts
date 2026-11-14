@@ -44,7 +44,8 @@
  *   independent native CLI tests, builds, deploys and package installs in the project, but
  *   not to HTTP clients such as Hurl/curl, a type-check or lint, which do not own a browser or rebuild its target. It uses OS idle CPU/I/O
  *   priority and the highest OOM score, so a foreground command keeps the CPU and is not
- *   the process the kernel kills when memory runs out. Its
+ *   the process the kernel kills when memory runs out. Cancelled runs distinguish a host pause
+ *   from an OS-observed competing process, recording its kind and PID without command arguments. Its
  *   private temporary reports are not a user test result or something to poll.
  *   New writes let a started background file finish, retaining its outcome as a known failure
  *   when it fails. Native per-test clocks preserve tests begun after the latest write and deliver
