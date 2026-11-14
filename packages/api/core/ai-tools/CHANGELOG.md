@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.18.11
+
+### Patch Changes
+
+- Preserve every recorded native test failure when selecting background repair tests in large suites.
+- Deployed failure feedback now explains automatic replacement of platform-owned proofs while preserving user-started runs.
+- Re-run only completed native test failures in background feedback after later edits, preserving failed-test records and serial groups.
+
 ## 1.18.10
 
 ### Patch Changes

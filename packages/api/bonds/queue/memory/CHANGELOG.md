@@ -1,5 +1,11 @@
 # @molecule/api-queue-memory
 
+## 1.0.6
+
+### Patch Changes
+
+- A delayed or redelivered message that came due at a millisecond boundary is now delivered instead of waiting for the next queue event.
+
 ## 1.0.5
 
 ### Patch Changes

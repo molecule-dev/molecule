@@ -105,7 +105,7 @@
     "@molecule/api-push-notifications": "1.0.3",
     "@molecule/api-push-notifications-web-push": "1.0.3",
     "@molecule/api-queue": "1.1.2",
-    "@molecule/api-queue-memory": "1.0.5",
+    "@molecule/api-queue-memory": "1.0.6",
     "@molecule/api-queue-redis": "1.1.2",
     "@molecule/api-rate-limit": "1.0.4",
     "@molecule/api-rate-limit-memory": "1.0.3",
