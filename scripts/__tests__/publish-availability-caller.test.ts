@@ -59,12 +59,38 @@ const functions = [
   required('packument'),
   required('peerBlockReason'),
   required('blockedFailure'),
+  required('deferrable'),
   // Absent only from the pre-fix publisher, which never confirmed an ACK.
   declaration('refreshPackument') ?? '',
   declaration('confirmPublication') ?? '',
 ]
   .filter(Boolean)
   .join('\n')
+
+/**
+ * A top-level `const` from the publisher source, verbatim.
+ *
+ * @param name - Declared name.
+ * @returns Its statement text.
+ */
+function constant(name: string): string {
+  const found = file.statements.find(
+    (statement) =>
+      ts.isVariableStatement(statement) &&
+      statement.declarationList.declarations.some(
+        (declared) => ts.isIdentifier(declared.name) && declared.name.text === name,
+      ),
+  )
+  if (!found) throw new Error(`publish-paced.mjs no longer declares ${name}`)
+  return found.getText(file)
+}
+
+// The real wait bounds, so a test counts reads against what the publisher waits.
+const constants = [constant('SERVE_WAIT_MS'), constant('SERVE_POLL_MS')].join('\n')
+const { SERVE_WAIT_MS, SERVE_POLL_MS } = runInContext(
+  `${constants};\n({ SERVE_WAIT_MS, SERVE_POLL_MS })`,
+  createContext({}),
+) as { SERVE_WAIT_MS: number; SERVE_POLL_MS: number }
 
 const loop = file.statements.find(
   (statement) => ts.isForOfStatement(statement) && statement.expression.getText(file) === 'todo',
@@ -176,6 +202,9 @@ function harness(answers: Record<string, Answer | Answer[]>) {
   const queuedVersions = new Set<string>()
   const failed: FailureEntry[] = []
   const writes: string[] = []
+  // A fake clock: the publisher's sleep advances it, so a bounded wait ends at
+  // once instead of in real minutes.
+  let clock = 0
   const context = createContext({
     AbortSignal: { timeout: () => ({}) },
     Map,
@@ -200,7 +229,14 @@ function harness(answers: Record<string, Answer | Answer[]>) {
     awaitingPublication,
     failed,
     missingDependency,
-    sleep: async () => {},
+    sleep: async (ms: number) => {
+      clock += ms
+    },
+    now: () => clock,
+    deferred: new Set<string>(),
+    acknowledgedAt: new Map<string, number>(),
+    waitDeadlines: new Map<string, number>(),
+    afterAdmit: async () => {},
     DELAY_S: 0,
     inconclusive: [] as string[],
     queuedVersions,
@@ -236,23 +272,38 @@ function harness(answers: Record<string, Answer | Answer[]>) {
   }
 
   /**
+   * Runs the real requirement gate over a queue, in the publisher's own loop shape.
+   *
+   * @param pkgs - The queue, in publish order; all of it counts as queued.
+   * @param afterAdmit - What happens to an admitted package (an upload ACK, say).
+   * @returns The admitted package names, in the order the gate let them through.
+   */
+  const run = async (
+    pkgs: Publishable[],
+    afterAdmit: (pkg: Publishable) => Promise<unknown> = async () => {},
+  ) => {
+    for (const pkg of pkgs) queuedVersions.add(`${pkg.name}@${pkg.version}`)
+    context.todo = [...pkgs]
+    context.afterAdmit = afterAdmit
+    return (await runInContext(
+      `${functions}\n(async () => { ${constants}\nconst admitted = []\nfor (const pkg of todo) {\n${gate}\n` +
+        'admitted.push(pkg.name)\nawait afterAdmit(pkg)\n} return admitted })()',
+      context,
+    )) as string[]
+  }
+
+  /**
    * Runs the real requirement gate for one dependent.
    *
    * @param pkg - The package about to be published.
    * @returns How many packages the gate admitted.
    */
-  const admit = async (pkg: Publishable) => {
-    context.todo = [pkg]
-    return (await runInContext(
-      `${functions}\n(async () => { let admitted = 0\nfor (const pkg of todo) {\n${gate}\nadmitted++\n}` +
-        ' return admitted })()',
-      context,
-    )) as number
-  }
+  const admit = async (pkg: Publishable) => (await run([pkg])).length
 
   return {
     land,
     admit,
+    run,
     urls,
     failed,
     writes,
@@ -288,22 +339,67 @@ describe('the ACK branch exposes only a registry-confirmed version', () => {
     expect(h.failed).toEqual([])
   })
 
-  it('keeps a delayed ACK out of publishedThisRun and blocks its exact dependency', async () => {
+  it('blocks the exact dependent of a delayed ACK once the bounded wait ends unserved', async () => {
     const id = `${STOCK}@2.0.0`
     const h = harness({ [STOCK]: served('1.0.0') })
     const landed = await h.land(stock)
     expect(landed.published).not.toContain(id)
     expect(landed.awaiting).toEqual([[id, 'pending']])
     expect(await h.admit(consumerOfStock)).toBe(0)
+    expect(h.writes.join('')).toContain(`${id} is not served yet; moved to the end of the queue`)
     expect(h.failed).toHaveLength(1)
     expect(h.failed[0]).toMatchObject({
       name: '@molecule/app-storefront',
       reason: 'publication-pending',
     })
     expect(h.failed[0].error).toContain('npm acknowledged but the registry is not serving yet')
-    // One read for the ACK, one re-read when the dependent was gated — a
-    // bounded refresh, never a wait or a poll loop.
-    expect(h.urls.filter((name) => name === STOCK)).toHaveLength(2)
+    // One read for the ACK, one re-read each time the dependent is gated (first
+    // pass, end of the queue), then one per poll until SERVE_WAIT_MS after the
+    // ACK — bounded, never open-ended.
+    expect(h.urls.filter((name) => name === STOCK)).toHaveLength(3 + SERVE_WAIT_MS / SERVE_POLL_MS)
+  })
+
+  it('publishes the rest of the queue first, then the dependent once npm serves its requirement', async () => {
+    const h = harness({
+      [STOCK]: [served('1.0.0'), served('1.0.0'), served('1.0.0'), served('1.0.0', '2.0.0')],
+    })
+    await h.land(stock)
+    const independent = publishable({ name: '@molecule/api-unrelated', version: '1.0.0' })
+    expect(await h.run([consumerOfStock, independent])).toEqual([
+      '@molecule/api-unrelated',
+      '@molecule/app-storefront',
+    ])
+    expect(h.failed).toEqual([])
+    expect(h.publishedThisRun.has(`${STOCK}@2.0.0`)).toBe(true)
+  })
+
+  it('carries a dependent of a waiting package through the same run', async () => {
+    const base = publishable({ name: STOCK, version: '2.0.0' })
+    const middle = publishable({
+      name: '@molecule/api-stock-sync',
+      version: '1.0.0',
+      dependencies: { [STOCK]: '2.0.0' },
+    })
+    const top = publishable({
+      name: '@molecule/app-storefront',
+      version: '3.0.0',
+      dependencies: { '@molecule/api-stock-sync': '1.0.0' },
+    })
+    const independent = publishable({ name: '@molecule/api-unrelated', version: '1.0.0' })
+    const h = harness({
+      // ACK read, the middle package's first gate, then served on its wait.
+      [STOCK]: [served('1.0.0'), served('1.0.0'), served('1.0.0', '2.0.0')],
+      // Not served when the top package is first gated; served once uploaded.
+      '@molecule/api-stock-sync': [served(), served('1.0.0')],
+      '@molecule/api-unrelated': served('1.0.0'),
+    })
+    await h.land(base)
+    expect(await h.run([middle, top, independent], h.land)).toEqual([
+      '@molecule/api-unrelated',
+      '@molecule/api-stock-sync',
+      '@molecule/app-storefront',
+    ])
+    expect(h.failed).toEqual([])
   })
 
   it('keeps a delayed ACK out of publishedThisRun and blocks a required peer', async () => {

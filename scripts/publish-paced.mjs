@@ -33,10 +33,13 @@
  *    registry serves the version, so an ACK alone must never let a dependent
  *    require it. `publishedThisRun` holds only versions a registry read has seen
  *    served; an acknowledged version the registry does not serve yet is kept in
- *    `awaitingPublication` and blocks its dependents with `publication-pending`
- *    (not a requirement hold). The refresh is one bounded read per acknowledged
- *    name, never a wait per upload; the release's bounded propagation check owns
- *    the eventual-served verdict.
+ *    `awaitingPublication`. No upload waits for its own propagation. A dependent
+ *    that needs an unserved version moves to the END of the queue once, so the
+ *    rest of the queue publishes while the registry catches up; when it comes
+ *    round it waits for that version, at most SERVE_WAIT_MS from its ACK, and only
+ *    then is blocked with `publication-pending` (not a requirement hold) for a
+ *    re-dispatch to resume. The release's bounded propagation check owns the
+ *    eventual-served verdict.
  *
  * Usage:
  *   node scripts/publish-paced.mjs --limit 1              # first probe after a cooldown
@@ -47,6 +50,7 @@ import { execFileSync } from 'node:child_process'
 import console from 'node:console'
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { performance } from 'node:perf_hooks'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
@@ -108,6 +112,16 @@ const REVIEW_HOLD = new Set(
 )
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+const now = () => performance.now()
+
+// npm serves a new version 20–100 s after it acknowledges the upload, and the
+// queue reaches a dependent about DELAY_S after its requirement. Failing that
+// dependent sent it, and everything behind it, to a second dispatch: a whole
+// workflow run and build of its own (Release 43572836181, 2026-11-14: 18 of 183
+// packages). So the dependent goes to the end of the queue once, and when it
+// comes round it waits for the requirement, at most this long from the ACK.
+const SERVE_WAIT_MS = 10 * 60_000
+const SERVE_POLL_MS = 15_000
 
 /**
  * Every publishable `@molecule` package on disk.
@@ -521,6 +535,27 @@ let attempted = 0
 // gate may let a dependent require only a version npm actually serves.
 const publishedThisRun = new Set()
 const queuedVersions = new Set(todo.map((p) => `${p.name}@${p.version}`))
+// Packages moved once to the end of the queue to wait for a requirement.
+const deferred = new Set()
+// name@version → when npm acknowledged this run's upload of it, for the wait above.
+const acknowledgedAt = new Map()
+// name@version → the time a deferred dependent stops waiting for it.
+const waitDeadlines = new Map()
+
+/**
+ * Whether a blocked package can wait at the end of the queue rather than fail:
+ * its requirement is this run's acknowledged upload that npm does not serve yet,
+ * or a queued version that is itself waiting at the end of the queue (and so
+ * comes round before it).
+ *
+ * @param missing - What the requirement gate returned.
+ * @returns True when the requirement can still become installable in this run.
+ */
+function deferrable(missing) {
+  if (missing.why === 'not-served-yet') return true
+  if (missing.why !== undefined && missing.why !== 'not-published-yet') return false
+  return deferred.has(missing.name) && queuedVersions.has(`${missing.name}@${missing.version}`)
+}
 
 for (const pkg of todo) {
   if (abortReason) break
@@ -572,6 +607,24 @@ for (const pkg of todo) {
     const id = `${missingDep.name}@${missingDep.version}`
     if (reconfirmed.has(id) || !awaitingPublication.has(id)) break
     reconfirmed.add(id)
+    await confirmPublication(missingDep.name, missingDep.version)
+    missingDep = await evaluate()
+  }
+  if (missingDep && !deferred.has(pkg.name) && deferrable(missingDep)) {
+    deferred.add(pkg.name)
+    todo.push(pkg)
+    process.stderr.write(
+      `  … ${pkg.name}: ${missingDep.name}@${missingDep.version} is not served yet; moved to the end of the queue\n`,
+    )
+    continue
+  }
+  // Second time round: wait for the requirement, bounded from its ACK.
+  while (missingDep?.why === 'not-served-yet' && deferred.has(pkg.name)) {
+    const id = `${missingDep.name}@${missingDep.version}`
+    if (!waitDeadlines.has(id))
+      waitDeadlines.set(id, (acknowledgedAt.get(id) ?? now()) + SERVE_WAIT_MS)
+    if (now() >= waitDeadlines.get(id)) break
+    await sleep(SERVE_POLL_MS)
     await confirmPublication(missingDep.name, missingDep.version)
     missingDep = await evaluate()
   }
@@ -872,11 +925,13 @@ for (const pkg of todo) {
     // version only when this read lists it. A slow registry is not a failure of
     // this package: the release's own bounded propagation wait owns that verdict
     // (scripts/release.mjs → awaitPropagation), so the run records the pending
-    // publication and keeps going. A dependent that needs it is blocked by the
-    // gate with `publication-pending`. A later dispatch skips this version once
+    // publication and keeps going. A dependent that needs it waits at the end of
+    // the queue, and is blocked with `publication-pending` only when the registry
+    // still does not serve it SERVE_WAIT_MS after this ACK. A later dispatch skips this version once
     // its scan sees it served. While metadata still lags, another dispatch may
     // attempt the upload and receive a conflict; this is not durable ACK recovery.
     const availability = await confirmPublication(pkg.name, pkg.version)
+    if (availability !== 'served') acknowledgedAt.set(`${pkg.name}@${pkg.version}`, now())
     // One line PER package, as it happens. The summary alone ("6/6 published")
     // cannot say WHICH packages landed or how — on 2026-09-02 a run reported 6/6
     // while npm never served @molecule/app-ide-react@1.10.0, and nothing in the
@@ -887,7 +942,7 @@ for (const pkg of todo) {
         (availability === 'served'
           ? ''
           : ` \u2014 npm acknowledged it; the registry is not serving it yet (${availability})`) +
-        ` (${done}/${todo.length})\n`,
+        ` (${done}/${todo.length - deferred.size})\n`,
     )
     await sleep(DELAY_S * 1000)
   } else if (!failed.some((f) => f.name === pkg.name)) {
@@ -896,7 +951,7 @@ for (const pkg of todo) {
 }
 
 process.stderr.write(
-  `\nDONE. published this run: ${done}/${todo.length} queued | fleet: ${all.length} | failures: ${failed.length}` +
+  `\nDONE. published this run: ${done}/${todo.length - deferred.size} queued | fleet: ${all.length} | failures: ${failed.length}` +
     (inconclusive.length ? ` | inconclusive (NOT published): ${inconclusive.length}` : '') +
     (awaitingPublication.size
       ? ` | acknowledged, not yet served: ${awaitingPublication.size}`

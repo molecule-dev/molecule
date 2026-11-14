@@ -17,7 +17,13 @@ const file = ts.createSourceFile('publish-paced.mjs', source, ts.ScriptTarget.La
  */
 const declaration = (name: string) =>
   file.statements.find((s) => ts.isFunctionDeclaration(s) && s.name?.text === name) ?? null
-const functions = ['packument', 'peerBlockReason', 'blockedFailure', 'confirmPublication']
+const functions = [
+  'packument',
+  'peerBlockReason',
+  'blockedFailure',
+  'deferrable',
+  'confirmPublication',
+]
   .map((name) => {
     const found = declaration(name)
     // `confirmPublication` exists only in the source that records an upload ACK
@@ -78,6 +84,12 @@ async function runGate(status: number, versions: string[] = [], unknown: string[
     // the confirmation state that fills this map.
     awaitingPublication: new Map(),
     cycleNotes: new Map(),
+    // None of these classifications can wait at the end of the queue.
+    deferred: new Set(),
+    acknowledgedAt: new Map(),
+    waitDeadlines: new Map(),
+    now: () => 0,
+    sleep: async () => {},
     failed,
     missingDependency,
     process: { stderr: { write: (text: string) => writes.push(text) } },
