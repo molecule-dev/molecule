@@ -212,9 +212,11 @@ export interface HookCases {
    */
   render?: 'text'
   /**
-   * `true` when the hook's first argument (its options) changes between
-   * renders without a remount, the way an app re-renders `useChat` with a new
-   * `endpoint` to switch conversation. See {@link MountOptions.reactiveArgs}.
+   * `true` when the hook's arguments change between renders without a remount,
+   * the way an app re-renders `useChat` with a new `endpoint` to switch
+   * conversation or `useHttp` with a new url. Every family whose cases have an
+   * `args` step sets it (the kit's own tests refuse one that does not). See
+   * {@link MountOptions.reactiveArgs}.
    */
   reactiveArgs?: boolean
   cases: HookCase[]
@@ -230,13 +232,22 @@ export interface MountOptions {
    */
   render?: 'text'
   /**
-   * `true`: pass `args[0]` as the framework's reactive value (Vue a ref,
-   * Solid an accessor, Svelte a readable store, Angular a signal), and make
-   * `setArgs` set it to the new `args[0]` on the SAME mount instead of
-   * re-mounting the host. React re-renders the hook with the new options; the
-   * binding follows the reactive value the same way.
+   * `true`: the hook takes each argument as a plain value or as the framework's
+   * reactive source (Vue a ref, Solid an accessor, Svelte a readable store,
+   * Angular a signal). Pass EVERY argument position up to {@link arity} as a
+   * reactive source holding that position's value (`undefined` past the end of
+   * the arguments), and make `setArgs` set each source to its new value on the
+   * SAME mount. React re-renders the hook with the new arguments; the binding
+   * follows its reactive arguments the same way, so nothing has to carry state
+   * from one mount to the next. Without it, `setArgs` throws: a hook whose
+   * arguments change must follow them, never be re-mounted.
    */
   reactiveArgs?: boolean
+  /**
+   * With {@link reactiveArgs}: how many argument positions to pass, the longest
+   * argument list the case mounts with or changes to.
+   */
+  arity?: number
 }
 
 /**
@@ -274,7 +285,10 @@ export interface MountedHook {
    * Angular signal). Plain values are returned as they are.
    */
   read(value: unknown): unknown
-  /** Re-renders the host with new hook arguments. */
+  /**
+   * Gives the mounted hook new arguments: React re-renders the host; every other
+   * framework sets its reactive arguments (see {@link MountOptions.reactiveArgs}).
+   */
   setArgs(args: unknown[]): Promise<void>
   /** Flushes the framework's pending work. */
   flush(): Promise<void>

@@ -4,11 +4,12 @@
  * @module
  */
 
-import type { Readable } from 'svelte/store'
+import { get, type Readable } from 'svelte/store'
 
 import type { Store } from '@molecule/app-state'
 
 import { useSyncExternalStore } from './external-store.js'
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 /** Options for {@link useStore}. */
 export interface UseStoreOptions<T, S> {
@@ -22,17 +23,23 @@ export interface UseStoreOptions<T, S> {
  * Subscribes a store with an optional selector and equality function, React's
  * `useStore` in Svelte's idiom: a readable store of the selected value.
  *
+ * The store argument may be the store itself (a molecule store has `getState`
+ * AND `subscribe`, and is always a VALUE, never a source) or a readable store
+ * OF a store: setting it re-subscribes to the new store and re-reads its
+ * snapshot on the same component, the way React's re-render does. The options
+ * (or a store of them) are read whenever the snapshot is.
+ *
  * The store is the argument, so this hook needs NO state provider: it reads
- * `store.getState()` and subscribes with `store.subscribe()`. When
- * `equalityFn` says a new selected value equals the previous one, the previous
- * result is kept (the same value, not a fresh object).
+ * `store.getState()` and subscribes with `store.subscribe()`. When `equalityFn`
+ * says a new selected value equals the previous one, the previous result is
+ * kept (the same value, not a fresh object).
  *
  * The selector and equality function run with the same cadence as React's
  * `useSyncExternalStore` binding, because React re-reads its snapshot around
  * every render; {@link useSyncExternalStore} documents the cadence.
  *
- * @param store - The store to subscribe to.
- * @param options - Hook options (selector, equalityFn).
+ * @param store - The store to subscribe to (or a readable store of it).
+ * @param options - Hook options (selector, equalityFn), or a store of them.
  * @returns A readable store of the selected state.
  * @example
  * ```svelte
@@ -45,27 +52,58 @@ export interface UseStoreOptions<T, S> {
  * <p>{$count} / {$doubled}</p>
  * ```
  */
-export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T, S>): Readable<S> {
-  const { selector, equalityFn } = options ?? {}
+export function useStore<T, S = T>(
+  store: MaybeReadable<Store<T>>,
+  options?: MaybeReadable<UseStoreOptions<T, S> | undefined>,
+): Readable<S> {
+  const storeStore = toReadable(store)
+  const optionsStore = toReadable(options)
+
+  // The store currently subscribed: setting the source re-subscribes, as
+  // React's subscribe callback (keyed on the store) does on a re-render.
+  let currentStore = get(storeStore) as Store<T>
+  let stopStore: (() => void) | null = null
+  let stopSource: (() => void) | null = null
 
   // The previous selected value (React's prevSelectedRef): while an equality
   // function accepts it, it stays the result, so its identity is stable.
   let previous: S | undefined
 
-  return useSyncExternalStore<S>(
-    (onChange) => store.subscribe(onChange),
-    () => {
-      const state = store.getState()
-      const selected = selector ? selector(state) : (state as unknown as S)
-      // With an equality function and a previous value, an equal selection
-      // keeps the previous result — the same value, not a fresh object.
-      if (equalityFn && previous !== undefined) {
-        if (equalityFn(previous, selected)) return previous
-      }
-      previous = selected
-      return selected
-    },
-  )
+  const getSnapshot = (): S => {
+    const { selector, equalityFn } = get(optionsStore) ?? {}
+    const state = currentStore.getState()
+    const selected = selector ? selector(state) : (state as unknown as S)
+    // With an equality function and a previous value, an equal selection
+    // keeps the previous result — the same value, not a fresh object.
+    if (equalityFn && previous !== undefined) {
+      if (equalityFn(previous, selected)) return previous
+    }
+    previous = selected
+    return selected
+  }
+
+  const subscribe = (onChange: () => void): (() => void) => {
+    stopStore = currentStore.subscribe(onChange)
+    // A new store in the source re-subscribes and re-checks the snapshot, the
+    // way React's useSyncExternalStore does when its subscribe function
+    // changes. The store calls back at once with the store already read.
+    stopSource = storeStore.subscribe((next) => {
+      const incoming = next as Store<T>
+      if (Object.is(incoming, currentStore)) return
+      currentStore = incoming
+      stopStore?.()
+      stopStore = currentStore.subscribe(onChange)
+      onChange()
+    })
+    return () => {
+      stopSource?.()
+      stopStore?.()
+      stopSource = null
+      stopStore = null
+    }
+  }
+
+  return useSyncExternalStore<S>(subscribe, getSnapshot)
 }
 
 /**

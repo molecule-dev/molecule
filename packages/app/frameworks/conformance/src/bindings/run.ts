@@ -157,11 +157,18 @@ export async function runHookCase(
     // at mount.
     recorder.calls.length = 0
     const snapshots: unknown[] = []
+    // A reactive hook gets one source per argument position the case ever uses.
+    const arity = Math.max(
+      testCase.args?.length ?? 0,
+      ...(testCase.steps ?? []).map((s) =>
+        s.type === 'args' || s.type === 'remount' ? (s.args?.length ?? 0) : 0,
+      ),
+    )
     const mountOptions: MountOptions | undefined =
       family?.render || family?.reactiveArgs
         ? {
             ...(family.render ? { render: family.render } : {}),
-            ...(family.reactiveArgs ? { reactiveArgs: true } : {}),
+            ...(family.reactiveArgs ? { reactiveArgs: true, arity } : {}),
           }
         : undefined
     // The composition root gets every service but those the case omits; the runner keeps them all.

@@ -6,6 +6,7 @@
  */
 
 export * from './environment.js'
+export * from './reactive-args.js'
 export * from './run.js'
 export * from './services.js'
 export * from './spec.js'

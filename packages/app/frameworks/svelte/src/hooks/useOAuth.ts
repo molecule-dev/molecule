@@ -29,10 +29,13 @@
  */
 
 import { onDestroy } from 'svelte'
+import { createSubscriber } from 'svelte/reactivity'
+import { get } from 'svelte/store'
 
 import { t } from '@molecule/app-i18n'
 
 import { useAuthClient } from '../context.js'
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 /** What `onError` gets when the server gives no reason of its own. */
 const oauthFailed = (): string =>
@@ -69,8 +72,14 @@ interface OAuthRelayMessage {
  * Return type for useOAuth hook.
  */
 export interface UseOAuthReturn {
-  /** The configured provider names. */
-  providers: string[]
+  /**
+   * The configured provider names (React's `string[]`), read live: each read
+   * returns the list the current config holds, and a read in markup or
+   * `$derived` re-runs when a config store changes. Read it off the result
+   * (`oauth.providers`); a destructured copy keeps the list of the moment it
+   * was taken.
+   */
+  readonly providers: string[]
   /** Builds the provider's initiation URL (provider encoded as one path segment). */
   getOAuthUrl: (provider: string) => string
   /** Full-page redirect to the provider (default). The opener page navigates away. */
@@ -118,22 +127,33 @@ export interface UseOAuthConfig {
  * when the callback is running inside a popup we opened, relaying the result
  * to the opener instead.
  *
- * @param config - Optional OAuth configuration override.
+ * The config may be a plain value or a readable store of one (a store holding
+ * `undefined` means no config): every field — the provider list, the URL
+ * pieces, the callbacks, the `navigate` option — is read at the moment it is
+ * used, so setting the store retargets the next `getOAuthUrl`/`redirect`/popup
+ * flow on the same component, the way React's re-render does. `providers` is
+ * React's `string[]`, read live (see {@link UseOAuthReturn.providers}). The
+ * callback exchange, when it finds a `code` in the URL, runs once with the
+ * config the hook was called with.
+ *
+ * @param config - Optional OAuth configuration override (or a store of it).
  * @returns OAuth helpers: providers, getOAuthUrl, redirect, and loginViaPopup.
  * @example
  * ```svelte
  * <script>
  *   import { useOAuth } from '@molecule/app-svelte'
- *   const { providers, loginViaPopup } = useOAuth()
+ *   const oauth = useOAuth()
  * </script>
  *
- * {#each providers as provider}
- *   <button onclick={() => loginViaPopup(provider)}>Login with {provider}</button>
+ * {#each oauth.providers as provider}
+ *   <button onclick={() => oauth.loginViaPopup(provider)}>Login with {provider}</button>
  * {/each}
  * ```
  */
-export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
+export function useOAuth(config?: MaybeReadable<UseOAuthConfig | undefined>): UseOAuthReturn {
   const authClient = useAuthClient()
+  const configStore = toReadable(config)
+  const current = (): UseOAuthConfig | undefined => get(configStore)
 
   // Whether the component is mounted, read when a flow settles.
   let mounted = true
@@ -141,12 +161,23 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
     mounted = false
   })
 
-  const providers = config?.oauthProviders ?? []
-  const baseURL = config?.baseURL ?? ''
-  const oauthEndpoint = config?.oauthEndpoint ?? '/oauth'
-  const loginEndpoint = config?.loginEndpoint ?? '/users/log-in/oauth'
+  // `providers` is read live, like React's re-rendered array: a read inside markup or an
+  // effect subscribes the config store (a plain config's constant store never notifies),
+  // so a changed config re-runs it. The store's synchronous first call is the value the
+  // read already returns, not a change.
+  const trackConfig = createSubscriber((update) => {
+    let started = false
+    const unsubscribe = configStore.subscribe(() => {
+      if (started) update()
+    })
+    started = true
+    return unsubscribe
+  })
 
   const getOAuthUrl = (provider: string): string => {
+    const now = current()
+    const baseURL = now?.baseURL ?? ''
+    const oauthEndpoint = now?.oauthEndpoint ?? '/oauth'
     // Encode the provider as a single path segment so a (future) caller passing an
     // untrusted value can never inject a path/query/scheme into the opened URL —
     // defense-in-depth on top of the upstream static provider allowlist. Plain
@@ -199,9 +230,9 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
     return false
   }
 
-  const navigateOption = config?.navigate
   /** Leaves the page for the provider: the `navigate` option, else a full-page navigation. */
   const leaveFor = (url: string): void => {
+    const navigateOption = current()?.navigate
     if (navigateOption) navigateOption(url)
     else window.location.href = url
   }
@@ -275,11 +306,11 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
       if (data.ok) {
         void establishSession(data.token, data.user).then((ok) => {
           if (!mounted) return
-          if (ok) config?.onSuccess?.()
-          else config?.onError?.(oauthFailed())
+          if (ok) current()?.onSuccess?.()
+          else current()?.onError?.(oauthFailed())
         })
       } else if (mounted) {
-        config?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
+        current()?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
       }
     }
 
@@ -359,7 +390,11 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
           }
         }
 
-        // Exchange code for session
+        // Exchange code for session, with the config the hook was called with
+        // (React's mount effect reads its config once).
+        const configNow = current()
+        const baseURL = configNow?.baseURL ?? ''
+        const loginEndpoint = configNow?.loginEndpoint ?? '/users/log-in/oauth'
         const exchangeCode = async (): Promise<void> => {
           try {
             const response = await fetch(`${baseURL}${loginEndpoint}`, {
@@ -384,7 +419,7 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
                 relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
                 return
               }
-              if (mounted) config?.onError?.(error)
+              if (mounted) configNow?.onError?.(error)
               return
             }
 
@@ -414,15 +449,15 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
             // Full-page callback: establish the session here, then fire onSuccess.
             const ok = await establishSession(token, user)
             if (!mounted) return
-            if (ok) config?.onSuccess?.()
-            else config?.onError?.(oauthFailed())
+            if (ok) configNow?.onSuccess?.()
+            else configNow?.onError?.(oauthFailed())
           } catch (err) {
             const error = err instanceof Error ? err.message : oauthFailed()
             if (inPopup) {
               relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
               return
             }
-            if (mounted) config?.onError?.(error)
+            if (mounted) configNow?.onError?.(error)
           }
         }
 
@@ -432,7 +467,10 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
   }
 
   return {
-    providers,
+    get providers() {
+      trackConfig()
+      return current()?.oauthProviders ?? []
+    },
     getOAuthUrl,
     redirect,
     loginViaPopup,

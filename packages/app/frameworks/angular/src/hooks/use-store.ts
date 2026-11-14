@@ -5,11 +5,12 @@
  * @module
  */
 
-import { inject, type Signal } from '@angular/core'
+import { effect, inject, type Signal, untracked } from '@angular/core'
 
 import { t } from '@molecule/app-i18n'
 import type { StateProvider, Store } from '@molecule/app-state'
 
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { STATE_PROVIDER } from '../tokens.js'
 import { useExternalStore } from './external-store.js'
 
@@ -80,22 +81,34 @@ export function useStateProvider(): StateProvider {
  * `createStoreWithActions()` / `createStore()` a provider package exports — is
  * therefore as valid here as one `@molecule/app-state`'s `createStore()` made.
  *
- * @param store - The store to subscribe to.
- * @param options - Hook options (`selector`, `equalityFn`).
+ * The arguments may be signals: a new store is subscribed in place of the old
+ * one (the old subscription is dropped first) and new options are applied on
+ * the next read, the way React re-renders `useStore` with new arguments. The
+ * previous selected value the equality function compares survives the change,
+ * as React's ref does.
+ *
+ * @param store - The store to subscribe to (or a signal of it).
+ * @param options - Hook options (`selector`, `equalityFn`), or a signal of them.
  * @returns A signal of the selected state.
  */
-export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T, S>): Signal<S> {
-  const { selector, equalityFn } = options ?? {}
+export function useStore<T, S = T>(
+  store: MaybeSignal<Store<T>>,
+  options?: MaybeSignal<UseStoreOptions<T, S>>,
+): Signal<S> {
+  const initialOptions = readMaybeSignal(options)
+  let currentStore = readMaybeSignal(store)
+  let currentSelector = initialOptions?.selector
+  let currentEquality = initialOptions?.equalityFn
 
   // The previous selected value for the equality comparison, exactly like
   // React's ref: an equal selection keeps the previous result (its identity).
   let prevSelected: S | undefined
 
   const read = (): S => {
-    const state = store.getState()
-    const selected = selector ? selector(state) : (state as unknown as S)
-    if (equalityFn && prevSelected !== undefined) {
-      if (equalityFn(prevSelected, selected)) {
+    const state = currentStore.getState()
+    const selected = currentSelector ? currentSelector(state) : (state as unknown as S)
+    if (currentEquality && prevSelected !== undefined) {
+      if (currentEquality(prevSelected, selected)) {
         return prevSelected
       }
     }
@@ -103,7 +116,41 @@ export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T,
     return selected
   }
 
-  return useExternalStore(read, (onStoreChange) => store.subscribe(onStoreChange))
+  // The store's notifications feed the external-store bridge's own callback
+  // (its read discipline); the subscription is re-keyed when the store source
+  // changes, as React's useSyncExternalStore re-subscribes when its store
+  // does.
+  let notifyStore: (() => void) | null = null
+  let stop: (() => void) | null = null
+  const state = useExternalStore(read, (notify) => {
+    notifyStore = notify
+    stop = currentStore.subscribe(() => notify())
+    return () => stop?.()
+  })
+
+  effect(() => {
+    const nextStore = readMaybeSignal(store)
+    const nextOptions = readMaybeSignal(options)
+    const nextSelector = nextOptions?.selector
+    const nextEquality = nextOptions?.equalityFn
+    if (
+      nextStore === currentStore &&
+      nextSelector === currentSelector &&
+      nextEquality === currentEquality
+    ) {
+      return
+    }
+    currentStore = nextStore
+    currentSelector = nextSelector
+    currentEquality = nextEquality
+    untracked(() => {
+      stop?.()
+      stop = currentStore.subscribe(() => notifyStore?.())
+      notifyStore?.()
+    })
+  })
+
+  return state
 }
 
 /**

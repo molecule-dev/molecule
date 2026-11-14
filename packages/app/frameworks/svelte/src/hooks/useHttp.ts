@@ -5,13 +5,14 @@
  */
 
 import { onDestroy } from 'svelte'
-import { type Readable, writable } from 'svelte/store'
+import { get, type Readable, writable } from 'svelte/store'
 
 import type { HttpResponse, RequestConfig } from '@molecule/app-http'
 import { t } from '@molecule/app-i18n'
 
 import { useHttpClient } from '../context.js'
 import { fieldStore } from './live-store.js'
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 /** State for async HTTP operations. */
 export interface UseHttpState<T> {
@@ -62,49 +63,25 @@ export interface UseHttpOptions<T> extends RequestConfig {
 }
 
 /**
- * The request lane one host owns across the mounts an `args` step makes of the
- * hook: React re-renders ONE instance when its arguments change, while a
- * Svelte host re-mounts, so the replacing mount adopts this lane — the request
- * counter continues, the mount-time `immediate` fetch does not repeat, a
- * pending request stays armed and its published state carries over.
- *
- * A mount after the lane's disarm timer has cleared it (an unmount with no
- * replacement in the same turn — a `remount` step, or the case's final
- * unmount) is a genuinely new component and starts fresh.
- */
-interface HttpLane {
-  /** The request that currently owns the lane's displayed state. */
-  latest: number
-  /** Whether this host's mount-time `immediate` request already ran. */
-  ranImmediate: boolean
-  /** React's mounted flag: false once the host is gone with no replacement. */
-  dead: boolean
-  /** The state the live mount last published; the replacing mount starts here. */
-  state: UseHttpState<unknown>
-  /** The live mount's state writer; the latest mount's store wins. */
-  sink: {
-    patch: (next: Partial<UseHttpState<unknown>>) => void
-  } | null
-}
-
-/** The previous host's lane, alive until its disarm timer runs. */
-let handoff: HttpLane | null = null
-
-/**
  * HTTP requests with state management, React's `useHttp` in Svelte's idiom:
  * call it during component init under `setMoleculeContext({ http })`.
+ *
+ * Every argument may be a plain value or a readable store of one (a store
+ * holding `undefined` means the argument was omitted): `method`, `url` and the
+ * request options are read at the moment `execute` runs, so setting the `url`
+ * store retargets the next `execute` on the same component, the way React's
+ * re-render does. `immediate` is read on mount only — its request runs once per
+ * component even when the arguments change later.
  *
  * The newest request owns the displayed state: an older response answering
  * after a newer `execute` or `reset` cannot touch it (callbacks still report
  * every request's own outcome). A failure resolves `null` — it never rejects
  * to the caller. `reset` takes ownership too, so a request it superseded
- * cannot repopulate the state. `execute` keeps one identity per mount, and its
- * options are read at call time. `immediate` runs its request once per host,
- * on mount only, even when the host re-mounts the hook with new arguments.
+ * cannot repopulate the state.
  *
- * @param method - HTTP method.
- * @param url - Request URL.
- * @param options - Request options, read at call time.
+ * @param method - HTTP method (or a store of it).
+ * @param url - Request URL (or a store of it).
+ * @param options - Request options, read at call time (or a store of them).
  * @returns Request state as stores and the controls.
  * @example
  * ```svelte
@@ -119,108 +96,78 @@ let handoff: HttpLane | null = null
  * ```
  */
 export function useHttp<T>(
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  url: string,
-  options?: UseHttpOptions<T>,
+  method: MaybeReadable<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'>,
+  url: MaybeReadable<string>,
+  options?: MaybeReadable<UseHttpOptions<T> | undefined>,
 ): UseHttpResult<T> {
   const client = useHttpClient()
-  const immediate = options?.immediate ?? false
+  const methodStore = toReadable(method)
+  const urlStore = toReadable(url)
+  const optionsStore = toReadable(options)
+  const immediate = get(optionsStore)?.immediate ?? false
 
-  // A mount in the same turn as the previous host's destroy is React's
-  // re-render (an args step), not a new component: adopt its lane so the
-  // pending request stays armed and `immediate` does not repeat.
-  const adopted = handoff
-  handoff = null
-  const lane: HttpLane = adopted ?? {
-    latest: 0,
-    ranImmediate: false,
-    dead: false,
-    state: { data: null, loading: false, error: null },
-    sink: null,
-  }
-  if (adopted) adopted.dead = false
-
-  // The displayed state starts from the lane's last published state (what
-  // React's single instance kept), or from the initial one; the lane mirrors
-  // exactly what the store shows, so a replacing mount reads the same values.
-  const initialState: UseHttpState<unknown> = {
-    data: adopted ? lane.state.data : null,
-    loading: adopted ? lane.state.loading : immediate,
-    error: adopted ? lane.state.error : null,
-  }
-  const state = writable<UseHttpState<unknown>>(initialState)
-  lane.state = { ...initialState }
-  lane.sink = {
-    patch: (next) => {
-      if (next.data !== undefined) {
-        lane.state.data = next.data
-        state.update((current) => ({ ...current, data: next.data }))
-      }
-      // Read once into locals: the narrowed type is lost inside the updater
-      // closure (`state.update` runs later).
-      const loading = next.loading
-      if (loading !== undefined) {
-        lane.state.loading = loading
-        state.update((current) => ({ ...current, loading }))
-      }
-      const error = next.error
-      if (error !== undefined) {
-        lane.state.error = error
-        state.update((current) => ({ ...current, error }))
-      }
-    },
+  const state = writable<UseHttpState<unknown>>({
+    data: null,
+    loading: immediate,
+    error: null,
+  })
+  /** Applies one state patch; `undefined` fields are left alone. */
+  const patch = (next: Partial<UseHttpState<unknown>>): void => {
+    state.update((current) => ({ ...current, ...next }))
   }
 
+  // React's mounted flag: false once the component is gone, so a late answer
+  // settles quietly (no state write, no callback) as it does there.
+  let mounted = true
   onDestroy(() => {
-    lane.sink = null
-    lane.dead = true
-    // Offer the lane to a mount in the same turn (React's re-render); the
-    // timer clears it when no replacement adopted, so a mount after a settled
-    // teardown starts fresh.
-    handoff = lane
-    const offered = lane
-    setTimeout(() => {
-      if (handoff === offered) handoff = null
-    }, 0)
+    mounted = false
   })
 
+  // The newest request owns the state. Without this, an older request that
+  // answers after a newer one (a slow first load, then a refetch) overwrote the
+  // newer data and cleared `loading` while the newer request was still in flight.
+  // `reset` takes ownership too, so a request it superseded cannot repopulate.
+  let latestRequest = 0
+
   const execute = async (): Promise<T | null> => {
-    if (lane.dead) return null
+    if (!mounted) return null
 
     // Options describe the request being sent, read at call time; method/url/
     // client decide WHICH request execute performs.
-    const { immediate: _immediate, onSuccess, onError, ...requestConfig } = options ?? {}
-    const request = ++lane.latest
+    const currentMethod = get(methodStore)
+    const currentUrl = get(urlStore)
+    const { immediate: _immediate, onSuccess, onError, ...requestConfig } = get(optionsStore) ?? {}
+    const request = ++latestRequest
     // Callbacks report THIS request's outcome (a submit's onSuccess still
     // runs); only the newest request may change what the hook shows.
-    const ownsState = (): boolean => !lane.dead && request === lane.latest
+    const ownsState = (): boolean => mounted && request === latestRequest
 
-    lane.sink?.patch({ loading: true, error: null })
+    patch({ loading: true, error: null })
 
     try {
       let response: HttpResponse<T>
 
-      switch (method) {
+      switch (currentMethod) {
         case 'GET':
-          response = await client.get<T>(url, requestConfig)
+          response = await client.get<T>(currentUrl, requestConfig)
           break
         case 'POST':
-          response = await client.post<T>(url, requestConfig.data, requestConfig)
+          response = await client.post<T>(currentUrl, requestConfig.data, requestConfig)
           break
         case 'PUT':
-          response = await client.put<T>(url, requestConfig.data, requestConfig)
+          response = await client.put<T>(currentUrl, requestConfig.data, requestConfig)
           break
         case 'PATCH':
-          response = await client.patch<T>(url, requestConfig.data, requestConfig)
+          response = await client.patch<T>(currentUrl, requestConfig.data, requestConfig)
           break
         case 'DELETE':
-          response = await client.delete<T>(url, requestConfig)
+          response = await client.delete<T>(currentUrl, requestConfig)
           break
         default:
           throw new Error(
             t(
               'svelte.error.unsupportedMethod',
-              { method },
+              { method: currentMethod },
               {
                 defaultValue: 'Unsupported method: {{method}}',
               },
@@ -228,16 +175,16 @@ export function useHttp<T>(
           )
       }
 
-      if (!lane.dead) {
-        if (ownsState()) lane.sink?.patch({ data: response.data, loading: false, error: null })
+      if (mounted) {
+        if (ownsState()) patch({ data: response.data, loading: false, error: null })
         onSuccess?.(response.data)
       }
 
       return response.data
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error))
-      if (!lane.dead) {
-        if (ownsState()) lane.sink?.patch({ data: null, loading: false, error: err })
+      if (mounted) {
+        if (ownsState()) patch({ data: null, loading: false, error: err })
         onError?.(err)
       }
       return null
@@ -246,14 +193,13 @@ export function useHttp<T>(
 
   const reset = (): void => {
     // reset takes ownership: a request it superseded cannot repopulate.
-    lane.latest++
-    lane.sink?.patch({ data: null, loading: false, error: null })
+    latestRequest++
+    patch({ data: null, loading: false, error: null })
   }
 
-  // Execute immediately if requested — mount only, once per host, the option's
-  // historical contract.
-  if (immediate && !lane.ranImmediate) {
-    lane.ranImmediate = true
+  // Execute immediately if requested — mount only, once per component, the
+  // option's historical contract: an argument change never repeats it.
+  if (immediate) {
     void execute()
   }
 
@@ -269,54 +215,69 @@ export function useHttp<T>(
 /**
  * GET requests, React's `useGet` in Svelte's idiom.
  *
- * @param url - Request URL to fetch from.
- * @param options - HTTP request options including callbacks and request config.
+ * @param url - Request URL to fetch from (or a store of it).
+ * @param options - HTTP request options including callbacks and request config (or a store of them).
  * @returns Request state as stores and the controls.
  */
-export function useGet<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function useGet<T>(
+  url: MaybeReadable<string>,
+  options?: MaybeReadable<UseHttpOptions<T> | undefined>,
+): UseHttpResult<T> {
   return useHttp<T>('GET', url, options)
 }
 
 /**
  * POST requests, React's `usePost` in Svelte's idiom.
  *
- * @param url - Request URL to post to.
- * @param options - HTTP request options including body data and callbacks.
+ * @param url - Request URL to post to (or a store of it).
+ * @param options - HTTP request options including body data and callbacks (or a store of them).
  * @returns Request state as stores and the controls.
  */
-export function usePost<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function usePost<T>(
+  url: MaybeReadable<string>,
+  options?: MaybeReadable<UseHttpOptions<T> | undefined>,
+): UseHttpResult<T> {
   return useHttp<T>('POST', url, options)
 }
 
 /**
  * PUT requests, React's `usePut` in Svelte's idiom.
  *
- * @param url - Request URL to send the PUT request to.
- * @param options - HTTP request options including body data and callbacks.
+ * @param url - Request URL to send the PUT request to (or a store of it).
+ * @param options - HTTP request options including the replacement body (or a store of them).
  * @returns Request state as stores and the controls.
  */
-export function usePut<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function usePut<T>(
+  url: MaybeReadable<string>,
+  options?: MaybeReadable<UseHttpOptions<T> | undefined>,
+): UseHttpResult<T> {
   return useHttp<T>('PUT', url, options)
 }
 
 /**
  * PATCH requests, React's `usePatch` in Svelte's idiom.
  *
- * @param url - Request URL to send the PATCH request to.
- * @param options - HTTP request options including partial body data and callbacks.
+ * @param url - Request URL to send the partial body to (or a store of it).
+ * @param options - HTTP request options including the partial body (or a store of them).
  * @returns Request state as stores and the controls.
  */
-export function usePatch<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function usePatch<T>(
+  url: MaybeReadable<string>,
+  options?: MaybeReadable<UseHttpOptions<T> | undefined>,
+): UseHttpResult<T> {
   return useHttp<T>('PATCH', url, options)
 }
 
 /**
  * DELETE requests, React's `useDelete` in Svelte's idiom.
  *
- * @param url - Request URL of the resource to delete.
- * @param options - HTTP request options including callbacks.
+ * @param url - Request URL of the resource to delete (or a store of it).
+ * @param options - HTTP request options including callbacks (or a store of them).
  * @returns Request state as stores and the controls.
  */
-export function useDelete<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function useDelete<T>(
+  url: MaybeReadable<string>,
+  options?: MaybeReadable<UseHttpOptions<T> | undefined>,
+): UseHttpResult<T> {
   return useHttp<T>('DELETE', url, options)
 }

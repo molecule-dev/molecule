@@ -4,17 +4,18 @@
  *
  * The catalog cache is a module-level singleton shared by every instance of
  * this package, exactly like React's: the first mount of a scope fetches, and
- * later mounts (including a re-created host at the same site) read the cache.
+ * later mounts read the cache.
  *
  * @module
  */
 
-import { computed, DestroyRef, inject, type Signal, signal } from '@angular/core'
+import { computed, DestroyRef, effect, inject, type Signal, signal, untracked } from '@angular/core'
 
 import type { AppModelDefinition, AppModeModelDefaults } from '@molecule/app-ai-models'
 import { loadAIModelCatalog, pickFreeTierModel } from '@molecule/app-ai-models'
 import type { HttpClient } from '@molecule/app-http'
 
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { useHttpClient } from './use-http.js'
 
 interface CacheState {
@@ -160,33 +161,58 @@ export interface UseAIModelsResult {
  * triggers a single `GET /ai/models` fetch; subsequent mounts return the
  * cached result. Call it in an injection context.
  *
+ * The project id may be a signal: the hook then switches to that project's
+ * scope on the same component — resubscribing, resyncing from the new scope's
+ * cache and fetching it when it is not cached — the way React re-renders
+ * `useAIModels` with a new `projectId`.
+ *
  * @param projectId - Optional project scope: includes that project's custom
- *   ("bring your own AI") models on servers that support them.
+ *   ("bring your own AI") models on servers that support them (or a signal of
+ *   it).
  * @returns Models, free-tier model, loading flag, and error as signals.
  */
-export function useAIModels(projectId?: string): UseAIModelsResult {
+export function useAIModels(projectId?: MaybeSignal<string | undefined>): UseAIModelsResult {
   const http = useHttpClient()
-  const scope = projectId ?? ''
   const destroyRef = inject(DestroyRef)
 
-  const cache = cacheFor(scope)
-  const snapshot = signal<AIModelsSnapshot>({
-    models: cache.models,
-    defaults: cache.defaults,
-    error: cache.error,
-  })
+  // The scope this hook is currently wired to. React's effect keyed on the
+  // scope re-subscribes and refetches when a re-render changes it; the effect
+  // below does the same for a signal argument.
+  let scope = readMaybeSignal(projectId) ?? ''
+  const snapshot = signal<AIModelsSnapshot>({ models: null, defaults: undefined, error: null })
 
   const listener: Listener = (next) => snapshot.set(next)
   listenersFor(scope).add(listener)
+  const seed = (): void => {
+    const cache = cacheFor(scope)
+    snapshot.set({ models: cache.models, defaults: cache.defaults, error: cache.error })
+  }
+  seed()
+
+  // Subscribe, resync and (when the scope has no answer yet) fetch, exactly
+  // what React's mount effect does; re-runs only when the scope changes, as
+  // its effect's dependency array does.
+  effect(() => {
+    const nextScope = readMaybeSignal(projectId) ?? ''
+    if (nextScope !== scope) {
+      listenersFor(scope).delete(listener)
+      scope = nextScope
+      listenersFor(scope).add(listener)
+    }
+    untracked(() => {
+      seed()
+      const cache = cacheFor(scope)
+      if (!cache.models && !cache.error) {
+        fetchOnce(http, scope).catch((_error: unknown) => {
+          // fetchOnce mirrors the error into cache.error, which the listener delivers.
+        })
+      }
+    })
+  })
+
   destroyRef.onDestroy(() => {
     listenersFor(scope).delete(listener)
   })
-
-  if (!cache.models && !cache.error) {
-    fetchOnce(http, scope).catch((_error: unknown) => {
-      // fetchOnce mirrors the error into cache.error, which the listener delivers.
-    })
-  }
 
   const models = computed(() => snapshot().models ?? [])
   return {

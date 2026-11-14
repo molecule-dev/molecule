@@ -46,5 +46,5 @@
  * @module
  */
 
-export * from './AppFooter.js'
+export * from './AppFooter.jsx'
 export * from './types.js'

@@ -34,6 +34,7 @@
     "check:changesets-consumed": "node scripts/check-changesets-consumed.mjs",
     "check:feature-jsdocs": "node scripts/check-feature-jsdocs.mjs --check",
     "check:i18n-parity": "node scripts/check-i18n-parity.js --check",
+    "check:jsx-specifiers": "node scripts/check-jsx-specifiers.mjs",
     "check:locale-placeholders": "node scripts/check-locale-placeholders.js",
     "check:lockfile": "node scripts/check-lockfile.js",
     "check:package-metadata": "node scripts/check-package-metadata.mjs",

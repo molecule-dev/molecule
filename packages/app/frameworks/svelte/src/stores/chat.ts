@@ -22,7 +22,7 @@ import {
 } from '@molecule/app-ai-chat'
 
 import { useChatProvider } from '../context.js'
-import { isReadableStore } from '../hooks/live-store.js'
+import { toReadable } from '../hooks/maybe-readable.js'
 
 /** Options for {@link useChat} (the shared chat session's options). */
 export type UseChatOptions = ChatSessionOptions
@@ -70,9 +70,10 @@ export const resetChatStoresForTests: typeof coreResetChatStoresForTests =
  * the controls (send, abort, queue edits, history). Call it during component
  * init.
  *
- * The options may be a readable store: a new `endpoint` switches conversation
- * and a new `projectId` moves to that project's transcript, on the same
- * component, the way React re-renders `useChat`.
+ * The options may be a plain value or a readable store of one (a store holding
+ * `undefined` means no options): a new `endpoint` switches conversation and a
+ * new `projectId` moves to that project's transcript, on the same component,
+ * the way React re-renders `useChat`.
  *
  * @param options - Chat options (or a store of them): endpoint, project id, history loading, callbacks.
  * @returns Each state field as a readable store, and the chat controls.
@@ -90,24 +91,22 @@ export const resetChatStoresForTests: typeof coreResetChatStoresForTests =
  */
 export function useChat(options: UseChatOptions | Readable<UseChatOptions>): UseChatResult {
   const provider = useChatProvider()
-  let current = isReadableStore(options) ? get(options) : options
+  const optionsStore = toReadable(options)
+  let current = get(optionsStore)
   const session = createChatSession({ ...current, provider })
   const state = writable(session.getState())
   const unsubscribe = session.subscribe(() => state.set(session.getState()))
   // New options reach the session as React's re-render does; a changed
   // endpoint is a conversation change, which the session loads. The store
   // calls back at once with the options the session was created with.
-  let stopOptions: (() => void) | null = null
-  if (isReadableStore(options)) {
-    stopOptions = options.subscribe((next) => {
-      if (next === current) return
-      current = next
-      session.update({ ...next, provider })
-    })
-  }
+  const stopOptions = optionsStore.subscribe((next) => {
+    if (next === current) return
+    current = next
+    session.update({ ...current, provider })
+  })
   onMount(() => session.connect())
   onDestroy(() => {
-    stopOptions?.()
+    stopOptions()
     unsubscribe()
   })
   const fields = Object.fromEntries(

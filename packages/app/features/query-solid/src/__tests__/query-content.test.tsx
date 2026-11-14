@@ -4,16 +4,16 @@
  * `useQuery` primitive and the memory query bond — the counterparts of the
  * React package's own QueryContent tests.
  */
-import { createSignal, For } from 'solid-js'
+import { createSignal, For, onCleanup } from 'solid-js'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
 import { provider } from '@molecule/app-query-memory'
 
-import { QueryContent } from '../query-content.js'
+import { QueryContent } from '../query-content.jsx'
 import type { QueryContentProps } from '../types.js'
 import { useQuery } from '../use-query.js'
-import { mountComponent, settle, unmountAll } from './helpers.js'
+import { mountComponent, settle, unmountAll } from './helpers.jsx'
 
 beforeAll(() => setProvider(provider))
 beforeEach(() => resetQueryClient())
@@ -34,7 +34,7 @@ it('keeps loading status outside a list: the first item is always real data', as
       <QueryContent<string[]> query={query} pending={<p role="status">Loading…</p>}>
         {(items) => (
           <ul>
-            <For each={items}>
+            <For each={items()}>
               {(item) => (
                 <li>
                   <button type="button" onClick={() => selected(item)}>
@@ -73,8 +73,8 @@ it('does not expose a follow-like toggle before its target exists; the first cli
     return (
       <QueryContent<Repository> query={query}>
         {(repository) => (
-          <button type="button" onClick={() => commit(repository.id, !repository.watched)}>
-            {repository.watched ? 'Unwatch' : 'Watch'}
+          <button type="button" onClick={() => commit(repository().id, !repository().watched)}>
+            {repository().watched ? 'Unwatch' : 'Watch'}
           </button>
         )}
       </QueryContent>
@@ -99,7 +99,7 @@ it('drops old record actions immediately when a new key has no data', async () =
     }))
     return (
       <QueryContent<{ id: string }> query={query}>
-        {(record) => <button type="button">{record.id}</button>}
+        {(record) => <button type="button">{record().id}</button>}
       </QueryContent>
     )
   }
@@ -128,7 +128,7 @@ it('counterexample: cached data stays actionable through a pending and failed re
     })
     return (
       <QueryContent<{ id: string }> query={query} error={error}>
-        {(book) => <button type="button">{book.id}</button>}
+        {(book) => <button type="button">{book().id}</button>}
       </QueryContent>
     )
   }
@@ -156,7 +156,7 @@ it('an initial failure never mounts its resource actions and can recover on retr
     retry = query.refetch
     return (
       <QueryContent<{ id: string }> query={query} error={() => <p role="alert">Failed</p>}>
-        {(book) => <button type="button">{book.id}</button>}
+        {(book) => <button type="button">{book().id}</button>}
       </QueryContent>
     )
   }
@@ -176,18 +176,54 @@ it('an initial failure never mounts its resource actions and can recover on retr
 it.each([[false], [0], [''], [[]]])(
   'counterexample: valid empty or false data reaches the loaded branch (%j)',
   async (data) => {
-    const render = vi.fn(() => <p>Ready</p>)
+    const render = vi.fn((_doc: () => unknown) => <p>Ready</p>)
     const mounted = mountComponent(() => (
       <QueryContent
         {...{ query: { data, status: 'success', error: undefined }, children: render }}
       />
     ))
     await settle()
-    expect(render).toHaveBeenCalledWith(data)
+    expect(render).toHaveBeenCalledOnce()
+    expect(render.mock.calls[0]?.[0]()).toBe(data)
     expect(mounted.host.textContent).toBe('Ready')
     await mounted.unmount()
   },
 )
+
+it('keeps the loaded children mounted when the document changes, as React re-renders them', async () => {
+  // React re-renders the same child components with a new document, so their local state
+  // (a pending optimistic save, an open menu) survives a cache publication or a refresh.
+  getQueryClient().set(['book'], { id: 'one', title: 'First' })
+  const mounts = vi.fn()
+  const cleanups = vi.fn()
+  function Title(props: { title: string }): ReturnType<typeof QueryContent<unknown>> {
+    mounts()
+    onCleanup(cleanups)
+    return <h1>{props.title}</h1>
+  }
+  function Page(): ReturnType<typeof QueryContent<{ id: string; title: string }>> {
+    const query = useQuery({ key: ['book'], fetch: async () => new Promise<never>(() => {}) })
+    return (
+      <QueryContent<{ id: string; title: string }> query={query}>
+        {(book) => <Title title={book().title} />}
+      </QueryContent>
+    )
+  }
+  const mounted = mountComponent(Page)
+  await settle()
+  expect(mounted.host.textContent).toBe('First')
+  getQueryClient().set(['book'], { id: 'one', title: 'Second' })
+  await settle()
+  expect(mounted.host.textContent).toBe('Second')
+  expect(mounts).toHaveBeenCalledOnce()
+  expect(cleanups).not.toHaveBeenCalled()
+  // Counterexample: a record that turns missing leaves the loaded branch.
+  getQueryClient().set(['book'], null)
+  await settle()
+  expect(mounted.host.textContent).toBe('')
+  expect(cleanups).toHaveBeenCalledOnce()
+  await mounted.unmount()
+})
 
 it('a loaded null is missing rather than pending or actionable', async () => {
   const children = vi.fn(() => <button type="button">Act</button>)
@@ -219,8 +255,8 @@ it('follows each replaced query object: states move from pending through loaded 
       )}
     >
       {(doc) => (
-        <article data-doc={(doc as { name: string }).name}>
-          doc {(doc as { name: string }).name}
+        <article data-doc={(doc() as { name: string }).name}>
+          doc {(doc() as { name: string }).name}
         </article>
       )}
     </QueryContent>

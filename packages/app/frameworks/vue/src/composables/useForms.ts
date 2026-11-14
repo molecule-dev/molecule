@@ -7,11 +7,12 @@
 import {
   computed,
   type ComputedRef,
-  getCurrentInstance,
   getCurrentScope,
+  type MaybeRefOrGetter,
   onScopeDispose,
   type ShallowRef,
   shallowRef,
+  toValue,
   watch,
 } from 'vue'
 
@@ -30,26 +31,6 @@ import {
   formValuesEqual,
   snapshotFormValue,
 } from '@molecule/app-forms'
-
-import { adoptContinuity, type ContinuityState, offerContinuity } from './host-continuity.js'
-
-/**
- * What one host slot owns across the mounts a host makes of this composable
- * (a host that swaps the arguments re-mounts the composable; React kept the
- * controller, the external-values history and the asState tuples on the
- * re-rendered instance). A changed `resetKey` starts a fresh controller, which
- * is a fresh lane.
- */
-interface FormLane<T extends FormValuesConstraint<T>> extends ContinuityState {
-  /** The controller created by the slot's first mount. */
-  form: FormController<T>
-  /** The resetKey the controller was created for. */
-  resetKey: string | number | boolean | bigint | null | undefined
-  /** The last external `values` applied, compared by content (React's ref). */
-  lastExternal: { values: Partial<T> } | null
-  /** asState's [edit, fill] tuples per name, per controller. */
-  stateTuples: Map<keyof T | undefined, readonly [unknown, unknown]>
-}
 
 /**
  * Options for useForm composable.
@@ -115,7 +96,8 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
   ]
   validate: () => Promise<boolean>
 
-  // Form controller (for use with useWatch/useFieldState)
+  // Form controller (for use with useWatch/useFieldState); follows a resetKey
+  // change to the fresh controller.
   form: FormController<T>
 }
 
@@ -125,6 +107,12 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
  * Creates its controller through the bonded forms provider, so a Vue app wires
  * a form library once (`setProvider` from `@molecule/app-forms`) and every
  * form picks it up. Passing `createForm` overrides that for one form.
+ *
+ * The options may be reactive (a ref or a getter) and are followed on the same
+ * component, the way React re-renders `useForm`: the controller survives every
+ * option change unless `resetKey` changes (a fresh form), `values` is applied
+ * whenever its content differs, and fresh `defaultValues` without a new
+ * `resetKey` never reset the drafts.
  *
  * @param options - Form options. `defaultValues`, `mode` and the form-level
  * `validate` are forwarded to the provider. When `values` changes by content,
@@ -158,63 +146,91 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
  * ```
  */
 export function useForm<T extends FormValuesConstraint<T> = Record<string, unknown>>(
-  options: UseFormOptions<T> = {},
+  options: MaybeRefOrGetter<UseFormOptions<T>> = {},
 ): UseFormReturn<T> {
-  const { createForm = createBondedForm, resetKey, ...formOptions } = options
+  const initial = toValue(options)
+  const { createForm = createBondedForm, resetKey, ...formOptions } = initial
 
-  // The app identity keys continuity: a host re-mounting the composable with
-  // new arguments adopts the previous controller (when the resetKey did not
-  // change), exactly what React's re-rendered instance kept.
-  const app = getCurrentInstance()?.appContext.app
-  const adopted = adoptContinuity<FormLane<T>>(app)
-  const sameForm = adopted !== null && Object.is(adopted.resetKey, resetKey)
-  const form = sameForm ? adopted.form : createForm(formOptions)
-  const lane: FormLane<T> = sameForm
-    ? adopted
-    : { dead: false, form, resetKey, lastExternal: null, stateTuples: new Map() }
-  lane.resetKey = resetKey
+  // The controller, kept across argument changes the way React keeps it in a
+  // ref: recreated only when the resetKey changes.
+  let form = createForm(formOptions)
+  let currentResetKey = resetKey
+  // The last external `values` applied, compared by content and per controller
+  // (React's ref): a reset may change the controller baseline without making an
+  // unchanged record external again, and a fresh controller re-applies.
+  let lastExternal: { form: FormController<T>; values: Partial<T> } | null = null
 
   let mounted = true
   if (getCurrentScope()) {
     onScopeDispose(() => {
       mounted = false
-      // The lane lives until the tick ends (a replacing mount adopts it); a
-      // real unmount marks it dead. The controller itself stays as React
-      // leaves it: subscribed-to-nothing, never destroyed mid-flight.
-      offerContinuity(lane, app)
     })
   }
-
-  const keepDirtyValues = options.resetOptions?.keepDirtyValues !== false
-  // External content has its own history. A reset may change the controller
-  // baseline without making an unchanged record external again.
-  const applyExternalValues = (): void => {
-    const values = options.values
-    if (values === undefined) {
-      lane.lastExternal = null
-      return
-    }
-    if (lane.lastExternal !== null && formValuesEqual(lane.lastExternal.values, values)) return
-    lane.lastExternal = { values: snapshotFormValue(values) }
-    form.updateValues(values, { keepDirtyValues })
-  }
-  applyExternalValues()
-  watch(
-    () => options.values,
-    () => applyExternalValues(),
-    { deep: true },
-  )
 
   // Subscribed state (the controller rebuilds its state object only on change).
   const state: ShallowRef<FormState<T>> = shallowRef(form.getState())
   const refresh = (): void => {
     state.value = form.getState()
   }
-  const unsubscribe = form.subscribe(refresh)
+  let unsubscribe = form.subscribe(refresh)
   refresh()
   if (getCurrentScope()) {
-    onScopeDispose(unsubscribe)
+    onScopeDispose(() => {
+      unsubscribe()
+    })
   }
+
+  // asState's [edit, fill] tuples per name, per controller: a fresh resetKey
+  // starts fresh tuples, exactly like React's per-form memo.
+  const stateTuples = new Map<
+    keyof T | undefined,
+    readonly [
+      (value: T | T[keyof T] | ((previous: T | T[keyof T]) => T | T[keyof T])) => void,
+      (
+        value: Partial<T> | T[keyof T] | ((previous: T | T[keyof T]) => Partial<T> | T[keyof T]),
+      ) => void,
+    ]
+  >()
+
+  const applyExternalValues = (current: UseFormOptions<T>): void => {
+    const keepDirtyValues = current.resetOptions?.keepDirtyValues !== false
+    const values = current.values
+    if (values === undefined) {
+      lastExternal = null
+      return
+    }
+    if (
+      lastExternal !== null &&
+      lastExternal.form === form &&
+      formValuesEqual(lastExternal.values, values)
+    ) {
+      return
+    }
+    lastExternal = { form, values: snapshotFormValue(values) }
+    form.updateValues(values, { keepDirtyValues })
+  }
+  applyExternalValues(initial)
+
+  // New options reach the form the way React's re-render does: a changed
+  // resetKey starts a fresh controller, and changed external values are
+  // applied by content. Everything else (a fresh options object with the same
+  // content, new defaultValues without a resetKey) leaves the form alone.
+  watch(
+    () => toValue(options),
+    (next) => {
+      if (!Object.is(currentResetKey, next.resetKey)) {
+        currentResetKey = next.resetKey
+        unsubscribe()
+        const { createForm: recreate = createBondedForm, resetKey: _key, ...nextFormOptions } = next
+        form = recreate(nextFormOptions)
+        stateTuples.clear()
+        unsubscribe = form.subscribe(refresh)
+        refresh()
+      }
+      applyExternalValues(next)
+    },
+    { deep: true },
+  )
 
   // Computed properties
   const formState = computed(() => state.value)
@@ -263,7 +279,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     // The value the caller sees comes from the subscribed snapshot, not a
     // fresh read: a fill that lands between renders must not jump ahead.
     const visible = name === undefined ? state.value.values : state.value.values[name]
-    const existing = lane.stateTuples.get(name)
+    const existing = stateTuples.get(name)
     if (existing) return [visible, ...existing] as readonly [unknown, unknown, unknown]
     const edit = (value: T | T[keyof T] | ((previous: T | T[keyof T]) => T | T[keyof T])): void => {
       const next =
@@ -295,17 +311,21 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
         { keepDirtyValues: true },
       )
     }
-    lane.stateTuples.set(name, [edit, fill] as const)
+    stateTuples.set(name, [edit, fill] as const)
     return [visible, edit, fill] as const
   }
 
   const handleSubmit = (
     onSubmit: (values: T) => void | Promise<void>,
     onError?: (errors: Partial<Record<keyof T, string>>) => void,
-  ): ((event?: { preventDefault?: () => void }) => Promise<void>) =>
-    form.handleSubmit((values) => {
-      if (mounted) return onSubmit(values)
+  ): ((event?: { preventDefault?: () => void }) => Promise<void>) => {
+    // The controller this runner was created for: React blocks a submit whose
+    // controller a resetKey change has since replaced.
+    const activeForm = form
+    return activeForm.handleSubmit((values) => {
+      if (mounted && form === activeForm) return onSubmit(values)
     }, onError)
+  }
 
   return {
     formState,
@@ -323,7 +343,11 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     updateValues,
     asState: asState as UseFormReturn<T>['asState'],
     validate,
-    form,
+    get form(): FormController<T> {
+      // A live view: a resetKey change replaces the controller, and this
+      // property must follow it (useWatch/useFieldState read it later).
+      return form
+    },
   }
 }
 

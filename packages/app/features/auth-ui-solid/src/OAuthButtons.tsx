@@ -60,22 +60,23 @@ export interface OAuthButtonsProps {
 export const OAuthButtons: Component<OAuthButtonsProps> = (props) => {
   const cm = getClassMap()
   const [error, setError] = createSignal<string | null>(null)
-  const { providers, redirect } = useOAuth({
-    ...props.oauthConfig,
-    onSuccess: () => {
-      setError(null)
-      props.onSuccess?.()
-    },
-    onError: (message: string) => {
-      // The message is the api's (localized) error body or the hook's
-      // fallback — render it so a failed callback is never invisible.
-      setError(message)
-      props.onError?.(message)
-    },
-  })
+  const onSuccess = (): void => {
+    setError(null)
+    props.onSuccess?.()
+  }
+  const onError = (message: string): void => {
+    // The message is the api's (localized) error body or the hook's
+    // fallback — render it so a failed callback is never invisible.
+    setError(message)
+    props.onError?.(message)
+  }
+  // An accessor, so a changed `oauthConfig` prop reaches the hook on this mount (React
+  // re-renders the row with the new config). `oauth.providers` is read live, so it is read
+  // off the result rather than destructured.
+  const oauth = useOAuth(() => ({ ...props.oauthConfig, onSuccess, onError }))
 
   return (
-    <Show when={providers.length > 0}>
+    <Show when={oauth.providers.length > 0}>
       <div class={props.className}>
         <OAuthDivider
           labelKey={props.dividerKey ?? 'oauth.orContinueWith'}
@@ -87,8 +88,8 @@ export const OAuthButtons: Component<OAuthButtonsProps> = (props) => {
           </div>
         </Show>
         <OAuthButtonRow
-          providers={providers}
-          onSelect={redirect}
+          providers={oauth.providers}
+          onSelect={oauth.redirect}
           iconSize={props.iconSize ?? 30}
           iconMode={props.iconMode ?? 'brand'}
           showLabels={props.showLabels ?? false}

@@ -35,8 +35,10 @@ import {
   getCurrentInstance,
   getCurrentScope,
   inject,
+  type MaybeRefOrGetter,
   onMounted,
   onScopeDispose,
+  toValue,
 } from 'vue'
 
 import type { AuthClient } from '@molecule/app-auth'
@@ -148,20 +150,25 @@ export interface UseOAuthReturn {
  * when the callback is running inside a popup we opened, relaying the result to
  * the opener instead.
  *
- * @param options - OAuth configuration (base URL, providers, endpoint paths, callbacks, navigate, auth client).
+ * The options may be reactive (a ref or a getter) and are followed on the same
+ * component, the way React re-renders `useOAuth`: `providers` recomputes, and
+ * every helper (`getOAuthUrl`, `redirect`, `loginViaPopup`, the callbacks and
+ * the `navigate` option) reads the options at the moment it runs.
+ *
+ * @param options - OAuth configuration (base URL, providers, endpoint paths,
+ *   callbacks, navigate, auth client); may be reactive (a ref or a getter),
+ *   and a change is followed by every later helper call.
  * @returns Available providers, a URL builder, a redirect method, and a popup login method.
  */
-export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
-  const baseURL = options?.baseURL ?? ''
-  const oauthEndpoint = options?.oauthEndpoint ?? '/oauth'
-  const loginEndpoint = options?.loginEndpoint ?? '/users/log-in/oauth'
+export function useOAuth(options?: MaybeRefOrGetter<UseOAuthOptions | undefined>): UseOAuthReturn {
+  const initial = toValue(options)
 
   // Resolve the auth client AT CREATION TIME — `inject` only works during
   // component setup, never inside the async callback. An explicit
   // `options.authClient` wins; the `getCurrentInstance()` guard keeps the
   // composable callable outside components (where injection is unavailable).
   const injectedClient = getCurrentInstance() ? inject(AuthKey, null) : null
-  const authClient: AuthClient<unknown> | null = options?.authClient ?? injectedClient
+  const authClient: AuthClient<unknown> | null = initial?.authClient ?? injectedClient
 
   // Whether the host is mounted, read when a flow settles. Set at setup, so a
   // callback exchange started on the first mount still reports its result.
@@ -182,14 +189,15 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
     })
   }
 
-  const providers = computed(() => options?.oauthProviders ?? [])
+  const providers = computed(() => toValue(options)?.oauthProviders ?? [])
 
   const getOAuthUrl = (provider: string): string => {
     // Encode the provider as a single path segment so a (future) caller passing an
     // untrusted value can never inject a path/query/scheme into the opened URL —
     // defense-in-depth on top of the upstream static provider allowlist. Plain
     // provider names ('github', 'google') pass through unchanged.
-    return `${baseURL}${oauthEndpoint}/${encodeURIComponent(provider)}`
+    const current = toValue(options)
+    return `${current?.baseURL ?? ''}${current?.oauthEndpoint ?? '/oauth'}/${encodeURIComponent(provider)}`
   }
 
   /** Stash which provider initiated the flow so the callback knows it's ours. */
@@ -242,7 +250,7 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
 
   /** Leaves the page for the provider: the `navigate` option, else a full-page navigation. */
   const leaveFor = (url: string): void => {
-    const navigateOption = options?.navigate
+    const navigateOption = toValue(options)?.navigate
     if (navigateOption) navigateOption(url)
     else window.location.href = url
   }
@@ -267,6 +275,10 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
       }
       return
     }
+    // The config the flow starts with. React's closure captures the render's
+    // config for the flow's whole life: a relay reports to the callbacks the
+    // flow was started with, not to whatever the options hold by then.
+    const config = toValue(options)
     stashProvider(provider)
     const url = withReturnPath(getOAuthUrl(provider))
 
@@ -319,11 +331,11 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
       if (data.ok) {
         void establishSession(data.token, data.user).then((ok) => {
           if (!mounted) return
-          if (ok) options?.onSuccess?.()
-          else options?.onError?.(oauthFailed())
+          if (ok) config?.onSuccess?.()
+          else config?.onError?.(oauthFailed())
         })
       } else if (mounted) {
-        options?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
+        config?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
       }
     }
 
@@ -355,6 +367,13 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
   /** The callback body, shared by the mount hook and the manual `handleCallback`. */
   const handleCallback = async (): Promise<void> => {
     if (typeof window === 'undefined') return
+
+    // The config the exchange starts with — React's effect closure captures the
+    // running render's config, so the exchange reports to the callbacks and the
+    // endpoints the flow started with.
+    const config = toValue(options)
+    const baseURL = config?.baseURL ?? ''
+    const loginEndpoint = config?.loginEndpoint ?? '/users/log-in/oauth'
 
     const params = new URLSearchParams(window.location.search)
     const code = params.get('code')
@@ -427,7 +446,7 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
           relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
           return
         }
-        if (mounted) options?.onError?.(error)
+        if (mounted) config?.onError?.(error)
         return
       }
 
@@ -459,15 +478,15 @@ export function useOAuth(options?: UseOAuthOptions): UseOAuthReturn {
       // unchanged behavior.
       const ok = await establishSession(token, user)
       if (!mounted) return
-      if (ok) options?.onSuccess?.()
-      else options?.onError?.(oauthFailed())
+      if (ok) config?.onSuccess?.()
+      else config?.onError?.(oauthFailed())
     } catch (err) {
       const error = err instanceof Error ? err.message : oauthFailed()
       if (inPopup) {
         relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
         return
       }
-      if (mounted) options?.onError?.(error)
+      if (mounted) config?.onError?.(error)
     }
   }
 

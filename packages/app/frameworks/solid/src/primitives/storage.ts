@@ -11,6 +11,7 @@ import { getPreferenceStore, type StorageProvider } from '@molecule/app-storage'
 
 import { getStorageProvider, StorageContext } from '../context.js'
 import type { StorageValueState } from '../types.js'
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 /**
  * The storage provider from the nearest `MoleculeProvider`
@@ -68,8 +69,12 @@ export interface UseStorageValueResult<T> {
  * backend never replaces a newer value. With `sync`, the provider's own
  * subscription delivers another tab's writes.
  *
- * @param key - Storage key.
- * @param options - Default value and cross-tab sync.
+ * @param key - Storage key. May be an accessor: a changed key starts over
+ *   (default value shown, loading, error cleared) and loads its own value on
+ *   the same mount, the way React re-renders `useStorageValue`.
+ * @param options - Default value and cross-tab sync. May be an accessor; both
+ *   fields are read at use, and only a real change of `key` or `sync`
+ *   re-subscribes.
  * @returns The value, loading and error state as accessors, and the mutators.
  * @throws {Error} When no `MoleculeProvider` above configures `storage`.
  * @example
@@ -80,13 +85,14 @@ export interface UseStorageValueResult<T> {
  * ```
  */
 export function useStorageValue<T>(
-  key: string,
-  options?: UseStorageValueOptions<T>,
+  key: MaybeAccessor<string>,
+  options?: MaybeAccessor<UseStorageValueOptions<T>>,
 ): UseStorageValueResult<T> {
   const storage = useStorageProvider()
-  const { defaultValue, sync = false } = options ?? {}
+  /** The latest `defaultValue`, read at use (an inline object is fine). */
+  const readDefault = (): T | undefined => access(options)?.defaultValue
 
-  const [value, setValueState] = createSignal<T | undefined>(defaultValue)
+  const [value, setValueState] = createSignal<T | undefined>(readDefault())
   const [loading, setLoading] = createSignal<boolean>(true)
   const [error, setError] = createSignal<Error | null>(null)
   /**
@@ -95,44 +101,87 @@ export function useStorageValue<T>(
    * the common case on a slow (native, encrypted) backend.
    */
   let writeVersion = 0
-  /** The latest `defaultValue`, read at use (an inline object is fine). */
-  const defaultRef = (): T | undefined => defaultValue
 
-  // Load the key's value (React runs this in its mount effect; the kit
-  // flushes before the first snapshot either way).
-  {
+  /**
+   * The read in flight for the current key. A newer key's read (or unmount)
+   * settles it quietly — React's per-effect `mounted` local.
+   */
+  let cancelCurrentRead: (() => void) | null = null
+  const load = (currentKey: string): void => {
+    cancelCurrentRead?.()
     const version = writeVersion
+    let active = true
+    cancelCurrentRead = (): void => {
+      active = false
+    }
     const loadValue = async (): Promise<void> => {
       try {
-        const stored = await storage.get<T>(key)
-        if (writeVersion === version) setValueState(() => stored ?? defaultRef())
+        const stored = await storage.get<T>(currentKey)
+        if (!active) return
+        // A write made after this read started holds the newer value; the
+        // read still ends loading.
+        if (writeVersion === version) setValueState(() => stored ?? readDefault())
         setLoading(false)
       } catch (err) {
+        if (!active) return
         if (writeVersion === version) {
           setError(err instanceof Error ? err : new Error(String(err)))
         }
         setLoading(false)
       }
     }
-
     void loadValue()
   }
+  onCleanup(() => {
+    cancelCurrentRead?.()
+    cancelCurrentRead = null
+  })
+
+  // A key change starts over and re-reads (React's [key, storage] effect plus
+  // its render-time reset). The sentinel makes the first run load the mount
+  // key; the key guard means an options-only change reads nothing.
+  let activeKey: string | null = null
+  createEffect(() => {
+    const currentKey = access(key)
+    if (currentKey === activeKey) return
+    activeKey = currentKey
+    // A new key's value is unknown until its read lands: show what a fresh
+    // mount shows.
+    setValueState(() => readDefault())
+    setLoading(true)
+    setError(null)
+    load(currentKey)
+  })
 
   // Sync across tabs if supported — through the PROVIDER's own subscription,
   // so a non-browser backend (native, encrypted, memory) propagates the same
-  // way instead of being limited to the browser `storage` event.
-  if (sync && storage.subscribe) {
-    const unsubscribe = storage.subscribe(key, (next) => {
+  // way instead of being limited to the browser `storage` event. React keys
+  // this on [key, sync, storage]; the manual unsubscribe survives an
+  // unrelated options re-read that must not drop it.
+  let stopSync: (() => void) | null = null
+  let syncState: { key: string; sync: boolean } | null = null
+  createEffect(() => {
+    const currentKey = access(key)
+    const sync = access(options)?.sync ?? false
+    if (syncState && syncState.key === currentKey && syncState.sync === sync) return
+    syncState = { key: currentKey, sync }
+    stopSync?.()
+    stopSync = null
+    if (!sync || !storage.subscribe) return
+    stopSync = storage.subscribe(currentKey, (incoming) => {
       writeVersion += 1
-      setValueState(() => (next === null ? defaultRef() : (next as T)))
+      setValueState(() => (incoming === null ? readDefault() : (incoming as T)))
     })
-    onCleanup(unsubscribe)
-  }
+  })
+  onCleanup(() => {
+    stopSync?.()
+    stopSync = null
+  })
 
   const setValue = async (newValue: T): Promise<void> => {
     writeVersion += 1
     try {
-      await storage.set(key, newValue)
+      await storage.set(access(key), newValue)
       setValueState(() => newValue)
       setError(null)
     } catch (err) {
@@ -144,8 +193,8 @@ export function useStorageValue<T>(
   const removeValue = async (): Promise<void> => {
     writeVersion += 1
     try {
-      await storage.remove(key)
-      setValueState(() => defaultRef())
+      await storage.remove(access(key))
+      setValueState(() => readDefault())
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)))
@@ -208,7 +257,10 @@ export interface UseStoragePreferenceResult<T> {
  * as local state around `defaultValue` and persists nothing.
  *
  * @param key - The storage key, or `null` when there is nothing to persist.
+ *   May be an accessor: a changed key re-seeds, re-subscribes and re-hydrates
+ *   on the same mount, the way React re-renders `useStoragePreference`.
  * @param options - `defaultValue`, reported until the provider supplies one.
+ *   May be an accessor; the default is read at use.
  * @returns The value, its mutators, and whether it is definite yet.
  * @example
  * ```tsx
@@ -218,61 +270,97 @@ export interface UseStoragePreferenceResult<T> {
  * ```
  */
 export function useStoragePreference<T = unknown>(
-  key: string | null | undefined,
-  options?: UseStoragePreferenceOptions<T>,
+  key: MaybeAccessor<string | null | undefined>,
+  options?: MaybeAccessor<UseStoragePreferenceOptions<T>>,
 ): UseStoragePreferenceResult<T> {
   const store = getPreferenceStore()
-  const defaultValueRef = (): T | undefined => options?.defaultValue
+  const defaultValueRef = (): T | undefined => access(options)?.defaultValue
 
-  const read = (): T | undefined => {
-    if (!key) return defaultValueRef()
-    const stored = store.get<T>(key)
+  const read = (currentKey: string | null | undefined): T | undefined => {
+    if (!currentKey) return defaultValueRef()
+    const stored = store.get<T>(currentKey)
     return stored === null ? defaultValueRef() : stored
   }
 
-  const [value, setValueState] = createSignal<T | undefined>(read())
-  const [ready, setReady] = createSignal<boolean>(!key)
+  const initialKey = access(key)
+  const [value, setValueState] = createSignal<T | undefined>(read(initialKey))
+  const [ready, setReady] = createSignal<boolean>(!initialKey)
   const valueRef = { current: value() }
-  valueRef.current = value()
 
-  {
-    if (!key) {
+  /** Stops the current key's subscription and pending hydration. */
+  let stopSubscription: (() => void) | null = null
+  let cancelHydration: (() => void) | null = null
+
+  /** React's [store, key, read] effect for one key: seed, subscribe, hydrate. */
+  const attach = (currentKey: string | null | undefined): void => {
+    cancelHydration?.()
+    cancelHydration = null
+    stopSubscription?.()
+    stopSubscription = null
+    if (!currentKey) {
+      // Local state around the default; persists nothing.
       setReady(true)
-      setValueState(() => defaultValueRef())
-    } else {
-      let cancelled = false
-      const sync = (): void => {
-        if (!cancelled) setValueState(() => read())
-      }
-      // Seed from whatever the store already knows, then let hydration
-      // converge it. With a synchronous provider this is a no-op change.
-      sync()
-      setReady(false)
-      const stop = store.subscribe(key, sync)
-      void store.hydrate([key]).then(() => {
-        if (cancelled) return
-        sync()
-        setReady(true)
-      })
-      onCleanup(() => {
-        cancelled = true
-        stop()
-      })
+      const fallback = defaultValueRef()
+      valueRef.current = fallback
+      setValueState(() => fallback)
+      return
     }
+    let cancelled = false
+    cancelHydration = (): void => {
+      cancelled = true
+    }
+    const sync = (): void => {
+      if (cancelled) return
+      const next = read(currentKey)
+      valueRef.current = next
+      setValueState(() => next)
+    }
+    // Seed from whatever the store already knows, then let hydration
+    // converge it. With a synchronous provider this is a no-op change.
+    sync()
+    setReady(false)
+    stopSubscription = store.subscribe(currentKey, sync)
+    void store.hydrate([currentKey]).then(() => {
+      if (cancelled) return
+      sync()
+      setReady(true)
+    })
   }
+  onCleanup(() => {
+    cancelHydration?.()
+    cancelHydration = null
+    stopSubscription?.()
+    stopSubscription = null
+  })
+
+  // A changed key re-attaches on the same mount; the key guard means an
+  // options-only change re-hydrates nothing. The first run attaches the
+  // mount key.
+  let attachedKey: string | null | undefined
+  let attached = false
+  createEffect(() => {
+    const currentKey = access(key)
+    if (attached && Object.is(currentKey, attachedKey)) return
+    attached = true
+    attachedKey = currentKey
+    attach(currentKey)
+  })
 
   const setValue = (next: T | ((previous: T | undefined) => T)): void => {
     const resolved =
       typeof next === 'function' ? (next as (previous: T | undefined) => T)(valueRef.current) : next
     valueRef.current = resolved
     setValueState(() => resolved)
-    if (key) store.set(key, resolved)
+    const currentKey = access(key)
+    if (currentKey) store.set(currentKey, resolved)
   }
 
   const removeValue = (): void => {
-    valueRef.current = defaultValueRef()
-    setValueState(() => defaultValueRef())
-    if (key) store.remove(key)
+    const fallback = defaultValueRef()
+    valueRef.current = fallback
+    setValueState(() => fallback)
+    const currentKey = access(key)
+    if (currentKey) store.remove(currentKey)
   }
 
   return { value, setValue, removeValue, ready }

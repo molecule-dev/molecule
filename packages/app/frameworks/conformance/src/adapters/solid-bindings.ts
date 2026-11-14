@@ -9,9 +9,10 @@
  *   under `MoleculeProvider` (Solid's composition root, `config` = the services).
  * - A value field may be an accessor (a function returning the value); a method is a plain
  *   function. React's result shape tells which is which, so an accessor is never a method.
- * - An `args` step re-mounts the host with the new arguments: a component body runs once.
- *   A `reactiveArgs` hook (`useChat`) gets its options as an accessor instead, set on the
- *   same mount.
+ * - A hook whose arguments change (a `reactiveArgs` family) gets every argument as an accessor
+ *   (`T | Accessor<T>`), and an `args` step sets the signals behind them on the same mount: a
+ *   component body runs once and the primitive follows its reactive arguments, as React's hook
+ *   follows a re-render.
  * - A component export (`SessionReady`) takes React's string props as the same props
  *   (`children`, `fallback`).
  *
@@ -32,6 +33,8 @@ import {
   type BindingServices,
   callHook,
   type MountedHook,
+  reactiveSources,
+  requireSources,
 } from '../bindings/index.js'
 import { settle } from '../ui/index.js'
 
@@ -80,10 +83,10 @@ export function createSolidBindingAdapter({
       document.body.appendChild(container)
       let result: unknown
       let dispose: (() => void) | null = null
-      // A reactiveArgs hook reads its options from this signal for the life of one mount.
-      const [reactiveOptions, setReactiveOptions] = createSignal<unknown>(args[0], {
-        equals: false,
-      })
+      // A reactiveArgs hook reads each argument from its accessor for the life of the mount.
+      const sources = reactiveSources(hook, args, options, (value) =>
+        createSignal<unknown>(value, { equals: false }),
+      )
       const start = (current: unknown[]): void => {
         const Host: Component = () => {
           const target = exportsOf[hook]
@@ -92,10 +95,7 @@ export function createSolidBindingAdapter({
               ...(current[0] as Record<string, unknown>),
             })
           }
-          result = callHook(
-            target,
-            options.reactiveArgs ? [reactiveOptions, ...current.slice(1)] : current,
-          )
+          result = callHook(target, sources ? sources.map(([read]) => read) : current)
           return null
         }
         const config: Partial<BindingServices> = { ...services }
@@ -119,13 +119,9 @@ export function createSolidBindingAdapter({
         // Solid's reactive value is an accessor; the shape only asks `read` for value fields.
         read: (value) => (typeof value === 'function' ? (value as () => unknown)() : value),
         setArgs: async (next) => {
-          if (options.reactiveArgs) {
-            // A function value would be read as an updater; the options are an object.
-            setReactiveOptions(() => next[0])
-          } else {
-            dispose?.()
-            start(next)
-          }
+          for (const [index, [, write]] of requireSources(hook, sources).entries())
+            // The updater form: a function value would otherwise be read as an updater.
+            write(() => next[index])
           await flush()
         },
         flush,

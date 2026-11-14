@@ -15,11 +15,12 @@
  * @module
  */
 
-import { onCleanup, onMount } from 'solid-js'
+import { type Accessor, createMemo, onCleanup, onMount } from 'solid-js'
 
 import { t } from '@molecule/app-i18n'
 
 import { useAuthClient } from './auth.js'
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 /** What `onError` gets when the server gives no reason of its own. */
 const oauthFailed = (): string =>
@@ -45,7 +46,13 @@ interface OAuthRelayMessage {
 
 /** What {@link useOAuth} returns (the same names React returns). */
 export interface UseOAuthReturn {
-  providers: string[]
+  /**
+   * The configured provider names (React's `string[]`), read live: each read returns the
+   * list the current config holds, so a read inside JSX or an effect follows a changed
+   * config. Read it off the result (`oauth.providers`); a destructured copy keeps the
+   * list of the moment it was taken, like a destructured Solid prop.
+   */
+  readonly providers: string[]
   getOAuthUrl: (provider: string) => string
   /** Full-page redirect to the provider (default). The opener page navigates away. */
   redirect: (provider: string) => void
@@ -81,12 +88,16 @@ export interface UseOAuthConfig {
  * for a session — relaying to the opener when running inside a popup we
  * opened.
  *
- * @param config - Optional OAuth configuration override.
+ * @param config - Optional OAuth configuration override. May be an accessor:
+ *   a changed `oauthProviders` list is what `providers` reads, and the rest
+ *   of the config (URL parts, `navigate`, `onSuccess`, `onError`) is read at
+ *   the moment an action or a settling flow uses it, on the same mount.
  * @returns providers, getOAuthUrl, redirect, and loginViaPopup.
  * @throws {Error} When no `MoleculeProvider` above configures `auth`.
  */
-export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
+export function useOAuth(config?: MaybeAccessor<UseOAuthConfig>): UseOAuthReturn {
   const authClient = useAuthClient()
+  const readConfig = (): UseOAuthConfig | undefined => access(config)
 
   // Whether the component is mounted, read when a flow settles.
   let mounted = false
@@ -97,15 +108,13 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
     mounted = false
   })
 
-  const providers = config?.oauthProviders ?? []
-  const baseURL = config?.baseURL ?? ''
-  const oauthEndpoint = config?.oauthEndpoint ?? '/oauth'
-  const loginEndpoint = config?.loginEndpoint ?? '/users/log-in/oauth'
+  const providers: Accessor<string[]> = createMemo(() => readConfig()?.oauthProviders ?? [])
 
   const getOAuthUrl = (provider: string): string => {
+    const current = readConfig()
     // Encode the provider as a single path segment so an untrusted value can
     // never inject a path/query/scheme into the opened URL.
-    return `${baseURL}${oauthEndpoint}/${encodeURIComponent(provider)}`
+    return `${current?.baseURL ?? ''}${current?.oauthEndpoint ?? '/oauth'}/${encodeURIComponent(provider)}`
   }
 
   /** Stash which provider initiated the flow so the callback knows it's ours. */
@@ -147,9 +156,9 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
     return false
   }
 
-  const navigateOption = config?.navigate
   /** Leaves the page for the provider: the `navigate` option, else a full-page navigation. */
   const leaveFor = (url: string): void => {
+    const navigateOption = readConfig()?.navigate
     if (navigateOption) navigateOption(url)
     else window.location.href = url
   }
@@ -216,11 +225,11 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
       if (data.ok) {
         void establishSession(data.token, data.user).then((ok) => {
           if (!mounted) return
-          if (ok) config?.onSuccess?.()
-          else config?.onError?.(oauthFailed())
+          if (ok) readConfig()?.onSuccess?.()
+          else readConfig()?.onError?.(oauthFailed())
         })
       } else if (mounted) {
-        config?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
+        readConfig()?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
       }
     }
 
@@ -301,17 +310,21 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
         // Exchange code for session.
         const exchangeCode = async (): Promise<void> => {
           try {
-            const response = (await fetch(`${baseURL}${loginEndpoint}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include', // Send cookies (oauth_state) for state validation
-              body: JSON.stringify({
-                server: provider,
-                code,
-                state: state || undefined,
-                redirect_uri: window.location.origin,
-              }),
-            })) as Response
+            const current = readConfig()
+            const response = (await fetch(
+              `${current?.baseURL ?? ''}${current?.loginEndpoint ?? '/users/log-in/oauth'}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Send cookies (oauth_state) for state validation
+                body: JSON.stringify({
+                  server: provider,
+                  code,
+                  state: state || undefined,
+                  redirect_uri: window.location.origin,
+                }),
+              },
+            )) as Response
 
             if (!response.ok) {
               // A body that is not JSON: report the generic failure.
@@ -323,7 +336,7 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
                 relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
                 return
               }
-              if (mounted) config?.onError?.(error)
+              if (mounted) readConfig()?.onError?.(error)
               return
             }
 
@@ -349,15 +362,15 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
             // Full-page callback: establish the session here, then fire onSuccess.
             const ok = await establishSession(token, user)
             if (!mounted) return
-            if (ok) config?.onSuccess?.()
-            else config?.onError?.(oauthFailed())
+            if (ok) readConfig()?.onSuccess?.()
+            else readConfig()?.onError?.(oauthFailed())
           } catch (err) {
             const error = err instanceof Error ? err.message : oauthFailed()
             if (inPopup) {
               relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
               return
             }
-            if (mounted) config?.onError?.(error)
+            if (mounted) readConfig()?.onError?.(error)
           }
         }
 
@@ -367,7 +380,9 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
   })
 
   return {
-    providers,
+    get providers() {
+      return providers()
+    },
     getOAuthUrl,
     redirect,
     loginViaPopup,

@@ -2,8 +2,8 @@
  * Tests for the useHttp composable family.
  *
  * The composables run outside a component here (`getCurrentInstance` is null),
- * which is the documented out-of-setup fallback: a fresh lane per call and the
- * mount-time `immediate` request firing synchronously.
+ * which is the documented out-of-setup fallback: the mount-time `immediate`
+ * request fires synchronously.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -19,6 +19,9 @@ vi.mock('vue', () => ({
   onScopeDispose: vi.fn(),
   onMounted: vi.fn(),
   onUnmounted: vi.fn(),
+  toValue: vi.fn((v: unknown) =>
+    typeof v === 'function' ? (v as () => unknown)() : ((v as { value?: unknown })?.value ?? v),
+  ),
 }))
 
 // Mock molecule packages

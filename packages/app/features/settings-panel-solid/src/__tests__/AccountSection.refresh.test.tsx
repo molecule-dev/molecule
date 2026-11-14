@@ -18,7 +18,7 @@ import { MoleculeProvider } from '@molecule/app-solid'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { AccountSection } from '../AccountSection.js'
+import { AccountSection } from '../AccountSection.jsx'
 
 const http = vi.hoisted(() => ({ get: vi.fn(), patch: vi.fn() }))
 vi.mock('@molecule/app-solid', async (importOriginal) => {

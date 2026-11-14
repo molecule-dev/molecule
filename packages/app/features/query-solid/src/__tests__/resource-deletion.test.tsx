@@ -20,7 +20,7 @@ import { provider as tanstack } from '@molecule/app-query-tanstack'
 
 import { createQueryResource, type ResourceHttp } from '../resource.js'
 import { useQuery } from '../use-query.js'
-import { mountComponent, settle, unmountAll } from './helpers.js'
+import { mountComponent, settle, unmountAll } from './helpers.jsx'
 
 interface Task {
   id: string | number

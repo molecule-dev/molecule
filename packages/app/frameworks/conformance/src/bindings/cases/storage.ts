@@ -49,6 +49,8 @@ export const useStorageProviderCases: HookCases = {
 /** `useStorageValue(key, options?)`: one storage key as React state. */
 export const useStorageValueCases: HookCases = {
   hook: 'useStorageValue',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     {
       name: 'a seeded value loads after mount',
@@ -162,6 +164,8 @@ export const useStorageValueCases: HookCases = {
 /** `useStoragePreference(key, options?)`: one preference through `getPreferenceStore()`. */
 export const useStoragePreferenceCases: HookCases = {
   hook: 'useStoragePreference',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     {
       name: 'a synchronous provider answers on the first render',

@@ -2,15 +2,10 @@
  * Angular functions for form handling, mirroring `useForm`, `useWatch` and
  * `useFieldState` from `@molecule/app-react`.
  *
- * Like React — whose component instance survives an argument change — the
- * controller survives this site's re-creation (an argument change to the
- * hook), unless the `resetKey` changed, which starts a fresh form. See
- * `site.ts`.
- *
  * @module
  */
 
-import { computed, DestroyRef, ElementRef, inject, type Signal } from '@angular/core'
+import { computed, DestroyRef, effect, inject, type Signal, signal, untracked } from '@angular/core'
 
 import type {
   FieldRegistration,
@@ -28,7 +23,7 @@ import {
   snapshotFormValue,
 } from '@molecule/app-forms'
 
-import { adoptLane, captureSite, parkLane } from '../site.js'
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { useExternalStore } from './external-store.js'
 
 /**
@@ -171,22 +166,6 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
 }
 
 /**
- * What one site's lane carries across a re-mount of the same hook kind.
- *
- * @template T - The form's values shape.
- */
-interface FormLane<T extends FormValuesConstraint<T>> {
-  /** The form controller (kept unless the resetKey changed). */
-  controller: FormController<T>
-  /** The resetKey the controller was created for. */
-  resetKey: string | number | boolean | bigint | null | undefined
-  /** The last external `values` this site applied, for the change check. */
-  lastExternalValues: { controller: FormController<T>; values: Partial<T> } | null
-  /** Whether the current host is mounted. */
-  mounted: boolean
-}
-
-/**
  * Adapts controller notifications to the external-store snapshot contract.
  * Providers may return fresh objects from their getters; reads between
  * notifications must still return the same snapshot.
@@ -223,68 +202,101 @@ function useFormSnapshot<T extends FormValuesConstraint<T>, S>(
  * form library once (`setProvider` from `@molecule/app-forms`) and every form
  * picks it up. Passing `createForm` overrides that for one form.
  *
- * When `values` changes by content, it becomes the new baseline;
- * `resetOptions.keepDirtyValues` retains edited fields while pristine fields
- * take the loaded values. A changed `resetKey` starts a fresh form; new
- * `defaultValues` without one leave the form alone.
+ * The options may be a signal, and the hook follows them the way React's
+ * re-render does: when `values` changes by content, it becomes the new
+ * baseline; `resetOptions.keepDirtyValues` retains edited fields while
+ * pristine fields take the loaded values. A changed `resetKey` starts a fresh
+ * form; new `defaultValues` without one leave the form (and its drafts) alone.
  *
- * @param options - Form options.
+ * @param options - Form options (or a signal of them).
  * @returns Form state as signals and the form methods.
  */
 export function useForm<T extends FormValuesConstraint<T> = Record<string, unknown>>(
-  options: UseFormOptions<T> = {},
+  options: MaybeSignal<UseFormOptions<T>> = {},
 ): UseFormResult<T> {
-  const { createForm = createBondedForm, resetKey, ...formOptions } = options
-
   const destroyRef = inject(DestroyRef)
-  const host = inject(ElementRef).nativeElement as HTMLElement
   let mounted = false
 
-  // This site's lane: the controller survives an argument change unless the
-  // resetKey changed, exactly like React's formRef/formKey pair.
-  const adopted = adoptLane<FormLane<T>>('useForm')
-  const keep = adopted !== undefined && Object.is(adopted.resetKey, resetKey)
-  const lane: FormLane<T> = keep
-    ? (adopted as FormLane<T>)
-    : {
-        controller: createForm(formOptions),
-        resetKey,
-        lastExternalValues: null,
-        mounted: false,
-      }
-  const form = lane.controller
+  /**
+   * Builds the controller one options object asks for, through the same fields
+   * React forwards (`createForm` and `resetKey` aside).
+   */
+  const createControllerOf = (opts: UseFormOptions<T>): FormController<T> => {
+    const { createForm = createBondedForm, resetKey: _resetKey, ...formOptions } = opts
+    return createForm(formOptions)
+  }
 
-  // The site's container, recorded once the host is attached (see captureSite).
-  let site: Element | null = null
-  captureSite(host, (captured) => {
-    site = captured
-  })
+  // The controller React keeps in its formRef/formKey pair: created once,
+  // replaced only when the resetKey changes (compared with Object.is, like
+  // React's render-time check).
+  let currentOptions = readMaybeSignal(options) ?? {}
+  let formResetKey = currentOptions.resetKey
+  let form = createControllerOf(currentOptions)
 
+  // The state snapshot, cached between notifications the way React's
+  // useSyncExternalStore requires, and re-keyed when the controller is
+  // replaced.
+  let stateSnapshot: FormState<T> = form.getState()
+  const formState = signal<FormState<T>>(stateSnapshot)
+  let stopState: (() => void) | null = null
+  const bindState = (controller: FormController<T>): void => {
+    stopState?.()
+    stateSnapshot = controller.getState()
+    formState.set(stateSnapshot)
+    stopState = controller.subscribe(() => {
+      const next = controller.getState()
+      if (Object.is(stateSnapshot, next)) return
+      stateSnapshot = next
+      formState.set(next)
+    })
+  }
+  bindState(form)
   destroyRef.onDestroy(() => {
     mounted = false
-    lane.mounted = false
-    parkLane('useForm', lane, site)
+    stopState?.()
   })
-  mounted = true
-  lane.mounted = true
 
   // External content has its own history. A reset may change the controller
   // baseline without making an unchanged record external again.
-  const values = options.values
-  const keepDirtyValues = options.resetOptions?.keepDirtyValues !== false
-  if (values === undefined) {
-    lane.lastExternalValues = null
-  } else if (
-    lane.lastExternalValues === null ||
-    lane.lastExternalValues.controller !== form ||
-    !formValuesEqual(lane.lastExternalValues.values, values)
-  ) {
-    lane.lastExternalValues = { controller: form, values: snapshotFormValue(values) }
+  let lastExternalValues: { form: FormController<T>; values: Partial<T> } | null = null
+  const applyExternalValues = (opts: UseFormOptions<T>): void => {
+    const values = opts.values
+    if (values === undefined) {
+      lastExternalValues = null
+      return
+    }
+    const keepDirtyValues = opts.resetOptions?.keepDirtyValues !== false
+    if (
+      lastExternalValues !== null &&
+      lastExternalValues.form === form &&
+      formValuesEqual(lastExternalValues.values, values)
+    ) {
+      return
+    }
+    lastExternalValues = { form, values: snapshotFormValue(values) }
     form.updateValues(values, { keepDirtyValues })
   }
+  applyExternalValues(currentOptions)
 
-  const readState = (): FormState<T> => form.getState()
-  const formState = useFormSnapshot(form, readState)
+  // Follow the options the way React's re-render does: a changed resetKey
+  // rebuilds the controller (and applies the new options' external values to
+  // it); otherwise only the external-values check runs.
+  effect(() => {
+    const next = readMaybeSignal(options) ?? {}
+    if (next === currentOptions) return
+    currentOptions = next
+    untracked(() => {
+      if (!Object.is(formResetKey, next.resetKey)) {
+        formResetKey = next.resetKey
+        form = createControllerOf(next)
+        bindState(form)
+        lastExternalValues = null
+      }
+      applyExternalValues(next)
+    })
+  })
+
+  mounted = true
 
   const register = (
     name: keyof T,
@@ -355,13 +367,18 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
 
   const handleSubmit = (
     onSubmit: (values: T) => void | Promise<void>,
-  ): ((event?: { preventDefault?: () => void }) => Promise<void>) =>
-    form.handleSubmit((values) => {
-      if (mounted && lane.controller === form) return onSubmit(values)
+  ): ((event?: { preventDefault?: () => void }) => Promise<void>) => {
+    // React's runner is rebuilt per render and drops submissions for any
+    // controller that is no longer the formRef's; the runner built here drops
+    // them when the resetKey has since replaced this controller.
+    const runnerForm = form
+    return form.handleSubmit((values) => {
+      if (mounted && runnerForm === form) return onSubmit(values)
     })
+  }
 
   return {
-    formState,
+    formState: formState.asReadonly(),
     isValid: computed(() => formState().isValid),
     isDirty: computed(() => formState().isDirty),
     isSubmitting: computed(() => formState().isSubmitting),

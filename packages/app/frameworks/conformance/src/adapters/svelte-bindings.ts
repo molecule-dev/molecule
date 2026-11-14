@@ -11,9 +11,10 @@
  * - A value field may be a store (the store contract: `subscribe` calls back at once with the
  *   current value); a method is a plain function. The adapter keeps each store of the result
  *   subscribed while the host is mounted, as a component's `$store` read does.
- * - An `args` step re-mounts the host with the new arguments: component init runs once.
- *   A `reactiveArgs` hook (`useChat`) gets its options as a writable store instead, set on
- *   the same mount.
+ * - A hook whose arguments change (a `reactiveArgs` family) gets every argument as a writable
+ *   store (`T | Readable<T>`), and an `args` step sets the stores on the same mount: component
+ *   init runs once and the hook follows its reactive arguments, as React's hook follows a
+ *   re-render.
  * - A component export (`SessionReady`) takes React's string props as snippets of the same
  *   name (`children`, `fallback`).
  *
@@ -36,7 +37,13 @@ import type { StateProvider } from '@molecule/app-state'
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
-import { type BindingAdapter, callHook, type MountedHook } from '../bindings/index.js'
+import {
+  type BindingAdapter,
+  callHook,
+  type MountedHook,
+  reactiveSources,
+  requireSources,
+} from '../bindings/index.js'
 import { settle } from '../ui/index.js'
 import Host from './svelte-bindings/Host.svelte'
 
@@ -210,8 +217,8 @@ export function createSvelteBindingAdapter({
       document.body.appendChild(container)
       let result: unknown
       let instance: Record<string, unknown> | null = null
-      // A reactiveArgs hook reads its options from this store for the life of one mount.
-      const reactiveOptions = writable<unknown>(args[0])
+      // A reactiveArgs hook reads each argument from its store for the life of the mount.
+      const sources = reactiveSources(hook, args, options, (value) => writable<unknown>(value))
       const serviceObjects = new Set(Object.values(services))
       let stores = new StoreReader(serviceObjects)
       const config = { ...services }
@@ -240,10 +247,7 @@ export function createSvelteBindingAdapter({
               config,
               setMoleculeContext,
               run: () => {
-                result = callHook(
-                  exportsOf[hook],
-                  options.reactiveArgs ? [reactiveOptions, ...current.slice(1)] : current,
-                )
+                result = callHook(exportsOf[hook], sources ?? current)
                 stores.trackResult(result)
               },
             },
@@ -266,12 +270,8 @@ export function createSvelteBindingAdapter({
         result: () => (options.render === 'text' ? (container.textContent ?? '') : result),
         read: (value) => stores.read(value),
         setArgs: async (next) => {
-          if (options.reactiveArgs) {
-            reactiveOptions.set(next[0])
-          } else {
-            await stop()
-            start(next)
-          }
+          for (const [index, source] of requireSources(hook, sources).entries())
+            source.set(next[index])
           await flush()
         },
         flush,

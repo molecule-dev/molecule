@@ -133,6 +133,10 @@ jobs:
       # package.json. npm workspaces hoist everything, so an undeclared import
       # builds here and breaks for pnpm / Yarn PnP consumers.
       - run: npm run check:undeclared-imports
+      # In a jsx:"preserve" (Solid) package, a relative import of a .tsx module says
+      # `.jsx`: tsc writes X.tsx to dist/X.jsx and keeps the specifier, so `./X.js`
+      # builds and tests green here and is a missing file in the published package.
+      - run: npm run check:jsx-specifiers
       # Every name a package imports from a @molecule peer exists in the LOWEST
       # published version its peer range allows. Workspaces link the newest local source, so
       # a bond importing an export its core gained this release builds green here

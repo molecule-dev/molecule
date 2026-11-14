@@ -44,6 +44,14 @@ vi.mock('vue', () => ({
   inject: (...args: unknown[]) => mockInject(...args),
   reactive: (obj: unknown) => mockReactive(obj),
   toRaw: (val: unknown) => val,
+  toValue: (val: unknown) =>
+    typeof val === 'function'
+      ? (val as () => unknown)()
+      : val !== null && typeof val === 'object' && 'value' in val
+        ? (val as { value: unknown }).value
+        : val,
+  // These suites call setup and read the vnode tree; a directive only acts on a mounted element.
+  withDirectives: (vnode: unknown) => vnode,
   Teleport: 'Teleport',
   Fragment: 'Fragment',
 }))
@@ -6142,8 +6150,10 @@ describe('UserMenuPopover component', () => {
     try {
       const setup = UserMenuPopover.setup as (...args: unknown[]) => unknown
       setup({}, { attrs: {}, slots: {} })
+      // The component's own watcher on its `open` ref (a single ref source); `useAuth`
+      // registers its own watcher over an array of sources.
       const openWatcher = mockWatch.mock.calls.find(
-        (call) => typeof call[0] === 'object',
+        (call) => typeof call[0] === 'object' && !Array.isArray(call[0]),
       ) as unknown[]
       ;(openWatcher[1] as (value: boolean) => void)(true)
       expect(documentAdd).toHaveBeenCalledWith('mousedown', expect.any(Function))
@@ -6674,7 +6684,10 @@ describe('AuthGuard component', () => {
     const setup = AuthGuard.setup as (...args: unknown[]) => unknown
     setup({}, { attrs: {}, slots: {}, emit })
     const authWatcher = mockWatch.mock.calls.find(
-      (call) => (call[2] as { immediate?: boolean } | undefined)?.immediate,
+      // The guard's own immediate watcher on `isAuthenticated` (a single ref source);
+      // `useAuth` registers its own immediate watcher over an array of sources.
+      (call) =>
+        (call[2] as { immediate?: boolean } | undefined)?.immediate && !Array.isArray(call[0]),
     ) as unknown[]
     ;(authWatcher[1] as (value: boolean) => void)(true)
     expect(emit).toHaveBeenCalledWith('authenticated')
@@ -6693,7 +6706,10 @@ describe('AuthGuard component', () => {
     const setup = AuthGuard.setup as (...args: unknown[]) => unknown
     setup({}, { attrs: {}, slots: {}, emit })
     const authWatcher = mockWatch.mock.calls.find(
-      (call) => (call[2] as { immediate?: boolean } | undefined)?.immediate,
+      // The guard's own immediate watcher on `isAuthenticated` (a single ref source);
+      // `useAuth` registers its own immediate watcher over an array of sources.
+      (call) =>
+        (call[2] as { immediate?: boolean } | undefined)?.immediate && !Array.isArray(call[0]),
     ) as unknown[]
     ;(authWatcher[1] as (value: boolean) => void)(false)
     expect(emit).not.toHaveBeenCalled()

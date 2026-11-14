@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Accessor, createSignal } from 'solid-js'
+import { type Accessor, createEffect, createSignal } from 'solid-js'
 
 import { getLogger } from '@molecule/app-logger'
 import type {
@@ -16,6 +16,8 @@ import type {
   TokenChangeListener,
 } from '@molecule/app-push'
 import { getProvider } from '@molecule/app-push'
+
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 /**
  * Push primitives return type.
@@ -125,22 +127,31 @@ export type UsePushResult = PushPrimitives
  *
  * @param options - Hook options (`checkOnMount` reads the permission once on
  *   mount; a failing check warns through the bonded logger and leaves the
- *   permission unset).
+ *   permission unset). May be an accessor: `checkOnMount` turning on through
+ *   it checks the permission once more on the same mount, the way React
+ *   re-renders `usePush`.
  * @returns Push notification state and action methods.
  * @example
  * ```tsx
  * const { permission, token, requestPermission, register } = usePush({ checkOnMount: true })
  * ```
  */
-export function usePush(options?: UsePushOptions): UsePushResult {
-  const { checkOnMount = false } = options ?? {}
+export function usePush(options?: MaybeAccessor<UsePushOptions>): UsePushResult {
   const provider = getProvider()
 
   const [permission, setPermission] = createSignal<PermissionStatus | null>(null)
   const [token, setToken] = createSignal<PushToken | null>(null)
 
-  // Check permission on mount if requested.
-  if (checkOnMount) {
+  // React's mount effect lists [checkOnMount]: it checks once on mount and
+  // once more only when the flag changes. The key guards the work: an
+  // unrelated re-read of the options checks nothing.
+  let checkedFor: string | null = null
+  createEffect(() => {
+    const checkOnMount = access(options)?.checkOnMount ?? false
+    const key = String(checkOnMount)
+    if (key === checkedFor) return
+    checkedFor = key
+    if (!checkOnMount) return
     void provider
       .checkPermission()
       .then((status) => setPermission(status))
@@ -148,7 +159,7 @@ export function usePush(options?: UsePushOptions): UsePushResult {
         // The permission stays unknown until checkPermission() is called again.
         getLogger('usePush').warn('Checking push permission on mount failed', { error })
       })
-  }
+  })
 
   const checkPermission = async (): Promise<PermissionStatus> => {
     const status = await provider.checkPermission()

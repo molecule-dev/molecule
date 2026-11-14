@@ -4,7 +4,7 @@
  * Solid `JSX`.
  * @module
  */
-import type { JSX } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 
 import type { QueryState } from '@molecule/app-query'
 
@@ -39,8 +39,12 @@ export interface UseQueryResult<T> extends QueryState<T> {
 export interface QueryContentProps<T> {
   /** State from useQuery, or any compatible query observer. */
   query: Pick<QueryState<T>, 'data' | 'status' | 'error'>
-  /** Mounted only with a real document, including false, zero and an empty list. */
-  children: (data: NonNullable<T>) => JSX.Element
+  /**
+   * Mounted only with a real document, including false, zero and an empty list. Runs once
+   * per loaded stretch with the document as an accessor (Solid's `<Show>` idiom): a new
+   * document reaches the same mounted content, so read it where it is used (`data()`).
+   */
+  children: (data: Accessor<NonNullable<T>>) => JSX.Element
   /** Initial idle/loading content. Render a status node, never a fake item or action. */
   pending?: JSX.Element
   /** Content for a loaded null record. Null is distinct from an unfinished request. */

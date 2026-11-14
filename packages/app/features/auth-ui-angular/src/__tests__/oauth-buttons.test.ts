@@ -15,6 +15,7 @@
 // and bond the reference ClassMap + i18n provider the conformance kit uses.
 import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
+import type { Signal } from '@angular/core'
 import { describe, expect, it, vi } from 'vitest'
 
 import { OAuthButtons } from '../index.js'
@@ -123,13 +124,14 @@ describe('OAuthButtons — callback outcome UI', () => {
   const renderLive = async (
     props: Record<string, unknown>,
   ): Promise<{ fixture: RenderedFixture; hookCfg: () => HookCfg | undefined }> => {
-    let captured: HookCfg | undefined
-    mockUseOAuth.mockImplementation((cfg?: HookCfg) => {
+    // The component passes a signal over its input, so its current value is read.
+    let captured: Signal<HookCfg> | undefined
+    mockUseOAuth.mockImplementation((cfg: Signal<HookCfg>) => {
       captured = cfg
       return { providers: ['github'], redirect: () => {} }
     })
     const fixture = await renderRow({ oauthConfig: {}, ...props })
-    return { fixture, hookCfg: () => captured }
+    return { fixture, hookCfg: () => captured?.() }
   }
 
   it('renders a VISIBLE inline error (role=alert) when the OAuth exchange fails', async () => {

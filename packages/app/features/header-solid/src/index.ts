@@ -48,5 +48,5 @@
  * @module
  */
 
-export * from './AppHeader.js'
+export * from './AppHeader.jsx'
 export * from './types.js'

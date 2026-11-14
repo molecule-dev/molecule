@@ -8,8 +8,9 @@
  * - Every `@molecule/app-react` hook is a composable of the same name, called in `setup`.
  * - Services arrive through `moleculePlugin` (Vue's composition root).
  * - A value field may be a ref (read through `unref`); a method is a plain function.
- * - An `args` step re-mounts the host with the new arguments: a composable runs once per setup.
- *   A `reactiveArgs` hook (`useChat`) gets its options as a ref instead, set on the same mount.
+ * - A hook whose arguments change (a `reactiveArgs` family) gets every argument as a ref
+ *   (`MaybeRefOrGetter`), and an `args` step sets the refs on the same mount: a composable runs
+ *   once per setup and follows its reactive arguments, as React's hook follows a re-render.
  * - A component export (`SessionReady`) takes React's string props as slots of the same name
  *   (`children` is the default slot).
  *
@@ -28,7 +29,13 @@ import {
   shallowRef,
 } from 'vue'
 
-import { type BindingAdapter, callHook, type MountedHook } from '../bindings/index.js'
+import {
+  type BindingAdapter,
+  callHook,
+  type MountedHook,
+  reactiveSources,
+  requireSources,
+} from '../bindings/index.js'
 import { settle } from '../ui/index.js'
 
 /** What the adapter needs from `@molecule/app-vue` (the package under test passes the module). */
@@ -71,8 +78,8 @@ export function createVueBindingAdapter({
       document.body.appendChild(container)
       let result: unknown
       let app: App | null = null
-      // A reactiveArgs hook reads its options from this ref for the life of one mount.
-      const reactiveOptions = shallowRef<unknown>(args[0])
+      // A reactiveArgs hook reads each argument from its ref for the life of the mount.
+      const sources = reactiveSources(hook, args, options, (value) => shallowRef<unknown>(value))
       const start = (current: unknown[]): void => {
         const Host =
           options.render === 'text'
@@ -96,10 +103,7 @@ export function createVueBindingAdapter({
               })
             : defineComponent({
                 setup() {
-                  result = callHook(
-                    exportsOf[hook],
-                    options.reactiveArgs ? [reactiveOptions, ...current.slice(1)] : current,
-                  )
+                  result = callHook(exportsOf[hook], sources ?? current)
                   return () => null
                 },
               })
@@ -117,12 +121,8 @@ export function createVueBindingAdapter({
         result: () => (options.render === 'text' ? (container.textContent ?? '') : result),
         read: (value) => (isRef(value) ? value.value : value),
         setArgs: async (next) => {
-          if (options.reactiveArgs) {
-            reactiveOptions.value = next[0]
-          } else {
-            app?.unmount()
-            start(next)
-          }
+          for (const [index, source] of requireSources(hook, sources).entries())
+            source.value = next[index]
           await flush()
         },
         flush,

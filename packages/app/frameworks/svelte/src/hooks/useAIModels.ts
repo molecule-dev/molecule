@@ -13,7 +13,7 @@
  */
 
 import { onDestroy } from 'svelte'
-import { derived, type Readable, writable } from 'svelte/store'
+import { derived, get, type Readable, writable } from 'svelte/store'
 
 import type { AppModelDefinition, AppModeModelDefaults } from '@molecule/app-ai-models'
 import { loadAIModelCatalog, pickFreeTierModel } from '@molecule/app-ai-models'
@@ -21,6 +21,7 @@ import type { HttpClient } from '@molecule/app-http'
 
 import { useHttpClient } from '../context.js'
 import { fieldStore } from './live-store.js'
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 interface CacheState {
   models: AppModelDefinition[] | null
@@ -164,8 +165,13 @@ export interface UseAIModelsResult {
  * subsequent mounts return the cached result, and a scope whose fetch failed
  * does not refetch on a later mount.
  *
+ * The project id may be a plain value or a readable store of one (a store
+ * holding `undefined` means the unscoped catalog): setting it resubscribes to
+ * the new scope's cache and fetches it if nobody has yet, on the same
+ * component, the way React's re-render does.
+ *
  * @param projectId - Optional project scope: includes that project's custom
- *   ("bring your own AI") models on servers that support them.
+ *   ("bring your own AI") models on servers that support them (or a store of it).
  * @returns Models, free-tier model, loading flag, and error, as stores.
  * @example
  * ```svelte
@@ -175,31 +181,52 @@ export interface UseAIModelsResult {
  * </script>
  * ```
  */
-export function useAIModels(projectId?: string): UseAIModelsResult {
+export function useAIModels(projectId?: MaybeReadable<string | undefined>): UseAIModelsResult {
   const http = useHttpClient()
-  const scope = projectId ?? ''
-  const cache = cacheFor(scope)
+  const projectIdStore = toReadable(projectId)
+  let scope = get(projectIdStore) ?? ''
+
+  const initialCache = cacheFor(scope)
   const snapshot = writable<CacheSnapshot>({
-    models: cache.models,
-    defaults: cache.defaults,
-    error: cache.error,
+    models: initialCache.models,
+    defaults: initialCache.defaults,
+    error: initialCache.error,
   })
-
   const listener: Listener = (next) => snapshot.set(next)
-  listenersFor(scope).add(listener)
+
+  /** React's [http, scope] effect for one scope: resync, then fetch if new. */
+  const attachScope = (scopeToAttach: string): void => {
+    const cache = cacheFor(scopeToAttach)
+    listenersFor(scopeToAttach).add(listener)
+    // Resync from the cache the scope now names (React's effect re-syncs what
+    // its lazy useState init may have raced).
+    snapshot.set({ models: cache.models, defaults: cache.defaults, error: cache.error })
+    if (!cache.models && !cache.error) {
+      void fetchOnce(http, scopeToAttach).catch((_error: unknown) => {
+        // fetchOnce mirrors the error into cache.error, which the listener delivers.
+      })
+    }
+  }
+  const detachScope = (scopeToDetach: string): void => {
+    listenersFor(scopeToDetach).delete(listener)
+  }
+
+  attachScope(scope)
   onDestroy(() => {
-    listenersFor(scope).delete(listener)
+    detachScope(scope)
   })
 
-  // The writable was created from the same cache; this re-read is React's
-  // effect resync (its lazy useState init may have raced a scope change).
-  snapshot.set({ models: cache.models, defaults: cache.defaults, error: cache.error })
-
-  if (!cache.models && !cache.error) {
-    void fetchOnce(http, scope).catch((_error: unknown) => {
-      // fetchOnce mirrors the error into cache.error, which the listener delivers.
-    })
-  }
+  // Follow the project id: a changed scope re-runs the effect — resubscribe,
+  // resync from that scope's cache, fetch it if nobody has. The store calls
+  // back at once with the id already read, which changes nothing.
+  const stopProjectId = projectIdStore.subscribe((next) => {
+    const nextScope = next ?? ''
+    if (Object.is(nextScope, scope)) return
+    detachScope(scope)
+    scope = nextScope
+    attachScope(scope)
+  })
+  onDestroy(stopProjectId)
 
   const loading = derived(snapshot, (current) => !current.models && !current.error)
   return {

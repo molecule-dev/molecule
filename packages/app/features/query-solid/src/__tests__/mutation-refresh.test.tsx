@@ -18,7 +18,7 @@ import { provider as memoryProvider } from '@molecule/app-query-memory'
 import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
 
 import { useQuery } from '../use-query.js'
-import { renderHook, settle } from './helpers.js'
+import { renderHook, settle } from './helpers.jsx'
 
 describe.each([
   ['memory', memoryProvider],

@@ -19,6 +19,7 @@ import type {
 import { I18nError } from '@molecule/app-i18n'
 
 import { useI18nProvider } from '../context.js'
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 /**
  * Options for the shorthand form of {@link UseTFunction}: the fallback text
@@ -210,19 +211,25 @@ export function useDirection(): Readable<'ltr' | 'rtl'> {
  * using the current locale. For plain `Error` instances, `error.message` is
  * returned unchanged.
  *
- * @param error - The error to translate, or `null`/`undefined`.
+ * The error may be a plain value or a readable store of one: setting the store
+ * replaces the message on the same component, the way React's re-render does.
+ *
+ * @param error - The error to translate, or `null`/`undefined` (or a store of either).
  * @returns A readable store of the translated error string, or null.
  */
-export function useI18nError(error: Error | null | undefined): Readable<string | null> {
+export function useI18nError(
+  error: MaybeReadable<Error | null | undefined>,
+): Readable<string | null> {
   const { t, locale } = useTranslation()
-  return derived(locale, () => {
-    if (!error) return null
+  const errorStore = toReadable(error)
+  return derived([errorStore, locale], ([current]) => {
+    if (!current) return null
     // defaultValue is the I18nError's own message — the fallback text its
     // throw site provided. Without it, a key the CLIENT dictionary lacks
     // renders as the raw key instead of a message.
-    if (error instanceof I18nError) {
-      return t(error.i18nKey, error.i18nValues, { defaultValue: error.message })
+    if (current instanceof I18nError) {
+      return t(current.i18nKey, current.i18nValues, { defaultValue: current.message })
     }
-    return error.message
+    return current.message
   })
 }

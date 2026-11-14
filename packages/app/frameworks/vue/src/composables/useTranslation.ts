@@ -4,7 +4,17 @@
  * @module
  */
 
-import { computed, type ComputedRef, inject, onMounted, onUnmounted, type Ref, ref } from 'vue'
+import {
+  computed,
+  type ComputedRef,
+  inject,
+  type MaybeRefOrGetter,
+  onMounted,
+  onUnmounted,
+  type Ref,
+  ref,
+  toValue,
+} from 'vue'
 
 import type {
   DateFormatOptions,
@@ -243,21 +253,28 @@ export function useDirection(): ComputedRef<'ltr' | 'rtl'> {
  * `throw new I18nError(key)`), its key is translated using the current locale.
  * For plain `Error` instances, `error.message` is returned unchanged.
  *
- * @param error - The error to translate, or `null`/`undefined`.
+ * The error may be reactive (a ref or a getter): a changed error replaces the
+ * message on the same component, the way React re-renders `useI18nError`.
+ *
+ * @param error - The error to translate, or `null`/`undefined`; may be
+ *   reactive, and a change replaces the message.
  * @returns Computed reference to the translated error string, or `null` if no error.
  */
-export function useI18nError(error: Error | null | undefined): ComputedRef<string | null> {
+export function useI18nError(
+  error: MaybeRefOrGetter<Error | null | undefined>,
+): ComputedRef<string | null> {
   const { t, locale } = useTranslation()
   return computed(() => {
     void locale.value
-    if (!error) return null
+    const current = toValue(error)
+    if (!current) return null
     // defaultValue is the I18nError's own message — the fallback text its
     // throw site provided (for a server error: the server's
     // already-translated message). Without it, a key the CLIENT dictionary
     // happens to lack renders as the raw key instead of a message.
-    if (error instanceof I18nError) {
-      return t(error.i18nKey, error.i18nValues, { defaultValue: error.message })
+    if (current instanceof I18nError) {
+      return t(current.i18nKey, current.i18nValues, { defaultValue: current.message })
     }
-    return error.message
+    return current.message
   })
 }

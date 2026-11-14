@@ -9,6 +9,7 @@
  * stubs the wired classmap for deterministic token strings.
  */
 import { flushSync, mount, unmount } from 'svelte'
+import { get, type Readable } from 'svelte/store'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // `useOAuth` is hoisted so tests can vary the provider list.
@@ -159,14 +160,15 @@ describe('OAuthButtons — callback outcome UI', () => {
    * Live (client) render so the hook's async onError/onSuccess — fired from
    * useOAuth's callback-exchange in the real flow — can update state after
    * mount, exactly like a failed `?code&state` exchange does. The mock hands
-   * back the config it was called with, the way React's test captured it.
+   * back the config it was called with, the way React's test captured it: the
+   * component passes a store over its props, so its current value is read.
    */
   type HookCfg = { onError?: (m: string) => void; onSuccess?: () => void }
   const renderLive = (
     props: Record<string, unknown>,
   ): { container: HTMLDivElement; hookCfg: () => HookCfg | undefined } => {
-    let captured: HookCfg | undefined
-    mockUseOAuth.mockImplementation((cfg?: HookCfg) => {
+    let captured: Readable<HookCfg> | undefined
+    mockUseOAuth.mockImplementation((cfg: Readable<HookCfg>) => {
       captured = cfg
       return { providers: ['github'], redirect: () => {} }
     })
@@ -174,7 +176,7 @@ describe('OAuthButtons — callback outcome UI', () => {
     document.body.appendChild(container)
     instance = mount(OAuthButtons, { target: container, props: { oauthConfig: {}, ...props } })
     flushSync()
-    return { container, hookCfg: () => captured }
+    return { container, hookCfg: () => (captured ? get(captured) : undefined) }
   }
 
   it('renders a VISIBLE inline error (role=alert) when the OAuth exchange fails', () => {

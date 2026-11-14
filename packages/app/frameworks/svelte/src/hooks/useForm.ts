@@ -5,7 +5,7 @@
  */
 
 import { onDestroy } from 'svelte'
-import { derived, type Readable, writable } from 'svelte/store'
+import { derived, get, type Readable, writable } from 'svelte/store'
 
 import type {
   FieldRegistration,
@@ -23,30 +23,7 @@ import {
   snapshotFormValue,
 } from '@molecule/app-forms'
 
-/**
- * What one host owns across the mounts an `args` step makes of the hook:
- * React re-renders ONE instance when its arguments change, while a Svelte host
- * re-mounts, so the replacing mount adopts this lane — the controller
- * continues, the external-values history stays, and the asState tuples are
- * kept. A changed `resetKey` starts a fresh controller, which is a fresh lane.
- * A mount after the lane's disarm timer has cleared it (an unmount with no
- * replacement in the same turn) is a genuinely new component and starts fresh.
- */
-interface FormLane<T extends FormValuesConstraint<T>> {
-  /** React's mounted flag: false once the host is gone with no replacement. */
-  dead: boolean
-  /** The controller created by the host's first mount. */
-  form: FormController<T>
-  /** The resetKey the controller was created for. */
-  resetKey: string | number | boolean | bigint | null | undefined
-  /** The last external `values` applied, compared by content (React's ref). */
-  lastExternal: { values: Partial<T> } | null
-  /** asState's [edit, fill] tuples per name, per controller. */
-  stateTuples: Map<keyof T | undefined, readonly [unknown, unknown]>
-}
-
-/** The previous host's lane, alive until its disarm timer runs. */
-let formHandoff: FormLane<never> | null = null
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 /**
  * Options for useForm hook.
@@ -138,8 +115,15 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
  * take the loaded values. A changed `resetKey` starts a fresh form; fresh
  * `defaultValues` without one leave the drafts alone.
  *
- * @param options - Form options. `defaultValues`, `mode` and the form-level
- * `validate` are forwarded to the provider.
+ * The options may be a plain value or a readable store of one (a store holding
+ * `undefined` means the options were omitted): setting the store re-runs the
+ * work React's re-render does, on the same controller — a changed `values`
+ * object is applied (dirty fields kept by default) and a changed `resetKey`
+ * replaces the controller with a fresh one. Edits, touched fields and pending
+ * submits survive every other change.
+ *
+ * @param options - Form options (or a store of them). `defaultValues`, `mode`
+ *   and the form-level `validate` are forwarded to the provider.
  * @returns Form state stores and methods
  * @example
  * ```svelte
@@ -157,53 +141,30 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
  * ```
  */
 export function useForm<T extends FormValuesConstraint<T> = Record<string, unknown>>(
-  options: UseFormOptions<T> = {},
+  options: MaybeReadable<UseFormOptions<T> | undefined> = {},
 ): UseFormResult<T> {
-  const { createForm = createBondedForm, resetKey, ...formOptions } = options
+  const optionsStore = toReadable(options)
+  const readOptions = (): UseFormOptions<T> => get(optionsStore) ?? {}
 
-  // A mount in the same turn as the previous host's destroy is React's
-  // re-render (an args step), not a new component: adopt its lane (when the
-  // resetKey did not change) so the controller and its state continue.
-  const adopted = formHandoff as unknown as FormLane<T> | null
-  formHandoff = null
-  const sameForm = adopted !== null && Object.is(adopted.resetKey, resetKey)
-  const form: FormController<T> = sameForm ? (adopted as FormLane<T>).form : createForm(formOptions)
-  const lane: FormLane<T> = sameForm
-    ? (adopted as FormLane<T>)
-    : { dead: false, form, resetKey, lastExternal: null, stateTuples: new Map() }
-  lane.resetKey = resetKey
-  if (sameForm) lane.dead = false
+  const initial = readOptions()
 
-  // React's mounted flag: false once the host is gone with no replacement.
-  let mounted = !lane.dead
+  // React's mounted flag: false once the component is gone. The controller
+  // itself stays as React leaves it: subscribed-to-nothing, never destroyed
+  // mid-flight.
+  let mounted = true
   onDestroy(() => {
     mounted = false
-    lane.dead = true
-    // Offer the lane to a mount in the same turn (React's re-render); the
-    // timer clears it when no replacement adopted, so a mount after a settled
-    // teardown starts fresh. The controller itself stays as React leaves it:
-    // subscribed-to-nothing, never destroyed mid-flight.
-    formHandoff = lane as unknown as FormLane<never>
-    const offered = lane as unknown as FormLane<never>
-    setTimeout(() => {
-      if (formHandoff === offered) formHandoff = null
-    }, 0)
   })
 
-  const keepDirtyValues = options.resetOptions?.keepDirtyValues !== false
-  // External content has its own history. A reset may change the controller
-  // baseline without making an unchanged record external again.
-  const applyExternalValues = (): void => {
-    const values = options.values
-    if (values === undefined) {
-      lane.lastExternal = null
-      return
-    }
-    if (lane.lastExternal !== null && formValuesEqual(lane.lastExternal.values, values)) return
-    lane.lastExternal = { values: snapshotFormValue(values) }
-    form.updateValues(values, { keepDirtyValues })
+  // The controller (React's formRef): created once, and replaced only when the
+  // resetKey changes by Object.is. Every method below reads the current one at
+  // call time, as React's re-created callbacks read theirs.
+  const createFor = (opts: UseFormOptions<T>): FormController<T> => {
+    const { createForm = createBondedForm, resetKey: _resetKey, ...formOptions } = opts
+    return createForm(formOptions)
   }
-  applyExternalValues()
+  let form: FormController<T> = createFor(initial)
+  let formResetKey: UseFormOptions<T>['resetKey'] = initial.resetKey
 
   // Subscribed state (the controller rebuilds its state object only on change),
   // read the way React's cached useSyncExternalStore snapshot is: one read at
@@ -211,13 +172,65 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
   // mirror is what asState's visible value reads (React's stateSnapshots).
   let currentState: FormState<T> = form.getState()
   const state = writable<FormState<T>>(currentState)
-  const refresh = (): void => {
-    currentState = form.getState()
+  let stopState: (() => void) | null = null
+  const attachState = (controller: FormController<T>): void => {
+    stopState?.()
+    stopState = controller.subscribe(() => {
+      currentState = controller.getState()
+      state.set(currentState)
+    })
+    currentState = controller.getState()
     state.set(currentState)
   }
-  const unsubscribe = form.subscribe(refresh)
-  refresh()
-  onDestroy(unsubscribe)
+  attachState(form)
+  onDestroy(() => {
+    stopState?.()
+  })
+
+  // The last external `values` applied, compared by content (React's ref): it
+  // survives an argument change; a reset may change the controller baseline
+  // without making an unchanged record external again.
+  let lastExternal: { form: FormController<T>; values: Partial<T> } | null = null
+  const applyExternalValues = (opts: UseFormOptions<T>): void => {
+    const values = opts.values
+    if (values === undefined) {
+      lastExternal = null
+      return
+    }
+    if (
+      lastExternal !== null &&
+      lastExternal.form === form &&
+      formValuesEqual(lastExternal.values, values)
+    ) {
+      return
+    }
+    lastExternal = { form, values: snapshotFormValue(values) }
+    form.updateValues(values, { keepDirtyValues: opts.resetOptions?.keepDirtyValues !== false })
+  }
+  applyExternalValues(initial)
+
+  // asState's [edit, fill] tuples, per controller (React's per-form Map): a
+  // replaced controller starts a fresh map, so tuples are rebuilt for it.
+  let stateTuples: Map<keyof T | undefined, readonly [unknown, unknown]> = new Map()
+
+  // What a changed options source does, on the same component: a changed
+  // resetKey replaces the controller (fresh defaults, fresh tuples, external
+  // values re-applied); otherwise a changed `values` is applied with the
+  // latest keepDirtyValues. The store calls back at once with the options the
+  // form was created with, which changes nothing.
+  const stopOptions = optionsStore.subscribe((next) => {
+    const opts = (next ?? {}) as UseFormOptions<T>
+    if (!Object.is(opts.resetKey, formResetKey)) {
+      form = createFor(opts)
+      formResetKey = opts.resetKey
+      stateTuples = new Map()
+      attachState(form)
+      applyExternalValues(opts)
+      return
+    }
+    applyExternalValues(opts)
+  })
+  onDestroy(stopOptions)
 
   // Field methods
   const register = (
@@ -257,7 +270,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     // The value the caller sees comes from the subscribed snapshot, not a
     // fresh read: a fill that lands between renders must not jump ahead.
     const visible = name === undefined ? currentState.values : currentState.values[name]
-    const existing = lane.stateTuples.get(name)
+    const existing = stateTuples.get(name)
     if (existing) return [visible, ...existing] as readonly [unknown, unknown, unknown]
     const edit = (value: T | T[keyof T] | ((previous: T | T[keyof T]) => T | T[keyof T])): void => {
       const next =
@@ -289,17 +302,21 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
         { keepDirtyValues: true },
       )
     }
-    lane.stateTuples.set(name, [edit, fill] as const)
+    stateTuples.set(name, [edit, fill] as const)
     return [visible, edit, fill] as const
   }
 
   const handleSubmit = (
     onSubmit: (values: T) => void | Promise<void>,
     onError?: (errors: Partial<Record<keyof T, string>>) => void,
-  ): ((event?: { preventDefault?: () => void }) => Promise<void>) =>
-    form.handleSubmit((values) => {
-      if (mounted && lane.form === form) return onSubmit(values)
+  ): ((event?: { preventDefault?: () => void }) => Promise<void>) => {
+    // The controller this runner was created for (React's per-render form): a
+    // submit runner from before a resetKey change does not call its handler.
+    const boundForm = form
+    return form.handleSubmit((values) => {
+      if (mounted && form === boundForm) return onSubmit(values)
     }, onError)
+  }
 
   return {
     formState: { subscribe: state.subscribe },

@@ -64,14 +64,38 @@ export function interpolate(text: string, args: unknown[]): string {
  * @returns A new node list.
  */
 export function interpolateNodes(nodes: NodeSpec[], args: unknown[]): NodeSpec[] {
-  const deep = (value: unknown): unknown => {
-    if (typeof value === 'string') return interpolate(value, args)
-    if (Array.isArray(value)) return value.map(deep)
-    if (value && typeof value === 'object')
-      return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, deep(v)]))
-    return value
+  return nodes.map((node) => interpolateValue(node, args))
+}
+
+/**
+ * Interpolates every string inside any value (a node, a prop value, a nested object).
+ *
+ * @param value - The value.
+ * @param args - The call's arguments.
+ * @returns A copy with every string interpolated.
+ */
+export function interpolateValue<T>(value: T, args: unknown[]): T {
+  const deep = (v: unknown): unknown => {
+    if (typeof v === 'string') return interpolate(v, args)
+    if (Array.isArray(v)) return v.map(deep)
+    if (v && typeof v === 'object')
+      return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)]))
+    return v
   }
-  return nodes.map((node) => deep(node) as NodeSpec)
+  return deep(value) as T
+}
+
+/**
+ * Whether a value holds a `{0}` / `{0.field}` placeholder in any string inside it.
+ *
+ * @param value - The value.
+ * @returns True when interpolation can change it.
+ */
+export function hasPlaceholder(value: unknown): boolean {
+  if (typeof value === 'string') return /\{\d+(?:\.[\w$]+)*\}/.test(value)
+  if (Array.isArray(value)) return value.some(hasPlaceholder)
+  if (value && typeof value === 'object') return Object.values(value).some(hasPlaceholder)
+  return false
 }
 
 /**

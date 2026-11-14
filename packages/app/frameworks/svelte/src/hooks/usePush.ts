@@ -4,7 +4,8 @@
  * @module
  */
 
-import { type Readable, writable } from 'svelte/store'
+import { onDestroy } from 'svelte'
+import { get, type Readable, writable } from 'svelte/store'
 
 import { getLogger } from '@molecule/app-logger'
 import type {
@@ -17,6 +18,8 @@ import type {
   TokenChangeListener,
 } from '@molecule/app-push'
 import { getProvider } from '@molecule/app-push'
+
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 /**
  * Hook return type.
@@ -51,7 +54,8 @@ export interface UsePushResult {
  */
 export interface UsePushOptions {
   /**
-   * Whether to check permission status on mount.
+   * Whether to check permission status on mount, and again when the flag turns
+   * on later on the same component.
    */
   checkOnMount?: boolean
 }
@@ -65,7 +69,9 @@ export interface UsePushOptions {
  * context-provided. The provider's listeners are caller-managed: the returned
  * `on*` unsubscribes are the caller's to call, like React's.
  *
- * @param options - Hook options
+ * @param options - Hook options (or a store of them): setting `checkOnMount`
+ *   later runs its check on the same component, the way React's re-render
+ *   re-runs its effect.
  * @returns Push notification state and action methods
  * @example
  * ```svelte
@@ -79,22 +85,36 @@ export interface UsePushOptions {
  * {/if}
  * ```
  */
-export function usePush(options?: UsePushOptions): UsePushResult {
-  const { checkOnMount = false } = options ?? {}
+export function usePush(options?: MaybeReadable<UsePushOptions | undefined>): UsePushResult {
+  const optionsStore = toReadable(options)
   const provider: PushProvider = getProvider()
   const permission = writable<PermissionStatus | null>(null)
   const token = writable<PushToken | null>(null)
 
-  // React's mount effect: a failed mount check leaves the permission unknown
-  // until checkPermission() runs again; the failure goes to the logger.
-  if (checkOnMount) {
+  // React's mount effect ([checkOnMount]): a failed check leaves the
+  // permission unknown until checkPermission() runs again; the failure goes to
+  // the logger. Turning the flag on later checks once more; turning it off
+  // does nothing, exactly as the effect body's truthiness test.
+  const runCheck = (): void => {
     provider
       .checkPermission()
       .then((status) => permission.set(status))
       .catch((error: unknown) => {
+        // The permission stays unknown until checkPermission() is called again.
         getLogger('usePush').warn('Checking push permission on mount failed', { error })
       })
   }
+  let lastCheckOnMount = get(optionsStore)?.checkOnMount ?? false
+  if (lastCheckOnMount) {
+    runCheck()
+  }
+  const stopOptions = optionsStore.subscribe(() => {
+    const next = get(optionsStore)?.checkOnMount ?? false
+    if (Object.is(next, lastCheckOnMount)) return
+    lastCheckOnMount = next
+    if (next) runCheck()
+  })
+  onDestroy(stopOptions)
 
   return {
     permission: { subscribe: permission.subscribe },

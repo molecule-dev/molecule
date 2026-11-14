@@ -11,7 +11,7 @@
  * @module
  */
 
-import { DestroyRef, inject } from '@angular/core'
+import { DestroyRef, effect, inject, untracked } from '@angular/core'
 
 import type {
   AuthResult,
@@ -23,6 +23,7 @@ import type {
 } from '@molecule/app-auth'
 import { t } from '@molecule/app-i18n'
 
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { usePromise, type UsePromiseState } from './use-async.js'
 import { useAuthClient } from './use-auth.js'
 
@@ -292,7 +293,11 @@ interface OAuthRelayMessage {
  * Return type for {@link useOAuth}.
  */
 export interface UseOAuthReturn {
-  /** The supported provider names. */
+  /**
+   * The supported provider names. A live getter: it reads the config the hook
+   * currently holds, so it follows a config passed as a signal the way React's
+   * re-rendered `providers` list does.
+   */
   providers: string[]
   /**
    * Builds the initiation URL for one provider.
@@ -354,15 +359,22 @@ export interface UseOAuthConfig {
  * exchanging them for a session — and, when the callback is running inside a
  * popup we opened, relaying the result to the opener instead.
  *
+ * The config may be a signal, and the result follows it the way React's
+ * re-render does: `providers` reads the config at the moment it is read,
+ * `getOAuthUrl` builds from the config at call time, and a flow (`redirect`,
+ * `loginViaPopup`, a callback exchange) uses the config it was started with,
+ * like the render closure React started it from.
+ *
  * Unmounting does not cancel a flow that has started. A popup result or a
  * callback exchange that settles afterwards still establishes the session on
  * the shared auth client, because the user did sign in. `onSuccess` and
  * `onError` are not called after unmount: they belong to the unmounted view.
  *
- * @param config - Optional OAuth configuration override (see {@link UseOAuthConfig}).
+ * @param config - Optional OAuth configuration override (see
+ *   {@link UseOAuthConfig}), or a signal of it.
  * @returns OAuth helpers: providers, getOAuthUrl, redirect, and loginViaPopup.
  */
-export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
+export function useOAuth(config?: MaybeSignal<UseOAuthConfig>): UseOAuthReturn {
   const authClient = useAuthClient()
 
   // Whether the host is mounted, read when a flow settles (an Angular
@@ -374,17 +386,15 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
     mounted = false
   })
 
-  const providers = config?.oauthProviders ?? []
-  const baseURL = config?.baseURL ?? ''
-  const oauthEndpoint = config?.oauthEndpoint ?? '/oauth'
-  const loginEndpoint = config?.loginEndpoint ?? '/users/log-in/oauth'
-
   const getOAuthUrl = (provider: string): string => {
     // Encode the provider as a single path segment so a (future) caller passing an
     // untrusted value can never inject a path/query/scheme into the opened URL —
     // defense-in-depth on top of the upstream static provider allowlist. Plain
     // provider names ('github', 'google') pass through unchanged.
-    return `${baseURL}${oauthEndpoint}/${encodeURIComponent(provider)}`
+    const current = readMaybeSignal(config)
+    return `${current?.baseURL ?? ''}${current?.oauthEndpoint ?? '/oauth'}/${encodeURIComponent(
+      provider,
+    )}`
   }
 
   /** Stash which provider initiated the flow so the callback knows it's ours. */
@@ -434,16 +444,15 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
     return false
   }
 
-  const navigateOption = config?.navigate
   /** Leaves the page for the provider: the `navigate` option, else a full-page navigation. */
-  const leaveFor = (url: string): void => {
+  const leaveFor = (url: string, navigateOption: ((url: string) => void) | undefined): void => {
     if (navigateOption) navigateOption(url)
     else window.location.href = url
   }
 
   const redirect = (provider: string): void => {
     stashProvider(provider)
-    leaveFor(withReturnPath(getOAuthUrl(provider)))
+    leaveFor(withReturnPath(getOAuthUrl(provider)), readMaybeSignal(config)?.navigate)
   }
 
   // The currently-open OAuth popup, so a second click focuses it instead of
@@ -452,6 +461,9 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
   let activePopup: Window | null = null
 
   const loginViaPopup = (provider: string): void => {
+    // The config this flow was started with, like the render closure React
+    // starts a flow from; a config change after that does not reach it.
+    const flowConfig = readMaybeSignal(config)
     // A flow is already open — focus it rather than starting another.
     if (activePopup && !activePopup.closed) {
       try {
@@ -475,7 +487,7 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
     // Popup blocked (or unavailable) → fall back to a full-page redirect so login
     // still works. No listener is registered in this branch.
     if (!popup) {
-      leaveFor(url)
+      leaveFor(url, flowConfig?.navigate)
       return
     }
     activePopup = popup
@@ -513,11 +525,11 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
       if (data.ok) {
         void establishSession(data.token, data.user).then((ok) => {
           if (!mounted) return
-          if (ok) config?.onSuccess?.()
-          else config?.onError?.(oauthFailed())
+          if (ok) flowConfig?.onSuccess?.()
+          else flowConfig?.onError?.(oauthFailed())
         })
       } else if (mounted) {
-        config?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
+        flowConfig?.onError?.(typeof data.error === 'string' ? data.error : oauthFailed())
       }
     }
 
@@ -546,15 +558,20 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
     }, OAUTH_POPUP_TIMEOUT_MS)
   }
 
-  // Handle OAuth callback — detect code + state in URL params.
-  {
+  /**
+   * Handles the OAuth callback — detects `code` and `state` in the URL params
+   * and exchanges the code for a session (or relays it to the opener), reading
+   * the config the detection runs for.
+   */
+  const detectCallback = (callbackConfig: UseOAuthConfig | undefined): void => {
+    const baseURL = callbackConfig?.baseURL ?? ''
+    const loginEndpoint = callbackConfig?.loginEndpoint ?? '/users/log-in/oauth'
+
     const params = new URLSearchParams(window.location.search)
     const code = params.get('code')
     const state = params.get('state')
 
-    if (!code) {
-      return { providers, getOAuthUrl, redirect, loginViaPopup }
-    }
+    if (!code) return
 
     // Retrieve the provider that initiated the flow.
     let provider: string | null = null
@@ -563,9 +580,7 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
     } catch (_error) {
       /* SSR-safe — sessionStorage is unavailable in SSR/sandboxed environments */
     }
-    if (!provider) {
-      return { providers, getOAuthUrl, redirect, loginViaPopup }
-    }
+    if (!provider) return
 
     // Are we the OAuth popup we opened? Relay the result to the opener instead of
     // establishing the session in this (about-to-close) window. Gated on BOTH the
@@ -623,7 +638,7 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
             relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
             return
           }
-          if (mounted) config?.onError?.(error)
+          if (mounted) callbackConfig?.onError?.(error)
           return
         }
 
@@ -655,20 +670,40 @@ export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
         // unchanged behavior.
         const ok = await establishSession(token, user)
         if (!mounted) return
-        if (ok) config?.onSuccess?.()
-        else config?.onError?.(oauthFailed())
+        if (ok) callbackConfig?.onSuccess?.()
+        else callbackConfig?.onError?.(oauthFailed())
       } catch (err) {
         const error = err instanceof Error ? err.message : oauthFailed()
         if (inPopup) {
           relayToOpener({ type: OAUTH_RESULT_MESSAGE_TYPE, ok: false, error })
           return
         }
-        if (mounted) config?.onError?.(error)
+        if (mounted) callbackConfig?.onError?.(error)
       }
     }
 
     void exchangeCode()
   }
 
-  return { providers, getOAuthUrl, redirect, loginViaPopup }
+  // Handle the OAuth callback for the config this component mounted with, and
+  // again for a changed config — React's effect keyed on the config identity
+  // re-runs it the same way (the cleaned URL and sessionStorage make the
+  // re-run settle nothing).
+  let detectedWith = readMaybeSignal(config)
+  detectCallback(detectedWith)
+  effect(() => {
+    const next = readMaybeSignal(config)
+    if (next === detectedWith) return
+    detectedWith = next
+    untracked(() => detectCallback(next))
+  })
+
+  return {
+    get providers(): string[] {
+      return readMaybeSignal(config)?.oauthProviders ?? []
+    },
+    getOAuthUrl,
+    redirect,
+    loginViaPopup,
+  }
 }

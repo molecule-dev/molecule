@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type ShallowRef, shallowRef } from 'vue'
+import { type MaybeRefOrGetter, type ShallowRef, shallowRef, toValue, watch } from 'vue'
 
 import { getLogger } from '@molecule/app-logger'
 import type {
@@ -50,8 +50,13 @@ export interface UsePushReturn {
  * Uses module-level getProvider() from `@molecule/app-push` (singleton).
  * Wraps async methods to update reactive refs for permission and token.
  *
+ * The options may be reactive (a ref or a getter): `checkOnMount` turning on
+ * through them checks the permission once more on the same component, the way
+ * a re-render turns React's effect on; turning it off stops future checks.
+ *
  * @param options - Composable options (`checkOnMount` reads the permission once
- *   on mount; a failing check logs a warning and leaves the permission unset).
+ *   on mount; a failing check logs a warning and leaves the permission unset);
+ *   may be reactive, and a change to `checkOnMount` is followed live.
  * @returns Push notification state and action methods
  *
  * @example
@@ -75,25 +80,30 @@ export interface UsePushReturn {
  * </template>
  * ```
  */
-export function usePush(options?: UsePushOptions): UsePushReturn {
-  const { checkOnMount = false } = options ?? {}
+export function usePush(options?: MaybeRefOrGetter<UsePushOptions | undefined>): UsePushReturn {
   const provider = getProvider()
 
   const permission = shallowRef<PermissionStatus | null>(null)
   const token = shallowRef<PushToken | null>(null)
 
-  // Check permission on mount if requested.
-  if (checkOnMount) {
-    provider
-      .checkPermission()
-      .then((status) => {
-        permission.value = status
-      })
-      .catch((error: unknown) => {
-        // The permission stays unknown until checkPermission() is called again.
-        getLogger('usePush').warn('Checking push permission on mount failed', { error })
-      })
-  }
+  // Check permission if requested. React runs this as an effect keyed on
+  // `checkOnMount`: once on mount, and again whenever the option turns on.
+  watch(
+    () => toValue(options)?.checkOnMount ?? false,
+    (checkOnMount) => {
+      if (!checkOnMount) return
+      provider
+        .checkPermission()
+        .then((status) => {
+          permission.value = status
+        })
+        .catch((error: unknown) => {
+          // The permission stays unknown until checkPermission() is called again.
+          getLogger('usePush').warn('Checking push permission on mount failed', { error })
+        })
+    },
+    { immediate: true },
+  )
 
   const checkPermission = async (): Promise<PermissionStatus> => {
     const status = await provider.checkPermission()

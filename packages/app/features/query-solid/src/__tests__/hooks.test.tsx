@@ -13,7 +13,7 @@ import { provider } from '@molecule/app-query-memory'
 
 import { intentPrefetchProps, usePrefetch } from '../use-prefetch.js'
 import { useQuery } from '../use-query.js'
-import { deferred, renderHook, settle } from './helpers.js'
+import { deferred, renderHook, settle } from './helpers.jsx'
 
 beforeAll(() => {
   setProvider(provider)

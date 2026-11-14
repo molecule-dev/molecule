@@ -13,7 +13,7 @@ import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-que
 import { provider as memory } from '@molecule/app-query-memory'
 import { provider as tanstack } from '@molecule/app-query-tanstack'
 
-import { mountPage, settle } from './helpers.js'
+import { mountPage, settle } from './helpers.jsx'
 
 describe.each([
   ['memory', memory],

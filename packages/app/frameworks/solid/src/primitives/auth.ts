@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Accessor, createEffect, createSignal, onCleanup, onMount, useContext } from 'solid-js'
+import { type Accessor, createEffect, createSignal, onCleanup, useContext } from 'solid-js'
 
 import type {
   AuthClient,
@@ -19,6 +19,7 @@ import { t } from '@molecule/app-i18n'
 
 import { AuthContext, getAuthClient } from '../context.js'
 import type { AuthPrimitives } from '../types.js'
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 /**
  * Hook options for {@link useAuth}.
@@ -97,7 +98,9 @@ export function useAuthClient<
  * restore has no cached profile. A restore failure other than 401/403 never
  * signs out.
  *
- * @param options - Hook options (`autoRefresh` probes once on mount while signed out).
+ * @param options - Hook options (`autoRefresh` probes once on mount while signed
+ *   out). May be an accessor: `autoRefresh` turning on through it probes once
+ *   more on the same mount, the way React re-renders `useAuth`.
  * @returns Session fields as accessors and the auth actions.
  * @throws {Error} When no `MoleculeProvider` above configures `auth`.
  * @example
@@ -111,18 +114,25 @@ export function useAuthClient<
 export function useAuth<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
->(options?: UseAuthOptions): UseAuthResult<T, TRegister> {
+>(options?: MaybeAccessor<UseAuthOptions>): UseAuthResult<T, TRegister> {
   const client = useAuthClient<T, TRegister>()
-  const { autoRefresh = false } = options ?? {}
 
   const [state, setState] = createSignal<AuthState<T>>(client.getState())
   const unsubscribe = client.onAuthChange((next) => setState(next as AuthState<T>))
   onCleanup(unsubscribe)
 
-  // Probe once on mount while there is no session to refresh (React runs the
-  // same probe in its mount effect; the client owns failure status).
-  onMount(() => {
-    if (autoRefresh && !client.getState().authenticated && !client.getState().loading) {
+  // React's probe effect lists [autoRefresh, client, state.authenticated,
+  // state.loading]: it runs once on mount and again only when one of those
+  // changes. The key mirrors that dependency array; an unrelated re-read of
+  // the options probes nothing.
+  let probedFor: string | null = null
+  createEffect(() => {
+    const autoRefresh = access(options)?.autoRefresh ?? false
+    const current = state()
+    const key = `${autoRefresh}:${current.authenticated}:${current.loading}`
+    if (key === probedFor) return
+    probedFor = key
+    if (autoRefresh && !current.authenticated && !current.loading) {
       client.refresh().catch((_error: unknown) => {
         // No session to refresh: the state already says unauthenticated.
       })

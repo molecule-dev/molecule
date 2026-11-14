@@ -271,17 +271,19 @@
  *       missing={<p role="alert">{t('invoice.missing', undefined, { defaultValue: 'Invoice not found.' })}</p>}
  *       error={() => <p role="alert">{t('invoice.failed', undefined, { defaultValue: 'Unable to load invoice.' })}</p>}
  *     >
- *       {(invoice) => <FlagButton invoice={invoice} viewer={viewer()} />}
+ *       {(invoice) => <FlagButton invoice={invoice()} viewer={viewer()} />}
  *     </QueryContent>
  *   )
  * }
  *
  * function FlagButton(props: { invoice: Invoice; viewer: string }) {
  *   const { t } = useTranslation()
- *   const flag = useOptimisticValue({
+ *   // An accessor, so each saved or refreshed invoice syncs into the same controller.
+ *   const flag = useOptimisticValue(() => ({
  *     value: props.invoice.flagged,
- *     commit: async (on) => (await invoices.toggle(props.viewer, props.invoice.id, 'flag', on)).flagged,
- *   })
+ *     commit: async (on: boolean) =>
+ *       (await invoices.toggle(props.viewer, props.invoice.id, 'flag', on)).flagged,
+ *   }))
  *   return (
  *     <button type="button" aria-pressed={flag.value()} onClick={() => flag.update((on) => !on)}>
  *       {flag.value()
@@ -402,6 +404,9 @@
  * Render resource-dependent lists and controls through {@link QueryContent}. Its child function
  * receives only loaded, non-null data; loading and error content never mount item actions.
  * It renders cached content during refresh and treats an empty list, false and zero as data.
+ * The child runs once per loaded stretch and receives the document as an ACCESSOR (Solid's
+ * `<Show>` idiom), so a saved or refreshed document reaches the same mounted controls, as React
+ * re-renders them: call it where the value is read (`record()`), never once into a constant.
  * Put the list, or the record's own container (its card, header or profile block), inside the
  * child and every status line (loading, error, `isFetching` refresh) beside it, never inside it:
  * a reader that finds the container and reads its paragraph must read the record, not "Loading…".
@@ -409,7 +414,7 @@
  * ```tsx
  * <QueryContent query={query} pending={<p role="status">{loadingLabel}</p>}
  *   missing={<p>{missingLabel}</p>} error={() => <p role="alert">{errorLabel}</p>}>
- *   {(record) => <RecordActions record={record} />}
+ *   {(record) => <RecordActions record={record()} />}
  * </QueryContent>
  * ```
  *
@@ -420,7 +425,7 @@
  * @module
  */
 
-export * from './query-content.js'
+export * from './query-content.jsx'
 export * from './resource.js'
 export * from './types.js'
 export * from './use-prefetch.js'

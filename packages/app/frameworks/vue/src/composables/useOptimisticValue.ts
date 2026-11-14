@@ -4,28 +4,20 @@
  *
  * @module
  */
-import { computed, getCurrentInstance, getCurrentScope, onScopeDispose, shallowRef } from 'vue'
+import {
+  computed,
+  getCurrentScope,
+  type MaybeRefOrGetter,
+  onScopeDispose,
+  shallowRef,
+  toValue,
+  watch,
+} from 'vue'
 
 import type { OptimisticValue, OptimisticValueOptions } from '@molecule/app-state'
 import { createOptimisticValue, shallowEqual } from '@molecule/app-state'
 
 import type { UseOptimisticValueReturn } from '../types.js'
-import { adoptContinuity, type ContinuityState, offerContinuity } from './host-continuity.js'
-
-/**
- * What one host slot owns across the mounts a host makes of this composable
- * (a host that swaps the arguments re-mounts the composable; React kept the
- * controller, the last received server value and the newest options on the
- * re-rendered instance).
- */
-interface OptimisticLane<T> extends ContinuityState {
-  /** The controller created by the slot's first mount. */
-  controller: OptimisticValue<T>
-  /** The last server value the composable saw (React's `received` ref). */
-  received: T
-  /** The newest mount's options; the controller reads its callbacks here. */
-  latest: OptimisticValueOptions<T>
-}
 
 /**
  * A server-backed value — a favorite, follow, like or bookmark button, a rating, a quantity, a
@@ -45,13 +37,19 @@ interface OptimisticLane<T> extends ContinuityState {
  * Replace display-state refs and prop-copy watchers with this composable's value and `update`.
  * `pending` is for feedback, never a reason to disable the toggle or drop a tap.
  *
+ * The options may be reactive (a ref or a getter) and are followed on the same component,
+ * the way React re-renders `useOptimisticValue`: the controller and any pending save
+ * survive an options change, `commit`/`onError` are read when each save runs, and a new
+ * `value` is taken when it differs by `equals` from the last one received.
+ *
  * Render/enable the keyed control only once its initial record exists. Keep that control
  * mounted through refetches of the same record. This composable does not fix a click handler
  * that returns on a still-null profile, or a remount that throws its controller away.
  * Refetches during a save cannot replace pending intent; changed server snapshots arriving
  * AFTER saving finishes are accepted and need query-layer ordering if they can be stale.
  *
- * @param options - The server's current value and how to save a change.
+ * @param options - The server's current value and how to save a change; may be
+ *   reactive (a ref or a getter) and followed on the same component.
  * @returns The value to render, whether a save is pending, the newest failure, and `set`/`update`.
  *
  * @example
@@ -84,50 +82,49 @@ interface OptimisticLane<T> extends ContinuityState {
  * ```
  */
 export function useOptimisticValue<T>(
-  options: OptimisticValueOptions<T>,
+  options: MaybeRefOrGetter<OptimisticValueOptions<T>>,
 ): UseOptimisticValueReturn<T> {
-  const app = getCurrentInstance()?.appContext.app
-  const adopted = adoptContinuity<OptimisticLane<T>>(app)
-  const lane = adopted ?? {
-    dead: false,
-    controller: null as unknown as OptimisticValue<T>,
-    received: options.value,
-    latest: options,
-  }
-  // The newest mount's options always win, exactly like React's latest-options
-  // ref: a replaced mount's commit/equals/onError drive the saves from here on.
-  lane.latest = options
-
-  const controller =
-    lane.controller ??
-    createOptimisticValue<T>({
-      value: options.value,
-      commit: (next, previous, confirm) => lane.latest.commit(next, previous, confirm),
-      equals: (a, b) => (lane.latest.equals ?? shallowEqual)(a, b),
-      onError: (error, value) => lane.latest.onError?.(error, value),
-    })
-  lane.controller = controller
+  // The controller is created once and never replaced: it owns the save queue,
+  // and its wrappers read the options source when each save runs — the newest
+  // commit/equals/onError drive every save, exactly like React's latest-options
+  // ref.
+  const controller: OptimisticValue<T> = createOptimisticValue<T>({
+    value: toValue(options).value,
+    commit: (next, previous, confirm) => toValue(options).commit(next, previous, confirm),
+    equals: (a, b) => (toValue(options).equals ?? shallowEqual)(a, b),
+    onError: (error, value) => toValue(options).onError?.(error, value),
+  })
 
   const state = shallowRef(controller.getState())
   const stop = controller.subscribe((next) => {
     state.value = next
   })
 
-  // A newer server value is taken only when it differs from the last one this
-  // slot received; the controller itself ignores it while a save runs.
-  if (!(options.equals ?? shallowEqual)(lane.received, options.value)) {
-    lane.received = options.value
-    controller.sync(options.value)
+  // The last server value this instance received (React's `received` ref). A
+  // newer server value is taken only when it differs by `equals`; the
+  // controller itself ignores it while a save runs. React runs this check as
+  // an effect on mount and on every `value`/`equals` change — the initial run
+  // compares the first value with itself.
+  let received = toValue(options).value
+  const applyServerValue = (next: OptimisticValueOptions<T>): void => {
+    if ((next.equals ?? shallowEqual)(received, next.value)) return
+    received = next.value
+    controller.sync(next.value)
   }
+  applyServerValue(toValue(options))
+  watch(
+    () => toValue(options),
+    (next) => {
+      applyServerValue(next)
+    },
+    { deep: true },
+  )
 
   if (getCurrentScope()) {
     onScopeDispose(() => {
-      stop()
-      // The lane lives until the tick ends: a host that re-mounts the
-      // composable with new arguments adopts controller, received value and
-      // pending save; a real unmount marks it dead and the save settles
+      // The subscription ends with the component; a pending save settles
       // quietly, exactly like React settling past unmount.
-      offerContinuity(lane, app)
+      stop()
     })
   }
 

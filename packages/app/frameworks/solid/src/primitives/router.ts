@@ -34,6 +34,7 @@ import {
 import { getRouter, RouterContext } from '../context.js'
 import type { RouterPrimitives } from '../types.js'
 import { useSyncExternalStore } from './external-store.js'
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 import { liveStateTuple } from './reactive-tuple.js'
 
 /**
@@ -145,19 +146,33 @@ export function useNavigate(): (path: string, options?: NavigateOptions) => void
 /**
  * Whether a path matches the current route, under React's hook name.
  *
- * @param path - The path to check.
- * @param exact - Whether to match exactly (default false).
+ * @param path - The path to check. May be an accessor: a changed path (or
+ *   `exact`) recomputes the match on the same mount, the way React re-renders
+ *   `useIsActive`.
+ * @param exact - Whether to match exactly (default false). May be an accessor.
  * @returns Accessor for whether the path is active.
  * @throws {Error} When no `MoleculeProvider` above configures `router`.
  */
-export function useIsActive(path: string, exact = false): Accessor<boolean> {
+export function useIsActive(
+  path: MaybeAccessor<string>,
+  exact: MaybeAccessor<boolean> = false,
+): Accessor<boolean> {
   const router = useRouterInstance()
-  const [active, setActive] = createSignal<boolean>(router.isActive(path, exact))
+  const read = (): boolean => router.isActive(access(path), access(exact))
+  const [active, setActive] = createSignal<boolean>(read())
 
   const unsubscribe = router.subscribe(() => {
-    setActive(router.isActive(path, exact))
+    setActive(read())
   })
   onCleanup(unsubscribe)
+
+  // Recompute when the arguments change (React re-renders and re-reads its
+  // snapshot). The work is idempotent, so re-reading equal arguments is safe.
+  createEffect(() => {
+    access(path)
+    access(exact)
+    setActive(read())
+  })
 
   return active
 }
@@ -235,12 +250,11 @@ export type UseListRouteResult<
  * ```
  */
 export function useListRoute<Filter extends string = string, Selection extends string = string>(
-  options: ListRouteOptions<Filter, Selection> | Accessor<ListRouteOptions<Filter, Selection>> = {},
+  options: MaybeAccessor<ListRouteOptions<Filter, Selection>> = {},
 ): UseListRouteResult<Filter, Selection> {
   const { location, params, navigate } = useRouter()
 
-  const readOptions = (): ListRouteOptions<Filter, Selection> =>
-    typeof options === 'function' ? options() : options
+  const readOptions = (): ListRouteOptions<Filter, Selection> => access(options)
 
   // The list re-resolves on each location or options change. The memo computes
   // eagerly, so a bad `pageSize` or a protected selection without `auth`

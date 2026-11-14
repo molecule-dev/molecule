@@ -12,9 +12,9 @@ import {
   DestroyRef,
   effect,
   inject,
-  isSignal,
   type Signal,
   signal,
+  untracked,
 } from '@angular/core'
 
 import type {
@@ -34,6 +34,7 @@ import {
 } from '@molecule/app-routing'
 
 import { injectProvider } from '../inject.js'
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { ROUTER } from '../tokens.js'
 
 /**
@@ -186,14 +187,33 @@ export function useNavigate(): (path: string, options?: NavigateOptions) => void
  * Whether a path is active, re-evaluated on every route change. Call it in an
  * injection context.
  *
- * @param path - The path to check.
- * @param exact - Whether to match exactly (default: `false`).
+ * The arguments may be signals: the active flag then follows a changed path or
+ * `exact` on the same component, the way React re-renders `useIsActive` with
+ * new arguments. A signal holding `undefined` for `exact` matches an omitted
+ * argument (`false`).
+ *
+ * @param path - The path to check (or a signal of it).
+ * @param exact - Whether to match exactly (default: `false`, or a signal of
+ *   it).
  * @returns A signal of whether the path is active.
  */
-export function useIsActive(path: string, exact = false): Signal<boolean> {
+export function useIsActive(
+  path: MaybeSignal<string>,
+  exact: MaybeSignal<boolean | undefined> = false,
+): Signal<boolean> {
   const router = useRouterInstance()
-  const active = signal<boolean>(router.isActive(path, exact))
-  const stop = router.subscribe(() => active.set(router.isActive(path, exact)))
+  const readExact = (): boolean => readMaybeSignal(exact) ?? false
+  const active = signal<boolean>(router.isActive(readMaybeSignal(path), readExact()))
+  const stop = router.subscribe(() =>
+    active.set(router.isActive(readMaybeSignal(path), readExact())),
+  )
+  // React recomputes the same expression when a re-render passes new
+  // arguments; a signal argument changes it on this component instead.
+  effect(() => {
+    const nextPath = readMaybeSignal(path)
+    const nextExact = readMaybeSignal(exact)
+    untracked(() => active.set(router.isActive(nextPath, nextExact ?? false)))
+  })
   inject(DestroyRef).onDestroy(stop)
   return active.asReadonly()
 }
@@ -308,12 +328,11 @@ export interface UseListRouteResult<
  * ```
  */
 export function useListRoute<Filter extends string = string, Selection extends string = string>(
-  options: ListRouteOptions<Filter, Selection> | Signal<ListRouteOptions<Filter, Selection>> = {},
+  options: MaybeSignal<ListRouteOptions<Filter, Selection>> = {},
 ): UseListRouteResult<Filter, Selection> {
   const { location, params, navigate } = useRouter()
   // The options may be a signal; a plain object never changes on this component.
-  const readOptions = (): ListRouteOptions<Filter, Selection> =>
-    isSignal(options) ? options() : options
+  const readOptions = (): ListRouteOptions<Filter, Selection> => readMaybeSignal(options)
   // Re-resolved from the current location alone, exactly as React re-renders:
   // a navigation (or an options change) recomputes every field.
   const list = computed(() =>

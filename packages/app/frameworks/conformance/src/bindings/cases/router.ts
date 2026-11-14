@@ -310,6 +310,8 @@ export const useQueryCases: HookCases = {
 /** `useIsActive(path, exact?)`: whether a path matches the current route. */
 export const useIsActiveCases: HookCases = {
   hook: 'useIsActive',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     { name: 'active for a prefix by default', args: ['/items'], context: { route: '/items/42' } },
     {

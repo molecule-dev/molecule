@@ -17,6 +17,7 @@ import type {
 } from '@molecule/app-i18n'
 import { getProvider, I18nError } from '@molecule/app-i18n'
 
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { I18N_PROVIDER } from '../tokens.js'
 
 /**
@@ -182,20 +183,25 @@ export function useDirection(): Signal<'ltr' | 'rtl'> {
  * the default value); a plain `Error` returns its message unchanged; no error
  * returns `null`. Call it in an injection context.
  *
- * @param error - The error to translate, or `null`/`undefined`.
+ * The error may be a signal: the message then follows a changed error on the
+ * same component, the way React re-renders `useI18nError` with a new argument.
+ *
+ * @param error - The error to translate, or `null`/`undefined` (or a signal of
+ *   it).
  * @returns A signal of the error's display text, or `null`.
  */
-export function useI18nError(error: Error | null | undefined): Signal<string | null> {
+export function useI18nError(error: MaybeSignal<Error | null | undefined>): Signal<string | null> {
   const provider = useI18nProvider()
   const notifications = useLocaleNotifications(provider)
   return computed(() => {
     // The notification count is the recompute key: the provider is read live
     // inside, so the text follows locale changes like React's render-time read.
     void notifications()
-    if (!error) return null
-    if (error instanceof I18nError) {
-      return provider.t(error.i18nKey, error.i18nValues, { defaultValue: error.message })
+    const current = readMaybeSignal(error)
+    if (!current) return null
+    if (current instanceof I18nError) {
+      return provider.t(current.i18nKey, current.i18nValues, { defaultValue: current.message })
     }
-    return error.message
+    return current.message
   })
 }

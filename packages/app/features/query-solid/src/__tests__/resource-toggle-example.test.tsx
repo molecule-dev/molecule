@@ -28,7 +28,7 @@ import {
   useQuery,
 } from '../index.js'
 import { runExample } from './example-runner.js'
-import { settle } from './helpers.js'
+import { settle } from './helpers.jsx'
 
 interface Invoice {
   id: string

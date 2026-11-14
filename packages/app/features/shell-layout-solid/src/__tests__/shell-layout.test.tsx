@@ -34,7 +34,7 @@ vi.mock('@molecule/app-ui-solid', () => ({
   ),
 }))
 
-const { AppShellLayout } = await import('../AppShellLayout.js')
+const { AppShellLayout } = await import('../AppShellLayout.jsx')
 
 const disposers: Array<() => void> = []
 

@@ -6,34 +6,13 @@
  */
 
 import { onDestroy } from 'svelte'
-import { type Readable, writable } from 'svelte/store'
+import { get, type Readable, writable } from 'svelte/store'
 
-import type {
-  OptimisticValue,
-  OptimisticValueOptions,
-  OptimisticValueState,
-} from '@molecule/app-state'
+import type { OptimisticValueOptions, OptimisticValueState } from '@molecule/app-state'
 import { createOptimisticValue, shallowEqual } from '@molecule/app-state'
 
 import { fieldStore } from './live-store.js'
-
-/**
- * The replaced host's controller, one turn long: a mount in the same turn
- * adopts it (React re-rendered the host, it did not unmount), so the pending
- * save keeps running across the re-render and the new render's server value
- * syncs into the same controller.
- */
-interface OptimisticHandoff {
-  /** Set by the adopting mount; the disarm timer then clears. */
-  adopted: boolean
-  /** The controller, holding the pending save. */
-  controller: OptimisticValue<never>
-  /** The last server value the hook received (React's `received` ref). */
-  received: unknown
-}
-
-/** The previous host's handoff, alive until its disarm timer runs. */
-let optimisticHandoff: OptimisticHandoff | null = null
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 /**
  * What {@link useOptimisticValue} returns: the state to render as readable
@@ -68,7 +47,12 @@ export interface UseOptimisticValueResult<T> {
  * a favorite flag and its count, in the SAME value. Let commit reject on
  * failure: a catch that returns old data hides the failure.
  *
- * @param options - The server's current value and how to save a change.
+ * The options may be a plain value or a readable store of one: setting the
+ * store applies the new server value (and the new `commit`, `equals` and
+ * `onError`) on the same component, the way React's re-render does — the
+ * controller, and any save it is running, survive the change.
+ *
+ * @param options - The server's current value and how to save a change (or a store of them).
  * @returns The value to render, whether a save is pending, the newest failure,
  *   and `set`/`update`.
  * @example
@@ -85,58 +69,44 @@ export interface UseOptimisticValueResult<T> {
  * ```
  */
 export const useOptimisticValue = <T>(
-  options: OptimisticValueOptions<T>,
+  options: MaybeReadable<OptimisticValueOptions<T>>,
 ): UseOptimisticValueResult<T> => {
-  // Actions read the latest options, so an adopting mount re-arms them (React
-  // publishes them from committed renders).
-  const latest = options
+  const optionsStore = toReadable(options)
+  // Actions read the latest options (React publishes them from committed
+  // renders), so a changed source re-arms them at once.
+  const current = (): OptimisticValueOptions<T> => get(optionsStore) as OptimisticValueOptions<T>
 
-  // A mount in the same turn as the previous host's destroy is React's
-  // re-render (an args step), not a new component: adopt its controller so the
-  // pending save continues and the value does not flip.
-  const adopted = optimisticHandoff
-  optimisticHandoff = null
-  if (adopted) adopted.adopted = true
+  const initial = current()
+  const controller = createOptimisticValue<T>({
+    value: initial.value,
+    commit: (next, previous, confirm) => current().commit(next, previous, confirm),
+    equals: (a, b) => (current().equals ?? shallowEqual)(a, b),
+    onError: (error, value) => current().onError?.(error, value),
+  })
 
-  const controller = (adopted?.controller ??
-    createOptimisticValue<T>({
-      value: options.value,
-      commit: (next, previous, confirm) => latest.commit(next, previous, confirm),
-      equals: (a, b) => (latest.equals ?? shallowEqual)(a, b),
-      onError: (error, value) => latest.onError?.(error, value),
-    })) as OptimisticValue<T>
-
-  // The handoff carries the value type-erased (it outlives one generic
-  // instantiation); the adopting mount is the same component, so its `T` is
-  // the one the controller was created with.
-  const received: { current: T } = {
-    current: adopted ? (adopted.received as T) : options.value,
-  }
+  // The last server value the hook received (React's `received` ref); it
+  // survives an argument change, so only a genuinely different value syncs.
+  const received: { current: T } = { current: initial.value }
 
   const state = writable<OptimisticValueState<T>>(controller.getState())
   const unsubscribe = controller.subscribe((next) => state.set(next))
-  onDestroy(() => {
-    unsubscribe()
-    const offer: OptimisticHandoff = {
-      adopted: false,
-      controller: controller as OptimisticValue<never>,
-      received: received.current,
-    }
-    optimisticHandoff = offer
-    // An unadopted handoff was a real unmount; the timer drops it so the next
-    // mount starts clean. A mount in the same turn adopts first.
-    setTimeout(() => {
-      if (optimisticHandoff === offer && !offer.adopted) optimisticHandoff = null
-    }, 0)
-  })
+  onDestroy(unsubscribe)
 
   // A new server value is taken when it differs from the one last received
   // and nothing is being saved (the controller's `sync` decides that) —
-  // React's value effect, which also runs only for a changed value.
-  if (!(latest.equals ?? shallowEqual)(received.current, options.value)) {
-    received.current = options.value
-    controller.sync(options.value)
+  // React's value effect, which also runs only for a changed value. The
+  // store's immediate callback IS the mount check (with the options the
+  // controller was created from, it changes nothing).
+  const syncIfChanged = (optionsNow: OptimisticValueOptions<T>): void => {
+    const { value, equals } = optionsNow
+    if ((equals ?? shallowEqual)(received.current, value)) return
+    received.current = value
+    controller.sync(value)
   }
+  const stopOptions = optionsStore.subscribe((next) => {
+    syncIfChanged(next as OptimisticValueOptions<T>)
+  })
+  onDestroy(stopOptions)
 
   return {
     value: fieldStore(state, 'value') as Readable<T>,

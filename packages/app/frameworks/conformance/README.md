@@ -214,12 +214,14 @@ The same contract holds the framework bindings (`@molecule/app-vue`, `-solid`, `
 | method `login`                   | function                               | function                                | function                                   | function                                             |
 | component `SessionReady`         | component, slots `default`, `fallback` | component, props `children`, `fallback` | component, snippets `children`, `fallback` | component, default `<ng-content>`, `[slot=fallback]` |
 
-An `args` step re-renders React with new arguments; the other adapters re-mount the host,
-since a composable, primitive or injection runs once per mount. A family marked
-`reactiveArgs` (`useChat`, whose app re-renders it with a new `endpoint` to switch
-conversation) is the exception: its options arrive as the framework's reactive value (Vue a
-ref, Solid an accessor, Svelte a readable store, Angular a signal), the binding follows it,
-and an `args` step sets it on the same mount.
+An `args` step re-renders React with new arguments. A composable, primitive or injection
+runs once per component instance, so the other frameworks see new arguments only through
+reactive ones: every family whose cases have an `args` step is marked `reactiveArgs` (the
+kit's own tests refuse one that is not), and the adapter passes EVERY argument position, up
+to the longest argument list the case uses, as the framework's reactive value (Vue a ref,
+Solid an accessor, Svelte a readable store, Angular a signal), holding `undefined` past the
+end of the arguments. The binding follows them, and an `args` step sets them on the same
+mount; nothing is re-mounted, so no state has to be carried from one mount to the next.
 After a hook threw, an `args` step re-mounts the host in every framework, React included: in
 an app the throwing component is gone (an error boundary discards it), so the next render
 mounts a fresh one.

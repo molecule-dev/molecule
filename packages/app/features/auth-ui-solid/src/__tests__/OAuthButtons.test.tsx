@@ -7,7 +7,7 @@
  * @module
  */
 
-import { createComponent, type JSX } from 'solid-js'
+import { createComponent, createSignal, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -50,13 +50,15 @@ vi.mock('@molecule/app-oauth-logos-solid', () => ({
   ),
 }))
 
-const { OAuthButtons } = await import('../OAuthButtons.js')
+const { OAuthButtons } = await import('../OAuthButtons.jsx')
 
 const mounts: (() => void)[] = []
 
 afterEach(() => {
   for (const dispose of mounts.splice(0)) dispose()
   document.body.innerHTML = ''
+  // Each test scripts the hook itself; a reset keeps one test's calls and implementation out of the next.
+  mockUseOAuth.mockReset()
 })
 
 /** Mounts a component and returns the container holding it. */
@@ -87,6 +89,33 @@ describe('OAuthButtons', () => {
     expect(container.querySelector('[data-provider="github"]')).not.toBeNull()
     expect(container.querySelector('[data-provider="google"]')).not.toBeNull()
     expect(container.querySelectorAll('button')).toHaveLength(2)
+  })
+
+  it('follows a changed oauthConfig prop on the same mount', async () => {
+    // The hook gets the config as an accessor; this stand-in reads its providers from it
+    // live, the way the real useOAuth does.
+    mockUseOAuth.mockImplementation((config: () => { oauthProviders?: string[] }) => ({
+      get providers() {
+        return config().oauthProviders ?? []
+      },
+      redirect: () => {},
+    }))
+    const [config, setConfig] = createSignal<{ oauthProviders?: string[] }>({
+      oauthProviders: ['github'],
+    })
+    const container = mount(() =>
+      createComponent(OAuthButtons, {
+        get oauthConfig() {
+          return config()
+        },
+      }),
+    )
+    expect(container.querySelectorAll('button')).toHaveLength(1)
+    setConfig({ oauthProviders: ['google', 'github'] })
+    await tick()
+    expect(container.querySelectorAll('button')).toHaveLength(2)
+    expect(container.querySelector('[data-provider="google"]')).not.toBeNull()
+    expect(mockUseOAuth).toHaveBeenCalledTimes(1)
   })
 
   it('renders the default "or continue with" divider text', () => {
@@ -136,13 +165,14 @@ describe('OAuthButtons — callback outcome UI', () => {
   const renderLive = (
     props: Record<string, unknown>,
   ): { container: HTMLDivElement; hookCfg: () => HookCfg | undefined } => {
-    let captured: HookCfg | undefined
-    mockUseOAuth.mockImplementation((cfg?: HookCfg) => {
+    // The component passes its config as an accessor; read it when the test fires a callback.
+    let captured: (() => HookCfg) | undefined
+    mockUseOAuth.mockImplementation((cfg: () => HookCfg) => {
       captured = cfg
       return { providers: ['github'], redirect: () => {} }
     })
     const container = mount(() => createComponent(OAuthButtons, { oauthConfig: {}, ...props }))
-    return { container, hookCfg: () => captured }
+    return { container, hookCfg: () => captured?.() }
   }
 
   it('renders a VISIBLE inline error (role=alert) when the OAuth exchange fails', async () => {

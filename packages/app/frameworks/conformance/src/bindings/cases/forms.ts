@@ -18,6 +18,8 @@ import type { HookCases } from '../spec.js'
  */
 export const useFormCases: HookCases = {
   hook: 'useForm',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     { name: 'starts empty with no options' },
     {

@@ -25,6 +25,7 @@ import type {
 import { getProvider as getBondedI18nProvider, I18nError } from '@molecule/app-i18n'
 
 import { getI18nProvider, I18nContext } from '../context.js'
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 /**
  * The i18n provider: the one the nearest `MoleculeProvider` supplies
@@ -198,22 +199,29 @@ export function useDirection(): Accessor<'ltr' | 'rtl'> {
  * key is translated using the current locale; for plain `Error` instances,
  * `error.message` is returned unchanged.
  *
- * @param error - The error to translate, or `null`/`undefined`.
+ * @param error - The error to translate, or `null`/`undefined`. May be an
+ *   accessor: a changed error replaces the message on the same mount, the way
+ *   React re-renders `useI18nError`.
  * @returns Accessor for the translated error string, or null without an error.
  */
-export function useI18nError(error: Error | null | undefined): Accessor<string | null> {
+export function useI18nError(
+  error: MaybeAccessor<Error | null | undefined>,
+): Accessor<string | null> {
   const { t } = useTranslation()
-  return () => {
-    if (!error) return null
+  // The memo tracks the error source and (through `t`) the locale version, so
+  // the message follows a changed argument AND a locale switch.
+  return createMemo(() => {
+    const current = access(error)
+    if (!current) return null
     // defaultValue is the I18nError's own message — the fallback text its
     // throw site provided (for a server error: the server's already-translated
     // message). Without it, a key the CLIENT dictionary happens to lack
     // renders as the raw key instead of a message.
-    if (error instanceof I18nError) {
-      return t(error.i18nKey, error.i18nValues, { defaultValue: error.message })
+    if (current instanceof I18nError) {
+      return t(current.i18nKey, current.i18nValues, { defaultValue: current.message })
     }
-    return error.message
-  }
+    return current.message
+  })
 }
 
 /**

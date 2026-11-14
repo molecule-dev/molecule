@@ -13,10 +13,15 @@ import { getProvider as getI18nProvider } from '@molecule/app-i18n'
 
 import {
   type BindingAdapter,
+  bindingCaseFamilies,
   type HookCase,
+  type HookCases,
   type MountOptions,
+  reactiveSources,
+  requireSources,
   runHookCase,
 } from '../bindings/index.js'
+import { featureCases } from '../features/index.js'
 import { reactBindingAdapter } from './react-bindings-adapter.js'
 
 const run = (hook: string, testCase: Omit<HookCase, 'name'>) =>
@@ -117,6 +122,61 @@ describe('runHookCase mount flags', () => {
     })
     // Without a family, a hook the binding kit has no family for mounts with no flags.
     await runHookCase(adapter, 'useFeatureOnly', { name: 'flags' })
-    expect(seen).toEqual([{ reactiveArgs: true }, undefined])
+    expect(seen).toEqual([{ reactiveArgs: true, arity: 0 }, undefined])
+  })
+
+  it('passes a reactive hook the longest argument list its case uses', async () => {
+    const seen: (MountOptions | undefined)[] = []
+    await runHookCase(
+      recordingAdapter(seen),
+      'useFeatureOnly',
+      {
+        name: 'arity',
+        args: ['/items'],
+        steps: [
+          { type: 'args', args: ['/items', true] },
+          { type: 'args', args: [] },
+        ],
+      },
+      undefined,
+      { reactiveArgs: true },
+    )
+    expect(seen).toEqual([{ reactiveArgs: true, arity: 2 }])
+  })
+
+  it('every hook family whose cases change arguments follows them on the same mount', () => {
+    const families: HookCases[] = [
+      ...bindingCaseFamilies,
+      ...Object.values(featureCases).flatMap((feature) => feature.hooks ?? []),
+    ]
+    const changing = families.filter((family) =>
+      family.cases.some((c) => (c.steps ?? []).some((step) => step.type === 'args')),
+    )
+    expect(changing.length).toBeGreaterThan(0)
+    expect(changing.filter((family) => !family.reactiveArgs).map((family) => family.hook)).toEqual(
+      [],
+    )
+  })
+})
+
+describe('reactive argument sources', () => {
+  const box = (value: unknown) => ({ value })
+
+  it('gives every position up to the arity a source, undefined past the arguments', () => {
+    expect(
+      reactiveSources('useIsActive', ['/items'], { reactiveArgs: true, arity: 2 }, box),
+    ).toEqual([{ value: '/items' }, { value: undefined }])
+    expect(reactiveSources('useIsActive', ['/items'], {}, box)).toBeNull()
+  })
+
+  it('refuses a function argument, which Vue and Solid would read as a getter', () => {
+    expect(() =>
+      reactiveSources('useAsync', [() => 1], { reactiveArgs: true, arity: 1 }, box),
+    ).toThrow(/argument 0 is a function/)
+  })
+
+  it('refuses to change the arguments of a hook whose family is not reactive', () => {
+    expect(() => requireSources('useLogger', null)).toThrow(/must set reactiveArgs/)
+    expect(requireSources('useIsActive', [box(1)])).toEqual([{ value: 1 }])
   })
 })

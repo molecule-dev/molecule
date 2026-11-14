@@ -175,8 +175,12 @@ export function useNavigate(): (path: string, options?: NavigateOptions) => void
 /**
  * Composable to check if a path is currently active.
  *
- * @param path - The path to check
- * @param exact - Whether to match exactly (default: false)
+ * Both arguments may be reactive (a ref or a getter) and are followed on the
+ * same component, the way React re-renders `useIsActive`: the value recomputes
+ * on navigation and on an argument change.
+ *
+ * @param path - The path to check; may be reactive, and a change recomputes.
+ * @param exact - Whether to match exactly (default: false); may be reactive.
  * @returns Computed boolean indicating if the path is active
  *
  * @example
@@ -196,13 +200,16 @@ export function useNavigate(): (path: string, options?: NavigateOptions) => void
  * </template>
  * ```
  */
-export function useIsActive(path: string, exact = false): ComputedRef<boolean> {
+export function useIsActive(
+  path: MaybeRefOrGetter<string>,
+  exact: MaybeRefOrGetter<boolean | undefined> = false,
+): ComputedRef<boolean> {
   const router = useRouterInstance()
   const location = useLocation()
   return computed(() => {
     // Access location.value to establish the reactive dependency
     void location.value
-    return router.isActive(path, exact)
+    return router.isActive(toValue(path), toValue(exact) ?? false)
   })
 }
 

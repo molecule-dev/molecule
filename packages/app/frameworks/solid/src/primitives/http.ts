@@ -18,6 +18,7 @@ import { t } from '@molecule/app-i18n'
 
 import { getHttpClient, HttpContext } from '../context.js'
 import type { HttpState } from '../types.js'
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 /**
  * The HTTP client from the nearest `MoleculeProvider` (`config.http`), under
@@ -99,26 +100,6 @@ export interface UseHttpOptions<T> extends RequestConfig {
 }
 
 /**
- * The replaced host's leftover, one microtask long: a mount in the same turn
- * adopts it (React re-rendered the host, it did not unmount), so the previous
- * host's request callbacks stay armed and its mount-time `immediate` fetch
- * does not repeat.
- */
-interface HostHandoff {
-  /** Whether the mount-time `immediate` fetch already ran. */
-  ranImmediate: boolean
-  /** Set by the adopting mount; the disposal microtask then disarms. */
-  adopted: boolean
-  /** The request counter, shared across an adopting mount. */
-  latestRequest: number
-  /** The mirrored state, adopted as the next mount's initial state. */
-  data: unknown
-  loading: boolean
-  error: Error | null
-}
-let hostHandoff: HostHandoff | null = null
-
-/**
  * HTTP requests with state management, under React's hook name.
  *
  * `execute` keeps one identity while `method`, `url` and the HTTP client stay
@@ -127,9 +108,13 @@ let hostHandoff: HostHandoff | null = null
  * that answers after a newer one (or after `reset`) cannot overwrite it, and
  * its callbacks still report to the caller.
  *
- * @param method - HTTP method.
- * @param url - Request URL.
- * @param options - Request options, read at call time.
+ * @param method - HTTP method. May be an accessor; read when `execute` runs.
+ * @param url - Request URL. May be an accessor, read when `execute` runs: a
+ *   changed url makes the next `execute` request it on the same mount.
+ * @param options - Request options, read at call time. May be an accessor: a
+ *   changed options object re-arms nothing on its own (the mount-time
+ *   `immediate` fetch never repeats), but the next `execute` reads the new
+ *   headers, body, `signal` and callbacks.
  * @returns Request state (data, loading, error) as accessors and execute/reset.
  * @throws {Error} When no `MoleculeProvider` above configures `http`.
  * @example
@@ -139,71 +124,42 @@ let hostHandoff: HostHandoff | null = null
  * ```
  */
 export function useHttp<T>(
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  url: string,
-  options?: UseHttpOptions<T>,
+  method: MaybeAccessor<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'>,
+  url: MaybeAccessor<string>,
+  options?: MaybeAccessor<UseHttpOptions<T>>,
 ): UseHttpResult<T> {
   const client = useHttpClient()
-  const immediate = options?.immediate ?? false
+  // `immediate` is read on mount only (React's mount effect has no
+  // dependencies): a later change through the arguments re-fetches nothing.
+  const immediate = access(options)?.immediate ?? false
 
-  // A mount in the same turn as the previous host's cleanup is React's
-  // re-render (the adapter's args step), not a new component: adopt its
-  // handoff so the state carries over, `immediate` ran once, the request
-  // numbering continues, and the pending request's callbacks stay armed. A
-  // mount after a settled disposal is a fresh component.
-  const adopted = hostHandoff
-  if (adopted) {
-    adopted.adopted = true
-    hostHandoff = null
-  }
-
-  const handoff: HostHandoff = {
-    ranImmediate: immediate,
-    adopted: false,
-    latestRequest: adopted ? adopted.latestRequest : 0,
-    data: adopted ? adopted.data : null,
-    loading: adopted ? adopted.loading : immediate,
-    error: adopted ? adopted.error : null,
-  }
-
-  const [data, setData] = createSignal<T | null>(handoff.data as T | null)
-  const [loading, setLoading] = createSignal<boolean>(handoff.loading)
-  const [error, setError] = createSignal<Error | null>(handoff.error)
-
-  /** Mirrors the signals into the handoff, so an adopting mount reads them. */
-  const publish = (): void => {
-    handoff.data = data()
-    handoff.loading = loading()
-    handoff.error = error()
-  }
+  const [data, setData] = createSignal<T | null>(null)
+  const [loading, setLoading] = createSignal<boolean>(immediate)
+  const [error, setError] = createSignal<Error | null>(null)
 
   let disposed = false
   onCleanup(() => {
-    publish()
-    hostHandoff = handoff
-    queueMicrotask(() => {
-      if (!handoff.adopted) {
-        disposed = true
-        if (hostHandoff === handoff) hostHandoff = null
-      }
-    })
+    disposed = true
   })
 
-  // The newest request owns the state, across an adopting mount too. Without
-  // this, an older request that answers after a newer one overwrote the newer
-  // data and cleared `loading` while the newer request was still in flight.
-  // `reset` takes ownership too.
+  // The newest request owns the state. Without this, an older request that
+  // answers after a newer one overwrote the newer data and cleared `loading`
+  // while the newer request was still in flight. `reset` takes ownership too.
+  let latestRequest = 0
 
   const execute = async (): Promise<T | null> => {
     if (disposed) return null
 
-    // Deliberately not a dependency: options describe the request being sent,
-    // while method/url/client decide WHICH request execute performs.
-    const { immediate: _immediate, onSuccess, onError, ...requestConfig } = options ?? {}
-    const request = ++handoff.latestRequest
+    // Read at call time, exactly as React's execute reads the committed
+    // render's arguments: options describe the request being sent, while
+    // method/url/client decide WHICH request execute performs.
+    const currentMethod = access(method)
+    const currentUrl = access(url)
+    const { immediate: _immediate, onSuccess, onError, ...requestConfig } = access(options) ?? {}
+    const request = ++latestRequest
     // Callbacks report THIS request's outcome; only the newest request may
     // change what the hook shows.
-    const ownsState = (): boolean => !disposed && request === handoff.latestRequest
+    const ownsState = (): boolean => !disposed && request === latestRequest
 
     setLoading(true)
     setError(null)
@@ -211,28 +167,28 @@ export function useHttp<T>(
     try {
       let response: HttpResponse<T>
 
-      switch (method) {
+      switch (currentMethod) {
         case 'GET':
-          response = await client.get<T>(url, requestConfig)
+          response = await client.get<T>(currentUrl, requestConfig)
           break
         case 'POST':
-          response = await client.post<T>(url, requestConfig.data, requestConfig)
+          response = await client.post<T>(currentUrl, requestConfig.data, requestConfig)
           break
         case 'PUT':
-          response = await client.put<T>(url, requestConfig.data, requestConfig)
+          response = await client.put<T>(currentUrl, requestConfig.data, requestConfig)
           break
         case 'PATCH':
-          response = await client.patch<T>(url, requestConfig.data, requestConfig)
+          response = await client.patch<T>(currentUrl, requestConfig.data, requestConfig)
           break
         case 'DELETE':
           // The body travels in the config, like React's DELETE does.
-          response = await client.delete<T>(url, requestConfig)
+          response = await client.delete<T>(currentUrl, requestConfig)
           break
         default:
           throw new Error(
             t(
               'solid.error.unsupportedMethod',
-              { method },
+              { method: currentMethod },
               { defaultValue: 'Unsupported method: {{method}}' },
             ),
           )
@@ -243,7 +199,6 @@ export function useHttp<T>(
           setData(() => response.data)
           setLoading(false)
           setError(null)
-          publish()
         }
         onSuccess?.(response.data)
       }
@@ -256,7 +211,6 @@ export function useHttp<T>(
           setData(() => null)
           setLoading(false)
           setError(err)
-          publish()
         }
         onError?.(err)
       }
@@ -265,16 +219,15 @@ export function useHttp<T>(
   }
 
   const reset = (): void => {
-    handoff.latestRequest++
+    latestRequest++
     if (disposed) return
     setData(() => null)
     setLoading(false)
     setError(null)
-    publish()
   }
 
   // Execute immediately if requested — mount only, once per component.
-  if (immediate && !(adopted?.ranImmediate ?? false)) {
+  if (immediate) {
     void execute()
   }
 

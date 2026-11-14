@@ -6,11 +6,12 @@
  * @module
  */
 
-import { DestroyRef, inject, type Signal, signal } from '@angular/core'
+import { DestroyRef, effect, inject, type Signal, signal, untracked } from '@angular/core'
 
 import { getPreferenceStore, type StorageProvider } from '@molecule/app-storage'
 
 import { injectProvider } from '../inject.js'
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { STORAGE_PROVIDER } from '../tokens.js'
 
 /**
@@ -69,18 +70,24 @@ export interface UseStorageValueResult<T> {
  * a non-browser backend propagates the same way instead of being limited to
  * the browser `storage` event.
  *
- * @param key - Storage key.
- * @param options - Hook options (`defaultValue`, `sync`).
+ * The arguments may be signals: a new key then starts over on the same
+ * component (the value falls back to the default, loading turns true and the
+ * new key is read and subscribed), the way React re-renders `useStorageValue`
+ * with a new key. The value, its pending write and any error survive the
+ * change, as React's state does.
+ *
+ * @param key - Storage key (or a signal of it).
+ * @param options - Hook options (`defaultValue`, `sync`), or a signal of them.
  * @returns The value, its mutators, and the loading/error state as signals.
  */
 export function useStorageValue<T>(
-  key: string,
-  options?: UseStorageValueOptions<T>,
+  key: MaybeSignal<string>,
+  options?: MaybeSignal<UseStorageValueOptions<T>>,
 ): UseStorageValueResult<T> {
   const storage = useStorageProvider()
-  const { defaultValue, sync = false } = options ?? {}
+  const initialOptions = readMaybeSignal(options) ?? {}
 
-  const value = signal<T | undefined>(defaultValue)
+  const value = signal<T | undefined>(initialOptions.defaultValue)
   const loading = signal(true)
   const error = signal<Error | null>(null)
   /**
@@ -90,46 +97,85 @@ export function useStorageValue<T>(
    */
   let writeVersion = 0
   const destroyRef = inject(DestroyRef)
-  let mounted = true
-  destroyRef.onDestroy(() => {
-    mounted = false
-  })
 
-  // Load the key's value.
-  const version = writeVersion
-  const loadValue = async (): Promise<void> => {
-    try {
-      const stored = await storage.get<T>(key)
-      if (!mounted) return
-      // A write made after this read started holds the newer value; the read still ends loading.
-      if (writeVersion === version) value.set(stored ?? defaultValue)
-      loading.set(false)
-    } catch (err) {
-      if (!mounted) return
-      if (writeVersion === version) {
-        error.set(err instanceof Error ? err : new Error(String(err)))
+  // Load the key's value. Each load owns a `current` flag: a newer load (a key
+  // change) or the component's end supersedes it, exactly like the `mounted`
+  // closure of React's read effect. The default is read when the read resolves,
+  // like React's `defaultRef.current`.
+  const loadValue = (currentKey: string): (() => void) => {
+    let current = true
+    const version = writeVersion
+    const run = async (): Promise<void> => {
+      try {
+        const stored = await storage.get<T>(currentKey)
+        if (!current) return
+        // A write made after this read started holds the newer value; the read still ends loading.
+        if (writeVersion === version) value.set(stored ?? readMaybeSignal(options)?.defaultValue)
+        loading.set(false)
+      } catch (err) {
+        if (!current) return
+        if (writeVersion === version) {
+          error.set(err instanceof Error ? err : new Error(String(err)))
+        }
+        loading.set(false)
       }
-      loading.set(false)
+    }
+    void run()
+    return () => {
+      current = false
     }
   }
 
-  void loadValue()
-
   // Sync across tabs if supported — through the PROVIDER's own subscription, so
   // a non-browser backend (native, encrypted, memory) propagates the same way
-  // instead of being limited to the browser `storage` event.
-  if (sync && storage.subscribe) {
-    const stop = storage.subscribe(key, (next) => {
+  // instead of being limited to the browser `storage` event. Re-keyed when the
+  // key or the `sync` option changes, as React's effect's dependency array
+  // re-runs it.
+  let stopSync: (() => void) | null = null
+  const syncKey = (currentKey: string, sync: boolean): void => {
+    stopSync?.()
+    stopSync = null
+    if (!sync || !storage.subscribe) return
+    stopSync = storage.subscribe(currentKey, (next) => {
       writeVersion += 1
-      value.set(next === null ? defaultValue : (next as T))
+      value.set(next === null ? readMaybeSignal(options)?.defaultValue : (next as T))
     })
-    destroyRef.onDestroy(stop)
   }
+
+  let wiredKey = readMaybeSignal(key)
+  let wiredSync = initialOptions.sync ?? false
+  let stopLoad = loadValue(wiredKey)
+  syncKey(wiredKey, wiredSync)
+  destroyRef.onDestroy(() => {
+    stopLoad()
+    stopSync?.()
+  })
+
+  // A new key's value is unknown until its read lands: show what a fresh mount
+  // shows, then read and re-subscribe the new key — React does the reset at
+  // render time and re-runs its two effects.
+  effect(() => {
+    const nextKey = readMaybeSignal(key)
+    const nextSync = readMaybeSignal(options)?.sync ?? false
+    if (nextKey === wiredKey && nextSync === wiredSync) return
+    untracked(() => {
+      if (nextKey !== wiredKey) {
+        wiredKey = nextKey
+        stopLoad()
+        value.set(readMaybeSignal(options)?.defaultValue)
+        loading.set(true)
+        error.set(null)
+        stopLoad = loadValue(nextKey)
+      }
+      wiredSync = nextSync
+      syncKey(wiredKey, nextSync)
+    })
+  })
 
   const setValue = async (newValue: T): Promise<void> => {
     writeVersion += 1
     try {
-      await storage.set(key, newValue)
+      await storage.set(readMaybeSignal(key), newValue)
       value.set(newValue)
       error.set(null)
     } catch (err) {
@@ -141,8 +187,8 @@ export function useStorageValue<T>(
   const removeValue = async (): Promise<void> => {
     writeVersion += 1
     try {
-      await storage.remove(key)
-      value.set(defaultValue)
+      await storage.remove(readMaybeSignal(key))
+      value.set(readMaybeSignal(options)?.defaultValue)
       error.set(null)
     } catch (err) {
       error.set(err instanceof Error ? err : new Error(String(err)))
@@ -209,46 +255,58 @@ export interface UseStoragePreferenceResult<T> {
  * yet): the hook then behaves as local state around `defaultValue` and
  * persists nothing.
  *
- * @param key - The storage key, or `null` when there is nothing to persist.
- * @param options - `defaultValue`, reported until the provider supplies one.
+ * The arguments may be signals: a new key then re-reads and re-subscribes that
+ * key on the same component (its old subscription is dropped, hydration
+ * converges it), the way React re-renders `useStoragePreference` with a new
+ * key. The shown value survives the change, as React's state does.
+ *
+ * @param key - The storage key, or `null` when there is nothing to persist (or
+ *   a signal of it).
+ * @param options - `defaultValue`, reported until the provider supplies one
+ *   (or a signal of them).
  * @returns The current value, its mutators, and whether it is definite yet.
  */
 export function useStoragePreference<T = unknown>(
-  key: string | null | undefined,
-  options?: UseStoragePreferenceOptions<T>,
+  key: MaybeSignal<string | null | undefined>,
+  options?: MaybeSignal<UseStoragePreferenceOptions<T>>,
 ): UseStoragePreferenceResult<T> {
   const store = getPreferenceStore()
-  const defaultValue = options?.defaultValue
 
   const read = (): T | undefined => {
-    if (!key) return defaultValue
-    const stored = store.get<T>(key)
-    return stored === null ? defaultValue : stored
+    const currentKey = readMaybeSignal(key)
+    if (!currentKey) return readMaybeSignal(options)?.defaultValue
+    const stored = store.get<T>(currentKey)
+    return stored === null ? readMaybeSignal(options)?.defaultValue : stored
   }
 
   const value = signal<T | undefined>(read())
-  const ready = signal<boolean>(!key)
+  const ready = signal<boolean>(!readMaybeSignal(key))
 
   const destroyRef = inject(DestroyRef)
-  if (!key) {
-    ready.set(true)
-    value.set(defaultValue)
-  } else {
+
+  /**
+   * Wires one key, exactly the body of React's subscription effect for that
+   * key: seed from whatever the store already knows, then let hydration
+   * converge it (a no-op change on a synchronous provider).
+   *
+   * @param currentKey - The key to wire (`null`/`undefined` is local state).
+   * @returns The unwire function: cancels the hydration and unsubscribes.
+   */
+  const wire = (currentKey: string | null | undefined): (() => void) => {
+    if (!currentKey) {
+      ready.set(true)
+      value.set(readMaybeSignal(options)?.defaultValue)
+      return () => {}
+    }
     let cancelled = false
     const sync = (): void => {
       if (!cancelled) value.set(read())
     }
-    // Seed from whatever the store already knows, then let hydration converge
-    // it. With a synchronous provider this is a no-op change.
     sync()
     ready.set(false)
-    const stop = store.subscribe(key, sync)
-    destroyRef.onDestroy(() => {
-      cancelled = true
-      stop()
-    })
+    const stop = store.subscribe(currentKey, sync)
     store
-      .hydrate([key])
+      .hydrate([currentKey])
       .then(() => {
         if (cancelled) return
         sync()
@@ -261,18 +319,44 @@ export function useStoragePreference<T = unknown>(
         // `ready` still turns true so the UI is not stuck on a spinner.
         if (!cancelled) ready.set(true)
       })
+    return () => {
+      cancelled = true
+      stop()
+    }
   }
+
+  let wiredKey: string | null | undefined = readMaybeSignal(key)
+  let unwire = wire(wiredKey)
+  // Reads the CURRENT unwire, so a key switch re-targets the cleanup too.
+  destroyRef.onDestroy(() => {
+    unwire()
+  })
+
+  // A changed key re-wires on the same component, as React's effect re-runs
+  // when its key dependency changes: the old key's subscription is dropped
+  // before the new one starts.
+  effect(() => {
+    const nextKey = readMaybeSignal(key)
+    if (nextKey === wiredKey) return
+    wiredKey = nextKey
+    untracked(() => {
+      unwire()
+      unwire = wire(nextKey)
+    })
+  })
 
   const setValue = (next: T | ((previous: T | undefined) => T)): void => {
     const resolved =
       typeof next === 'function' ? (next as (previous: T | undefined) => T)(value()) : next
     value.set(resolved)
-    if (key) store.set(key, resolved)
+    const currentKey = readMaybeSignal(key)
+    if (currentKey) store.set(currentKey, resolved)
   }
 
   const removeValue = (): void => {
-    value.set(defaultValue)
-    if (key) store.remove(key)
+    value.set(readMaybeSignal(options)?.defaultValue)
+    const currentKey = readMaybeSignal(key)
+    if (currentKey) store.remove(currentKey)
   }
 
   return { value: value.asReadonly(), setValue, removeValue, ready: ready.asReadonly() }

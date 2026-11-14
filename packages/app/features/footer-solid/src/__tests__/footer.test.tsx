@@ -72,7 +72,7 @@ vi.mock('@molecule/app-ui-solid', () => ({
   ),
 }))
 
-const { AppFooter } = await import('../AppFooter.js')
+const { AppFooter } = await import('../AppFooter.jsx')
 const { RouterContext } = await import('@molecule/app-solid')
 
 const disposers: Array<() => void> = []

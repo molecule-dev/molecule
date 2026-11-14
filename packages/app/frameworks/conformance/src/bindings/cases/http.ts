@@ -32,6 +32,8 @@ export const useHttpClientCases: HookCases = {
 /** `useHttp(method, url, options)`: request state plus `execute` and `reset`. */
 export const useHttpCases: HookCases = {
   hook: 'useHttp',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     {
       name: 'manual by default: no request and no loading until execute runs',

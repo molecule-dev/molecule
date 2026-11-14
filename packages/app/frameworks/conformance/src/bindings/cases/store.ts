@@ -38,6 +38,8 @@ export const useStateProviderCases: HookCases = {
 /** `useStore(store, options?)`: subscribes to a store argument; no provider needed. */
 export const useStoreCases: HookCases = {
   hook: 'useStore',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     {
       name: 'reads the initial state',

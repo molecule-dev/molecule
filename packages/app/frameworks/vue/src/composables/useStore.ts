@@ -4,7 +4,17 @@
  * @module
  */
 
-import { computed, type ComputedRef, inject, onUnmounted, type Ref, shallowRef } from 'vue'
+import {
+  computed,
+  type ComputedRef,
+  inject,
+  type MaybeRefOrGetter,
+  onUnmounted,
+  type Ref,
+  shallowRef,
+  toValue,
+  watch,
+} from 'vue'
 
 import { t } from '@molecule/app-i18n'
 import type { StateProvider, Store } from '@molecule/app-state'
@@ -64,8 +74,16 @@ export function useStateProvider(): StateProvider {
  * notification whose selected value is equal, and four times when it changed
  * (the change detection, then the re-reads of the update it caused).
  *
- * @param store - The store to subscribe to
- * @param options - Composable options (selector, equalityFn)
+ * Both arguments may be reactive (a ref or a getter) and are followed on the
+ * same component, the way React re-renders `useStore`: a new store is
+ * subscribed to (the old subscription ends) and its current state is read,
+ * while a new selector or equality function only re-reads the value — the
+ * previous selected value carries over, exactly like React's ref.
+ *
+ * @param store - The store to subscribe to; may be reactive, and a change
+ *   subscribes to the new store on the same component.
+ * @param options - Composable options (selector, equalityFn); may be reactive,
+ *   and a changed selector or equality function re-reads the value.
  * @returns Reactive state reference
  *
  * @example
@@ -83,15 +101,21 @@ export function useStateProvider(): StateProvider {
  * </template>
  * ```
  */
-export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T, S>): Ref<S> {
-  const { selector, equalityFn } = options ?? {}
-
+export function useStore<T, S = T>(
+  store: MaybeRefOrGetter<Store<T>>,
+  options?: MaybeRefOrGetter<UseStoreOptions<T, S> | undefined>,
+): Ref<S> {
   // The previous selected value, kept so a caller's equality function can
   // hold the SAME result across notifications that select an equal value.
+  // It survives a store or options change, exactly like React's ref.
   let previous: S | undefined
 
+  let currentStore = toValue(store)
+  let selector = toValue(options)?.selector
+  let equalityFn = toValue(options)?.equalityFn
+
   const read = (): S => {
-    const state = store.getState()
+    const state = currentStore.getState()
     const selected = selector ? selector(state) : (state as unknown as S)
 
     // If we have an equality function and a previous value, check equality
@@ -108,7 +132,7 @@ export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T,
   const state = shallowRef<S>(read())
 
   // Subscribe to store changes
-  const unsubscribe = store.subscribe(() => {
+  const onNotify = (): void => {
     const next = read()
     // An equal selected value keeps the previous snapshot: no update, exactly
     // one selector/equality read for the notification.
@@ -120,12 +144,38 @@ export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T,
     read()
     read()
     read()
-  })
+  }
+  let unsubscribe = currentStore.subscribe(onNotify)
 
   // The reads React's binding performs between the render that created the
   // store snapshot and the subscription settling above.
   read()
   read()
+
+  // A new store is subscribed to (the old subscription ends, as React's
+  // subscribe callback change does) and the current state is read.
+  watch(
+    () => toValue(store),
+    (next) => {
+      if (next === currentStore) return
+      currentStore = next
+      unsubscribe()
+      unsubscribe = currentStore.subscribe(onNotify)
+      state.value = read()
+    },
+  )
+
+  // A changed selector or equality function only re-reads: React's getSnapshot
+  // is keyed on those, and useSyncExternalStore re-reads without resubscribing.
+  watch(
+    () => toValue(options),
+    (next) => {
+      if (next?.selector === selector && next?.equalityFn === equalityFn) return
+      selector = next?.selector
+      equalityFn = next?.equalityFn
+      state.value = read()
+    },
+  )
 
   // Cleanup on component unmount
   onUnmounted(() => {

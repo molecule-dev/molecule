@@ -53,7 +53,7 @@ vi.mock('@molecule/app-solid', async (importOriginal) => {
   }
 })
 
-const { AppHeader } = await import('../AppHeader.js')
+const { AppHeader } = await import('../AppHeader.jsx')
 const { ThemeContext, I18nContext } = (await import('@molecule/app-solid')) as unknown as {
   ThemeContext: Context<unknown>
   I18nContext: Context<unknown>

@@ -6,7 +6,7 @@
  * @module
  */
 
-import { computed, DestroyRef, inject, type Signal, signal } from '@angular/core'
+import { computed, DestroyRef, effect, inject, type Signal, signal, untracked } from '@angular/core'
 
 import type {
   AuthClient,
@@ -19,6 +19,7 @@ import type {
 } from '@molecule/app-auth'
 
 import { injectProvider } from '../inject.js'
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { AUTH_CLIENT } from '../tokens.js'
 
 /**
@@ -90,29 +91,40 @@ export interface UseAuthResult<
  * `status === 'loading'` is undecided; `'unavailable'` keeps the candidate
  * session for retry; a restore failure never signs out.
  *
- * @param options - Hook options (`autoRefresh`).
+ * The options may be a signal: `autoRefresh` turning on through it probes once
+ * (when the visitor is signed out and decided), the way React re-renders
+ * `useAuth` with the new option.
+ *
+ * @param options - Hook options (`autoRefresh`), or a signal of them.
  * @returns Auth state as signals and the auth actions.
  */
 export function useAuth<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
->(options?: UseAuthOptions): UseAuthResult<T, TRegister> {
+>(options?: MaybeSignal<UseAuthOptions>): UseAuthResult<T, TRegister> {
   const client = useAuthClient<T, TRegister>()
-  const { autoRefresh = false } = options ?? {}
 
   const state = signal<AuthState<T>>(client.getState())
   const stop = client.onAuthChange(() => state.set(client.getState()))
   inject(DestroyRef).onDestroy(stop)
 
-  // Refresh once on mount when asked and the visitor is signed out and decided.
-  if (autoRefresh) {
-    const current = client.getState()
-    if (!current.authenticated && !current.loading) {
+  // React's autoRefresh effect re-runs on exactly these changes: the option,
+  // `state.authenticated` and `state.loading`. The two computeds extract those
+  // primitives (a computed only re-notifies when its own value changes), so the
+  // effect below re-runs on the same set.
+  const authenticated = computed(() => state().authenticated)
+  const deciding = computed(() => state().loading)
+  effect(() => {
+    const { autoRefresh = false } = readMaybeSignal(options) ?? {}
+    const isSignedOut = !authenticated()
+    const isDecided = !deciding()
+    if (!autoRefresh || !isSignedOut || !isDecided) return
+    untracked(() => {
       client.refresh().catch((_error: unknown) => {
         // No session to refresh: the state already says unauthenticated.
       })
-    }
-  }
+    })
+  })
 
   const login = (credentials: LoginCredentials): Promise<AuthResult<T>> => client.login(credentials)
   const logout = (): Promise<void> => client.logout()

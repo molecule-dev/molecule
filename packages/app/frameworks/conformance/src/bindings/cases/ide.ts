@@ -491,6 +491,8 @@ export const usePreviewCases: HookCases = {
 /** `useAIModels(projectId?)`: the cached AI model catalog and its fetch paths. */
 export const useAIModelsCases: HookCases = {
   hook: 'useAIModels',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     {
       name: 'fetches the catalog on mount and stops loading',

@@ -3,28 +3,16 @@
  * `useGet`, `usePost`, `usePut`, `usePatch` and `useDelete` from
  * `@molecule/app-react`.
  *
- * Like React — whose component instance survives an argument change — the
- * request state survives this site's re-creation (an argument change to the
- * hook): the destroyed instance parks it at the site and the next instance
- * adopts it. See `site.ts`.
- *
  * @module
  */
 
-import {
-  DestroyRef,
-  ElementRef,
-  inject,
-  type Signal,
-  signal,
-  type WritableSignal,
-} from '@angular/core'
+import { DestroyRef, inject, type Signal, signal, type WritableSignal } from '@angular/core'
 
 import type { HttpClient, RequestConfig } from '@molecule/app-http'
 import { t } from '@molecule/app-i18n'
 
 import { injectProvider } from '../inject.js'
-import { adoptLane, captureSite, parkLane } from '../site.js'
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { HTTP_CLIENT } from '../tokens.js'
 
 /**
@@ -74,9 +62,11 @@ export interface UseHttpResult<T> {
    * Runs the request and resolves with its own data, or `null` on failure,
    * even when a newer request or `reset` has superseded its displayed state.
    *
-   * This function is IDENTITY-STABLE for as long as `method`, `url` and the
-   * HTTP client do not change, so it is safe as an effect dependency. Its
-   * request options are read when it is CALLED.
+   * This function is IDENTITY-STABLE for the component's lifetime — the
+   * request it performs is the one the `method`, `url` and `options` sources
+   * hold when it is CALLED, as React reads the latest committed render's
+   * arguments when its `execute` runs. Its request options are read when it
+   * is CALLED.
    *
    * @returns The response data, or `null` on failure.
    */
@@ -118,139 +108,128 @@ export interface UseHttpOptions<T> extends RequestConfig {
 }
 
 /**
- * What one site's lane carries across a re-mount of the same hook kind: the
- * state signals, the newest request's id, whether the host is mounted, and
- * whether `immediate` already ran (it is a mount-only option).
+ * This hook instance's request state: the reactive state, the newest request's
+ * id and whether the host is mounted. It lives for the component instance's
+ * lifetime and survives an argument change, exactly like React's
+ * `useState`/`useRef` state survives a re-render.
  *
  * @template T - The response data's shape.
  */
-interface HttpLane<T> {
+interface HttpState<T> {
   /** The reactive state. */
   readonly data: WritableSignal<T | null>
   readonly loading: WritableSignal<boolean>
   readonly error: WritableSignal<Error | null>
   /** The id of the newest request; it owns the state. */
   latestRequest: number
-  /** Whether the current host is mounted. */
+  /** Whether the host is mounted. */
   mounted: boolean
-  /** Whether `immediate` already ran at this site (it runs once per mount). */
-  immediateRan: boolean
-}
-
-/**
- * Builds a fresh lane.
- *
- * @param immediate - Whether the first mount starts loading at once.
- * @returns The lane.
- */
-function buildLane<T>(immediate: boolean): HttpLane<T> {
-  return {
-    data: signal<T | null>(null),
-    loading: signal<boolean>(immediate),
-    error: signal<Error | null>(null),
-    latestRequest: 0,
-    mounted: true,
-    immediateRan: false,
-  }
 }
 
 /**
  * HTTP requests with state management. Call it in an injection context (a
  * component field initializer or constructor).
  *
- * `execute` keeps one identity while `method`, `url` and the HTTP client stay
- * the same — across the hook's own loading/data updates and inline options or
- * callbacks. The current headers, body, `signal` and callbacks are read when
- * `execute` is called. Changing `method`, `url` or the client selects a
- * different request.
+ * `execute` keeps one identity for the component's lifetime; the request it
+ * performs is the one the `method`, `url` and `options` sources hold when it
+ * is called. The current headers, body, `signal` and callbacks are read when
+ * `execute` is called, so an inline options object or callback needs no
+ * memoizing.
+ *
+ * The arguments may be signals: `execute` then sends to the url the signal
+ * holds at the moment it is called, the way React's re-rendered `useHttp`
+ * sends to the latest url. The hook's state (an in-flight request, loaded
+ * data) survives an argument change, as React's survives a re-render.
  *
  * The newest request owns the state: an older request that answers after a
  * newer one (or after `reset`) cannot repopulate the displayed state, though
  * its own callbacks still report its outcome.
  *
- * @param method - HTTP method.
- * @param url - Request URL.
- * @param options - Request options, read at call time.
+ * @param method - HTTP method (or a signal of it).
+ * @param url - Request URL (or a signal of it).
+ * @param options - Request options, read at call time (or a signal of them).
  * @returns The request state as signals and the execute/reset functions.
  */
 export function useHttp<T>(
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  url: string,
-  options?: UseHttpOptions<T>,
+  method: MaybeSignal<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'>,
+  url: MaybeSignal<string>,
+  options?: MaybeSignal<UseHttpOptions<T>>,
 ): UseHttpResult<T> {
   const client = useHttpClient()
-  const immediate = options?.immediate ?? false
   const destroyRef = inject(DestroyRef)
-  const host = inject(ElementRef).nativeElement as HTMLElement
+  const immediate = readMaybeSignal(options)?.immediate ?? false
 
-  // This site's lane: adopted from the destroyed instance on an argument
-  // change (its pending requests, state and request counter continue), fresh
-  // on a new mount. One lane kind for the whole family — the verb hooks are
-  // spellings of useHttp over the same implementation, like React's.
-  const adopted = adoptLane<HttpLane<T>>('useHttp')
-  const lane: HttpLane<T> = adopted ?? buildLane<T>(options?.immediate ?? false)
-  lane.mounted = true
-
-  // The site's container, recorded once the host is attached (see captureSite);
-  // the lane parks only while that container is still in the document.
-  let site: Element | null = null
-  captureSite(host, (captured) => {
-    site = captured
-  })
+  // React keeps this state in useState/useRef, so a re-render with new
+  // arguments leaves an in-flight request and its loaded data alone; the
+  // signals below live for this component instance's lifetime the same way.
+  const state: HttpState<T> = {
+    data: signal<T | null>(null),
+    loading: signal<boolean>(immediate),
+    error: signal<Error | null>(null),
+    latestRequest: 0,
+    mounted: true,
+  }
 
   destroyRef.onDestroy(() => {
-    lane.mounted = false
-    parkLane('useHttp', lane, site)
+    state.mounted = false
   })
 
   const execute = async (): Promise<T | null> => {
-    if (!lane.mounted) return null
+    if (!state.mounted) return null
 
-    // Options describe the request being sent; method/url/client decide WHICH
-    // request execute performs. Reading them here keeps the action stable.
-    const { immediate: _immediate, onSuccess, onError, ...requestConfig } = options ?? {}
-    const request = ++lane.latestRequest
+    // Options describe the request being sent; method/url decide WHICH request
+    // execute performs. Reading them here, at call time, is what React's
+    // optionsRef-equivalent gives its re-rendered hook.
+    const {
+      immediate: _immediate,
+      onSuccess,
+      onError,
+      ...requestConfig
+    } = readMaybeSignal(options) ?? {}
+    const requestMethod = readMaybeSignal(method)
+    const requestUrl = readMaybeSignal(url)
+    const request = ++state.latestRequest
     // Callbacks report THIS request's outcome (a submit's onSuccess still runs);
     // only the newest request may change what the hook shows.
-    const ownsState = (): boolean => lane.mounted && request === lane.latestRequest
+    const ownsState = (): boolean => state.mounted && request === state.latestRequest
 
-    lane.loading.set(true)
-    lane.error.set(null)
+    state.loading.set(true)
+    state.error.set(null)
 
     try {
       let response: { data: T }
 
-      switch (method) {
+      switch (requestMethod) {
         case 'GET':
-          response = await client.get<T>(url, requestConfig)
+          response = await client.get<T>(requestUrl, requestConfig)
           break
         case 'POST':
-          response = await client.post<T>(url, requestConfig.data, requestConfig)
+          response = await client.post<T>(requestUrl, requestConfig.data, requestConfig)
           break
         case 'PUT':
-          response = await client.put<T>(url, requestConfig.data, requestConfig)
+          response = await client.put<T>(requestUrl, requestConfig.data, requestConfig)
           break
         case 'PATCH':
-          response = await client.patch<T>(url, requestConfig.data, requestConfig)
+          response = await client.patch<T>(requestUrl, requestConfig.data, requestConfig)
           break
         case 'DELETE':
-          response = await client.delete<T>(url, requestConfig)
+          response = await client.delete<T>(requestUrl, requestConfig)
           break
         default:
           throw new Error(
             t(
               'angular.error.unsupportedMethod',
-              { method },
+              { method: requestMethod },
               { defaultValue: 'Unsupported method: {{method}}' },
             ),
           )
       }
 
-      if (lane.mounted) {
+      if (state.mounted) {
         if (ownsState()) {
-          lane.data.set(response.data)
-          lane.loading.set(false)
-          lane.error.set(null)
+          state.data.set(response.data)
+          state.loading.set(false)
+          state.error.set(null)
         }
         onSuccess?.(response.data)
       }
@@ -258,11 +237,11 @@ export function useHttp<T>(
       return response.data
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error))
-      if (lane.mounted) {
+      if (state.mounted) {
         if (ownsState()) {
-          lane.data.set(null)
-          lane.loading.set(false)
-          lane.error.set(err)
+          state.data.set(null)
+          state.loading.set(false)
+          state.error.set(err)
         }
         onError?.(err)
       }
@@ -271,24 +250,23 @@ export function useHttp<T>(
   }
 
   const reset = (): void => {
-    lane.latestRequest++
-    lane.data.set(null)
-    lane.loading.set(false)
-    lane.error.set(null)
+    state.latestRequest++
+    state.data.set(null)
+    state.loading.set(false)
+    state.error.set(null)
   }
 
-  // Execute immediately if requested — mount only, as it has always been. An
-  // adopted site (an argument change re-created the host) has already run it;
-  // React runs this once per mount, so a later url change does not repeat it.
-  if (!adopted && immediate) {
-    lane.immediateRan = true
+  // Execute immediately if requested — mount only, as it has always been and
+  // as React's empty dependency array pins it: a later argument change (a new
+  // url through a signal) does not repeat it.
+  if (immediate) {
     void execute()
   }
 
   return {
-    data: lane.data.asReadonly(),
-    loading: lane.loading.asReadonly(),
-    error: lane.error.asReadonly(),
+    data: state.data.asReadonly(),
+    loading: state.loading.asReadonly(),
+    error: state.error.asReadonly(),
     execute,
     reset,
   }
@@ -297,54 +275,74 @@ export function useHttp<T>(
 /**
  * GET requests.
  *
- * @param url - Request URL to fetch from.
- * @param options - HTTP request options including callbacks and request config.
+ * @param url - Request URL to fetch from (or a signal of it).
+ * @param options - HTTP request options including callbacks and request config
+ *   (or a signal of them).
  * @returns Request state (data, loading, error) and controls (execute, reset).
  */
-export function useGet<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function useGet<T>(
+  url: MaybeSignal<string>,
+  options?: MaybeSignal<UseHttpOptions<T>>,
+): UseHttpResult<T> {
   return useHttp<T>('GET', url, options)
 }
 
 /**
  * POST requests, with the body in `options.data`.
  *
- * @param url - Request URL to post to.
- * @param options - HTTP request options including body data and callbacks.
+ * @param url - Request URL to post to (or a signal of it).
+ * @param options - HTTP request options including body data and callbacks (or
+ *   a signal of them).
  * @returns Request state (data, loading, error) and controls (execute, reset).
  */
-export function usePost<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function usePost<T>(
+  url: MaybeSignal<string>,
+  options?: MaybeSignal<UseHttpOptions<T>>,
+): UseHttpResult<T> {
   return useHttp<T>('POST', url, options)
 }
 
 /**
  * PUT requests, with the replacement body.
  *
- * @param url - Request URL to send the PUT request to.
- * @param options - HTTP request options including body data and callbacks.
+ * @param url - Request URL to send the PUT request to (or a signal of it).
+ * @param options - HTTP request options including body data and callbacks (or
+ *   a signal of them).
  * @returns Request state (data, loading, error) and controls (execute, reset).
  */
-export function usePut<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function usePut<T>(
+  url: MaybeSignal<string>,
+  options?: MaybeSignal<UseHttpOptions<T>>,
+): UseHttpResult<T> {
   return useHttp<T>('PUT', url, options)
 }
 
 /**
  * PATCH requests, with the partial body.
  *
- * @param url - Request URL to send the PATCH request to.
- * @param options - HTTP request options including partial body data and callbacks.
+ * @param url - Request URL to send the PATCH request to (or a signal of it).
+ * @param options - HTTP request options including partial body data and
+ *   callbacks (or a signal of them).
  * @returns Request state (data, loading, error) and controls (execute, reset).
  */
-export function usePatch<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function usePatch<T>(
+  url: MaybeSignal<string>,
+  options?: MaybeSignal<UseHttpOptions<T>>,
+): UseHttpResult<T> {
   return useHttp<T>('PATCH', url, options)
 }
 
 /**
  * DELETE requests; a body travels in `options.data`.
  *
- * @param url - Request URL of the resource to delete.
- * @param options - HTTP request options including callbacks.
+ * @param url - Request URL of the resource to delete (or a signal of it).
+ * @param options - HTTP request options including callbacks (or a signal of
+ *   them).
  * @returns Request state (data, loading, error) and controls (execute, reset).
  */
-export function useDelete<T>(url: string, options?: UseHttpOptions<T>): UseHttpResult<T> {
+export function useDelete<T>(
+  url: MaybeSignal<string>,
+  options?: MaybeSignal<UseHttpOptions<T>>,
+): UseHttpResult<T> {
   return useHttp<T>('DELETE', url, options)
 }

@@ -23,7 +23,8 @@ import {
 } from '@molecule/app-routing'
 
 import { useRouterInstance } from '../context.js'
-import { fieldStore, isReadableStore, liveStore } from './live-store.js'
+import { fieldStore, liveStore } from './live-store.js'
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 /** What {@link useRouter} returns. */
 export interface UseRouterResult {
@@ -134,16 +135,35 @@ export function useNavigate(): (path: string, options?: NavigateOptions) => void
  * Whether a path is active, React's `useIsActive` in Svelte's idiom: a
  * readable store that re-evaluates on every route change.
  *
- * @param path - The path to check.
- * @param exact - Whether to match exactly (default: false).
+ * Both arguments may be a plain value or a readable store of one: the store
+ * re-evaluates when one changes (the way React's re-render re-reads its
+ * snapshot), so a navigation-driven nav link can take its path from a store.
+ *
+ * @param path - The path to check (or a store of it).
+ * @param exact - Whether to match exactly (default: false; or a store of it).
  * @returns A readable store of whether the path is active.
  */
-export function useIsActive(path: string, exact = false): Readable<boolean> {
+export function useIsActive(
+  path: MaybeReadable<string>,
+  exact: MaybeReadable<boolean> = false,
+): Readable<boolean> {
   const router = useRouterInstance()
-  return liveStore(
-    () => router.isActive(path, exact),
-    (notify) => router.subscribe(notify),
-  )
+  const pathStore = toReadable(path)
+  const exactStore = toReadable(exact)
+  const active = writable(router.isActive(get(pathStore), get(exactStore)))
+  /** Re-reads the router with the arguments' current values. */
+  const evaluate = (): void => {
+    active.set(router.isActive(get(pathStore), get(exactStore)))
+  }
+  const stopRouter = router.subscribe(evaluate)
+  const stopPath = pathStore.subscribe(evaluate)
+  const stopExact = exactStore.subscribe(evaluate)
+  onDestroy(() => {
+    stopRouter()
+    stopPath()
+    stopExact()
+  })
+  return { subscribe: active.subscribe }
 }
 
 /** What {@link useListRoute} returns: each list field as a readable store, the actions as plain functions. */
@@ -197,9 +217,10 @@ export type UseConsumedSearchParamStore = Readable<readonly [string, (value: str
  * `options.auth.redirectTo`, carrying `state.returnTo`; until auth is confirmed
  * `canLoad` is `false`.
  *
- * The options may be a readable store: an auth status moving from `loading` to
- * `unauthenticated` re-resolves the list — and performs the sign-in redirect —
- * on the same component, the way React re-renders `useListRoute`.
+ * The options may be a plain value or a readable store of one (a store holding
+ * `undefined` means the default options): an auth status moving from `loading`
+ * to `unauthenticated` re-resolves the list — and performs the sign-in
+ * redirect — on the same component, the way React re-renders `useListRoute`.
  *
  * @param options - Filter sources, view paths, pagination and optional auth readiness (or a store of them).
  * @returns Each list field as a readable store, and its link builder and navigation actions.
@@ -217,10 +238,11 @@ export type UseConsumedSearchParamStore = Readable<readonly [string, (value: str
  * ```
  */
 export function useListRoute<Filter extends string = string, Selection extends string = string>(
-  options: ListRouteOptions<Filter, Selection> | Readable<ListRouteOptions<Filter, Selection>> = {},
+  options: MaybeReadable<ListRouteOptions<Filter, Selection> | undefined> = {},
 ): UseListRouteResult<Filter, Selection> {
   const router = useRouterInstance()
-  let currentOptions = isReadableStore(options) ? get(options) : options
+  const optionsStore = toReadable(options)
+  let currentOptions = get(optionsStore) ?? {}
   const resolve = (): ListRouteResult<Filter, Selection> =>
     resolveListRoute<Filter, Selection>(
       { location: router.getLocation(), routeParams: router.getParams() },
@@ -239,20 +261,19 @@ export function useListRoute<Filter extends string = string, Selection extends s
     if (redirect) router.navigate(redirect.to, redirect.options)
   }
   const stopRouter = router.subscribe(() => update())
-  let stopOptions: (() => void) | null = null
-  if (isReadableStore(options)) {
-    stopOptions = options.subscribe((next) => {
-      if (next === currentOptions) return
-      currentOptions = next
-      update()
-    })
-  }
+  // The options store calls back at once with the options already read, which
+  // changes nothing; a later set re-resolves the list.
+  const stopOptions = optionsStore.subscribe((next) => {
+    if (next === currentOptions) return
+    currentOptions = next ?? {}
+    update()
+  })
   // React's redirect effect also runs once mounted, for a list that opens
   // directly on a signed-out protected view.
   onMount(update)
   onDestroy(() => {
     stopRouter()
-    stopOptions?.()
+    stopOptions()
   })
   return {
     page: fieldStore(state, 'page'),

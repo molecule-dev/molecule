@@ -9,6 +9,8 @@ import type { HookCases } from '../spec.js'
 /** `useAuth()`: auth state plus the auth actions. */
 export const useAuthCases: HookCases = {
   hook: 'useAuth',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     { name: 'signed out' },
     {

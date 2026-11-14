@@ -316,6 +316,8 @@ export const usePasswordResetCases: HookCases = {
 /** `useOAuth()`: provider list, URL building, redirect, popup relay and callback. */
 export const useOAuthCases: HookCases = {
   hook: 'useOAuth',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     { name: 'no providers by default' },
     {

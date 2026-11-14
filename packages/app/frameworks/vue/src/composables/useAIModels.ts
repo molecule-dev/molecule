@@ -12,7 +12,16 @@
  * @module
  */
 
-import { computed, getCurrentScope, onScopeDispose, type Ref, shallowRef } from 'vue'
+import {
+  computed,
+  getCurrentScope,
+  type MaybeRefOrGetter,
+  onScopeDispose,
+  type Ref,
+  shallowRef,
+  toValue,
+  watch,
+} from 'vue'
 
 import type { AppModelDefinition, AppModeModelDefaults } from '@molecule/app-ai-models'
 import { loadAIModelCatalog, pickFreeTierModel } from '@molecule/app-ai-models'
@@ -153,37 +162,61 @@ export interface UseAIModelsResult {
  * triggers a single `GET /ai/models` fetch; subsequent mounts return the
  * cached result.
  *
+ * `projectId` may be reactive (a ref or a getter) and is followed on the same
+ * component, the way React re-renders `useAIModels`: a new scope re-subscribes
+ * to that scope's cache and fetches it if nobody has yet, while a scope
+ * already cached is never refetched.
+ *
  * @param projectId - Optional project scope: includes that project's custom
- *   ("bring your own AI") models on servers that support them.
+ *   ("bring your own AI") models on servers that support them; may be
+ *   reactive, and a change moves the subscription to the new scope.
  * @returns Models, free-tier model, loading flag, and error.
  */
-export function useAIModels(projectId?: string): UseAIModelsResult {
+export function useAIModels(projectId?: MaybeRefOrGetter<string | undefined>): UseAIModelsResult {
   const http = useHttpClient()
-  const scope = projectId ?? ''
 
-  const cache = cacheFor(scope)
   const snapshot = shallowRef<{
     models: AppModelDefinition[] | null
     defaults: AppModeModelDefaults | undefined
     error: Error | null
-  }>({ models: cache.models, defaults: cache.defaults, error: cache.error })
-
+  }>({ models: null, defaults: undefined, error: null })
   const listener: Listener = (next) => {
     snapshot.value = next
   }
-  listenersFor(scope).add(listener)
-  // The scope may differ from an earlier read of this cache — resync.
-  snapshot.value = { models: cache.models, defaults: cache.defaults, error: cache.error }
 
-  if (!cache.models && !cache.error) {
-    void fetchOnce(http, scope).catch((_error: unknown) => {
-      // fetchOnce mirrors the error into cache.error, which the listener delivers.
-    })
+  // Subscribe to one scope's cache and fetch it when nobody has yet. React
+  // runs this as an effect keyed on the scope; the watcher covers its re-runs.
+  const watchScope = (scope: string): void => {
+    listenersFor(scope).add(listener)
+    const cache = cacheFor(scope)
+    // The scope may differ from an earlier read of this cache — resync.
+    snapshot.value = { models: cache.models, defaults: cache.defaults, error: cache.error }
+
+    if (!cache.models && !cache.error) {
+      void fetchOnce(http, scope).catch((_error: unknown) => {
+        // fetchOnce mirrors the error into cache.error, which the listener delivers.
+      })
+    }
   }
+  const unwatchScope = (scope: string): void => {
+    listenersFor(scope).delete(listener)
+  }
+
+  let activeScope = toValue(projectId) ?? ''
+  watchScope(activeScope)
+  watch(
+    () => toValue(projectId) ?? '',
+    (next) => {
+      if (next === activeScope) return
+      unwatchScope(activeScope)
+      activeScope = next
+      watchScope(next)
+    },
+  )
 
   if (getCurrentScope()) {
     onScopeDispose(() => {
-      listenersFor(scope).delete(listener)
+      unwatchScope(activeScope)
     })
   }
 

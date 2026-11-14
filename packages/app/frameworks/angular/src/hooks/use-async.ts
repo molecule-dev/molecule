@@ -11,13 +11,13 @@
  * @module
  */
 
-import { computed, DestroyRef, ElementRef, inject, type Signal } from '@angular/core'
+import { computed, DestroyRef, effect, inject, type Signal, untracked } from '@angular/core'
 
 import type { OptimisticValue, OptimisticValueOptions } from '@molecule/app-state'
 import { createOptimisticValue, shallowEqual } from '@molecule/app-state'
 import type { PromiseStatus } from '@molecule/app-utilities'
 
-import { adoptLane, captureSite, parkLane } from '../site.js'
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 import { useExternalStore } from './external-store.js'
 
 /**
@@ -234,56 +234,56 @@ export interface UseOptimisticValueResult<T> {
  * `value` is taken only while nothing is being saved, so a parent re-render or
  * a refetch of older data never flips the control mid-save.
  *
- * Like React — whose component instance survives an argument change — the
- * controller survives this site's re-creation (an input change to the hook):
- * the destroyed instance parks it at the site and the next instance adopts it,
- * feeding the new server value through `sync()`. See `site.ts`.
+ * The options may be a signal, and the controller follows them the way React's
+ * re-render does: `commit`, `equals` and `onError` are read from the options
+ * the signal holds at the moment they run, and a server `value` that differs
+ * (by `equals`) from the last one received is synced in — kept as the fallback
+ * while a save runs — with the controller and any pending save kept on the same
+ * component.
  *
- * @param options - The server's current value and how to save a change.
+ * @param options - The server's current value and how to save a change (or a
+ *   signal of them).
  * @returns The value to render, whether a save is pending, the newest failure,
  *   and `set`/`update`.
  */
 export const useOptimisticValue = <T>(
-  options: OptimisticValueOptions<T>,
+  options: MaybeSignal<OptimisticValueOptions<T>>,
 ): UseOptimisticValueResult<T> => {
-  const destroyRef = inject(DestroyRef)
-  const host = inject(ElementRef).nativeElement as HTMLElement
-  // The site's container, recorded once the host is attached (see captureSite);
-  // the lane parks only while that container is still in the document.
-  let site: Element | null = null
-  captureSite(host, (captured) => {
-    site = captured
+  const initial = readMaybeSignal(options)
+
+  // The latest options, exactly like React's `latest` ref (republished on
+  // every committed render): the controller's wrappers read it when they run.
+  let latest = initial
+  const controller: OptimisticValue<T> = createOptimisticValue<T>({
+    value: initial.value,
+    commit: (next, previous, confirm) => latest.commit(next, previous, confirm),
+    equals: (a, b) => (latest.equals ?? shallowEqual)(a, b),
+    onError: (error, value) => latest.onError?.(error, value),
   })
 
-  // Adopt the previous instance's controller at this site (an argument change
-  // re-created the host while a save may still run); otherwise start one.
-  type Lane = { controller: OptimisticValue<T>; received: T }
-  const adopted = adoptLane<Lane>('useOptimisticValue')
-  const controller: OptimisticValue<T> =
-    adopted?.controller ??
-    createOptimisticValue<T>({
-      value: options.value,
-      commit: (next, previous, confirm) => options.commit(next, previous, confirm),
-      equals: (a, b) => (options.equals ?? shallowEqual)(a, b),
-      onError: (error, value) => options.onError?.(error, value),
-    })
-  // The last server value this site received. The equality check runs on every
-  // mount exactly like React's effect: equal → nothing; different → the new
-  // server value is synced in (immediately when idle, kept as fallback while
-  // saving).
-  let received: T = adopted ? adopted.received : options.value
-  if (!(options.equals ?? shallowEqual)(received, options.value)) {
-    received = options.value
-    controller.sync(options.value)
+  // The last server value this controller received, like React's `received`
+  // ref + effect: equal (by the options' `equals`) → nothing; different → the
+  // new server value is synced in (immediately when idle, kept as fallback
+  // while saving). React's effect runs the check on mount too, so the initial
+  // options are checked the same way.
+  let received = initial.value
+  const considerServerValue = (opts: OptimisticValueOptions<T>): void => {
+    if ((opts.equals ?? shallowEqual)(received, opts.value)) return
+    received = opts.value
+    controller.sync(opts.value)
   }
+  considerServerValue(initial)
 
   const state = useExternalStore(
     () => controller.getState(),
     (notify) => controller.subscribe(notify),
   )
 
-  destroyRef.onDestroy(() => {
-    parkLane('useOptimisticValue', { controller, received }, site)
+  effect(() => {
+    const next = readMaybeSignal(options)
+    if (next === latest) return
+    latest = next
+    untracked(() => considerServerValue(next))
   })
 
   return {

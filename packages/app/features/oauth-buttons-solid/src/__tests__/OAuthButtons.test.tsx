@@ -57,8 +57,8 @@ vi.mock('@molecule/app-oauth-logos-solid', () => ({
   ),
 }))
 
-import { OAuthButtons } from '../OAuthButtons.js'
-import { OAuthDivider } from '../OAuthDivider.js'
+import { OAuthButtons } from '../OAuthButtons.jsx'
+import { OAuthDivider } from '../OAuthDivider.jsx'
 
 const mounts: (() => void)[] = []
 

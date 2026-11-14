@@ -52,7 +52,25 @@
     if (children) out.children = builders.snippetOf(children)
     return out
   })
-  const shown = $derived(builders.materialize(bag.props))
+  // Each prop is materialized once and kept while its value is unchanged, as an app keeps
+  // its snippets: a props step that changes `query` must not hand the component a NEW
+  // `children` snippet (`{@render}` re-creates the content of a new snippet, where React
+  // re-renders the same nodes).
+  // A plain record, not reactive state: it only remembers the previous run's values.
+  let materialized: Record<string, { raw: unknown; value: unknown }> = {}
+  const shown = $derived.by(() => {
+    const next: Record<string, { raw: unknown; value: unknown }> = {}
+    const out: Record<string, unknown> = {}
+    for (const [key, raw] of Object.entries(bag.props)) {
+      const kept = materialized[key]
+      const value =
+        kept && kept.raw === raw ? kept.value : builders.materialize({ [key]: raw })[key]
+      next[key] = { raw, value }
+      out[key] = value
+    }
+    materialized = next
+    return out
+  })
 
   // Mirrors the React reference adapter's AuthProvider, which holds the case
   // behind SessionReady (fallback null) until the auth client decides the

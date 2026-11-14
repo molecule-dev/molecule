@@ -6,8 +6,8 @@
  * @module
  */
 
-import { onMount } from 'svelte'
-import type { Readable } from 'svelte/store'
+import { onDestroy } from 'svelte'
+import { get, type Readable } from 'svelte/store'
 
 import type {
   AuthClient,
@@ -20,10 +20,14 @@ import type {
 
 import { useAuthClient } from '../context.js'
 import { fieldStore, liveStore } from './live-store.js'
+import { type MaybeReadable, toReadable } from './maybe-readable.js'
 
 /** Options for {@link useAuth}. */
 export interface UseAuthOptions {
-  /** Whether to automatically refresh the token on mount. */
+  /**
+   * Whether to automatically refresh the session on mount, and again whenever
+   * the flag turns on or the session decision changes while it is on.
+   */
   autoRefresh?: boolean
 }
 
@@ -82,7 +86,9 @@ export interface UseAuthResult<
  * app-owned mutation instead passes its canonical response to `setUser`. For
  * a sign-in the app itself runs, call `setSession({ accessToken, user })`.
  *
- * @param options - Hook options (`autoRefresh`).
+ * @param options - Hook options (`autoRefresh`), or a store of them: setting
+ *   `autoRefresh` later probes on the same component, the way React's
+ *   re-render re-runs its effect.
  * @returns Auth state as stores and the actions as functions.
  * @example
  * ```svelte
@@ -102,25 +108,49 @@ export interface UseAuthResult<
 export function useAuth<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
->(options?: UseAuthOptions): UseAuthResult<T, TRegister> {
+>(options?: MaybeReadable<UseAuthOptions | undefined>): UseAuthResult<T, TRegister> {
   const client = useAuthClient<T, TRegister>()
-  const { autoRefresh = false } = options ?? {}
+  const optionsStore = toReadable(options)
+  const autoRefresh = (): boolean => get(optionsStore)?.autoRefresh ?? false
 
   const state = liveStore(
     () => client.getState(),
     (notify) => client.onAuthChange(notify),
   )
 
-  if (autoRefresh) {
-    onMount(() => {
-      const current = client.getState()
-      if (!current.authenticated && !current.loading) {
-        client.refresh().catch((_error: unknown) => {
-          // No session to refresh: the state already says unauthenticated.
-        })
-      }
-    })
+  // React's autoRefresh effect, re-run when `autoRefresh`, `authenticated` or
+  // `loading` change (its dependency array): while autoRefresh is on and the
+  // session is neither signed in nor being decided, probe once per change.
+  let lastProbe: { autoRefresh: boolean; authenticated: boolean; loading: boolean } | null = null
+  const maybeProbe = (): void => {
+    const current = client.getState()
+    const next = {
+      autoRefresh: autoRefresh(),
+      authenticated: current.authenticated,
+      loading: current.loading,
+    }
+    if (
+      lastProbe !== null &&
+      next.autoRefresh === lastProbe.autoRefresh &&
+      next.authenticated === lastProbe.authenticated &&
+      next.loading === lastProbe.loading
+    ) {
+      return
+    }
+    lastProbe = next
+    if (next.autoRefresh && !next.authenticated && !next.loading) {
+      void client.refresh().catch((_error: unknown) => {
+        // No session to refresh: the state already says unauthenticated.
+      })
+    }
   }
+  maybeProbe()
+  const stopState = state.subscribe(() => maybeProbe())
+  const stopOptions = optionsStore.subscribe(() => maybeProbe())
+  onDestroy(() => {
+    stopState()
+    stopOptions()
+  })
 
   return {
     status: fieldStore(state, 'status'),

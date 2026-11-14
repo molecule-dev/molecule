@@ -8,9 +8,10 @@
  * - Every `@molecule/app-react` hook is a function of the same name, called in an injection
  *   context (a component field initializer) under `provideMolecule` (Angular's composition root).
  * - A value field may be a signal (read by calling it); a method is a plain function.
- * - An `args` step re-creates the host with the new arguments: a field initializer runs once.
- *   A `reactiveArgs` hook (`useChat`) gets its options as a signal instead, set on the same
- *   host.
+ * - A hook whose arguments change (a `reactiveArgs` family) gets every argument as a read-only
+ *   signal (`T | Signal<T>`), and an `args` step sets the signals on the same host: a field
+ *   initializer runs once and the hook follows its reactive arguments, as React's hook follows
+ *   a re-render.
  * - A component export (`SessionReady`) is a standalone component; React's `children` text is
  *   its default `<ng-content>` and any other string prop `foo` is content selected by
  *   `[slot=foo]`.
@@ -38,6 +39,8 @@ import {
   type BindingServices,
   callHook,
   type MountedHook,
+  reactiveSources,
+  requireSources,
 } from '../bindings/index.js'
 import { settle } from '../ui/index.js'
 
@@ -106,8 +109,8 @@ export function createAngularBindingAdapter({
       document.body.appendChild(container)
       let result: unknown
       let appRef: ApplicationRef | null = null
-      // A reactiveArgs hook reads its options from this signal for the life of one host.
-      const reactiveOptions = signal<unknown>(args[0])
+      // A reactiveArgs hook reads each argument from its signal for the life of the host.
+      const sources = reactiveSources(hook, args, options, (value) => signal<unknown>(value))
       const start = async (current: unknown[]): Promise<void> => {
         appRef = await createApplication({
           providers: [provideZonelessChangeDetection(), provideMolecule({ ...services })],
@@ -133,9 +136,7 @@ export function createAngularBindingAdapter({
               // A field initializer runs in the component's injection context.
               readonly result = (result = callHook(
                 exportsOf[hook],
-                options.reactiveArgs
-                  ? [reactiveOptions.asReadonly(), ...current.slice(1)]
-                  : current,
+                sources ? sources.map((source) => source.asReadonly()) : current,
               ))
             },
           ) as Type<unknown>
@@ -161,12 +162,8 @@ export function createAngularBindingAdapter({
         result: () => (options.render === 'text' ? (container.textContent ?? '') : result),
         read: (value) => (isSignal(value) ? value() : value),
         setArgs: async (next) => {
-          if (options.reactiveArgs) {
-            reactiveOptions.set(next[0])
-          } else {
-            stop()
-            await start(next)
-          }
+          for (const [index, source] of requireSources(hook, sources).entries())
+            source.set(next[index])
           await flush()
         },
         flush,

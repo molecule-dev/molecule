@@ -10,7 +10,9 @@
  * - Node-valued props and `children` are JSX values (here: DOM nodes and strings).
  * - Callback props keep their React names (`onClick`, `onOpenChange`).
  * - A node value inside a data prop (`items[0].icon`) is a JSX value; a render
- *   function (`columns[0].render`) returns JSX.
+ *   function (`columns[0].render`) returns JSX. A render function whose content
+ *   stays mounted while its value changes receives the value as an accessor
+ *   (`QueryContent`'s children, Solid's `<Show>` idiom); the adapter reads it.
  * - A UI-package hook (`useToast`) is called inside a component.
  *
  * @module
@@ -32,6 +34,9 @@ import {
   callProbe,
   CallRecorder,
   type FrameworkAdapter,
+  hasPlaceholder,
+  interpolate,
+  interpolateValue,
   isComponentSpec,
   isProbeSpec,
   materializeProps,
@@ -98,6 +103,10 @@ export function createSolidAdapter({
   /** One JSX value for a single node, an array otherwise (what a JSX-valued prop holds). */
   const single = <T>(list: T[]): T | T[] => (list.length === 1 ? list[0] : list)
 
+  /** A render-function argument's value: an accessor (a zero-argument function) is read. */
+  const readAccessor = (arg: unknown): unknown =>
+    typeof arg === 'function' && arg.length === 0 ? (arg as () => unknown)() : arg
+
   /** A button that calls one of the UI package's hooks (see `ProbeSpec`); a value hook returns an accessor. */
   const Probe: Component<{ spec: ProbeSpec }> = (props) => {
     const spec = props.spec
@@ -135,6 +144,14 @@ export function createSolidAdapter({
   const solidProps = (props: Record<string, unknown>): Record<string, unknown> =>
     materializeProps(props, {
       nodes: (list) => () => single(toSolidNodes(list)),
+      // A render function's argument may be an accessor (Solid's `<Show>` idiom for a
+      // value that changes while the content stays mounted: `QueryContent`'s children).
+      // Its nodes are built ONCE and their text, attributes and component props follow
+      // the arguments in place, the way React keeps a node and updates it.
+      renderFn:
+        (spec) =>
+        (...args: unknown[]) =>
+          single(toSolidNodes(spec.nodes, () => args.map(readAccessor))),
       callback: callbackSpy,
     })
 
@@ -143,25 +160,43 @@ export function createSolidAdapter({
    * components created in the current owner, so their context flows.
    *
    * @param nodes - Neutral nodes.
+   * @param args - A render function's arguments: every `{0}` / `{0.field}` placeholder in
+   *   the nodes is interpolated from them in a render effect, so the nodes update in place.
    * @returns JSX values.
    */
-  function toSolidNodes(nodes: NodeSpec[] | undefined): unknown[] {
+  function toSolidNodes(nodes: NodeSpec[] | undefined, args?: () => unknown[]): unknown[] {
     if (!nodes) return []
     return nodes.map((node) => {
-      if (typeof node === 'string') return node
+      if (typeof node === 'string') {
+        if (!args || !hasPlaceholder(node)) return node
+        const text = document.createTextNode('')
+        createRenderEffect(() => {
+          text.data = interpolate(node, args())
+        })
+        return text
+      }
       if (isProbeSpec(node)) return createComponent(Probe, { spec: node })
       if (isComponentSpec(node)) {
-        const props: Record<string, unknown> = solidProps(node.props ?? {})
+        const source = node.props ?? {}
+        const props: Record<string, unknown> = solidProps(source)
+        for (const [key, value] of Object.entries(source)) {
+          if (!args || !hasPlaceholder(value)) continue
+          // Read lazily, as Solid reads props: each read interpolates the current arguments.
+          Object.defineProperty(props, key, {
+            enumerable: true,
+            get: () => solidProps({ [key]: interpolateValue(value, args()) })[key],
+          })
+        }
         for (const slot of Object.keys(node.slots ?? {})) {
           Object.defineProperty(props, slot, {
             enumerable: true,
-            get: () => single(toSolidNodes(node.slots?.[slot])),
+            get: () => single(toSolidNodes(node.slots?.[slot], args)),
           })
         }
         if (node.children) {
           Object.defineProperty(props, 'children', {
             enumerable: true,
-            get: () => single(toSolidNodes(node.children)),
+            get: () => single(toSolidNodes(node.children, args)),
           })
         }
         return createComponent(
@@ -173,8 +208,12 @@ export function createSolidAdapter({
         node.tag === 'svg' || node.tag === 'path' || node.tag === 'circle'
           ? document.createElementNS('http://www.w3.org/2000/svg', node.tag)
           : document.createElement(node.tag)
-      for (const [k, v] of Object.entries(node.attrs ?? {})) el.setAttribute(k, v)
-      for (const child of toSolidNodes(node.children)) el.append(child as Node | string)
+      for (const [k, v] of Object.entries(node.attrs ?? {})) {
+        if (args && hasPlaceholder(v)) {
+          createRenderEffect(() => el.setAttribute(k, interpolate(v, args())))
+        } else el.setAttribute(k, v)
+      }
+      for (const child of toSolidNodes(node.children, args)) el.append(child as Node | string)
       return el
     })
   }

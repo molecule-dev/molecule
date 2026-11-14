@@ -46,6 +46,20 @@ export const authUiFeature: FeatureCases = {
           context: signedOut,
         },
         {
+          // React re-renders the row with the new config; a port must not keep the
+          // provider list it read when it mounted.
+          name: 'a changed oauthConfig reaches the same mount',
+          props: { oauthConfig },
+          context: signedOut,
+          interactions: [
+            {
+              type: 'props',
+              props: { oauthConfig: { ...oauthConfig, oauthProviders: ['github'] } },
+            },
+            { type: 'props', props: { oauthConfig: { ...oauthConfig, oauthProviders: [] } } },
+          ],
+        },
+        {
           name: 'labels, mono icons, own divider and className',
           props: {
             oauthConfig,

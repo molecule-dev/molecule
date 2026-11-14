@@ -181,6 +181,8 @@ export const useAsyncStateCases: HookCases = {
  */
 export const useOptimisticValueCases: HookCases = {
   hook: 'useOptimisticValue',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     {
       name: 'shows the server value until it is changed',

@@ -5,7 +5,7 @@
  * @module
  */
 
-import { computed, DestroyRef, inject, type Signal, signal } from '@angular/core'
+import { computed, DestroyRef, effect, inject, type Signal, signal, untracked } from '@angular/core'
 
 import type { DeviceInfo, FeatureSupport, HardwareInfo, ScreenInfo } from '@molecule/app-device'
 import { getProvider as getDeviceProvider } from '@molecule/app-device'
@@ -28,6 +28,8 @@ import type {
   TokenChangeListener,
 } from '@molecule/app-push'
 import { getProvider as getPushProvider } from '@molecule/app-push'
+
+import { type MaybeSignal, readMaybeSignal } from '../maybe-signal.js'
 
 /**
  * What {@link useDevice} returns: the provider's info objects and its two
@@ -287,25 +289,37 @@ export interface UsePushResult {
  * Uses module-level `getProvider()` — push is a singleton, not
  * registration-provided.
  *
- * @param options - Hook options.
+ * The options may be a signal: `checkOnMount` turning on through it checks the
+ * permission once more (when it was off before), the way React re-renders
+ * `usePush` with the new option.
+ *
+ * @param options - Hook options (or a signal of them).
  * @returns The permission and token as signals and the action functions.
  */
-export function usePush(options?: UsePushOptions): UsePushResult {
-  const { checkOnMount = false } = options ?? {}
+export function usePush(options?: MaybeSignal<UsePushOptions>): UsePushResult {
   const provider = getPushProvider()
   const permission = signal<PermissionStatus | null>(null)
   const token = signal<PushToken | null>(null)
 
-  // Check permission on mount if requested.
-  if (checkOnMount) {
-    provider
-      .checkPermission()
-      .then((status) => permission.set(status))
-      .catch((error: unknown) => {
-        // The permission stays unknown until checkPermission() is called again.
-        getLogger('usePush').warn('Checking push permission on mount failed', { error })
-      })
-  }
+  // Check permission on mount if requested. React's effect is keyed on
+  // `checkOnMount` alone: it runs once per mount and again only when that
+  // option's value changes, so the same-value guard below pins the same runs.
+  let lastCheckOnMount: boolean | undefined
+  effect(() => {
+    const { checkOnMount = false } = readMaybeSignal(options) ?? {}
+    if (Object.is(lastCheckOnMount, checkOnMount)) return
+    lastCheckOnMount = checkOnMount
+    if (!checkOnMount) return
+    untracked(() => {
+      provider
+        .checkPermission()
+        .then((status) => permission.set(status))
+        .catch((error: unknown) => {
+          // The permission stays unknown until checkPermission() is called again.
+          getLogger('usePush').warn('Checking push permission on mount failed', { error })
+        })
+    })
+  })
 
   const checkPermission = async (): Promise<PermissionStatus> => {
     const status = await provider.checkPermission()

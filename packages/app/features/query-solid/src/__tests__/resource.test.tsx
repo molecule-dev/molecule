@@ -14,7 +14,7 @@ import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
 
 import { createQueryResource, type ResourceHttp } from '../resource.js'
 import { useQuery } from '../use-query.js'
-import { renderHook, settle } from './helpers.js'
+import { renderHook, settle } from './helpers.jsx'
 
 interface Ticket {
   id: string

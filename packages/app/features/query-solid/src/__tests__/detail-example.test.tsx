@@ -25,7 +25,7 @@ import { createFetchClient } from '../../../../core/http/src/provider.js'
 import { t } from '../../../../core/i18n/src/translator.js'
 import { intentPrefetchProps, useQuery } from '../index.js'
 import { runExample } from './example-runner.js'
-import { settle } from './helpers.js'
+import { settle } from './helpers.jsx'
 
 interface PackageDocument {
   name: string

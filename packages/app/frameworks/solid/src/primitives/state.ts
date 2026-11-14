@@ -11,6 +11,7 @@ import type { StateProvider, Store, StoreConfig } from '@molecule/app-state'
 
 import { getStateProvider, StateContext } from '../context.js'
 import { useSyncExternalStore } from './external-store.js'
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 /**
  * Create a reactive store using Solid signals.
@@ -108,8 +109,12 @@ export function useStateProvider(): Accessor<StateProvider> {
  * touches the state context. A store minted outside the `state` bond is as
  * valid here as one `@molecule/app-state`'s `createStore()` made.
  *
- * @param store - The store to subscribe to.
- * @param options - Selector and equality function.
+ * @param store - The store to subscribe to. May be an accessor: a changed
+ *   store re-subscribes and reads the new store's state on the same mount,
+ *   the way React re-renders `useStore`.
+ * @param options - Selector and equality function. May be an accessor; both
+ *   fields are read at use, and the previous selection survives an argument
+ *   change (React's ref) so `equalityFn` keeps the equal result.
  * @returns Accessor for the selected state.
  * @example
  * ```tsx
@@ -117,15 +122,18 @@ export function useStateProvider(): Accessor<StateProvider> {
  * const doubled = useStore(counterStore, { selector: (s) => s.count * 2 })
  * ```
  */
-export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T, S>): Accessor<S> {
-  const { selector, equalityFn } = options ?? {}
-
+export function useStore<T, S = T>(
+  store: MaybeAccessor<Store<T>>,
+  options?: MaybeAccessor<UseStoreOptions<T, S>>,
+): Accessor<S> {
   // The previous selection, for the equality check. `undefined` means no read
-  // has happened yet (React uses a ref with the same initial value).
+  // has happened yet (React uses a ref with the same initial value); it
+  // survives a store or options change.
   let prevSelected: S | undefined
 
   const getSnapshot = (): S => {
-    const state = store.getState()
+    const { selector, equalityFn } = access(options) ?? {}
+    const state = access(store).getState()
     const selected = selector ? selector(state) : (state as unknown as S)
     if (equalityFn && prevSelected !== undefined && equalityFn(prevSelected, selected)) {
       return prevSelected
@@ -134,7 +142,40 @@ export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T,
     return selected
   }
 
-  return useSyncExternalStore((onChange) => store.subscribe(onChange), getSnapshot)
+  // React re-subscribes when the store changes ([store] subscribe deps) and
+  // re-reads when the store, selector or equality function changes (the
+  // snapshot callback's deps). The bridge re-attaches the store subscription
+  // on a real store change and forwards any argument change as a change
+  // notification, so the shared engine re-reads exactly when React's
+  // re-render would.
+  let stopStore: (() => void) | null = null
+  let attachedTo: Store<T> | null = null
+  let started = false
+  const snapshot = useSyncExternalStore((onChange) => {
+    attachedTo = access(store)
+    stopStore = attachedTo.subscribe(onChange)
+    createEffect(() => {
+      const current = access(store)
+      access(options)
+      if (!started) {
+        started = true
+        return
+      }
+      if (current !== attachedTo) {
+        attachedTo = current
+        stopStore?.()
+        stopStore = current.subscribe(onChange)
+      }
+      onChange()
+    })
+    return () => {
+      stopStore?.()
+      stopStore = null
+      attachedTo = null
+    }
+  }, getSnapshot)
+
+  return snapshot
 }
 
 /**

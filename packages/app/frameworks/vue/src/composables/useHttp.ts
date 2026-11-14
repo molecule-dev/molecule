@@ -8,18 +8,19 @@ import {
   getCurrentInstance,
   getCurrentScope,
   inject,
+  type MaybeRefOrGetter,
   onMounted,
   onScopeDispose,
   type Ref,
   ref,
+  toValue,
 } from 'vue'
 
-import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
+import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { t } from '@molecule/app-i18n'
 
 import { HttpKey } from '../injection-keys.js'
 import type { UseHttpOptions, UseHttpReturn } from '../types.js'
-import { adoptContinuity, offerContinuity } from './host-continuity.js'
 
 /**
  * Composable to access the HTTP client from injection.
@@ -40,44 +41,26 @@ export function useHttpClient(): HttpClient {
 }
 
 /**
- * The request-lane state one host slot owns across the mounts a host makes of
- * this composable (a host that swaps the arguments re-mounts the composable;
- * the lane is what React's single re-rendered instance kept).
- */
-interface HttpLane {
-  /** The request that currently owns the hook's state. */
-  latest: number
-  /** Whether this slot's mount-time `immediate` request already ran. */
-  immediateFired: boolean
-  /** False once the slot's host is gone with no replacement. */
-  dead: boolean
-  /**
-   * The state the live mount last published. React's single instance keeps its
-   * state across the argument re-render; the replacing mount starts its refs
-   * from here so a pending request still shows `loading` and an answered one
-   * still shows its `data`.
-   */
-  state: { data: unknown; loading: boolean; error: Error | null }
-  /** The live mount's state writers; the latest mount's refs win. */
-  sink: {
-    patch: (next: Partial<{ data: unknown; loading: boolean; error: Error | null }>) => void
-  } | null
-}
-
-/**
  * Composable for making HTTP requests with state management.
  *
  * `execute` keeps one identity for the composable's life. The newest request
  * owns the state: an older response answering after a newer `execute` or
  * `reset` cannot touch it, while the callbacks (`onSuccess`/`onError`) still
  * report every request's own outcome. `reset` takes ownership too. A failure
- * resolves `null`; it never rethrows. `immediate` runs its request once per
- * host slot, on mount only.
+ * resolves `null`; it never rethrows. `immediate` runs its request once, on
+ * mount only.
  *
- * @param method - HTTP method
- * @param url - Request URL
+ * Every argument may be reactive (a ref or a getter): `method`, `url` and the
+ * request options are read when `execute` runs, the way React's re-rendered
+ * hook sends what its latest render passed. `immediate` is read once, from the
+ * options at mount, and a later argument change never repeats it — React runs
+ * that request once per mount.
+ *
+ * @param method - HTTP method; may be reactive and is read when a request runs.
+ * @param url - Request URL; may be reactive and is read when a request runs.
  * @param options - Request options (body `data`, headers, params, `signal`,
- *   callbacks, `immediate`)
+ *   callbacks, `immediate`); may be reactive and is read when a request runs,
+ *   except `immediate`, which is read on mount only.
  * @returns Request state and execute function
  *
  * @example
@@ -103,126 +86,96 @@ interface HttpLane {
  * ```
  */
 export function useHttp<T>(
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  url: string,
-  options?: UseHttpOptions<T>,
+  method: MaybeRefOrGetter<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'>,
+  url: MaybeRefOrGetter<string>,
+  options?: MaybeRefOrGetter<UseHttpOptions<T> | undefined>,
 ): UseHttpReturn<T> {
   const client = useHttpClient()
-  const immediate = options?.immediate ?? false
+  const immediate = toValue(options)?.immediate ?? false
 
-  // The app identity keys continuity: only a mount under a DIFFERENT app in
-  // the same synchronous block (a host re-mounting the composable with new
-  // arguments) adopts the previous lane.
-  const app = getCurrentInstance()?.appContext.app
-  const adopted = adoptContinuity<HttpLane>(app)
-  const lane: HttpLane = adopted ?? {
-    latest: 0,
-    immediateFired: false,
-    dead: false,
-    state: { data: null, loading: false, error: null },
-    sink: null,
-  }
+  // Reactive state. React keeps it in useState across a re-render with new
+  // arguments; the composable keeps it here across reactive-argument changes.
+  const data = ref(null) as Ref<T | null>
+  const loading = ref(false)
+  const error = ref<Error | null>(null)
 
-  // Reactive state — the replacing mount starts from the lane's last published
-  // state, exactly what React's re-rendered instance kept.
-  const data = ref((adopted ? lane.state.data : null) as T | null) as Ref<T | null>
-  const loading = ref(adopted ? lane.state.loading : immediate)
-  const error = ref<Error | null>(adopted ? lane.state.error : null)
-
-  lane.sink = {
-    patch: (next) => {
-      if (next.data !== undefined) {
-        lane.state.data = next.data
-        data.value = next.data as T | null
-      }
-      if (next.loading !== undefined) {
-        lane.state.loading = next.loading
-        loading.value = next.loading
-      }
-      if (next.error !== undefined) {
-        lane.state.error = next.error
-        error.value = next.error
-      }
-    },
-  }
-
+  // False once the component (or effect scope) that owns this instance is gone:
+  // a late response settles quietly, exactly like React past unmount.
+  let alive = true
   if (getCurrentScope()) {
     onScopeDispose(() => {
-      lane.sink = null
-      offerContinuity(lane, app)
+      alive = false
     })
   }
 
+  // The newest request owns the state. `reset` bumps it too, so a request it
+  // superseded cannot repopulate.
+  let latest = 0
+
   const execute = async (): Promise<T | null> => {
-    if (lane.dead) return null
+    if (!alive) return null
 
-    const requestConfig: RequestConfig = { ...(options ?? {}) }
-    delete (requestConfig as { immediate?: unknown }).immediate
-    delete (requestConfig as Record<string, unknown>).onSuccess
-    delete (requestConfig as Record<string, unknown>).onError
-    const { onSuccess, onError } = (options ?? {}) as {
-      onSuccess?: (data: T) => void
-      onError?: (error: Error) => void
-    }
+    // Options describe the request being sent; they are read NOW, the way
+    // React's execute reads its latest committed options ref.
+    const currentOptions = toValue(options) ?? {}
+    const { immediate: _immediate, onSuccess, onError, ...requestConfig } = currentOptions
+    const request = ++latest
+    // Callbacks report THIS request's outcome even when a newer request or a
+    // reset has superseded what the hook shows.
+    const ownsState = (): boolean => alive && request === latest
 
-    const request = ++lane.latest
-    // Only the newest request may change what the hook shows; the callbacks
-    // report THIS request's outcome even when it was superseded.
-    const ownsState = (): boolean => !lane.dead && request === lane.latest
-
-    lane.sink?.patch({ loading: true, error: null })
+    loading.value = true
+    error.value = null
 
     try {
       let response: HttpResponse<T>
+      const currentMethod = toValue(method)
+      const currentUrl = toValue(url)
 
-      switch (method) {
+      switch (currentMethod) {
         case 'GET':
-          response = await client.get<T>(url, requestConfig)
+          response = await client.get<T>(currentUrl, requestConfig)
           break
         case 'POST':
-          response = await client.post<T>(
-            url,
-            (requestConfig as RequestConfig & { data?: unknown })?.data,
-            requestConfig,
-          )
+          response = await client.post<T>(currentUrl, requestConfig.data, requestConfig)
           break
         case 'PUT':
-          response = await client.put<T>(
-            url,
-            (requestConfig as RequestConfig & { data?: unknown })?.data,
-            requestConfig,
-          )
+          response = await client.put<T>(currentUrl, requestConfig.data, requestConfig)
           break
         case 'PATCH':
-          response = await client.patch<T>(
-            url,
-            (requestConfig as RequestConfig & { data?: unknown })?.data,
-            requestConfig,
-          )
+          response = await client.patch<T>(currentUrl, requestConfig.data, requestConfig)
           break
         case 'DELETE':
-          response = await client.delete<T>(url, requestConfig)
+          response = await client.delete<T>(currentUrl, requestConfig)
           break
         default:
           throw new Error(
             t(
               'vue.error.unsupportedMethod',
-              { method },
+              { method: currentMethod },
               { defaultValue: 'Unsupported method: {{method}}' },
             ),
           )
       }
 
-      if (!lane.dead) {
-        if (ownsState()) lane.sink?.patch({ data: response.data, loading: false, error: null })
+      if (alive) {
+        if (ownsState()) {
+          data.value = response.data
+          loading.value = false
+          error.value = null
+        }
         onSuccess?.(response.data)
       }
 
       return response.data
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err))
-      if (!lane.dead) {
-        if (ownsState()) lane.sink?.patch({ data: null, loading: false, error: e })
+      if (alive) {
+        if (ownsState()) {
+          data.value = null
+          loading.value = false
+          error.value = e
+        }
         onError?.(e)
       }
       return null
@@ -231,17 +184,16 @@ export function useHttp<T>(
 
   const reset = (): void => {
     // reset takes ownership: a request it superseded cannot repopulate.
-    lane.latest++
-    lane.sink?.patch({ data: null, loading: false, error: null })
+    latest++
+    data.value = null
+    loading.value = false
+    error.value = null
   }
 
-  // Execute immediately if requested — once per host slot, on mount only, the
-  // option's historical contract.
+  // Execute immediately if requested — once, on mount only, from the options
+  // the composable was created with. A later reactive change never repeats it.
   const runImmediate = (): void => {
-    if (immediate && !lane.immediateFired) {
-      lane.immediateFired = true
-      void execute()
-    }
+    if (immediate) void execute()
   }
   if (getCurrentInstance()) {
     onMounted(runImmediate)

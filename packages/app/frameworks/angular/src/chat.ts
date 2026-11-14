@@ -32,6 +32,7 @@ import {
 } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 
+import { readMaybeSignal } from './maybe-signal.js'
 import { CHAT_PROVIDER } from './tokens.js'
 
 /** Options for {@link useChat} (the shared chat session's options). */
@@ -124,7 +125,7 @@ export function useChatProvider(): ChatProvider {
  */
 export function useChat(options: UseChatOptions | Signal<UseChatOptions>): UseChatResult {
   const provider = useChatProvider()
-  let current = untracked(() => (isSignal(options) ? options() : options))
+  let current = untracked(() => readMaybeSignal(options))
   const session = createChatSession({ ...current, provider })
   const state = signal(session.getState())
   const unsubscribe = session.subscribe(() => state.set(session.getState()))
@@ -132,7 +133,7 @@ export function useChat(options: UseChatOptions | Signal<UseChatOptions>): UseCh
   // endpoint is a conversation change, which the session loads.
   if (isSignal(options)) {
     effect(() => {
-      const next = options()
+      const next = readMaybeSignal(options)
       if (next === current) return
       current = next
       untracked(() => session.update({ ...next, provider }))

@@ -32,6 +32,7 @@ import {
 import { t } from '@molecule/app-i18n'
 
 import { ChatContext } from '../context.js'
+import { access } from './maybe-accessor.js'
 
 /** Options for {@link useChat} (the shared chat session's options). */
 export type UseChatOptions = ChatSessionOptions
@@ -117,7 +118,7 @@ export function useChatProvider(): ChatProvider {
  */
 export function useChat(options: UseChatOptions | Accessor<UseChatOptions>): UseChatResult {
   const provider = useChatProvider()
-  const read = (): UseChatOptions => (typeof options === 'function' ? options() : options)
+  const read = (): UseChatOptions => access(options)
   const session = createChatSession({ ...untrack(read), provider })
   const [state, setState] = createSignal(session.getState())
   const unsubscribe = session.subscribe(() => setState(session.getState()))

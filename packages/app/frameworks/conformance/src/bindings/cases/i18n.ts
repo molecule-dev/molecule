@@ -407,6 +407,8 @@ export const useDirectionCases: HookCases = {
  */
 export const useI18nErrorCases: HookCases = {
   hook: 'useI18nError',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     { name: 'null returns null', args: [null] },
     { name: 'undefined returns null', args: [undefined] },

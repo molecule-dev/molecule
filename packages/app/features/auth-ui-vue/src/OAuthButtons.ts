@@ -98,7 +98,9 @@ export const OAuthButtons = defineComponent({
   setup(props, { emit }) {
     const cm = getClassMap()
     const error = ref<string | null>(null)
-    const { providers, redirect } = useOAuth({
+    // A getter over the props, so a changed `oauthConfig` reaches the composable
+    // on this mount (React re-renders the row with the new config).
+    const { providers, redirect } = useOAuth(() => ({
       ...props.oauthConfig,
       onSuccess: () => {
         error.value = null
@@ -110,7 +112,7 @@ export const OAuthButtons = defineComponent({
         error.value = message
         emit('error', message)
       },
-    })
+    }))
 
     return (): VNode | null => {
       if (!providers.value.length) return null

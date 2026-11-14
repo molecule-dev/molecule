@@ -29,19 +29,7 @@ import {
 } from '@molecule/app-forms'
 
 import { useAuth, useAuthClient } from './auth.js'
-
-/** The replaced host's form, one microtask long: an adopting mount reuses it. */
-interface FormHandoff<T extends FormValuesConstraint<T>> {
-  /** Set by the adopting mount; the disposal microtask then disarms. */
-  adopted: boolean
-  /** The controller created by the replaced render. */
-  form: FormController<T>
-  /** That render's `resetKey` (a changed one starts a fresh form). */
-  resetKey: string | number | boolean | bigint | null | undefined
-  /** The external `values` that controller already applied. */
-  external: { values: Partial<T> } | null
-}
-let formHandoff: FormHandoff<never> | null = null
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 /**
  * Subscribes an accessor to a controller's notifications, closing the
@@ -150,7 +138,11 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
  * `resetOptions.keepDirtyValues` retains edited fields while pristine fields
  * take the loaded values.
  *
- * @param options - Form options, forwarded to the provider.
+ * @param options - Form options, forwarded to the provider. May be an
+ *   accessor: the same mount follows it the way React follows a re-render — a
+ *   changed `resetKey` starts a fresh form, a changed `values` becomes the new
+ *   baseline (keeping dirty fields unless asked not to), and a fresh options
+ *   object whose `values` content is unchanged resets nothing.
  * @returns Form state fields as accessors and the methods.
  * @example
  * ```tsx
@@ -160,95 +152,107 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
  * ```
  */
 export function useForm<T extends FormValuesConstraint<T> = Record<string, unknown>>(
-  options: UseFormOptions<T> = {},
+  options: MaybeAccessor<UseFormOptions<T>> = {},
 ): UseFormResult<T> {
-  const { createForm = createBondedForm, resetKey, ...formOptions } = options
+  const readOptions = (): UseFormOptions<T> => access(options) ?? {}
+  const initialOptions = readOptions()
 
-  // A mount in the same turn as the previous host's cleanup is React's
-  // re-render (the adapter's args step), not a new component: adopt its
-  // controller and external-values history, unless the resetKey changed
-  // (a new record identity starts a fresh form).
-  const adopted = formHandoff as FormHandoff<T> | null
-  if (adopted) {
-    adopted.adopted = true
-    formHandoff = null
+  /** Builds a controller from one render's options (React's createForm call). */
+  const createController = (opts: UseFormOptions<T>): FormController<T> => {
+    const { createForm = createBondedForm, resetKey: _resetKey, ...formOptions } = opts
+    return createForm({ ...formOptions })
   }
-  const keepController = adopted !== null && Object.is(adopted.resetKey, resetKey)
 
-  const form: FormController<T> = keepController ? adopted.form : createForm({ ...formOptions })
-  const adoptedExternal = keepController ? adopted.external : null
+  const [form, setForm] = createSignal<FormController<T>>(createController(initialOptions))
+  let controllerResetKey: string | number | boolean | bigint | null | undefined =
+    initialOptions.resetKey
 
   let mounted = true
-  const values = options.values
-  const keepDirtyValues = options.resetOptions?.keepDirtyValues !== false
-  let lastExternalValues: { form: FormController<T>; values: Partial<T> } | null = adoptedExternal
-    ? { form, values: adoptedExternal.values }
-    : null
+  onCleanup(() => {
+    mounted = false
+  })
 
-  {
+  // React re-creates the controller during render when the `resetKey` changes
+  // (Object.is). The key guards the work: an unrelated options change builds
+  // nothing, so drafts survive re-renders.
+  createEffect(() => {
+    const opts = readOptions()
+    if (Object.is(opts.resetKey, controllerResetKey)) return
+    controllerResetKey = opts.resetKey
+    setForm(() => createController(opts))
+  })
+
+  // External values (React's layout effect keyed on [form, keepDirtyValues,
+  // values]): undefined values clears the external history; equal content on
+  // the same controller applies nothing; anything else becomes the baseline.
+  let lastExternalValues: { form: FormController<T>; values: Partial<T> } | null = null
+  createEffect(() => {
+    const opts = readOptions()
+    const current = form()
+    const { values } = opts
+    const keepDirtyValues = opts.resetOptions?.keepDirtyValues !== false
     if (values === undefined) {
       lastExternalValues = null
-    } else if (
+      return
+    }
+    if (
       lastExternalValues !== null &&
-      lastExternalValues.form === form &&
+      lastExternalValues.form === current &&
       formValuesEqual(lastExternalValues.values, values)
     ) {
       // External content already applied; not external again.
-    } else {
-      lastExternalValues = { form, values: snapshotFormValue(values) }
-      form.updateValues(values, { keepDirtyValues })
+      return
     }
-  }
-
-  onCleanup(() => {
-    mounted = false
-    const handoff: FormHandoff<T> = {
-      adopted: false,
-      form,
-      resetKey,
-      external: lastExternalValues ? { values: lastExternalValues.values } : null,
-    }
-    formHandoff = handoff as FormHandoff<never>
-    queueMicrotask(() => {
-      if (!handoff.adopted && formHandoff === (handoff as unknown)) formHandoff = null
-    })
+    lastExternalValues = { form: current, values: snapshotFormValue(values) }
+    current.updateValues(values, { keepDirtyValues })
   })
 
-  const formState = useFormSnapshot(form, () => form.getState())
+  // The form state follows whichever controller owns the mount now.
+  const [formStateValue, setFormState] = createSignal<FormState<T>>(form().getState())
+  createEffect(() => {
+    const controller = form()
+    // A controller can change after the signal read but before the
+    // subscription settles; the synchronous refresh covers the gap.
+    setFormState(() => controller.getState())
+    const unsubscribe = controller.subscribe(() => setFormState(() => controller.getState()))
+    onCleanup(unsubscribe)
+  })
+
+  const formState: Accessor<FormState<T>> = formStateValue
 
   const register = (
     name: keyof T,
     registerOptions?: Omit<RegisterOptions, 'name'> & { name?: string },
   ): FieldRegistration => {
-    return form.register({ ...registerOptions, name: name as string } as RegisterOptions)
+    return form().register({ ...registerOptions, name: name as string } as RegisterOptions)
   }
 
-  const getValue = <K extends keyof T>(name: K): T[K] => form.getValue(name)
+  const getValue = <K extends keyof T>(name: K): T[K] => form().getValue(name)
 
   const setValue = <K extends keyof T>(name: K, value: T[K]): void => {
-    form.setValue(name as string, value as unknown)
+    form().setValue(name as string, value as unknown)
   }
 
-  const getError = (name: keyof T): string | undefined => form.getError(name as string)
+  const getError = (name: keyof T): string | undefined => form().getError(name as string)
 
   const setError = (name: keyof T, error: string | undefined): void => {
     if (error !== undefined) {
-      form.setError(name as string, error)
+      form().setError(name as string, error)
     } else {
-      form.clearError(name)
+      form().clearError(name)
     }
   }
 
   const clearErrors = (): void => {
-    form.clearErrors()
+    form().clearErrors()
   }
 
   const reset = (values?: Partial<T>): void => {
-    form.reset(values)
+    form().reset(values)
   }
 
   const updateValues = (newValues: Partial<T>, resetOptions?: FormResetOptions): void => {
-    form.updateValues(newValues, resetOptions)
+    form().updateValues(newValues, resetOptions)
   }
 
   /** Per-field edit/fill tuples, cached so identity is stable per field. */
@@ -259,7 +263,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
 
   const asState = (name?: keyof T): readonly unknown[] => {
     const read = (): T | T[keyof T] =>
-      name === undefined ? form.getState().values : (form.getValue(name) as T[keyof T])
+      name === undefined ? form().getState().values : (form().getValue(name) as T[keyof T])
     const visible = name === undefined ? formState().values : (formState().values[name] as unknown)
     const existing = stateTuples.get(name)
     if (existing) return [visible, existing[0], existing[1]]
@@ -267,22 +271,22 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
       const next =
         typeof value === 'function' ? (value as (previous: unknown) => unknown)(read()) : value
       if (name !== undefined) {
-        form.setValue(name as string, next)
+        form().setValue(name as string, next)
         return
       }
       const nextValues = next as Partial<T>
       for (const field of Object.keys(
-        Object.assign({}, form.getState().values, nextValues),
+        Object.assign({}, form().getState().values, nextValues),
       ) as Extract<keyof T, string>[]) {
-        if (!formValuesEqual(form.getValue(field), nextValues[field])) {
-          form.setValue(field, nextValues[field])
+        if (!formValuesEqual(form().getValue(field), nextValues[field])) {
+          form().setValue(field, nextValues[field])
         }
       }
     }
     const fill = (value: unknown): void => {
       const next =
         typeof value === 'function' ? (value as (previous: unknown) => unknown)(read()) : value
-      form.updateValues(
+      form().updateValues(
         name === undefined ? (next as Partial<T>) : ({ [name]: next } as Partial<T>),
         { keepDirtyValues: true },
       )
@@ -291,13 +295,16 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     return [visible, edit, fill]
   }
 
-  const validate = (): Promise<boolean> => form.validate()
+  const validate = (): Promise<boolean> => form().validate()
 
   const handleSubmit = (
     onSubmit: (values: T) => void | Promise<void>,
   ): ((event?: unknown) => Promise<void>) => {
-    return form.handleSubmit((values) => {
-      if (mounted && form === form) return onSubmit(values)
+    // React only runs the handler while the controller it was built for is
+    // still the hook's controller (formRef.current === form).
+    const builtFor = form()
+    return builtFor.handleSubmit((values) => {
+      if (mounted && form() === builtFor) return onSubmit(values)
     }) as (event?: unknown) => Promise<void>
   }
 

@@ -248,6 +248,8 @@ export const useCapacitorAppCases: HookCases = {
 /** `usePush(options)`: push notification state and actions off the bonded provider. */
 export const usePushCases: HookCases = {
   hook: 'usePush',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
   cases: [
     {
       name: 'starts with no permission and no token',

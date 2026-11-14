@@ -12,12 +12,13 @@
  * @module
  */
 
-import { type Accessor, createSignal, onCleanup } from 'solid-js'
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js'
 
 import type { AppModelDefinition, AppModeModelDefaults } from '@molecule/app-ai-models'
 import { loadAIModelCatalog, pickFreeTierModel } from '@molecule/app-ai-models'
 
 import { useHttpClient } from './http.js'
+import { access, type MaybeAccessor } from './maybe-accessor.js'
 
 interface CacheState {
   models: AppModelDefinition[] | null
@@ -152,36 +153,58 @@ export interface UseAIModelsResult {
  * mounts return the cached result.
  *
  * @param projectId - Optional project scope: includes that project's custom
- *   ("bring your own AI") models on servers that support them.
+ *   ("bring your own AI") models on servers that support them. May be an
+ *   accessor: a changed scope re-subscribes to (and if needed fetches) that
+ *   scope's cache on the same mount, the way React re-renders `useAIModels`.
  * @returns Models, free-tier model, loading flag, and error, as accessors.
  */
-export function useAIModels(projectId?: string): UseAIModelsResult {
+export function useAIModels(projectId?: MaybeAccessor<string>): UseAIModelsResult {
   const http = useHttpClient()
-  const scope = projectId ?? ''
+  const readScope = (): string => access(projectId) ?? ''
 
-  const initial = cacheFor(scope)
+  const initialSnapshot = (): {
+    models: AppModelDefinition[] | null
+    defaults: AppModeModelDefaults | undefined
+    error: Error | null
+  } => {
+    const cache = cacheFor(readScope())
+    return { models: cache.models, defaults: cache.defaults, error: cache.error }
+  }
   const [snapshot, setSnapshot] = createSignal<{
     models: AppModelDefinition[] | null
     defaults: AppModeModelDefaults | undefined
     error: Error | null
-  }>({ models: initial.models, defaults: initial.defaults, error: initial.error })
+  }>(initialSnapshot())
 
-  const listener: Listener = (next) => setSnapshot(() => next)
-  listenersFor(scope).add(listener)
-  // The scope may have changed since the lazy read above — resync.
-  {
+  // React subscribes per scope ([http, scope] effect): a changed scope moves
+  // the listener, resyncs the snapshot and fetches the new scope if empty.
+  // The listener swap is manual: an effect re-run's cleanups fire before its
+  // body, so a guarded body must not rely on effect-owned cleanup.
+  let stopListener: (() => void) | null = null
+  let subscribedScope: string | null = null
+  createEffect(() => {
+    const scope = readScope()
+    if (scope === subscribedScope) return
+    subscribedScope = scope
+    stopListener?.()
+    const listener: Listener = (next) => setSnapshot(() => next)
+    listenersFor(scope).add(listener)
+    stopListener = (): void => {
+      listenersFor(scope).delete(listener)
+    }
+    // The scope may have changed since the signal read above — resync.
     const cache = cacheFor(scope)
     setSnapshot(() => ({ models: cache.models, defaults: cache.defaults, error: cache.error }))
-  }
 
-  if (!initial.models && !initial.error) {
-    void fetchOnce(http, scope).catch((_error: unknown) => {
-      // fetchOnce mirrors the error into cache.error, which the listener delivers.
-    })
-  }
-
+    if (!cache.models && !cache.error) {
+      void fetchOnce(http, scope).catch((_error: unknown) => {
+        // fetchOnce mirrors the error into cache.error, which the listener delivers.
+      })
+    }
+  })
   onCleanup(() => {
-    listenersFor(scope).delete(listener)
+    stopListener?.()
+    stopListener = null
   })
 
   return {

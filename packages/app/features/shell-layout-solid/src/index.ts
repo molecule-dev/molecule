@@ -40,5 +40,5 @@
  * @module
  */
 
-export * from './AppShellLayout.js'
+export * from './AppShellLayout.jsx'
 export * from './types.js'

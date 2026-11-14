@@ -47,7 +47,7 @@ vi.mock('@molecule/app-oauth-logos-vue', async () => {
   }
 })
 
-import { createApp, defineComponent, h, nextTick } from 'vue'
+import { createApp, defineComponent, h, type MaybeRefOrGetter, nextTick, toValue } from 'vue'
 
 const { OAuthButtons } = await import('../OAuthButtons.js')
 
@@ -137,8 +137,9 @@ describe('OAuthButtons — callback outcome UI', () => {
   const renderLive = (
     props: Record<string, unknown>,
   ): { host: HTMLDivElement; hookCfg: () => HookCfg | undefined; unmount: () => void } => {
-    let captured: HookCfg | undefined
-    mockUseOAuth.mockImplementation((cfg?: HookCfg) => {
+    // The component passes a getter over its props, so its current value is read.
+    let captured: MaybeRefOrGetter<HookCfg | undefined>
+    mockUseOAuth.mockImplementation((cfg: MaybeRefOrGetter<HookCfg | undefined>) => {
       captured = cfg
       return { providers: { value: ['github'] }, redirect: () => {} }
     })
@@ -146,7 +147,7 @@ describe('OAuthButtons — callback outcome UI', () => {
     document.body.appendChild(host)
     const app = createApp(defineComponent({ render: () => h(OAuthButtons, props) }))
     app.mount(host)
-    return { host, hookCfg: () => captured, unmount: () => app.unmount() }
+    return { host, hookCfg: () => toValue(captured), unmount: () => app.unmount() }
   }
 
   it('renders a VISIBLE inline error (role=alert) when the OAuth exchange fails', async () => {

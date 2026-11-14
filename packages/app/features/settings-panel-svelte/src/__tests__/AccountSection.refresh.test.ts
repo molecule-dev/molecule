@@ -34,10 +34,9 @@ function clientFor() {
   return client
 }
 const mounted: { instance: Record<string, unknown>; container: HTMLElement }[] = []
-function render(): void {
+function render(client = clientFor()): void {
   const container = document.createElement('div')
   document.body.appendChild(container)
-  const client = clientFor()
   const instance = mount(TestHost, {
     target: container,
     props: { client, http },
@@ -178,7 +177,8 @@ describe('AccountSection configured session refresh', () => {
       'fetch',
       vi.fn(async () => Response.json({ props: fresh })),
     )
-    render()
+    // The same session client, as React's test renders the same AuthProvider client again.
+    render(client)
     expect(control('Name').value).toBe('Alice edited')
   })
 

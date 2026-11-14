@@ -164,13 +164,18 @@ fi
 #   An upstream machine-translation step translated the names ({{title}} ->
 #   {{titel}}) and leaked its own <x> markup, so 5,816 values across 40 bonds
 #   rendered the raw token — mostly aria-labels, squarely on screen-reader users.
+# - check-jsx-specifiers: a jsx:"preserve" (Solid) build writes X.tsx to dist/X.jsx and
+#   keeps every specifier, so `./X.js` names a missing file in the published package.
+#   It type-checks, tests and builds green; a consuming app's `vite build` was the first
+#   to fail (2026-11-14, five Solid feature packages).
 node scripts/run-on-index.mjs \
   "scripts/check-lockfile.js" \
   "scripts/check-peer-deps.js" \
   "scripts/check-package-repository.js" \
   "scripts/check-package-metadata.mjs" \
   "scripts/check-i18n-parity.js --check" \
-  "scripts/check-locale-placeholders.js"
+  "scripts/check-locale-placeholders.js" \
+  "scripts/check-jsx-specifiers.mjs"
 
 # Registry export-drift gate (same spirit as i18n-parity, but cross-REPO). A
 # package's public exports are the source of truth, yet they are recorded in

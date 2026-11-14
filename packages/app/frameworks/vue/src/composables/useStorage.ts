@@ -4,7 +4,16 @@
  * @module
  */
 
-import { getCurrentScope, inject, onScopeDispose, type Ref, ref } from 'vue'
+import {
+  getCurrentScope,
+  inject,
+  type MaybeRefOrGetter,
+  onScopeDispose,
+  type Ref,
+  ref,
+  toValue,
+  watch,
+} from 'vue'
 
 import { t } from '@molecule/app-i18n'
 import { getPreferenceStore, type StorageProvider } from '@molecule/app-storage'
@@ -56,8 +65,16 @@ export interface UseStorageValueOptions<T> {
  * composable through the provider's own subscription — the same contract as
  * React's `useStorageValue`.
  *
- * @param key - Storage key
- * @param options - Composable options
+ * Both arguments may be reactive (a ref or a getter) and are followed on the
+ * same component, the way React re-renders `useStorageValue`: a new `key`
+ * starts over (its value is unknown until its read lands, exactly like a fresh
+ * mount), `defaultValue` is read whenever it is used, and turning `sync` on or
+ * off (re)subscribes.
+ *
+ * @param key - Storage key; may be reactive, and a change starts the new key
+ *   over on the same component.
+ * @param options - Composable options; may be reactive, and `defaultValue` is
+ *   read at the moment it is used while `sync` is followed live.
  * @returns Value, setter, and loading state
  *
  * @example
@@ -80,14 +97,18 @@ export interface UseStorageValueOptions<T> {
  * ```
  */
 export function useStorageValue<T>(
-  key: string,
-  options?: UseStorageValueOptions<T>,
+  key: MaybeRefOrGetter<string>,
+  options?: MaybeRefOrGetter<UseStorageValueOptions<T> | undefined>,
 ): UseStorageValueReturn<T> {
   const storage = useStorageProvider()
-  const { defaultValue, sync = false } = options ?? {}
+
+  // The latest `defaultValue`, read at the moment it is used — React's ref
+  // updated on every render, so an inline default keeps working without
+  // re-reading storage.
+  const currentDefault = (): T | undefined => toValue(options)?.defaultValue
 
   // Reactive state
-  const value = ref<T | undefined>(defaultValue) as Ref<T | undefined>
+  const value = ref<T | undefined>(currentDefault()) as Ref<T | undefined>
   const loading = ref(true)
   const error = ref<Error | null>(null)
 
@@ -95,9 +116,10 @@ export function useStorageValue<T>(
   // replace the newer value — the user editing before the first read lands is
   // the common case on a slow (native, encrypted) backend.
   let writeVersion = 0
-  // The latest `defaultValue`, held like React's ref so later options objects
-  // (an inline default) keep working without re-reading storage.
-  const currentDefault = defaultValue
+  // Bumped whenever the key changes: a read of a PREVIOUS key is discarded
+  // whole, exactly like React's load effect being cleaned up (its `mounted`
+  // flag) before the new key's effect reads.
+  let readEpoch = 0
   let mounted = true
 
   if (getCurrentScope()) {
@@ -107,46 +129,71 @@ export function useStorageValue<T>(
   }
 
   // Load the key's value.
-  const loadValue = async (): Promise<void> => {
+  const loadValue = (currentKey: string): void => {
     const version = writeVersion
-    try {
-      const stored = await storage.get<T>(key)
-      if (!mounted) return
-      // A write made after this read started holds the newer value; the read still ends loading.
-      if (writeVersion === version) value.value = (stored ?? currentDefault) as T | undefined
-      loading.value = false
-    } catch (err) {
-      if (!mounted) return
-      if (writeVersion === version) {
-        error.value = err instanceof Error ? err : new Error(String(err))
-      }
-      loading.value = false
-    }
+    const epoch = readEpoch
+    storage
+      .get<T>(currentKey)
+      .then((stored) => {
+        if (!mounted || epoch !== readEpoch) return
+        // A write made after this read started holds the newer value; the read still ends loading.
+        if (writeVersion === version) value.value = (stored ?? currentDefault()) as T | undefined
+        loading.value = false
+      })
+      .catch((err: unknown) => {
+        if (!mounted || epoch !== readEpoch) return
+        if (writeVersion === version) {
+          error.value = err instanceof Error ? err : new Error(String(err))
+        }
+        loading.value = false
+      })
   }
+  loadValue(toValue(key))
 
-  void loadValue()
+  // A new key starts over: its value is unknown until its read lands, showing
+  // what a fresh mount shows.
+  watch(
+    () => toValue(key),
+    (next) => {
+      readEpoch++
+      value.value = currentDefault()
+      loading.value = true
+      error.value = null
+      loadValue(next)
+    },
+  )
 
   // Sync across tabs if supported — through the PROVIDER's own subscription, so
   // a non-browser backend (native, encrypted, memory) propagates the same way
-  // instead of being limited to the browser `storage` event.
+  // instead of being limited to the browser `storage` event. React keys this
+  // subscription on the key and the `sync` option; both are followed here.
   let stopSync: (() => void) | null = null
-  if (sync && storage.subscribe) {
-    stopSync = storage.subscribe(key, (next) => {
-      writeVersion += 1
-      value.value = next === null ? currentDefault : (next as T)
-    })
-    if (getCurrentScope()) {
-      onScopeDispose(() => {
-        stopSync?.()
-        stopSync = null
+  const resubscribeSync = (): void => {
+    stopSync?.()
+    stopSync = null
+    if ((toValue(options)?.sync ?? false) && storage.subscribe) {
+      const currentKey = toValue(key)
+      stopSync = storage.subscribe(currentKey, (next) => {
+        writeVersion += 1
+        value.value = next === null ? currentDefault() : (next as T)
       })
     }
+  }
+  resubscribeSync()
+  watch([() => toValue(key), () => toValue(options)?.sync ?? false], () => {
+    resubscribeSync()
+  })
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      stopSync?.()
+      stopSync = null
+    })
   }
 
   const setValue = async (newValue: T): Promise<void> => {
     writeVersion += 1
     try {
-      await storage.set(key, newValue)
+      await storage.set(toValue(key), newValue)
       value.value = newValue
       error.value = null
     } catch (err) {
@@ -158,8 +205,8 @@ export function useStorageValue<T>(
   const removeValue = async (): Promise<void> => {
     writeVersion += 1
     try {
-      await storage.remove(key)
-      value.value = currentDefault
+      await storage.remove(toValue(key))
+      value.value = currentDefault()
       error.value = null
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err))
@@ -190,8 +237,15 @@ export function useStorageValue<T>(
  * yet): the composable then behaves as local state around `defaultValue` and
  * persists nothing.
  *
- * @param key - The storage key, or `null` when there is nothing to persist.
- * @param options - `defaultValue`, reported until the provider supplies one.
+ * Both arguments may be reactive (a ref or a getter) and are followed on the
+ * same component, the way React re-renders `useStoragePreference`: a new `key`
+ * re-seeds from the store and re-hydrates (the old key's subscription ends),
+ * and `defaultValue` is read whenever it is used.
+ *
+ * @param key - The storage key, or `null` when there is nothing to persist;
+ *   may be reactive, and a change re-reads the new key on the same component.
+ * @param options - `defaultValue`, reported until the provider supplies one;
+ *   may be reactive, and the default is read at the moment it is used.
  * @returns The current value, its mutators, and whether it is definite yet.
  *
  * @example
@@ -209,51 +263,67 @@ export function useStorageValue<T>(
  * ```
  */
 export function useStoragePreference<T = unknown>(
-  key: string | null | undefined,
-  options?: UseStoragePreferenceOptions<T>,
+  key: MaybeRefOrGetter<string | null | undefined>,
+  options?: MaybeRefOrGetter<UseStoragePreferenceOptions<T> | undefined>,
 ): UseStoragePreferenceReturn<T> {
   const store = getPreferenceStore()
-  const defaultValue = options?.defaultValue
 
-  const read = (): T | undefined => {
-    if (!key) return defaultValue
-    const stored = store.get<T>(key)
-    return stored === null ? defaultValue : stored
+  const read = (currentKey: string | null | undefined): T | undefined => {
+    if (!currentKey) return toValue(options)?.defaultValue
+    const stored = store.get<T>(currentKey)
+    return stored === null ? toValue(options)?.defaultValue : stored
   }
 
-  const value = ref<T | undefined>(read()) as Ref<T | undefined>
-  const ready = ref<boolean>(!key)
+  const value = ref<T | undefined>(undefined) as Ref<T | undefined>
+  const ready = ref<boolean>(false)
   // The value `setValue`'s functional form receives, kept beside the ref.
-  let currentValue = value.value
+  let currentValue: T | undefined
 
-  if (!key) {
-    ready.value = true
-    value.value = defaultValue
-    currentValue = defaultValue
-  } else {
-    let cancelled = false
+  // The per-key subscription block. React runs it as an effect keyed on the
+  // key: on a key change the old effect's cleanup ends the old subscription
+  // (its `cancelled` drops late hydrations) and the new effect starts over.
+  let stop: (() => void) | null = null
+  let cancelled = false
+  const startKey = (currentKey: string | null | undefined): void => {
+    cancelled = true
+    stop?.()
+    stop = null
+    if (!currentKey) {
+      ready.value = true
+      currentValue = toValue(options)?.defaultValue
+      value.value = currentValue
+      return
+    }
+    cancelled = false
     const sync = (): void => {
-      if (!cancelled) {
-        value.value = read()
-        currentValue = value.value
-      }
+      if (cancelled) return
+      value.value = read(currentKey)
+      currentValue = value.value
     }
     // Seed from whatever the store already knows, then let hydration converge
     // it. With a synchronous provider this is a no-op change.
     sync()
     ready.value = false
-    const stop = store.subscribe(key, sync)
-    void store.hydrate([key]).then(() => {
+    stop = store.subscribe(currentKey, sync)
+    void store.hydrate([currentKey]).then(() => {
       if (cancelled) return
       sync()
       ready.value = true
     })
-    if (getCurrentScope()) {
-      onScopeDispose(() => {
-        cancelled = true
-        stop()
-      })
-    }
+  }
+  startKey(toValue(key))
+  watch(
+    () => toValue(key),
+    (next) => {
+      startKey(next)
+    },
+  )
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      cancelled = true
+      stop?.()
+      stop = null
+    })
   }
 
   const setValue = (next: T | ((previous: T | undefined) => T)): void => {
@@ -261,13 +331,15 @@ export function useStoragePreference<T = unknown>(
       typeof next === 'function' ? (next as (previous: T | undefined) => T)(currentValue) : next
     currentValue = resolved
     value.value = resolved
-    if (key) store.set(key, resolved)
+    const currentKey = toValue(key)
+    if (currentKey) store.set(currentKey, resolved)
   }
 
   const removeValue = (): void => {
-    currentValue = defaultValue
-    value.value = defaultValue
-    if (key) store.remove(key)
+    currentValue = toValue(options)?.defaultValue
+    value.value = currentValue
+    const currentKey = toValue(key)
+    if (currentKey) store.remove(currentKey)
   }
 
   return { value, setValue, removeValue, ready }

@@ -4,7 +4,17 @@
  * @module
  */
 
-import { computed, type ComputedRef, inject, onMounted, onUnmounted, shallowRef } from 'vue'
+import {
+  computed,
+  type ComputedRef,
+  inject,
+  type MaybeRefOrGetter,
+  onMounted,
+  onUnmounted,
+  shallowRef,
+  toValue,
+  watch,
+} from 'vue'
 
 import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
 import { t } from '@molecule/app-i18n'
@@ -48,8 +58,13 @@ export function useAuthClient<
  * Save profile edits with `updateProfile(patch)`; adopt a caller-issued session
  * with `setSession({ accessToken, user })` — `setUser` alone does not sign in.
  *
+ * The options may be reactive (a ref or a getter): `autoRefresh` turning on
+ * through them probes the session once on the same component, the way a
+ * re-render turns React's effect on.
+ *
  * @param options - Composable options (`autoRefresh` probes the session once
- *   on mount while signed out and not loading).
+ *   on mount while signed out and not loading); may be reactive (a ref or a
+ *   getter), and a change to `autoRefresh` is followed on the same component.
  * @returns Auth state and action methods
  *
  * @example
@@ -78,9 +93,8 @@ export function useAuthClient<
 export function useAuth<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
->(options?: UseAuthOptions): UseAuthReturn<T, TRegister> {
+>(options?: MaybeRefOrGetter<UseAuthOptions | undefined>): UseAuthReturn<T, TRegister> {
   const client = useAuthClient<T, TRegister>()
-  const { autoRefresh = false } = options ?? {}
 
   // Reactive state (shallowRef avoids Vue's UnwrapRef issues with generic AuthState<T>)
   const authState = shallowRef<AuthState<T>>(client.getState())
@@ -95,15 +109,27 @@ export function useAuth<
     // A child (including the fallback slot) can decide auth before this parent
     // mounts. Subscribe first, then reconcile that gap without another request.
     authState.value = client.getState()
-
-    // Auto-refresh on mount if requested: only while no session is confirmed
-    // and nothing is being decided (signed out or unavailable).
-    if (autoRefresh && !authState.value.authenticated && !authState.value.loading) {
-      client.refresh().catch((_error: unknown) => {
-        // No session to refresh: the state already says unauthenticated.
-      })
-    }
   })
+
+  // Auto-refresh if requested: only while no session is confirmed and nothing
+  // is being decided (signed out or unavailable). React runs this as an effect
+  // keyed on `autoRefresh` and the session's own authenticated/loading fields:
+  // it runs on mount and again whenever one of those changes, never otherwise.
+  watch(
+    [
+      () => toValue(options)?.autoRefresh ?? false,
+      () => authState.value.authenticated,
+      () => authState.value.loading,
+    ],
+    ([autoRefresh]) => {
+      if (autoRefresh && !authState.value.authenticated && !authState.value.loading) {
+        client.refresh().catch((_error: unknown) => {
+          // No session to refresh: the state already says unauthenticated.
+        })
+      }
+    },
+    { immediate: true },
+  )
 
   onUnmounted(() => {
     unsubscribe?.()

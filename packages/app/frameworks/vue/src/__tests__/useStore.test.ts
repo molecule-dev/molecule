@@ -16,6 +16,10 @@ vi.mock('vue', () => ({
     onUnmountedCallbacks.push(cb)
   }),
   onMounted: vi.fn(),
+  toValue: vi.fn((v: unknown) =>
+    typeof v === 'function' ? (v as () => unknown)() : ((v as { value?: unknown })?.value ?? v),
+  ),
+  watch: vi.fn(),
 }))
 
 // Mock molecule packages

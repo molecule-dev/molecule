@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   ElementRef,
   EventEmitter,
   inject,
@@ -77,8 +78,25 @@ import { getClassMap, type UIClassMap } from '@molecule/app-ui'
     ></div>`,
 })
 export class OAuthButtons implements OnDestroy {
-  /** The app's OAuth config, passed to the binding's `useOAuth()`. */
-  oauthConfig?: UseOAuthConfig
+  /** The current `oauthConfig` input, as a signal the hook follows. */
+  private readonly config = signal<UseOAuthConfig | undefined>(undefined)
+
+  /**
+   * The app's OAuth config, passed to the binding's `useOAuth()`. A changed
+   * config reaches the hook on this mount (React re-renders the row with it).
+   * @param value - The config.
+   */
+  set oauthConfig(value: UseOAuthConfig | undefined) {
+    this.config.set(value)
+  }
+
+  /**
+   * The app's OAuth config.
+   * @returns The current config.
+   */
+  get oauthConfig(): UseOAuthConfig | undefined {
+    return this.config()
+  }
   /** Extra class applied to the outer wrapper. */
   className?: string
   /** Icon size in pixels (default 30). */
@@ -167,19 +185,21 @@ export class OAuthButtons implements OnDestroy {
    */
   ngOnInit(): void {
     this.oauth = runInInjectionContext(this.injector, () =>
-      useOAuth({
-        ...this.oauthConfig,
-        onSuccess: () => {
-          this.errorMessage.set(null)
-          this.success.emit()
-        },
-        onError: (message: string) => {
-          // The message is the api's (localized) error body or the hook's
-          // fallback — render it so a failed callback is never invisible.
-          this.errorMessage.set(message)
-          this.error.emit(message)
-        },
-      }),
+      useOAuth(
+        computed(() => ({
+          ...this.config(),
+          onSuccess: () => {
+            this.errorMessage.set(null)
+            this.success.emit()
+          },
+          onError: (message: string) => {
+            // The message is the api's (localized) error body or the hook's
+            // fallback — render it so a failed callback is never invisible.
+            this.errorMessage.set(message)
+            this.error.emit(message)
+          },
+        })),
+      ),
     )
   }
 
@@ -202,7 +222,6 @@ export class OAuthButtons implements OnDestroy {
     }
   }
 
-  /** Re-reconciles host visibility after the hook ran and on resets. */
   /**
    * Reconciles host visibility once the view is in the document: the first
    * ngDoCheck of a cycle runs before Angular has inserted a freshly created

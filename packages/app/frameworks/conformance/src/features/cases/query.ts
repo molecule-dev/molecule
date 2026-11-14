@@ -502,6 +502,20 @@ const queryContentCases: FeatureCases['families'][number] = {
       },
     },
     {
+      // React re-renders the same children with the new document, so the mounted
+      // node (and any state inside it) is kept: a re-created node loses its mark.
+      name: 'a changed document reaches the same mounted children',
+      props: {
+        query: { data: { name: 'pkg-a' }, status: 'success' },
+        pending: { $nodes: [pendingNode] },
+        children: { $fn: 'doc', nodes: docNode },
+      },
+      interactions: [
+        { type: 'mark', selector: 'article' },
+        { type: 'props', props: { query: { data: { name: 'pkg-b' }, status: 'success' } } },
+      ],
+    },
+    {
       name: 'states move from pending through loaded to error',
       props: {
         query: { status: 'idle' },
