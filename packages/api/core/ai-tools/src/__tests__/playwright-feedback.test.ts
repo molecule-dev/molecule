@@ -90,6 +90,18 @@ describe('nonblocking native feedback', () => {
       load: async () => ({ ...project(), specs: [spec()] }),
       run,
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [spec()].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     expect(watcher.changed(['/app/src/Notes.tsx'])).toBeUndefined()
     expect(run).not.toHaveBeenCalled()
     const settled = watcher.settled()
@@ -118,6 +130,18 @@ describe('nonblocking native feedback', () => {
       }),
       onFailures,
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      project().specs.map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     watcher.changed(['/app/src/Notes.tsx'])
     await watcher.settled()
     expect(onFailures).not.toHaveBeenCalled()
@@ -150,6 +174,18 @@ describe('nonblocking native feedback', () => {
       load: async () => ({ ...project(), specs: [spec()] }),
       run,
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [spec()].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     watcher.changed(['/app/src/Notes.tsx'])
     const settled = watcher.settled()
     await vi.waitFor(() => expect(run).toHaveBeenCalledTimes(1))
@@ -172,6 +208,18 @@ describe('nonblocking native feedback', () => {
           : failure(s, f, revision),
       onFailures,
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [spec()].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     for (let i = 0; i < 2; i++) {
       watcher.changed(['/app/src/Notes.tsx'])
       await watcher.settled()
@@ -181,6 +229,7 @@ describe('nonblocking native feedback', () => {
     watcher.changed(['/app/src/Notes.tsx'])
     await watcher.settled()
     good = false
+    watcher.record([failure(spec(), [], watcher.revision())], watcher.revision())
     watcher.changed(['/app/src/Notes.tsx'])
     await watcher.settled()
     expect(onFailures).toHaveBeenCalledTimes(3)
@@ -197,6 +246,18 @@ describe('nonblocking native feedback', () => {
         reason: 'not compiled',
       }))
     const watcher = createPlaywrightFeedback({ load: async () => project(), run, onFailures })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      project().specs.map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     watcher.changed(['/app/src/Notes.tsx'])
     await watcher.settled()
     await watcher.close()

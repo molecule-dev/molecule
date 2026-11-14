@@ -51,6 +51,18 @@ async function knownFailure() {
     run,
     debounceMs: 1,
   })
+  // A completed host run established these failures before the source write.
+  controller.record(
+    [spec].map(({ path }) => ({
+      spec: path,
+      revision: 0,
+      durationMs: 1,
+      status: 'failed',
+      failures: [],
+    })),
+    0,
+  )
+
   controllers.push(controller)
   controller.changed([source])
   await vi.waitFor(() => expect(controller.failingSpecs()).toEqual([spec.path]))

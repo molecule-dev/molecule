@@ -116,6 +116,16 @@ it.each([true, false])(
         })
       },
     })
+    controller.record(
+      f.specs.map((s) => ({
+        spec: s.path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
     controllers.push(controller)
     controller.changed(['/equipment/src/Preferences.tsx'])
     await vi.waitFor(
@@ -127,6 +137,20 @@ it.each([true, false])(
     const release = await controller.pause()
     expect(results.map((result) => result.status)).toEqual(['cancelled'])
     expect(controller.takeFailures()).toEqual([])
+    // The stopped slow file has no completed test to select. Its host pass removes it from
+    // repair work; the other completed failure can now resume without starting a new file.
+    controller.record(
+      [
+        {
+          spec: f.specs[0].path,
+          revision: controller.revision(),
+          durationMs: 1,
+          status: 'passed',
+          failures: [],
+        },
+      ],
+      controller.revision(),
+    )
     release()
     await vi.waitFor(() => expect(visits).toHaveLength(2), { timeout: 5000 })
     // Stop a repeated first file before asserting, so the known-bad control leaves no process.

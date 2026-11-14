@@ -43,10 +43,10 @@ function fixture() {
 }
 
 it.each(['passed', 'failed', 'unavailable'] as const)(
-  'a failed-only checkpoint returning %s preserves the pending unvisited file',
+  'a failed-only checkpoint returning %s leaves unvisited files for explicit runs',
   async (status) => {
     const f = fixture()
-    // Only checkout has run; delivery is still unknown. The next write queues both.
+    // Only checkout has run; delivery is still unknown. The next write rechecks checkout alone.
     expect((await f.controller.check()).map((result) => result.status)).toEqual(['failed'])
     f.checkout(status)
     f.controller.changed(['/shop/src/Delivery.vue'])
@@ -64,27 +64,13 @@ it.each(['passed', 'failed', 'unavailable'] as const)(
       release()
     }
     await f.controller.settled()
-    expect(f.run.mock.calls.map(([spec]) => spec.path)).toContain(f.specs[1].path)
-    expect(f.controller.failingSpecs()).toContain(f.specs[1].path)
-    const failures = f.controller.takeFailures()
-    expect(failures).toHaveLength(status === 'failed' ? 2 : 1)
-    expect(failures).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          spec: f.specs[1].path,
-          revision: 1,
-          failures: [expect.objectContaining({ sourceFiles: ['/shop/src/Delivery.vue'] })],
-        }),
-        // A still-failing checkout may also be diagnosed by the resumed background pass.
-        ...(status === 'failed'
-          ? [expect.objectContaining({ spec: f.specs[0].path, revision: 1 })]
-          : []),
-      ]),
-    )
+    expect(f.run.mock.calls.map(([spec]) => spec.path)).not.toContain(f.specs[1].path)
+    expect(f.controller.failingSpecs()).not.toContain(f.specs[1].path)
+    expect(f.controller.takeFailures()).toHaveLength(status === 'failed' ? 1 : 0)
   },
 )
 
-it('a failed-only checkpoint with no known failure adds no load or runner work and preserves queued diagnosis', async () => {
+it('a failed-only checkpoint with no known failure adds no load or runner work and schedules no inventory walk', async () => {
   const f = fixture()
   f.checkout('passed')
   f.controller.changed(['/shop/src/Delivery.vue'])
@@ -92,7 +78,7 @@ it('a failed-only checkpoint with no known failure adds no load or runner work a
   expect(f.load).not.toHaveBeenCalled()
   expect(f.run).not.toHaveBeenCalled()
   await f.controller.settled()
-  expect(f.run.mock.calls.map(([spec]) => spec.path)).toEqual(f.specs.map((spec) => spec.path))
+  expect(f.run).not.toHaveBeenCalled()
 })
 
 it('a complete explicit checkpoint consumes its pending pass without duplicating background work', async () => {

@@ -5,7 +5,7 @@ import type { PlaywrightFeedback, PlaywrightFeedbackOptions } from '../playwrigh
 
 const watchers: PlaywrightFeedback[] = []
 afterEach(async () => Promise.all(watchers.splice(0).map((watcher) => watcher.close())))
-function fixture() {
+function fixture(seed = true) {
   let status: 'passed' | 'failed' | 'unavailable' = 'failed'
   const load = vi.fn(async () => ({
     sources: [],
@@ -35,6 +35,21 @@ function fixture() {
         : [],
   }))
   const watcher = createPlaywrightFeedback({ load, run })
+  // A completed host run established these failures before the source write.
+  if (seed)
+    watcher.record(
+      ['cart', 'shipping']
+        .map((name) => ({ path: `/shop/e2e/${name}.spec.ts` }))
+        .map(({ path }) => ({
+          spec: path,
+          revision: 0,
+          durationMs: 1,
+          status: 'failed',
+          failures: [],
+        })),
+      0,
+    )
+
   watchers.push(watcher)
   return {
     watcher,
@@ -206,14 +221,14 @@ it('discards a completed prefix when source changes during a later checkpoint sp
 })
 
 it('re-runs only known native failures when asked, and runs nothing when none is known', async () => {
-  const f = fixture()
+  const f = fixture(false)
   f.status('passed')
   f.watcher.changed(['/shop/src/Shipping.vue'])
   expect(f.watcher.failingSpecs()).toEqual([])
   expect(await f.watcher.check({ failedOnly: true })).toEqual([])
   expect(f.load).not.toHaveBeenCalled()
   expect(f.run).not.toHaveBeenCalled()
-  // A failure the background runner found is the one spec a failed-only checkpoint re-runs.
+  // A completed explicit run establishes the one spec the known-failure check re-runs.
   f.run.mockImplementationOnce(async (spec, sourceFiles, revision) => ({
     spec: spec.path,
     revision,
@@ -221,7 +236,7 @@ it('re-runs only known native failures when asked, and runs nothing when none is
     status: 'failed',
     failures: [{ spec: spec.path, line: 3, locator: 'button', error: 'x', sourceFiles }],
   }))
-  await f.watcher.settled()
+  await f.watcher.check()
   expect(f.watcher.failingSpecs()).toEqual(['/shop/e2e/cart.spec.ts'])
   f.run.mockClear()
   f.watcher.changed(['/shop/src/Cart.vue'])

@@ -126,6 +126,18 @@ describe('native supplied-suite feedback before deploy', () => {
         deliveredBeforeExit ||= !exited
       },
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [specs[0]].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     controllers.push(watcher)
     watcher.changed([join(root, 'src/NoteBody.tsx')])
     expect(watcher.takeFailures()).toEqual([])
@@ -320,6 +332,18 @@ describe('native supplied-suite feedback before deploy', () => {
         }),
       onResult: (result) => results.push(result),
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      specs.map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     controllers.push(watcher)
     watcher.changed([join(root, 'src/NoteBody.tsx')])
     await watcher.settled()
@@ -356,6 +380,18 @@ describe('native supplied-suite feedback before deploy', () => {
           foreground: mode === 'foreground',
         }),
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [skipping, specs[0]].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     controllers.push(watcher)
     const results = await watcher.check()
     expect(results.map((r) => r.status)).toEqual(['skipped', 'failed'])

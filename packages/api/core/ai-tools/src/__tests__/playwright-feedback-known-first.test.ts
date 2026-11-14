@@ -75,6 +75,7 @@ function fixture(recheck: PlaywrightFeedbackResult['status']) {
     onFailures,
     debounceMs: 1,
   })
+  watcher.record([outcome(A, 0, 'failed')], 0)
   watchers.push(watcher)
   const write = async () => {
     watcher.changed(['/shop/src/Cart.tsx'])
@@ -101,13 +102,7 @@ it('re-runs a known failure first, by its record, and a pass leaves the deploy c
   // First in the pass, ahead of B's older attempt, with only the recorded test.
   expect(after[0]).toEqual({ spec: A, revision: 2, mode: 'background', record: ['t1'] })
   expect(f.watcher.failingSpecs()).toEqual([])
-  // The file's other tests still run on this source: A goes back to the inventory whole.
-  expect(after.slice(1)).toContainEqual({
-    spec: A,
-    revision: 2,
-    mode: 'background',
-    record: undefined,
-  })
+  expect(after).toHaveLength(1)
   // The deploy's known-failure check finds nothing to re-run.
   const ran = f.run.mock.calls.length
   expect(await f.watcher.check({ failedOnly: true })).toEqual([])
@@ -123,7 +118,7 @@ it('delivers a still-failing known failure at once, and does not run its file wh
   const after = calls(f.run).slice(before)
   expect(after[0]).toEqual({ spec: A, revision: 2, mode: 'background', record: ['t1'] })
   expect(after.filter((call) => call.spec === A)).toHaveLength(1)
-  expect(after).toContainEqual({ spec: B, revision: 2, mode: 'background', record: undefined })
+  expect(after).toHaveLength(1)
   expect(f.onFailures).toHaveBeenCalledWith(expect.objectContaining({ spec: A, revision: 2 }))
   expect(f.watcher.failingSpecs()).toEqual([A])
   // The deploy check still re-runs it: a failed outcome is never reused.
@@ -132,19 +127,16 @@ it('delivers a still-failing known failure at once, and does not run its file wh
   expect(calls(f.run).at(-1)).toEqual({ spec: A, revision: 2, mode: 'foreground', record: ['t1'] })
 })
 
-it('drops a record that selects no current test and runs the file whole', async () => {
+it('keeps an unavailable repair for the explicit checkpoint to verify', async () => {
   const f = fixture('unavailable')
   await f.write()
   const before = f.run.mock.calls.length
   await f.write()
   const after = calls(f.run).slice(before)
   expect(after[0]).toMatchObject({ spec: A, record: ['t1'] })
-  expect(after.slice(1)).toContainEqual({
-    spec: A,
-    revision: 2,
-    mode: 'background',
-    record: undefined,
-  })
+  expect(after).toHaveLength(1)
+  await f.watcher.check({ failedOnly: true })
+  expect(calls(f.run).at(-1)?.record).toBeUndefined()
   // The whole-file run failed again with its own record: known, and the record is current.
   expect(f.watcher.failingSpecs()).toEqual([A])
 })

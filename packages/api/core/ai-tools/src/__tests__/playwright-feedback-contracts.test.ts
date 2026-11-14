@@ -116,7 +116,7 @@ it('reports numeric, asset, duplicate and element-contract failures from the rea
   ).toBe(true)
 }, 25_000)
 
-it('resumes an unvisited native file after repairing known failures and accepts alternate app designs silently', async () => {
+it('leaves unvisited native files to an explicit checkpoint after repairing known failures and accepts alternate app designs silently', async () => {
   broken = true
   const results: PlaywrightFeedbackResult[] = []
   const controller = createPlaywrightFeedback({
@@ -144,8 +144,9 @@ it('resumes an unvisited native file after repairing known failures and accepts 
       release()
     }
     await controller.settled()
-    expect(results.map((result) => result.status)).toEqual(['passed', 'passed'])
-    expect(results.map((result) => result.nativeStats?.expected)).toEqual([4, 1])
+    expect(results.map((result) => result.status)).toEqual(['passed'])
+    expect(results.map((result) => result.nativeStats?.expected)).toEqual([4])
+    expect((await controller.check()).map((result) => result.status)).toEqual(['passed', 'passed'])
     expect(controller.takeFailures()).toEqual([])
   } finally {
     await controller.close()

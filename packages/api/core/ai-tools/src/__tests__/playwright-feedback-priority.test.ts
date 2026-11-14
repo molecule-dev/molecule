@@ -80,6 +80,18 @@ describe('foreground work owns the clock', () => {
         return signal.aborted ? cancelled(revision) : passed(revision)
       },
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [spec].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     controllers.push(watcher)
     watcher.changed(['/app/src/Catalog.tsx'])
     await vi.waitFor(() => expect(active).toBe(1))
@@ -117,6 +129,18 @@ describe('foreground work owns the clock', () => {
         return stale
       },
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [spec].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     controllers.push(watcher)
     watcher.changed(['/app/src/Catalog.tsx'])
     await vi.waitFor(() => expect(signals).toHaveLength(1))
@@ -131,40 +155,24 @@ describe('foreground work owns the clock', () => {
     expect(watcher.failingSpecs()).toEqual([spec.path])
   })
 
-  it('finishes and rotates through every spec while a write lands during each run', async () => {
-    const specs = ['account', 'catalog', 'profile'].map((name) => ({
-      ...spec,
-      path: `/app/e2e/${name}.spec.ts`,
-    }))
+  it('re-runs only a known failure while writes keep arriving', async () => {
+    const known = { ...spec, path: '/app/e2e/profile.spec.ts' }
     const visits: string[] = []
     const watcher = createPlaywrightFeedback({
-      load: async () => ({ sources: [], specs }),
+      load: async () => ({ sources: [], specs: [spec, known] }),
       debounceMs: 1,
-      run: async (s, _f, revision) => {
+      run: async (s, _files, revision) => {
         visits.push(s.path)
-        // The agent keeps writing: a save arrives while every spec runs.
         if (visits.length < 6) watcher.changed(['/app/src/Profile.tsx'])
-        return s.path.includes('profile')
-          ? {
-              ...passed(revision),
-              spec: s.path,
-              status: 'failed',
-              failures: [
-                { spec: s.path, line: 4, error: 'not found', locator: '.bio', sourceFiles: [] },
-              ],
-            }
-          : { ...passed(revision), spec: s.path }
+        return { ...passed(revision), spec: s.path, status: 'failed', failures: [] }
       },
     })
     controllers.push(watcher)
+    watcher.record([{ ...passed(0), spec: known.path, status: 'failed' }], 0)
     watcher.changed(['/app/src/Profile.tsx'])
-    await vi.waitFor(() => expect(visits.length).toBeGreaterThanOrEqual(6))
     await watcher.settled()
-    // Least recently run first, so the third file is reached under continuous writes.
-    expect(visits.slice(0, 3)).toEqual(specs.map((s) => s.path))
-    expect(watcher.failingSpecs()).toEqual(['/app/e2e/profile.spec.ts'])
-    // The rotation continues in turn: a known failure does not take every pass from the others.
-    expect(visits.slice(3, 6)).toEqual(specs.map((s) => s.path))
+    expect(visits).toEqual(Array(6).fill(known.path))
+    expect(watcher.failingSpecs()).toEqual([known.path])
   })
 
   it('still interrupts an explicit checkpoint on a source edit', async () => {
@@ -181,6 +189,18 @@ describe('foreground work owns the clock', () => {
         return cancelled(revision)
       },
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [spec].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     controllers.push(watcher)
     const result = watcher.check()
     await vi.waitFor(() => expect(signals).toHaveLength(1))
@@ -199,6 +219,18 @@ describe('foreground work owns the clock', () => {
     )
     const run = vi.fn()
     const watcher = createPlaywrightFeedback({ load, run, debounceMs: 5 })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [spec].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     controllers.push(watcher)
     watcher.changed(['/app/src/Catalog.tsx'])
     await vi.waitFor(() => expect(load).toHaveBeenCalledOnce())

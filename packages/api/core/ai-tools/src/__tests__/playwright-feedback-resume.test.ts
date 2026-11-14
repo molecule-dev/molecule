@@ -10,7 +10,7 @@ import type {
 const controllers: PlaywrightFeedback[] = []
 afterEach(async () => Promise.all(controllers.splice(0).map((c) => c.close())))
 
-it('resumes an interrupted revision with unvisited files before retrying its interrupted file', async () => {
+it('resumes a stopped known-failure re-run without adding an unvisited file', async () => {
   const visits: string[] = []
   const results: PlaywrightFeedbackResult[] = []
   let interrupted = false
@@ -43,6 +43,16 @@ it('resumes an interrupted revision with unvisited files before retrying its int
     },
     onResult: (result) => results.push(result),
   })
+  watcher.record(
+    ['account', 'preferences', 'navigation'].map((name) => ({
+      spec: `/app/e2e/${name}.spec.ts`,
+      revision: 0,
+      durationMs: 1,
+      status: 'failed',
+      failures: [],
+    })),
+    0,
+  )
   controllers.push(watcher)
   watcher.changed(['/app/src/Preferences.tsx'])
   await vi.waitFor(() => expect(visits).toHaveLength(2))
@@ -53,13 +63,13 @@ it('resumes an interrupted revision with unvisited files before retrying its int
   expect(visits).toEqual([
     '/app/e2e/account.spec.ts',
     '/app/e2e/preferences.spec.ts',
-    '/app/e2e/navigation.spec.ts',
     '/app/e2e/preferences.spec.ts',
+    '/app/e2e/navigation.spec.ts',
   ])
   expect(watcher.takeFailures()).toEqual([])
 })
 
-it('invalidates completed coverage on a source write, including while foreground work holds it', async () => {
+it('does not make a passing file a known failure on a later source write', async () => {
   const run = vi.fn<PlaywrightFeedbackOptions['run']>(async (spec, _files, revision) => ({
     spec: spec.path,
     revision,
@@ -75,6 +85,10 @@ it('invalidates completed coverage on a source write, including while foreground
     }),
     run,
   })
+  watcher.record(
+    [{ spec: '/app/catalog.spec.ts', revision: 0, durationMs: 1, status: 'failed', failures: [] }],
+    0,
+  )
   controllers.push(watcher)
   watcher.changed(['/app/src/Catalog.tsx'])
   await watcher.settled()
@@ -82,5 +96,5 @@ it('invalidates completed coverage on a source write, including while foreground
   watcher.changed(['/app/src/Catalog.tsx'])
   release()
   await watcher.settled()
-  expect(run.mock.calls.map((args) => args[2])).toEqual([1, 2])
+  expect(run.mock.calls.map((args) => args[2])).toEqual([1])
 })

@@ -6,8 +6,8 @@ import type { FeedbackProject, FeedbackSpec } from './playwright-feedback-types.
 
 /**
  * Keep the caller's test inventory order and attach the paths that triggered this run.
- * Background passes run a file with a recorded known failure first (only its failed tests), then
- * the least recently attempted file; an explicit checkpoint runs files that actually failed first.
+ * Background passes filter this inventory to known failures and re-run their failed tests;
+ * an explicit checkpoint can still run the whole inventory, with failures first.
  * Source syntax, route names and spec prose never decide which test runs or what it should report.
  * @param project - The caller's runnable test inventory.
  * @param changed - Source paths observed by the caller, not an inferred failure location.

@@ -36,6 +36,18 @@ function fixture(answer: () => PlaywrightFeedbackResult['status']) {
     debounceMs: 1,
     yieldRetryMs: BASE,
   })
+  // A completed host run established these failures before the source write.
+  controller.record(
+    [spec].map(({ path }) => ({
+      spec: path,
+      revision: 0,
+      durationMs: 1,
+      status: 'failed',
+      failures: [],
+    })),
+    0,
+  )
+
   controllers.push(controller)
   return { controller, starts }
 }
@@ -63,7 +75,19 @@ it('starts the next yield at the first wait again after a run that finished', as
   const f = fixture(() => (++calls === 4 ? 'passed' : 'cancelled'))
   f.controller.changed(['/shop/src/Checkout.tsx'])
   await vi.waitFor(() => expect(f.starts.length).toBe(4), { timeout: 4000 })
-  // The pass completed the spec; a write makes it eligible again, and it yields from here on.
+  // Only another completed failure makes the repaired spec eligible again.
+  f.controller.record(
+    [
+      {
+        spec: spec.path,
+        revision: f.controller.revision(),
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      },
+    ],
+    f.controller.revision(),
+  )
   f.controller.changed(['/shop/src/Checkout.tsx'])
   await vi.waitFor(() => expect(f.starts.length).toBeGreaterThanOrEqual(6), { timeout: 4000 })
   await f.controller.close()

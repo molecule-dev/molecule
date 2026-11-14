@@ -26,7 +26,7 @@ export interface FeedbackProject {
   /**
    * Complete, absolute roots/files of test definitions, config and selection inputs, when
    * the caller knows them. Writes there invalidate test identities as well as results.
-   * Omit when unknown: every source write then invalidates the native selection.
+   * Omit when unknown: writes to the spec itself still invalidate its native selection.
    */
   testRoots?: string[]
 }
@@ -150,11 +150,10 @@ export interface PlaywrightFeedbackOptions {
 export interface PlaywrightFeedbackCheckOptions {
   /**
    * Re-run only the spec files in {@link PlaywrightFeedback.failingSpecs}. With none, the
-   * checkpoint loads and runs nothing and returns no results. Pending background diagnosis
-   * of the other files resumes after foreground work releases its pause.
+   * checkpoint loads and runs nothing and returns no results. Background work resumes only known failures after a later write.
    * Within such a file only the tests its last failed run names are re-run, when the runner
    * recorded them; the whole file runs when it did not, or when that record selects no test.
-   * Their pass clears the known failure; the rest of the file goes back to background diagnosis.
+   * Their pass clears the known failure; the rest of the file is left to explicit runs.
    */
   failedOnly?: boolean
 }
@@ -186,9 +185,9 @@ export interface PlaywrightFeedback {
   /**
    * Record outcomes of a native run the host started itself (an explicit local test command with
    * the same spec command), so {@link PlaywrightFeedback.check} reuses them instead of running the
-   * spec again. Ignored when a source write landed after `revision` was read. Only a whole-file
-   * pass or self-skip is recorded: it clears that spec's known failure exactly as a background
-   * pass does. Any other outcome changes nothing.
+   * spec again. Ignored when a source write landed after `revision` was read. Completed failures seed later background re-runs with the runner's failed-test record.
+   * A pass or self-skip clears the known failure. Cancelled and unavailable runs change nothing.
+   * Partial selections are diagnosis and never replace whole-file checkpoint coverage.
    */
   record: (results: readonly PlaywrightFeedbackResult[], revision: number) => void
   /** Wait for speculative work in tests or shutdown. Use check for explicit verification. */

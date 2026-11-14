@@ -55,6 +55,18 @@ function fixture(run: PlaywrightFeedbackOptions['run']) {
     run: spy,
     debounceMs: 1,
   })
+  // A completed host run established these failures before the source write.
+  watcher.record(
+    [{ path: SPEC, content: '', command: '', cwd: '/clinic' }].map(({ path }) => ({
+      spec: path,
+      revision: 0,
+      durationMs: 1,
+      status: 'failed',
+      failures: [],
+    })),
+    0,
+  )
+
   watchers.push(watcher)
   return { watcher, run: spy }
 }
@@ -86,7 +98,7 @@ describe('known-failures checkpoint', () => {
     expect(foregroundCalls(f.run)[1]).toHaveLength(6)
   })
 
-  it('leaves the whole file to background diagnosis of the repaired revision', async () => {
+  it('leaves the rest of a repaired file to an explicit checkpoint', async () => {
     const background: number[] = []
     const f = fixture(async (_spec, _files, revision, _emit, _signal, mode, lastRun) => {
       if (mode !== 'foreground') {
@@ -105,7 +117,7 @@ describe('known-failures checkpoint', () => {
     expect(known.map((r) => r.selection)).toEqual(['last-failed'])
     await f.watcher.settled()
     // The whole file runs on the repaired revision afterwards; the subset pass did not settle it.
-    expect(background).toEqual([1, 2])
+    expect(background).toEqual([1])
   })
 
   it('holds on the recorded tests when they still fail and keeps the runner’s fresh record', async () => {
@@ -151,6 +163,20 @@ describe('known-failures checkpoint', () => {
       run,
       debounceMs: 1,
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [SPEC, SECOND]
+        .map((path) => ({ path, content: '', command: '', cwd: '/clinic' }))
+        .map(({ path }) => ({
+          spec: path,
+          revision: 0,
+          durationMs: 1,
+          status: 'failed',
+          failures: [],
+        })),
+      0,
+    )
+
     watchers.push(watcher)
     watcher.changed(['/clinic/src/Calendar.tsx'])
     await watcher.settled()
@@ -229,7 +255,7 @@ describe('known-failures checkpoint', () => {
       return result(revision, 'cancelled', { lastRun: RECORD })
     })
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await vi.waitFor(() => expect(f.watcher.failingSpecs()).toEqual([SPEC]))
+    await vi.waitFor(() => expect(f.run).toHaveBeenCalledOnce())
     const checked = await f.watcher.check({ failedOnly: true })
     expect(checked.map((r) => [r.status, r.selection])).toEqual([['passed', 'last-failed']])
     expect(foregroundCalls(f.run).map((call) => call[6])).toEqual([RECORD])
@@ -348,7 +374,7 @@ describe('known-failures checkpoint', () => {
     expect(foregroundCalls(f.run).map((call) => call.length)).toEqual([6])
   })
 
-  it('does not make a file known-failing when its paused run saw no failure', async () => {
+  it('does not clear a completed failure when a paused repair saw no new failure', async () => {
     let started = false
     const f = fixture(async (_spec, _files, revision, _emit, signal, mode) => {
       if (mode === 'foreground') return result(revision, 'passed')
@@ -358,8 +384,8 @@ describe('known-failures checkpoint', () => {
     })
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
     await vi.waitFor(() => expect(started).toBe(true))
-    expect(await f.watcher.check({ failedOnly: true })).toEqual([])
-    expect(foregroundCalls(f.run)).toHaveLength(0)
+    expect((await f.watcher.check({ failedOnly: true })).map((r) => r.status)).toEqual(['passed'])
+    expect(foregroundCalls(f.run)).toHaveLength(1)
   })
 
   it('drops an older record when a later failed run wrote none', async () => {
@@ -451,6 +477,18 @@ test('keeps the waiting list', async () => { await new Promise((r) => setTimeout
         }),
       debounceMs: 1,
     })
+    // A completed host run established these failures before the source write.
+    watcher.record(
+      [spec].map(({ path }) => ({
+        spec: path,
+        revision: 0,
+        durationMs: 1,
+        status: 'failed',
+        failures: [],
+      })),
+      0,
+    )
+
     watchers.push(watcher)
     watcher.changed([join(root, 'src', 'Visits.tsx')])
     await watcher.settled()

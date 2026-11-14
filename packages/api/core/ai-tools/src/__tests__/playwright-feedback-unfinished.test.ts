@@ -71,6 +71,18 @@ function fixture(
     run,
     debounceMs: 1,
   })
+  // A completed host run established these failures before the source write.
+  watcher.record(
+    [{ path: SPEC, content: '', command: '', cwd: '/pantry' }].map(({ path }) => ({
+      spec: path,
+      revision: 0,
+      durationMs: 1,
+      status: 'failed',
+      failures: [],
+    })),
+    0,
+  )
+
   watchers.push(watcher)
   /** Write, let the first run start, stop it with foreground work, and release that work. */
   const stopFirstRun = async (during?: () => void) => {
@@ -97,15 +109,19 @@ describe('a stopped background file', () => {
     expect(ids(run.mock.calls[1][6])).toEqual(['t2', 't3'])
   })
 
-  it('stands for the whole file when every run of it started on this revision', async () => {
+  it('keeps a resumed repair distinct from whole-file checkpoint coverage', async () => {
     const { watcher, run, stopFirstRun } = fixture(
       { passedTests: ['t1'], unfinishedTests: ['t2'] },
-      async (_spec, _files, revision) =>
-        result(revision, 'passed', { selection: 'last-failed', passedTests: ['t2'] }),
+      async (_spec, _files, revision, _emit, _signal, _mode, lastRun) =>
+        result(
+          revision,
+          'passed',
+          lastRun ? { selection: 'last-failed', passedTests: ['t2'] } : {},
+        ),
     )
     await stopFirstRun()
     const [checked] = await watcher.check()
-    expect(run).toHaveBeenCalledTimes(2)
+    expect(run).toHaveBeenCalledTimes(3)
     expect(checked).toMatchObject({ status: 'passed' })
     expect(checked.selection).toBeUndefined()
   })
@@ -116,7 +132,11 @@ describe('a stopped background file', () => {
       async (_spec, _files, revision, _emit, _signal, mode, lastRun) =>
         mode === 'foreground'
           ? result(revision, 'failed', { selection: 'last-failed', lastRun })
-          : result(revision, 'passed', { selection: 'last-failed', passedTests: ['t2', 't3'] }),
+          : result(revision, 'failed', {
+              selection: 'last-failed',
+              passedTests: ['t2', 't3'],
+              lastRun: record(['t1']),
+            }),
     )
     await stopFirstRun()
     expect(watcher.failingSpecs()).toEqual([SPEC])
@@ -153,8 +173,8 @@ describe('a stopped background file', () => {
     expect(run.mock.calls[1]).toHaveLength(5)
   })
 
-  it('runs whole on the next pass when its record selects no current test', async () => {
-    const { run, stopFirstRun } = fixture(
+  it('leaves an obsolete resume selection to the explicit checkpoint fallback', async () => {
+    const { watcher, run, stopFirstRun } = fixture(
       { passedTests: ['t1'], unfinishedTests: ['renamed'] },
       async (_spec, _files, revision, _emit, _signal, _mode, lastRun) =>
         lastRun
@@ -162,8 +182,10 @@ describe('a stopped background file', () => {
           : result(revision, 'passed'),
     )
     await stopFirstRun()
+    expect(run).toHaveBeenCalledTimes(2)
+    await watcher.check({ failedOnly: true })
     expect(run).toHaveBeenCalledTimes(3)
-    expect(run.mock.calls[2]).toHaveLength(5)
+    expect(run.mock.calls[2]).toHaveLength(6)
   })
 
   it('takes a host that ignores the record at its whole-file answer, without another run', async () => {

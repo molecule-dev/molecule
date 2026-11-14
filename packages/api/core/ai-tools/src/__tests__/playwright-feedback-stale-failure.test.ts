@@ -62,6 +62,18 @@ async function running(foreground: 'passed' | 'failed' = 'failed') {
     onFailures,
     debounceMs: 1,
   })
+  // A completed host run established these failures before the source write.
+  controller.record(
+    [spec].map(({ path }) => ({
+      spec: path,
+      revision: 0,
+      durationMs: 1,
+      status: 'failed',
+      failures: [],
+    })),
+    0,
+  )
+
   controllers.push(controller)
   controller.changed([source])
   await vi.waitFor(() => expect(started).toBe(true))
@@ -104,23 +116,23 @@ it('counterexample: a current native failure is still delivered immediately', as
   expect(onFailures).toHaveBeenCalledOnce()
 })
 
-it('counterexample: a cancelled run cannot seed a failure after another tool takes the runner', async () => {
+it('counterexample: a cancelled repair cannot clear a completed failure after another tool takes the runner', async () => {
   const { controller, emit } = await running()
   controller.changed([source])
   const release = await controller.pause()
   emit(result(1, 'failed'))
-  expect(controller.failingSpecs()).toEqual([])
-  expect(await controller.check({ failedOnly: true })).toEqual([])
+  expect(controller.failingSpecs()).toEqual([spec.path])
+  expect((await controller.check({ failedOnly: true })).map((r) => r.status)).toEqual(['failed'])
   release()
 })
 
-it('counterexample: a stale pass creates no failure or checkpoint work', async () => {
+it('counterexample: a stale pass cannot clear an existing completed failure', async () => {
   const { controller, emit, run } = await running()
   controller.changed([source])
   emit(result(1, 'passed'))
-  expect(controller.failingSpecs()).toEqual([])
-  expect(await controller.check({ failedOnly: true })).toEqual([])
-  expect(run).toHaveBeenCalledOnce()
+  expect(controller.failingSpecs()).toEqual([spec.path])
+  expect((await controller.check({ failedOnly: true })).map((r) => r.status)).toEqual(['failed'])
+  expect(run).toHaveBeenCalledTimes(2)
 })
 
 it('counterexample: closing a subscription invalidates even an old runner’s delayed native event', async () => {
@@ -128,7 +140,7 @@ it('counterexample: closing a subscription invalidates even an old runner’s de
   controller.changed([source])
   await controller.close()
   emit(result(1, 'failed'))
-  expect(controller.failingSpecs()).toEqual([])
+  expect(controller.failingSpecs()).toEqual([spec.path])
   expect(controller.takeFailures()).toEqual([])
 })
 
@@ -197,6 +209,18 @@ it('a real native assertion after a source write is rechecked before its old run
       }),
     debounceMs: 1,
   })
+  // A completed host run established these failures before the source write.
+  controller.record(
+    [nativeSpec].map(({ path }) => ({
+      spec: path,
+      revision: 0,
+      durationMs: 1,
+      status: 'failed',
+      failures: [],
+    })),
+    0,
+  )
+
   controllers.push(controller)
   controller.changed(['Stock.tsx'])
   await vi.waitFor(
