@@ -59,13 +59,14 @@ export interface UseOptimisticValueResult<T> {
  * ```svelte
  * <script>
  *   import { useOptimisticValue } from '@molecule/app-svelte'
- *   const star = useOptimisticValue({
+ *   // `value` is the store; the result itself is not, so take the store out to read it with `$`.
+ *   const { value: star, update } = useOptimisticValue({
  *     value: { starred: repository.starred, stars: repository.stars },
  *     commit: async (next) => { /* save and return the server's value * },
  *   })
  * </script>
  *
- * <button aria-pressed={$star.value.starred} onclick={() => star.update((on) => ({ ...on, starred: !on.starred }))}>
+ * <button aria-pressed={$star.starred} onclick={() => update((on) => ({ ...on, starred: !on.starred }))}>
  * ```
  */
 export const useOptimisticValue = <T>(
