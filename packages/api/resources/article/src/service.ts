@@ -122,10 +122,13 @@ const cleanTags = (tags: readonly string[] | undefined): string[] => [
  * viewer's own favorites, in two queries for the whole page.
  *
  * @param rows - Article rows.
- * @param viewerId - The viewing user, if any.
+ * @param viewerId - The viewing user, if any; null and undefined are anonymous.
  * @returns The articles, in the order given.
  */
-export async function hydrateArticles(rows: ArticleRow[], viewerId?: string): Promise<Article[]> {
+export async function hydrateArticles(
+  rows: ArticleRow[],
+  viewerId?: string | null,
+): Promise<Article[]> {
   if (rows.length === 0) return []
   const favorites = await findMany<{ resourceId: string; userId: string }>(REACTIONS, {
     where: [
@@ -225,10 +228,13 @@ export async function findArticleRow(slug: string): Promise<ArticleRow | null> {
  * An article by slug.
  *
  * @param slug - The article slug.
- * @param viewerId - The viewing user, for `favorited`.
+ * @param viewerId - The viewing user, for `favorited`; null or omitted is anonymous.
  * @returns The article, or null.
  */
-export async function getArticleBySlug(slug: string, viewerId?: string): Promise<Article | null> {
+export async function getArticleBySlug(
+  slug: string,
+  viewerId?: string | null,
+): Promise<Article | null> {
   const row = await findArticleRow(slug)
   if (!row) return null
   const [article] = await hydrateArticles([row], viewerId)

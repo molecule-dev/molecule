@@ -99,8 +99,8 @@ export interface ListArticlesOptions {
   limit?: number
   /** Rows to skip. */
   offset?: number
-  /** The viewing user, for `favorited`. */
-  viewerId?: string
+  /** The viewing user, for `favorited`; null or omitted means an anonymous reader. */
+  viewerId?: string | null
 }
 
 /**

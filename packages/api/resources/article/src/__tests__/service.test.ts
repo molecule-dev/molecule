@@ -127,6 +127,25 @@ describe('articles', () => {
     expect(await setFavorite('no-such-article', BOB, true)).toBeNull()
   })
 
+  it.each([null, undefined])(
+    'treats viewer %s as anonymous without losing favorite counts',
+    async (viewerId) => {
+      const article = await createArticle(ALICE, { title: `Anonymous ${viewerId}`, body: 'Issue' })
+      await setFavorite(article.slug, BOB, true)
+      const detail = await getArticleBySlug(article.slug, viewerId)
+      expect(detail).toMatchObject({ favoritesCount: 1, favorited: false })
+      const page = await listArticles({ viewerId })
+      expect(page.data.find((row) => row.slug === article.slug)).toMatchObject({
+        favoritesCount: 1,
+        favorited: false,
+      })
+      expect(await getArticleBySlug(article.slug, BOB)).toMatchObject({
+        favoritesCount: 1,
+        favorited: true,
+      })
+    },
+  )
+
   it('feeds articles by the followed user id — an edge keyed by a username feeds nothing', async () => {
     const { follow } = await import('@molecule/api-resource-follow')
     expect((await getFeed(ALICE)).total).toBe(0)
