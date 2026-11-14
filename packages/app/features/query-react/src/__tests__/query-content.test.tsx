@@ -156,7 +156,9 @@ it('an initial failure never mounts its resource actions and can recover on retr
   expect(host.querySelector('button')?.textContent).toBe('one')
 })
 
-it.each([false, 0, '', []])(
+// Each case is wrapped: it.each spreads an array case into arguments, so a bare
+// `[]` would pass no argument and test `undefined` instead of an empty array.
+it.each([[false], [0], [''], [[]]])(
   'counterexample: valid empty or false data reaches the loaded branch (%j)',
   (data) => {
     const render = vi.fn(() => h('p', {}, 'Ready'))
