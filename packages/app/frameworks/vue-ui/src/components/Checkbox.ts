@@ -19,6 +19,7 @@ import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { mountChecked, updateChecked } from '../utilities/checked.js'
 
 /** Counter backing the generated ids that stand in for React's `useId()`. */
 let nextGeneratedId = 0
@@ -93,24 +94,22 @@ export const Checkbox = defineComponent({
     // internalRef.
     const internalRef: Ref<HTMLInputElement | null> = ref(null)
 
-    // React's checked prop sync sets the DOM property AND the boolean
-    // `checked` attribute (removed when false). Uncontrolled inputs (no
-    // `checked` prop) are left alone, so `defaultChecked` still applies.
-    const syncChecked = (): void => {
-      const element = internalRef.value
-      if (!element || props.checked === undefined) return
-      element.checked = !!props.checked
-      if (props.checked) element.setAttribute('checked', '')
-      else element.removeAttribute('checked')
-    }
-
+    // React's controlled `checked`: the attribute is written when the input
+    // is created, the property on every commit (see `mountChecked`).
+    // Uncontrolled inputs (no `checked` prop) are left alone, so
+    // `defaultChecked` still applies.
     onMounted(() => {
-      syncChecked()
       if (internalRef.value) {
+        mountChecked(internalRef.value, props.checked)
         internalRef.value.indeterminate = !!props.indeterminate
       }
     })
-    watch(() => props.checked, syncChecked)
+    watch(
+      () => props.checked,
+      () => {
+        if (internalRef.value) updateChecked(internalRef.value, props.checked)
+      },
+    )
     watch(
       () => props.indeterminate,
       () => {

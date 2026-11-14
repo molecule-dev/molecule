@@ -21,6 +21,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { moveRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
+import { MolControlledChecked } from './controlled-checked.directive.js'
 
 /**
  * Switch component.
@@ -34,6 +35,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
 @Component({
   selector: 'mol-switch',
   standalone: true,
+  imports: [MolControlledChecked],
   inputs: ['label', 'checked', 'size', 'color', 'className', 'style', 'testId', 'disabled'],
   host: {
     'data-parity-unwrap': '',
@@ -41,7 +43,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
   },
   template: `<input
       type="checkbox"
-      [attr.checked]="checked ? '' : null"
+      [molChecked]="!!checked"
       [disabled]="disabled"
       aria-hidden="true"
       tabindex="-1"

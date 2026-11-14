@@ -9,7 +9,7 @@ import { type Component, type JSX, onCleanup, onMount, Show, splitProps } from '
 import type { SwitchProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reflectCheckedAtCreation, toStyleProps } from '../utilities/dom.js'
 
 /**
  * Renders the Switch component.
@@ -55,7 +55,7 @@ export const Switch: Component<SwitchProps> = (props) => {
   onMount(() => {
     const input = hiddenInput
     if (!input) return
-    if (local.checked) input.setAttribute('checked', '')
+    reflectCheckedAtCreation(input, !!local.checked)
     const listener = (event: Event): void => {
       ;(local.onChange as ((event: Event) => void) | undefined)?.(event)
       input.checked = !!local.checked

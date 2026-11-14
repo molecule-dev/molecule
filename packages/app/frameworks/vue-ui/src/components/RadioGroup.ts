@@ -4,13 +4,14 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
+import { defineComponent, h, type PropType, type VNode, type VNodeChild, withDirectives } from 'vue'
 
 import type { RadioGroupProps, RadioOption, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
+import { vControlledChecked } from '../utilities/checked.js'
 
 /** Source of the generated per-instance group names. */
 let nextGeneratedName = 1
@@ -101,16 +102,20 @@ export const RadioGroup = defineComponent({
             class: cm.cn(cm.controlLabel, isDisabled && cm.controlDisabled),
           },
           [
-            h('input', {
-              type: 'radio',
-              name: groupName,
-              value: option.value,
-              checked: isChecked,
-              disabled: isDisabled,
-              onChange: (event: Event) => handleChange(option.value, event),
-              'data-state': isChecked ? 'checked' : 'unchecked',
-              class: cm.cn(cm.radio({ error: !!props.error }), cm.cursorPointer),
-            }),
+            // `checked` goes through the directive, not a prop: React writes the
+            // attribute when the radio is created and only the property after.
+            withDirectives(
+              h('input', {
+                type: 'radio',
+                name: groupName,
+                value: option.value,
+                disabled: isDisabled,
+                onChange: (event: Event) => handleChange(option.value, event),
+                'data-state': isChecked ? 'checked' : 'unchecked',
+                class: cm.cn(cm.radio({ error: !!props.error }), cm.cursorPointer),
+              }),
+              [[vControlledChecked, isChecked]],
+            ),
             h('span', { class: cm.controlText }, option.label as string | VNode),
           ],
         )

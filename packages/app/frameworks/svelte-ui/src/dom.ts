@@ -113,10 +113,13 @@ export function unlockBodyScroll(): void {
 
 /**
  * Svelte action that keeps a checkbox's `checked` DOM state mirroring a prop
- * the way React renders a controlled input: BOTH the property and the reflected
- * `checked` attribute are set (React's initial render writes the attribute;
- * Svelte's `checked={x}` writes only the property, so the attribute never
- * appears and parity snapshots diverge).
+ * the way React renders a controlled input. On MOUNT both the property and the
+ * reflected `checked` attribute are set (React's initial render writes the
+ * attribute; Svelte's `checked={x}` writes only the property, so the attribute
+ * never appears and parity snapshots diverge). On UPDATE only the property is
+ * set — react-dom's update path (`updateWrapper`) never rewrites the attribute,
+ * so a switch flipped after mount keeps the attribute it was mounted with
+ * (absent when mounted unchecked) exactly as React's does.
  *
  * @param node - The checkbox input to keep in sync.
  * @param value - Whether the checkbox is checked.
@@ -126,13 +129,17 @@ export function reflectChecked(
   node: HTMLInputElement,
   value: boolean,
 ): { update: (next: boolean) => void } {
-  const apply = (next: boolean): void => {
+  const applyMount = (next: boolean): void => {
     node.checked = next
     if (next) node.setAttribute('checked', '')
     else node.removeAttribute('checked')
   }
-  apply(value)
-  return { update: apply }
+  applyMount(value)
+  return {
+    update: (next: boolean): void => {
+      node.checked = next
+    },
+  }
 }
 
 /**

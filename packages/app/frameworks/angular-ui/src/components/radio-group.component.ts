@@ -11,6 +11,7 @@ import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { styleText } from '../utilities/style.js'
+import { MolControlledChecked } from './controlled-checked.directive.js'
 
 /** One radio option. */
 export interface RadioOption {
@@ -32,6 +33,7 @@ export interface RadioOption {
 @Component({
   selector: 'div[mol-radio-group]',
   standalone: true,
+  imports: [MolControlledChecked],
   inputs: [
     'options',
     'value',
@@ -68,7 +70,7 @@ export interface RadioOption {
             type="radio"
             [attr.name]="groupName()"
             [attr.value]="option.value"
-            [attr.checked]="value === option.value ? '' : null"
+            [molChecked]="value === option.value"
             [disabled]="disabled || option.disabled"
             (change)="select($event)"
             [attr.data-state]="value === option.value ? 'checked' : 'unchecked'"

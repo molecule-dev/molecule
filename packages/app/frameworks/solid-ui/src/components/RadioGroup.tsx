@@ -10,7 +10,7 @@ import { useTranslation } from '@molecule/app-solid'
 import type { RadioGroupProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reflectCheckedAtCreation, toStyleProps } from '../utilities/dom.js'
 import { createKeyedList } from '../utilities/keyedList.js'
 
 /**
@@ -100,10 +100,9 @@ export const RadioGroup: Component<RadioGroupProps<string>> = (props) => {
               <label class={cm.cn(cm.controlLabel, isDisabled() && cm.controlDisabled)}>
                 <input
                   ref={(el) => {
-                    // React renders the initially selected radio with the
-                    // boolean `checked` attribute; the JSX binding keeps the
-                    // live property in step.
-                    if (isChecked()) el.setAttribute('checked', '')
+                    // The attribute React writes at creation; the JSX binding
+                    // keeps the live property in step.
+                    reflectCheckedAtCreation(el, isChecked())
                   }}
                   type="radio"
                   name={groupName()}

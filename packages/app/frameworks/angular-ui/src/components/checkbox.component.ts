@@ -23,6 +23,7 @@ import { fieldContext } from '../utilities/form-field-context.js'
 import { moveRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
+import { MolControlledChecked } from './controlled-checked.directive.js'
 
 /**
  * Checkbox component.
@@ -35,6 +36,7 @@ import { hasNodes, SlotWrapper } from './button.component.js'
 @Component({
   selector: 'div[mol-checkbox]',
   standalone: true,
+  imports: [MolControlledChecked],
   inputs: [
     'label',
     'checked',
@@ -57,7 +59,8 @@ import { hasNodes, SlotWrapper } from './button.component.js'
         type="checkbox"
         [attr.id]="checkboxId()"
         [attr.name]="name"
-        [attr.checked]="isChecked() ? '' : null"
+        [molChecked]="checked"
+        [molDefaultChecked]="defaultChecked"
         [disabled]="disabled"
         [attr.data-state]="checked ? 'checked' : 'unchecked'"
         [attr.aria-invalid]="error || fieldContext()?.invalid ? 'true' : 'false'"
@@ -102,14 +105,6 @@ export class Checkbox implements AfterViewChecked {
   id?: string
   /** Uncontrolled initial checked state (renders as the checked attribute). */
   defaultChecked?: boolean
-
-  /**
-   * The controlled-or-default checked state (React: `checked ?? defaultChecked`).
-   * @returns True when the checked attribute renders.
-   */
-  isChecked(): boolean {
-    return (this.checked ?? this.defaultChecked) === true
-  }
 
   /** The genuine native `change` event. */
   @Output() readonly change = new EventEmitter<Event>()

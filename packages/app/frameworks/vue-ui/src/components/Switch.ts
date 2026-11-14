@@ -20,6 +20,7 @@ import type { SwitchProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { classOf, restAttrs, styleOf } from '../utilities/attrs.js'
+import { mountChecked, updateChecked } from '../utilities/checked.js'
 
 /** React's DOM-callback names that alias a differently spelled native event. */
 const REACT_EVENT_ALIASES: Record<string, string> = {
@@ -93,16 +94,8 @@ export const Switch = defineComponent({
     // click on whichever one isn't the direct target.
     const hiddenInputRef: Ref<HTMLInputElement | null> = ref(null)
 
-    // React syncs its controlled hidden checkbox on every commit; the
-    // property AND the boolean `checked` attribute both follow the prop.
-    const syncHiddenChecked = (): void => {
-      const input = hiddenInputRef.value
-      if (!input) return
-      input.checked = !!props.checked
-      if (props.checked) input.setAttribute('checked', '')
-      else input.removeAttribute('checked')
-    }
-
+    // React's controlled hidden checkbox: the attribute is written when the
+    // input is created, the property on every commit (see `mountChecked`).
     // Attached ONCE, at mount, reading the current listeners through the
     // stable `emit`. React attaches the native `change` listener in a layout
     // effect — before the browser can deliver a click.
@@ -110,14 +103,19 @@ export const Switch = defineComponent({
     onMounted(() => {
       const input = hiddenInputRef.value
       if (!input) return
-      syncHiddenChecked()
+      mountChecked(input, !!props.checked)
       input.addEventListener('change', onHiddenChange)
     })
     onUnmounted(() => {
       const input = hiddenInputRef.value
       if (input) input.removeEventListener('change', onHiddenChange)
     })
-    watch(() => props.checked, syncHiddenChecked)
+    watch(
+      () => props.checked,
+      () => {
+        if (hiddenInputRef.value) updateChecked(hiddenInputRef.value, !!props.checked)
+      },
+    )
 
     // A caller's onClick runs first and can veto the toggle with
     // preventDefault(); it used to be spread over this handler, so passing

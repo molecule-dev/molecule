@@ -147,3 +147,22 @@ export function toStyleProps<S>(style: S): Record<string, string> | undefined {
   }
   return out
 }
+
+/**
+ * Writes the reflected `checked` attribute of a controlled checkbox or radio
+ * when it is created, the way React does: react-dom sets the attribute at
+ * creation and only the property on later renders, so a box created unchecked
+ * and checked afterwards has no attribute, and one created checked keeps it.
+ * Call it once, from the input's `ref`; the JSX `checked` binding keeps the
+ * live property in step. `undefined` leaves an uncontrolled input alone.
+ *
+ * @param element - The checkbox or radio, as its `ref` receives it.
+ * @param checked - The controlled value at creation, or `undefined` when uncontrolled.
+ */
+export function reflectCheckedAtCreation(
+  element: HTMLInputElement,
+  checked: boolean | undefined,
+): void {
+  if (checked === true) element.setAttribute('checked', '')
+  else if (checked === false) element.removeAttribute('checked')
+}

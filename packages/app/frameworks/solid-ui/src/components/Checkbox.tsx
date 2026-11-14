@@ -9,7 +9,7 @@ import { type Component, createEffect, createUniqueId, type JSX, Show, splitProp
 import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { toStyleProps } from '../utilities/dom.js'
+import { reflectCheckedAtCreation, toStyleProps } from '../utilities/dom.js'
 
 /**
  * Renders the Checkbox component.
@@ -43,14 +43,7 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
   const errorId = (): string => `${checkboxId() || generatedId}-error`
 
   createEffect(() => {
-    if (inputRef) {
-      inputRef.indeterminate = !!local.indeterminate
-      // React renders `checked` as a boolean ATTRIBUTE on first mount (and
-      // re-syncs it on controlled updates); the JSX binding keeps the live
-      // property in step.
-      if (local.checked === true) inputRef.setAttribute('checked', '')
-      else if (local.checked === false) inputRef.removeAttribute('checked')
-    }
+    if (inputRef) inputRef.indeterminate = !!local.indeterminate
   })
 
   const checkboxClasses = (): string =>
@@ -70,6 +63,8 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
         <input
           ref={(el) => {
             inputRef = el
+            // The attribute React writes at creation; the JSX binding keeps the property live.
+            reflectCheckedAtCreation(el, local.checked)
           }}
           type="checkbox"
           id={checkboxId()}
