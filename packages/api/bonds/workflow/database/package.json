@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@molecule/api-database": "1.2.2",
-    "@molecule/api-i18n": "1.0.5",
+    "@molecule/api-i18n": "1.0.6",
     "@molecule/api-workflow": "1.0.4",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.3.1
+
+### Patch Changes
+
+- Preserve ESM initialization order across Rolldown production chunks so shared React contexts initialize before use.
+
 ## 1.3.0
 
 ### Minor Changes

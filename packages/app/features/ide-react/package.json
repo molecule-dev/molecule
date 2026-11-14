@@ -59,7 +59,7 @@
     "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-ai-voice": "1.0.3",
     "@molecule/app-country-flags": "1.0.3",
-    "@molecule/app-i18n": "1.2.0",
+    "@molecule/app-i18n": "1.2.1",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-live-preview": "1.0.3",
     "@molecule/app-locales-ide": "1.11.2",

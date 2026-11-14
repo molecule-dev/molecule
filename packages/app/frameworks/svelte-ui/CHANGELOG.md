@@ -1,5 +1,11 @@
 # @molecule/app-ui-svelte
 
+## 1.1.2
+
+### Patch Changes
+
+- The `svelte` peer range is `^5.0.0`: the components use Svelte 5 runes and do not run on Svelte 4.
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.2.0
+
+### Minor Changes
+
+- Add `createQueryResource` (list and detail query options plus cache-writing mutations over the bonded client) and `prefetchQuery`, so every framework binding shares one implementation.
+
 ## 1.1.3
 
 ### Patch Changes

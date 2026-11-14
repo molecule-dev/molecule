@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.8.0
+
+### Minor Changes
+
+- `serverErrorMessage(err)` returns the message the server sent with a failed request (its body's `error`, else `message`), so a UI can show it instead of the transport's status line.
+
 ## 1.7.1
 
 ### Patch Changes

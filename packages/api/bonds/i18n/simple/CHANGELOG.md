@@ -1,5 +1,11 @@
 # @molecule/api-i18n-simple
 
+## 1.0.3
+
+### Patch Changes
+
+- An explicit empty `defaultValue` is returned for a missing key instead of the key itself, as in i18next.
+
 ## 1.0.1
 
 ### Patch Changes

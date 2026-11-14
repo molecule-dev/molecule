@@ -1,5 +1,12 @@
 # @molecule/app-i18n
 
+## 1.2.1
+
+### Patch Changes
+
+- An explicit empty `defaultValue` is returned for a missing key instead of the key itself, as in i18next.
+- The simple i18n provider logs through whichever logger is bonded at the time of each call, so a logger bonded after its first log receives the later calls.
+
 ## 1.2.0
 
 ### Minor Changes

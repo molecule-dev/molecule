@@ -1,5 +1,11 @@
 # @molecule/app-push
 
+## 1.1.0
+
+### Minor Changes
+
+- Turn push notifications on or off for the current device with `enablePushOnCurrentDevice`, `disablePushOnCurrentDevice` and `readCurrentDevicePushEnabled`, which run the permission, registration and device-API chain and return a typed result.
+
 ## 1.0.1
 
 ### Patch Changes

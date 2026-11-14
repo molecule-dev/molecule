@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.2.6
+
+### Patch Changes
+
+- Accept null session identities on public article reads so shared auth helpers compose without an anonymous-viewer conversion.
+
 ## 1.2.5
 
 ### Patch Changes

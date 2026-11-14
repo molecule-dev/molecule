@@ -1,5 +1,12 @@
 # @molecule/app-query-react
 
+## 1.6.1
+
+### Patch Changes
+
+- Correct the resource quickstart's JSX and compose loaded-record rendering with queued toggle state. Clarify that resource mutations publish saved detail before list refreshes finish, and that UI readiness and click ordering belong to the control.
+- Re-export `createQueryResource` and `prefetchQuery` from `@molecule/app-query` instead of local copies.
+
 ## 1.6.0
 
 ### Minor Changes
