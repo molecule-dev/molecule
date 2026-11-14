@@ -489,4 +489,14 @@ export default tseslint.config(
     files: ['packages/app/frameworks/svelte-ui/src/components/Icon.svelte'],
     rules: { 'svelte/no-at-html-tags': 'off' },
   },
+  {
+    // Renders the i18n catalog's legal HTML (`content.privacyPolicy` /
+    // `content.termsOfService`) as the Privacy/Terms modal bodies, as React's
+    // footer does with dangerouslySetInnerHTML. The catalog is app-supplied —
+    // the same trust model as React's — and the interpolated `appName` is
+    // HTML-escaped before it reaches the block, so sanitizing here would
+    // render different DOM than the React reference for the same input.
+    files: ['packages/app/features/footer-svelte/src/AppFooter.svelte'],
+    rules: { 'svelte/no-at-html-tags': 'off' },
+  },
 )

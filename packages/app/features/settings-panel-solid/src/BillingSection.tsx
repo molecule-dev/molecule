@@ -1,0 +1,80 @@
+/**
+ * The billing section.
+ *
+ * @module
+ */
+
+import { createSignal, type JSX, onCleanup } from 'solid-js'
+
+import { useHttpClient, useRouter, useTranslation } from '@molecule/app-solid'
+import { getClassMap } from '@molecule/app-ui'
+import { Button, Flex } from '@molecule/app-ui-solid'
+
+/**
+ * Billing section — current plan + Upgrade button.
+ *
+ * Fetches `/api/billing/status` on mount and uses the returned plan
+ * name as a more accurate label than the parent-supplied default.
+ * The `plan` prop remains a fallback (e.g. for offline rendering or
+ * apps that don't expose `/billing/status`).
+ *
+ * The Upgrade button navigates to `upgradeTo` (default `/settings`).
+ * Pass `upgradeTo="/billing"` or `upgradeTo="/pricing"` if your app
+ * routes elsewhere. Apps with a multi-tier checkout flow should use
+ * `<TiersUpgradeSection>` instead.
+ *
+ * @param props - Component props.
+ * @returns The billing section.
+ */
+export function BillingSection(props: {
+  /** Fallback plan label until (or unless) `/api/billing/status` answers. */
+  plan?: string
+  /** Where the Upgrade button navigates. Defaults to `/settings`. */
+  upgradeTo?: string
+}): JSX.Element {
+  const cm = getClassMap()
+  const { t } = useTranslation()
+  const { navigate } = useRouter()
+  const http = useHttpClient()
+  const [livePlan, setLivePlan] = createSignal<string | null>(null)
+
+  const plan = (): string => props.plan ?? 'Free'
+  const upgradeTo = (): string => props.upgradeTo ?? '/settings'
+
+  // Refresh the current plan from the bonded entitlements/billing
+  // status endpoint on mount. Fire-and-forget; the prop-supplied
+  // `plan` is the fallback if the fetch fails.
+  let cancelled = false
+  onCleanup(() => {
+    cancelled = true
+  })
+  void http
+    .get<{ name?: string }>('/api/billing/status')
+    .then((res) => {
+      if (cancelled) return
+      const body =
+        (res as { data?: { name?: string }; name?: string }).data ?? (res as { name?: string })
+      const name = body?.name
+      if (typeof name === 'string' && name) setLivePlan(name)
+    })
+    .catch((_error) => {
+      /* fallback to the prop-supplied plan label */
+    })
+
+  return (
+    <section>
+      <h3 class={cm.cn(cm.sectionHeading, cm.sp('mb', 3))}>
+        {t('settings.billing', undefined, { defaultValue: 'Billing' })}
+      </h3>
+      <Flex align="center" justify="between">
+        <span class={cm.textSize('sm')}>
+          {t('settings.plan', undefined, { defaultValue: 'Plan: ' })}
+          <strong>{livePlan() ?? plan()}</strong>
+        </span>
+        <Button variant="outline" size="sm" onClick={() => navigate(upgradeTo())}>
+          {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
+        </Button>
+      </Flex>
+    </section>
+  )
+}

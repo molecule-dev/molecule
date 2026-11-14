@@ -1,0 +1,188 @@
+// @vitest-environment jsdom
+/**
+ * Port of `query-react/src/__tests__/query-content.test.tsx`: `QueryContent`
+ * keeps loading status outside a list, mounts actions only with a real
+ * document, keeps cached data actionable through a failed refresh, and treats
+ * false, zero, an empty string and an empty list as documents.
+ */
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
+import { h, nextTick, shallowRef } from 'vue'
+
+import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
+import { provider } from '@molecule/app-query-memory'
+
+import { QueryContent } from '../query-content.js'
+import { useQuery } from '../useQuery.js'
+import { deferred, mountApp, mountComponent, settle, unmountAll } from './helpers.js'
+
+beforeAll(() => setProvider(provider))
+beforeEach(() => resetQueryClient())
+afterEach(async () => {
+  await unmountAll()
+})
+
+it('keeps loading status outside a list: the first item is always real data', async () => {
+  const request = deferred<string[]>()
+  const selected = vi.fn()
+  const sidebar = mountApp(() => {
+    const query = useQuery<string[]>({
+      key: ['categories'],
+      fetch: async () => request.promise,
+    })
+    return () =>
+      h(QueryContent, {
+        query: query.value,
+        pending: h('p', { role: 'status' }, 'Loading…'),
+        children: (items) =>
+          h(
+            'ul',
+            {},
+            items.map((item) =>
+              h(
+                'li',
+                { key: item },
+                h('button', { class: 'category-pill', onClick: () => selected(item) }, item),
+              ),
+            ),
+          ),
+      })
+  })
+  expect(sidebar.host.querySelector('ul, .category-pill')).toBeNull()
+  expect(sidebar.host.querySelector('[role="status"]')?.textContent).toBe('Loading…')
+
+  request.resolve(['Books'])
+  await settle()
+  sidebar.host.querySelector<HTMLButtonElement>('ul > li:first-child button')!.click()
+  expect(selected).toHaveBeenCalledExactlyOnceWith('Books')
+})
+
+it('does not expose a follow-like toggle before its target exists; the first click saves once', async () => {
+  type Repository = { id: string; watched: boolean }
+  const request = deferred<Repository>()
+  const commit = vi.fn()
+  const page = mountApp(() => {
+    const query = useQuery<Repository>({
+      key: ['repository', 'a'],
+      fetch: async () => request.promise,
+    })
+    return () =>
+      h(QueryContent, {
+        query: query.value,
+        children: (repository) =>
+          h(
+            'button',
+            { onClick: () => commit(repository.id, !repository.watched) },
+            repository.watched ? 'Unwatch' : 'Watch',
+          ),
+      })
+  })
+  expect(page.host.querySelector('button')).toBeNull()
+  request.resolve({ id: 'a', watched: false })
+  await settle()
+  page.host.querySelector<HTMLButtonElement>('button')!.click()
+  expect(commit).toHaveBeenCalledExactlyOnceWith('a', true)
+})
+
+it('drops old record actions immediately when a new key has no data', async () => {
+  getQueryClient().set(['repository', 'a'], { id: 'a' })
+  const id = shallowRef('a')
+  const page = mountApp(() => {
+    const query = useQuery<{ id: string }>(() => ({
+      key: ['repository', id.value],
+      fetch: async () => new Promise<{ id: string }>(() => {}),
+    }))
+    return () =>
+      h(QueryContent, {
+        query: query.value,
+        children: (record) => h('button', {}, record.id),
+      })
+  })
+  expect(page.host.textContent).toBe('a')
+  id.value = 'b'
+  await nextTick()
+  expect(page.host.querySelector('button')).toBeNull()
+  await settle()
+})
+
+it('counterexample: cached data stays actionable through a pending and failed refresh', async () => {
+  const client = getQueryClient()
+  client.set(['book'], { id: 'one' })
+  client.invalidate(['book'])
+  let reject!: (error: Error) => void
+  const request = new Promise<{ id: string }>((_resolve, fail) => {
+    reject = fail
+  })
+  const error = vi.fn(() => h('p', { role: 'alert' }, 'Failed'))
+  const page = mountApp(() => {
+    const query = useQuery<{ id: string }>({ key: ['book'], fetch: async () => request })
+    return () =>
+      h(QueryContent, {
+        query: query.value,
+        error,
+        children: (book) => h('button', {}, book.id),
+      })
+  })
+  expect(page.host.querySelector('button')?.textContent).toBe('one')
+  reject(new Error('Offline'))
+  await settle()
+  expect(page.host.querySelector('button')?.textContent).toBe('one')
+  expect(error).not.toHaveBeenCalled()
+})
+
+it('an initial failure never mounts its resource actions and can recover on retry', async () => {
+  let fail = true
+  let retry: () => Promise<unknown> = async () => {}
+  const page = mountApp(() => {
+    const query = useQuery<{ id: string }>({
+      key: ['book'],
+      fetch: async () => {
+        if (fail) throw Error('Offline')
+        return { id: 'one' }
+      },
+    })
+    retry = query.value.refetch
+    return () =>
+      h(QueryContent, {
+        query: query.value,
+        error: () => h('p', { role: 'alert' }, 'Failed'),
+        children: (book) => h('button', {}, book.id),
+      })
+  })
+  await settle()
+  expect(page.host.querySelector('button')).toBeNull()
+  expect(page.host.querySelector('[role="alert"]')?.textContent).toBe('Failed')
+  fail = false
+  await retry()
+  await settle()
+  expect(page.host.querySelector('button')?.textContent).toBe('one')
+})
+
+it.each([false, 0, '', []])(
+  'counterexample: valid empty or false data reaches the loaded branch (%j)',
+  (data) => {
+    const render = vi.fn(() => h('p', {}, 'Ready'))
+    const page = mountComponent((props) =>
+      h(QueryContent, {
+        ...props,
+        query: { data, status: 'success', error: undefined },
+        children: render,
+      }),
+    )
+    expect(render).toHaveBeenCalledWith(data)
+    expect(page.host.textContent).toBe('Ready')
+  },
+)
+
+it('a loaded null is missing rather than pending or actionable', () => {
+  const children = vi.fn(() => h('button', {}, 'Act'))
+  const page = mountComponent((props) =>
+    h(QueryContent, {
+      ...props,
+      query: { data: null, status: 'success', error: undefined },
+      missing: h('p', {}, 'Not found'),
+      children,
+    }),
+  )
+  expect(children).not.toHaveBeenCalled()
+  expect(page.host.textContent).toBe('Not found')
+})
