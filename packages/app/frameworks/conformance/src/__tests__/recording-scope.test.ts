@@ -2,7 +2,8 @@
  * What a React recording can hold every framework to, beyond the first render:
  * result fields that appear later (`useParams` after a navigation, `useQuery`'s
  * `isPreviousData` after a key change), an AbortSignal that aborts after the
- * call that received it, and the browser's Network Information.
+ * call that received it, the browser's Network Information, and a hook that
+ * recovers after it threw.
  *
  * Until 2026-11-14 the shape came from the first snapshot only, so the golden of
  * `useParams` at `/items/9` read `{}` and a framework returning the wrong `id`
@@ -18,8 +19,11 @@ import { getQueryClient, shouldPrefetch } from '@molecule/app-query'
 
 import { createQueryFakes } from '../bindings/fakes/query.js'
 import {
+  type BindingAdapter,
   bindingCaseFamilies,
   completeSnapshots,
+  HookThrew,
+  type MountedHook,
   runHookCase,
   widenShape,
 } from '../bindings/index.js'
@@ -118,5 +122,52 @@ describe('query area connection seed', () => {
     fakes.dispose?.()
     expect(Object.prototype.hasOwnProperty.call(navigator, 'connection')).toBe(false)
     expect(shouldPrefetch()).toBe(true)
+  })
+})
+
+describe('an args step after a throw', () => {
+  /**
+   * An adapter whose hook throws for `'bad'` and returns its argument otherwise, logging
+   * each mount and each re-render with new arguments.
+   */
+  const throwingAdapter = (log: string[]): BindingAdapter => ({
+    name: 'throwing',
+    has: () => true,
+    mount: async (_hook, args) => {
+      log.push(`mount ${String(args[0])}`)
+      let current: unknown = args[0] === 'bad' ? new HookThrew(new Error('bad')) : args[0]
+      const mounted: MountedHook = {
+        result: () => current,
+        read: (value) => value,
+        setArgs: async (next) => {
+          log.push(`setArgs ${String(next[0])}`)
+          current = next[0]
+        },
+        flush: async () => undefined,
+        unmount: async () => {
+          log.push('unmount')
+        },
+      }
+      return mounted
+    },
+  })
+
+  it('re-mounts the host, since an app mounts a fresh component after a throw', async () => {
+    const log: string[] = []
+    const result = await runHookCase(throwingAdapter(log), 'useAnything', {
+      name: 'recovers',
+      args: ['bad'],
+      steps: [
+        { type: 'args', args: ['good'] },
+        { type: 'args', args: ['better'] },
+      ],
+    })
+    // After the recovery the host is live again, so the next args step re-renders it.
+    expect(log).toEqual(['mount bad', 'unmount', 'mount good', 'setArgs better', 'unmount'])
+    expect(result.snapshots.map((s) => (s as { result: unknown }).result)).toEqual([
+      { $threw: 'Error' },
+      'good',
+      'better',
+    ])
   })
 })

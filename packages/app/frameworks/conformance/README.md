@@ -190,6 +190,9 @@ since a composable, primitive or injection runs once per mount. A family marked
 conversation) is the exception: its options arrive as the framework's reactive value (Vue a
 ref, Solid an accessor, Svelte a readable store, Angular a signal), the binding follows it,
 and an `args` step sets it on the same mount.
+After a hook threw, an `args` step re-mounts the host in every framework, React included: in
+an app the throwing component is gone (an error boundary discards it), so the next render
+mounts a fresh one.
 
 Writing binding cases (`HookCase`, `src/bindings/spec.ts`):
 

@@ -2476,7 +2476,7 @@
       "theme": 0
      }
     },
-    "keepPreviousData without a principal throws": {
+    "keepPreviousData without a principal throws, and corrected options observe": {
      "shape": {
       "kind": "value"
      },
@@ -2486,9 +2486,43 @@
         "$threw": "Error"
        },
        "route": "/"
+      },
+      {
+       "result": {
+        "isFetching": true,
+        "refetch": "[function]",
+        "setData": "[function]",
+        "status": "loading"
+       },
+       "route": "/"
+      },
+      {
+       "result": {
+        "data": [
+         {
+          "id": "a1"
+         },
+         {
+          "id": "a2"
+         }
+        ],
+        "isFetching": false,
+        "refetch": "[function]",
+        "setData": "[function]",
+        "status": "success",
+        "updatedAt": 0
+       },
+       "route": "/"
       }
      ],
-     "calls": [],
+     "calls": [
+      {
+       "name": "fetch",
+       "args": [
+        {}
+       ]
+      }
+     ],
      "listenersAfterUnmount": {
       "auth": 0,
       "i18n": 0,

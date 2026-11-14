@@ -172,11 +172,18 @@ const useQueryCases: HookCases = {
     },
     {
       // The hook refuses before its first hook call, so nothing is subscribed
-      // and nothing fetches. (A later `args` step with corrected options on
-      // the SAME mount makes React log an internal error — see the report.)
-      name: 'keepPreviousData without a principal throws',
+      // and nothing fetches; the corrected options mount a working observer
+      // (after a throw, an `args` step mounts afresh, as an app does).
+      name: 'keepPreviousData without a principal throws, and corrected options observe',
       args: [{ key: ['list', 'a'], fetch: fetchDoc, keepPreviousData: true }],
       context: empty,
+      steps: [
+        {
+          type: 'args',
+          args: [observing(['list', 'a'], { principal: 'u1', keepPreviousData: true })],
+        },
+        { type: 'settle', fn: 'fetch', value: rowsA },
+      ],
     },
     {
       // The second options object carries a second loader that must never run.

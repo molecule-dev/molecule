@@ -295,7 +295,21 @@ export async function runHookCase(
           }
           case 'args':
             if (state.unmounted) throw new Error('conformance: an args step after unmount')
-            await state.mounted.setArgs(materializeArgs(step.args, recorder, fns, controls.refs))
+            if (state.mounted.result() instanceof HookThrew) {
+              // A hook that threw leaves no component behind in an app (React's error
+              // boundary discards it; a setup that throws mounts nothing), so the app's next
+              // render mounts a fresh one. Re-rendering the host instead would give React's
+              // fiber a different number of hooks than its last render (the host catches the
+              // throw), which React reports as an internal error.
+              await state.mounted.unmount()
+              state.unmounted = true
+              await settle()
+              state.mounted = await mountHost(step.args ?? [])
+              state.unmounted = false
+              stableBefore.clear()
+            } else {
+              await state.mounted.setArgs(materializeArgs(step.args, recorder, fns, controls.refs))
+            }
             break
           case 'advance':
             await run(() => vi.advanceTimersByTimeAsync(step.ms).then(() => undefined))
