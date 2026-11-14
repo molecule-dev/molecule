@@ -356,7 +356,9 @@
  * Render resource-dependent lists and controls through {@link QueryContent}. Its child function
  * receives only loaded, non-null data; loading and error content never mount item actions.
  * It renders cached content during refresh and treats an empty list, false and zero as data.
- * Put the list inside the child and the status outside it:
+ * Put the list, or the record's own container (its card, header or profile block), inside the
+ * child and every status line (loading, error, `isFetching` refresh) beside it, never inside it:
+ * a reader that finds the container and reads its paragraph must read the record, not "Loading…".
  *
  * ```tsx
  * <QueryContent query={query} pending={<p role="status">{loadingLabel}</p>}
