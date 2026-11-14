@@ -204,7 +204,8 @@ export const createSimpleI18nProvider = (
     t(key: string, values?: InterpolationValues, options?: TranslateOptions): string {
       const config = locales.get(currentLocale)
       if (!config) {
-        const fallback = options?.defaultValue || key
+        // An explicit default, even an empty one, wins over the key (as in i18next).
+        const fallback = options?.defaultValue ?? key
         return values ? interpolate(fallback, values) : fallback
       }
 
@@ -241,7 +242,7 @@ export const createSimpleI18nProvider = (
       }
 
       if (text === undefined) {
-        if (!options?.defaultValue) {
+        if (options?.defaultValue === undefined) {
           log().debug('Missing translation key', key, currentLocale)
         }
         // A default is English, so its plural form follows English rules.
@@ -249,7 +250,9 @@ export const createSimpleI18nProvider = (
           options?.count !== undefined
             ? options[`defaultValue_${getPluralForm(options.count, 'en') as PluralCategory}`]
             : undefined
-        const fallback = pluralDefault || options?.defaultValue || key
+        // An explicit default, even an empty one (`defaultValue: ''` means "show
+        // nothing"), wins over the key, as it does in i18next.
+        const fallback = pluralDefault ?? options?.defaultValue ?? key
         const allValues =
           options?.count !== undefined ? { count: options.count, ...values } : values
         return allValues ? interpolate(fallback, allValues) : fallback

@@ -172,7 +172,8 @@ export const createSimpleI18nProvider = (
       const allValues = options?.count !== undefined ? { count: options.count, ...values } : values
 
       if (text === undefined) {
-        const fallback = options?.defaultValue || key
+        // An explicit default, even an empty one, wins over the key.
+        const fallback = options?.defaultValue ?? key
         return allValues ? interpolate(fallback, allValues) : fallback
       }
 

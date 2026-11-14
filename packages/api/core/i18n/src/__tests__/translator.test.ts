@@ -32,6 +32,12 @@ describe('@molecule/api-i18n', () => {
       expect(t('missing.key', undefined, { defaultValue: 'Fallback' })).toBe('Fallback')
     })
 
+    it('returns an empty defaultValue instead of the key, with or without a provider', () => {
+      expect(t('missing.key', { name: 'Ada' }, { defaultValue: '' })).toBe('')
+      addTranslations('en', { hello: 'Hello World' })
+      expect(t('missing.key', undefined, { defaultValue: '' })).toBe('')
+    })
+
     it('should translate a registered key', () => {
       addTranslations('en', { hello: 'Hello World' })
       expect(t('hello')).toBe('Hello World')

@@ -128,7 +128,8 @@ export const t = (
 ): string => {
   const provider = bondGet<I18nProvider>(BOND_TYPE)
   if (!provider) {
-    const fallback = options?.defaultValue || key
+    // An explicit default, even an empty one, wins over the key.
+    const fallback = options?.defaultValue ?? key
     return values ? interpolate(fallback, values) : fallback
   }
   return provider.t(key, values, options)

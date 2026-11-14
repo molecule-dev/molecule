@@ -102,6 +102,10 @@ describe('@molecule/api-i18n-simple', () => {
       expect(i18n.t('unknown.key', undefined, { defaultValue: 'Fallback' })).toBe('Fallback')
     })
 
+    it('returns an empty defaultValue for a missing key instead of the key', () => {
+      expect(i18n.t('unknown.key', { name: 'World' }, { defaultValue: '' })).toBe('')
+    })
+
     it('should interpolate values into the defaultValue when translation is missing', () => {
       // The defaultValue is the rendered English fallback — it must be
       // interpolated exactly like catalog text (the core no-provider fallback

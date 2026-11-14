@@ -66914,7 +66914,7 @@
      "theme": 0
     }
    },
-   "an empty shorthand fallback returns the key": {
+   "an empty shorthand fallback is the result, not the key": {
     "shape": {
      "kind": "function"
     },
@@ -66930,19 +66930,10 @@
     ],
     "calls": [
      {
-      "name": "logger.debug",
-      "args": [
-       "i18n",
-       "Missing translation key",
-       "missing.key",
-       "en"
-      ]
-     },
-     {
       "name": "=> ()",
       "args": [
        {
-        "returned": "missing.key"
+        "returned": ""
        }
       ]
      }
@@ -74154,7 +74145,7 @@
      "theme": 0
     }
    },
-   "an empty defaultValue falls back to the key": {
+   "an empty defaultValue is the result, not the key": {
     "shape": {
      "kind": "object",
      "fields": {
@@ -74245,19 +74236,10 @@
     ],
     "calls": [
      {
-      "name": "logger.debug",
-      "args": [
-       "i18n",
-       "Missing translation key",
-       "missing.key",
-       "en"
-      ]
-     },
-     {
       "name": "=> t",
       "args": [
        {
-        "returned": "missing.key"
+        "returned": ""
        }
       ]
      }

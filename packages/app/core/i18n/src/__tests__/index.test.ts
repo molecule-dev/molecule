@@ -373,6 +373,16 @@ describe('@molecule/app-i18n', () => {
         expect(provider.t('missing.key', undefined, { defaultValue: 'Default' })).toBe('Default')
       })
 
+      it('returns an empty default for a missing key instead of the key, as i18next does', async () => {
+        expect(provider.t('content.privacyPolicy', { appName: 'Acme' }, { defaultValue: '' })).toBe(
+          '',
+        )
+        expect(provider.t('missing.key', undefined, { defaultValue: '', count: 2 })).toBe('')
+        await provider.setLocale('fr')
+        expect(provider.t('missing.key', undefined, { defaultValue: '' })).toBe('')
+        expect(provider.t('missing.key')).toBe('missing.key')
+      })
+
       it('should handle pluralization with count=1', () => {
         expect(provider.t('items', { count: 1 }, { count: 1 })).toBe('1 item')
       })

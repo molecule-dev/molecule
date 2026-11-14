@@ -180,7 +180,7 @@ export const useTranslationCases: HookCases = {
       ],
     },
     {
-      name: 'an empty defaultValue falls back to the key',
+      name: 'an empty defaultValue is the result, not the key',
       steps: [
         { type: 'call', method: 't', args: ['missing.key', undefined, { defaultValue: '' }] },
       ],
@@ -304,7 +304,7 @@ export const useTCases: HookCases = {
       steps: [{ type: 'call', args: ['cart.items', '{{count}} items', { count: 3 }] }],
     },
     {
-      name: 'an empty shorthand fallback returns the key',
+      name: 'an empty shorthand fallback is the result, not the key',
       steps: [{ type: 'call', args: ['missing.key', ''] }],
     },
     {
