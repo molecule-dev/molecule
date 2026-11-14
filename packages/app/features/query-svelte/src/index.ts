@@ -294,6 +294,7 @@
  */
 
 export * from './components.js'
+export * from './list-query.js'
 export * from './resource.js'
 export * from './types.js'
 export * from './usePrefetch.js'

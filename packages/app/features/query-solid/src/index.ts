@@ -425,6 +425,7 @@
  * @module
  */
 
+export * from './list-query.js'
 export * from './query-content.jsx'
 export * from './resource.js'
 export * from './types.js'
