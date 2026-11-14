@@ -4,7 +4,15 @@
  * served from this test. Nothing reaches npm or the real trust ledger.
  */
 import { spawn } from 'node:child_process'
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import http from 'node:http'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -64,10 +72,22 @@ afterEach(async () => {
  * A scratch repo with two packages (both in the ledger, both on npm, neither ever
  * published over OIDC, so both need re-linking) unless `ledger` says otherwise.
  */
-function scratchRepo({ ledger = [A, B] }: { ledger?: string[] } = {}) {
-  const root = mkdtempSync(join(tmpdir(), 'trust-new-'))
-  cleanups.push(() => rmSync(root, { recursive: true, force: true }))
-  mkdirSync(join(root, 'scripts'))
+function scratchRepo({
+  ledger = [A, B],
+  inWorkspace = false,
+}: { ledger?: string[]; inWorkspace?: boolean } = {}) {
+  const base = mkdtempSync(join(tmpdir(), 'trust-new-'))
+  cleanups.push(() => rmSync(base, { recursive: true, force: true }))
+  // Inside the workspace the repo sits next to the workspace's own scripts/release.mjs.
+  const root = inWorkspace ? join(base, 'molecule') : base
+  if (inWorkspace) {
+    mkdirSync(join(base, 'scripts'), { recursive: true })
+    writeFileSync(join(base, 'scripts', 'release.mjs'), '')
+  }
+  mkdirSync(join(root, 'scripts'), { recursive: true })
+  // A `gh` that only records how it was called.
+  mkdirSync(join(root, 'bin'))
+  writeFileSync(join(root, 'bin', 'gh'), '#!/bin/sh\necho "$@" >> "$GH_LOG"\n', { mode: 0o755 })
   cpSync(join(SCRIPTS, 'lib'), join(root, 'scripts', 'lib'), { recursive: true })
   cpSync(join(SCRIPTS, 'trust-new-packages.mjs'), join(root, 'scripts', 'trust-new-packages.mjs'))
   for (const name of [A, B]) {
@@ -123,7 +143,8 @@ function runTrustNew(root: string, args: string[], scenario: object, socketPath?
           detached: true,
           stdio: ['ignore', 'pipe', 'pipe'],
           env: {
-            PATH: process.env.PATH,
+            PATH: `${join(root, 'bin')}:${process.env.PATH}`,
+            GH_LOG: join(root, 'gh.log'),
             HOME: join(root, 'home'),
             STUB_SCENARIO: join(root, 'scenario.json'),
             STUB_LOG: join(root, 'calls.log'),
@@ -221,6 +242,21 @@ describe("trust:new with the owner's phone", () => {
     expect(run.calls).toHaveLength(0)
     expect(run.out).toMatch(/No terminal available/)
     expect(run.out).toMatch(/asks the owner's phone for the codes/)
+  })
+
+  it('inside the workspace, --release points at the release runner instead of dispatching Release by hand (OLD MUSTFAIL)', async () => {
+    const root = scratchRepo({ ledger: [], inWorkspace: true })
+    const run = await runTrustNew(root, ['--ci', '--release'], { ci: true, absent: [A, B] })
+    expect(run.code).toBe(0)
+    expect(existsSync(join(root, 'gh.log'))).toBe(false)
+    expect(run.out).toMatch(/--release does not dispatch Release inside the workspace/)
+  })
+
+  it('a standalone clone keeps dispatching Release with --release', async () => {
+    const root = scratchRepo({ ledger: [] })
+    const run = await runTrustNew(root, ['--ci', '--release'], { ci: true, absent: [A, B] })
+    expect(run.code).toBe(0)
+    expect(readFileSync(join(root, 'gh.log'), 'utf8')).toBe('workflow run release.yml --ref main\n')
   })
 
   it('without a phone service and without a terminal it changes nothing and exits 0', async () => {
