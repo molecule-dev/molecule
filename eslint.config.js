@@ -5,6 +5,7 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import svelte from 'eslint-plugin-svelte'
 import tseslint from 'typescript-eslint'
 
+import noClassCode from './eslint-rules/no-class-code.mjs'
 import { noHandStyledButton } from './eslint-rules/no-hand-styled-button.mjs'
 import { noRawClassNames } from './eslint-rules/no-raw-class-names.mjs'
 
@@ -31,6 +32,7 @@ import { noRawClassNames } from './eslint-rules/no-raw-class-names.mjs'
  */
 const moleculeLocal = {
   rules: {
+    'no-class-code': noClassCode,
     'no-hand-styled-button': noHandStyledButton,
     'no-raw-class-names': noRawClassNames,
     'require-catch-binding': {
@@ -177,6 +179,7 @@ export default tseslint.config(
       'molecule-local': moleculeLocal,
     },
     rules: {
+      'molecule-local/no-class-code': 'error',
       'molecule-local/require-catch-binding': 'error',
       'molecule-local/no-hand-styled-button': 'error',
       'jsdoc/require-jsdoc': [
