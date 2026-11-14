@@ -4318,10 +4318,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             // deployed run it belongs to can no longer pass and a local edit cannot void a green
             // proof. Keep discovering causes during the repair, then replace the failed build:
             // waiting after its known causes were fixed cost l1671 another 295 s without learning
-            // another cause. Nothing stops this walk for the executor: once the deploy lands it
-            // walks a build it was not started on and still holds the sandbox's one Playwright
-            // slot, so the note names the stop (X1 xr-molecule-flash-l2608: deployed as told, then
-            // two walks of the new build refused while the old one ran on).
+            // another cause. Deployment replacement is owned by the host: it retires only its
+            // own proofs, and preserves user-started runs and other targets.
             note: localDiagnostic
               ? 'A test in this local diagnostic has failed on its final attempt. This is partial ' +
                 'output, not a completed result; the task is still running against mutable local source. ' +
@@ -4347,10 +4345,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 'and collect any new causes it exposes. Local edits do not change this deployed ' +
                 'build, so start on this failure now: read the failing spec and the code it drives, ' +
                 'and fix it while the run keeps walking. Once every known cause is fixed, deploy now. ' +
-                'This task does not stop by itself when the deploy lands: from then on it walks a build it was not started on, ' +
-                'and the sandbox runs one Playwright walk at a time. So when the deploy lands, stop it ' +
-                `(\`exec_command: ${await taskStopCommand(backend, taskId)}\`), collect its stopped result with \`wait_for_task\`, ` +
-                'then start the walk of the new build. Do not start a second test run while this task is running. ' +
+                'When a newer deployment of this project lands, the platform stops its own superseded proof, ' +
+                'keeps its results as diagnosis, and starts the new proof. Collect the platform-started task with `wait_for_task`; ' +
+                'do not stop it or start its replacement by hand. A user-started run or a run against another host is left running; ' +
+                'collect that run before starting another browser walk. Do not start a second test run while this task is running. ' +
                 'Its remaining tests stay unmeasured; hand-back still requires the full supplied suite against the new deployed build to pass with its own settings.',
           }
         }

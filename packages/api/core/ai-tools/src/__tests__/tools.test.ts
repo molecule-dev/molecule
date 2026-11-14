@@ -7039,13 +7039,11 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect(text).toContain('while the run keeps walking')
     // Deploy first, keep discovery until landing, then collect: no idle pre-deploy wait (l1927).
     expect(text).toContain('Once every known cause is fixed, deploy now')
-    // Nothing stops the walk at the landing, and it holds the one Playwright slot: the note says
-    // so and names the task's own stop script (xr-molecule-flash-l2608: two refused walks).
-    expect(text).not.toContain('until the deploy lands and stops it')
-    expect(text).toContain('This task does not stop by itself when the deploy lands')
-    expect(text).toMatch(
-      /when the deploy lands, stop it \(`exec_command: sh \/tmp\/mol-bg-[a-z0-9]+-[a-z0-9]+\.stop`\), collect its stopped result with `wait_for_task`, then start the walk of the new build/,
-    )
+    expect(text).toContain('the platform stops its own superseded proof')
+    expect(text).toContain('keeps its results as diagnosis, and starts the new proof')
+    expect(text).toContain('do not stop it or start its replacement by hand')
+    expect(text).toContain('A user-started run or a run against another host is left running')
+    expect(text).not.toContain('exec_command: sh /tmp/')
     expect(text).not.toContain('retire this task before replacing the build')
     expect(text).toContain('Do not start a second test run while this task is running')
     expect(text).toContain('remaining tests stay unmeasured')
