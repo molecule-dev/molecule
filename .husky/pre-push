@@ -9,5 +9,7 @@
 #
 # Costs nothing when there is nothing to do — it reads a local ledger and walks
 # the packages dir, no network — and exits 0 without prompting when no terminal
-# is available, so scripted pushes never hang.
-node scripts/trust-new-packages.mjs || exit 1
+# is available, so scripted pushes never hang. --from-hook keeps the phone
+# approval service out of it: a push never waits on the owner's phone, and an
+# agent is told to run `npm run trust:new`, which asks the phone instead.
+node scripts/trust-new-packages.mjs --from-hook || exit 1

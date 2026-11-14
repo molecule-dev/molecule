@@ -57,6 +57,11 @@ import {
   storeSeed,
   totp,
 } from './lib/npm-2fa.mjs'
+import {
+  approvalServiceAvailable,
+  npmApprovalLink,
+  requestOwnerOtp,
+} from './lib/npm-2fa-approval.mjs'
 import { readNpmToken, relinkPackage, trustPackage } from './lib/npm-trust.mjs'
 import {
   collectPackages,
@@ -102,6 +107,9 @@ let otp = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
 // whole job is one command. Trusting without publishing leaves the packages in
 // the exact half-done state this script exists to end.
 const RELEASE = args.includes('--release')
+// --from-hook: the pre-push hook. A push never waits on the owner's phone; with no
+// terminal it only says what to run.
+const FROM_HOOK = args.includes('--from-hook')
 
 // In CI the ledger does not exist — .trust-state.json is gitignored, so a fresh
 // checkout reads it as empty and EVERY package looks untrusted. That made one run
@@ -145,6 +153,11 @@ console.log(
 
 if (LIST_ONLY) process.exit(1)
 
+// When a local approval service runs (lib/npm-2fa-approval.mjs), codes come from the
+// owner's phone: this works with no terminal, so an agent can run trust:new itself.
+// --otp=<code> still covers the first call. Checked only now, when there is work.
+const PHONE = !CI && !FROM_HOOK && !otp && (await approvalServiceAvailable())
+
 // The header's contract, actually enforced: NO TERMINAL -> warn and exit 0.
 // This guard exists to catch a HUMAN at push time; without /dev/tty nobody can
 // answer the 2FA prompt below, so exiting 1 only blocks automation that pushes
@@ -154,7 +167,7 @@ if (LIST_ONLY) process.exit(1)
 // "untrusted" -> no token -> exit 1) and the whole release failed. Untrusted
 // NEW packages are still safe: their OIDC publish is skipped and the CI trust
 // step reports them; they wait for an interactive `npm run trust:new`.
-if (!CI) {
+if (!CI && !PHONE) {
   try {
     // openSync THROWS synchronously when there is no controlling terminal —
     // same probe promptOtp uses below.
@@ -164,7 +177,8 @@ if (!CI) {
     console.error(
       'No terminal available — skipping the trust prompt (scripted push).\n' +
         'Any NEW packages stay untrusted (their publish is skipped) until\n' +
-        '`npm run trust:new` runs interactively.',
+        '`npm run trust:new` runs: interactively, or from any shell (an agent too) while\n' +
+        "the phone approval service runs, which asks the owner's phone for the codes.",
     )
     process.exit(0)
   }
@@ -250,6 +264,40 @@ let lastSeedCode = null
 let seedMode = false
 
 /**
+ * True once answers come from the owner's phone. A code from there is reused like a
+ * typed one until npm rejects it; an approval on npm's page covers one call, so the
+ * next call is rejected and asks again.
+ *
+ * @type {boolean}
+ */
+let phoneMode = false
+
+/** Packages this run will make calls for, and how many are finished (shown on the phone). */
+const progress = { names: [], done: 0 }
+
+/**
+ * The owner gave no 2FA answer (denied, timed out, no terminal, a bad answer). The sweep
+ * stops there and keeps what it finished.
+ */
+class NoTwoFactorAnswer extends Error {}
+
+/**
+ * What the phone shows for a request, in plain words.
+ *
+ * @param label - What the code is for.
+ * @param force - npm rejected the held code.
+ * @returns The text.
+ */
+const phonePurpose = (label, force) => {
+  const total = progress.names.length
+  if (force)
+    return `trust:new needs a new npm code; the last one stopped working (${total - progress.done} of ${total} package(s) left, at ${label})`
+  const shown = progress.names.slice(0, 3).join(', ')
+  const more = total > 3 ? ` and ${total - 3} more` : ''
+  return `trust:new needs an npm code to trust ${total} package(s): ${shown}${more}`
+}
+
+/**
  * Returns a usable code, self-served whenever possible.
  *
  * Order: the --otp argument, then the locally stored TOTP seed — after the
@@ -267,7 +315,7 @@ let seedMode = false
  * @returns A 6-digit code.
  */
 const ensureOtp = async (label, force = false) => {
-  if (otp && !seedMode && !force && /^\d{6}$/.test(otp)) return otp
+  if (otp && !seedMode && !force && (phoneMode || /^\d{6}$/.test(otp))) return otp
   const seed = loadSeed()
   if (seed) {
     seedMode = true
@@ -282,14 +330,29 @@ const ensureOtp = async (label, force = false) => {
     otp = code
     return code
   }
+  if (PHONE) {
+    phoneMode = true
+    console.error(`  asked the owner's phone for an npm code (${label})…`)
+    let reply
+    try {
+      reply = await requestOwnerOtp({
+        purpose: phonePurpose(label, force),
+        link: () => npmApprovalLink(progress.names[0] ?? 'molecule', { bearer: token }),
+        bearer: token,
+      })
+    } catch (error) {
+      throw new NoTwoFactorAnswer(`no npm code from the phone: ${error.message}`, { cause: error })
+    }
+    console.error(
+      `  got ${reply.kind === 'code' ? 'a code' : 'an approval for one call'} from the phone`,
+    )
+    otp = reply.otp
+    return otp
+  }
   const answer = await askOtp(
     `${label} — 6-digit code, or paste the authenticator SECRET (base32 / otpauth:// URI) to store it at ${SEED_PATH} and never be asked again`,
   )
-  if (answer === null) {
-    console.error('No terminal for the 2FA prompt — skipping.')
-    console.error('Run `npm run trust:new` from a shell to finish this.')
-    process.exit(0)
-  }
+  if (answer === null) throw new NoTwoFactorAnswer('no terminal for the 2FA prompt')
   const secret = parseSecret(answer)
   if (secret) {
     storeSeed(secret)
@@ -299,10 +362,8 @@ const ensureOtp = async (label, force = false) => {
     lastSeedCode = totp(secret)
     return lastSeedCode
   }
-  if (!/^\d{6}$/.test(answer)) {
-    console.error('That is not a 6-digit code or a TOTP secret. Run `npm run trust:new` to retry.')
-    process.exit(1)
-  }
+  if (!/^\d{6}$/.test(answer))
+    throw new NoTwoFactorAnswer('that is not a 6-digit code or a TOTP secret')
   otp = answer
   return otp
 }
@@ -366,11 +427,131 @@ for (const signal of ['SIGINT', 'SIGTERM'])
     process.exit(130)
   })
 
-// One code up front; the endpoint takes it as a header, so it covers every
-// package until npm says it is spent.
-if (!CI) await ensureOtp('trust config')
+/**
+ * Records a trusted package and saves the ledger at once, so a run that stops partway
+ * (a code nobody sent, a crash) keeps every package it finished.
+ *
+ * @param name - The package.
+ */
+const record = (name) => {
+  ledger.add(name)
+  writeFileSync(TRUST_STATE_PATH, `${JSON.stringify([...ledger].sort(), null, 2)}\n`)
+}
 
+// BUILD EVERY FIRST PUBLISH BEFORE ASKING FOR A CODE. A code works for every call inside
+// its ~30 s window, so the calls that need one (publishes, trust links) run back to back
+// after this, instead of between builds that outlive the window and cost another code.
+/**
+ * Package name -> its built directory in the committed export.
+ *
+ * @type {Map<string, string>}
+ */
+const prepared = new Map()
 for (const pkg of untrusted) {
+  if (pkg.relink || CI || (await existsOnRegistry(pkg.name))) continue
+  console.log(`\n  ${pkg.name}: npm has never seen this — building it to publish first`)
+  // Built and published from the committed tree only: the checkout is shared, and another
+  // session's uncommitted edit to a dependency failed this build (or was published) when it
+  // read the working tree (lib/committed-export.mjs).
+  const tree = committedTree()
+  const pkgDir = join(tree.dir, pkg.dir)
+  if (!existsSync(join(pkgDir, 'package.json'))) {
+    console.error(
+      `  ✗ ${pkg.name}: not committed yet — only committed code is published; commit it, then run trust:new again`,
+    )
+    failed.push(pkg.name)
+    continue
+  }
+  try {
+    execFileSync('node', ['scripts/build.js', `--only=${pkg.name}`], {
+      cwd: tree.dir,
+      stdio: 'inherit',
+    })
+    // The build must have produced every entry point before anything uploads.
+    // README.md is GENERATED at commit time (the pre-commit hook regenerates
+    // it from the module JSDoc), so a package an agent added mid-session has
+    // no README on disk yet and the pack gate would refuse it — the exact
+    // wall the 2026-10-05 geocoding + ai-decisions wave hit twice. Generate
+    // it here the same way the hook does, so trust time never depends on
+    // commit time. Skipped in a standalone clone (no ../mlcl).
+    const readme = join(pkgDir, 'README.md')
+    if (!existsSync(readme)) {
+      // tsx lives at mlcl/node_modules/.bin in a STANDALONE mlcl clone, but
+      // this workspace makes mlcl a root npm-workspace member, which hoists
+      // it to the workspace root's .bin (mlcl/node_modules/.bin/tsx has not
+      // existed here since 2026-08-16 — a silent skip there sent the
+      // 2026-10-07 embeddings wave into the pack gate's README error).
+      const mlclDir = join(ROOT, '..', 'mlcl')
+      const regen = join(mlclDir, 'scripts', 'regen-molecule-docs.mjs')
+      const tsx = [
+        join(mlclDir, 'node_modules', '.bin', 'tsx'),
+        join(mlclDir, '..', 'node_modules', '.bin', 'tsx'),
+      ].find((p) => existsSync(p))
+      if (!existsSync(regen)) {
+        console.error(
+          '    ⚠ no ../mlcl checkout next to this repo — cannot regenerate the' +
+            ' missing README.md; the pack gate below will refuse this package',
+        )
+      } else if (!tsx) {
+        console.error(
+          '    ⚠ tsx not found (looked in mlcl/node_modules/.bin and the' +
+            ' workspace root) — cannot regenerate the missing README.md; the' +
+            ' pack gate below will refuse this package',
+        )
+      } else {
+        console.log(`    regenerating the missing README.md (commit-time step, run early)`)
+        // MOLECULE_PACKAGES_DIR points the generator at the export, so it reads the committed
+        // source and writes there; the checkout is never touched.
+        execFileSync(tsx, [regen, pkg.dir], {
+          cwd: mlclDir,
+          env: { ...process.env, MOLECULE_PACKAGES_DIR: join(tree.dir, 'packages') },
+          stdio: 'inherit',
+        })
+      }
+    }
+    if (!existsSync(readme)) {
+      // Still nothing: the regen path needs the package REGISTERED in mlcl's
+      // registry, and a package caught mid-authoring (registration not yet
+      // committed, or genuinely forgotten) cannot generate real docs. A
+      // minimal manifest-sourced README beats failing the whole sweep — the
+      // npm page shows name + description now, and the hook-generated full
+      // README ships with the authoring commit's next version. No code
+      // samples on purpose: README text travels inside the publish PUT
+      // body, and sample code is what trips npm's Cloudflare WAF (the
+      // 2026-09-24 app-margin-notes-react incident).
+      const manifest = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'))
+      console.error(
+        `    ⚠ ${manifest.name} is not in mlcl's registry yet (authoring session mid-flight, or registration forgotten) — writing a minimal README so the publish can proceed; full docs arrive with its commit`,
+      )
+      writeFileSync(
+        readme,
+        `# ${manifest.name}\n\n${manifest.description ?? ''}\n\n` +
+          `\`\`\`\nnpm install ${manifest.name}\n\`\`\`\n\n` +
+          `Part of the [Molecule](https://www.molecule.dev) package fleet. This page carries the ` +
+          `manifest summary; the full generated documentation ships with the package's first committed version.\n\n` +
+          `License: ${manifest.license ?? 'Apache-2.0'}\n`,
+      )
+    }
+    assertPackComplete(pkgDir)
+    prepared.set(pkg.name, pkgDir)
+  } catch (error) {
+    const reason =
+      error instanceof Error && !/^Command failed/.test(error.message)
+        ? error.message
+        : 'the build printed the reason above'
+    console.error(`  ✗ ${pkg.name}: not publishable — ${reason}`)
+    failed.push(pkg.name)
+  }
+}
+const ready = untrusted.filter((pkg) => !failed.includes(pkg.name))
+progress.names = ready.map((pkg) => pkg.name)
+
+/**
+ * Publishes (when new) and trusts one package, or re-links one npm has.
+ *
+ * @param pkg - The package record.
+ */
+const trustOne = async (pkg) => {
   // CREATE IT FIRST when npm has never seen the name.
   //
   // npm's API docs are unambiguous about the trust endpoint: "Package MUST
@@ -389,99 +570,18 @@ for (const pkg of untrusted) {
     if (relinked.outcome === 'needs-otp')
       relinked = await relinkPackage(pkg.name, { otp: await ensureOtp(pkg.name, true) })
     if (relinked.outcome === 'relinked') {
-      ledger.add(pkg.name)
+      record(pkg.name)
       console.log(`  ✓ ${pkg.name} (re-linked)`)
     } else {
       console.error(`  ✗ ${pkg.name}: ${relinked.status ?? ''} ${relinked.text}`)
       failed.push(pkg.name)
     }
-    continue
+    return
   }
-  if (!CI && !(await existsOnRegistry(pkg.name))) {
-    console.log(`\n  ${pkg.name}: npm has never seen this — publishing it first`)
-    // Built and published from the committed tree only: the checkout is shared, and another
-    // session's uncommitted edit to a dependency failed this build (or was published) when it
-    // read the working tree (lib/committed-export.mjs).
-    const tree = committedTree()
-    const pkgDir = join(tree.dir, pkg.dir)
-    if (!existsSync(join(pkgDir, 'package.json'))) {
-      console.error(
-        `  ✗ ${pkg.name}: not committed yet — only committed code is published; commit it, then run trust:new again`,
-      )
-      failed.push(pkg.name)
-      continue
-    }
+  const pkgDir = prepared.get(pkg.name)
+  if (pkgDir) {
+    console.log(`\n  ${pkg.name}: publishing it first`)
     try {
-      execFileSync('node', ['scripts/build.js', `--only=${pkg.name}`], {
-        cwd: tree.dir,
-        stdio: 'inherit',
-      })
-      // The build must have produced every entry point before anything uploads.
-      // README.md is GENERATED at commit time (the pre-commit hook regenerates
-      // it from the module JSDoc), so a package an agent added mid-session has
-      // no README on disk yet and the pack gate would refuse it — the exact
-      // wall the 2026-10-05 geocoding + ai-decisions wave hit twice. Generate
-      // it here the same way the hook does, so trust time never depends on
-      // commit time. Skipped in a standalone clone (no ../mlcl).
-      const readme = join(pkgDir, 'README.md')
-      if (!existsSync(readme)) {
-        // tsx lives at mlcl/node_modules/.bin in a STANDALONE mlcl clone, but
-        // this workspace makes mlcl a root npm-workspace member, which hoists
-        // it to the workspace root's .bin (mlcl/node_modules/.bin/tsx has not
-        // existed here since 2026-08-16 — a silent skip there sent the
-        // 2026-10-07 embeddings wave into the pack gate's README error).
-        const mlclDir = join(ROOT, '..', 'mlcl')
-        const regen = join(mlclDir, 'scripts', 'regen-molecule-docs.mjs')
-        const tsx = [
-          join(mlclDir, 'node_modules', '.bin', 'tsx'),
-          join(mlclDir, '..', 'node_modules', '.bin', 'tsx'),
-        ].find((p) => existsSync(p))
-        if (!existsSync(regen)) {
-          console.error(
-            '    ⚠ no ../mlcl checkout next to this repo — cannot regenerate the' +
-              ' missing README.md; the pack gate below will refuse this package',
-          )
-        } else if (!tsx) {
-          console.error(
-            '    ⚠ tsx not found (looked in mlcl/node_modules/.bin and the' +
-              ' workspace root) — cannot regenerate the missing README.md; the' +
-              ' pack gate below will refuse this package',
-          )
-        } else {
-          console.log(`    regenerating the missing README.md (commit-time step, run early)`)
-          // MOLECULE_PACKAGES_DIR points the generator at the export, so it reads the committed
-          // source and writes there; the checkout is never touched.
-          execFileSync(tsx, [regen, pkg.dir], {
-            cwd: mlclDir,
-            env: { ...process.env, MOLECULE_PACKAGES_DIR: join(tree.dir, 'packages') },
-            stdio: 'inherit',
-          })
-        }
-      }
-      if (!existsSync(readme)) {
-        // Still nothing: the regen path needs the package REGISTERED in mlcl's
-        // registry, and a package caught mid-authoring (registration not yet
-        // committed, or genuinely forgotten) cannot generate real docs. A
-        // minimal manifest-sourced README beats failing the whole sweep — the
-        // npm page shows name + description now, and the hook-generated full
-        // README ships with the authoring commit's next version. No code
-        // samples on purpose: README text travels inside the publish PUT
-        // body, and sample code is what trips npm's Cloudflare WAF (the
-        // 2026-09-24 app-margin-notes-react incident).
-        const manifest = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'))
-        console.error(
-          `    ⚠ ${manifest.name} is not in mlcl's registry yet (authoring session mid-flight, or registration forgotten) — writing a minimal README so the publish can proceed; full docs arrive with its commit`,
-        )
-        writeFileSync(
-          readme,
-          `# ${manifest.name}\n\n${manifest.description ?? ''}\n\n` +
-            `\`\`\`\nnpm install ${manifest.name}\n\`\`\`\n\n` +
-            `Part of the [Molecule](https://www.molecule.dev) package fleet. This page carries the ` +
-            `manifest summary; the full generated documentation ships with the package's first committed version.\n\n` +
-            `License: ${manifest.license ?? 'Apache-2.0'}\n`,
-        )
-      }
-      assertPackComplete(pkgDir)
       // ONE code per run is the contract: the up-front prompt (or --otp, or
       // the stored seed) is reused for every publish and trust call — npm
       // keeps accepting the same TOTP code until its window tolerance runs
@@ -495,7 +595,7 @@ for (const pkg of untrusted) {
       // export is removed when this run ends, so the checkout's manifest is never rewritten.
       const manifestPath = join(pkgDir, 'package.json')
       const staged = JSON.parse(readFileSync(manifestPath, 'utf8'))
-      if ((otp && /^\d{6}$/.test(otp)) || loadSeed()) {
+      if ((otp && /^\d{6}$/.test(otp)) || loadSeed() || phoneMode) {
         // npm answers a 403 "You cannot publish using the version" for a
         // version its policy refuses (0.0.0-stage is refused), so walk a
         // list of placeholder versions until one is accepted.
@@ -536,22 +636,19 @@ for (const pkg of untrusted) {
         })
       }
     } catch (error) {
-      // `npm publish` with stdio: 'inherit' prints its own reason, so its
-      // "Command failed" wrapper adds nothing — but the build and the
-      // pack-completeness gate throw BEFORE npm runs, and swallowing their
-      // message printed "see npm output above" with nothing above (the
-      // 2026-09-30 model-hosting wave sat on a missing-README.md diagnosis
-      // that read like an npm failure).
+      if (error instanceof NoTwoFactorAnswer) throw error
+      // `npm publish` prints its own reason, so its "Command failed" wrapper adds
+      // nothing. The build and the pack-completeness gate ran (and reported) in the
+      // build pass above, before any code was asked for.
       const reason =
         error instanceof Error && !/^Command failed/.test(error.message)
           ? error.message
           : 'npm printed the reason above'
       console.error(`  ✗ ${pkg.name}: publish failed — ${reason}`)
       failed.push(pkg.name)
-      continue
+      return
     }
   }
-
   let result = await trustPackage(pkg.name, { otp })
 
   // A one-time code is single-use, so by the second package the held one is
@@ -560,19 +657,36 @@ for (const pkg of untrusted) {
     if (CI) {
       console.error(`  x ${pkg.name}: npm demanded 2FA and CI cannot supply one`)
       failed.push(pkg.name)
-      continue
+      return
     }
     // Codes are single-use and short-lived, so a long sweep needs a few. Ask
     // only when npm actually rejects the held one.
     result = await trustPackage(pkg.name, { otp: await ensureOtp(pkg.name, true) })
   }
   if (result.outcome === 'trusted' || result.outcome === 'already') {
-    ledger.add(pkg.name)
+    record(pkg.name)
     console.log(`  ✓ ${pkg.name}`)
   } else {
     console.error(`  ✗ ${pkg.name}: ${result.status} ${result.text}`)
     failed.push(pkg.name)
   }
+}
+
+try {
+  // One code up front; the endpoint takes it as a header, so it covers every
+  // package until npm says it is spent.
+  if (!CI && ready.length) await ensureOtp('trust config')
+  for (const pkg of ready) {
+    await trustOne(pkg)
+    progress.done++
+  }
+} catch (error) {
+  if (!(error instanceof NoTwoFactorAnswer)) throw error
+  const left = ready.slice(progress.done).map((pkg) => pkg.name)
+  failed.push(...left)
+  console.error(
+    `\nStopped: ${error.message}. ${left.length} package(s) not done; run \`npm run trust:new\` again to finish them.`,
+  )
 }
 
 // Persist after every attempt, not at the end: a code can expire partway
@@ -610,7 +724,16 @@ console.log(
     'Then `node ../scripts/audit-npm-trust.mjs` lists any package still never published over OIDC.',
 )
 
-if (RELEASE) {
+// Inside the molecule workspace, releases go through its release runner, which holds the
+// shared release claim and watches only its own run; a Release dispatched by hand here
+// collided with a live release once. Standalone clones keep the direct dispatch.
+const WORKSPACE_RELEASE = join(ROOT, '..', 'scripts', 'release.mjs')
+if (RELEASE && existsSync(WORKSPACE_RELEASE)) {
+  console.error(
+    '\n--release does not dispatch Release inside the workspace. Run the release runner:\n' +
+      '  node ../scripts/release.mjs --only=gates,version,publish,pins,lockfiles',
+  )
+} else if (RELEASE) {
   // The packages are trusted but still do not exist on npm. CI creates them over
   // OIDC with no further code — that is the whole point of having trusted them.
   console.log('\nDispatching Release so CI creates them over OIDC...')
