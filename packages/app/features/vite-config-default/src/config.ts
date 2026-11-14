@@ -6,7 +6,7 @@ import process from 'node:process'
 
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import type { UserConfig } from 'vite'
+import { type UserConfig, version as viteVersion } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 import { releaseNotesPlugin } from '@molecule/app-version/build'
@@ -421,6 +421,12 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
     build: {
       outDir: 'dist',
       sourcemap: true,
+      // Rolldown's chunk placement must not reorder ESM initialization. A shared context's
+      // initializer can otherwise be called before its chunk assigns it, leaving a build
+      // that succeeds and then throws on page load. Older Vite versions use Rollup.
+      ...(Number(viteVersion.split('.')[0]) >= 8
+        ? { rolldownOptions: { output: { strictExecutionOrder: true } } }
+        : {}),
     },
     envPrefix: 'VITE_',
     test: {

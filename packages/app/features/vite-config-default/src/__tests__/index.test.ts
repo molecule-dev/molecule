@@ -1,6 +1,14 @@
 /// <reference types="vitest/config" />
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+const vite = vi.hoisted(() => ({ major: 8 }))
+vi.mock('vite', async (original) => ({
+  ...(await original<Record<string, unknown>>()),
+  get version() {
+    return `${vite.major}.0.0`
+  },
+}))
+
 vi.mock('@tailwindcss/vite', () => ({ default: () => ({ name: 'tailwindcss' }) }))
 vi.mock('@vitejs/plugin-react', () => ({ default: () => ({ name: 'react' }) }))
 vi.mock('vite-plugin-pwa', () => ({
@@ -12,6 +20,22 @@ vi.mock('vite-plugin-pwa', () => ({
 import { createDefaultViteConfig, PUSH_SW_FILENAME } from '../index.js'
 
 describe('@molecule/app-vite-config-default', () => {
+  it.each([5, 7, 8])('keeps production output compatible with Vite %s', (major) => {
+    vite.major = major
+    try {
+      const config = createDefaultViteConfig({
+        APP_NAME: 'Library',
+        APP_DESCRIPTION: 'Books',
+        BRAND_COLOR: '#123456',
+      })
+      if (major < 8) expect(config.build?.rolldownOptions).toBeUndefined()
+      else
+        expect(config.build?.rolldownOptions?.output).toMatchObject({ strictExecutionOrder: true })
+    } finally {
+      vite.major = 8
+    }
+  })
+
   it('exports createDefaultViteConfig factory', () => {
     expect(typeof createDefaultViteConfig).toBe('function')
   })
