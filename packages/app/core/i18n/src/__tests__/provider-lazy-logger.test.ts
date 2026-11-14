@@ -20,4 +20,21 @@ describe('i18n provider logger lookup', () => {
     expect(provider.t('missing.key')).toBe('missing.key')
     expect(isBonded('app-logger')).toBe(true)
   })
+
+  it('logs through a logger bonded after its first log, not the one it found first', async () => {
+    vi.resetModules()
+    const { createSimpleI18nProvider } = await import('../provider.js')
+    const { getProvider, setProvider } = await import('@molecule/app-logger')
+    const provider = createSimpleI18nProvider('en', [
+      { code: 'en', name: 'English', translations: {} },
+    ])
+    provider.t('missing.first') // bonds and uses the default console logger
+    const fallback = getProvider()
+    const debug = vi.fn()
+    const recording = { ...fallback.getLogger('i18n'), debug }
+    setProvider({ ...fallback, getLogger: () => recording })
+    provider.t('missing.second')
+    expect(debug).toHaveBeenCalledWith('Missing translation key', 'missing.second', 'en')
+    expect(debug).not.toHaveBeenCalledWith('Missing translation key', 'missing.first', 'en')
+  })
 })

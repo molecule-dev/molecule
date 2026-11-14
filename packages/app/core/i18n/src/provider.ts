@@ -69,10 +69,12 @@ export const createSimpleI18nProvider = (
   initialLocale: string = 'en',
   initialLocales: LocaleConfig[] = [],
 ): I18nProvider => {
-  // Looked up on first use: constructing a provider (the module-level `simpleProvider`
-  // included) must not bond a default logger before the app bonds its own.
-  let logger: Logger | undefined
-  const log = (): Logger => (logger ??= getLogger('i18n'))
+  // Looked up on every use, never at construction: constructing a provider (the
+  // module-level `simpleProvider` included) must not bond a default logger before
+  // the app bonds its own, and a logger bonded AFTER the first log (a test that
+  // swaps in a recording logger, an app that rebonds) must receive every later
+  // call, not the instance the first call happened to find.
+  const log = (): Logger => getLogger('i18n')
   let currentLocale = initialLocale
   const locales = new Map<string, LocaleConfig>()
   const listeners = new Set<(locale: string) => void>()
