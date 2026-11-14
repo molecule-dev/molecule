@@ -55,10 +55,11 @@
  *   A spec whose every test skips itself (`test.skip(condition)`) is `skipped`: neither a
  *   pass nor an outage. `check()` verifies the current revision before an explicit action;
  *   `check({ failedOnly: true })` re-runs only `failingSpecs()` (files whose latest native
- *   outcome failed) and does nothing when none is known. A whole-file checkpoint stops at its
- *   first failure; a re-run of recorded failures reports every one of them that still fails,
- *   so all of them can be fixed before the next check. This partial checkpoint preserves
- *   pending background work on other files, which resumes after foreground work releases it.
+ *   outcome failed) and does nothing when none is known. A full checkpoint stops at its first
+ *   failure; a known-failures checkpoint re-runs every file known to fail and reports each
+ *   recorded test that still fails, so all of them can be fixed before the next check. This
+ *   partial checkpoint preserves pending background work on other files, which resumes after
+ *   foreground work releases it.
  * - **Opaque command plans:** prepare each logical step with `streamingBackgroundCommand`,
  *   call `createCommandPlan`, and attach it to the executed wrapper with `commandWithPlan`.
  *   The launcher prints each step's `startMarker` and `endMarker` on their own lines around

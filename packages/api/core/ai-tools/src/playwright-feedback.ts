@@ -582,7 +582,8 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
               results.push(known)
               failing.add(spec.path)
               remember(spec.path, known)
-              break
+              // Each known-failing file answers with its own record, so one hold names them all.
+              continue
             }
             if (known.selection === 'last-failed' && settledClean(known)) {
               results.push(known)
@@ -615,6 +616,9 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           if (result.status === 'failed') {
             failing.add(spec.path)
             remember(spec.path, result)
+            // A full checkpoint answers at its first failing file; a known-failures checkpoint
+            // goes on to every other file already known to fail.
+            if (checkOptions.failedOnly) continue
           }
           if (!settledClean(result)) break
           completed.add(spec.path)

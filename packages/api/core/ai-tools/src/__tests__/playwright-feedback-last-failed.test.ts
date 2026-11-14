@@ -130,6 +130,47 @@ describe('known-failures checkpoint', () => {
     expect(foregroundCalls(f.run).map((call) => call[6])).toEqual([RECORD, fresh])
   })
 
+  it('re-runs every known-failing file, not only the first that still fails', async () => {
+    const SECOND = '/clinic/e2e/billing.spec.ts'
+    const run = vi.fn<PlaywrightFeedbackOptions['run']>(
+      async (spec, _files, revision, _emit, _signal, mode, lastRun) => ({
+        ...result(revision, 'failed', { lastRun: RECORD }),
+        spec: spec.path,
+        failures: [
+          { spec: spec.path, line: 7, locator: 'button', error: 'not visible', sourceFiles: [] },
+        ],
+        ...(mode === 'foreground' && lastRun ? { selection: 'last-failed' as const } : {}),
+      }),
+    )
+    const watcher = createPlaywrightFeedback({
+      load: async () => ({
+        sources: [],
+        testRoots: ['/clinic/e2e'],
+        specs: [SPEC, SECOND].map((path) => ({ path, content: '', command: '', cwd: '/clinic' })),
+      }),
+      run,
+      debounceMs: 1,
+    })
+    watchers.push(watcher)
+    watcher.changed(['/clinic/src/Calendar.tsx'])
+    await watcher.settled()
+    expect(watcher.failingSpecs().sort()).toEqual([SECOND, SPEC].sort())
+
+    const held = await watcher.check({ failedOnly: true })
+    expect(held.map((r) => [r.spec, r.status, r.selection]).sort()).toEqual(
+      [
+        [SECOND, 'failed', 'last-failed'],
+        [SPEC, 'failed', 'last-failed'],
+      ].sort(),
+    )
+    expect(watcher.failingSpecs().sort()).toEqual([SECOND, SPEC].sort())
+
+    // Counterexample: a full checkpoint still answers at its first failing file.
+    watcher.changed(['/clinic/src/Calendar.tsx'])
+    const full = await watcher.check()
+    expect(full.map((r) => r.status)).toEqual(['failed'])
+  })
+
   it('runs the whole file when the record selects nothing the runner can run', async () => {
     const f = fixture(async (_spec, _files, revision, _emit, _signal, mode, lastRun) => {
       if (mode !== 'foreground') return result(revision, 'failed', { lastRun: RECORD })
