@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.18.12
+
+### Patch Changes
+
+- Keep the batched write-and-check transport when an `onFileChange` notification is configured.
+
 ## 1.18.11
 
 ### Patch Changes

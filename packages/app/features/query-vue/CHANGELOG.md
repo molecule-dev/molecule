@@ -1,5 +1,11 @@
 # @molecule/app-query-vue
 
+## 1.2.0
+
+### Minor Changes
+
+- Add `useListQuery`, which observes the page a URL list route points at from reactive inputs.
+
 ## 1.1.0
 
 ### Minor Changes
