@@ -1,6 +1,7 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
+import ts from 'typescript'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { resetFonts, setFont } from '@molecule/app-fonts'
@@ -119,5 +120,21 @@ describe('wiring it without mlcl (the documented asset import)', () => {
     const styleEl = appended[0]
     expect(styleEl.textContent).toContain(`src: url('${woffUrl}')`)
     expect(styleEl.textContent).not.toContain('/blog/fonts/')
+  })
+})
+
+describe('the stylesheet declaration', () => {
+  // Inferred, the constant's type is the whole stylesheet as a literal: one 60 KB declaration line
+  // that every type-check and every reader of the package types has to take in.
+  it('declares the stylesheet as a string, not as a literal type', () => {
+    const source = readFileSync(
+      fileURLToPath(new URL('../utility-css.ts', import.meta.url)),
+      'utf8',
+    )
+    const { outputText } = ts.transpileDeclaration(source, {
+      compilerOptions: { declaration: true },
+    })
+    expect(outputText).toContain('export declare const ioniconsUtilityCss: string;')
+    expect(Math.max(...outputText.split('\n').map((line) => line.length))).toBeLessThan(200)
   })
 })
