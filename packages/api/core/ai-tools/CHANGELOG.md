@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.18.9
+
+### Patch Changes
+
+- A known-failures checkpoint now re-runs every file known to fail and reports every recorded test that still fails, instead of stopping at the first.
+
 ## 1.18.8
 
 ### Patch Changes
