@@ -16,8 +16,13 @@
  *   `@molecule/*` specifier in its shipped `src/**` (`.ts`/`.tsx`/`.mts`/`.cts`, and
  *   the `<script>` blocks of `.svelte`/`.vue` files), skipping tests.
  * - For each `@molecule/*` peer it imports names from, takes the range's minimum
- *   version. A floor at or above the workspace version is fine (nothing older can
+ *   version. A floor above the workspace version is fine (nothing older can
  *   satisfy it), and so is a floor npm never published (no user can install it).
+ *   A floor EQUAL to the workspace version is checked like any other: before a
+ *   release versions the peer, its workspace version is the one npm already
+ *   serves, and that tarball lacks the names added since. Without this, a new
+ *   import under `^<current>` passed every check until the release's version
+ *   commit moved the peer on, and only then failed, forcing a second pass.
  * - Otherwise the floor's published type declarations must export every imported
  *   name. A published version never changes, so each tarball is downloaded once and
  *   its export list kept, in a per-user cache shared by every checkout:
@@ -26,8 +31,10 @@
  *   release gate runs this check in an exported tree whose node_modules is linked in
  *   later, and a real directory there would block that link.
  *
- * Fix an offender by raising that peer's floor to the workspace version
- * (`"^<version>"`), the first version that has every imported name.
+ * Fix an offender by raising that peer's floor to the first version that has every
+ * imported name: the workspace version when it is newer than the floor, else (the
+ * workspace version is published without them, so a pending changeset will release
+ * them) the next minor, which the fix names; give that peer a changeset too.
  *
  * Usage:
  *   node scripts/check-peer-floors.mjs            # check (exit 1 on any offender)
@@ -141,7 +148,7 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt) {
     const current = workspaceVersions.get(peer)
     if (!names?.size || !current) continue
     const floor = semver.minVersion(range)?.version
-    if (!floor || semver.gte(floor, current)) continue
+    if (!floor || semver.gt(floor, current)) continue
     const exported = exportsAt(peer, floor)
     if (!exported) continue
     const missing = [...names.keys()].filter((name) => !exported.has(name)).sort()
@@ -150,7 +157,9 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt) {
       peer,
       range,
       floor,
-      fix: `^${current}`,
+      // At the workspace version itself the names are not released yet: they ship in
+      // the next version, a minor for added exports.
+      fix: semver.eq(floor, current) ? `^${semver.inc(current, 'minor')}` : `^${current}`,
       missing: missing.map((name) => ({ name, files: [...names.get(name)].sort() })),
     })
   }

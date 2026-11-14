@@ -127,13 +127,41 @@ describe('findFloorGaps', () => {
     )
   })
 
-  it('skips a floor at or above the workspace version, and a floor npm never published', () => {
+  it('names the next minor when the floor is the workspace version npm already serves', () => {
+    // Before the release versions the peer, its workspace version is the published one,
+    // which lacks the names added since (2026-11-14: serverErrorMessage under ^1.7.1).
+    const served = (name: string, version: string) =>
+      name === '@molecule/core' && version === '1.4.0' ? new Set(['old']) : null
+    expect(
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.4.0' } },
+        importsOf('@molecule/core', ['old', 'added']),
+        versions,
+        served,
+      ),
+    ).toEqual([
+      {
+        peer: '@molecule/core',
+        range: '^1.4.0',
+        floor: '1.4.0',
+        fix: '^1.5.0',
+        missing: [{ name: 'added', files: ['src/a.ts'] }],
+      },
+    ])
+  })
+
+  it('skips a floor above the workspace version, an unpublished workspace version, and a floor npm never published', () => {
     const imports = importsOf('@molecule/core', ['added'])
     const read = vi.fn(exportsAt)
     expect(
-      findFloorGaps({ peerDependencies: { '@molecule/core': '^1.4.0' } }, imports, versions, read),
+      findFloorGaps({ peerDependencies: { '@molecule/core': '^1.5.0' } }, imports, versions, read),
     ).toEqual([])
     expect(read).not.toHaveBeenCalled()
+    // After the version commit the workspace version is not on npm yet.
+    expect(
+      findFloorGaps({ peerDependencies: { '@molecule/core': '^1.4.0' } }, imports, versions, read),
+    ).toEqual([])
+    expect(read).toHaveBeenCalledWith('@molecule/core', '1.4.0')
     expect(
       findFloorGaps({ peerDependencies: { '@molecule/core': '^1.1.0' } }, imports, versions, read),
     ).toEqual([])
