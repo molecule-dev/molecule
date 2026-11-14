@@ -461,6 +461,44 @@ test('prints the schedule', async () => { await new Promise((r) => setTimeout(r,
     expect(known.nativeStats).toMatchObject({ expected: 1, unexpected: 0 })
   }, 60_000)
 
+  it('a known-failures checkpoint reports every recorded failure, not only the first', async () => {
+    await state('broken')
+    const pairContent = `import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+const state = () => readFileSync(new URL('../state.txt', import.meta.url), 'utf8').trim();
+test('opens the ward', async () => { expect(1).toBe(1) });
+test('admits a patient', async () => { expect(state()).toBe('fixed') });
+test('discharges a patient', async () => { expect(state()).toBe('fixed') });
+`
+    const pairPath = join(root, 'e2e', 'ward.spec.ts')
+    await writeFile(pairPath, pairContent)
+    const pair: FeedbackSpec = {
+      ...spec,
+      path: pairPath,
+      content: pairContent,
+      command: spec.command.replace('visits.spec.ts', 'ward.spec.ts'),
+    }
+    const runPair = (lastFailed?: string, foreground = true) =>
+      runPlaywrightFeedback(backend, pair, [], 1, {
+        command: (flags) => `${pair.command} ${flags.join(' ')}`,
+        foreground,
+        ...(lastFailed === undefined ? {} : { lastFailed }),
+      })
+    const failed = await runPair(undefined, false)
+    expect(JSON.parse(failed.lastRun!).failedTests).toHaveLength(2)
+
+    const known = await runPair(failed.lastRun)
+    expect(known).toMatchObject({ status: 'failed', selection: 'last-failed' })
+    expect(known.nativeStats).toMatchObject({ unexpected: 2, skipped: 0 })
+    // Both recorded tests answer: the spec's lines 5 and 6.
+    expect(known.failures.map((failure) => failure.line).sort()).toEqual([5, 6])
+
+    // Counterexample: an explicit whole-file run still stops at its first failure.
+    const whole = await runPair()
+    expect(whole.selection).toBeUndefined()
+    expect(whole.nativeStats).toMatchObject({ unexpected: 1 })
+  }, 60_000)
+
   it('runs nothing as a pass when the record names no current test', async () => {
     await state('fixed')
     const stale = await run(JSON.stringify({ status: 'failed', failedTests: ['0000-renamed'] }))

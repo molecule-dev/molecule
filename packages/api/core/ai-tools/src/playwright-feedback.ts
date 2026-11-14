@@ -808,7 +808,9 @@ export async function runPlaywrightFeedback(
     '--retries=0',
     `--global-timeout=${timeout}`,
     `--output=${shellQuote(posix.join(dir, 'results'))}`,
-    ...(options.foreground ? ['--max-failures=1'] : []),
+    // An explicit whole-file run answers at its first failure. A re-run of recorded failures is
+    // already bounded by its record, so every recorded test answers in one run.
+    ...(options.foreground && !known ? ['--max-failures=1'] : []),
     ...(known ? ['--last-failed'] : []),
   ])
   // The standard OS priority keeps background diagnosis behind the dev server
