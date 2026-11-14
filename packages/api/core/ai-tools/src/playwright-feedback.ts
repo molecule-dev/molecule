@@ -99,9 +99,7 @@ function recordedTestIds(text: string): string[] {
  */
 function failedTestsRecord(ids: readonly string[]): string | undefined {
   const distinct = [...new Set(ids)]
-  return distinct.length
-    ? JSON.stringify({ status: 'failed', failedTests: distinct.slice(0, 1000) })
-    : undefined
+  return distinct.length ? JSON.stringify({ status: 'failed', failedTests: distinct }) : undefined
 }
 
 /**

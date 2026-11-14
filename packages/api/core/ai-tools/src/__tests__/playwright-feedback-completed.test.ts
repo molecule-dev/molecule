@@ -192,3 +192,24 @@ it('a partial host pass clears only its diagnosis and cannot certify a whole-fil
   expect(await f.controller.check()).toHaveLength(3)
   expect(f.run).toHaveBeenCalledTimes(3)
 })
+
+it('preserves every known failure when a completed native record exceeds 1000 tests', async () => {
+  const f = fixture()
+  const ids = Array.from({ length: 1001 }, (_, index) => `native-${index}`)
+  f.controller.record([result(specs[0].path, 0, 'failed', { lastRun: record(...ids) })], 0)
+  f.controller.changed(['/booking/src/Booking.vue'])
+  await f.controller.settled()
+  expect(f.run).toHaveBeenCalledOnce()
+  expect(JSON.parse(f.run.mock.calls[0][6]!).failedTests).toEqual(ids)
+})
+
+it('an oversized native record keeps its failed file and uses whole-file diagnosis', async () => {
+  const f = fixture()
+  const ids = Array.from({ length: 3000 }, (_, index) => `native-${index}-${'x'.repeat(80)}`)
+  f.controller.record([result(specs[0].path, 0, 'failed', { lastRun: record(...ids) })], 0)
+  f.controller.changed(['/booking/src/Booking.vue'])
+  await f.controller.settled()
+  expect(f.run).toHaveBeenCalledOnce()
+  expect(f.run.mock.calls[0][6]).toBeUndefined()
+  expect(f.controller.failingSpecs()).toEqual([specs[0].path])
+})
