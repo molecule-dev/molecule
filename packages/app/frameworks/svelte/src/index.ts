@@ -51,6 +51,9 @@
  *   config; don't wrap in try/catch.
  * - Results are Svelte stores — read them with the `$` prefix (`$isAuthenticated`, `$theme`);
  *   actions (`logout`, `toggleTheme`, `setTheme`) are plain functions.
+ * - In-app links are `Link` (`<Link to="/settings">`): it navigates through the router with
+ *   react-router `<Link>`'s click rules. A hand-written click handler that calls `navigate()`
+ *   breaks ctrl/cmd-click (new tab) unless it repeats those rules.
  *
  * @module
  */
@@ -58,6 +61,7 @@
 export * from './agent-identity.js'
 export * from './context.js'
 export * from './hooks/index.js'
+export * from './link/index.js'
 export * from './session-ready/index.js'
 export * from './stores/index.js'
 export * from './types.js'

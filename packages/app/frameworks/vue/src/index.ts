@@ -9,7 +9,7 @@
  * @example
  * ```ts
  * import { createApp, defineComponent, h } from 'vue'
- * import { moleculePlugin, useAuth, useTheme } from '@molecule/app-vue'
+ * import { Link, moleculePlugin, useAuth, useTheme } from '@molecule/app-vue'
  * import { provider as stateProvider } from '@molecule/app-state-zustand'
  * import { provider as themeProvider } from '@molecule/app-theme-css-variables'
  * import { createJWTAuthClient } from '@molecule/app-auth'
@@ -26,7 +26,7 @@
  *             h('button', { onClick: toggleTheme }, 'Toggle theme'),
  *             h('button', { onClick: () => logout() }, 'Log out'),
  *           ])
- *         : h('a', { href: '/login' }, 'Log in')
+ *         : h(Link, { to: '/login' }, () => 'Log in')
  *   },
  * })
  *
@@ -47,6 +47,9 @@
  * - Returned state is Vue refs/computed — templates auto-unwrap (`{{ user?.name }}`), but
  *   script code needs `.value` (`isAuthenticated.value`). `useStore` returns a `Ref` of the
  *   selected state.
+ * - In-app links are `Link` (`<Link to="/settings">`): it navigates through the router with
+ *   react-router `<Link>`'s click rules. A bare `<a href>` reloads the page; a hand-written click
+ *   handler that calls `navigate()` breaks ctrl/cmd-click (new tab) unless it repeats those rules.
  * - For locale-reactive text use `useTranslation()`'s `t` in components — the raw `t()` import
  *   from `@molecule/app-i18n` does not trigger re-render on locale change.
  *
@@ -56,6 +59,7 @@
 export * from './agent-identity.js'
 export * from './composables/index.js'
 export * from './injection-keys.js'
+export * from './link.js'
 export * from './plugin.js'
 export * from './session-ready.js'
 export * from './types.js'

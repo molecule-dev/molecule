@@ -73,6 +73,10 @@
  *   Molecule service whose token was never provided fails at DI time.
  *   Per-concern helpers (`provideAuth`, `provideTheme`, ...) exist for
  *   piecemeal setup.
+ * - In-app links use the `Link` directive (`<a molLink="/settings">`, `imports: [Link]`): it
+ *   navigates through the molecule router with react-router `<Link>`'s click rules. A bare
+ *   `<a href>` reloads the page; a hand-written `(click)` handler that calls `navigate()`
+ *   breaks ctrl/cmd-click (new tab) unless it repeats those rules.
  *
  * @module
  */
@@ -81,6 +85,7 @@ export * from './agent-identity.js'
 export * from './chat.js'
 export * from './hooks/index.js'
 export * from './i18n-reactive.js'
+export * from './link.js'
 export * from './providers.js'
 export * from './services/index.js'
 export * from './session-ready.js'

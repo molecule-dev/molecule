@@ -9,7 +9,7 @@
  *
  * @example
  * ```tsx
- * import { MoleculeProvider, createAuth, createTheme } from '@molecule/app-solid'
+ * import { Link, MoleculeProvider, createAuth, createTheme } from '@molecule/app-solid'
  * import { Show } from 'solid-js'
  * import { provider as stateProvider } from '@molecule/app-state-zustand'
  * import { provider as themeProvider } from '@molecule/app-theme-css-variables'
@@ -22,7 +22,7 @@
  *   const { theme, toggleTheme } = createTheme()
  *
  *   return (
- *     <Show when={isAuthenticated()} fallback={<a href="/login">Log in</a>}>
+ *     <Show when={isAuthenticated()} fallback={<Link to="/login">Log in</Link>}>
  *       <div style={{ background: theme().colors.background }}>
  *         <h1>Welcome, {user()?.name}</h1>
  *         <button onClick={toggleTheme}>Toggle Theme</button>
@@ -51,12 +51,16 @@
  *   `isAuthenticated` is always truthy.
  * - Call primitives at component setup (top level of the component function), not inside JSX
  *   callbacks, so subscriptions are established once.
+ * - In-app links are `Link` (`<Link to="/settings">`): it navigates through the router with
+ *   react-router `<Link>`'s click rules. A bare `<a href>` reloads the page; a hand-written click
+ *   handler that calls `navigate()` breaks ctrl/cmd-click (new tab) unless it repeats those rules.
  *
  * @module
  */
 
 export * from './agent-identity.js'
 export * from './context.js'
+export * from './link.jsx'
 export * from './primitives/index.js'
 export * from './provider.jsx'
 export * from './session-ready.js'
