@@ -1,17 +1,13 @@
 import { type JSX, useState } from 'react'
 
 import { OAuthButtons as OAuthButtonRow, OAuthDivider } from '@molecule/app-oauth-buttons-react'
-import { useOAuth } from '@molecule/app-react'
+import { useOAuth, type UseOAuthConfig } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link OAuthButtons}. */
 export interface OAuthButtonsProps {
-  /**
-   * OAuth config object consumed by `useOAuth()`. Typed as `any` here
-   * because the concrete shape lives in the app's `config.ts`.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  oauthConfig: any
+  /** The app's OAuth config (`oauthConfig` in its `config.ts`), passed to `useOAuth()`. */
+  oauthConfig: UseOAuthConfig
   /** Extra class applied to the outer wrapper. */
   className?: string
   /** Icon size in pixels. Defaults to 30. */

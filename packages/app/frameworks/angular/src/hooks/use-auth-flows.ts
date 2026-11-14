@@ -320,6 +320,32 @@ export interface UseOAuthReturn {
 }
 
 /**
+ * OAuth configuration for {@link useOAuth}: the app's `oauthConfig` (from its `config.ts`),
+ * the same type under the same name in every framework binding.
+ */
+export interface UseOAuthConfig {
+  /** Base URL for the API server (e.g. "https://api.example.com"). */
+  baseURL?: string
+  /** List of supported OAuth provider names (e.g. ["google", "github"]). */
+  oauthProviders?: string[]
+  /** Path prefix for OAuth routes (defaults to "/oauth"). */
+  oauthEndpoint?: string
+  /** Path for the OAuth login POST endpoint (defaults to "/users/log-in/oauth"). */
+  loginEndpoint?: string
+  /** Callback after successful OAuth login. */
+  onSuccess?: () => void
+  /** Callback on OAuth login failure. */
+  onError?: (error: string) => void
+  /**
+   * How the page leaves for the provider: {@link UseOAuthReturn.redirect} and the
+   * blocked-popup fallback call it with the provider URL. Defaults to a full-page
+   * navigation (`window.location.href = url`); pass an in-app browser opener on
+   * native, or a router's external navigation.
+   */
+  navigate?: (url: string) => void
+}
+
+/**
  * OAuth authentication. Call it in an injection context.
  *
  * Reads OAuth configuration from the provided config and provides helpers to
@@ -333,28 +359,10 @@ export interface UseOAuthReturn {
  * the shared auth client, because the user did sign in. `onSuccess` and
  * `onError` are not called after unmount: they belong to the unmounted view.
  *
- * @param config - Optional OAuth configuration override.
- * @param config.baseURL - Base URL for the API server (e.g. "https://api.example.com").
- * @param config.oauthProviders - List of supported OAuth provider names (e.g. ["google", "github"]).
- * @param config.oauthEndpoint - Path prefix for OAuth routes (defaults to "/oauth").
- * @param config.loginEndpoint - Path for the OAuth login POST endpoint (defaults to "/users/log-in/oauth").
- * @param config.onSuccess - Callback after successful OAuth login.
- * @param config.onError - Callback on OAuth login failure.
- * @param config.navigate - How the page leaves for the provider: {@link UseOAuthReturn.redirect}
- *   and the blocked-popup fallback call it with the provider URL. Defaults to a
- *   full-page navigation (`window.location.href = url`); pass an in-app browser
- *   opener on native, or a router's external navigation.
+ * @param config - Optional OAuth configuration override (see {@link UseOAuthConfig}).
  * @returns OAuth helpers: providers, getOAuthUrl, redirect, and loginViaPopup.
  */
-export function useOAuth(config?: {
-  baseURL?: string
-  oauthProviders?: string[]
-  oauthEndpoint?: string
-  loginEndpoint?: string
-  onSuccess?: () => void
-  onError?: (error: string) => void
-  navigate?: (url: string) => void
-}): UseOAuthReturn {
+export function useOAuth(config?: UseOAuthConfig): UseOAuthReturn {
   const authClient = useAuthClient()
 
   // Whether the host is mounted, read when a flow settles (an Angular

@@ -76,7 +76,8 @@ interface OAuthRelayMessage {
 }
 
 /**
- * OAuth configuration options.
+ * OAuth configuration options. {@link UseOAuthConfig} is the same type under the name
+ * every framework binding uses.
  */
 export interface UseOAuthOptions {
   /** Base URL for the API server (e.g. `https://api.example.com`). */
@@ -106,6 +107,9 @@ export interface UseOAuthOptions {
    */
   authClient?: AuthClient<unknown>
 }
+
+/** OAuth configuration for {@link useOAuth}: the app's `oauthConfig`, named as in every binding. */
+export type UseOAuthConfig = UseOAuthOptions
 
 /**
  * Return type for the {@link useOAuth} composable.
