@@ -1,10 +1,13 @@
 /**
  * The peer-floor gate: every name a package imports from a `@molecule/*` peer must
- * exist in the lowest version that peer's range allows, or a user whose install
- * resolves that older version gets a missing export (npm workspaces link the
+ * exist in the lowest published version that peer's range allows, or a user whose
+ * install resolves that older version gets a missing export (npm workspaces link the
  * newest local source and hide the gap).
  */
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { createServer, type Server } from 'node:http'
+import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
@@ -19,8 +22,10 @@ const cache = vi.hoisted(() => {
 
 import {
   declaredExports,
+  fetchPublishedVersions,
   findFloorGaps,
   namedImports,
+  prefetchTarballs,
   publishedExports,
   scanFleet,
   scriptText,
@@ -102,18 +107,34 @@ describe('namedImports', () => {
 
 describe('findFloorGaps', () => {
   const versions = new Map([['@molecule/core', '1.4.0']])
-  const exportsAt = (name: string, version: string) =>
-    name === '@molecule/core' && version === '1.0.0' ? new Set(['old']) : null
+  /** Exports per published version; reading any other version is a bug in the check. */
+  const exportsOf =
+    (table: Record<string, string[]>) =>
+    (name: string, version: string): Set<string> => {
+      const names = name === '@molecule/core' ? table[version] : undefined
+      if (!names) throw new Error(`read ${name}@${version}, which npm does not publish`)
+      return new Set(names)
+    }
+  /** The versions npm publishes of `@molecule/core`. */
+  const publishing = (...list: string[]) => new Map([['@molecule/core', list]])
+  const exportsAt = exportsOf({ '1.0.0': ['old'] })
 
   it('names each import the floor lacks, with the range that fixes it', () => {
     const pkg = { peerDependencies: { '@molecule/core': '^1.0.0' } }
     expect(
-      findFloorGaps(pkg, importsOf('@molecule/core', ['old', 'added']), versions, exportsAt),
+      findFloorGaps(
+        pkg,
+        importsOf('@molecule/core', ['old', 'added']),
+        versions,
+        exportsAt,
+        publishing('1.0.0'),
+      ),
     ).toEqual([
       {
         peer: '@molecule/core',
         range: '^1.0.0',
         floor: '1.0.0',
+        // 1.4.0 is not on npm yet: releasing the workspace version ships the names.
         fix: '^1.4.0',
         missing: [{ name: 'added', files: ['src/a.ts'] }],
       },
@@ -122,22 +143,52 @@ describe('findFloorGaps', () => {
 
   it('passes when the floor exports every imported name', () => {
     const pkg = { peerDependencies: { '@molecule/core': '^1.0.0' } }
-    expect(findFloorGaps(pkg, importsOf('@molecule/core', ['old']), versions, exportsAt)).toEqual(
-      [],
-    )
+    expect(
+      findFloorGaps(
+        pkg,
+        importsOf('@molecule/core', ['old']),
+        versions,
+        exportsAt,
+        publishing('1.0.0'),
+      ),
+    ).toEqual([])
+  })
+
+  it('checks the lowest PUBLISHED version the range allows, not the range minimum', () => {
+    // 2026-11-14: four framework bindings imported followRouterLink under ^1.1.0.
+    // npm never published app-routing 1.1.0, so the old rule skipped the check, but
+    // the range installs 1.2.0, which lacks the name.
+    const read = vi.fn(exportsOf({ '1.0.5': ['old'], '1.2.0': ['old'] }))
+    expect(
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.1.0' } },
+        importsOf('@molecule/core', ['old', 'added']),
+        new Map([['@molecule/core', '1.2.0']]),
+        read,
+        publishing('1.0.5', '1.2.0'),
+      ),
+    ).toEqual([
+      {
+        peer: '@molecule/core',
+        range: '^1.1.0',
+        floor: '1.2.0',
+        fix: '^1.3.0',
+        missing: [{ name: 'added', files: ['src/a.ts'] }],
+      },
+    ])
+    expect(read).not.toHaveBeenCalledWith('@molecule/core', '1.1.0')
   })
 
   it('names the next minor when the floor is the workspace version npm already serves', () => {
     // Before the release versions the peer, its workspace version is the published one,
     // which lacks the names added since (2026-11-14: serverErrorMessage under ^1.7.1).
-    const served = (name: string, version: string) =>
-      name === '@molecule/core' && version === '1.4.0' ? new Set(['old']) : null
     expect(
       findFloorGaps(
         { peerDependencies: { '@molecule/core': '^1.4.0' } },
         importsOf('@molecule/core', ['old', 'added']),
         versions,
-        served,
+        exportsOf({ '1.0.0': ['old'], '1.4.0': ['old'] }),
+        publishing('1.0.0', '1.4.0'),
       ),
     ).toEqual([
       {
@@ -150,28 +201,62 @@ describe('findFloorGaps', () => {
     ])
   })
 
-  it('skips a floor above the workspace version, an unpublished workspace version, and a floor npm never published', () => {
+  it('names the workspace version when npm serves it with every name, else the next minor', () => {
+    const gap = (atCurrent: string[]) =>
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.0.0' } },
+        importsOf('@molecule/core', ['old', 'added']),
+        versions,
+        exportsOf({ '1.0.0': ['old'], '1.4.0': atCurrent }),
+        publishing('1.0.0', '1.4.0'),
+      ).map(({ fix }) => fix)
+    expect(gap(['old', 'added'])).toEqual(['^1.4.0'])
+    expect(gap(['old'])).toEqual(['^1.5.0'])
+  })
+
+  it('skips a range no published version satisfies and a floor above the workspace version', () => {
     const imports = importsOf('@molecule/core', ['added'])
     const read = vi.fn(exportsAt)
+    // Nothing published satisfies the range: the first installable version is
+    // released from this source (a floor above the workspace version, or the
+    // workspace version itself after the version commit).
+    for (const range of ['^1.5.0', '^1.4.0', '^1.1.0'])
+      expect(
+        findFloorGaps(
+          { peerDependencies: { '@molecule/core': range } },
+          imports,
+          versions,
+          read,
+          publishing('1.0.0'),
+        ),
+      ).toEqual([])
+    // A peer npm has never published.
     expect(
-      findFloorGaps({ peerDependencies: { '@molecule/core': '^1.5.0' } }, imports, versions, read),
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.0.0' } },
+        imports,
+        versions,
+        read,
+        new Map(),
+      ),
+    ).toEqual([])
+    // npm serves a version newer than this workspace (the checkout is behind).
+    expect(
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.5.0' } },
+        imports,
+        versions,
+        read,
+        publishing('1.0.0', '1.6.0'),
+      ),
     ).toEqual([])
     expect(read).not.toHaveBeenCalled()
-    // After the version commit the workspace version is not on npm yet.
-    expect(
-      findFloorGaps({ peerDependencies: { '@molecule/core': '^1.4.0' } }, imports, versions, read),
-    ).toEqual([])
-    expect(read).toHaveBeenCalledWith('@molecule/core', '1.4.0')
-    expect(
-      findFloorGaps({ peerDependencies: { '@molecule/core': '^1.1.0' } }, imports, versions, read),
-    ).toEqual([])
-    expect(read).toHaveBeenCalledWith('@molecule/core', '1.1.0')
   })
 
   it('ignores peers outside @molecule and peers the package imports nothing from', () => {
     const pkg = { peerDependencies: { react: '^18.0.0', '@molecule/core': '^1.0.0' } }
     const read = vi.fn(exportsAt)
-    expect(findFloorGaps(pkg, new Map(), versions, read)).toEqual([])
+    expect(findFloorGaps(pkg, new Map(), versions, read, publishing('1.0.0'))).toEqual([])
     expect(read).not.toHaveBeenCalled()
   })
 })
@@ -215,10 +300,12 @@ describe('publishedExports', () => {
     expect([...publishedExports('@molecule/cached', '1.0.0')!]).toEqual(['one'])
   })
 
-  it('returns null for a version npm never published', () => {
+  it('refuses a version whose cache holds only an unpublished marker from an older check', () => {
+    // Older versions of the check marked a version npm had not published yet. That
+    // version may be published by now, so the marker is never read as an answer.
     mkdirSync(join(cache, '@molecule+cached@0.9.0'), { recursive: true })
     writeFileSync(join(cache, '@molecule+cached@0.9.0', 'unpublished'), '')
-    expect(publishedExports('@molecule/cached', '0.9.0')).toBeNull()
+    expect(() => publishedExports('@molecule/cached', '0.9.0')).toThrow(/prefetchTarballs/)
   })
 
   it('refuses a version that was never fetched', () => {
@@ -258,12 +345,21 @@ describe('scanFleet', () => {
     })
     try {
       const prefetch = vi.fn(async () => undefined)
-      const rows = await scanFleet(root, {
-        prefetch,
-        exportsAt: (name: string, version: string) =>
-          name === '@molecule/app-routing' && version === '1.0.1' ? new Set(['getRouter']) : null,
+      const versionsOf = vi.fn(async (names: string[]) => {
+        expect(names).toEqual(['@molecule/app-routing'])
+        return new Map([['@molecule/app-routing', ['1.0.0', '1.0.1', '1.0.5']]])
       })
-      expect(prefetch).toHaveBeenCalledWith(['@molecule/app-routing@1.0.1'])
+      const rows = await scanFleet(root, {
+        versionsOf,
+        prefetch,
+        exportsAt: (name: string, version: string) => {
+          if (name === '@molecule/app-routing' && ['1.0.1', '1.0.5'].includes(version))
+            return new Set(['getRouter'])
+          throw new Error(`read ${name}@${version} before prefetching it`)
+        },
+      })
+      // The floor downloads first; the workspace version (1.2.0, not on npm) needs no read.
+      expect(prefetch.mock.calls).toEqual([[['@molecule/app-routing@1.0.1']]])
       expect(rows).toEqual([
         {
           package: '@molecule/app-routing-x',
@@ -291,5 +387,95 @@ describe('scanFleet', () => {
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
+  })
+})
+
+describe('the registry reads', () => {
+  /** A tarball of one package whose declarations export `names`. */
+  const tarball = (names: string[]): Buffer => {
+    const root = tree({
+      'package/package.json': JSON.stringify({ types: 'index.d.ts' }),
+      'package/index.d.ts': names.map((n) => `export declare const ${n}: 1`).join('\n'),
+    })
+    try {
+      execFileSync('tar', ['-czf', join(root, 'p.tgz'), '-C', root, 'package'])
+      return readFileSync(join(root, 'p.tgz'))
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  }
+
+  /** Serve a fake registry for the duration of `body`. */
+  const withRegistry = async (
+    routes: Record<string, { type: string; body: string | Buffer }>,
+    body: (requests: string[]) => Promise<void>,
+  ): Promise<void> => {
+    const requests: string[] = []
+    const server: Server = createServer((req, res) => {
+      requests.push(`${req.url} ${req.headers.accept ?? ''}`)
+      const route = routes[req.url ?? '']
+      if (!route) {
+        res.writeHead(404).end()
+        return
+      }
+      res.writeHead(200, { 'content-type': route.type }).end(route.body)
+    })
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+    const before = process.env.npm_config_registry
+    process.env.npm_config_registry = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`
+    try {
+      await body(requests)
+    } finally {
+      if (before === undefined) delete process.env.npm_config_registry
+      else process.env.npm_config_registry = before
+      await new Promise((resolve) => server.close(resolve))
+    }
+  }
+
+  it('lists the versions npm publishes of each package from its abbreviated document', async () => {
+    await withRegistry(
+      {
+        '/@molecule%2fone': {
+          type: 'application/vnd.npm.install-v1+json',
+          body: JSON.stringify({ versions: { '1.0.5': {}, '1.2.0': {} } }),
+        },
+      },
+      async (requests) => {
+        const versions = await fetchPublishedVersions(['@molecule/one', '@molecule/never'])
+        expect(versions).toEqual(
+          new Map([
+            ['@molecule/one', ['1.0.5', '1.2.0']],
+            ['@molecule/never', []],
+          ]),
+        )
+        expect(requests).toContain('/@molecule%2fone application/vnd.npm.install-v1+json')
+      },
+    )
+  })
+
+  it('downloads a listed version, replacing an unpublished marker an older check left', async () => {
+    const dir = join(cache, '@molecule+late@1.0.0')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(join(dir, 'unpublished'), '')
+    await withRegistry(
+      {
+        '/@molecule/late/-/late-1.0.0.tgz': {
+          type: 'application/octet-stream',
+          body: tarball(['shipped']),
+        },
+      },
+      async () => {
+        await prefetchTarballs(['@molecule/late@1.0.0'])
+        expect(existsSync(join(dir, 'unpublished'))).toBe(false)
+        expect([...publishedExports('@molecule/late', '1.0.0')]).toEqual(['shipped'])
+      },
+    )
+  })
+
+  it('fails when a listed version has no tarball', async () => {
+    await withRegistry({}, async () => {
+      await expect(prefetchTarballs(['@molecule/gone@1.0.0'])).rejects.toThrow(/404/)
+    })
+    expect(existsSync(join(cache, '@molecule+gone@1.0.0'))).toBe(false)
   })
 })

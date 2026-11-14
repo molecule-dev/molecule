@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Every name a package imports from a `@molecule/*` peer must exist in the LOWEST
- * version that peer's range allows.
+ * PUBLISHED version that peer's range allows.
  *
  * WHY THIS GATE EXISTS: npm workspaces link every package to its newest local
  * source, so a bond can import an export its core gained in this release and still
@@ -15,26 +15,32 @@
  * - Reads the named imports and `export { … } from` names of every bare
  *   `@molecule/*` specifier in its shipped `src/**` (`.ts`/`.tsx`/`.mts`/`.cts`, and
  *   the `<script>` blocks of `.svelte`/`.vue` files), skipping tests.
- * - For each `@molecule/*` peer it imports names from, takes the range's minimum
- *   version. A floor above the workspace version is fine (nothing older can
- *   satisfy it), and so is a floor npm never published (no user can install it).
- *   A floor EQUAL to the workspace version is checked like any other: before a
- *   release versions the peer, its workspace version is the one npm already
- *   serves, and that tarball lacks the names added since. Without this, a new
- *   import under `^<current>` passed every check until the release's version
- *   commit moved the peer on, and only then failed, forcing a second pass.
- * - Otherwise the floor's published type declarations must export every imported
- *   name. A published version never changes, so each tarball is downloaded once and
- *   its export list kept, in a per-user cache shared by every checkout:
+ * - For each `@molecule/*` peer it imports names from, the floor is the lowest
+ *   version npm publishes that the range allows: what a user's install can resolve.
+ *   It is NOT the range's minimum: `^1.1.0` over published 1.0.5 and 1.2.0 installs
+ *   1.2.0, so 1.2.0 is checked (2026-11-14: four framework bindings imported
+ *   `followRouterLink` under `^1.1.0`; 1.1.0 was never published, the old rule
+ *   skipped it, and 1.2.0 lacks the name). A range no published version satisfies
+ *   is fine (the first version a user can install is released from this source),
+ *   and so is a floor above the workspace version. A floor EQUAL to the workspace
+ *   version is checked like any other: before a release versions the peer, its
+ *   workspace version is the one npm already serves, and that tarball lacks the
+ *   names added since. Without this, a new import under `^<current>` passed every
+ *   check until the release's version commit moved the peer on, and only then
+ *   failed, forcing a second pass.
+ * - The floor's published type declarations must export every imported name.
+ *   Each peer's version list is read from the registry on every run (new versions
+ *   appear); a published version never changes, so its tarball is downloaded once
+ *   and its export list kept, in a per-user cache shared by every checkout:
  *   `$MOL_PEER_FLOORS_CACHE`, else `$XDG_CACHE_HOME/molecule-check-peer-floors`, else
  *   `~/.cache/molecule-check-peer-floors`. It stays out of the checkout because the
  *   release gate runs this check in an exported tree whose node_modules is linked in
  *   later, and a real directory there would block that link.
  *
  * Fix an offender by raising that peer's floor to the first version that has every
- * imported name: the workspace version when it is newer than the floor, else (the
- * workspace version is published without them, so a pending changeset will release
- * them) the next minor, which the fix names; give that peer a changeset too.
+ * imported name, which the fix names: the workspace version when npm does not serve
+ * it yet or serves it with every name, else (npm serves it without them, so a
+ * pending changeset will release them) the next minor; give that peer a changeset too.
  *
  * Usage:
  *   node scripts/check-peer-floors.mjs            # check (exit 1 on any offender)
@@ -72,10 +78,16 @@ const CACHE =
   join(process.env.XDG_CACHE_HOME ?? join(homedir(), '.cache'), 'molecule-check-peer-floors')
 // Bump when the way export names are read changes, so stored lists are recomputed.
 const EXPORTS_FILE = 'exports-v1.json'
-const REGISTRY = (process.env.npm_config_registry ?? 'https://registry.npmjs.org').replace(
-  /\/$/,
-  '',
-)
+/**
+ * The npm registry base URL, read on each request.
+ *
+ * @returns `$npm_config_registry` without a trailing slash, else the public registry.
+ */
+const registry = () =>
+  (process.env.npm_config_registry ?? 'https://registry.npmjs.org').replace(/\/$/, '')
+
+/** Stands in for a version not read yet: it lacks nothing, so it reports no gap. */
+const EVERY_NAME = { has: () => true }
 
 /**
  * The TypeScript source of a file: the file itself, or the `<script>` blocks of a
@@ -131,39 +143,91 @@ export function namedImports(text, fileName) {
 }
 
 /**
+ * The `@molecule/*` peers a package imports names from, which the check reads.
+ *
+ * @param pkg - The parsed package.json.
+ * @param imports - Peer package name → imported name → files importing it.
+ * @param workspaceVersions - Package name → version in this workspace.
+ * @returns Each checked peer with its range, workspace version and imported names.
+ */
+function checkedPeers(pkg, imports, workspaceVersions) {
+  const peers = []
+  for (const [peer, range] of Object.entries(pkg.peerDependencies ?? {})) {
+    if (!peer.startsWith('@molecule/')) continue
+    const names = imports.get(peer)
+    const current = workspaceVersions.get(peer)
+    if (names?.size && current) peers.push({ peer, range, current, names })
+  }
+  return peers
+}
+
+/**
  * Find the imported names a package's peer floors do not export.
  *
  * @param pkg - The parsed package.json.
  * @param imports - Peer package name → imported name → files importing it.
  * @param workspaceVersions - Package name → version in this workspace.
- * @param exportsAt - `(name, version)` → the exported names of that published
- *   version, or `null` when npm never published it.
+ * @param exportsAt - `(name, version)` → the exported names of that published version.
+ * @param publishedVersions - Package name → every version npm publishes (empty or
+ *   absent when it publishes none).
  * @returns One entry per peer with missing names.
  */
-export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt) {
+export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publishedVersions) {
   const gaps = []
-  for (const [peer, range] of Object.entries(pkg.peerDependencies ?? {})) {
-    if (!peer.startsWith('@molecule/')) continue
-    const names = imports.get(peer)
-    const current = workspaceVersions.get(peer)
-    if (!names?.size || !current) continue
-    const floor = semver.minVersion(range)?.version
+  for (const { peer, range, current, names } of checkedPeers(pkg, imports, workspaceVersions)) {
+    const published = publishedVersions.get(peer) ?? []
+    const floor = semver.minSatisfying(published, range)
     if (!floor || semver.gt(floor, current)) continue
-    const exported = exportsAt(peer, floor)
-    if (!exported) continue
-    const missing = [...names.keys()].filter((name) => !exported.has(name)).sort()
+    const missing = [...names.keys()].filter((name) => !exportsAt(peer, floor).has(name)).sort()
     if (missing.length === 0) continue
+    // The names are in the workspace source. A workspace version npm does not serve
+    // yet releases them as it is; one npm serves without them ships them in the next
+    // version, a minor for added exports.
+    const servedWithAll =
+      !semver.eq(floor, current) &&
+      published.includes(current) &&
+      missing.every((name) => exportsAt(peer, current).has(name))
+    const releasesAsIs = !published.includes(current) || servedWithAll
     gaps.push({
       peer,
       range,
       floor,
-      // At the workspace version itself the names are not released yet: they ship in
-      // the next version, a minor for added exports.
-      fix: semver.eq(floor, current) ? `^${semver.inc(current, 'minor')}` : `^${current}`,
+      fix: releasesAsIs ? `^${current}` : `^${semver.inc(current, 'minor')}`,
       missing: missing.map((name) => ({ name, files: [...names.get(name)].sort() })),
     })
   }
   return gaps
+}
+
+/**
+ * Read every version npm publishes of each package.
+ *
+ * @param names - Package names.
+ * @param concurrency - Requests in flight at once.
+ * @returns Package name → its published versions (empty when npm has no such package).
+ */
+export async function fetchPublishedVersions(names, concurrency = 16) {
+  const queue = [...new Set(names)]
+  const versions = new Map()
+  const worker = async () => {
+    while (queue.length) {
+      const name = queue.shift()
+      const url = `${registry()}/${name.replace('/', '%2f')}`
+      // The abbreviated document lists the versions without every manifest's readme.
+      const response = await fetch(url, {
+        headers: { accept: 'application/vnd.npm.install-v1+json' },
+      })
+      if (response.status === 404) {
+        versions.set(name, [])
+        continue
+      }
+      if (!response.ok)
+        throw new Error(`GET ${url} failed: ${response.status} ${response.statusText}`)
+      versions.set(name, Object.keys((await response.json()).versions ?? {}))
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker))
+  return versions
 }
 
 /**
@@ -206,23 +270,22 @@ const cacheDir = (key) => join(CACHE, key.replace('/', '+'))
  * Extraction goes to a temporary directory renamed into place, so an interrupted
  * run never leaves a half-extracted version that a later run would trust.
  *
+ * Only versions the registry lists are fetched, so a missing tarball is a registry
+ * fault, not an absence. A directory holding no package (an `unpublished` marker an
+ * older version of this check wrote for a version npm had not published yet) is
+ * fetched again: that version may be published by now.
+ *
  * @param key - `name@version`.
- * @returns `false` when npm has no such version, else `true`.
+ * @returns Resolves once the version is cached.
  */
 async function fetchTarball(key) {
   const dir = cacheDir(key)
-  if (existsSync(join(dir, 'package', 'package.json'))) return true
-  if (existsSync(join(dir, 'unpublished'))) return false
+  if (existsSync(join(dir, 'package', 'package.json'))) return
   const at = key.lastIndexOf('@')
   const name = key.slice(0, at)
   const version = key.slice(at + 1)
-  const url = `${REGISTRY}/${name}/-/${name.split('/').pop()}-${version}.tgz`
+  const url = `${registry()}/${name}/-/${name.split('/').pop()}-${version}.tgz`
   const response = await fetch(url)
-  if (response.status === 404) {
-    mkdirSync(dir, { recursive: true })
-    writeFileSync(join(dir, 'unpublished'), '')
-    return false
-  }
   if (!response.ok) throw new Error(`GET ${url} failed: ${response.status} ${response.statusText}`)
   const staging = `${dir}.tmp-${process.pid}`
   rmSync(staging, { recursive: true, force: true })
@@ -241,7 +304,7 @@ async function fetchTarball(key) {
  *
  * @param keys - `name@version` entries.
  * @param concurrency - Downloads in flight at once.
- * @returns Resolves when every tarball is cached (or known unpublished).
+ * @returns Resolves when every tarball is cached.
  */
 export async function prefetchTarballs(keys, concurrency = 16) {
   const queue = [...new Set(keys)]
@@ -257,17 +320,13 @@ export async function prefetchTarballs(keys, concurrency = 16) {
  *
  * @param name - Package name.
  * @param version - Exact version.
- * @returns The names, or `null` when npm has no such version.
+ * @returns The names.
  */
 export function publishedExports(name, version) {
   const key = `${name}@${version}`
   if (exportCache.has(key)) return exportCache.get(key)
   const dir = cacheDir(key)
   const pkgDir = join(dir, 'package')
-  if (existsSync(join(dir, 'unpublished'))) {
-    exportCache.set(key, null)
-    return null
-  }
   const stored = join(dir, EXPORTS_FILE)
   if (existsSync(stored)) {
     const names = new Set(JSON.parse(readFileSync(stored, 'utf8')))
@@ -370,29 +429,48 @@ function readFleet(root) {
  * Scan the whole fleet.
  *
  * @param root - The monorepo root (its `packages/` is scanned).
- * @param deps - Injected npm access: `exportsAt` (see {@link findFloorGaps}) and
- *   `prefetch`, which receives every `name@version` floor before any is read.
+ * @param deps - Injected npm access: `versionsOf` (see {@link fetchPublishedVersions}),
+ *   `exportsAt` (see {@link findFloorGaps}) and `prefetch`, which receives each
+ *   `name@version` before it is read.
  * @returns One row per package with a gap.
  */
 export async function scanFleet(
   root = ROOT,
-  { exportsAt = publishedExports, prefetch = prefetchTarballs } = {},
+  {
+    versionsOf = fetchPublishedVersions,
+    exportsAt = publishedExports,
+    prefetch = prefetchTarballs,
+  } = {},
 ) {
   const { packages, workspaceVersions } = readFleet(root)
-  // A first pass names every floor the check will read, so they download in parallel.
-  const floors = []
-  for (const { pkg, imports } of packages)
-    findFloorGaps(pkg, imports, workspaceVersions, (name, version) => {
-      floors.push(`${name}@${version}`)
-      return null
-    })
-  await prefetch(floors)
-  const rows = []
-  for (const { dir, pkg, imports } of packages) {
-    const gaps = findFloorGaps(pkg, imports, workspaceVersions, exportsAt)
-    if (gaps.length) rows.push({ package: pkg.name, dir: relative(root, dir), gaps })
+  const publishedVersions = await versionsOf([
+    ...new Set(
+      packages.flatMap(({ pkg, imports }) =>
+        checkedPeers(pkg, imports, workspaceVersions).map(({ peer }) => peer),
+      ),
+    ),
+  ])
+  // Each pass reads the versions fetched so far and names the ones it still needs (a
+  // floor; then, for a gap, the workspace version that decides the fix), which then
+  // download in parallel. A pass that needs nothing new is the answer.
+  const fetched = new Set()
+  for (;;) {
+    const wanted = new Set()
+    const read = (name, version) => {
+      const key = `${name}@${version}`
+      if (fetched.has(key)) return exportsAt(name, version)
+      wanted.add(key)
+      return EVERY_NAME
+    }
+    const rows = []
+    for (const { dir, pkg, imports } of packages) {
+      const gaps = findFloorGaps(pkg, imports, workspaceVersions, read, publishedVersions)
+      if (gaps.length) rows.push({ package: pkg.name, dir: relative(root, dir), gaps })
+    }
+    if (wanted.size === 0) return rows
+    await prefetch([...wanted])
+    for (const key of wanted) fetched.add(key)
   }
-  return rows
 }
 
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
