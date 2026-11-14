@@ -66,6 +66,11 @@ interface ObservedKey {
  * key and every observer. Use `setData(current => next)` for a local cache update. Render
  * `data` directly; a component-local copy stops observing later server responses. Prefer
  * `createQueryResource` when the API's reads and writes can share one resource definition.
+ * Mount record-dependent actions inside `QueryContent` (or an explicit non-null data branch),
+ * so a visible action cannot return early because its initial record is still missing.
+ * Keep loaded actions mounted during refreshes. Server-backed toggles use `useOptimisticValue`
+ * from `@molecule/app-react` or `OptimisticToggleButton` from `@molecule/app-ui-react` to keep
+ * their displayed label and queued clicks on the same state while a save finishes.
  *
  * @param options - Key, fetch, freshness, and optionally `principal` with
  *   `keepPreviousData`; or `null`.

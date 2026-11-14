@@ -88,6 +88,9 @@ export interface QueryResource<T, Create = Partial<T>, Update = Partial<T>> {
    * Switches a flag the API models as a sub-path: `POST path/id/action` turns it on and
    * `DELETE path/id/action` turns it off. Resolves with the saved record, so it is the `commit`
    * of `useOptimisticValue`.
+   * The saved detail is published before tracked lists finish refreshing; this promise waits
+   * for those refreshes. Render the shared controller's value and let it queue inverse clicks
+   * during that interval. A page-local busy guard can drop a click on the newly changed label.
    */
   toggle(viewer: string, id: string, action: string, on: boolean): Promise<T>
   /** Fetches the lists on screen again, after a change this resource did not make itself. */
@@ -101,11 +104,19 @@ const REFRESHED_LISTS = 4
  * Describe one API resource once and get its reads and writes on the shared cache.
  *
  * A page that loads with `fetch` inside an effect and mirrors the answer into `useState` has to
- * re-solve the same three problems on every screen: a late answer for the previous page lands
- * over the current one, a list still shows what it showed before a comment was added, and a
- * button is live before its record exists. Here the reads are `useQuery` options (one key per
+ * re-solve the same problems on every screen: a late answer for the previous page lands
+ * over the current one, and a list still shows what it showed before a comment was added.
+ * Here the reads are `useQuery` options (one key per
  * viewer, page and filter; the previous rows stay until the next answer) and every write puts
  * the server's own record into the cache and fetches the lists on screen again.
+ *
+ * The factory supplies data operations. Mount a keyed
+ * control inside `QueryContent` so it receives a loaded record and stays mounted during refresh.
+ * For a server-backed toggle, use `useOptimisticValue` from `@molecule/app-react` (or
+ * `OptimisticToggleButton` from `@molecule/app-ui-react` for a boolean). Pass `toggle` as its
+ * commit adapter, return the saved flag/count, and render the controller's value for the action
+ * label too. Do not block clicks while that commit is pending. The module's resource example
+ * composes these APIs; a custom handler must provide the same readiness and ordering itself.
  *
  * Markup, labels and routes stay in the app. The factory has no vendor in it: the HTTP client
  * and the query provider are whatever the app bonded.

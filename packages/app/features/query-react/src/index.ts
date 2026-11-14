@@ -212,8 +212,8 @@
  *
  * ```tsx
  * import { getClient, unwrapList, unwrapSingle } from '@molecule/app-http'
- * import { createQueryResource, useQuery } from '@molecule/app-query-react'
- * import { useAuth, useOptimisticValue } from '@molecule/app-react'
+ * import { createQueryResource, QueryContent, useQuery } from '@molecule/app-query-react'
+ * import { useAuth, useOptimisticValue, useTranslation } from '@molecule/app-react'
  *
  * interface Invoice {
  *   id: string
@@ -231,21 +231,32 @@
  *
  * function InvoicePage({ id }: { id: string }) {
  *   const { user } = useAuth<{ id: string }>()
+ *   const { t } = useTranslation()
  *   const viewer = user ? String(user.id) : 'anonymous'
- *   const { data: invoice, status } = useQuery(invoices.detail(viewer, id))
- *   if (status === 'idle' || status === 'loading') return <p role=status>…</p>
- *   if (!invoice) return <p role=alert>…</p>
- *   return <FlagButton key={invoice.id} invoice={invoice} viewer={viewer} />
+ *   const query = useQuery(invoices.detail(viewer, id))
+ *   return (
+ *     <QueryContent
+ *       query={query}
+ *       pending={<p role="status">{t('common.loading', undefined, { defaultValue: 'Loading…' })}</p>}
+ *       missing={<p role="alert">{t('invoice.missing', undefined, { defaultValue: 'Invoice not found.' })}</p>}
+ *       error={() => <p role="alert">{t('invoice.failed', undefined, { defaultValue: 'Unable to load invoice.' })}</p>}
+ *     >
+ *       {(invoice) => <FlagButton key={invoice.id} invoice={invoice} viewer={viewer} />}
+ *     </QueryContent>
+ *   )
  * }
  *
  * function FlagButton({ invoice, viewer }: { invoice: Invoice; viewer: string }) {
+ *   const { t } = useTranslation()
  *   const flag = useOptimisticValue({
  *     value: invoice.flagged,
  *     commit: async (on) => (await invoices.toggle(viewer, invoice.id, 'flag', on)).flagged,
  *   })
  *   return (
- *     <button type=button aria-pressed={flag.value} onClick={() => flag.update((on) => !on)}>
- *       {invoice.number}
+ *     <button type="button" aria-pressed={flag.value} onClick={() => flag.update((on) => !on)}>
+ *       {flag.value
+ *         ? t('invoice.unflag', undefined, { defaultValue: 'Unflag' })
+ *         : t('invoice.flag', undefined, { defaultValue: 'Flag' })} {invoice.number}
  *     </button>
  *   )
  * }
