@@ -60,9 +60,15 @@ import {
 import {
   approvalServiceAvailable,
   npmApprovalLink,
+  requestOwnerNpmLogin,
   requestOwnerOtp,
 } from './lib/npm-2fa-approval.mjs'
-import { readNpmToken, relinkPackage, trustPackage } from './lib/npm-trust.mjs'
+import {
+  npmUserconfigWithToken,
+  readNpmToken,
+  relinkPackage,
+  trustPackage,
+} from './lib/npm-trust.mjs'
 import {
   collectPackages,
   existsOnRegistry,
@@ -184,27 +190,73 @@ if (!CI && !PHONE) {
   }
 }
 
-const token = CI ? null : readNpmToken()
-if (!CI && !token) {
-  console.error('Not logged in to npm. Run `npm login`, then push again.')
-  process.exit(1)
+/**
+ * npm's answer to `whoami` for a session token.
+ *
+ * @param bearer - The token.
+ * @returns The HTTP status.
+ */
+const whoamiStatus = async (bearer) =>
+  (
+    await fetch('https://registry.npmjs.org/-/whoami', {
+      headers: { authorization: `Bearer ${bearer}` },
+      signal: AbortSignal.timeout(20_000),
+    })
+  ).status
+
+let token = CI ? null : readNpmToken()
+
+/**
+ * Set when this run signed in from the owner's phone: a temporary npm config carrying
+ * that login, for `npm publish`. The login lives only in this process and that file,
+ * which goes when the run ends; ~/.npmrc is never rewritten.
+ *
+ * @type {ReturnType<typeof npmUserconfigWithToken> | null}
+ */
+let phoneLogin = null
+process.on('exit', () => phoneLogin?.dispose())
+
+// A dead token 401s identically to a 2FA rejection on the trust endpoint, which is
+// how an expired session once got diagnosed as "npm requires an OTP here" and sent
+// this repo chasing the wrong constraint for hours. So the login is checked first.
+// An `npm login` session lasts at most 12 hours, so the saved one is often dead.
+const savedLoginStatus = CI || !token ? null : await whoamiStatus(token)
+if (!CI && savedLoginStatus !== 200) {
+  const why = token
+    ? `The npm login in ~/.npmrc is not valid (whoami -> ${savedLoginStatus})`
+    : 'Not logged in to npm'
+  if (!PHONE) {
+    console.error(`${why}. Run \`npm login\`, then push again.`)
+    process.exit(1)
+  }
+  console.error(`${why}; asked the owner's phone to sign in to npm…`)
+  const names = untrusted.map((pkg) => pkg.name)
+  try {
+    token = await requestOwnerNpmLogin({
+      purpose:
+        `trust:new needs you to sign in to npm (the saved login has expired) to trust ` +
+        `${names.length} package(s): ${names.slice(0, 3).join(', ')}` +
+        (names.length > 3 ? ` and ${names.length - 3} more` : ''),
+    })
+  } catch (error) {
+    console.error(`Stopped: no npm sign-in from the phone: ${error.message}. Nothing was changed.`)
+    process.exit(1)
+  }
+  const status = await whoamiStatus(token)
+  if (status !== 200) {
+    console.error(`Stopped: npm does not accept the new sign-in (whoami -> ${status}).`)
+    process.exit(1)
+  }
+  phoneLogin = npmUserconfigWithToken(token)
+  console.error('  signed in to npm from the phone (kept for this run only)')
 }
 
-const whoami = CI
-  ? { ok: true, status: 200 }
-  : await fetch('https://registry.npmjs.org/-/whoami', {
-      headers: { authorization: `Bearer ${token}` },
-    })
-if (!whoami.ok) {
-  // A dead token 401s identically to a 2FA rejection on the trust endpoint,
-  // which is how an expired session once got diagnosed as "npm requires an OTP
-  // here" and sent this repo chasing the wrong constraint for hours.
-  console.error(
-    `The npm token in ~/.npmrc is not valid (whoami -> ${whoami.status}).\n` +
-      `Run \`npm login\`, then push again.`,
-  )
-  process.exit(1)
-}
+/**
+ * Arguments that point an `npm publish` at this run's phone sign-in, when there is one.
+ *
+ * @returns Extra npm arguments.
+ */
+const loginArgs = () => (phoneLogin ? ['--userconfig', phoneLogin.path] : [])
 
 /**
  * Asks for a 2FA code on the controlling terminal.
@@ -566,9 +618,9 @@ const trustOne = async (pkg) => {
   // by CI over OIDC with no code at all — which is the arrangement worth having,
   // and the reason this one-time step is worth paying.
   if (pkg.relink) {
-    let relinked = await relinkPackage(pkg.name, { otp })
+    let relinked = await relinkPackage(pkg.name, { otp, token })
     if (relinked.outcome === 'needs-otp')
-      relinked = await relinkPackage(pkg.name, { otp: await ensureOtp(pkg.name, true) })
+      relinked = await relinkPackage(pkg.name, { otp: await ensureOtp(pkg.name, true), token })
     if (relinked.outcome === 'relinked') {
       record(pkg.name)
       console.log(`  ✓ ${pkg.name} (re-linked)`)
@@ -607,7 +659,7 @@ const trustOne = async (pkg) => {
           const attempt = async (force) => {
             const code = await ensureOtp(`${pkg.name} publish`, force)
             return npmPublish(
-              ['publish', '--access', 'public', '--tag', 'stage', '--otp', code],
+              ['publish', '--access', 'public', '--tag', 'stage', '--otp', code, ...loginArgs()],
               pkgDir,
             )
           }
@@ -630,7 +682,7 @@ const trustOne = async (pkg) => {
       } else {
         staged.version = '0.0.1-stage'
         writeFileSync(manifestPath, `${JSON.stringify(staged, null, 2)}\n`)
-        execFileSync('npm', ['publish', '--access', 'public', '--tag', 'stage'], {
+        execFileSync('npm', ['publish', '--access', 'public', '--tag', 'stage', ...loginArgs()], {
           cwd: pkgDir,
           stdio: 'inherit',
         })
@@ -649,7 +701,7 @@ const trustOne = async (pkg) => {
       return
     }
   }
-  let result = await trustPackage(pkg.name, { otp })
+  let result = await trustPackage(pkg.name, { otp, token })
 
   // A one-time code is single-use, so by the second package the held one is
   // spent. Ask for a fresh one and retry rather than reporting it as a failure.
@@ -661,7 +713,7 @@ const trustOne = async (pkg) => {
     }
     // Codes are single-use and short-lived, so a long sweep needs a few. Ask
     // only when npm actually rejects the held one.
-    result = await trustPackage(pkg.name, { otp: await ensureOtp(pkg.name, true) })
+    result = await trustPackage(pkg.name, { otp: await ensureOtp(pkg.name, true), token })
   }
   if (result.outcome === 'trusted' || result.outcome === 'already') {
     record(pkg.name)

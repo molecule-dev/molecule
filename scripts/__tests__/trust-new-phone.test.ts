@@ -9,6 +9,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -25,24 +26,37 @@ const A = '@molecule/api-demo-a'
 const B = '@molecule/api-demo-b'
 
 // The stub npm: 2FA'd trust calls spend one use of a code's budget; an exhausted or
-// unknown code answers 401 the way npm does, so the script must ask for a new one.
+// unknown code answers 401 the way npm does, so the script must ask for a new one. A
+// session token not in scenario.sessions (default: the scratch ~/.npmrc's) is a dead
+// login, and the web sign-in (POST /-/v1/login, then its done-check) hands out
+// scenario.loginToken.
 const STUB_FETCH = `
 import { appendFileSync, readFileSync } from 'node:fs'
 const scenario = JSON.parse(readFileSync(process.env.STUB_SCENARIO, 'utf8'))
 const budget = { ...(scenario.codes ?? {}) }
 const log = (entry) => appendFileSync(process.env.STUB_LOG, JSON.stringify(entry) + '\\n')
+const sessions = scenario.sessions ?? ['stub-token']
+const LOGIN_ID = '0f6c1d2e-3b4a-4c5d-8e9f-a0b1c2d3e4f5'
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
 globalThis.fetch = async (url, init = {}) => {
   const u = new URL(url)
   const method = init.method ?? 'GET'
   const headers = init.headers ?? {}
   const otp = headers['npm-otp']
-  if (u.pathname === '/-/whoami') return json({ username: 'owner' })
+  const auth = (headers.authorization ?? '').replace(/^Bearer /, '')
+  const live = sessions.includes(auth)
+  if (u.pathname === '/-/v1/login' && method === 'POST') {
+    log({ method, name: '(sign-in)', auth: auth || null })
+    return json({ loginUrl: 'https://www.npmjs.com/login?next=/login/cli/' + LOGIN_ID, doneUrl: 'https://registry.npmjs.org/-/v1/done?sessionId=' + LOGIN_ID })
+  }
+  if (u.pathname === '/-/v1/done' && u.searchParams.has('sessionId')) return json({ token: scenario.loginToken })
+  if (u.pathname === '/-/whoami') return live ? json({ username: 'owner' }) : json({}, 401)
   if (u.pathname.startsWith('/-/v1/done')) return json({}, 202)
   const trust = /^\\/-\\/package\\/(.+?)\\/trust(\\/.*)?$/.exec(u.pathname)
   if (trust) {
     const name = decodeURIComponent(trust[1])
-    log({ method, name, otp: otp ?? null })
+    log({ method, name, otp: otp ?? null, auth })
+    if (!scenario.ci && !live) return json({ error: '{"success":false,"error":"You must be logged in to publish packages."}' }, 401)
     if (!otp && !scenario.ci)
       return headers['npm-auth-type'] === 'web'
         ? json({ authUrl: 'https://www.npmjs.com/auth/cli/8540bc4a-5648-4fe6', doneUrl: 'https://registry.npmjs.org/-/v1/done?authId=8540bc4a' }, 401)
@@ -61,7 +75,10 @@ globalThis.fetch = async (url, init = {}) => {
 }
 `
 
-type Phone = { answers: Array<Record<string, unknown>>; created: Array<{ purpose: string }> }
+type Phone = {
+  answers: Array<Record<string, unknown>>
+  created: Array<{ purpose: string; kind?: string; authUrl?: string }>
+}
 
 const cleanups: Array<() => Promise<void> | void> = []
 afterEach(async () => {
@@ -97,6 +114,7 @@ function scratchRepo({
   }
   writeFileSync(join(root, '.trust-state.json'), JSON.stringify(ledger))
   mkdirSync(join(root, 'home'))
+  mkdirSync(join(root, 'run'))
   writeFileSync(join(root, 'home', '.npmrc'), '//registry.npmjs.org/:_authToken=stub-token\n')
   writeFileSync(join(root, 'stub-fetch.mjs'), STUB_FETCH)
   return root
@@ -149,6 +167,7 @@ function runTrustNew(root: string, args: string[], scenario: object, socketPath?
             STUB_SCENARIO: join(root, 'scenario.json'),
             STUB_LOG: join(root, 'calls.log'),
             MOL_APPROVAL_SOCKET: socketPath ?? join(root, 'no-service.sock'),
+            XDG_RUNTIME_DIR: join(root, 'run'),
           },
         },
       )
@@ -257,6 +276,58 @@ describe("trust:new with the owner's phone", () => {
     const run = await runTrustNew(root, ['--ci', '--release'], { ci: true, absent: [A, B] })
     expect(run.code).toBe(0)
     expect(readFileSync(join(root, 'gh.log'), 'utf8')).toBe('workflow run release.yml --ref main\n')
+  })
+
+  it('signs in from the phone when the saved npm login has expired, and uses that login for every call (OLD MUSTFAIL)', async () => {
+    const root = scratchRepo()
+    const { socketPath, phone } = await phoneService(root, [
+      { status: 'pending' },
+      { status: 'code', code: '424242' },
+    ])
+    const run = await runTrustNew(
+      root,
+      [],
+      { sessions: ['phone-session'], loginToken: 'phone-session', codes: { '424242': 4 } },
+      socketPath,
+    )
+    expect(run.out).toMatch(
+      /npm login in ~\/\.npmrc is not valid \(whoami -> 401\); asked the owner's phone to sign in/,
+    )
+    expect(run.code, run.out).toBe(0)
+    expect(phone.created.map((r) => r.kind)).toEqual(['login', 'code'])
+    expect(phone.created[0].purpose).toBe(
+      `trust:new needs you to sign in to npm (the saved login has expired) to trust 2 package(s): ${A}, ${B}`,
+    )
+    expect(phone.created[0].authUrl).toMatch(
+      /^https:\/\/www\.npmjs\.com\/login\?next=\/login\/cli\//,
+    )
+    const trustCalls = run.calls.filter((c) => c.name !== '(sign-in)')
+    expect(trustCalls.length).toBeGreaterThan(0)
+    expect(trustCalls.every((c) => c.auth === 'phone-session')).toBe(true)
+    expect(ledgerOf(root).sort()).toEqual([A, B])
+    // The login stays in the run: ~/.npmrc is untouched and no temporary config is left behind.
+    expect(readFileSync(join(root, 'home', '.npmrc'), 'utf8')).toBe(
+      '//registry.npmjs.org/:_authToken=stub-token\n',
+    )
+    expect(readdirSync(join(root, 'run'))).toEqual([])
+  })
+
+  it('stops before any npm change when the owner denies the sign-in', async () => {
+    const root = scratchRepo()
+    const { socketPath, phone } = await phoneService(root, [{ status: 'denied' }])
+    const run = await runTrustNew(
+      root,
+      [],
+      { sessions: ['phone-session'], loginToken: 'phone-session', codes: { '424242': 4 } },
+      socketPath,
+    )
+    expect(run.code).toBe(1)
+    expect(phone.created).toHaveLength(1)
+    expect(run.out).toMatch(
+      /Stopped: no npm sign-in from the phone: the owner denied the request\. Nothing was changed\./,
+    )
+    expect(run.calls.filter((c) => c.name !== '(sign-in)')).toHaveLength(0)
+    expect(ledgerOf(root).sort()).toEqual([A, B])
   })
 
   it('without a phone service and without a terminal it changes nothing and exits 0', async () => {

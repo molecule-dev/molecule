@@ -24,9 +24,10 @@
  * over OIDC forever after, with no code at all — including its very first
  * version, which is the behaviour this whole file exists to enable.
  */
-import { existsSync, readFileSync } from 'node:fs'
-import { homedir } from 'node:os'
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
+import process from 'node:process'
 
 /**
  * The permission pair that makes a name trustable BEFORE it exists.
@@ -60,16 +61,44 @@ export function readNpmToken() {
 }
 
 /**
+ * A private npm user config that carries `token` instead of the one in ~/.npmrc, for
+ * `npm publish --userconfig <path>`. npm reads auth only from a config file (a CLI
+ * flag would show the token in every process listing), so the file lives in a fresh
+ * 0700 directory, is 0600, and is removed by `dispose`. Every other ~/.npmrc line
+ * is kept.
+ *
+ * @param token - The npm session token.
+ * @param [options] - `home` (where ~/.npmrc is) and `dir` (where the temporary
+ *   directory goes; $XDG_RUNTIME_DIR, a per-user tmpfs, when set).
+ * @returns `{ path, dispose }`.
+ */
+export function npmUserconfigWithToken(token, { home = homedir(), dir } = {}) {
+  const rcPath = join(home, '.npmrc')
+  const kept = existsSync(rcPath)
+    ? readFileSync(rcPath, 'utf8')
+        .split('\n')
+        .filter((line) => line.trim() && !/^\/\/registry\.npmjs\.org\/:_authToken\s*=/.test(line))
+    : []
+  const tmp = mkdtempSync(join(dir ?? process.env.XDG_RUNTIME_DIR ?? tmpdir(), 'npm-login-'))
+  const path = join(tmp, 'npmrc')
+  writeFileSync(path, [...kept, `//registry.npmjs.org/:_authToken=${token}`, ''].join('\n'), {
+    mode: 0o600,
+  })
+  return { path, dispose: () => rmSync(tmp, { recursive: true, force: true }) }
+}
+
+/**
  * Configures GitHub Actions as a trusted publisher for one package.
  *
  * Works whether or not the package exists on the registry.
  *
  * @param name - Package name.
- * @param options - otp (a current 2FA code) and repo/workflow overrides.
+ * @param options - otp (a current 2FA code), token (the npm session; ~/.npmrc's by
+ *   default) and repo/workflow overrides.
  * @returns Outcome: `trusted`, `already`, `needs-otp`, or `error`, with npm's output.
  */
 export async function trustPackage(name, options) {
-  const { otp, repo = TRUST_REPO, workflow = TRUST_WORKFLOW } = options
+  const { otp, token = readNpmToken(), repo = TRUST_REPO, workflow = TRUST_WORKFLOW } = options
 
   // POST the endpoint directly rather than shelling out to `npm trust`.
   //
@@ -83,7 +112,7 @@ export async function trustPackage(name, options) {
     {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${readNpmToken()}`,
+        authorization: `Bearer ${token}`,
         'content-type': 'application/json',
         accept: 'application/json',
         ...(otp ? { 'npm-otp': otp } : {}),
@@ -122,14 +151,14 @@ export async function trustPackage(name, options) {
  * Same endpoints the npm CLI uses (`npm trust list` / `npm trust revoke`).
  *
  * @param name - Package name.
- * @param options - otp (a current 2FA code).
+ * @param options - otp (a current 2FA code) and token (the npm session; ~/.npmrc's by default).
  * @returns Outcome: `relinked`, `needs-otp`, `stuck` (npm kept a link it would not revoke) or `error`.
  */
 export async function relinkPackage(name, options) {
-  const { otp } = options
+  const { otp, token = readNpmToken() } = options
   const base = `https://registry.npmjs.org/-/package/${name.replace('/', '%2f')}/trust`
   const headers = {
-    authorization: `Bearer ${readNpmToken()}`,
+    authorization: `Bearer ${token}`,
     accept: 'application/json',
     ...(otp ? { 'npm-otp': otp } : {}),
   }
@@ -158,7 +187,7 @@ export async function relinkPackage(name, options) {
     if (!res.ok)
       revokeFailures.push(`${config.id}: ${res.status} ${(await res.text()).slice(0, 160)}`)
   }
-  const added = await trustPackage(name, { otp })
+  const added = await trustPackage(name, { otp, token })
   if (added.outcome === 'trusted')
     return { outcome: 'relinked', status: added.status, text: added.text }
   if (added.outcome === 'needs-otp') return added

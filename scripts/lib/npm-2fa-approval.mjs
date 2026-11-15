@@ -16,9 +16,15 @@
  * webAuthOpener). npm checks 2FA before the package exists, so any package name
  * yields a pair.
  *
+ * Signing in uses the same shape (measured 2026-11-15): `POST /-/v1/login` answers
+ * `{ loginUrl, doneUrl }`, a www.npmjs.com sign-in page and a done-check that answers
+ * 202 (retry-after 3) until the owner signs in, then 200 `{ token }`. That is npm's
+ * own `npm login` web flow (npm-profile's loginWeb). An `npm login` session lasts at
+ * most 12 hours, so a run the next day finds the saved login dead and needs one.
+ *
  * Service protocol (HTTP over the socket):
  *   GET    /health                 -> { ok, subscriptions }
- *   POST   /requests               { purpose, pid, authUrl? } -> 201 { id, expiresAt }
+ *   POST   /requests               { purpose, pid, kind?: 'code'|'login', authUrl? } -> 201 { id, expiresAt }
  *   GET    /requests/:id           -> { status: pending|code|approved|denied|expired|cancelled|used, code? }
  *   POST   /requests/:id/link      { authUrl }
  *   POST   /requests/:id/resolve   { status: 'approved' }
@@ -148,6 +154,72 @@ export async function npmApprovalLink(name, { bearer, fetchImpl = fetch }) {
 }
 
 /**
+ * Puts one request in front of the owner and waits for its answer, from the phone
+ * (`fromPhone`, given the service's view) or from npm (`fromNpm`, an approval seen
+ * through npm's done-check). Withdraws the request when no answer comes.
+ *
+ * @param options - Request options.
+ * @param options.request - The POST /requests body, without pid.
+ * @param options.fromPhone - Returns the answer the phone sent, or null.
+ * @param options.fromNpm - Returns the answer npm holds, or null; given the request id
+ *   so it can put a fresh link in front of the owner.
+ * @param options.socketPath - The approval service socket.
+ * @param options.timeoutMs - Give up after this long.
+ * @param options.pollMs - How often to check both sides.
+ * @param options.sleep - Waits between checks.
+ * @returns The answer.
+ */
+async function askOwner({ request, fromPhone, fromNpm, socketPath, timeoutMs, pollMs, sleep }) {
+  const created = await socketJson(socketPath, 'POST', '/requests', {
+    ...request,
+    pid: process.pid,
+  })
+  if (created.status !== 201 || !created.body?.id)
+    throw new Error(
+      `approval service refused the request (${created.status} ${created.body?.error ?? ''})`,
+    )
+  const { id } = created.body
+  let answered = false
+  const deadline = Date.now() + timeoutMs
+  try {
+    while (Date.now() < deadline) {
+      const view = await socketJson(socketPath, 'GET', `/requests/${id}`)
+      if (view.status === 404)
+        throw new Error('the approval service lost the request (was it restarted?)')
+      const phoneAnswer = fromPhone(view.body)
+      if (phoneAnswer) {
+        answered = true
+        return phoneAnswer
+      }
+      const status = view.body?.status
+      if (status === 'denied') throw new Error('the owner denied the request')
+      if (status === 'expired' || status === 'cancelled' || status === 'used')
+        throw new Error(`the request ended without an answer (${status})`)
+
+      const npmAnswer = await fromNpm(id)
+      if (npmAnswer) {
+        answered = true
+        await socketJson(socketPath, 'POST', `/requests/${id}/resolve`, {
+          status: 'approved',
+        }).catch((error) => {
+          // The answer is in hand; only the phone's "Approved" label is lost.
+          console.error(`  could not mark the phone request approved: ${error.message}`)
+        })
+        return npmAnswer
+      }
+      await sleep(pollMs)
+    }
+    throw new Error(`no answer within ${Math.round(timeoutMs / 60_000)} minutes`)
+  } finally {
+    if (!answered)
+      await socketJson(socketPath, 'DELETE', `/requests/${id}`).catch((error) => {
+        // The request expires on its own; the phone just shows it a little longer.
+        console.error(`  could not withdraw the phone request: ${error.message}`)
+      })
+  }
+}
+
+/**
  * Asks the owner and waits for whichever answer comes first: a 6-digit code sent
  * from the phone, or an approval on npm's page (seen through npm's done-check).
  *
@@ -175,69 +247,142 @@ export async function requestOwnerOtp({
   sleep = (ms) => delay(ms),
 }) {
   let pair = await link()
-  const created = await socketJson(socketPath, 'POST', '/requests', {
-    purpose,
-    pid: process.pid,
-    ...(pair ? { authUrl: pair.authUrl } : {}),
-  })
-  if (created.status !== 201 || !created.body?.id)
-    throw new Error(
-      `approval service refused the request (${created.status} ${created.body?.error ?? ''})`,
-    )
-  const { id } = created.body
-  let answered = false
-  const deadline = Date.now() + timeoutMs
-  try {
-    while (Date.now() < deadline) {
-      const view = await socketJson(socketPath, 'GET', `/requests/${id}`)
-      if (view.status === 404)
-        throw new Error('the approval service lost the request (was it restarted?)')
-      const status = view.body?.status
-      if (status === 'code' && /^\d{6}$/.test(view.body.code ?? '')) {
-        answered = true
-        return { otp: view.body.code, kind: 'code' }
-      }
-      if (status === 'denied') throw new Error('the owner denied the request')
-      if (status === 'expired' || status === 'cancelled' || status === 'used')
-        throw new Error(`the request ended without an answer (${status})`)
-
-      if (pair) {
-        const done = await fetchImpl(pair.doneUrl, {
-          headers: { authorization: `Bearer ${bearer}` },
-          signal: AbortSignal.timeout(20_000),
-        })
-        if (done.status === 200) {
-          const token = (
-            await done.json().catch((_error) => {
-              // An unreadable 200 is no token; the loop keeps waiting for one.
-              return null
-            })
-          )?.token
-          if (typeof token === 'string' && token) {
-            answered = true
-            await socketJson(socketPath, 'POST', `/requests/${id}/resolve`, {
-              status: 'approved',
-            }).catch((error) => {
-              // The token is in hand; only the phone's "Approved" label is lost.
-              console.error(`  could not mark the phone request approved: ${error.message}`)
-            })
-            return { otp: token, kind: 'npm' }
-          }
-        } else if (done.status !== 202) {
-          // npm let the pair expire: put a fresh link in front of the owner.
-          pair = await link()
-          if (pair)
-            await socketJson(socketPath, 'POST', `/requests/${id}/link`, { authUrl: pair.authUrl })
-        }
-      }
-      await sleep(pollMs)
-    }
-    throw new Error(`no answer within ${Math.round(timeoutMs / 60_000)} minutes`)
-  } finally {
-    if (!answered)
-      await socketJson(socketPath, 'DELETE', `/requests/${id}`).catch((error) => {
-        // The request expires on its own; the phone just shows it a little longer.
-        console.error(`  could not withdraw the phone request: ${error.message}`)
+  return askOwner({
+    request: { purpose, kind: 'code', ...(pair ? { authUrl: pair.authUrl } : {}) },
+    fromPhone: (view) =>
+      view?.status === 'code' && /^\d{6}$/.test(view.code ?? '')
+        ? { otp: view.code, kind: 'code' }
+        : null,
+    fromNpm: async (id) => {
+      if (!pair) return null
+      const done = await fetchImpl(pair.doneUrl, {
+        headers: { authorization: `Bearer ${bearer}` },
+        signal: AbortSignal.timeout(20_000),
       })
+      if (done.status === 200) {
+        const token = await doneToken(done)
+        return token ? { otp: token, kind: 'npm' } : null
+      }
+      if (done.status !== 202) {
+        // npm let the pair expire: put a fresh link in front of the owner.
+        pair = await link()
+        if (pair)
+          await socketJson(socketPath, 'POST', `/requests/${id}/link`, { authUrl: pair.authUrl })
+      }
+      return null
+    },
+    socketPath,
+    timeoutMs,
+    pollMs,
+    sleep,
+  })
+}
+
+/**
+ * The token in a done-check's 200 answer.
+ *
+ * @param res - The done-check response.
+ * @returns The token, or null when the body carries none.
+ */
+async function doneToken(res) {
+  const body = await res.json().catch((_error) => {
+    // An unreadable 200 is no token; the caller keeps waiting for one.
+    return null
+  })
+  return typeof body?.token === 'string' && body.token ? body.token : null
+}
+
+/**
+ * Whether a sign-in pair points at npm: its sign-in page on www.npmjs.com (which
+ * continues to `/login/cli/<id>`) and its done-check on registry.npmjs.org.
+ *
+ * @param pair - `{ loginUrl, doneUrl }` from `POST /-/v1/login`.
+ * @returns True for a genuine npm pair.
+ */
+export function isNpmLoginPair(pair) {
+  try {
+    const login = new URL(pair?.loginUrl)
+    const done = new URL(pair?.doneUrl)
+    return (
+      login.origin === 'https://www.npmjs.com' &&
+      login.pathname === '/login' &&
+      [...login.searchParams.keys()].join() === 'next' &&
+      /^\/login\/cli\/[A-Za-z0-9-]{8,80}$/.test(login.searchParams.get('next') ?? '') &&
+      !login.hash &&
+      done.origin === 'https://registry.npmjs.org' &&
+      done.pathname === '/-/v1/done'
+    )
+  } catch (_error) {
+    // Missing or unparseable URLs are not a pair.
+    return false
   }
+}
+
+/**
+ * Starts npm's web sign-in, the one `npm login` uses.
+ *
+ * @param [options] - `fetchImpl`.
+ * @returns `{ loginUrl, doneUrl }`.
+ */
+export async function npmLoginPair({ fetchImpl = fetch } = {}) {
+  const res = await fetchImpl('https://registry.npmjs.org/-/v1/login', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: 'application/json' },
+    body: '{}',
+    signal: AbortSignal.timeout(20_000),
+  })
+  const body = await res.json().catch((_error) => {
+    // Reported below as "npm did not start a sign-in".
+    return null
+  })
+  if (!res.ok || !isNpmLoginPair(body))
+    throw new Error(`npm did not start a web sign-in (${res.status})`)
+  return { loginUrl: body.loginUrl, doneUrl: body.doneUrl }
+}
+
+/**
+ * Asks the owner to sign in to npm from the phone and waits for the session token
+ * npm hands this machine. The owner signs in on npm's own page; the password and
+ * code never pass through here. The caller keeps the token in memory: it is never
+ * written to ~/.npmrc.
+ *
+ * @param options - Request options.
+ * @param options.purpose - Why a sign-in is needed, in plain words (shown on the phone).
+ * @param [options.socketPath] - The approval service socket.
+ * @param [options.fetchImpl] - fetch, for npm.
+ * @param [options.timeoutMs] - Give up after this long.
+ * @param [options.pollMs] - How often to check both sides (npm asks for 3 s).
+ * @param [options.sleep] - Waits between checks (tests pass a fake).
+ * @returns The npm session token.
+ */
+export async function requestOwnerNpmLogin({
+  purpose,
+  socketPath = APPROVAL_SOCKET,
+  fetchImpl = fetch,
+  timeoutMs = 10 * 60_000,
+  pollMs = 3_000,
+  sleep = (ms) => delay(ms),
+}) {
+  let pair = await npmLoginPair({ fetchImpl })
+  return askOwner({
+    request: { purpose, kind: 'login', authUrl: pair.loginUrl },
+    fromPhone: () => null,
+    fromNpm: async (id) => {
+      const done = await fetchImpl(pair.doneUrl, {
+        headers: { accept: 'application/json' },
+        signal: AbortSignal.timeout(20_000),
+      })
+      if (done.status === 200) return doneToken(done)
+      if (done.status !== 202) {
+        // npm let the sign-in expire: put a fresh one in front of the owner.
+        pair = await npmLoginPair({ fetchImpl })
+        await socketJson(socketPath, 'POST', `/requests/${id}/link`, { authUrl: pair.loginUrl })
+      }
+      return null
+    },
+    socketPath,
+    timeoutMs,
+    pollMs,
+    sleep,
+  })
 }

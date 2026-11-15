@@ -8,7 +8,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import {
   approvalServiceAvailable,
   isNpmApprovalPair,
+  isNpmLoginPair,
   npmApprovalLink,
+  npmLoginPair,
+  requestOwnerNpmLogin,
   requestOwnerOtp,
 } from '../lib/npm-2fa-approval.mjs'
 
@@ -19,6 +22,16 @@ const PAIR = {
 const FRESH = {
   authUrl: 'https://www.npmjs.com/auth/cli/11111111-2222-3333-4444-555555555555',
   doneUrl: 'https://registry.npmjs.org/-/v1/done?authId=11111111',
+}
+
+// The shape npm answered POST /-/v1/login with on 2026-11-15.
+const LOGIN = {
+  loginUrl: 'https://www.npmjs.com/login?next=/login/cli/0f6c1d2e-3b4a-4c5d-8e9f-a0b1c2d3e4f5',
+  doneUrl: 'https://registry.npmjs.org/-/v1/done?sessionId=0f6c1d2e-3b4a-4c5d-8e9f-a0b1c2d3e4f5',
+}
+const LOGIN_FRESH = {
+  loginUrl: 'https://www.npmjs.com/login?next=/login/cli/99999999-8888-7777-6666-555555555555',
+  doneUrl: 'https://registry.npmjs.org/-/v1/done?sessionId=99999999-8888-7777-6666-555555555555',
 }
 
 const json = (body: unknown, status = 200): Response =>
@@ -200,5 +213,117 @@ describe('requestOwnerOtp', () => {
       }),
     ).rejects.toThrow(/no answer/)
     expect(calls.some((c) => c.method === 'DELETE')).toBe(true)
+  })
+})
+
+describe('isNpmLoginPair', () => {
+  it("accepts npm's own sign-in page and done-check only", () => {
+    expect(isNpmLoginPair(LOGIN)).toBe(true)
+    expect(
+      isNpmLoginPair({ ...LOGIN, loginUrl: 'https://evil.example/login?next=/login/cli/0f6c1d2e' }),
+    ).toBe(false)
+    // A next= that leaves npm's CLI sign-in, or an extra parameter, is not npm's pair.
+    expect(
+      isNpmLoginPair({
+        ...LOGIN,
+        loginUrl: 'https://www.npmjs.com/login?next=https://evil.example/',
+      }),
+    ).toBe(false)
+    expect(isNpmLoginPair({ ...LOGIN, loginUrl: `${LOGIN.loginUrl}&x=1` })).toBe(false)
+    expect(
+      isNpmLoginPair({ ...LOGIN, doneUrl: 'https://evil.example/-/v1/done?sessionId=1' }),
+    ).toBe(false)
+    expect(isNpmLoginPair(PAIR)).toBe(false)
+    expect(isNpmLoginPair(undefined)).toBe(false)
+  })
+})
+
+describe('npmLoginPair', () => {
+  it("starts npm's web sign-in without sending any token", async () => {
+    const seen: Array<{ url: string; init: { method?: string; headers: Record<string, string> } }> =
+      []
+    const fetchImpl = async (
+      url: string,
+      init: { method?: string; headers: Record<string, string> },
+    ) => {
+      seen.push({ url, init })
+      return json(LOGIN)
+    }
+    expect(await npmLoginPair({ fetchImpl })).toEqual(LOGIN)
+    expect(seen[0].url).toBe('https://registry.npmjs.org/-/v1/login')
+    expect(seen[0].init.method).toBe('POST')
+    expect(seen[0].init.headers.authorization).toBeUndefined()
+  })
+
+  it('refuses a pair that is not npm pages', async () => {
+    const fetchImpl = async () => json({ ...LOGIN, loginUrl: 'https://evil.example/login' })
+    await expect(npmLoginPair({ fetchImpl })).rejects.toThrow(/did not start a web sign-in/)
+  })
+})
+
+describe('requestOwnerNpmLogin', () => {
+  it("puts npm's sign-in page in front of the owner and returns the session npm hands over", async () => {
+    const { socketPath, calls } = await fakeService([{ status: 'pending' }])
+    const answers = [json(LOGIN), json({}, 202), json({}, 202), json({ token: 'session-1' })]
+    const urls: string[] = []
+    const fetchImpl = async (url: string) => {
+      urls.push(url)
+      return answers.shift() ?? json({}, 202)
+    }
+    const token = await requestOwnerNpmLogin({
+      purpose: 'trust:new needs you to sign in to npm',
+      socketPath,
+      fetchImpl,
+      sleep: noSleep,
+    })
+    expect(token).toBe('session-1')
+    expect(urls.slice(1)).toEqual([LOGIN.doneUrl, LOGIN.doneUrl, LOGIN.doneUrl])
+    const created = calls.find((c) => c.method === 'POST' && c.path === '/requests')
+    expect(created?.body).toMatchObject({
+      purpose: 'trust:new needs you to sign in to npm',
+      kind: 'login',
+      authUrl: LOGIN.loginUrl,
+    })
+    expect(calls).toContainEqual({
+      method: 'POST',
+      path: '/requests/req-1/resolve',
+      body: { status: 'approved' },
+    })
+    expect(calls.some((c) => c.method === 'DELETE')).toBe(false)
+  })
+
+  it('starts a fresh sign-in when npm lets the first one expire', async () => {
+    const { socketPath, calls } = await fakeService([{ status: 'pending' }])
+    const answers = [
+      json(LOGIN),
+      json({ message: 'not found' }, 404),
+      json(LOGIN_FRESH),
+      json({ token: 'session-2' }),
+    ]
+    const token = await requestOwnerNpmLogin({
+      purpose: 'p',
+      socketPath,
+      fetchImpl: async () => answers.shift() ?? json({}, 202),
+      sleep: noSleep,
+    })
+    expect(token).toBe('session-2')
+    expect(calls).toContainEqual({
+      method: 'POST',
+      path: '/requests/req-1/link',
+      body: { authUrl: LOGIN_FRESH.loginUrl },
+    })
+  })
+
+  it('throws on a denial and withdraws the request', async () => {
+    const { socketPath, calls } = await fakeService([{ status: 'denied' }])
+    await expect(
+      requestOwnerNpmLogin({
+        purpose: 'p',
+        socketPath,
+        fetchImpl: async () => json(LOGIN),
+        sleep: noSleep,
+      }),
+    ).rejects.toThrow(/denied/)
+    expect(calls.some((c) => c.method === 'DELETE' && c.path === '/requests/req-1')).toBe(true)
   })
 })
