@@ -63,15 +63,19 @@ export function featureCaseSet(feature: FeatureCases): FeatureCases {
 /**
  * The cases file of a React feature package: `@molecule/app-tag-input-react` →
  * `tag-input` (`src/features/cases/tag-input.ts`, exported as
- * `@molecule/app-framework-conformance/features/cases/tag-input`).
+ * `@molecule/app-framework-conformance/features/cases/tag-input`). A React package
+ * named without a framework suffix (`@molecule/app-embeddable-chat-widget`) keeps its
+ * whole name (`embeddable-chat-widget`); its counterparts are `<name>-vue`, ….
  *
  * @param reactPackage - The React feature package.
  * @returns The file's base name.
  */
 export function featureCasesName(reactPackage: string): string {
-  const match = /^@molecule\/app-(.+)-react$/.exec(reactPackage)
-  if (!match)
-    throw new Error(`framework-conformance: ${reactPackage} is not an app-*-react package`)
+  const match = /^@molecule\/app-(.+?)(-react)?$/.exec(reactPackage)
+  if (!match || /-(vue|solid|svelte|angular)$/.test(match[1]!))
+    throw new Error(
+      `framework-conformance: ${reactPackage} is not a React feature package (@molecule/app-<name>-react or @molecule/app-<name>)`,
+    )
   return match[1]!
 }
 

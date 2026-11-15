@@ -7,7 +7,8 @@
  *
  * There is no index of the cases files to keep in step: a new `cases/<feature>.ts`
  * is found from the directory, and each file must export exactly one
- * {@link FeatureCases} whose package is `@molecule/app-<feature>-react`.
+ * {@link FeatureCases} whose package is `@molecule/app-<feature>-react` (or, for a React
+ * package named without a framework suffix, `@molecule/app-<feature>`).
  *
  * @module
  */
