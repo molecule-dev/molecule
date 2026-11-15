@@ -189,6 +189,7 @@
     "@molecule/app-job-listing-row-svelte",
     "@molecule/app-job-listing-row-vue",
     "@molecule/app-keyboard-shortcuts-angular",
+    "@molecule/app-keyboard-shortcuts-react",
     "@molecule/app-keyboard-shortcuts-solid",
     "@molecule/app-keyboard-shortcuts-svelte",
     "@molecule/app-keyboard-shortcuts-vue",
@@ -217,6 +218,7 @@
     "@molecule/app-locales-nps-distribution",
     "@molecule/app-locales-password-generator",
     "@molecule/app-locales-reading-progress-bar",
+    "@molecule/app-locales-video-player",
     "@molecule/app-locales-vote-cluster",
     "@molecule/app-locales-whiteboard-canvas",
     "@molecule/app-log-viewer-angular",
@@ -293,6 +295,7 @@
     "@molecule/app-progress-rings-svelte",
     "@molecule/app-progress-rings-vue",
     "@molecule/app-query-angular",
+    "@molecule/app-query-react",
     "@molecule/app-query-solid",
     "@molecule/app-query-svelte",
     "@molecule/app-query-vue",
@@ -434,6 +437,7 @@
   "changesets": [
     ".changeset/bonds-default-frameworks.md",
     ".changeset/canvas-pins-notes-keyboard-a11y.md",
+    ".changeset/examples-binding-translation.md",
     ".changeset/feature-parity-achievement-card.md",
     ".changeset/feature-parity-activity-feed.md",
     ".changeset/feature-parity-address-display.md",
@@ -525,6 +529,7 @@
     ".changeset/locale-stub-translations.md",
     ".changeset/pricing-table-react-row-keys.md",
     ".changeset/react-features-keyboard-a11y.md",
-    ".changeset/ui-keyboard-a11y.md"
+    ".changeset/ui-keyboard-a11y.md",
+    ".changeset/video-player-control-labels.md"
   ]
 }
