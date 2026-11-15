@@ -23,6 +23,13 @@
  *   node scripts/audit-gate.mjs            # fail on any non-accepted advisory
  *   node scripts/audit-gate.mjs --list     # print current advisories and exit 0
  *
+ * Two byte-identical copies: `molecule/scripts/audit-gate.mjs` (canonical) and
+ * `mlcl/scripts/audit-gate.mjs`. Each repo's CI checks it out alone, so neither
+ * can import the other. Edit the canonical one and copy it;
+ * `scripts/__tests__/audit-gate-copies.test.mjs` in the workspace fails on drift
+ * (mlcl's copy missed this script's error-document and every-advisory fixes for
+ * two weeks, so its gate passed an npm error document as a clean scan).
+ *
  * @module
  */
 import { execFileSync } from 'node:child_process'
@@ -41,11 +48,29 @@ const FAIL_AT = ['moderate', 'high', 'critical']
 const allowlist = JSON.parse(readFileSync(join(ROOT, '.audit-allowlist.json'), 'utf8'))
 const today = new Date().toISOString().slice(0, 10)
 
+// A repo that is not a workspaces root of its own (mlcl) is still a MEMBER of the
+// polyrepo workspace when it sits inside molecule-workspace, and a bare
+// `npm audit` there audits the workspace root's lockfile: on 2026-11-15 it
+// reported 22 lapsed exceptions in mlcl, three of them (@vue/test-utils,
+// js-beautify, editorconfig) from another member's devDependencies, where mlcl's
+// own CI, which checks mlcl out alone, reported 19. `--workspaces=false` makes
+// npm audit this repo's own package-lock.json, the tree CI and users install.
+// A workspaces root (molecule) keeps the default, which covers its members.
+let ownManifest = {}
+try {
+  ownManifest = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
+} catch (error) {
+  // No manifest next to the allowlist leaves nothing to scope to; an unreadable
+  // or malformed one is a broken checkout, not a reason to audit another tree.
+  if (error?.code !== 'ENOENT') throw error
+}
+const auditArgs = ['audit', '--json', ...(ownManifest.workspaces ? [] : ['--workspaces=false'])]
+
 let report
 try {
   // `npm audit` exits non-zero when it finds anything — that is the signal we
   // are parsing, not an error.
-  report = JSON.parse(execFileSync('npm', ['audit', '--json'], { cwd: ROOT, encoding: 'utf8' }))
+  report = JSON.parse(execFileSync('npm', auditArgs, { cwd: ROOT, encoding: 'utf8' }))
 } catch (error) {
   if (!error.stdout) {
     console.error('audit-gate: `npm audit --json` produced no output')

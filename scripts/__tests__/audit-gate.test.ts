@@ -1,13 +1,28 @@
 /** The real audit CLI must distinguish a clean scan from an unavailable scan. */
 import { spawnSync } from 'node:child_process'
-import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { delimiter, join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-/** Run the actual script with npm's response supplied through its executable boundary. */
-function audit(report: unknown, exitCode = 0, accepted: object[] = [], args: string[] = []) {
+/**
+ * Run the actual script with npm's response supplied through its executable boundary.
+ *
+ * @param report - The JSON npm prints.
+ * @param exitCode - npm's exit code.
+ * @param accepted - The allowlist entries.
+ * @param args - Arguments for the script.
+ * @param manifest - The repo's package.json, when it has one.
+ * @returns The script's result and the arguments npm was called with.
+ */
+function audit(
+  report: unknown,
+  exitCode = 0,
+  accepted: object[] = [],
+  args: string[] = [],
+  manifest?: object,
+) {
   const root = mkdtempSync(join(tmpdir(), 'molecule-audit-control-'))
   try {
     mkdirSync(join(root, 'scripts'))
@@ -17,16 +32,25 @@ function audit(report: unknown, exitCode = 0, accepted: object[] = [], args: str
       join(root, 'scripts/audit-gate.mjs'),
     )
     writeFileSync(join(root, '.audit-allowlist.json'), JSON.stringify({ accepted }))
+    if (manifest) writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))
+    const argsFile = join(root, 'npm-args.json')
     writeFileSync(
       join(root, 'bin/npm'),
-      `#!/usr/bin/env node\nprocess.stdout.write(${JSON.stringify(JSON.stringify(report))});process.exitCode=${exitCode};\n`,
+      `#!/usr/bin/env node\nrequire('node:fs').writeFileSync(${JSON.stringify(argsFile)},JSON.stringify(process.argv.slice(2)));process.stdout.write(${JSON.stringify(JSON.stringify(report))});process.exitCode=${exitCode};\n`,
       { mode: 0o755 },
     )
-    return spawnSync(process.execPath, [join(root, 'scripts/audit-gate.mjs'), ...args], {
+    const result = spawnSync(process.execPath, [join(root, 'scripts/audit-gate.mjs'), ...args], {
       encoding: 'utf8',
       env: { ...process.env, PATH: `${join(root, 'bin')}${delimiter}${process.env.PATH}` },
       timeout: 10_000,
     })
+    let npmArgs: string[] = []
+    try {
+      npmArgs = JSON.parse(readFileSync(argsFile, 'utf8'))
+    } catch (_error) {
+      // npm was never called: the assertion on npmArgs reports it.
+    }
+    return Object.assign(result, { npmArgs })
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
@@ -127,6 +151,21 @@ describe('audit-gate CLI', () => {
     const moderate = { advisories: ['GHSA-moderate-control'], reason: 'Moderate control', expires }
     expect(audit(report, 1).status).toBe(1)
     expect(audit(report, 1, [moderate]).status).toBe(0)
+  })
+
+  it('audits its own lockfile when the repo is not a workspaces root (mlcl inside the workspace)', () => {
+    expect(audit(clean, 0, [], [], { name: 'mlcl' }).npmArgs).toEqual([
+      'audit',
+      '--json',
+      '--workspaces=false',
+    ])
+  })
+
+  it('keeps the members of a workspaces root in the audit (molecule)', () => {
+    expect(audit(clean, 0, [], [], { workspaces: ['packages/*'] }).npmArgs).toEqual([
+      'audit',
+      '--json',
+    ])
   })
 
   it('fails a finding whose advisory cannot be identified', () => {
