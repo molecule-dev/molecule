@@ -1,0 +1,340 @@
+{
+ "exports": [
+  "ActivityFeed",
+  "ActivityFeedGroup",
+  "ActivityFeedItem"
+ ],
+ "values": {},
+ "cases": {
+  "ActivityFeed": {
+   "a single row": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three rows": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no items and no empty state": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty state when the list is empty": {
+    "snapshots": [
+     "<p data-empty>\nNothing yet\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "a text empty state when the list is empty": {
+    "snapshots": [
+     "Nothing yet\n@route /"
+    ],
+    "calls": []
+   },
+   "the empty state wins over the footer": {
+    "snapshots": [
+     "<p data-empty>\nNothing yet\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "the empty state is ignored when rows exist": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a footer after the rows": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<button type=\"button\">\nLoad more\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a footer with no rows": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<button type=\"button\">\nLoad more\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty footer renders nothing": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "rows with node fields": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\n<strong>\nNia\n</strong>\n</span>\n edited \n<span class=\"c80b1c428\">\n<code>\nindex.ts\n</code>\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· \n<time>\n10:00\n</time>\n</span>\n</div>\n<div class=\"c445db9b9\">\n<em>\nwhitespace\n</em>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<i data-icon>\n</i>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nOla\n</span>\n joined \n<span class=\"c4647f690 c700a7fa3\">\n· just now\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2 cd75bbd18\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "more rows arrive": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every row is emptied": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the empty state appears once the rows are gone": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the className is removed": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2 cd75bbd18\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a single row, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three rows, then items again as equal new objects": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"0\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"1\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"2\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"0\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"1\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"2\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three rows, then items reversed": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"0\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"1\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"2\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"2\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"1\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"0\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "ActivityFeedGroup": {
+   "a heading and one row": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a heading and three rows": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a heading with no rows": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nYesterday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node heading": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\n<strong>\nThis week\n</strong>\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "rows with node fields": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nEarlier\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\n<b>\nAda\n</b>\n</span>\n shipped \n<span class=\"c80b1c428\">\n<code>\nv2\n</code>\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· Mar 1\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2 cd75bbd18\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "the rows change": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "the heading changes": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nTomorrow\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "the rows are emptied": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "the className is removed": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2 cd75bbd18\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a heading and one row, then a locale switch": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a heading and three rows, then items again as equal new objects": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"0\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"1\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"2\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"0\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"1\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"2\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a heading and three rows, then items reversed": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"0\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"1\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"2\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<h3 class=\"c4647f690 c7f74399a\">\nToday\n</h3>\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"2\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nCarol\n</span>\n deployed \n<span class=\"c80b1c428\">\napi\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· yesterday\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"1\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nBob\n</span>\n closed \n<span class=\"c80b1c428\">\nIssue #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 1h ago\n</span>\n</div>\n</div>\n</article>\n<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-conformance-mark=\"0\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nAlice\n</span>\n commented on \n<span class=\"c80b1c428\">\nPR #42\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2m ago\n</span>\n</div>\n</div>\n</article>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "ActivityFeedItem": {
+   "actor, verb and timestamp": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an explicit target": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c80b1c428\">\ntgt-a\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty target renders nothing": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "a body": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n<div class=\"c445db9b9\">\nbody-a\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty body renders nothing": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "target and body together": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c80b1c428\">\ntgt-a\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n<div class=\"c445db9b9\">\nbody-a\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an avatar source renders the Avatar": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Avatar\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty avatar source renders nothing": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an icon alone replaces the empty avatar slot": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<i data-icon>\n</i>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an icon wins over an avatar source": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<strong>\n!\n</strong>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "node values for actor, verb, target, body and timestamp": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\n<strong>\nNode actor\n</strong>\n</span>\n \n<em>\nnode verb\n</em>\n \n<span class=\"c80b1c428\">\n<span data-target>\nT\n</span>\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· \n<time>\n09:30\n</time>\n</span>\n</div>\n<div class=\"c445db9b9\">\n<blockquote>\nnode body\n</blockquote>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "a new item replaces the row": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /",
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c80b1c428\">\ntgt-b\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n<div class=\"c445db9b9\">\nbody-b\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "the body and target are removed": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c80b1c428\">\ntgt-a\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n<div class=\"c445db9b9\">\nbody-a\n</div>\n</div>\n</article>\n@route /",
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an avatar source appears at runtime": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /",
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Avatar\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/bob.jpg\">\n</img>\n</div>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "an avatar image error falls back to initials": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Avatar\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/broken.jpg\">\n</img>\n</div>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /",
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<svg aria-hidden=\"true\" class=\"cd7cb23cd cfe2c5a7c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "the className is removed": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /",
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "actor, verb and timestamp, then a locale switch": {
+    "snapshots": [
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /",
+     "<article class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nactor-a\n</span>\n verb-a \n<span class=\"c4647f690 c700a7fa3\">\n· ts-a\n</span>\n</div>\n</div>\n</article>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

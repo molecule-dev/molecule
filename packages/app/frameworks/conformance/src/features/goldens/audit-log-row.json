@@ -1,0 +1,135 @@
+{
+ "exports": [
+  "AuditLogRow"
+ ],
+ "values": {},
+ "cases": {
+  "AuditLogRow": {
+   "actor, action and timestamp": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "target renders when present": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c80b1c428\">\nInvoice #1042\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "environment badge": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n<span class=\"c4647f690 c700a7fa3 c7f74399a\">\n[prod]\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "trace id": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n<span class=\"c4647f690\">\ntrace-abc\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "old and new value delta": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-decoration: line-through\">\nDraft\n</span>\n<span aria-hidden=\"true\">\n→\n</span>\n<span>\nSent\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "old value only": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-decoration: line-through\">\nDraft\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "new value only": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nSent\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "full row with className": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nbob\n</span>\n \n<span>\ndeleted\n</span>\n \n<span class=\"c80b1c428\">\nPayment #7\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 2 min ago\n</span>\n<span class=\"c4647f690 c700a7fa3 c7f74399a\">\n[staging]\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-decoration: line-through\">\npending\n</span>\n<span aria-hidden=\"true\">\n→\n</span>\n<span>\nfailed\n</span>\n</div>\n<span class=\"c4647f690\">\ntr-42\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node entry fields": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\n<strong>\ncarol\n</strong>\n</span>\n \n<span>\nassigned\n</span>\n \n<span class=\"c80b1c428\">\n<em>\nTicket #5\n</em>\n</span>\n<span class=\"c4647f690 c700a7fa3\">\n· 11:45\n</span>\n<span class=\"c4647f690 c700a7fa3 c7f74399a\">\n[\n<span>\ndev\n</span>\n]\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-decoration: line-through\">\n<s>\ndan\n</s>\n</span>\n<span aria-hidden=\"true\">\n→\n</span>\n<span>\n<strong>\nerin\n</strong>\n</span>\n</div>\n<span class=\"c4647f690\">\n<code>\ntr-7\n</code>\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "click calls onClick": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "enter key activates the row": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": []
+     }
+    ]
+   },
+   "space key activates the row": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": []
+     }
+    ]
+   },
+   "other keys are ignored": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "not clickable without onClick": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "entry replaced on a props change": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c4647f690 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-decoration: line-through\">\nqueued\n</span>\n<span aria-hidden=\"true\">\n→\n</span>\n<span>\nrunning\n</span>\n</div>\n<span class=\"c4647f690\">\ntr-9\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "actor, action and timestamp, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003 cf322c086\" data-mol-id=\"audit-log-row\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9\">\n<span class=\"c7f74399a\">\nalice\n</span>\n \n<span>\nupdated\n</span>\n \n<span class=\"c4647f690 c700a7fa3\">\n· 10:30\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

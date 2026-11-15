@@ -1,0 +1,85 @@
+{
+ "exports": [
+  "AddressDisplay"
+ ],
+ "values": {},
+ "cases": {
+  "AddressDisplay": {
+   "full address, multi-line": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n123 Main St\n</span>\n<span style=\"display: block\">\nSuite 4\n</span>\n<span style=\"display: block\">\nSpringfield, IL 62704\n</span>\n<span style=\"display: block\">\nUSA\n</span>\n</address>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "inline joins one line": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<span>\n123 Main St, Suite 4, Springfield, IL 62704, USA\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "inline toggles from multi-line": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n123 Main St\n</span>\n<span style=\"display: block\">\nSuite 4\n</span>\n<span style=\"display: block\">\nSpringfield, IL 62704\n</span>\n<span style=\"display: block\">\nUSA\n</span>\n</address>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<span>\n123 Main St, Suite 4, Springfield, IL 62704, USA\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "city and state only": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\nSpringfield, IL\n</span>\n</address>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "postal code only": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n62704\n</span>\n</address>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty address": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n</address>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name and phone link": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c7f74399a\">\nAcme HQ\n</span>\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n123 Main St\n</span>\n<span style=\"display: block\">\nSuite 4\n</span>\n<span style=\"display: block\">\nSpringfield, IL 62704\n</span>\n<span style=\"display: block\">\nUSA\n</span>\n</address>\n<a class=\"c1477cccf\" href=\"tel:+15551234\">\n+15551234\n</a>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name as an element": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c7f74399a\">\n<strong>\nAcme\n</strong>\n</span>\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n123 Main St\n</span>\n<span style=\"display: block\">\nSuite 4\n</span>\n<span style=\"display: block\">\nSpringfield, IL 62704\n</span>\n<span style=\"display: block\">\nUSA\n</span>\n</address>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "leading and actions slots": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<span data-leading>\n</span>\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n123 Main St\n</span>\n<span style=\"display: block\">\nSuite 4\n</span>\n<span style=\"display: block\">\nSpringfield, IL 62704\n</span>\n<span style=\"display: block\">\nUSA\n</span>\n</address>\n</div>\n<span data-actions>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "address changes": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n123 Main St\n</span>\n<span style=\"display: block\">\nSuite 4\n</span>\n<span style=\"display: block\">\nSpringfield, IL 62704\n</span>\n<span style=\"display: block\">\nUSA\n</span>\n</address>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\nSpringfield, IL\n</span>\n</address>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "everything on, with className": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\">\n<span data-leading>\n</span>\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c7f74399a\">\nJane Smith\n</span>\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n123 Main St\n</span>\n<span style=\"display: block\">\nSuite 4\n</span>\n<span style=\"display: block\">\nSpringfield, IL 62704\n</span>\n<span style=\"display: block\">\nUSA\n</span>\n</address>\n<a class=\"c1477cccf\" href=\"tel:+1 555-867-5309\">\n+1 555-867-5309\n</a>\n</div>\n<span data-actions>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "full address, multi-line, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n123 Main St\n</span>\n<span style=\"display: block\">\nSuite 4\n</span>\n<span style=\"display: block\">\nSpringfield, IL 62704\n</span>\n<span style=\"display: block\">\nUSA\n</span>\n</address>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c445db9b9 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<address style=\"font-style: normal\">\n<span style=\"display: block\">\n123 Main St\n</span>\n<span style=\"display: block\">\nSuite 4\n</span>\n<span style=\"display: block\">\nSpringfield, IL 62704\n</span>\n<span style=\"display: block\">\nUSA\n</span>\n</address>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

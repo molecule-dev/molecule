@@ -1,0 +1,73 @@
+{
+  "name": "@molecule/app-avatar-stack-svelte",
+  "version": "1.0.0",
+  "description": "Svelte stacked avatars and user-chip component",
+  "homepage": "https://www.molecule.dev/packages/app-avatar-stack-svelte",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "svelte": "./dist/index.js",
+  "files": [
+    "dist",
+    "!dist/**/__tests__",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings && svelte-package --input src --output dist --tsconfig ./tsconfig.json",
+    "dev": "svelte-package --input src --output dist --tsconfig ./tsconfig.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "molecule",
+    "avatar-stack",
+    "svelte"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/features/avatar-stack-svelte"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@molecule/app-svelte": "^3.5.0",
+    "@molecule/app-ui": "^1.0.1",
+    "@molecule/app-ui-svelte": "^1.1.0",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-framework-conformance": "0.0.0",
+    "@molecule/app-i18n": "1.2.1",
+    "@molecule/app-icons": "1.0.4",
+    "@molecule/app-svelte": "3.6.0",
+    "@molecule/app-ui": "1.3.11",
+    "@molecule/app-ui-svelte": "1.1.3",
+    "@sveltejs/package": "3.0.2",
+    "@sveltejs/vite-plugin-svelte": "7.1.2",
+    "@types/node": "26.6.5",
+    "jsdom": "30.1.3",
+    "svelte": "5.57.2",
+    "svelte-check": "4.7.7",
+    "typescript": "6.0.3",
+    "vite": "8.3.5",
+    "vitest": "4.1.12"
+  }
+}

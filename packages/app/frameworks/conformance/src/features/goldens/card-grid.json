@@ -1,0 +1,296 @@
+{
+ "exports": [
+  "BentoGrid",
+  "CardGrid"
+ ],
+ "values": {},
+ "cases": {
+  "BentoGrid": {
+   "default spans and columns": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom column span": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 6; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom row span": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 2\">\n<div data-item=\"a\">\na\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "column and row span": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 8; grid-row: span 3\">\n<div data-item=\"a\">\na\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "mixed spans": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 8; grid-row: span 2\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "areas mode": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-areas: 'a a b' 'c d d'\">\n<div style=\"grid-area: a\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-area: b\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "areas mode with an item missing its area": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-areas: &quot;a b&quot;\">\n<div style=\"grid-area: a\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div>\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "areas mode ignores columns": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-areas: &quot;a b&quot;\">\n<div style=\"grid-area: a\">\n<div data-item=\"a\">\na\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom columns": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(6, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "single column": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(1, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "many columns": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(24, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "xs gap": {
+    "snapshots": [
+     "<div class=\"c9866e6d5 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "sm gap": {
+    "snapshots": [
+     "<div class=\"c9566e21c caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "md gap": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "lg gap": {
+    "snapshots": [
+     "<div class=\"c9166dbd0 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91 cd75bbd18\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty items": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text content": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\nPlain text\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "nested element content": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div>\n<span data-nested>\nInner\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns change": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(6, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(3, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gap change": {
+    "snapshots": [
+     "<div class=\"c9566e21c caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c9166dbd0 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "items change": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 12; grid-row: span 1\">\n<div data-item=\"c\">\nc\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "switches to areas mode": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-areas: &quot;a b&quot;\">\n<div style=\"grid-area: a\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-area: b\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "leaves areas mode": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-areas: &quot;a b&quot;\">\n<div style=\"grid-area: a\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-area: b\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className change": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91 cd75bbd18\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c6f6923dd c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change span and content": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 6; grid-row: span 2\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "default spans and columns, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c9366def6 caf871a91\" style=\"display: grid; grid-template-columns: repeat(12, minmax(0, 1fr))\">\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"a\">\na\n</div>\n</div>\n<div style=\"grid-column: span 4; grid-row: span 1\">\n<div data-item=\"b\">\nb\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "CardGrid": {
+   "default columns and gap": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "one column": {
+    "snapshots": [
+     "<div class=\"c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two columns": {
+    "snapshots": [
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "four columns": {
+    "snapshots": [
+     "<div class=\"c49bc009c c8c947ea7 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "five columns": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "six columns": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c8e42a37c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "xs gap": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9866e6d5 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "sm gap": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "md gap": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "lg gap": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text child": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\nPlain text\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no children": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns change": {
+    "snapshots": [
+     "<div class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9142a835 c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gap change": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9166dbd0 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className change": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c6f6923dd c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className removed": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91 cd75bbd18\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "default columns and gap, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /",
+     "<div class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div data-card=\"a\">\nA\n</div>\n<div data-card=\"b\">\nB\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

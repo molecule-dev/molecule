@@ -1,0 +1,233 @@
+{
+ "exports": [
+  "AnnouncementBar"
+ ],
+ "values": {},
+ "cases": {
+  "AnnouncementBar": {
+   "defaults": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nNew feature!\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "kind info": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "kind success": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"success\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "kind warning": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"warning\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "kind error": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"error\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "kind promo": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"promo\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an icon slot": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-icon>\n🎉\n</span>\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an icon prop": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-icon>\n🎉\n</span>\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node children": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n<strong>\nBold message\n</strong>\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty children": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an action as a link": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<a class=\"c1477cccf c445db9b9 c7f74399a\" href=\"/pricing\">\n<em>\nLearn more\n</em>\n</a>\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an action as a plain-string label button": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nDo it\n</button>\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an action button calls onClick with the event": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nDo it\n</button>\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nDo it\n</button>\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "actionClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "an action with an href renders a link and ignores onClick": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<a class=\"c1477cccf c445db9b9 c7f74399a\" href=\"/go\">\nGo\n</a>\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<a class=\"c1477cccf c445db9b9 c7f74399a\" href=\"/go\">\nGo\n</a>\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /\n@click default kept"
+    ],
+    "calls": []
+   },
+   "dismissible false renders no dismiss button": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "dismissible false with an action renders only the action": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nDo it\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "controlled visible false renders nothing": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "controlled visible true renders the bar": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "dismissing hides the bar and calls onDismiss": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onDismiss",
+      "args": []
+     }
+    ]
+   },
+   "dismissing without onDismiss still hides the bar": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "dismissing a controlled bar keeps it visible but calls onDismiss": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onDismiss",
+      "args": []
+     }
+    ]
+   },
+   "dismissing a controlled bar twice calls onDismiss twice": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onDismiss",
+      "args": []
+     },
+     {
+      "name": "onDismiss",
+      "args": []
+     }
+    ]
+   },
+   "dataMolId and className passthrough": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd75bbd18 cd9b20003 ceacde2ad\" data-kind=\"info\" data-mol-id=\"ann-x\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "everything at once": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd75bbd18 cd9b20003 ceacde2ad\" data-kind=\"warning\" data-mol-id=\"ann-all\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-icon>\n🎉\n</span>\n<span class=\"c445db9b9\">\nBig news\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<a class=\"c1477cccf c445db9b9 c7f74399a\" href=\"/read\">\nRead\n</a>\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "prop changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd75bbd18 cd9b20003 ceacde2ad\" data-kind=\"error\" data-mol-id=\"ann\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd75bbd18 cd9b20003 ceacde2ad\" data-kind=\"success\" data-mol-id=\"ann\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a dismissed bar is shown again by a controlled visible prop": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onDismiss",
+      "args": []
+     }
+    ]
+   },
+   "an action added after mount renders it": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nLater\n</button>\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "removing the icon and action after mount": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-icon>\n🎉\n</span>\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button class=\"c1477cccf c445db9b9 c7f74399a\" type=\"button\">\nDo it\n</button>\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nNew feature!\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"Dismiss\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c8f3cd634 c9366def6 c937ba156 caa6eb57d ccae02ff2 cd9b20003 ceacde2ad\" data-kind=\"info\" role=\"status\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\nNew feature!\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-label=\"⟦Dismiss⟧\" class=\"c1e8176ab c42740ba6 c9773cd2b cc1672728 ccae02ff2 cd34f1515 cd9b20003\" type=\"button\">\n×\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

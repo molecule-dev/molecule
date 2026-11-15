@@ -1,0 +1,330 @@
+/**
+ * AnnouncementBar component (React parity).
+ *
+ * @module
+ */
+
+import { NgTemplateOutlet } from '@angular/common'
+import {
+  type AfterViewInit,
+  Component,
+  type DoCheck,
+  ElementRef,
+  inject,
+  type OnDestroy,
+  signal,
+  type TemplateRef,
+} from '@angular/core'
+
+import { useTranslation } from '@molecule/app-angular'
+import type { UIClassMap } from '@molecule/app-ui'
+import { getClassMap } from '@molecule/app-ui'
+
+import type { AnnouncementBarProps, AnnouncementKind } from './types.js'
+
+/**
+ * Whether a node-valued prop is an Angular template (a projected node) rather
+ * than plain text. Checked structurally — `TemplateRef` is a type-only import
+ * in the emitted metadata, so `instanceof` is not dependable across bundles.
+ *
+ * @param value - The prop value.
+ * @returns True when it can be rendered with `ngTemplateOutlet`.
+ */
+const isTemplate = (value: unknown): value is TemplateRef<unknown> =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as TemplateRef<unknown>).createEmbeddedView === 'function'
+
+/**
+ * Renders a text value the way React renders a node string.
+ *
+ * @param value - The prop value.
+ * @returns The text to render, or `''` when there is nothing.
+ */
+const textOf = (value: unknown): string =>
+  value === null || value === undefined ? '' : String(value)
+
+/**
+ * AnnouncementBar component.
+ *
+ * Persistent announcement banner — product updates, promos, outage notices,
+ * feature callouts. Long-lived and prominent, unlike a Toast; carries an
+ * action + dismiss, unlike an Alert. The host IS the root `<div>`
+ * (`div[mol-announcement-bar]`), matching React's root exactly: `role`,
+ * `data-kind` and `data-mol-id` live on it.
+ *
+ * React renders null while the bar is hidden — Angular's host element always
+ * exists, so it is detached from the DOM in that state (the same approach
+ * `@molecule/app-bulk-action-toolbar-angular` takes) and restored when the
+ * controlled `visible` input or the internal dismissal state shows it again.
+ *
+ * `kind` is exposed as `data-kind` only; it does not change the bar's colors
+ * by itself. The dismiss label comes from `useTranslation()`
+ * (`announcement.dismiss`), read reactively so a locale switch refreshes it.
+ */
+@Component({
+  selector: 'div[mol-announcement-bar]',
+  standalone: true,
+  imports: [NgTemplateOutlet],
+  inputs: [
+    'icon',
+    'action',
+    'kind',
+    'dismissible',
+    'onDismiss',
+    'visible',
+    'className',
+    'dataMolId',
+  ],
+  host: {
+    role: 'status',
+    '[attr.data-mol-id]': 'dataMolId ?? null',
+    '[attr.data-kind]': 'kind ?? "info"',
+    '[class]': 'classes()',
+  },
+  template: `<div [class]="rowClasses()">
+      <ng-content select="[slot=icon]"></ng-content>
+      @if (iconTemplate(); as tpl) {
+        <ng-container [ngTemplateOutlet]="tpl" />
+      } @else if (hasIconText()) {
+        <ng-container>{{ textOf(icon) }}</ng-container>
+      }
+      <span [class]="messageClasses()"><ng-content></ng-content></span>
+    </div>
+    <div [class]="rowClasses()">
+      @if (action?.href) {
+        <a [attr.href]="action.href" [class]="actionClasses()">
+          @if (labelTemplate(); as tpl) {
+            <ng-container [ngTemplateOutlet]="tpl" />
+          } @else {
+            <ng-container>{{ textOf(action.label) }}</ng-container>
+          }
+        </a>
+      } @else if (action) {
+        <button type="button" (click)="runAction($event)" [class]="actionClasses()">
+          @if (labelTemplate(); as tpl) {
+            <ng-container [ngTemplateOutlet]="tpl" />
+          } @else {
+            <ng-container>{{ textOf(action.label) }}</ng-container>
+          }
+        </button>
+      }
+      @if (dismissible ?? true) {
+        <button
+          type="button"
+          (click)="dismiss()"
+          [attr.aria-label]="dismissLabel()"
+          [class]="dismissClasses()"
+        >
+          ×
+        </button>
+      }
+    </div>`,
+})
+export class AnnouncementBar implements AfterViewInit, DoCheck, OnDestroy {
+  /** Optional leading icon: text, a template ref, or `[slot=icon]` content. */
+  icon?: TemplateRef<unknown> | string | null
+  /** Optional call-to-action (link or button). */
+  action?: NonNullable<AnnouncementBarProps['action']> | null
+  /** Semantic kind (defaults to `'info'` at read time). */
+  kind?: AnnouncementKind
+  /** Show a dismiss (×) button (defaults to true at read time). */
+  dismissible?: boolean
+  /** Called when the bar is dismissed (React's `onDismiss`; takes no arguments). */
+  onDismiss?: () => void
+  /** Controlled visibility — when provided, overrides internal state. */
+  visible?: boolean
+  /** Extra classes. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+  /** The host element (the root `<div>`), for the null-render detach. */
+  private readonly el = inject(ElementRef)
+  /** Whether the bar is visible when `visible` is not given (React's `useState`). */
+  private readonly internalVisible = signal(true)
+  /** Where the detached host lives, for the restore. */
+  private detachedParent: Node | null = null
+  /** The node the detached host is restored before. */
+  private detachedAnchor: Node | null = null
+
+  /**
+   * The current class map.
+   * @returns The UIClassMap.
+   */
+  cm(): UIClassMap {
+    return getClassMap()
+  }
+
+  /**
+   * The wrapper class list (React's `cm.cn(cm.flex({…}), cm.sp('px', 4), cm.sp('py', 2), className)`).
+   * @returns The class string.
+   */
+  classes(): string {
+    return this.cm().cn(
+      this.cm().flex({ align: 'center', justify: 'between', gap: 'md', wrap: 'wrap' }),
+      this.cm().sp('px', 4),
+      this.cm().sp('py', 2),
+      this.className,
+    )
+  }
+
+  /**
+   * The inner rows' class (React's `cm.flex({ align: 'center', gap: 'sm' })`).
+   * @returns The class string.
+   */
+  rowClasses(): string {
+    return this.cm().flex({ align: 'center', gap: 'sm' })
+  }
+
+  /**
+   * The message span's class (React's `cm.textSize('sm')`).
+   * @returns The class string.
+   */
+  messageClasses(): string {
+    return this.cm().textSize('sm')
+  }
+
+  /**
+   * The action's class list (React's
+   * `cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'), cm.link)`).
+   * @returns The class string.
+   */
+  actionClasses(): string {
+    return this.cm().cn(this.cm().textSize('sm'), this.cm().fontWeight('semibold'), this.cm().link)
+  }
+
+  /**
+   * The dismiss button's class list (React's
+   * `cm.cn(cm.w(6), cm.h(6), cm.flex({ align: 'center', justify: 'center' }))`).
+   * @returns The class string.
+   */
+  dismissClasses(): string {
+    return this.cm().cn(
+      this.cm().w(6),
+      this.cm().h(6),
+      this.cm().flex({ align: 'center', justify: 'center' }),
+    )
+  }
+
+  /**
+   * The text fallback used when a value is not a template.
+   *
+   * @param value - The prop value.
+   * @returns The text to render.
+   */
+  textOf(value: unknown): string {
+    return textOf(value)
+  }
+
+  /**
+   * The icon as a template, when the caller passed a node.
+   * @returns The icon template, or null.
+   */
+  iconTemplate(): TemplateRef<unknown> | null {
+    return isTemplate(this.icon) ? this.icon : null
+  }
+
+  /**
+   * Whether the icon input renders as text (React renders any non-empty
+   * string node; `''` and `null` render nothing).
+   * @returns True when the icon text renders.
+   */
+  hasIconText(): boolean {
+    return typeof this.icon === 'string' ? this.icon !== '' : typeof this.icon === 'number'
+  }
+
+  /**
+   * The action label as a template, when the caller passed a node.
+   * @returns The label template, or null.
+   */
+  labelTemplate(): TemplateRef<unknown> | null {
+    return isTemplate(this.action?.label) ? this.action.label : null
+  }
+
+  /**
+   * The dismiss button's accessible label (React's `announcement.dismiss`).
+   * @returns The label text.
+   */
+  dismissLabel(): string {
+    return this.i18n.t('announcement.dismiss', {}, { defaultValue: 'Dismiss' })
+  }
+
+  /**
+   * Whether the bar renders (React's `visible ?? internalVisible`).
+   * @returns True while visible.
+   */
+  isVisible(): boolean {
+    return this.visible ?? this.internalVisible()
+  }
+
+  /**
+   * Hides the bar (internal state, unless `visible` controls it) and fires
+   * `onDismiss` — React's `dismiss`.
+   */
+  dismiss(): void {
+    if (this.visible === undefined) this.internalVisible.set(false)
+    this.onDismiss?.()
+  }
+
+  /**
+   * Calls the action's `onClick` with the click event, as React's DOM handler
+   * does.
+   *
+   * @param event - The native click event.
+   */
+  runAction(event: MouseEvent): void {
+    this.action?.onClick?.(event)
+  }
+
+  /**
+   * Removes the host element from the DOM while React would render null, and
+   * restores it when the bar is shown again.
+   */
+  syncHostVisibility(): void {
+    const host = this.el.nativeElement as HTMLElement
+    if (!this.isVisible()) {
+      if (host.isConnected) {
+        this.detachedParent = host.parentNode
+        this.detachedAnchor = host.nextSibling
+        host.parentNode?.removeChild(host)
+      }
+    } else if (this.detachedParent && !host.isConnected) {
+      this.detachedParent.insertBefore(host, this.detachedAnchor)
+      this.detachedParent = null
+      this.detachedAnchor = null
+    }
+  }
+
+  /**
+   * Reconciles host visibility once the view is in the document: the first
+   * ngDoCheck of a cycle runs before Angular has inserted a freshly created
+   * view, so the mount-time decision (React renders null while hidden) is
+   * applied here, where the host is connected and can be detached.
+   */
+  ngAfterViewInit(): void {
+    this.syncHostVisibility()
+  }
+
+  /** Re-reconciles host visibility after input writes. */
+  ngDoCheck(): void {
+    this.syncHostVisibility()
+  }
+
+  /** Restores the host before Angular removes it (unmount). */
+  ngOnDestroy(): void {
+    const host = this.el.nativeElement as HTMLElement
+    // The host must be inside its parent for Angular's own removal to succeed.
+    if (!host.isConnected && this.detachedParent) {
+      this.detachedParent.insertBefore(host, this.detachedAnchor)
+      this.detachedParent = null
+      this.detachedAnchor = null
+    }
+  }
+}

@@ -1,0 +1,280 @@
+{
+ "exports": [
+  "AvatarStack",
+  "UserChip"
+ ],
+ "values": {},
+ "cases": {
+  "AvatarStack": {
+   "three people with the default max and size": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Carol at the desk\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/carol.jpg\">\n</img>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "caps visible avatars at max and summarises the rest": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Carol at the desk\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/carol.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nDO\n</span>\n</div>\n</div>\n</span>\n<span aria-label=\"+2 more\" class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"margin-left: -0.5rem\">\n+2\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max larger than the list adds no overflow chip": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two people": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "single person has no overlap": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty list": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max zero summarises everyone": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-label=\"+2 more\" class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"margin-left: -0.5rem\">\n+2\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "overflow of one": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n<span aria-label=\"+1 more\" class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"margin-left: -0.5rem\">\n+1\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size xs": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size sm": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size md": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size lg": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "alt falls back to the name": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nGH\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "explicit alt overrides the name": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Grace at the console\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/g.png\">\n</img>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty alt falls back to the name": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Grace Hopper\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/g.png\">\n</img>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty name renders the user glyph": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<svg aria-hidden=\"true\" class=\"cd7cb23cd cfe2c5a7c\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "names with several words use initials": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nMP\n</span>\n</div>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Carol at the desk\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/carol.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nDO\n</span>\n</div>\n</div>\n</span>\n<span aria-label=\"+2 more\" class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"margin-left: -0.5rem\">\n+2\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n<span aria-label=\"+4 more\" class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"margin-left: -0.5rem\">\n+4\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "people change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Carol at the desk\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/carol.jpg\">\n</img>\n</div>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nDO\n</span>\n</div>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nEN\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "overflow chip disappears": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Carol at the desk\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/carol.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nDO\n</span>\n</div>\n</div>\n</span>\n<span aria-label=\"+2 more\" class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"margin-left: -0.5rem\">\n+2\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className removed": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "three people with the default max and size, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Carol at the desk\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/carol.jpg\">\n</img>\n</div>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n</span>\n<span style=\"margin-left: -0.5rem\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Carol at the desk\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/carol.jpg\">\n</img>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "UserChip": {
+   "name only": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name and avatar source": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "subtitle": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n<span class=\"c4647f690\">\nAdmin\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "trailing content": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n<button type=\"button\">\nRemove\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "subtitle and trailing content": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n<span class=\"c4647f690\">\n<strong>\nOwner\n</strong>\n</span>\n</div>\n<span data-status=\"online\">\nOnline\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size xs": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size md": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c c9773e3a7 ca596e575 cc06cf060 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size lg": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "initials fallback for a long name": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nCD\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nCarol Díaz\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "image error falls back to initials": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/broken.jpg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an image error keeps the fallback after a new source": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/broken.jpg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nBL\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nBob Lee\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "source added at runtime": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "source removed": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Kim\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.jpg\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className removed": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAK\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c80b1c428\">\nAlice Kim\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}
