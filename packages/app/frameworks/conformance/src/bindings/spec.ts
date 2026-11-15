@@ -207,6 +207,16 @@ export type HookStep =
    * matches nothing until a `media` step says otherwise.
    */
   | { type: 'media'; query: string; matches: boolean }
+  /**
+   * Write one `localStorage` entry as another tab would (`value: null` removes it) and
+   * dispatch the `storage` event that write fires on this page, as the UI
+   * interaction of the same name does. For a hook that reads `localStorage` itself;
+   * `storage` writes the storage provider instead. The case's `context.window.localStorage`
+   * is what the page holds at mount.
+   */
+  | { type: 'localStorage'; key: string; value: string | null }
+  /** Dispatch a plain event by name on `window` or `document` (a same-tab change notice). */
+  | { type: 'event'; selector: 'window' | 'document'; event: string }
   /** Unmount the host (later snapshots show only calls; cleanup is observable through them). */
   | { type: 'unmount' }
   /**
@@ -224,6 +234,8 @@ export interface HookCase {
   context?: BindingContext
   steps?: HookStep[]
   fakeTimers?: boolean
+  /** Pin `Date.now()` to these epoch milliseconds (with `fakeTimers`, the fake clock starts there). */
+  now?: number
   /**
    * Media queries that match at mount (`'(max-width: 767px)'`), compared as
    * exact strings. Without it every query matches nothing, unless a `media` step

@@ -90,8 +90,8 @@ describe('localStorage', () => {
         name: 'other tab',
         context: { window: { localStorage: {} } },
         interactions: [
-          { type: 'storage', key: 'theme', value: 'light' },
-          { type: 'storage', key: 'theme', value: null },
+          { type: 'localStorage', key: 'theme', value: 'light' },
+          { type: 'localStorage', key: 'theme', value: null },
         ],
       },
       (container) => {

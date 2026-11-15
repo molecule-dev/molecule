@@ -54,7 +54,53 @@ function useMediaMatch(query: string): boolean {
   return matches
 }
 
-const exportsOf: Record<string, unknown> = { ...ReactBindings, useEscapeShortcut, useMediaMatch }
+/**
+ * A `localStorage` flag kept current across tabs (the `storage` event) and within
+ * the tab (a named window event), like the IDE's timestamp preference.
+ *
+ * @param key - The `localStorage` key.
+ * @param eventName - The same-tab change event.
+ * @returns Whether the stored value is `'true'`.
+ */
+function useStoredFlag(key: string, eventName: string): boolean {
+  const read = (): boolean => localStorage.getItem(key) === 'true'
+  const [flag, setFlag] = useState(read)
+  useEffect(() => {
+    const update = (): void => setFlag(read())
+    const onStorage = (event: StorageEvent): void => {
+      if (event.key === key) update()
+    }
+    window.addEventListener(eventName, update)
+    window.addEventListener('storage', onStorage)
+    return () => {
+      window.removeEventListener(eventName, update)
+      window.removeEventListener('storage', onStorage)
+    }
+  })
+  return flag
+}
+
+/**
+ * The current minute's start, advancing every minute, like the IDE's `useMinuteNow`.
+ *
+ * @returns Epoch milliseconds at the start of the current minute.
+ */
+function useMinute(): number {
+  const [now, setNow] = useState(() => Math.floor(Date.now() / 60_000) * 60_000)
+  useEffect(() => {
+    const id = setInterval(() => setNow(Math.floor(Date.now() / 60_000) * 60_000), 60_000)
+    return () => clearInterval(id)
+  }, [])
+  return now
+}
+
+const exportsOf: Record<string, unknown> = {
+  ...ReactBindings,
+  useEscapeShortcut,
+  useMediaMatch,
+  useStoredFlag,
+  useMinute,
+}
 const adapter = createReactBindingAdapter(exportsOf)
 
 const run = (hook: string, testCase: Omit<HookCase, 'name'>) =>
@@ -119,6 +165,58 @@ describe('media step', () => {
       steps: [{ type: 'media', query: NARROW, matches: false }],
     })
     expect(results(result.snapshots)).toEqual([false, false])
+  })
+})
+
+describe('localStorage and event steps', () => {
+  const results = (snapshots: unknown[]): unknown[] =>
+    snapshots.map((s) => (s as { result: unknown }).result)
+
+  it('starts from the seeded page storage and follows another tab and a same-tab notice', async () => {
+    const result = await run('useStoredFlag', {
+      args: ['flag', 'flag-changed'],
+      context: { window: { localStorage: { flag: 'true' } } },
+      steps: [
+        { type: 'localStorage', key: 'flag', value: 'false' },
+        { type: 'localStorage', key: 'other', value: 'true' },
+        { type: 'event', selector: 'window', event: 'flag-changed' },
+      ],
+    })
+    expect(results(result.snapshots)).toEqual([true, false, false, false])
+  })
+
+  it('starts from an empty page storage; an unrelated write and notice change nothing', async () => {
+    const result = await run('useStoredFlag', {
+      args: ['flag', 'flag-changed'],
+      steps: [
+        { type: 'localStorage', key: 'unrelated', value: 'true' },
+        { type: 'event', selector: 'document', event: 'flag-changed' },
+        { type: 'localStorage', key: 'flag', value: 'true' },
+      ],
+    })
+    expect(results(result.snapshots)).toEqual([false, false, false, true])
+  })
+})
+
+describe('case clock', () => {
+  const results = (snapshots: unknown[]): unknown[] =>
+    snapshots.map((s) => (s as { result: unknown }).result)
+  const NOW = Date.UTC(2026, 0, 2, 3, 4, 5)
+  const MINUTE = Date.UTC(2026, 0, 2, 3, 4)
+
+  it('pins Date.now to the case time and, with fake timers, advances from it', async () => {
+    const result = await run('useMinute', {
+      now: NOW,
+      fakeTimers: true,
+      steps: [{ type: 'advance', ms: 60_000 }],
+    })
+    expect(results(result.snapshots)).toEqual([MINUTE, MINUTE + 60_000])
+  })
+
+  it('pins Date.now without fake timers, and the real clock is back after the case', async () => {
+    const result = await run('useMinute', { now: NOW })
+    expect(results(result.snapshots)).toEqual([MINUTE])
+    expect(Date.now()).toBeGreaterThan(Date.UTC(2026, 6, 1))
   })
 })
 

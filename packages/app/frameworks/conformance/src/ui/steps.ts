@@ -385,18 +385,7 @@ export async function runSteps(
   app: AppServices | null = null,
 ): Promise<CaseResult> {
   checkCaseFields(testCase)
-  if (testCase.fakeTimers)
-    vi.useFakeTimers({
-      toFake: [
-        'setTimeout',
-        'clearTimeout',
-        'setInterval',
-        'clearInterval',
-        'Date',
-        'requestAnimationFrame',
-        'cancelAnimationFrame',
-      ],
-    })
+  installCaseClock(testCase)
   await getI18nProvider().setLocale(testCase.context?.locale ?? 'en')
   setCaseTranslations(testCase.context?.translations ?? null)
   const page = applyWindowContext(testCase.context?.window, recorder)
@@ -451,10 +440,37 @@ export async function runSteps(
     await mounted.dispose?.()
     page.restore()
     setCaseTranslations(null)
-    if (testCase.fakeTimers) vi.useRealTimers()
+    if (testCase.fakeTimers || testCase.now !== undefined) vi.useRealTimers()
     document.body.innerHTML = ''
   }
   return { snapshots, readable, ...(pages ? { pages } : {}), calls: recorder.calls }
+}
+
+/**
+ * Installs a case's clock before mount: fake timers (`fakeTimers`, for `advance` steps)
+ * and a pinned `Date.now()` (`now`). With `now` alone only `Date` is faked, so a
+ * component's real timers still run. Undone with `vi.useRealTimers()`.
+ *
+ * @param testCase - The case (UI or hook).
+ * @param testCase.fakeTimers - Whether to fake timers too.
+ * @param testCase.now - The epoch milliseconds `Date.now()` starts at.
+ */
+export function installCaseClock(testCase: { fakeTimers?: boolean; now?: number }): void {
+  const now = testCase.now === undefined ? {} : { now: testCase.now }
+  if (testCase.fakeTimers)
+    vi.useFakeTimers({
+      toFake: [
+        'setTimeout',
+        'clearTimeout',
+        'setInterval',
+        'clearInterval',
+        'Date',
+        'requestAnimationFrame',
+        'cancelAnimationFrame',
+      ],
+      ...now,
+    })
+  else if (testCase.now !== undefined) vi.useFakeTimers({ toFake: ['Date'], ...now })
 }
 
 /** The fields a UI case takes. */
@@ -468,6 +484,7 @@ const CASE_FIELDS: FieldsOf<UICase> = {
   interactions: 'optional',
   context: 'optional',
   fakeTimers: 'optional',
+  now: 'optional',
   viewportWidth: 'optional',
   pointer: 'optional',
   layout: 'optional',
@@ -512,7 +529,7 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   pointer: { selector: 'required', event: 'required', clientX: 'optional', clientY: 'optional' },
   transfer: { selector: 'required', event: 'required', files: 'optional', data: 'optional' },
   message: { data: 'optional', origin: 'optional', from: 'optional' },
-  storage: { key: 'required', value: 'required' },
+  localStorage: { key: 'required', value: 'required' },
   fetch: {},
   unmount: {},
 }
@@ -539,7 +556,7 @@ const AFTER_UNMOUNT = new Set<Interaction['type']>([
   'auth',
   'control',
   'message',
-  'storage',
+  'localStorage',
 ])
 
 const runStep = async (

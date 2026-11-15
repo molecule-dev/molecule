@@ -12,8 +12,10 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
+import { writeLocalStorageFromOtherTab } from '../ui/environment.js'
+import { type CaseLocalStorage, installLocalStorage } from '../ui/page.js'
 import { checkFields, checkStepFields, type FieldsOf, type StepFields } from '../ui/step-fields.js'
-import { CallRecorder, settle } from '../ui/steps.js'
+import { CallRecorder, installCaseClock, settle } from '../ui/steps.js'
 import * as allCases from './cases/index.js'
 import {
   installControlledMediaQueries,
@@ -105,6 +107,7 @@ const HOOK_CASE_FIELDS: FieldsOf<HookCase> = {
   context: 'optional',
   steps: 'optional',
   fakeTimers: 'optional',
+  now: 'optional',
   media: 'optional',
 }
 
@@ -138,6 +141,8 @@ const HOOK_STEP_FIELDS: StepFields<HookStep> = {
     target: 'optional',
   },
   media: { query: 'required', matches: 'required' },
+  localStorage: { key: 'required', value: 'required' },
+  event: { selector: 'required', event: 'required' },
   unmount: {},
   remount: { args: 'optional' },
 }
@@ -237,6 +242,12 @@ export async function runHookCase(
     testCase.media || (testCase.steps ?? []).some((s) => s.type === 'media')
       ? installControlledMediaQueries(testCase.media ?? [])
       : null
+  // A case that seeds localStorage, or writes it, gets the kit's in-memory page storage.
+  const local: CaseLocalStorage | null =
+    testCase.context?.window?.localStorage ||
+    (testCase.steps ?? []).some((s) => s.type === 'localStorage')
+      ? installLocalStorage(testCase.context?.window?.localStorage ?? {})
+      : null
   // Everything after the pins runs inside one try, so a case that throws mid-run still
   // restores the bonds and the browser for every later case.
   let disposeControls: (() => Promise<void>) | null = null
@@ -245,19 +256,7 @@ export async function runHookCase(
       recorder.calls.push({ name, args })
     })
     disposeControls = () => controls.dispose()
-    if (testCase.fakeTimers) {
-      vi.useFakeTimers({
-        toFake: [
-          'setTimeout',
-          'clearTimeout',
-          'setInterval',
-          'clearInterval',
-          'Date',
-          'requestAnimationFrame',
-          'cancelAnimationFrame',
-        ],
-      })
-    }
+    installCaseClock(testCase)
     await services.i18n.setLocale(testCase.context?.locale ?? 'en')
     // What the kit itself did to set the case up (the locale switch above logs
     // through the bonded logger) is not the hook's behaviour: the recording starts
@@ -463,6 +462,14 @@ export async function runHookCase(
           case 'media':
             await run(() => media?.set(step.query, step.matches))
             break
+          case 'localStorage':
+            await run(() => writeLocalStorageFromOtherTab(step.key, step.value))
+            break
+          case 'event':
+            await run(() => {
+              ;(step.selector === 'window' ? window : document).dispatchEvent(new Event(step.event))
+            })
+            break
           case 'unmount':
             if (!state.unmounted) await state.mounted.unmount()
             state.unmounted = true
@@ -485,7 +492,7 @@ export async function runHookCase(
       if (!state.unmounted) await state.mounted.unmount()
       state.unmounted = true
       await settle()
-      if (testCase.fakeTimers) vi.useRealTimers()
+      if (testCase.fakeTimers || testCase.now !== undefined) vi.useRealTimers()
     }
     const listenersAfterUnmount = controls.listeners()
     const finalShape = resolvedShape ?? { kind: 'value' }
@@ -496,9 +503,10 @@ export async function runHookCase(
       listenersAfterUnmount,
     }
   } finally {
-    if (testCase.fakeTimers) vi.useRealTimers()
+    if (testCase.fakeTimers || testCase.now !== undefined) vi.useRealTimers()
     await disposeControls?.()
     media?.restore()
+    local?.restore()
     restoreEnvironment()
     restoreBonds()
   }

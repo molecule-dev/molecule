@@ -293,7 +293,7 @@ export type Interaction =
    * Writes one `localStorage` entry as another tab would (`value: null` removes it) and
    * dispatches the `storage` event that tab's write fires on this page.
    */
-  | { type: 'storage'; key: string; value: string | null }
+  | { type: 'localStorage'; key: string; value: string | null }
   /**
    * Answers the oldest page `fetch` still waiting, with the case's
    * `context.window.fetch` answer (one with `defer: true`).
@@ -435,6 +435,12 @@ export interface UICase {
   context?: CaseContext
   /** Use fake timers for this case (needed by `advance` interactions). */
   fakeTimers?: boolean
+  /**
+   * Pin `Date.now()` to these epoch milliseconds for the case (with `fakeTimers`, the
+   * fake clock starts there). A component that shows relative time (`5 minutes
+   * ago`) renders the same text on every day the case runs.
+   */
+  now?: number
   /**
    * Viewport width for `matchMedia('(min-width: …)')` queries (default 1280).
    * Responsive components (shells, drawers) are rendered at this width.

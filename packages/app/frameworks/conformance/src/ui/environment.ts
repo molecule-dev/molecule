@@ -231,6 +231,23 @@ const setNativeChecked = (el: HTMLInputElement, checked: boolean): void => {
 }
 
 /**
+ * Writes one `localStorage` entry as another tab would (`null` removes it) and
+ * dispatches the `storage` event that tab's write fires on this page.
+ *
+ * @param key - The entry's key.
+ * @param value - Its new value, or `null` to remove it.
+ */
+export function writeLocalStorageFromOtherTab(key: string, value: string | null): void {
+  const oldValue = localStorage.getItem(key)
+  if (value === null) localStorage.removeItem(key)
+  else localStorage.setItem(key, value)
+  const event = new StorageEvent('storage', { key, oldValue, newValue: value, url: location.href })
+  // jsdom's constructor only takes its own Storage; the kit's is the page's.
+  Object.defineProperty(event, 'storageArea', { value: localStorage })
+  window.dispatchEvent(event)
+}
+
+/**
  * Performs one DOM interaction exactly the same way for every framework.
  * `props`, `advance`, `settle`, `navigate`, `locale`, `http`, `auth`, `fetch` and `unmount`
  * steps are handled by the step runner, not here.
@@ -368,21 +385,9 @@ export function performDomInteraction(step: Interaction): string | undefined {
       )
       return
     }
-    case 'storage': {
-      const oldValue = localStorage.getItem(step.key)
-      if (step.value === null) localStorage.removeItem(step.key)
-      else localStorage.setItem(step.key, step.value)
-      const event = new StorageEvent('storage', {
-        key: step.key,
-        oldValue,
-        newValue: step.value,
-        url: location.href,
-      })
-      // jsdom's constructor only takes its own Storage; the kit's is the page's.
-      Object.defineProperty(event, 'storageArea', { value: localStorage })
-      window.dispatchEvent(event)
+    case 'localStorage':
+      writeLocalStorageFromOtherTab(step.key, step.value)
       return
-    }
     case 'mark': {
       const elements = document.querySelectorAll(step.selector)
       if (elements.length === 0) throw new Error(`mark: no element matches ${step.selector}`)
