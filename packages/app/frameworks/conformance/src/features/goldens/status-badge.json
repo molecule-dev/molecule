@@ -1,0 +1,217 @@
+{
+ "exports": [
+  "StatusBadge",
+  "StatusPill"
+ ],
+ "values": {},
+ "cases": {
+  "StatusBadge": {
+   "ui appearance by default": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "ui appearance success": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cef6f5494\">\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "ui appearance warning": {
+    "snapshots": [
+     "<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "ui appearance error": {
+    "snapshots": [
+     "<span class=\"c046696ca c0d4608b5 c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nFailed\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "ui appearance info": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nInfo\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "ui appearance neutral": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nArchived\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "uppercase pill by default": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "uppercase pill success": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cdf83deeb cef6f5494\">\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "uppercase pill warning": {
+    "snapshots": [
+     "<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "uppercase pill error": {
+    "snapshots": [
+     "<span class=\"c046696ca c0d4608b5 c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\nFailed\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "uppercase pill info": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\nInfo\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "uppercase pill neutral": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\nArchived\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "ui appearance with an icon": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\n<span class=\"cbc071b88\">\n<i data-icon>\n</i>\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "uppercase pill with an icon": {
+    "snapshots": [
+     "<span class=\"c04255343 c046696ca c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\n<span class=\"cbc071b88\">\n<i data-icon>\n</i>\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards className in the ui appearance": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c6b4ecef9 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cef6f5494\">\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards className in the uppercase pill": {
+    "snapshots": [
+     "<span class=\"c046696ca c0d4608b5 c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c6b4ecef9 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\nFailed\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "element children": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\n<strong>\nInfo\n</strong>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "kind changes": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cef6f5494\">\nOpen\n</span>\n@route /",
+     "<span class=\"c046696ca c0d4608b5 c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "appearance changes": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20\">\nInfo\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c267fcecb c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f6faa75 c7f74399a c9052b18c c92985a9a cc06b624c cd037ccc6 cdccefb20 cdf83deeb\">\nInfo\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "ui appearance by default, then a locale switch": {
+    "snapshots": [
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nOpen\n</span>\n@route /",
+     "<span class=\"c046696ca c1e8176ab c1f523237 c40e4ac98 c45cfc6cf c4647f690 c7552104c c7d370ab9 c7f74399a c9052b18c c92985a9a cb1b1fd95 cc06b624c cd037ccc6 cdccefb20\">\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "StatusPill": {
+   "default dot and neutral": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "success dot": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c9052b18c cc5672d74 ccf4f0ec9 cef6f5494\">\n</span>\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "warning dot": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c04255343 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "error dot": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nFailed\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "info dot": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c9052b18c cc5672d74 cc9516029 ccf4f0ec9\">\n</span>\nInfo\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "neutral dot": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nArchived\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "without the dot": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "without the dot and a kind": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards className": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c34fa8c57 c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "element children": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c04255343 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<em>\nPending\n</em>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "kind changes": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c9052b18c cc5672d74 ccf4f0ec9 cef6f5494\">\n</span>\nOpen\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nOpen\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "dot toggles off": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c04255343 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "default dot and neutral, then a locale switch": {
+    "snapshots": [
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /",
+     "<span class=\"c1e8176ab c42740ba6 c4647f690 c80b1c428 c8e3cd4a1 c9052b18c c9866e6d5 ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c5d8e8561 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\nPending\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

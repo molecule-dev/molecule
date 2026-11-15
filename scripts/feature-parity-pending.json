@@ -1,29 +1,11 @@
 {
-  "@molecule/app-achievement-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-action-menu-react": [
     "vue",
     "solid",
     "svelte",
     "angular"
   ],
-  "@molecule/app-activity-feed-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-activity-timeline-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-address-display-react": [
     "vue",
     "solid",
     "svelte",
@@ -53,12 +35,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-announcement-bar-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-audio-player-react": [
     "vue",
     "solid",
@@ -66,12 +42,6 @@
     "angular"
   ],
   "@molecule/app-audio-recorder-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-audit-log-row-react": [
     "vue",
     "solid",
     "svelte",
@@ -101,12 +71,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-avatar-stack-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-bias-indicator-react": [
     "vue",
     "solid",
@@ -119,19 +83,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-bulk-action-toolbar-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-canvas-engine-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-card-grid-react": [
     "vue",
     "solid",
     "svelte",
@@ -155,12 +107,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-checklist-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-class-schedule-react": [
     "vue",
     "solid",
@@ -173,61 +119,13 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-code-block-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-collapsible-section-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-color-picker-react": [
     "vue",
     "solid",
     "svelte",
     "angular"
   ],
-  "@molecule/app-color-swatch-picker-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-contact-display-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-contact-form-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-cookie-banner-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-countdown-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-currency-display-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-danger-zone-react": [
     "vue",
     "solid",
     "svelte",
@@ -240,24 +138,6 @@
     "angular"
   ],
   "@molecule/app-day-timeline-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-diff-viewer-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-drawing-toolbar-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-editor-toolbar-react": [
     "vue",
     "solid",
     "svelte",
@@ -341,12 +221,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-feature-flag-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-feature-graph-view-react": [
     "vue",
     "solid",
@@ -413,25 +287,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-flashcard-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-floating-action-button-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-flow-canvas-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-forum-thread-row-react": [
     "vue",
     "solid",
     "svelte",
@@ -443,19 +299,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-habit-streak-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-heatmap-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-help-button-react": [
     "vue",
     "solid",
     "svelte",
@@ -485,31 +329,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-image-gallery-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-inbox-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-info-display-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-inline-edit-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-integration-card-react": [
     "vue",
     "solid",
     "svelte",
@@ -527,12 +347,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-keyboard-shortcuts-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-kpi-card-react": [
     "vue",
     "solid",
@@ -545,12 +359,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-leaderboard-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-legal-pages-react": [
     "vue",
     "solid",
@@ -558,12 +366,6 @@
     "angular"
   ],
   "@molecule/app-listing-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-log-viewer-react": [
     "vue",
     "solid",
     "svelte",
@@ -587,12 +389,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-medication-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-message-bubble-react": [
     "vue",
     "solid",
@@ -606,12 +402,6 @@
     "angular"
   ],
   "@molecule/app-mind-map-canvas-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-mini-calendar-react": [
     "vue",
     "solid",
     "svelte",
@@ -635,12 +425,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-newsletter-signup-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-node-editor-panel-react": [
     "vue",
     "solid",
@@ -659,12 +443,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-notification-feed-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-notifications-page-react": [
     "vue",
     "solid",
@@ -678,30 +456,6 @@
     "angular"
   ],
   "@molecule/app-nps-distribution-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-onboarding-modal-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-order-timeline-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-page-chrome-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-pagination-bar-react": [
     "vue",
     "solid",
     "svelte",
@@ -731,31 +485,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-presence-indicator-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-pricing-page-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-pricing-table-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-progress-bar-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-progress-rings-react": [
     "vue",
     "solid",
     "svelte",
@@ -767,37 +497,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-quiz-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-rating-display-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-rating-form-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-reading-progress-bar-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-related-items-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-relative-time-react": [
     "vue",
     "solid",
     "svelte",
@@ -810,12 +510,6 @@
     "angular"
   ],
   "@molecule/app-reputation-badge-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-root-error-boundary-react": [
     "vue",
     "solid",
     "svelte",
@@ -839,49 +533,13 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-secret-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-settings-actions-bar-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-settings-container-react": [
     "vue",
     "solid",
     "svelte",
     "angular"
   ],
-  "@molecule/app-share-link-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-sidebar-layout-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-slide-thumbnail-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-social-share-buttons-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-sort-picker-react": [
     "vue",
     "solid",
     "svelte",
@@ -899,18 +557,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-status-badge-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-status-summary-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-stepper-react": [
     "vue",
     "solid",
@@ -923,19 +569,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-subscription-plan-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-survey-question-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-tab-filter-react": [
     "vue",
     "solid",
     "svelte",
@@ -953,19 +587,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-time-slot-picker-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-timeline-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-top-nav-layout-react": [
     "vue",
     "solid",
     "svelte",
@@ -1014,12 +636,6 @@
     "angular"
   ],
   "@molecule/app-whiteboard-canvas-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-wiki-page-header-react": [
     "vue",
     "solid",
     "svelte",

@@ -1,0 +1,53 @@
+/**
+ * Vue tab-style filter with inline count badges.
+ *
+ * Exports `<TabFilter>` — horizontally-scrolling pill-tabs with counts —
+ * and the `TabFilterTab` type. Different from a plain tabs row: this one
+ * surfaces per-tab count badges and scrolls horizontally on overflow. Set
+ * `defaultTab` to the collection's unfiltered view: it remains reachable when
+ * `tabs` changes to a path/query-selected filter. A duplicate id appears once,
+ * using the default tab's definition. Pass its id to the same `onChange`
+ * navigation callback. Applications without a default view can omit it.
+ *
+ * @example
+ * ```ts
+ * import { defineComponent, h, ref } from 'vue'
+ * import { TabFilter } from '@molecule/app-tab-filter-vue'
+ *
+ * const TicketFilters = defineComponent({
+ *   setup() {
+ *     const activeTab = ref('all')
+ *     const tabs = [
+ *       { id: 'all', label: 'All', count: 42 },
+ *       { id: 'open', label: 'Open', count: 8 },
+ *       { id: 'closed', label: 'Closed', count: 34 },
+ *     ]
+ *     return () =>
+ *       h(TabFilter, {
+ *         defaultTab: { id: 'all', label: 'All' },
+ *         tabs,
+ *         activeId: activeTab.value,
+ *         onChange: (id: string) => {
+ *           activeTab.value = id
+ *         },
+ *       })
+ *   },
+ * })
+ * ```
+ *
+ * @remarks
+ * - Requires a wired ClassMap bond (`getClassMap()` throws before
+ *   bonding). Labels are nodes — pass translated strings.
+ * - The default `filled` pill backgrounds use Material-3 token utilities
+ *   that only produce CSS when the app theme defines those tokens. In
+ *   token-less apps pass `filled: false` (font-weight-only active state) or
+ *   add the tokens.
+ * - Counts render via `toLocaleString()`; `disabled` tabs are
+ *   non-interactive. Keyboard interaction is click/tab-focus only — no
+ *   roving arrow-key navigation.
+ *
+ * @module
+ */
+
+export * from './TabFilter.js'
+export * from './types.js'

@@ -1,0 +1,146 @@
+{
+ "exports": [
+  "WikiPageHeader"
+ ],
+ "values": {},
+ "cases": {
+  "WikiPageHeader": {
+   "everything": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<nav data-crumb>\nDocs / Guides\n</nav>\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nGetting Started\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nEdit\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nHistory\n</button>\n<span data-extra>\nWatch\n</span>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\nv23\n</span>\n<span class=\"c4647f690\">\nUpdated 2 days ago\n</span>\n<span class=\"c4647f690\">\n· Jane\n</span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span data-tag>\nguide\n</span>\n<span data-tag>\nsetup\n</span>\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nGetting Started\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "node title": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\n<strong>\nProject Alpha\n</strong>\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "breadcrumb": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<nav data-crumb>\nDocs / Guides\n</nav>\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "meta strings": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\nrev. 2025-04-12\n</span>\n<span class=\"c4647f690\">\nUpdated just now\n</span>\n<span class=\"c4647f690\">\n· Ada\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "tags": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span data-tag>\nguide\n</span>\n<span data-tag>\nsetup\n</span>\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "extraActions": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-extra>\nWatch\n</span>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "edit button only": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nEdit\n</button>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "history button only": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nHistory\n</button>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty meta strings render no meta": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "the edit button calls onEdit": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nEdit\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nHistory\n</button>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nEdit\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nHistory\n</button>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onEdit",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "the history button calls onHistory": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nEdit\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nHistory\n</button>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nEdit\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nHistory\n</button>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onHistory",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "title changes": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nGetting Started\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nAdvanced Setup\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "version and className change": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\nv23\n</span>\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccaded727 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\nv24\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "updatedAt removed on change": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\nUpdated 2 days ago\n</span>\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "updatedAt appears on change": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\nUpdated today\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "updatedBy appears on change": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nT\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\n· Sam\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "everything, then a locale switch": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<nav data-crumb>\nDocs / Guides\n</nav>\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nGetting Started\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nEdit\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nHistory\n</button>\n<span data-extra>\nWatch\n</span>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\nv23\n</span>\n<span class=\"c4647f690\">\nUpdated 2 days ago\n</span>\n<span class=\"c4647f690\">\n· Jane\n</span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span data-tag>\nguide\n</span>\n<span data-tag>\nsetup\n</span>\n</span>\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<nav data-crumb>\nDocs / Guides\n</nav>\n<div class=\"c9366def6 c937ba156 ccae02ff2 cd9b20003 ceacde2ad cf322c086\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nGetting Started\n</h1>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\n⟦Edit⟧\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\n⟦History⟧\n</button>\n<span data-extra>\nWatch\n</span>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\nv23\n</span>\n<span class=\"c4647f690\">\n⟦Updated⟧ 2 days ago\n</span>\n<span class=\"c4647f690\">\n· Jane\n</span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span data-tag>\nguide\n</span>\n<span data-tag>\nsetup\n</span>\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}
