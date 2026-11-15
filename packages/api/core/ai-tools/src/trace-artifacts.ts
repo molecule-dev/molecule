@@ -380,6 +380,20 @@ export interface TraceArtifact {
   /** The requests the page made, the interesting ones first ({@link traceArtifactsScript}). */
   requests: TraceRequest[]
   /**
+   * This attempt's recorded whole-test timeout, with successful response waits covering at least
+   * half its budget and one wait of at least one second. Overlapping waits count once, across
+   * this test's contexts, before request display caps. A final browser wait that began before
+   * the last fifth of the budget, an HTTP failure or a page error leaves this absent: earlier
+   * slow traffic must not excuse a long missing-locator wait or a concrete application error.
+   * Request groups at the existing {@link TRACE_NOTE_LOOP_REPEATS} threshold keep their loop diagnosis.
+   * These are browser response clocks, not measurements of server CPU or proof the app is correct.
+   */
+  timeoutTiming?: {
+    budgetMs: number
+    responseWaitMs: number
+    slowest: { method: string; path: string; status: number; waitMs: number; totalMs: number }[]
+  }
+  /**
    * The request the failing step itself sent: the first answered request the test's last user
    * action caused ({@link TraceArtifact.lastAction}), else — on a trace with no action clock — the
    * trace's LAST `fetch`/`xhr` in recording order, else its document. It leads the note's row when
@@ -1566,6 +1580,13 @@ for (const one of found.slice(0, MAX_TRACES)) {
         // The HAR entry carries the monotonic clock the trace's action entries use, so a request
         // can be attributed to the action that caused it (see \`lastAction\` below).
         startedAt: typeof snapshot._monotonicTime === 'number' ? snapshot._monotonicTime : undefined,
+        durationMs: snapshot.time,
+        responseWaitMs: snapshot.timings && snapshot.timings.wait,
+        // HAR ssl is included in connect. Unknown phases (-1) are not added as negative time.
+        waitOffsetMs: ['blocked', 'dns', 'connect', 'send'].reduce(function (sum, phase) {
+          const ms = snapshot.timings && snapshot.timings[phase]
+          return sum + (typeof ms === 'number' && ms > 0 ? ms : 0)
+        }, 0),
         // The context member and the page ref the HAR entry records: a request made by the test's
         // helper context is not the failing page's, however late the archive wrote it (m160).
         context: ctx.id,
@@ -2355,6 +2376,56 @@ for (const one of found.slice(0, MAX_TRACES)) {
     continue
   // Counted over the page's EVERY network entry, before the cap and dedupe above (m215).
   const repeated = repeatedOf(requests)
+  // Only an actual whole-test timeout pays for attribution. The runner and HAR entries are
+  // from THIS archive, never a later retry, another test, source text or a suite's title.
+  function timeoutTimingOf() {
+    const timeout = runner.map(function (entry) {
+      return entry && entry.type === 'error' ? /Test timeout of (\\d+)ms exceeded/.exec(messageOf(entry) || '') : null
+    }).find(Boolean)
+    if (!timeout) return null
+    const budget = Number(timeout[1])
+    const clock = runner.find(function (entry) {
+      return entry && entry.type === 'context-options' && Number.isFinite(entry.monotonicTime)
+    })
+    if (!clock || !(budget > 0)) return null
+    const start = clock.monotonicTime, end = start + budget
+    const browserActions = actionsAll.filter(function (action) {
+      return /^(?:Frame|Page|Locator)\\./.test(action.api) && action.start >= start && action.start < end
+    })
+    const last = browserActions.sort(function (a, b) { return b.start - a.start })[0]
+    // A locator waiting through a large part of the budget is still an app/test diagnosis.
+    if (!last || last.start < end - budget * 0.2 || repeated.length) return null
+    if (requestsAll.some(failedRequest) || contexts.some(function (ctx) {
+      return ctx.trace.some(function (entry) { return entry && entry.type === 'event' && entry.method === 'pageError' })
+    })) return null
+    const measured = requestsAll.filter(function (r) {
+      return (r.type === 'fetch' || r.type === 'xhr' || r.type === 'document') &&
+        r.status >= 200 && r.status < 400 && Number.isFinite(r.startedAt) &&
+        typeof r.responseWaitMs === 'number' && Number.isFinite(r.responseWaitMs) && r.responseWaitMs >= 0 &&
+        typeof r.durationMs === 'number' && Number.isFinite(r.durationMs) && r.durationMs >= r.responseWaitMs &&
+        r.waitOffsetMs + r.responseWaitMs <= r.durationMs + 1 &&
+        r.startedAt >= start && r.startedAt + r.durationMs <= end
+    })
+    const intervals = measured.map(function (r) {
+      return [r.startedAt + r.waitOffsetMs, Math.min(end, r.startedAt + r.waitOffsetMs + r.responseWaitMs)]
+    }).filter(function (span) { return span[1] > span[0] }).sort(function (a, b) { return a[0] - b[0] })
+    let total = 0, through = start
+    for (const span of intervals) {
+      total += Math.max(0, span[1] - Math.max(through, span[0]))
+      through = Math.max(through, span[1])
+    }
+    const slowest = measured.sort(function (a, b) { return b.responseWaitMs - a.responseWaitMs }).slice(0, 3)
+    if (total < budget * 0.5 || !slowest.length || slowest[0].responseWaitMs < 1000) return null
+    return {
+      budgetMs: budget,
+      responseWaitMs: Math.round(total),
+      slowest: slowest.map(function (r) {
+        return { method: r.method, path: r.path.split(/[?#]/)[0], status: r.status,
+          waitMs: Math.round(r.responseWaitMs), totalMs: Math.round(r.durationMs) }
+      }),
+    }
+  }
+  const timeoutTiming = timeoutTimingOf()
   process.stdout.write('TRACE ' + JSON.stringify({
     dir: path.relative(ROOT, path.dirname(one.file)),
     spec: spec,
@@ -2365,6 +2436,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     // tail here dropped every failed request as soon as a page made more than MAX_REQUESTS of them
     // plus the answered ones (xr-molecule-flash-m112's note listed only -1s and 200s).
     requests: chosen.slice(0, MAX_REQUESTS),
+    ...(timeoutTiming === null ? {} : { timeoutTiming: timeoutTiming }),
     ...(repeated.length === 0 ? {} : { repeated: repeated }),
     ...(missingText === null ? {} : { missingText: missingText }),
     ...(readContradiction === null ? {} : { readContradiction: readContradiction }),
@@ -2411,6 +2483,43 @@ function parseTraceRequest(value: unknown): TraceRequest | null {
     ...(typeof r.context === 'string' && r.context ? { context: r.context } : {}),
     ...(typeof r.pageId === 'string' && r.pageId ? { pageId: r.pageId } : {}),
   }
+}
+
+/** Validate a bounded timeout reading; absent or damaged clocks cannot justify latency advice. */
+function parseTimeoutTiming(value: unknown): TraceArtifact['timeoutTiming'] | undefined {
+  if (typeof value !== 'object' || value === null) return undefined
+  const r = value as NonNullable<TraceArtifact['timeoutTiming']>
+  if (
+    typeof r.budgetMs !== 'number' ||
+    !Number.isFinite(r.budgetMs) ||
+    r.budgetMs <= 0 ||
+    typeof r.responseWaitMs !== 'number' ||
+    !Number.isFinite(r.responseWaitMs) ||
+    r.responseWaitMs < r.budgetMs * 0.5 ||
+    r.responseWaitMs > r.budgetMs ||
+    !Array.isArray(r.slowest) ||
+    r.slowest.length === 0 ||
+    r.slowest.length > 3 ||
+    !r.slowest.every(
+      (request) =>
+        request &&
+        typeof request.method === 'string' &&
+        typeof request.path === 'string' &&
+        typeof request.status === 'number' &&
+        request.status >= 200 &&
+        request.status < 400 &&
+        typeof request.waitMs === 'number' &&
+        Number.isFinite(request.waitMs) &&
+        request.waitMs >= 0 &&
+        typeof request.totalMs === 'number' &&
+        Number.isFinite(request.totalMs) &&
+        request.totalMs >= request.waitMs &&
+        request.totalMs <= r.budgetMs + 1,
+    ) ||
+    !r.slowest.some((request) => request.waitMs >= 1000)
+  )
+    return undefined
+  return r
 }
 
 /**
@@ -2622,6 +2731,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const hiddenBox = parseHiddenBox(raw.hiddenBox)
       const countMismatch = parseCountMismatch(raw.countMismatch)
       const repeated = parseRepeated(raw.repeated)
+      const timeoutTiming = parseTimeoutTiming(raw.timeoutTiming)
       const otherContexts = Array.isArray(raw.otherContexts)
         ? raw.otherContexts
             .filter((c): c is Record<string, unknown> => typeof c === 'object' && c !== null)
@@ -2663,6 +2773,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
         ...(hiddenBox === null ? {} : { hiddenBox }),
         ...(countMismatch === null ? {} : { countMismatch }),
         ...(repeated.length === 0 ? {} : { repeated }),
+        ...(timeoutTiming === undefined ? {} : { timeoutTiming }),
       })
     } catch (_error) {
       continue
@@ -4773,6 +4884,38 @@ export function failureTraceNote(
   report: TraceRunReport = {},
 ): string | null {
   const failures = report.failures ?? []
+  const timed = items.filter((item) => item.timeoutTiming !== undefined)
+  if (timed.length) {
+    const timingNote = timed
+      .slice(0, MAX_TRACE_NOTE_TESTS)
+      .map((item) => {
+        const timing = item.timeoutTiming!
+        const seconds = (ms: number): string => (ms / 1000).toFixed(2)
+        const slowest = timing.slowest
+          .map(
+            (r) =>
+              `\`${redactSecrets(requestLabel(r))}\` → ${r.status}: ${seconds(r.waitMs)} s waiting for the response (${seconds(r.totalMs)} s total)`,
+          )
+          .join('; ')
+        return (
+          `\`${failureWhereOf(item, failures)}\` hit its whole-test timeout. Its browser record shows ` +
+          `${seconds(timing.responseWaitMs)} s of its ${seconds(timing.budgetMs)} s budget waiting for server responses ` +
+          `(overlapping waits counted once). Slowest requests: ${slowest}. ` +
+          'Re-run only the timed-out tests against the same build and URL with the suite’s normal settings before changing the app. ' +
+          'Do not remove a session hold or service worker to fix this server wait. ' +
+          'These response clocks include network and server queueing; they do not identify server CPU time or prove the app is correct.'
+        )
+      })
+      .join('\n')
+    const other = failureTraceNote(
+      items.filter((item) => item.timeoutTiming === undefined),
+      target,
+      earlierFailures,
+      apiPrefixes,
+      report,
+    )
+    return other === null ? timingNote : `${timingNote}\n\n${other}`
+  }
   const candidates = items.filter((item) => traceRowEvidence(item, report))
   if (candidates.length === 0) return null
   // Ranked, then deduplicated BY LOCATION — in that order, so the row kept for a location is the
