@@ -54,8 +54,16 @@ export function sandboxFileOperations(
   const { readFile, writeFile } = native
   return {
     async replaceFileAndCheck(this: ExecutionBackend, path, content, command, symlinkRoot) {
-      // Relative paths and host file wrappers keep the native APIs, as for the two-call form.
-      if (!path.startsWith('/') || this.readFile !== readFile || this.writeFile !== writeFile)
+      // Relative paths and host file wrappers keep the native APIs, as for the two-call form. So
+      // does a channel that has not yet returned a script's output whole (`supported`, set by the
+      // guarded read): there a reply without a mark cannot be told from a script that never ran
+      // (a host prelude that prints, a stub transport), and the guarded path degrades instead.
+      if (
+        !path.startsWith('/') ||
+        !supported ||
+        this.readFile !== readFile ||
+        this.writeFile !== writeFile
+      )
         return null
       const request = Buffer.from(
         JSON.stringify({ path, content, command, root: symlinkRoot ?? '' }),
@@ -82,11 +90,11 @@ export function sandboxFileOperations(
       if (!result.stdout.startsWith(WRITE_MARK)) {
         // Nothing was written: no Node, a file too large for the envelope, or a filesystem
         // error the native API reports in its own words.
-        if (
-          result.stdout.startsWith(NO_WRITE_MARK) ||
-          (result.exitCode === 127 && /node.*not found/.test(result.stderr))
-        )
+        if (result.stdout.startsWith(NO_WRITE_MARK)) return null
+        if (result.exitCode === 127 && /node.*not found/.test(result.stderr)) {
+          supported = false
           return null
+        }
         throw new Error(
           'Sandbox file write returned no completion acknowledgement; not retrying an uncertain write',
         )

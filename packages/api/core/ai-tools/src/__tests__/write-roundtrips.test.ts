@@ -54,6 +54,10 @@ async function fixture(latency = 0) {
       }),
   }
   const backend = createSandboxBackend(sandbox, root)
+  // A run's first guarded read shows the channel returns a script's output whole; only then does
+  // write_file take its one call (the first write of a fresh backend is pinned separately below).
+  await backend.readFileForUpdate!(join(root, '.channel-probe'), root)
+  calls.splice(0)
   const legacy: ExecutionBackend = { ...backend }
   delete legacy.readFileForUpdate
   delete legacy.writeFileAndCheck
@@ -464,6 +468,35 @@ describe('write/edit sandbox round trips and exact results', () => {
       return { result, events, text: await readFile(path, 'utf8') }
     }
     expect(await run(true)).toEqual(await run(false))
+  })
+
+  it('takes the guarded path for the first write of a fresh backend, then one call', async () => {
+    const f = await fixture()
+    const backend = createSandboxBackend(f.sandbox, f.root)
+    const tool = buildTools(backend, { symlinkGuards: true }).find((t) => t.name === 'write_file')!
+    const path = join(f.root, 'invoice.json')
+    await writeFile(path, '{}')
+    expect(await tool.execute({ path, content: '{"paid":false}' })).toMatchObject({ ok: true })
+    expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
+    f.calls.splice(0)
+    expect(await tool.execute({ path, content: '{"paid":true}' })).toMatchObject({ ok: true })
+    expect(f.calls.map((c) => c.kind)).toEqual(['exec'])
+    expect(await readFile(path, 'utf8')).toBe('{"paid":true}')
+  })
+
+  it('degrades to native writes on a channel that does not return the script output', async () => {
+    const f = await fixture()
+    // A stub transport (or a host prelude that prints) answers every command without running it.
+    const files = { ...f.sandbox, exec: async () => ({ stdout: 'ok\n', stderr: '', exitCode: 0 }) }
+    const tool = buildTools(createSandboxBackend(files, f.root)).find(
+      (t) => t.name === 'write_file',
+    )!
+    const path = join(f.root, 'invoice.json')
+    await writeFile(path, '{}')
+    for (const paid of [false, true])
+      expect(await tool.execute({ path, content: `{"paid":${paid}}` })).toMatchObject({ ok: true })
+    expect(await readFile(path, 'utf8')).toBe('{"paid":true}')
+    expect(f.calls.filter((c) => c.kind === 'write')).toHaveLength(2)
   })
 
   it('leaves relative-path interpretation to the native file API', async () => {

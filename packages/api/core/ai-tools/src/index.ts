@@ -136,7 +136,9 @@
  * - **Sandbox writes batch transport work.** The optional backend operations
  *   `readFileForUpdate` and `writeFileAndCheck` combine path safety with the old-text
  *   read, then the write with its parse check; `replaceFileAndCheck` does all of it for
- *   `write_file` in one command, refusing a path outside the root before writing. Diff
+ *   `write_file` in one command, refusing a path outside the root before writing. It runs
+ *   once a guarded read has come back whole over the same channel, so a stub transport or a
+ *   host prelude that prints degrades to the two-call path instead of an uncertain write. Diff
  *   tracking and redaction checks stay in the tools. Format and change hooks retain their
  *   ordering before parsing; large files and backends without these operations use the
  *   native file APIs. A host that overrides `readFile` or `writeFile` turns these off.
