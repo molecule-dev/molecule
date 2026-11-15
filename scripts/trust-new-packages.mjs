@@ -122,7 +122,8 @@ const FROM_HOOK = args.includes('--from-hook')
 // --concurrency=<n>: packages handled at once. A 6-digit code is accepted for every call
 // inside its window (about 30 s), and a first publish takes several seconds, so one at a
 // time spent a code on about 8 packages (2026-11-15: 42 packages on 5 codes, about 30 more
-// codes to go for one sweep). Calls made together share the code's window.
+// codes to go for one sweep). Calls made together share the code's window, for its first
+// 25 s only (the gate below).
 const CONCURRENCY = (() => {
   const value = (args.find((a) => a.startsWith('--concurrency=')) || '').split('=')[1]
   if (value === undefined) return 8
@@ -502,13 +503,16 @@ const ensureOtp = async (label, force = false, why = 'rejected') => {
 
 /**
  * Every 2FA'd call goes through this (lib/otp-gate.mjs): a refused code is never sent
- * again, a new code is tried on one call before the others, and npm's 2FA rate limit
- * pauses every call instead of asking the phone for codes npm will refuse.
- * TRUST_NEW_RATE_LIMIT_PAUSE_MS sets the first pause (tests shorten it).
+ * again, a new code is tried on one call before the others, calls share a code side by
+ * side only for its first 25 s (then one at a time, so its expiry costs one refusal), and
+ * npm's 2FA rate limit pauses every call instead of asking the phone for codes npm will
+ * refuse. TRUST_NEW_RATE_LIMIT_PAUSE_MS sets the first pause and TRUST_NEW_CODE_FRESH_MS
+ * the 25 s (tests shorten both).
  */
 const gate = createOtpGate({
   fetchCode: (label, why) => ensureOtp(label, why !== 'first', why),
   pauseMs: Number(process.env.TRUST_NEW_RATE_LIMIT_PAUSE_MS) || 180_000,
+  freshMs: Number(process.env.TRUST_NEW_CODE_FRESH_MS) || 25_000,
 })
 
 /**
@@ -776,8 +780,9 @@ const trustOne = async (pkg) => {
     try {
       // ONE code per run is the contract: the up-front prompt (or --otp, or
       // the stored seed) is reused for every publish and trust call, made
-      // CONCURRENCY packages at a time — npm keeps accepting the same TOTP
-      // code until its window tolerance runs out, which is how 592 packages were trusted on a handful of codes on
+      // CONCURRENCY packages at a time while the code is fresh, then one at a time
+      // (lib/otp-gate.mjs) — npm keeps accepting the same TOTP code until its window
+      // tolerance runs out, which is how 592 packages were trusted on a handful of codes on
       // 2026-08-05. A fresh code is asked for ONLY when npm actually rejects
       // one (long sweeps outliving the window), a rate limit waits instead of
       // asking (lib/otp-gate.mjs), and non-OTP failures (WAF, network) surface
@@ -860,7 +865,8 @@ const trustOne = async (pkg) => {
 }
 
 // Packages run CONCURRENCY at a time (one in CI, which needs no code), so calls made
-// together share a code's window. Any error stops new packages from starting; the ones
+// together share a code's window; the gate lets their 2FA'd calls overlap only while the
+// code is fresh. Any error stops new packages from starting; the ones
 // already running finish, and then the error is handled as before.
 const finished = new Set()
 const queue = [...ready]

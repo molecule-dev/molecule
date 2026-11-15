@@ -15,14 +15,20 @@ const flush = async (): Promise<void> => {
 
 /**
  * A gate over a scripted npm: `answers[code]` lists what npm says to each call carrying
- * that code (the last answer repeats). Calls stay open until `release()`.
+ * that code (the last answer repeats). Calls stay open until `release()`. `clock.t` is
+ * the gate's clock; by default a code never gets old.
  */
-function harness(answers: Record<string, Answer[]>, codes: string[], maxRateLimits = 5) {
+function harness(
+  answers: Record<string, Answer[]>,
+  codes: string[],
+  { maxRateLimits = 5, freshMs = Infinity }: { maxRateLimits?: number; freshMs?: number } = {},
+) {
   const sent: Array<{ code: string; open: number }> = []
   const fetches: string[] = []
   const pauses: number[] = []
   const pending: Array<() => void> = []
   const wakes: Array<() => void> = []
+  const clock = { t: 0 }
   let open = 0
   const gate = createOtpGate({
     fetchCode: async (_label: string, why: string) => {
@@ -33,6 +39,8 @@ function harness(answers: Record<string, Answer[]>, codes: string[], maxRateLimi
     },
     pauseMs: 1000,
     maxRateLimits,
+    freshMs,
+    now: () => clock.t,
     sleep: (ms: number) =>
       new Promise<void>((resolve) => {
         pauses.push(ms)
@@ -66,7 +74,7 @@ function harness(answers: Record<string, Answer[]>, codes: string[], maxRateLimi
     wakes.shift()?.()
     await flush()
   }
-  return { gate, run, release, wake, sent, fetches, pauses }
+  return { gate, run, release, wake, sent, fetches, pauses, clock }
 }
 
 describe('npmTwoFactorFailure', () => {
@@ -110,6 +118,22 @@ describe('createOtpGate', () => {
     // One probe and three together with the old code; nothing more was sent with it.
     expect(h.sent.filter((s) => s.code === '111111')).toHaveLength(4)
     expect(h.sent.filter((s) => s.code === '222222').map((s) => s.open)).toEqual([1, 1, 2])
+  })
+
+  it('lets calls share a code only while it is fresh, so its expiry refuses one call (OLD MUSTFAIL: three refused together)', async () => {
+    const h = harness({ '111111': ['ok', 'ok', 'otp'] }, ['111111', '222222'], { freshMs: 1000 })
+    const runs = [h.run(), h.run(), h.run(), h.run(), h.run()]
+    await flush()
+    h.clock.t = 1000 // the code is old before its first call answers
+    await h.release() // the probe: accepted
+    await h.release() // alone: accepted
+    await h.release() // alone: refused, the code died
+    await h.release() // the new code's probe
+    await h.release() // the other two together: the new code is fresh
+    expect(await Promise.all(runs)).toEqual(['ok', 'ok', 'ok', 'ok', 'ok'])
+    expect(h.sent.filter((s) => s.code === '111111').map((s) => s.open)).toEqual([1, 1, 1])
+    expect(h.sent.filter((s) => s.code === '222222').map((s) => s.open)).toEqual([1, 1, 2])
+    expect(h.fetches).toEqual(['first', 'rejected'])
   })
 
   it('pauses every call on a rate limit and asks for nothing until the pause ends (OLD MUSTFAIL: asked at once)', async () => {
@@ -156,7 +180,7 @@ describe('createOtpGate', () => {
     const h = harness(
       { '111111': ['ok', 'rate-limited'], '222222': ['rate-limited'] },
       ['111111', '222222', '333333'],
-      1,
+      { maxRateLimits: 1 },
     )
     const runs = [h.run(), h.run()].map((p) => p.catch((error: unknown) => error))
     await h.release() // probe ok

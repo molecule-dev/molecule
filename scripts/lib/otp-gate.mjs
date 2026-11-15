@@ -14,6 +14,11 @@
  *   for it;
  * - every new code goes out on ONE call first, and the others start only once it
  *   answered, so a code that does not work costs one rejection, not one per call;
+ * - calls share a code side by side only while it is fresh (`freshMs` after it
+ *   arrived); after that they go one at a time, so the expiry npm cannot announce
+ *   costs one rejection too. Four calls in flight when a code died at 80 s were
+ *   enough to lock 2FA (2026-11-15), and codes have lived from 80 s to 8 min, so
+ *   their age is the only warning there is;
  * - a rate-limit answer pauses every call and asks for nothing until the pause
  *   ends (it doubles each time npm is still locked, and resets on a success), then
  *   a fresh code is tried on one call; after `maxRateLimits` locks in a row the
@@ -53,7 +58,10 @@ export function npmTwoFactorFailure({ status, text = '' }) {
  * @param options.pauseMs - The first pause after a rate limit; each pause after it
  *   doubles, up to ten times this.
  * @param options.maxRateLimits - Rate-limit answers in a row before giving up.
+ * @param options.freshMs - How long after a code arrives calls may share it side by
+ *   side; later calls go one at a time until the next code.
  * @param options.sleep - Waits `ms` milliseconds (injectable for tests).
+ * @param options.now - The clock, in milliseconds (injectable for tests).
  * @param options.log - Where progress lines go.
  * @returns `prime(label)` fetches the first code ahead of the calls; `run(label, call,
  *   failureOf)` runs `call(code)` until `failureOf(result)` is neither `otp` nor
@@ -63,11 +71,15 @@ export function createOtpGate({
   fetchCode,
   pauseMs = 180_000,
   maxRateLimits = 5,
+  freshMs = 25_000,
   sleep = (ms) => delay(ms),
+  now = () => Date.now(),
   log = (line) => console.error(line),
 }) {
   /** The code calls get; null once npm refused it. */
   let code = null
+  /** When `code` arrived. */
+  let codeAt = 0
   /** Why the next code is needed (passed to fetchCode). */
   let why = 'first'
   /** The request for a code in flight, shared by every caller waiting for one. */
@@ -87,6 +99,7 @@ export function createOtpGate({
     refresh ??= (async () => {
       try {
         code = await fetchCode(label, why)
+        codeAt = now()
       } catch (error) {
         // No code (the owner denied, no terminal): final for every call, so a call
         // still running cannot ask again after the answer was no.
@@ -100,7 +113,10 @@ export function createOtpGate({
     return refresh
   }
 
-  /** Waits until a call may start; returns its code and whether it is the probe. */
+  /**
+   * Waits until a call may start; returns its code and `done`, which lets the next
+   * call start when this one went alone.
+   */
   const ready = async (label) => {
     for (;;) {
       if (gaveUp) throw gaveUp
@@ -108,7 +124,8 @@ export function createOtpGate({
       else if (probe) await probe
       else if (refresh) await refresh
       else if (!code) await fetchNext(label)
-      else if (probeNext) {
+      else if (probeNext || now() - codeAt >= freshMs) {
+        // Alone: the first call with a new code, or any call once the code is old.
         probeNext = false
         let settle
         probe = new Promise((resolve) => (settle = resolve))

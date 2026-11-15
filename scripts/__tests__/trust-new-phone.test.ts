@@ -34,7 +34,9 @@ const B = '@molecule/api-demo-b'
 // each logged trust call carries how many were in flight when it arrived (and how many of
 // those carried the same code). scenario.rateLimit { after, lockMs } is npm's 2FA lock:
 // after that many refused codes every 2FA'd call answers 429 "rate limited otp" for lockMs,
-// and each call made during the lock extends it.
+// and each call made during the lock extends it. scenario.codeMs is a code's life: a call
+// that completes that long after the code first worked is refused (logged again with
+// refused: true), the way a TOTP window runs out under requests already in flight.
 const STUB_FETCH = `
 import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 const scenario = JSON.parse(readFileSync(process.env.STUB_SCENARIO, 'utf8'))
@@ -46,7 +48,8 @@ let inflight = 0
 const sameCode = {}
 let refused = 0
 let lockedUntil = 0
-const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
+const firstUse = {}
+const json =(body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
 globalThis.fetch = async (url, init = {}) => {
   const u = new URL(url)
   const method = init.method ?? 'GET'
@@ -70,7 +73,8 @@ globalThis.fetch = async (url, init = {}) => {
     sameCode[otp] = (sameCode[otp] ?? 0) + 1
     try {
     const rateLimited = Boolean(otp) && lockedUntil > Date.now()
-    log({ method, name, otp: otp ?? null, auth, inflight, sameCode: sameCode[otp], ...(rateLimited ? { rateLimited } : {}) })
+    const refusing = !scenario.ci && live && Boolean(otp) && !rateLimited && !budget[otp]
+    log({ method, name, otp: otp ?? null, auth, inflight, sameCode: sameCode[otp], ...(rateLimited ? { rateLimited } : {}), ...(refusing ? { refused: true } : {}) })
     if (!scenario.ci && !live) return json({ error: '{"success":false,"error":"You must be logged in to publish packages."}' }, 401)
     if (!otp && !scenario.ci)
       return headers['npm-auth-type'] === 'web'
@@ -81,7 +85,7 @@ globalThis.fetch = async (url, init = {}) => {
         lockedUntil = Date.now() + scenario.rateLimit.lockMs
         return json({ error: 'Could not authenticate owner: rate limited otp' }, 429)
       }
-      if (!budget[otp]) {
+      if (refusing) {
         refused++
         if (scenario.rateLimit && refused >= scenario.rateLimit.after)
           lockedUntil = Date.now() + scenario.rateLimit.lockMs
@@ -90,6 +94,15 @@ globalThis.fetch = async (url, init = {}) => {
       budget[otp]--
     }
     if (scenario.delayMs) await new Promise((resolve) => setTimeout(resolve, scenario.delayMs))
+    // npm reads the code when the request completes, so every call in flight when it dies
+    // is refused together.
+    if (scenario.codeMs && !scenario.ci && (firstUse[otp] ??= Date.now()) < Date.now() - scenario.codeMs) {
+      refused++
+      if (scenario.rateLimit && refused >= scenario.rateLimit.after)
+        lockedUntil = Date.now() + scenario.rateLimit.lockMs
+      log({ method, name, otp, auth, inflight, sameCode: sameCode[otp], refused: true })
+      return json({ error: 'otp invalid' }, 401)
+    }
     if (method === 'POST' && name === scenario.crashOn) throw new Error('network down')
     if (method === 'GET') return json([])
     return json({}, method === 'POST' ? 201 : 200)
@@ -373,6 +386,38 @@ describe("trust:new with the owner's phone", () => {
     )
     expect(ledgerOf(root).sort()).toEqual([...names].sort())
   })
+
+  it('shares a code only while it is fresh, so its expiry refuses one call and never locks 2FA (OLD MUSTFAIL)', async () => {
+    // The sweep of 2026-11-15: eight packages at once, a code that died with four calls
+    // in flight, and npm's 2FA lock on the next code. Here a code lives 5 s, a call takes
+    // 2 s, and three refusals lock 2FA.
+    const names = Array.from({ length: 20 }, (_, i) => `@molecule/api-demo-n${i}`)
+    const root = scratchRepo({ ledger: [], names })
+    const codes = ['424242', '135791', '246802', '975310']
+    const { socketPath } = await phoneService(
+      root,
+      codes.map((code) => ({ status: 'code', code })),
+    )
+    const run = await runTrustNew(
+      root,
+      [],
+      {
+        codes: Object.fromEntries(codes.map((code) => [code, 100])),
+        codeMs: 5000,
+        delayMs: 2000,
+        rateLimit: { after: 3, lockMs: 60_000 },
+      },
+      socketPath,
+      { TRUST_NEW_CODE_FRESH_MS: '3000', TRUST_NEW_RATE_LIMIT_PAUSE_MS: '1000' },
+    )
+    expect(run.code, run.out).toBe(0)
+    expect(run.calls.filter((c) => c.rateLimited)).toHaveLength(0)
+    for (const code of codes)
+      expect(run.calls.filter((c) => c.otp === code && c.refused).length).toBeLessThanOrEqual(1)
+    // Fresh codes were still shared.
+    expect(Math.max(...run.calls.map((c) => Number(c.inflight)))).toBeGreaterThan(1)
+    expect(ledgerOf(root).sort()).toEqual([...names].sort())
+  }, 120_000)
 
   it('refuses a --concurrency that is not a positive whole number', async () => {
     const root = scratchRepo()
