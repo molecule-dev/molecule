@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-wearable-oura",
   "version": "1.0.5",
-  "description": "Oura Ring Cloud API v2 bond for molecule.dev — daily activity, sleep (REM/deep/light), and heart-rate ingestion via OAuth 2.0",
+  "description": "Oura Ring Cloud API v2 bond for @molecule/api-wearable — daily activity, sleep (REM/deep/light), and heart-rate via OAuth 2.0. Returns empty weight data.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

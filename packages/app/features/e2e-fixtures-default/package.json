@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-e2e-fixtures-default",
   "version": "1.2.6",
-  "description": "Shared Playwright `test` + `expect` with auto-attached browser console-error/pageerror guard. Every fleet app's e2e specs import from here so a runtime exception (React mount failure, ESM/CJS interop error, unhandled rejection) hard-fails the test instead of silently passing.",
+  "description": "The @playwright/test drop-in for molecule apps: Playwright's test, expect and page with the browser supplied by the bonded e2e provider (live preview or real browsers), a console-error guard on every test, and the Playwright-shaped page adapter for evaluate-only bonds.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

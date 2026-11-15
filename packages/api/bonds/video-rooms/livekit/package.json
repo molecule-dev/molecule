@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-video-rooms-livekit",
   "version": "1.0.3",
-  "description": "LiveKit video rooms provider for molecule.dev",
+  "description": "LiveKit video rooms provider for molecule.dev. Implements @molecule/api-video-rooms via the LiveKit Server API (Twirp transport) and HS256 JWT meeting tokens via livekit-server-sdk. Self-hostable + LiveKit Cloud.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

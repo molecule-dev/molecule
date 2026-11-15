@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-weather-open-meteo",
   "version": "1.0.3",
-  "description": "Open-Meteo weather provider for molecule.dev",
+  "description": "Open-Meteo weather provider — keyless, free for non-commercial use, emits WMO 4677 codes natively.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

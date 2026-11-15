@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-wallet-pass",
   "version": "1.0.6",
-  "description": "Apple Wallet (.pkpass) + Google Wallet pass-object generation — signed manifests, JWT-signed pass classes, and HTTP handlers for ticket delivery.",
+  "description": "Apple Wallet (.pkpass) + Google Wallet pass-object generation. Signs Apple manifests with CMS detached signatures and Google pass JWTs with RS256. Framework-neutral HTTP handlers for ticket / coupon delivery.",
   "homepage": "https://www.molecule.dev/packages/api-wallet-pass",
   "type": "module",
   "main": "dist/index.js",

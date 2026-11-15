@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-uptime",
   "version": "1.1.0",
-  "description": "Uptime core interface for molecule.dev — probe an http(s) URL for status, latency and TLS expiry",
+  "description": "Abstract uptime interface — probe an http(s) URL for status, latency and TLS expiry — bond in-process fetch or molecule.dev’s hosted service",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

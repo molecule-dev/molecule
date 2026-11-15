@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-video-meetings-zoom",
   "version": "1.0.3",
-  "description": "Zoom video meetings provider for molecule.dev",
+  "description": "Zoom video meetings provider for molecule.dev. Implements @molecule/api-video-meetings via the Zoom REST v2 API with Server-to-Server OAuth (account-level token caching) and per-request user-OAuth token support.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

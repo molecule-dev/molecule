@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-ai-models",
   "version": "1.4.4",
-  "description": "Framework-agnostic client + UI metadata for the AI model catalog",
+  "description": "App-side client + UI metadata for the AI model catalog (loader + brand colors + token formatter)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

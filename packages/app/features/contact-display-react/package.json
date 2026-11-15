@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-contact-display-react",
   "version": "4.0.0",
-  "description": "Formatted contact display: name + avatar + email/phone with icons + optional address",
+  "description": "Contact info display row/card — name, role, email/phone as mailto:/tel: links with leading text glyphs",
   "homepage": "https://www.molecule.dev/packages/app-contact-display-react",
   "type": "module",
   "main": "dist/index.js",

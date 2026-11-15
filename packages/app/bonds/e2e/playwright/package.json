@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-e2e-playwright",
   "version": "1.0.4",
-  "description": "E2E bond that opens real Playwright browsers — the same specs that drive the live preview inside a molecule sandbox run here on your machine and in CI, with screenshots, traces and network interception.",
+  "description": "Real Playwright browsers for the e2e bond — the user's machine and CI",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

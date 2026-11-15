@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-video-rooms",
   "version": "1.0.4",
-  "description": "Video rooms core interface for molecule.dev",
+  "description": "Real-time video rooms core interface — room lifecycle, signed meeting tokens, and cloud recordings — with swappable provider bonds (Daily.co default; LiveKit, Twilio Video, Agora alternates). Used by virtual-classroom, telemedicine, video-conferencing, and screen-sharing apps.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

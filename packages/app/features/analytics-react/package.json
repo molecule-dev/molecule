@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-analytics-react",
   "version": "1.0.3",
-  "description": "React bindings for @molecule/app-analytics (route listener, hooks)",
+  "description": "React bindings for @molecule/app-analytics (route listener)",
   "homepage": "https://www.molecule.dev/packages/app-analytics-react",
   "type": "module",
   "main": "dist/index.js",

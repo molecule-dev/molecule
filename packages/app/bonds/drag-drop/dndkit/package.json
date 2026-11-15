@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-drag-drop-dndkit",
   "version": "1.0.4",
-  "description": "dnd-kit provider for @molecule/app-drag-drop",
+  "description": "Real @dnd-kit drag-drop provider for @molecule/app-drag-drop — sortable order store plus a React SortableList binding with pointer and keyboard sensors.",
   "homepage": "https://www.molecule.dev/packages/app-drag-drop-dndkit",
   "type": "module",
   "main": "dist/index.js",

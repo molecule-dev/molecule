@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-weather-openweather",
   "version": "1.0.3",
-  "description": "OpenWeather (One Call API 3.0) weather provider for molecule.dev",
+  "description": "OpenWeather (One Call API 3.0) weather provider — paid-tier alternative to Open-Meteo with SLA. Maps OpenWeather condition codes onto WMO 4677 for cross-provider compatibility.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

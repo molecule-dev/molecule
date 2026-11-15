@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-country-flags",
   "version": "1.0.3",
-  "description": "Country/region flag interfaces for molecule.dev",
+  "description": "Country/region flag interfaces and provider system",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

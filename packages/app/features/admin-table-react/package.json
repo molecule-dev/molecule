@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-admin-table-react",
   "version": "4.0.1",
-  "description": "Admin-style data table: column-defs, row click navigation, bulk-select, row-action kebab menu, loading skeleton, pagination slot. Generalised from AdminProductsTable / AdminOrdersTable in the online-store flagship.",
+  "description": "Generic data table with bulk-select + row actions",
   "homepage": "https://www.molecule.dev/packages/app-admin-table-react",
   "type": "module",
   "main": "dist/index.js",

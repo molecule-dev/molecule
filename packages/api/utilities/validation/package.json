@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-utilities-validation",
   "version": "1.0.4",
-  "description": "Validation utilities for molecule.dev (Zod, isEmail, isUuid)",
+  "description": "Standalone data-validation helpers (schema/shape checks) for API code — distinct from @molecule/api-middleware-validation, the request-validating middleware",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

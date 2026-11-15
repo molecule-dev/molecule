@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-device-calendar",
   "version": "1.0.4",
-  "description": "Calendar access interface for molecule.dev",
+  "description": "Device/OS calendar access core — read and write the user's real iOS/Android calendars through a swappable provider; not the in-app calendar UI.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

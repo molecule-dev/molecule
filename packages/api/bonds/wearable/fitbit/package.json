@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-wearable-fitbit",
   "version": "1.0.5",
-  "description": "Fitbit Web API bond for molecule.dev — daily activity, sleep, heart-rate, and weight ingestion via OAuth 2.0 PKCE",
+  "description": "Fitbit Web API bond for molecule.dev — daily activity, sleep, heart-rate, and weight via OAuth 2.0 PKCE.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

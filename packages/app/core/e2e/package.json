@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-e2e",
   "version": "1.2.5",
-  "description": "End-to-end test core: Playwright's test, expect and page, with the browser supplied by a swappable bond — the live IDE preview inside a molecule sandbox, or real Playwright browsers on your machine and CI.",
+  "description": "The e2e bond contract: which browser runs an app's end-to-end specs — the live IDE preview inside a molecule sandbox, or real Playwright browsers — plus the rule that picks one per environment.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

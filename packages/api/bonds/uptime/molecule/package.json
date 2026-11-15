@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-uptime-molecule",
   "version": "1.2.0",
-  "description": "molecule.dev hosted uptime provider for molecule.dev — probe a URL from molecule's vantage point, billed to your project, no vendor account",
+  "description": "molecule.dev hosted uptime — probe a URL from molecule’s vantage point, billed to your project, no vendor account",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-comparison-row-react",
   "version": "4.0.0",
-  "description": "Period-over-period stat comparison (\"$X vs $Y\", with delta)",
+  "description": "Period-over-period stat comparison (\" vs \", with delta)",
   "homepage": "https://www.molecule.dev/packages/app-comparison-row-react",
   "type": "module",
   "main": "dist/index.js",

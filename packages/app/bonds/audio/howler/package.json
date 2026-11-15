@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-audio-howler",
   "version": "1.0.3",
-  "description": "Howler.js provider for @molecule/app-audio",
+  "description": "Howler.js audio provider for @molecule/app-audio — real, audible playback backed by live Howl state (duration, seek, volume) and end/progress events.",
   "homepage": "https://www.molecule.dev/packages/app-audio-howler",
   "type": "module",
   "main": "dist/index.js",

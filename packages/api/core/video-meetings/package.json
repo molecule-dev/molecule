@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-video-meetings",
   "version": "1.0.4",
-  "description": "Video meetings core interface for molecule.dev",
+  "description": "Scheduled video-meetings core interface — meeting lifecycle (create, get, update, delete) and listing, with stable join URLs — with swappable provider bonds (Zoom, Google Meet, Microsoft Teams, Webex). Distinct from @molecule/api-video-rooms (ephemeral rooms): meetings are scheduled events with a start time, duration, and shareable join URL. Used by meeting-scheduler, ai-meeting-notes, calendar integrations, and tele-counselling apps.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

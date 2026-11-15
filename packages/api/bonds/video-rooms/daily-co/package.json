@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-video-rooms-daily-co",
   "version": "1.0.3",
-  "description": "Daily.co video rooms provider for molecule.dev",
+  "description": "Daily.co video rooms provider for molecule.dev. Implements @molecule/api-video-rooms via the Daily.co REST API.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

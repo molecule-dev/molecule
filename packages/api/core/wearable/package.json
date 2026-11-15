@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-wearable",
   "version": "1.0.4",
-  "description": "Wearable cloud-API ingestion core for molecule.dev — normalized contract for Fitbit, Oura, Withings, and other consumer wearable providers",
+  "description": "Wearable cloud-API ingestion core — normalized contract for Fitbit, Oura, Withings, and other consumer wearable providers (daily activity, sleep, heart-rate, weight).",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

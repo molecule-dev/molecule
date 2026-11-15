@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-bond",
   "version": "1.0.5",
-  "description": "Core wiring mechanism for molecule.dev app-side providers",
+  "description": "Provider wiring mechanism for app-side packages",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

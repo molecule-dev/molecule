@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-data-table-ui-react",
   "version": "4.0.1",
-  "description": "React row-level primitives for @molecule/app-ui-react Table (toolbar, row-with-actions, empty)",
+  "description": "Card data table + table chrome primitives (toolbar, footer, row-with-actions, empty row) — standalone, renders its own table elements",
   "homepage": "https://www.molecule.dev/packages/app-data-table-ui-react",
   "type": "module",
   "main": "dist/index.js",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-charts",
   "version": "1.0.6",
-  "description": "Chart interface and utilities for molecule.dev",
+  "description": "Framework-agnostic chart interface (createChart/createLineChart/… + swappable ChartProvider); built-in provider renders text placeholders only — bond a real provider for production charts",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

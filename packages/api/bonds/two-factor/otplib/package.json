@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-two-factor-otplib",
   "version": "1.0.4",
-  "description": "Two-factor authentication provider using otplib for molecule.dev",
+  "description": "Two-factor provider using otplib for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

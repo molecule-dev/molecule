@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-charts-chartjs",
   "version": "1.0.3",
-  "description": "Chart.js provider for @molecule/app-charts",
+  "description": "Chart.js provider for @molecule/app-charts — renders real line/bar/pie/doughnut/area/scatter/bubble/radar/polar charts (the built-in default draws placeholders only)",
   "homepage": "https://www.molecule.dev/packages/app-charts-chartjs",
   "type": "module",
   "main": "dist/index.js",

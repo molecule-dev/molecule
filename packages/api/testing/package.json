@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-testing",
   "version": "1.0.4",
-  "description": "Testing utilities for molecule.dev API packages",
+  "description": "Test utilities and helpers",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

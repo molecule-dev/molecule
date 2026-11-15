@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-web-content",
   "version": "1.1.1",
-  "description": "Web content core interface for molecule.dev — fetch a page or extract readable content from HTML",
+  "description": "Abstract web content interface — fetch a page or extract readable content (markdown/text) — bond Readability or molecule.dev’s hosted service",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

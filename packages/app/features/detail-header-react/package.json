@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-detail-header-react",
   "version": "4.0.1",
-  "description": "Detail-page top bar with title, subtitle, status, actions, breadcrumb, optional search",
+  "description": "React detail-page header: title, subtitle, status, actions, meta row, optional search slot (leading slot for avatar/back-button)",
   "homepage": "https://www.molecule.dev/packages/app-detail-header-react",
   "type": "module",
   "main": "dist/index.js",

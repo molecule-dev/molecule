@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-weather",
   "version": "1.0.5",
-  "description": "Weather data core interface for molecule.dev",
+  "description": "Provider-agnostic weather data interface (current observations, daily and hourly forecasts) with WMO 4677 codes and metric units.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-billing-react",
   "version": "4.0.0",
-  "description": "React pricing page + checkout flow that consumes /api/billing/* (provided by @molecule/api-entitlements + @molecule/api-payments-stripe)",
+  "description": "React pricing page + checkout flow that consumes /api/billing/* (provided by @molecule/api-entitlements + the @molecule/api-payments capability, any provider bond)",
   "homepage": "https://www.molecule.dev/packages/app-billing-react",
   "type": "module",
   "main": "dist/index.js",

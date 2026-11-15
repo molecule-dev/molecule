@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-command-palette-cmdk",
   "version": "1.0.3",
-  "description": "cmdk-style provider for @molecule/app-command-palette",
+  "description": "Headless cmdk-style command palette state provider for @molecule/app-command-palette (no cmdk dependency; app renders the UI)",
   "homepage": "https://www.molecule.dev/packages/app-command-palette-cmdk",
   "type": "module",
   "main": "dist/index.js",
