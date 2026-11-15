@@ -194,7 +194,8 @@ export type Interaction =
   | { type: 'mouseenter'; selector: string }
   | { type: 'mouseleave'; selector: string }
   | { type: 'pointerdown'; selector: string }
-  | { type: 'keydown'; selector: string; key: string; shiftKey?: boolean }
+  /** A key press on the element; it bubbles, so `document`/`window` shortcut listeners see it too. */
+  | ({ type: 'keydown'; selector: string; key: string } & ClickModifiers)
   /** Sets `.value` (or `.checked` for checkbox/radio) and dispatches `input` + `change`. */
   | { type: 'input'; selector: string; value: string }
   | { type: 'check'; selector: string; checked: boolean }
@@ -248,6 +249,12 @@ export type Interaction =
       status: 'authenticated' | 'unauthenticated' | 'loading' | 'unavailable'
       user?: Record<string, unknown>
     }
+  /**
+   * Calls a control an area's fakes registered (`chat.emit`, `chat.finish`, `chat.fail`, …),
+   * as the service on the other side would: a stream event arriving, a run ending. Needs the
+   * full composition (`composition: 'app'`) and the area seeded in `context.areas`.
+   */
+  | { type: 'control'; name: string; args?: unknown[] }
   /**
    * Answers the oldest page `fetch` still waiting, with the case's
    * `context.window.fetch` answer (one with `defer: true`).
@@ -461,4 +468,6 @@ export interface AppControls {
     status: Extract<Interaction, { type: 'auth' }>['status'],
     user?: Record<string, unknown>,
   ): void
+  /** Calls a control an area's fakes registered (a `control` step). */
+  control(name: string, args: unknown[]): Promise<void>
 }

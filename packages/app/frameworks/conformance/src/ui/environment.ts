@@ -259,6 +259,9 @@ export function performDomInteraction(step: Interaction): string | undefined {
         new KeyboardEvent('keydown', {
           key: step.key,
           shiftKey: step.shiftKey ?? false,
+          metaKey: step.metaKey ?? false,
+          ctrlKey: step.ctrlKey ?? false,
+          altKey: step.altKey ?? false,
           bubbles: true,
           cancelable: true,
         }),
@@ -307,6 +310,7 @@ export function performDomInteraction(step: Interaction): string | undefined {
     case 'locale':
     case 'http':
     case 'auth':
+    case 'control':
     case 'fetch':
     case 'unmount':
       return

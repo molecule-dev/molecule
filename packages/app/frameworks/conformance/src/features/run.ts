@@ -137,7 +137,11 @@ export const featureAppComposition: AppComposition = {
     setI18nProvider(i18n)
     return {
       services: { ...harness.services, i18n },
-      controls: { answerHttp: harness.controls.answerHttp, setAuth: harness.controls.setAuth },
+      controls: {
+        answerHttp: harness.controls.answerHttp,
+        setAuth: harness.controls.setAuth,
+        control: harness.controls.control,
+      },
       dispose: async () => {
         await harness.controls.dispose()
         setI18nProvider(i18n)

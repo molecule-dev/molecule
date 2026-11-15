@@ -130,9 +130,14 @@ Interactions: `click`, `dblclick`, `focus`, `blur`, `mouseenter`, `mouseleave`, 
 `keydown`, `input`, `check`, `submit`, `event` (any DOM event on a selector, `window` or
 `document`), `props` (re-render with new props), `advance` (timers), `settle` (a deferred
 callback), `navigate` (the router, from outside), `fetch` (answers the oldest page request
-held by `context.window.fetch` with `defer: true`), `unmount` (tears the component down; only
-`fetch`, `settle`, `advance`, `http` and `auth` may follow, so a case shows whether work that
-settles after the page is left still reaches a callback, which React's never do).
+held by `context.window.fetch` with `defer: true`), `control` (calls a control an area's fakes
+registered, such as `chat.emit` or `chat.finish`, so a feature case with `composition: 'app'`
+scripts what a service does from the other side), `unmount` (tears the component down; only
+`fetch`, `settle`, `advance`, `http`, `auth` and `control` may follow, so a case shows whether
+work that settles after the page is left still reaches a callback, which React's never do).
+
+A `keydown` takes `metaKey`, `ctrlKey`, `altKey` and `shiftKey`; it bubbles, so a shortcut
+listener on `document` or `window` sees it.
 
 A `props` step that changes a controlled value (`checked`, `value`) holds a framework to
 React's update path, which differs from its mount path: React sets the `checked` attribute
@@ -278,7 +283,8 @@ package name in its imports.
     mounts through the binding's full composition root (React `MoleculeProvider`, Vue
     `moleculePlugin`, Solid `MoleculeProvider`, Svelte `setMoleculeContext`, Angular
     `provideMolecule`) with the binding kit's fake services, and `context` may seed them
-    like a binding case (`http`, `authErrors`, `areas`).
+    like a binding case (`http`, `authErrors`, `storage`, `areas`); `http`, `auth` and
+    `control` steps drive them.
   - `hooks`: hook cases for the package's hooks (`useQuery`), written like binding cases
     and run with the framework's binding adapter over its binding plus the feature package.
     `areas.query` (`src/bindings/fakes/query.ts`) gives them a fresh in-memory query cache,

@@ -364,7 +364,7 @@ export interface MountedCase {
  * @param mount - Adapter-specific mount into the container.
  * @param recorder - The recorder the adapter wired into the callbacks.
  * @param app - The full service set, when the case mounts through the binding's
- *   composition root (`RunOptions.app`); its controls run `http` and `auth` steps.
+ *   composition root (`RunOptions.app`); its controls run `http`, `auth` and `control` steps.
  * @returns Snapshots and calls.
  */
 export async function runSteps(
@@ -442,7 +442,14 @@ export async function runSteps(
 }
 
 /** The steps that still mean something once the component is gone: they settle what it started. */
-const AFTER_UNMOUNT = new Set<Interaction['type']>(['fetch', 'settle', 'advance', 'http', 'auth'])
+const AFTER_UNMOUNT = new Set<Interaction['type']>([
+  'fetch',
+  'settle',
+  'advance',
+  'http',
+  'auth',
+  'control',
+])
 
 const runStep = async (
   step: Interaction,
@@ -488,6 +495,7 @@ const runStep = async (
         const { method, url, status, data, networkError } = step
         controls().answerHttp({ method, url, status, data, networkError })
       } else if (step.type === 'auth') controls().setAuth(step.status, step.user)
+      else if (step.type === 'control') await controls().control(step.name, step.args ?? [])
       else note = performDomInteraction(step)
     }
     // A torn-down component has no update scope or change detection left to run.
