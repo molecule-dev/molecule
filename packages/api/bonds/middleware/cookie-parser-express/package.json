@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-middleware-cookie-parser-express",
   "version": "1.0.3",
-  "description": "Express cookie parser provider for molecule.dev",
+  "description": "Express cookie parser provider",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-geolocation-photon",
   "version": "1.1.2",
-  "description": "Photon (OpenStreetMap) geolocation provider for molecule.dev",
+  "description": "Photon (OpenStreetMap) geolocation provider for molecule.dev — point it at your own instance",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

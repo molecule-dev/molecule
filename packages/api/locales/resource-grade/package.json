@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-locales-resource-grade",
   "version": "1.0.3",
-  "description": "Grade resource translations for 79 languages",
+  "description": "Translations for @molecule/api-resource-grade in 79 languages.",
   "homepage": "https://www.molecule.dev/packages/api-locales-resource-grade",
   "type": "module",
   "main": "dist/index.js",

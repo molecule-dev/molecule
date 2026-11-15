@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-git-workspace",
   "version": "1.0.4",
-  "description": "Discover, checkpoint, bundle, verify, and restore every git repo in a polyrepo workspace (git-based source archival).",
+  "description": "Multi-repo git workspace utilities — discover every repository in a polyrepo workspace (including nested, gitignored and bare ones), checkpoint uncommitted work, bundle each repo to a single file, and verify an archive reconstructs the workspace before anything is released.",
   "homepage": "https://www.molecule.dev/packages/api-git-workspace",
   "type": "module",
   "main": "dist/index.js",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-monitoring-default",
   "version": "1.0.3",
-  "description": "Default in-process monitoring provider for molecule.dev",
+  "description": "Default in-process monitoring provider",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

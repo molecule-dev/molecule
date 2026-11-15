@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-hotels-amadeus",
   "version": "1.0.3",
-  "description": "Amadeus hotels provider for molecule.dev",
+  "description": "Amadeus self-service Hotel Search API provider bond.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

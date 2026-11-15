@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-oauth",
   "version": "1.1.2",
-  "description": "OAuth core interface for molecule.dev",
+  "description": "OAuth provider interface",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

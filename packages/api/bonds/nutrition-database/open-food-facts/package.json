@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-nutrition-database-open-food-facts",
   "version": "1.0.3",
-  "description": "Open Food Facts nutrition-database provider for molecule.dev",
+  "description": "Open Food Facts nutrition-database provider — keyless free public API with polite User-Agent identification.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

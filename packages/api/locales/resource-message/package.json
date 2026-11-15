@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-locales-resource-message",
   "version": "1.0.2",
-  "description": "English-baseline translations for @molecule/api-resource-message error and system messages.",
+  "description": "Locale bond for @molecule/api-resource-message.",
   "homepage": "https://www.molecule.dev/packages/api-locales-resource-message",
   "type": "module",
   "main": "dist/index.js",

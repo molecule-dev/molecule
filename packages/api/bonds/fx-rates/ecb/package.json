@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-fx-rates-ecb",
   "version": "1.0.4",
-  "description": "European Central Bank reference FX rates provider for molecule.dev (free, keyless, EUR pivot)",
+  "description": "European Central Bank reference FX rates — keyless, free, EUR-pivot daily and 90-day-history XML feeds.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

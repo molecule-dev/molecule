@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-image-molecule",
   "version": "1.1.1",
-  "description": "molecule.dev hosted image transformation — resize/crop/rotate/optimize/convert billed to your molecule project, no vendor account",
+  "description": "molecule.dev hosted image transformation — resize/crop/rotate/optimize/convert billed to your molecule project",
   "homepage": "https://www.molecule.dev/packages/api-image-molecule",
   "type": "module",
   "main": "dist/index.js",

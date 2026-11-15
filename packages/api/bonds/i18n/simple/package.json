@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-i18n-simple",
   "version": "1.0.3",
-  "description": "Simple i18n provider for molecule.dev",
+  "description": "Simple built-in i18n provider using Intl APIs",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

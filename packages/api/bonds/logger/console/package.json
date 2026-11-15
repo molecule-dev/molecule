@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-logger-console",
   "version": "1.0.2",
-  "description": "Console logger provider for molecule.dev",
+  "description": "Console logger provider using native console methods",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

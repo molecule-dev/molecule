@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-middleware-request-logging",
   "version": "1.0.3",
-  "description": "Structured HTTP request-logging middleware for molecule.dev (method, path, status, duration via the bonded logger)",
+  "description": "Structured HTTP request-logging middleware (method, path, status, duration via the bonded logger)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

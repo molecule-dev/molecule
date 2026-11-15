@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-hotels",
   "version": "1.0.5",
-  "description": "Hotel inventory aggregator core interface for molecule.dev",
+  "description": "Provider-agnostic hotel search/offer/book core interface.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-fx-rates",
   "version": "1.0.4",
-  "description": "Foreign exchange rates core interface for molecule.dev",
+  "description": "Foreign exchange rates core interface",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

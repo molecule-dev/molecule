@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-equity-prices",
   "version": "1.0.4",
-  "description": "Equity / ETF / fund price + fundamentals core interface for molecule.dev",
+  "description": "Stock / ETF / fund price + fundamentals lookup interface",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

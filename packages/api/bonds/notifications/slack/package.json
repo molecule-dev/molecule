@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-notifications-slack",
   "version": "1.0.3",
-  "description": "Slack notifications provider for molecule.dev",
+  "description": "Slack notification provider",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

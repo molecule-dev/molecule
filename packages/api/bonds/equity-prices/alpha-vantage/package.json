@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-equity-prices-alpha-vantage",
   "version": "1.0.3",
-  "description": "Alpha Vantage equity-prices provider for molecule.dev",
+  "description": "Alpha Vantage equity-prices provider — quotes, historical bars, symbol search, and fundamentals from alphavantage.co.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

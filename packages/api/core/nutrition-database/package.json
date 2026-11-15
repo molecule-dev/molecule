@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-nutrition-database",
   "version": "1.0.5",
-  "description": "Nutrition + barcode lookup core interface for molecule.dev",
+  "description": "Nutrition + barcode lookup core interface (free-text search, barcode lookup, normalized per-100g + per-serving nutrition facts).",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

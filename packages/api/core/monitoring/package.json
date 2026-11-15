@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-monitoring",
   "version": "1.0.3",
-  "description": "Health monitoring interface with composable checks for molecule.dev",
+  "description": "Health monitoring and status checks",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

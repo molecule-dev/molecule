@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-emails-resend",
   "version": "1.0.5",
-  "description": "Resend email provider for molecule.dev.",
+  "description": "Resend transactional email provider",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

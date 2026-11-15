@@ -7,7 +7,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/locales/property"
   },
-  "description": "Property resource translations for 79 languages",
+  "description": "Translations for @molecule/api-resource-property in 79 languages.",
   "homepage": "https://www.molecule.dev/packages/api-locales-property",
   "type": "module",
   "main": "dist/index.js",

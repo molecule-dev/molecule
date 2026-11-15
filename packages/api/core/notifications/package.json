@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-notifications",
   "version": "1.0.3",
-  "description": "Notifications interface with multi-channel support for molecule.dev",
+  "description": "Multi-channel notification delivery",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

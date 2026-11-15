@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-external-auth-supabase",
   "version": "1.0.4",
-  "description": "External authentication provider using Supabase for molecule.dev — verifies Supabase user JWTs server-side with the public anon key",
+  "description": "Supabase external-auth provider for molecule.dev — anon-key JWT verification (no secret needed), lazy anon/PostgREST clients, and a service-role client when the user connects SUPABASE_SERVICE_ROLE_KEY.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

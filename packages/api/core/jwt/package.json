@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-jwt",
   "version": "1.0.11",
-  "description": "JWT interface and key management for molecule.dev",
+  "description": "JSON Web Token interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

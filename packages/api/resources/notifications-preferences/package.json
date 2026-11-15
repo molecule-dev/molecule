@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-notifications-preferences",
   "version": "1.0.7",
-  "description": "Per-user notification preferences (channel toggles per type) — single-row JSONB store with delivery-gate helpers.",
+  "description": "Per-user channel toggles per notification type — single-row JSONB store with delivery-gate helpers.",
   "homepage": "https://www.molecule.dev/packages/api-notifications-preferences",
   "type": "module",
   "main": "dist/index.js",

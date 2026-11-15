@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-locales-resource-version-history",
   "version": "1.0.2",
-  "description": "English-baseline translations for @molecule/api-resource-version-history error messages.",
+  "description": "Locale bond for @molecule/api-resource-version-history.",
   "homepage": "https://www.molecule.dev/packages/api-locales-resource-version-history",
   "type": "module",
   "main": "dist/index.js",

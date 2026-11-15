@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-external-auth",
   "version": "1.0.2",
-  "description": "External authentication interface for molecule.dev — verify user tokens issued by an imported app's own auth platform",
+  "description": "External-auth verification interface for molecule.dev — verify a user token issued by an imported app's own auth platform (Supabase, Firebase, Clerk, …) via a swappable provider bond.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

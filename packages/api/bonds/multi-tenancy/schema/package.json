@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-multi-tenancy-schema",
   "version": "1.0.5",
-  "description": "Schema-based multi-tenancy provider for molecule.dev — tenant isolation via database schemas with HTTP header middleware",
+  "description": "Multi-tenancy provider — request-scoped tenant context (AsyncLocalStorage), tenant registry, secure header resolution middleware; tenant context only, no data isolation",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

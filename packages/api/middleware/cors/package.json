@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-middleware-cors",
   "version": "1.0.3",
-  "description": "CORS middleware interface for molecule.dev",
+  "description": "CORS middleware interface",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-i18n",
   "version": "1.0.6",
-  "description": "Internationalization interface for molecule.dev API",
+  "description": "Multi-language support with translations",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

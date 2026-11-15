@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-jwt-jsonwebtoken",
   "version": "1.0.4",
-  "description": "JSON Web Token provider using jsonwebtoken for molecule.dev",
+  "description": "JWT provider using jsonwebtoken for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

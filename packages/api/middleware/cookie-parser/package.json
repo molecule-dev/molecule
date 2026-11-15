@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-middleware-cookie-parser",
   "version": "1.0.3",
-  "description": "Cookie parser middleware interface for molecule.dev",
+  "description": "Cookie parser middleware interface",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

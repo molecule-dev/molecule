@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-middleware-cors-express",
   "version": "1.0.3",
-  "description": "Express CORS provider for molecule.dev",
+  "description": "Express CORS provider",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

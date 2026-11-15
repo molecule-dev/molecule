@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-fx-rates-openexchange",
   "version": "1.0.4",
-  "description": "OpenExchangeRates FX provider for molecule.dev (USD-pivot JSON; free tier locked to base=USD)",
+  "description": "OpenExchangeRates FX provider — USD-pivot daily and historical JSON endpoints; free tier locked to base=USD.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

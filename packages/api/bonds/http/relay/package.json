@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-http-relay",
   "version": "1.0.3",
-  "description": "Egress relay HTTP client for molecule.dev — outbound HTTP through the platform relay for runtimes that cannot dial out",
+  "description": "HTTP client that sends outbound requests through the molecule.dev egress relay, for runtimes that cannot dial out (a server running in the browser): the relay applies the project egress allowlist, follows no redirect past its checks, and returns the upstream status in a header. Includes installRelayFetch, which routes the runtime's global fetch through it.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

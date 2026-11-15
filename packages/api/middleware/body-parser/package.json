@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-middleware-body-parser",
   "version": "1.0.3",
-  "description": "Body parser middleware interface for molecule.dev (JSON and multipart)",
+  "description": "Body parser middleware interface (JSON and multipart)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

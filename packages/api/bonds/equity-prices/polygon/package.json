@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-equity-prices-polygon",
   "version": "1.0.4",
-  "description": "Polygon.io equity-prices provider for molecule.dev",
+  "description": "Polygon.io equity-prices provider — quotes, historical bars, symbol search, and fundamentals from polygon.io.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

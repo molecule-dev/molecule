@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-entitlements",
   "version": "1.1.4",
-  "description": "Tier-based entitlements core interface for molecule.dev: typed quantitative limits per subscription plan, plan-key cache, and tier-aware middleware factories",
+  "description": "Tier-based entitlements: typed quantitative limits per subscription plan, plan-key cache, and tier-aware middleware factories",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

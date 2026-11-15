@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-logger",
   "version": "1.0.3",
-  "description": "Abstract logger interface for molecule.dev",
+  "description": "Structured logging with provider adapters",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

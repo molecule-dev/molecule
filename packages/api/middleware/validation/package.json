@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-middleware-validation",
   "version": "1.1.2",
-  "description": "Zod-based request validation middleware for molecule.dev",
+  "description": "Zod-based request validation middleware (body, params, query) with structured 400 error responses.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
