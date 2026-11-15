@@ -256,6 +256,24 @@ describe('normalizeDom id references', () => {
       })
     expect(norm(render('title'))).not.toBe(norm(render('elsewhere')))
   })
+
+  it('renumbers the url(#id) paint references an SVG carries', () => {
+    const star = (gradientId: string, dangling: string): HTMLElement =>
+      container((root) => {
+        const gradient = h('lineargradient')
+        gradient.id = gradientId
+        const filled = h('path')
+        filled.setAttribute('fill', `url(#${gradientId})`)
+        const masked = h('path')
+        masked.setAttribute('mask', `url(#${dangling})`)
+        root.append(gradient, filled, masked)
+      })
+    const react = norm(star('_r_3_', '_r_9_'))
+    expect(react).toBe(norm(star('v-0', 'v-7')))
+    expect(react).toContain('fill="url(#id0)"')
+    expect(react).toContain('mask="url(#ref0)"')
+    expect(react).not.toContain('url(##')
+  })
 })
 
 describe('caseStrings', () => {

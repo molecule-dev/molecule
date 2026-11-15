@@ -9,7 +9,9 @@
  * link marker, and the harness's own
  * `data-parity-unwrap` scaffolding elements. Generated ids (`useId`, Vue/Svelte
  * counters) are renumbered in order of appearance, together with every
- * attribute that references them, so `:r1:` and `v-0` compare equal. A
+ * attribute that references them — an `aria-controls`, and the `url(#id)` paint
+ * references an SVG's `fill`/`stroke`/`mask` carry — so `:r1:` and `v-0`
+ * compare equal. A
  * generated reference to an id no element carries (an inactive tab's
  * `aria-controls`) is renumbered too, as `#ref<n>` in order of appearance, so
  * it still differs from a reference that resolves. A dangling reference the
@@ -68,6 +70,9 @@ const isFrameworkArtifact = (name: string): boolean =>
   name.startsWith('ng-reflect-') ||
   /^mol-[a-z-]+$/.test(name) ||
   name === 'data-discover'
+
+/** An SVG paint reference to an element id: `fill`/`stroke`/`mask` = `url(#id)`. */
+const URL_ID_REFERENCE = /url\(#([^()]*)\)/g
 
 const escapeText = (s: string): string =>
   s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -284,6 +289,16 @@ const serializeElement = (
         .filter(Boolean)
         .map((v) => referenceToken(ids, v))
         .join(' ')
+    } else if (value.includes('url(#')) {
+      // SVG paint references (`fill`/`stroke`/`mask`/… = `url(#gradient-id)`)
+      // name generated ids the same way an `aria-controls` does: renumber them
+      // through the same map, so React's `_r3` and Vue's `v-0` compare equal.
+      // The tokens themselves carry the `#` (`#id0`, `#ref1`), which the url
+      // form already spells, so it is not doubled.
+      value = value.replace(
+        URL_ID_REFERENCE,
+        (_ref, id: string) => `url(#${referenceToken(ids, id).replace(/^#/, '')})`,
+      )
     }
     attrs.push(value === '' ? name : `${name}="${escapeAttr(value)}"`)
   }
