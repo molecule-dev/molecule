@@ -521,12 +521,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-i18n-default-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-ide-react": [
     "vue",
     "solid",

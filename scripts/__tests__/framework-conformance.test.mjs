@@ -388,7 +388,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
       if (options.react !== false)
         write(
           'packages/app/features/widget-react/package.json',
-          JSON.stringify({ name: REACT_FEATURE }),
+          JSON.stringify({ name: REACT_FEATURE, peerDependencies: { react: '^19.0.0' } }),
         )
       const ledger =
         options.ledger === undefined
@@ -499,7 +499,7 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
       mkdirSync(join(root, 'packages/app/infrastructure/defaults-react'), { recursive: true })
       writeFileSync(
         join(root, 'packages/app/infrastructure/defaults-react/package.json'),
-        JSON.stringify({ name: '@molecule/app-defaults-react' }),
+        JSON.stringify({ name: '@molecule/app-defaults-react', dependencies: { react: '19.0.0' } }),
       )
       expect(findConformanceViolations(root)).toHaveLength(4)
       writeFileSync(
@@ -522,10 +522,23 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
         }),
       )
       expect(violations).toEqual([
-        `${FEATURE_PARITY_PENDING}: @molecule/app-gone-react is not a React package in packages/app/features or packages/app/infrastructure; remove its entry`,
+        `${FEATURE_PARITY_PENDING}: @molecule/app-gone-react is not a React package (named -react and depending on react) in packages/app/features or packages/app/infrastructure; remove its entry`,
         `${FEATURE_PARITY_PENDING}: @molecule/app-widget-react lists vue, but @molecule/app-widget-vue exists; remove it from the entry`,
         `${FEATURE_PARITY_PENDING}: @molecule/app-widget-react lists qwik, which is not one of vue, solid, svelte, angular`,
       ])
+    })
+
+    it('needs no counterparts for a framework-neutral -react package (no react dependency)', () => {
+      const root = featureTree()
+      mkdirSync(join(root, 'packages/app/features/i18n-defaults-react'), { recursive: true })
+      writeFileSync(
+        join(root, 'packages/app/features/i18n-defaults-react/package.json'),
+        JSON.stringify({
+          name: '@molecule/app-i18n-defaults-react',
+          peerDependencies: { '@molecule/app-i18n': '^1.0.0' },
+        }),
+      )
+      expect(findConformanceViolations(root)).toEqual([])
     })
 
     it('fails a ledger that is not JSON', () => {

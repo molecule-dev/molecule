@@ -49,7 +49,9 @@
  *
  * Feature bonds are held to full parity, and every React package has them:
  * - every React package under packages/app/features/ and
- *   packages/app/infrastructure/ (`@molecule/app-<x>-react`) has a counterpart
+ *   packages/app/infrastructure/ (`@molecule/app-<x>-react` that depends on
+ *   `react`; one that does not, like `@molecule/app-i18n-default-react`, is
+ *   framework-neutral and every framework uses it as is) has a counterpart
  *   in each of {@link FEATURE_FRAMEWORKS} beside it (`@molecule/app-<x>-vue`, …),
  *   except the frameworks {@link FEATURE_PARITY_PENDING} still lists for it. That
  *   ledger may only shrink: an entry whose counterpart exists is a violation
@@ -467,6 +469,19 @@ export function counterpartPackages(root = ROOT) {
 }
 
 /**
+ * Whether a package is a React package that needs framework counterparts: named
+ * `@molecule/app-<x>-react` and depending on `react`. A `-react` package without
+ * a `react` dependency is framework-neutral (mlcl's `packageFramework` reads the
+ * same dependencies), so every framework already uses it.
+ *
+ * @param pkg - A package.json.
+ * @returns True when it needs counterparts.
+ */
+export const isReactPackage = (pkg) =>
+  /^@molecule\/app-.+-react$/.test(pkg.name ?? '') &&
+  ('react' in (pkg.peerDependencies ?? {}) || 'react' in (pkg.dependencies ?? {}))
+
+/**
  * Finds React packages without every framework counterpart, ledger entries
  * that are out of date, and feature counterparts whose cases or goldens the
  * kit lacks.
@@ -488,12 +503,12 @@ export function featureParityViolations(root, kit) {
       return [`${FEATURE_PARITY_PENDING}: not valid JSON (${error.message})`]
     }
   }
-  const reactPackages = all.filter((p) => /^@molecule\/app-.+-react$/.test(p.pkg.name ?? ''))
+  const reactPackages = all.filter((p) => isReactPackage(p.pkg))
   const reactNames = new Set(reactPackages.map((p) => p.pkg.name))
   for (const name of Object.keys(ledger).sort()) {
     if (!reactNames.has(name))
       out.push(
-        `${FEATURE_PARITY_PENDING}: ${name} is not a React package in ${COUNTERPART_DIRS.join(' or ')}; remove its entry`,
+        `${FEATURE_PARITY_PENDING}: ${name} is not a React package (named -react and depending on react) in ${COUNTERPART_DIRS.join(' or ')}; remove its entry`,
       )
   }
   for (const { dir, pkg } of reactPackages) {
