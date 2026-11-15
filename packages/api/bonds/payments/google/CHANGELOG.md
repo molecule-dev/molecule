@@ -1,5 +1,11 @@
 # @molecule/api-payments-google
 
+## 2.0.0
+
+### Major Changes
+
+- Updates `@googleapis/androidpublisher` to 42.3.1: the re-exported `androidpublisher_v3` types drop the deprecated subscription-level `latestOrderId`, and order ids now come from the line item's `latestSuccessfulOrderId`.
+
 ## 1.0.7
 
 ### Patch Changes

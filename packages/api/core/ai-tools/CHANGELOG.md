@@ -1,5 +1,15 @@
 # @molecule/api-ai-tools
 
+## 2.0.0
+
+### Major Changes
+
+- `createPlaywrightFeedback` no longer re-runs tests in the background after a write: `check()` is the only place it runs tests, and the `onFailures`, `debounceMs` and `yieldRetryMs` options, the `pause()`, `settled()` and `takeFailures()` methods, the run callback's `mode` argument and the result's `unfinishedTests` field are removed.
+
+### Patch Changes
+
+- A local Playwright run of the whole suite keeps the suite's own trace setting; only a run that narrows the suite gets `--trace=retain-on-failure` added.
+
 ## 1.18.12
 
 ### Patch Changes

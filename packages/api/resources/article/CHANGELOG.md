@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.2.7
+
+### Patch Changes
+
+- Documents that `tagList` and `article_tags` hold the same tags and that the service writes both.
+
 ## 1.2.6
 
 ### Patch Changes

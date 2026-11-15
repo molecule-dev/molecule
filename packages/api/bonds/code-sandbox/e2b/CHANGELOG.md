@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.4.5
+
+### Patch Changes
+
+- Updates the e2b SDK to 2.64.0.
+
 ## 1.4.4
 
 ### Patch Changes
