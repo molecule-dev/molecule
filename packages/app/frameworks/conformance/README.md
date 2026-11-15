@@ -297,6 +297,12 @@ package name in its imports.
   - `frameworkShaped`: exports whose value is the framework's own (a React context object,
     an inline style object, event-handler prop names), with the reason. The name must still
     be exported; the rendered DOM is where the effect is compared.
+  - `parts`: components the package renders but does not export (a chat panel's message
+    item), so each gets its own families instead of being proven only through the exported
+    component that contains it. Every framework's package, React's included, exports them
+    from `src/parts.ts`, which its `package.json` does not expose. The recorder imports
+    React's built `dist/parts.js`; a counterpart passes its own module as `parts` and in its
+    adapter's exports. A part may not also be a public export, and some family must render it.
 - **Goldens:** `src/features/goldens/<feature>.json`, one file per React package, so recording
   one feature never rewrites another's. `src/__tests__/features-goldens.test.ts` re-runs
   every case in React and fails on a stale golden, a React error or warning, a runtime
@@ -318,6 +324,8 @@ package name in its imports.
         binding: AppVue,
       }),
       sharedModules: { '@molecule/app-push': AppPush },
+      // only for a package whose cases list parts (and `...Parts` in the adapter's exports):
+      parts: Parts, // import * as Parts from '../parts.js'
     },
   )
   ```

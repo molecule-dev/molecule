@@ -15,9 +15,9 @@
  * @module
  */
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
@@ -177,6 +177,63 @@ export interface FeatureConformanceOptions {
    * {@link FeatureCases.shared} names.
    */
   sharedModules?: Record<string, Record<string, unknown>>
+  /**
+   * The package's own parts module (`import * as Parts from '../parts.js'`), for a
+   * feature whose cases render unexported components ({@link FeatureCases.parts}).
+   * The same module goes into the adapter's exports.
+   */
+  parts?: Record<string, unknown>
+}
+
+/**
+ * The built parts module of an installed React feature package (`dist/parts.js`), as a
+ * URL to import. Its package's `exports` do not expose it, so it is found on disk:
+ * the nearest `node_modules/<package>` above the kit, resolved through its symlink.
+ *
+ * @param reactPackage - The React feature package.
+ * @returns The module's file URL.
+ */
+export function reactPartsUrl(reactPackage: string): string {
+  for (let dir = here; ; dir = dirname(dir)) {
+    const candidate = join(dir, 'node_modules', reactPackage)
+    if (existsSync(join(candidate, 'package.json'))) {
+      const file = join(realpathSync(candidate), 'dist', 'parts.js')
+      if (!existsSync(file))
+        throw new Error(`framework-conformance: ${file} is missing; build ${reactPackage}`)
+      return pathToFileURL(file).href
+    }
+    if (dirname(dir) === dir)
+      throw new Error(`framework-conformance: ${reactPackage} is not installed`)
+  }
+}
+
+/**
+ * Checks a feature's parts: each listed part exists in the parts module, is not
+ * also a public export (then it is an ordinary family), and is rendered by a case.
+ *
+ * @param feature - The feature's cases.
+ * @param parts - The package's parts module (`dist/parts.js` or `src/parts.ts`), if any.
+ * @param exportNames - The package's public runtime exports.
+ * @returns One problem per part that breaks a rule.
+ */
+export function featurePartProblems(
+  feature: FeatureCases,
+  parts: Record<string, unknown> | undefined,
+  exportNames: readonly string[],
+): string[] {
+  const listed = feature.parts ?? []
+  if (listed.length === 0) return []
+  if (!parts)
+    return [`the cases list parts (${listed.join(', ')}); pass the package's parts module`]
+  const rendered = new Set(feature.families.map((family) => family.component))
+  const problems: string[] = []
+  for (const name of listed) {
+    if (!(name in parts)) problems.push(`${name}: the parts module does not export it`)
+    if (exportNames.includes(name))
+      problems.push(`${name}: a public export; give it an ordinary family instead of a part`)
+    if (!rendered.has(name)) problems.push(`${name}: no family renders it`)
+  }
+  return problems
 }
 
 /**
@@ -246,6 +303,15 @@ export function runFeatureConformance(
     adapter,
     gaps,
   )
+  if ((feature.parts ?? []).length > 0) {
+    describe(`${adapter.name} ${reactPackage} parts`, () => {
+      it('passes its parts module, holding every part the cases render', () => {
+        expect(featurePartProblems(feature, options.parts, goldens.exports)).toEqual([])
+        for (const part of feature.parts ?? [])
+          expect(adapter.has(part), `${adapter.name} adapter has the part ${part}`).toBe(true)
+      })
+    })
+  }
   const hooks = (feature.hooks ?? []).filter((f) => !filter || filter.includes(f.hook))
   if (hooks.length > 0) {
     const bindingAdapter = options.bindingAdapter

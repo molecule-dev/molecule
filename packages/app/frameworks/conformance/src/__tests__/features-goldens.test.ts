@@ -35,9 +35,11 @@ import {
   featureCasesName,
   type FeatureGoldens,
   featureGoldensFile,
+  featurePartProblems,
   featureReadableGoldensFile,
   featureValue,
   loadFeatureGoldens,
+  reactPartsUrl,
   sharedExportProblems,
 } from '../features/index.js'
 import { caseExports, type CaseResult, onlyFromEnv, writePixelCapture } from '../ui/index.js'
@@ -65,6 +67,15 @@ const featureCases: Record<string, FeatureCases> = Object.fromEntries(
 /** Each React feature package, by name. */
 const MODULES: Record<string, Record<string, unknown>> = Object.fromEntries(
   await Promise.all(Object.keys(featureCases).map(async (name) => [name, await import(name)])),
+)
+
+/** Each React feature package's parts module (`dist/parts.js`), for features whose cases list parts. */
+const PARTS: Record<string, Record<string, unknown>> = Object.fromEntries(
+  await Promise.all(
+    Object.entries(featureCases)
+      .filter(([, feature]) => (feature.parts ?? []).length > 0)
+      .map(async ([name]) => [name, await import(reactPartsUrl(name))]),
+  ),
 )
 
 /** The framework-neutral packages feature packages re-export from (each feature's `shared` field). */
@@ -100,9 +111,11 @@ for (const [name, module] of Object.entries(MODULES)) {
   const feature = featureCases[name]!
   const goldens = RECORD ? null : loadFeatureGoldens(name)
   const exportNames = Object.keys(module).sort()
+  const parts = PARTS[name]
   const adapter = createReactAdapter({
     ...(ReactUI as unknown as Record<string, unknown>),
     ...module,
+    ...parts,
   })
   // The package's hook cases run like the binding kit's own: the binding plus the package.
   const bindingAdapter = createReactBindingAdapter({
@@ -124,8 +137,20 @@ for (const [name, module] of Object.entries(MODULES)) {
         for (const testCase of family.cases)
           for (const used of caseExports(family.component, testCase)) covered.add(used)
       expect(exportNames.filter((e) => !covered.has(e))).toEqual([])
-      expect([...covered].filter((e) => !exportNames.includes(e) && !(e in ReactUI))).toEqual([])
+      const partNames = feature.parts ?? []
+      expect(
+        [...covered].filter(
+          (e) => !exportNames.includes(e) && !(e in ReactUI) && !partNames.includes(e),
+        ),
+      ).toEqual([])
     })
+
+    it.skipIf((feature.parts ?? []).length === 0)(
+      'every part is in its parts module, not a public export, and rendered by a case',
+      () => {
+        expect(featurePartProblems(feature, parts, exportNames)).toEqual([])
+      },
+    )
 
     it('re-exports each shared export from its framework-neutral package', () => {
       expect(sharedExportProblems(feature.shared ?? {}, module, SHARED_MODULES)).toEqual([])

@@ -53,6 +53,17 @@ export interface FeatureCases {
    * seeded per case in `context.areas`.
    */
   hooks?: HookCases[]
+  /**
+   * Components the package renders but does not export (a chat panel's message
+   * item, a card inside a list), so a case can hold each one to React on its own
+   * instead of only through the exported component that contains it. Every
+   * framework's package — React's included — exports them from `src/parts.ts`
+   * (built to `dist/parts.js`), a module its `package.json` does not expose, so
+   * the public surface stays as it is. The React recorder imports React's
+   * `dist/parts.js`; each counterpart passes its own parts module to
+   * {@link runFeatureConformance} and into its adapter's exports.
+   */
+  parts?: string[]
   /** Plain exports compared by value. */
   values?: FeatureValueCheck[]
   /**
