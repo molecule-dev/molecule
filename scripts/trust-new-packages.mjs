@@ -47,6 +47,7 @@ import { createInterface } from 'node:readline/promises'
 import { ReadStream, WriteStream } from 'node:tty'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
+import { buildFirstPublishes } from './lib/build-first-publishes.mjs'
 import { commitTrustState } from './lib/commit-trust-state.mjs'
 import { createCommittedExport } from './lib/committed-export.mjs'
 import {
@@ -499,26 +500,47 @@ const record = (name) => {
  * @type {Map<string, string>}
  */
 const prepared = new Map()
+const firstPublishes = []
 for (const pkg of untrusted) {
   if (pkg.relink || CI || (await existsOnRegistry(pkg.name))) continue
-  console.log(`\n  ${pkg.name}: npm has never seen this — building it to publish first`)
   // Built and published from the committed tree only: the checkout is shared, and another
   // session's uncommitted edit to a dependency failed this build (or was published) when it
   // read the working tree (lib/committed-export.mjs).
-  const tree = committedTree()
-  const pkgDir = join(tree.dir, pkg.dir)
-  if (!existsSync(join(pkgDir, 'package.json'))) {
+  if (!existsSync(join(committedTree().dir, pkg.dir, 'package.json'))) {
     console.error(
       `  ✗ ${pkg.name}: not committed yet — only committed code is published; commit it, then run trust:new again`,
     )
     failed.push(pkg.name)
     continue
   }
+  firstPublishes.push(pkg)
+}
+if (firstPublishes.length) {
+  console.log(
+    `\n  npm has never seen ${firstPublishes.length} package(s) — building them to publish first`,
+  )
+}
+// One build.js call for all of them, so their shared dependencies build once
+// (lib/build-first-publishes.mjs).
+const builds = buildFirstPublishes(
+  firstPublishes.map((pkg) => pkg.name),
+  {
+    build: (names) =>
+      execFileSync('node', ['scripts/build.js', `--only=${names.join(',')}`], {
+        cwd: committedTree().dir,
+        stdio: 'inherit',
+      }),
+  },
+)
+for (const name of builds.failed) {
+  console.error(`  ✗ ${name}: not publishable — the build printed the reason above`)
+  failed.push(name)
+}
+for (const pkg of firstPublishes) {
+  if (!builds.built.includes(pkg.name)) continue
+  const tree = committedTree()
+  const pkgDir = join(tree.dir, pkg.dir)
   try {
-    execFileSync('node', ['scripts/build.js', `--only=${pkg.name}`], {
-      cwd: tree.dir,
-      stdio: 'inherit',
-    })
     // The build must have produced every entry point before anything uploads.
     // README.md is GENERATED at commit time (the pre-commit hook regenerates
     // it from the module JSDoc), so a package an agent added mid-session has
