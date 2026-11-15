@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Greek. Stub — falls back to English. */
+/** Canvas translations for Greek. */
 export const el: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Επιφάνεια καμβά',
+  'canvas.aria.node': 'Κόμβος καμβά',
+  'canvas.aria.edge': 'Σύνδεση καμβά',
+  'canvas.aria.resizeHandle': 'Αλλαγή μεγέθους κόμβου',
+  'canvas.aria.nodeSelected': 'Επιλεγμένο',
 }

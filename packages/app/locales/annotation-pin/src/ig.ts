@@ -6,4 +6,5 @@ export const ig: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Ntụtụ nkọwa',
   'annotationPin.aria.popup': 'Nkọwa nkọwa',
   'annotationPin.empty': 'Enweghị ihe ndetu maka pin a.',
+  'annotationPin.aria.addPin': 'Tinye ntụtụ nkọwa',
 }

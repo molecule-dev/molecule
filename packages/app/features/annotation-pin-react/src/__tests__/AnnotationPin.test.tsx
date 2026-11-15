@@ -217,19 +217,60 @@ describe('<AnnotationLayer>', () => {
     expect(onSurfaceClick).not.toHaveBeenCalled()
   })
 
-  it('fires onSurfaceClick with normalised coordinates when surface is clicked', () => {
+  it('renders the add-pin surface button when onSurfaceClick is set', () => {
+    const { container } = render(
+      <Wrap>
+        <AnnotationLayer pins={[]} onSurfaceClick={vi.fn()} />
+      </Wrap>,
+    )
+    const addPin = container.querySelector(
+      '[data-mol-id="annotation-layer-add-pin"]',
+    ) as HTMLButtonElement | null
+    expect(addPin?.getAttribute('aria-label')).toBe('Add annotation pin')
+    expect(addPin?.getAttribute('role')).toBeNull() // a native button — keyboard reachable by default
+  })
+
+  it('does not render the add-pin button (a dead tab stop) without onSurfaceClick', () => {
+    const { container } = render(
+      <Wrap>
+        <AnnotationLayer pins={[]} />
+      </Wrap>,
+    )
+    expect(container.querySelector('[data-mol-id="annotation-layer-add-pin"]')).toBeNull()
+  })
+
+  /**
+   * Stub the add-pin button's box (jsdom default getBoundingClientRect
+   * returns 0×0) for a realistic test of the coordinate maths. The
+   * button covers the layer, so this is the layer's box.
+   *
+   * @param container - Rendered container.
+   * @param rect - Box to return.
+   * @returns The add-pin button element.
+   */
+  function stubAddPinButton(container: HTMLElement, rect: DOMRect): HTMLElement {
+    const addPin = container.querySelector(
+      '[data-mol-id="annotation-layer-add-pin"]',
+    ) as HTMLElement
+    addPin.getBoundingClientRect = (() => rect) as () => DOMRect
+    return addPin
+  }
+
+  it('fires onSurfaceClick with normalised coordinates when the surface is clicked', () => {
     const onSurfaceClick = vi.fn()
     const { container } = render(
       <Wrap>
         <AnnotationLayer pins={[]} onSurfaceClick={onSurfaceClick} />
       </Wrap>,
     )
-    const layer = container.querySelector('[data-mol-id="annotation-layer"]') as HTMLElement
-    // jsdom default getBoundingClientRect returns 0×0 — stub it for a
-    // realistic test of the normalisation maths.
-    layer.getBoundingClientRect = (() =>
-      ({ left: 0, top: 0, width: 200, height: 100 }) as DOMRect) as () => DOMRect
-    fireEvent.click(layer, { clientX: 50, clientY: 25 })
+    const addPin = stubAddPinButton(container, {
+      left: 0,
+      top: 0,
+      width: 200,
+      height: 100,
+    } as DOMRect)
+    // detail: 1 — a pointer-initiated click.
+    fireEvent.click(addPin, { clientX: 50, clientY: 25, detail: 1 })
     expect(onSurfaceClick).toHaveBeenCalledTimes(1)
     expect(onSurfaceClick).toHaveBeenCalledWith({ x: 0.25, y: 0.25 })
   })
@@ -241,11 +282,53 @@ describe('<AnnotationLayer>', () => {
         <AnnotationLayer pins={[]} onSurfaceClick={onSurfaceClick} normalised={false} />
       </Wrap>,
     )
-    const layer = container.querySelector('[data-mol-id="annotation-layer"]') as HTMLElement
-    layer.getBoundingClientRect = (() =>
-      ({ left: 10, top: 5, width: 200, height: 100 }) as DOMRect) as () => DOMRect
-    fireEvent.click(layer, { clientX: 60, clientY: 25 })
+    const addPin = stubAddPinButton(container, {
+      left: 10,
+      top: 5,
+      width: 200,
+      height: 100,
+    } as DOMRect)
+    fireEvent.click(addPin, { clientX: 60, clientY: 25, detail: 1 })
     expect(onSurfaceClick).toHaveBeenCalledWith({ x: 50, y: 20 })
+  })
+
+  it('places a pin at the surface centre on keyboard activation (Enter/Space → detail 0)', () => {
+    const onSurfaceClick = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <AnnotationLayer pins={[]} onSurfaceClick={onSurfaceClick} />
+      </Wrap>,
+    )
+    const addPin = stubAddPinButton(container, {
+      left: 0,
+      top: 0,
+      width: 200,
+      height: 100,
+    } as DOMRect)
+    // jsdom does not implement native button activation, so it cannot
+    // synthesize the Enter/Space keydown → click pair. Browsers deliver
+    // that click with `detail === 0` and no coordinates — fire exactly
+    // that event to exercise the keyboard branch.
+    fireEvent.click(addPin)
+    expect(onSurfaceClick).toHaveBeenCalledTimes(1)
+    expect(onSurfaceClick).toHaveBeenCalledWith({ x: 0.5, y: 0.5 })
+  })
+
+  it('places a keyboard-activated pin at the centre in raw px when normalised=false', () => {
+    const onSurfaceClick = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <AnnotationLayer pins={[]} onSurfaceClick={onSurfaceClick} normalised={false} />
+      </Wrap>,
+    )
+    const addPin = stubAddPinButton(container, {
+      left: 10,
+      top: 5,
+      width: 200,
+      height: 100,
+    } as DOMRect)
+    fireEvent.click(addPin)
+    expect(onSurfaceClick).toHaveBeenCalledWith({ x: 100, y: 50 })
   })
 
   it('does not fire onSurfaceClick if the click target is inside a pin (e.g. via popup)', () => {

@@ -6,4 +6,5 @@ export const mt: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Pin tal-annotazzjoni',
   'annotationPin.aria.popup': 'Dettalji tal-annotazzjoni',
   'annotationPin.empty': "M'hemm l-ebda noti għal din il-pin.",
+  'annotationPin.aria.addPin': 'Żid pin tal-annotazzjoni',
 }

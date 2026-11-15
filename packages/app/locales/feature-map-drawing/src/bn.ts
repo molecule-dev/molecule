@@ -10,4 +10,5 @@ export const bn: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'লাইন',
   'mapDrawing.tool.select': 'নির্বাচন করুন',
   'mapDrawing.tool.delete': 'মুছে ফেলুন',
+  'mapDrawing.tool.cancelDraft': 'ড্রাফট বাতিল করুন',
 }

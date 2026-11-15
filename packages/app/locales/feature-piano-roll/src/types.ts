@@ -5,6 +5,7 @@ export type PianoRollTranslationKey =
   | 'pianoRoll.aria.grid'
   | 'pianoRoll.aria.resize'
   | 'pianoRoll.aria.note'
+  | 'pianoRoll.aria.cursor'
 
 /** Translation record mapping piano-roll keys to translated strings. */
 export type PianoRollTranslations = Record<PianoRollTranslationKey, string>

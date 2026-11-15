@@ -10,4 +10,5 @@ export const zhTW: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': '線',
   'mapDrawing.tool.select': '選擇',
   'mapDrawing.tool.delete': '刪除',
+  'mapDrawing.tool.cancelDraft': '取消草稿',
 }

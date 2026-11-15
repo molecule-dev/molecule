@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for sq. Stub — falls back to English defaults. */
+/** Password generator translations for sq. */
 export const sq: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'Fjalëkalimi i gjeneruar',
+  'password-generator.copy': 'Kopjo',
+  'password-generator.copied': 'Kopjuar!',
+  'password-generator.regenerate': 'Gjenero përsëri',
+  'password-generator.length': 'Gjatësia: {{length}}',
+  'password-generator.lengthLabel': 'Gjatësia e fjalëkalimit',
+  'password-generator.toggle.uppercase': 'Shkronja të mëdha (A-Z)',
+  'password-generator.toggle.lowercase': 'Shkronja të vogla (a-z)',
+  'password-generator.toggle.digits': 'Shifra (0-9)',
+  'password-generator.toggle.symbols': 'Simbolet (!@#…)',
+  'password-generator.toggle.noSimilar': 'Kapërcej të ngjashme (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous': 'Kapërcej dykuptimësh (hapësirë, thonjëza)',
   'password-generator.pick': 'Përdor këtë fjalëkalim',
 }

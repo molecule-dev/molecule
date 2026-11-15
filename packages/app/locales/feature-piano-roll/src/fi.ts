@@ -8,4 +8,5 @@ export const fi: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Muistiinpanon koon muuttaminen',
   'pianoRoll.aria.note':
     'Huomautus {{pitch}} alkaen tahdista {{startBeat}} varten {{durationBeats}} biitit',
+  'pianoRoll.aria.cursor': 'Kohdistin {{pitch}} kohdalla, tahdilla {{beat}}',
 }

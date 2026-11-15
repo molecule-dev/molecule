@@ -6,4 +6,5 @@ export const hy: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Նշումներ',
   'marginNotes.aria.panel': 'Նշումներ այս բաժնի համար',
   'marginNotes.dismiss': 'Թաքցնել նշումները',
+  'marginNotes.aria.pin': 'Ամրացնել այս բաժնի նշումները',
 }

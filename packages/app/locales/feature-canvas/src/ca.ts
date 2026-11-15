@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Catalan. Stub — falls back to English. */
+/** Canvas translations for Catalan. */
 export const ca: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Superfície del llenç',
+  'canvas.aria.node': 'Node del llenç',
+  'canvas.aria.edge': 'Connexió del llenç',
+  'canvas.aria.resizeHandle': 'Canvia la mida del node',
+  'canvas.aria.nodeSelected': 'Seleccionat',
 }

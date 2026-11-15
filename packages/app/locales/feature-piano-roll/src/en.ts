@@ -8,4 +8,5 @@ export const en: PianoRollTranslations = {
   'pianoRoll.aria.resize': 'Resize note',
   'pianoRoll.aria.note':
     'Note {{pitch}} starting at beat {{startBeat}} for {{durationBeats}} beats',
+  'pianoRoll.aria.cursor': 'Cursor on {{pitch}} at beat {{beat}}',
 }

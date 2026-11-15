@@ -10,4 +10,5 @@ export const fil: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'I-pin',
   'mapDrawing.tool.line': 'Linya',
   'mapDrawing.tool.select': 'Piliin',
+  'mapDrawing.tool.cancelDraft': 'Kanselahin ang draft',
 }

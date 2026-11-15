@@ -10,4 +10,5 @@ export const ro: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Fixează',
   'mapDrawing.tool.line': 'Linia',
   'mapDrawing.tool.select': 'Selecta',
+  'mapDrawing.tool.cancelDraft': 'Anulează schița',
 }

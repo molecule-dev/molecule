@@ -6,4 +6,5 @@ export const ky: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Эскертүүлөр',
   'marginNotes.aria.panel': 'Бул бөлүм үчүн эскертүүлөр',
   'marginNotes.dismiss': 'Эскертүүлөрдү жашыруу',
+  'marginNotes.aria.pin': 'Бул бөлүмдүн эскертүүлөрүн кадоо',
 }

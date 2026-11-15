@@ -1,8 +1,8 @@
 import type { HeroMetricCardTranslations } from './types.js'
 
-/** Hero metric card translations for bg. Stub — falls back to English defaults. */
+/** Hero metric card translations for bg. */
 export const bg: HeroMetricCardTranslations = {
-  'hero-metric-card.loading': 'Loading metric…',
-  'hero-metric-card.trend.up': 'Trending up',
-  'hero-metric-card.trend.down': 'Trending down',
+  'hero-metric-card.loading': 'Зареждане на метриката…',
+  'hero-metric-card.trend.up': 'Възходяща тенденция',
+  'hero-metric-card.trend.down': 'Низходяща тенденция',
 }

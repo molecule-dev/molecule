@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Marathi. Stub — falls back to English. */
+/** Canvas translations for Marathi. */
 export const mr: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'कॅनव्हासचा पृष्ठभाग',
+  'canvas.aria.node': 'कॅनव्हास नोड',
+  'canvas.aria.edge': 'कॅनव्हास कनेक्शन',
+  'canvas.aria.resizeHandle': 'नोडचा आकार बदला',
+  'canvas.aria.nodeSelected': 'निवडले',
 }

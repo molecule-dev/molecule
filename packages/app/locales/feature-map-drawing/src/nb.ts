@@ -10,4 +10,5 @@ export const nb: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Fest',
   'mapDrawing.tool.line': 'Linje',
   'mapDrawing.tool.select': 'Velge',
+  'mapDrawing.tool.cancelDraft': 'Avbryt utkast',
 }

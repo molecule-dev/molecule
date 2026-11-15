@@ -8,4 +8,5 @@ export const lt: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Keisti užrašo dydį',
   'pianoRoll.aria.note':
     'Pastaba {{pitch}} pradedant nuo ritmo {{startBeat}} už {{durationBeats}} ritmai',
+  'pianoRoll.aria.cursor': 'Žymeklis ant {{pitch}} ritme {{beat}}',
 }

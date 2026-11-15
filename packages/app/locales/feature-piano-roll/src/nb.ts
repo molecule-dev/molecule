@@ -8,4 +8,5 @@ export const nb: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Endre størrelse på notatet',
   'pianoRoll.aria.note':
     'Note {{pitch}} starter på taktslag {{startBeat}} til {{durationBeats}} taktslag',
+  'pianoRoll.aria.cursor': 'Markør på {{pitch}} ved taktslag {{beat}}',
 }

@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Chinese (Simplified). Stub — falls back to English. */
+/** Canvas translations for Chinese (Simplified). */
 export const zh: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': '画布表面',
+  'canvas.aria.node': '画布节点',
+  'canvas.aria.edge': '画布连线',
+  'canvas.aria.resizeHandle': '调整节点大小',
+  'canvas.aria.nodeSelected': '已选中',
 }

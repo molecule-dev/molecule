@@ -6,4 +6,5 @@ export const lo: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'ໝາຍເຫດ',
   'marginNotes.aria.panel': 'ໝາຍເຫດສຳລັບພາກນີ້',
   'marginNotes.dismiss': 'ເຊື່ອງບັນທຶກ',
+  'marginNotes.aria.pin': 'ຢຶດໝາຍເຫດສຳລັບພາກນີ້',
 }

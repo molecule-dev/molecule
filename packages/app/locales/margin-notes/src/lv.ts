@@ -6,4 +6,5 @@ export const lv: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Piezīmes',
   'marginNotes.aria.panel': 'Piezīmes šai sadaļai',
   'marginNotes.dismiss': 'Slēpt piezīmes',
+  'marginNotes.aria.pin': 'Piespraust šīs sadaļas piezīmes',
 }

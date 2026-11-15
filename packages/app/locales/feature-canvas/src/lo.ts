@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Lao. Stub — falls back to English. */
+/** Canvas translations for Lao. */
 export const lo: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'ພື້ນຜິວຜ້າໃບ',
+  'canvas.aria.node': 'ໂນດຜ້າໃບ',
+  'canvas.aria.edge': 'ການເຊື່ອມຕໍ່ຜ້າໃບ',
+  'canvas.aria.resizeHandle': 'ປັບຂະໜາດໂນດ',
+  'canvas.aria.nodeSelected': 'ເລືອກແລ້ວ',
 }

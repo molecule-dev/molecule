@@ -10,4 +10,5 @@ export const ka: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'ხაზი',
   'mapDrawing.tool.select': 'არჩევა',
   'mapDrawing.tool.delete': 'წაშლა',
+  'mapDrawing.tool.cancelDraft': 'მონახაზის გაუქმება',
 }

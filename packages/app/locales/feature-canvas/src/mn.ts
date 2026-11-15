@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Mongolian. Stub — falls back to English. */
+/** Canvas translations for Mongolian. */
 export const mn: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Канвасын гадаргуу',
+  'canvas.aria.node': 'Канвасын зангилаа',
+  'canvas.aria.edge': 'Канвасын холболт',
+  'canvas.aria.resizeHandle': 'Зангилааны хэмжээг өөрчлөх',
+  'canvas.aria.nodeSelected': 'Сонгосон',
 }

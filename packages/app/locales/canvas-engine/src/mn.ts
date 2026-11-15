@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Mongolian. Stub — falls back to English. */
+/** Canvas-engine translations for Mongolian. */
 export const mn: CanvasEngineTranslations = {
-  'canvasEngine.aria.surface': 'Вектор зураг засварлагч',
+  'canvasEngine.aria.surface': 'Вектор зургийн засварлагч',
 }

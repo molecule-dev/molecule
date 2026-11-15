@@ -6,4 +6,5 @@ export const es: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Pin de anotación',
   'annotationPin.aria.popup': 'Detalles de la anotación',
   'annotationPin.empty': 'No hay notas para este pin.',
+  'annotationPin.aria.addPin': 'Añadir pin de anotación',
 }

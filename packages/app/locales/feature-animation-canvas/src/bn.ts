@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Bengali. Stub — falls back to English. */
+/** Animation-canvas translations for Bengali. */
 export const bn: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'অ্যানিমেশন ক্যানভাস',
+  'animationCanvas.aria.shape': 'অ্যানিমেটেড আকৃতি',
 }

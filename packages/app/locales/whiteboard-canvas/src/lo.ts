@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Lao. Stub — falls back to English. */
+/** Whiteboard canvas translations for Lao. */
 export const lo: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'ພື້ນທີ່ກະດານຂາວ',
+  'whiteboard.stickyNote.placeholder': 'ໝາຍເຫດໃໝ່',
 }

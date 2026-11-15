@@ -10,8 +10,8 @@
  * carry a small mark in its left margin. Note kinds (say, "Summaries" and
  * "Prompts") each get a real switch. Phone: the notes column gives way to a bar
  * fixed to the bottom that shows the notes for the section being read and
- * follows the reader; tapping a paragraph pins its notes, tapping again lets
- * go; the switches live in the bar. A document with no notes renders centred
+ * follows the reader; a noted paragraph's pin button pins its notes, a second
+ * press lets go; the switches live in the bar. A document with no notes renders centred
  * prose at full measure with no notes column, no switches and no bar.
  *
  * The example is a complete static-site post body: it takes the post's
@@ -205,11 +205,11 @@
  * - The example needs `@molecule/app-markdown` and a markdown bond
  *   (`@molecule/app-markdown-marked`), bonded once at startup:
  *   `setProvider(provider)`.
- * - Section notes follow the reader; paragraph notes wait for a tap. On a
+ * - Section notes follow the reader; paragraph notes wait for the pin. On a
  *   phone the panel shows the kinds with `panel: 'follow'` (the default) for
  *   the section in view. A kind about ONE paragraph (a prompt, a citation)
  *   gets `panel: 'tap'`: while its switch is off it shows only when that
- *   paragraph is tapped (and goes on the second tap); once its switch is ON it
+ *   paragraph's pin button is pressed (and goes on the second press); once its switch is ON it
  *   follows the section in view like a `'follow'` kind, so the switch always
  *   shows something.
  * - The mark is drawn on the block, as an absolutely-placed dot inside the

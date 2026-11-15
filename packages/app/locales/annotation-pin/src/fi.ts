@@ -6,4 +6,5 @@ export const fi: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Merkintänasta',
   'annotationPin.aria.popup': 'Merkintöjen tiedot',
   'annotationPin.empty': 'Tälle merkinnälle ei ole muistiinpanoja.',
+  'annotationPin.aria.addPin': 'Lisää merkintänasta',
 }

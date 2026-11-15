@@ -10,4 +10,5 @@ export const da: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Stift',
   'mapDrawing.tool.line': 'Linje',
   'mapDrawing.tool.select': 'Vælge',
+  'mapDrawing.tool.cancelDraft': 'Annuller udkast',
 }

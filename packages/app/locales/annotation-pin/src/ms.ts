@@ -6,4 +6,5 @@ export const ms: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Pin anotasi',
   'annotationPin.aria.popup': 'Butiran anotasi',
   'annotationPin.empty': 'Tiada nota untuk pin ini.',
+  'annotationPin.aria.addPin': 'Tambah pin anotasi',
 }

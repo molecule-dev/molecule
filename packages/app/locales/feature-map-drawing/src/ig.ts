@@ -10,4 +10,5 @@ export const ig: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Ahịrị',
   'mapDrawing.tool.select': 'Họrọ',
   'mapDrawing.tool.delete': 'Hichapụ',
+  'mapDrawing.tool.cancelDraft': 'Kaguo ihe edeturu',
 }

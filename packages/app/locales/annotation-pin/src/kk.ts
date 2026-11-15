@@ -6,4 +6,5 @@ export const kk: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Аннотация түйреуіші',
   'annotationPin.aria.popup': 'Аннотация мәліметтері',
   'annotationPin.empty': 'Бұл түйреуіш үшін ешқандай жазба жоқ.',
+  'annotationPin.aria.addPin': 'Аннотация түйреуішін қосу',
 }

@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Russian. Stub — falls back to English. */
+/** Whiteboard canvas translations for Russian. */
 export const ru: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Холст белой доски',
+  'whiteboard.stickyNote.placeholder': 'Новая заметка',
 }

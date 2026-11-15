@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for et. Stub — falls back to English defaults. */
+/** Password generator translations for et. */
 export const et: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'Loodud parool',
+  'password-generator.copy': 'Kopeeri',
+  'password-generator.copied': 'Kopeeritud!',
+  'password-generator.regenerate': 'Loo uuesti',
+  'password-generator.length': 'Pikkus: {{length}}',
+  'password-generator.lengthLabel': 'Parooli pikkus',
+  'password-generator.toggle.uppercase': 'Suurtähed (A-Z)',
+  'password-generator.toggle.lowercase': 'Väiketähed (a-z)',
+  'password-generator.toggle.digits': 'Numbrid (0-9)',
+  'password-generator.toggle.symbols': 'Sümbolid (!@#…)',
+  'password-generator.toggle.noSimilar': 'Jäta sarnased vahele (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous': 'Jäta mitmetähenduslik vahele (tühik, jutumärgid)',
   'password-generator.pick': 'Kasuta seda parooli',
 }

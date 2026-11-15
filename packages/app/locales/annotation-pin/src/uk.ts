@@ -6,4 +6,5 @@ export const uk: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Закріплення анотації',
   'annotationPin.aria.popup': 'Деталі анотації',
   'annotationPin.empty': 'Немає приміток до цього піна.',
+  'annotationPin.aria.addPin': 'Додати закріплення анотації',
 }

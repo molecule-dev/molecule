@@ -1,8 +1,8 @@
 /**
  * Translations for `@molecule/app-margin-notes-react` in 79 languages: the
  * notes column's and phone panel's accessible names, the switch group's label,
- * and the dismiss button. Note-kind labels and the margin mark's label are the
- * caller's own strings.
+ * the pin toggle's label, and the dismiss button. Note-kind labels and the
+ * margin mark's label are the caller's own strings.
  *
  * @module
  */

@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Thai. Stub — falls back to English. */
+/** Canvas translations for Thai. */
 export const th: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'พื้นผิวผ้าใบ',
+  'canvas.aria.node': 'โหนดบนผ้าใบ',
+  'canvas.aria.edge': 'การเชื่อมต่อบนผ้าใบ',
+  'canvas.aria.resizeHandle': 'ปรับขนาดโหนด',
+  'canvas.aria.nodeSelected': 'เลือกแล้ว',
 }

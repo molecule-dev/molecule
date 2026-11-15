@@ -8,4 +8,5 @@ export const mr: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'आकार बदलण्याची सूचना',
   'pianoRoll.aria.note':
     'टीप {{pitch}} बीट पासून सुरू होत आहे {{startBeat}} साठी {{durationBeats}} बीट्स',
+  'pianoRoll.aria.cursor': 'कर्सर {{pitch}} वर, बीट {{beat}} वर',
 }

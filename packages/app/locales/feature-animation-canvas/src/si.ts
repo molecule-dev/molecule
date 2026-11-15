@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Sinhala. Stub — falls back to English. */
+/** Animation-canvas translations for Sinhala. */
 export const si: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'සජීවීකරණ කැන්වසය',
+  'animationCanvas.aria.shape': 'සජීවීකරණය කළ හැඩය',
 }

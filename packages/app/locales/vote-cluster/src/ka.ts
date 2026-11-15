@@ -1,11 +1,11 @@
 import type { VoteClusterTranslations } from './types.js'
 
-/** Vote cluster translations for ka. Stub — falls back to English defaults. */
+/** Vote cluster translations for ka. */
 export const ka: VoteClusterTranslations = {
-  'vote-cluster.upvote': 'Upvote',
-  'vote-cluster.removeUpvote': 'Remove upvote',
-  'vote-cluster.downvote': 'Downvote',
-  'vote-cluster.removeDownvote': 'Remove downvote',
-  'vote-cluster.score': 'Score: {{score}}',
+  'vote-cluster.upvote': 'დადებითი ხმა',
+  'vote-cluster.removeUpvote': 'დადებითი ხმის მოცილება',
+  'vote-cluster.downvote': 'უარყოფითი ხმა',
+  'vote-cluster.removeDownvote': 'უარყოფითი ხმის მოცილება',
+  'vote-cluster.score': 'ქულა: {{score}}',
   'vote-cluster.group': 'ხმის მიცემის კლასტერი, მიმდინარე ქულა {{score}}',
 }

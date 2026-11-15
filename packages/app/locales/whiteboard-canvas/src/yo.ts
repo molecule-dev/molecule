@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Yoruba. Stub — falls back to English. */
+/** Whiteboard canvas translations for Yoruba. */
 export const yo: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Kanfasi bọọdu funfun',
+  'whiteboard.stickyNote.placeholder': 'Àkiyèsí tuntun',
 }

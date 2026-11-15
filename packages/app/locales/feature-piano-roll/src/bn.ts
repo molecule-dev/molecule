@@ -8,4 +8,5 @@ export const bn: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'নোটের আকার পরিবর্তন করুন',
   'pianoRoll.aria.note':
     '{{startBeat}} বিট থেকে শুরু করে {{durationBeats}} বিট পর্যন্ত নোট {{pitch}}',
+  'pianoRoll.aria.cursor': 'কার্সার {{pitch}} এ, বিট {{beat}} এ',
 }

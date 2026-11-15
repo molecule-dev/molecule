@@ -6,4 +6,5 @@ export const ml: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'കുറിപ്പുകൾ',
   'marginNotes.aria.panel': 'ഈ വിഭാഗത്തിനായുള്ള കുറിപ്പുകൾ',
   'marginNotes.dismiss': 'കുറിപ്പുകൾ മറയ്ക്കുക',
+  'marginNotes.aria.pin': 'ഈ വിഭാഗത്തിലെ കുറിപ്പുകൾ പിൻ ചെയ്യുക',
 }

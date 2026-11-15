@@ -6,4 +6,5 @@ export const sq: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Shënim pin',
   'annotationPin.aria.popup': 'Detajet e shënimit',
   'annotationPin.empty': 'Nuk ka shënime për këtë kod.',
+  'annotationPin.aria.addPin': 'Shto pin shënimi',
 }

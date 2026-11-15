@@ -10,4 +10,5 @@ export const my: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'လိုင်း',
   'mapDrawing.tool.select': 'ရွေးချယ်ပါ',
   'mapDrawing.tool.delete': 'ဖျက်ရန်',
+  'mapDrawing.tool.cancelDraft': 'မူကြမ်းပယ်ဖျက်ရန်',
 }

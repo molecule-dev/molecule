@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Italian. Stub — falls back to English. */
+/** Canvas translations for Italian. */
 export const it: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Superficie della tela',
+  'canvas.aria.node': 'Nodo della tela',
+  'canvas.aria.edge': 'Collegamento della tela',
+  'canvas.aria.resizeHandle': 'Ridimensiona nodo',
+  'canvas.aria.nodeSelected': 'Selezionato',
 }

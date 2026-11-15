@@ -6,4 +6,5 @@ export const he: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'הערות',
   'marginNotes.aria.panel': 'הערות לסעיף זה',
   'marginNotes.dismiss': 'הסתר הערות',
+  'marginNotes.aria.pin': 'הצמדת ההערות לסעיף זה',
 }

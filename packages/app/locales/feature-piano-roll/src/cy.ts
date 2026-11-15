@@ -8,4 +8,5 @@ export const cy: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Newid maint y nodyn',
   'pianoRoll.aria.note':
     'Nodyn {{pitch}} gan ddechrau ar guriad {{startBeat}} ar gyfer {{durationBeats}} curiadau',
+  'pianoRoll.aria.cursor': 'Cyrchydd ar {{pitch}} ar guriad {{beat}}',
 }

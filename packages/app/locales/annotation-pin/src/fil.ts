@@ -6,4 +6,5 @@ export const fil: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Pin ng anotasyon',
   'annotationPin.aria.popup': 'Mga detalye ng anotasyon',
   'annotationPin.empty': 'Walang tala para sa pin na ito.',
+  'annotationPin.aria.addPin': 'Magdagdag ng pin ng anotasyon',
 }

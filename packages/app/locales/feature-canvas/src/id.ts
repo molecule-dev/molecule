@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Indonesian. Stub — falls back to English. */
+/** Canvas translations for Indonesian. */
 export const id: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Permukaan kanvas',
+  'canvas.aria.node': 'Simpul kanvas',
+  'canvas.aria.edge': 'Koneksi kanvas',
+  'canvas.aria.resizeHandle': 'Ubah ukuran simpul',
+  'canvas.aria.nodeSelected': 'Terpilih',
 }

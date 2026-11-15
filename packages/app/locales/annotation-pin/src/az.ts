@@ -6,4 +6,5 @@ export const az: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Annotasiya sancağı',
   'annotationPin.aria.popup': 'Annotasiya detalları',
   'annotationPin.empty': 'Bu sancaq üçün heç bir qeyd yoxdur.',
+  'annotationPin.aria.addPin': 'Annotasiya sancağı əlavə et',
 }

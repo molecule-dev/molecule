@@ -6,4 +6,5 @@ export const ka: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'ანოტაციის პინი',
   'annotationPin.aria.popup': 'ანოტაციის დეტალები',
   'annotationPin.empty': 'ამ პინისთვის შენიშვნები არ არის.',
+  'annotationPin.aria.addPin': 'ანოტაციის პინის დამატება',
 }

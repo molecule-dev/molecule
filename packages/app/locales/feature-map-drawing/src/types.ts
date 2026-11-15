@@ -8,6 +8,7 @@ export type MapDrawingTranslationKey =
   | 'mapDrawing.tool.line'
   | 'mapDrawing.tool.select'
   | 'mapDrawing.tool.delete'
+  | 'mapDrawing.tool.cancelDraft'
 
 /** Translation record mapping map-drawing keys to translated strings. */
 export type MapDrawingTranslations = Record<MapDrawingTranslationKey, string>

@@ -6,4 +6,5 @@ export const mr: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'अ‍ॅनोटेशन पिन',
   'annotationPin.aria.popup': 'भाष्य तपशील',
   'annotationPin.empty': 'या पिनसाठी कोणतीही नोंद नाही.',
+  'annotationPin.aria.addPin': 'अ‍ॅनोटेशन पिन जोडा',
 }

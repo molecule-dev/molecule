@@ -6,4 +6,5 @@ export const is: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Athugasemdir',
   'marginNotes.aria.panel': 'Athugasemdir fyrir þennan hluta',
   'marginNotes.dismiss': 'Fela glósur',
+  'marginNotes.aria.pin': 'Festa athugasemdir fyrir þennan hluta',
 }

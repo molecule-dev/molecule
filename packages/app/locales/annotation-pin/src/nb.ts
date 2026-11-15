@@ -6,4 +6,5 @@ export const nb: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Annotasjonsnål',
   'annotationPin.aria.popup': 'Detaljer om annotering',
   'annotationPin.empty': 'Ingen notater for denne pinnen.',
+  'annotationPin.aria.addPin': 'Legg til annotasjonsnål',
 }

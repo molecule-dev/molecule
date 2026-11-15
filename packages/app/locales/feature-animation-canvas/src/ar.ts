@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Arabic. Stub — falls back to English. */
+/** Animation-canvas translations for Arabic. */
 export const ar: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'لوحة الرسوم المتحركة',
+  'animationCanvas.aria.shape': 'شكل متحرك',
 }

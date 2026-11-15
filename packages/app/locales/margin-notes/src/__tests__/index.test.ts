@@ -14,6 +14,7 @@ const REQUIRED_KEYS: MarginNotesTranslationKey[] = [
   'marginNotes.aria.notes',
   'marginNotes.aria.panel',
   'marginNotes.dismiss',
+  'marginNotes.aria.pin',
 ]
 
 const localeTables = Object.entries(locales).filter(

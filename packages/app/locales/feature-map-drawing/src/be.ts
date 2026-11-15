@@ -10,4 +10,5 @@ export const be: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Лінія',
   'mapDrawing.tool.select': 'Выберыце',
   'mapDrawing.tool.delete': 'Выдаліць',
+  'mapDrawing.tool.cancelDraft': 'Скасаваць чарнавік',
 }

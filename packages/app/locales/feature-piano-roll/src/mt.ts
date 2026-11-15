@@ -8,4 +8,5 @@ export const mt: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Ibdel id-daqs tan-nota',
   'pianoRoll.aria.note':
     'Nota {{pitch}} tibda bit-taħbita {{startBeat}} għal {{durationBeats}} taħbitiet',
+  'pianoRoll.aria.cursor': 'Il-kursor fuq {{pitch}} fit-taħbita {{beat}}',
 }

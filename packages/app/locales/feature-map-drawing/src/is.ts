@@ -10,4 +10,5 @@ export const is: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Lína',
   'mapDrawing.tool.select': 'Veldu',
   'mapDrawing.tool.delete': 'Eyða',
+  'mapDrawing.tool.cancelDraft': 'Hætta við uppkast',
 }

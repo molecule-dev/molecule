@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for ml. Stub — falls back to English defaults. */
+/** NPS distribution translations for ml. */
 export const ml: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'വിമർശകൻ',
+  'nps-distribution.tier.passive': 'നിഷ്പക്ഷൻ',
+  'nps-distribution.tier.promoter': 'അനുഭാവി',
   'nps-distribution.aria-label': 'NPS വിതരണ ചാർട്ട്, {{total}} പ്രതികരണങ്ങൾ',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'സ്കോർ {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} പ്രതികരണങ്ങൾ',
 }

@@ -10,4 +10,5 @@ export const zh: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': '地图绘制表面',
   'mapDrawing.tool.polygon': '多边形',
   'mapDrawing.tool.circle': '圆圈',
+  'mapDrawing.tool.cancelDraft': '取消草稿',
 }

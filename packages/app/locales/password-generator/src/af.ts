@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for af. Stub — falls back to English defaults. */
+/** Password generator translations for af. */
 export const af: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'Gegenereerde wagwoord',
+  'password-generator.copy': 'Kopieer',
+  'password-generator.copied': 'Gekopieer!',
+  'password-generator.regenerate': 'Genereer weer',
+  'password-generator.length': 'Lengte: {{length}}',
+  'password-generator.lengthLabel': 'Wagwoordlengte',
+  'password-generator.toggle.uppercase': 'Hoofletters (A-Z)',
+  'password-generator.toggle.lowercase': 'Kleinletters (a-z)',
+  'password-generator.toggle.digits': 'Syfers (0-9)',
+  'password-generator.toggle.symbols': 'Simbole (!@#…)',
+  'password-generator.toggle.noSimilar': 'Slaan soortgelykes oor (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous': 'Slaan dubbelsinnig (spasie, aanhalingstekens) oor',
   'password-generator.pick': 'Gebruik hierdie wagwoord',
 }

@@ -6,4 +6,5 @@ export const bs: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Označavanje bilješki',
   'annotationPin.aria.popup': 'Detalji anotacije',
   'annotationPin.empty': 'Nema bilješki za ovaj pin.',
+  'annotationPin.aria.addPin': 'Dodaj anotacijski pin',
 }

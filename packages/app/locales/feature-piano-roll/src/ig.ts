@@ -8,4 +8,5 @@ export const ig: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Gbanwee nha ndetu',
   'pianoRoll.aria.note':
     'Ihe ndetu {{pitch}} malite na ịkụ ọkpọ {{startBeat}} maka {{durationBeats}} mbe',
+  'pianoRoll.aria.cursor': 'Ihe ngosi na {{pitch}} na ịkụ ọkpọ {{beat}}',
 }

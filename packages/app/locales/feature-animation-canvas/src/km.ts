@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Khmer. Stub — falls back to English. */
+/** Animation-canvas translations for Khmer. */
 export const km: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'ផ្ទាំងចលនា',
+  'animationCanvas.aria.shape': 'រូបរាងមានចលនា',
 }

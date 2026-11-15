@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Serbian. Stub — falls back to English. */
+/** Canvas translations for Serbian. */
 export const sr: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Површина платна',
+  'canvas.aria.node': 'Чвор платна',
+  'canvas.aria.edge': 'Веза платна',
+  'canvas.aria.resizeHandle': 'Промени величину чвора',
+  'canvas.aria.nodeSelected': 'Изабрано',
 }

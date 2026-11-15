@@ -8,4 +8,5 @@ export const km: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'ប្ដូរទំហំកំណត់ចំណាំ',
   'pianoRoll.aria.note':
     'កំណត់ចំណាំ {{pitch}} ចាប់ផ្តើមដោយចង្វាក់ {{startBeat}} សម្រាប់ {{durationBeats}} ចង្វាក់',
+  'pianoRoll.aria.cursor': 'ទស្សន៍ទ្រនិចលើ {{pitch}} នៅចង្វាក់ {{beat}}',
 }

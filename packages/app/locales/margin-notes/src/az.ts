@@ -6,4 +6,5 @@ export const az: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Qeydlər',
   'marginNotes.aria.panel': 'Bu bölmə üçün qeydlər',
   'marginNotes.dismiss': 'Qeydləri gizlət',
+  'marginNotes.aria.pin': 'Bu bölmənin qeydlərini bərkidin',
 }

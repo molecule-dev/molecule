@@ -6,4 +6,5 @@ export const hy: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Ծանոթագրության կոճ',
   'annotationPin.aria.popup': 'Ծանոթագրության մանրամասներ',
   'annotationPin.empty': 'Այս PIN-ի համար նշումներ չկան։',
+  'annotationPin.aria.addPin': 'Ավելացնել ծանոթագրության կոճ',
 }

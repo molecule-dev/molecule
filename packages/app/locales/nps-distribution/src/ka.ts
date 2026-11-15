@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for ka. Stub — falls back to English defaults. */
+/** NPS distribution translations for ka. */
 export const ka: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'კრიტიკოსი',
+  'nps-distribution.tier.passive': 'ნეიტრალური',
+  'nps-distribution.tier.promoter': 'მხარდამჭერი',
   'nps-distribution.aria-label': 'NPS განაწილების დიაგრამა, {{total}} პასუხი',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'ქულა {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} პასუხი',
 }

@@ -8,4 +8,5 @@ export const hu: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Jegyzet átméretezése',
   'pianoRoll.aria.note':
     'Jegyzet {{pitch}} ütemtől kezdve {{startBeat}} mert {{durationBeats}} ütemek',
+  'pianoRoll.aria.cursor': 'Kurzor {{pitch}} hangon, {{beat}} ütemnél',
 }

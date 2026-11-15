@@ -10,4 +10,5 @@ export const nl: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'Kaarttekenoppervlak',
   'mapDrawing.tool.polygon': 'Veelhoek',
   'mapDrawing.tool.circle': 'Cirkel',
+  'mapDrawing.tool.cancelDraft': 'Concept annuleren',
 }

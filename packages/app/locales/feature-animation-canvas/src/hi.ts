@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Hindi. Stub — falls back to English. */
+/** Animation-canvas translations for Hindi. */
 export const hi: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'एनिमेशन कैनवास',
+  'animationCanvas.aria.shape': 'एनिमेटेड आकृति',
 }

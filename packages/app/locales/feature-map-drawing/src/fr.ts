@@ -10,4 +10,5 @@ export const fr: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'surface de dessin de carte',
   'mapDrawing.tool.polygon': 'Polygone',
   'mapDrawing.tool.circle': 'Cercle',
+  'mapDrawing.tool.cancelDraft': 'Annuler le brouillon',
 }

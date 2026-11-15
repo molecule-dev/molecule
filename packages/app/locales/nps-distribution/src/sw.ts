@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for sw. Stub — falls back to English defaults. */
+/** NPS distribution translations for sw. */
 export const sw: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'Mkosoaji',
+  'nps-distribution.tier.passive': 'Wastani',
+  'nps-distribution.tier.promoter': 'Mhamasishaji',
   'nps-distribution.aria-label': 'Chati ya usambazaji wa NPS, majibu {{total}}',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'Alama {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': 'majibu {{total}}',
 }

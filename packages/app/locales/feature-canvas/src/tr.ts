@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Turkish. Stub — falls back to English. */
+/** Canvas translations for Turkish. */
 export const tr: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Tuval yüzeyi',
+  'canvas.aria.node': 'Tuval düğümü',
+  'canvas.aria.edge': 'Tuval bağlantısı',
+  'canvas.aria.resizeHandle': 'Düğümü yeniden boyutlandır',
+  'canvas.aria.nodeSelected': 'Seçildi',
 }

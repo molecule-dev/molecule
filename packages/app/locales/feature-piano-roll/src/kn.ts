@@ -8,4 +8,5 @@ export const kn: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'ಟಿಪ್ಪಣಿಯನ್ನು ಮರುಗಾತ್ರಗೊಳಿಸಿ',
   'pianoRoll.aria.note':
     'ಸೂಚನೆ {{pitch}} ಬಡಿತದಿಂದ ಪ್ರಾರಂಭಿಸುವುದು {{startBeat}} ಫಾರ್ {{durationBeats}} ಬೀಟ್ಸ್',
+  'pianoRoll.aria.cursor': 'ಕರ್ಸರ್ {{pitch}} ನಲ್ಲಿ, ಬಡಿತ {{beat}} ನಲ್ಲಿ',
 }

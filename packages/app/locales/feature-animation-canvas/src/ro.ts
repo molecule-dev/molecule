@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Romanian. Stub — falls back to English. */
+/** Animation-canvas translations for Romanian. */
 export const ro: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Pânză de animație',
+  'animationCanvas.aria.shape': 'Formă animată',
 }

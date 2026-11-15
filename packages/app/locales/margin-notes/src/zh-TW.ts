@@ -6,4 +6,5 @@ export const zhTW: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': '筆記',
   'marginNotes.aria.panel': '本節註釋',
   'marginNotes.dismiss': '隱藏筆記',
+  'marginNotes.aria.pin': '釘選本節筆記',
 }

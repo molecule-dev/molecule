@@ -6,4 +6,5 @@ export const sv: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Anteckningar',
   'marginNotes.aria.panel': 'Anteckningar för detta avsnitt',
   'marginNotes.dismiss': 'Dölj anteckningar',
+  'marginNotes.aria.pin': 'Fäst anteckningar för det här avsnittet',
 }

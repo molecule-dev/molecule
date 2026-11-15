@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Welsh. Stub — falls back to English. */
+/** Whiteboard canvas translations for Welsh. */
 export const cy: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Cynfas y bwrdd gwyn',
+  'whiteboard.stickyNote.placeholder': 'Nodyn newydd',
 }

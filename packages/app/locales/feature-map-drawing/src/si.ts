@@ -10,4 +10,5 @@ export const si: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'රේඛාව',
   'mapDrawing.tool.select': 'තෝරන්න',
   'mapDrawing.tool.delete': 'මකන්න',
+  'mapDrawing.tool.cancelDraft': 'කෙටුම්පත අවලංගු කරන්න',
 }

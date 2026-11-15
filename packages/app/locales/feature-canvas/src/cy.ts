@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Welsh. Stub — falls back to English. */
+/** Canvas translations for Welsh. */
 export const cy: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Wyneb y cynfas',
+  'canvas.aria.node': 'Nod y cynfas',
+  'canvas.aria.edge': 'Cysylltiad y cynfas',
+  'canvas.aria.resizeHandle': 'Newid maint y nod',
+  'canvas.aria.nodeSelected': 'Dewiswyd',
 }

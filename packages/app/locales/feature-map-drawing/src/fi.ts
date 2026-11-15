@@ -10,4 +10,5 @@ export const fi: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Kiinnitä',
   'mapDrawing.tool.line': 'Linja',
   'mapDrawing.tool.select': 'Valitse',
+  'mapDrawing.tool.cancelDraft': 'Hylkää luonnos',
 }

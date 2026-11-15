@@ -6,4 +6,5 @@ export const sv: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Annoteringsnål',
   'annotationPin.aria.popup': 'Annoteringsdetaljer',
   'annotationPin.empty': 'Inga anteckningar för denna pinne.',
+  'annotationPin.aria.addPin': 'Lägg till annoteringsnål',
 }

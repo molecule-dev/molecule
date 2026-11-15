@@ -6,4 +6,5 @@ export const ga: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Biorán anótála',
   'annotationPin.aria.popup': 'Sonraí anótála',
   'annotationPin.empty': 'Gan aon nótaí don biorán seo.',
+  'annotationPin.aria.addPin': 'Cuir biorán anótála leis',
 }

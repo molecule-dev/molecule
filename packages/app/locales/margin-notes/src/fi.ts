@@ -6,4 +6,5 @@ export const fi: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Muistiinpanoja',
   'marginNotes.aria.panel': 'Tämän osion huomautuksia',
   'marginNotes.dismiss': 'Piilota muistiinpanot',
+  'marginNotes.aria.pin': 'Kiinnitä tämän osion muistiinpanot',
 }

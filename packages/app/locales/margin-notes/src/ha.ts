@@ -6,4 +6,5 @@ export const ha: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Bayanan kula',
   'marginNotes.aria.panel': 'Bayanan kula don wannan sashe',
   'marginNotes.dismiss': 'Ɓoye bayanin kula',
+  'marginNotes.aria.pin': 'Kulle bayanan kula na wannan sashe',
 }

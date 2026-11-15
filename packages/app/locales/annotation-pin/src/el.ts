@@ -6,4 +6,5 @@ export const el: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Καρφίτσα σημειώσεων',
   'annotationPin.aria.popup': 'Λεπτομέρειες σχολιασμού',
   'annotationPin.empty': 'Δεν υπάρχουν σημειώσεις για αυτό το pin.',
+  'annotationPin.aria.addPin': 'Προσθήκη καρφίτσας σημειώσεων',
 }

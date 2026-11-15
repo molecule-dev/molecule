@@ -6,4 +6,5 @@ export const km: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'ម្ជុល​ចំណារពន្យល់',
   'annotationPin.aria.popup': 'ព័ត៌មានលម្អិតអំពីចំណារពន្យល់',
   'annotationPin.empty': 'គ្មានកំណត់ចំណាំសម្រាប់ម្ជុលនេះទេ។',
+  'annotationPin.aria.addPin': 'បន្ថែមម្ជុល​ចំណារពន្យល់',
 }

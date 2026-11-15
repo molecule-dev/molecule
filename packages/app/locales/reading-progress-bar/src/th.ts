@@ -1,6 +1,6 @@
 import type { ReadingProgressBarTranslations } from './types.js'
 
-/** Reading-progress-bar translations for th. Stub — falls back to English. */
+/** Reading-progress-bar translations for th. */
 export const th: ReadingProgressBarTranslations = {
-  'readingProgressBar.aria.label': 'Reading progress',
+  'readingProgressBar.aria.label': 'ความคืบหน้าการอ่าน',
 }

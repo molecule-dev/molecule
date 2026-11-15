@@ -8,4 +8,5 @@ export const sw: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Badilisha ukubwa wa dokezo',
   'pianoRoll.aria.note':
     'Dokezo {{pitch}} kuanzia kwenye mdundo {{startBeat}} kwa {{durationBeats}} midundo',
+  'pianoRoll.aria.cursor': 'Kielekezi kwenye {{pitch}} kwenye mdundo {{beat}}',
 }

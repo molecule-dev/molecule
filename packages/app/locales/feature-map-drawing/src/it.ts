@@ -10,4 +10,5 @@ export const it: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'superficie di disegno cartografico',
   'mapDrawing.tool.polygon': 'Poligono',
   'mapDrawing.tool.circle': 'Cerchio',
+  'mapDrawing.tool.cancelDraft': 'Annulla bozza',
 }

@@ -8,4 +8,5 @@ export const sk: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Zmeniť veľkosť poznámky',
   'pianoRoll.aria.note':
     'Poznámka {{pitch}} začínajúc od taktu {{startBeat}} pre {{durationBeats}} beaty',
+  'pianoRoll.aria.cursor': 'Kurzor na {{pitch}} v takte {{beat}}',
 }

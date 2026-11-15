@@ -6,4 +6,5 @@ export const mn: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Тэмдэглэл',
   'marginNotes.aria.panel': 'Энэ хэсгийн тэмдэглэл',
   'marginNotes.dismiss': 'Тэмдэглэлийг нуух',
+  'marginNotes.aria.pin': 'Энэ хэсгийн тэмдэглэлийг бэхлэх',
 }

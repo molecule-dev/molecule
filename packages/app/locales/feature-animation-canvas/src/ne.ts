@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Nepali. Stub — falls back to English. */
+/** Animation-canvas translations for Nepali. */
 export const ne: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'एनिमेसन क्यानभास',
+  'animationCanvas.aria.shape': 'एनिमेटेड आकार',
 }

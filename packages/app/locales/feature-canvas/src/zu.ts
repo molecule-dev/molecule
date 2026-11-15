@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Zulu. Stub — falls back to English. */
+/** Canvas translations for Zulu. */
 export const zu: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Indawo ye-kanvasi',
+  'canvas.aria.node': 'Inodi ye-kanvasi',
+  'canvas.aria.edge': 'Uxhumano lwe-kanvasi',
+  'canvas.aria.resizeHandle': 'Shintsha usayizi we-nodi',
+  'canvas.aria.nodeSelected': 'Ikhethiwe',
 }

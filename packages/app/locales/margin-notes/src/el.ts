@@ -6,4 +6,5 @@ export const el: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Σημειώσεις',
   'marginNotes.aria.panel': 'Σημειώσεις για αυτήν την ενότητα',
   'marginNotes.dismiss': 'Απόκρυψη σημειώσεων',
+  'marginNotes.aria.pin': 'Καρφίτσωμα σημειώσεων για αυτήν την ενότητα',
 }

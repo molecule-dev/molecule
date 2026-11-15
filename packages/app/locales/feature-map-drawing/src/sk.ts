@@ -10,4 +10,5 @@ export const sk: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Čiara',
   'mapDrawing.tool.select': 'Vyberte',
   'mapDrawing.tool.delete': 'Odstrániť',
+  'mapDrawing.tool.cancelDraft': 'Zrušiť náčrt',
 }

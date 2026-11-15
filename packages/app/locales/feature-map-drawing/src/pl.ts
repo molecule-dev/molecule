@@ -10,4 +10,5 @@ export const pl: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'Powierzchnia rysowania mapy',
   'mapDrawing.tool.polygon': 'Wielokąt',
   'mapDrawing.tool.circle': 'Koło',
+  'mapDrawing.tool.cancelDraft': 'Odrzuć szkic',
 }

@@ -6,4 +6,5 @@ export const eu: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Oharpen-txintxeta',
   'annotationPin.aria.popup': 'Oharpen xehetasunak',
   'annotationPin.empty': 'Ez dago oharrik pin honetarako.',
+  'annotationPin.aria.addPin': 'Gehitu oharpen-txintxeta',
 }

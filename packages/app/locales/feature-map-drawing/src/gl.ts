@@ -10,4 +10,5 @@ export const gl: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Liña',
   'mapDrawing.tool.select': 'Seleccionar',
   'mapDrawing.tool.delete': 'Eliminar',
+  'mapDrawing.tool.cancelDraft': 'Cancelar o borrador',
 }

@@ -6,4 +6,5 @@ export const hr: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Prikvačivanje napomene',
   'annotationPin.aria.popup': 'Detalji napomena',
   'annotationPin.empty': 'Nema bilješki za ovaj pin.',
+  'annotationPin.aria.addPin': 'Dodaj pribadaču za napomenu',
 }

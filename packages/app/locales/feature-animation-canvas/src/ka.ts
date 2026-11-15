@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Georgian. Stub — falls back to English. */
+/** Animation-canvas translations for Georgian. */
 export const ka: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'ანიმაციის ტილო',
+  'animationCanvas.aria.shape': 'ანიმირებული ფიგურა',
 }

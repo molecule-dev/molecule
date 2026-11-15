@@ -10,4 +10,5 @@ export const ky: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Сызык',
   'mapDrawing.tool.select': 'Тандоо',
   'mapDrawing.tool.delete': 'Өчүрүү',
+  'mapDrawing.tool.cancelDraft': 'Долбоорду жокко чыгаруу',
 }

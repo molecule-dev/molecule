@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Japanese. Stub — falls back to English. */
+/** Canvas translations for Japanese. */
 export const ja: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'キャンバスの表面',
+  'canvas.aria.node': 'キャンバスノード',
+  'canvas.aria.edge': 'キャンバス接続',
+  'canvas.aria.resizeHandle': 'ノードのサイズを変更',
+  'canvas.aria.nodeSelected': '選択済み',
 }

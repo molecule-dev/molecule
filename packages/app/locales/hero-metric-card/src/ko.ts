@@ -1,8 +1,8 @@
 import type { HeroMetricCardTranslations } from './types.js'
 
-/** Hero metric card translations for ko. Stub — falls back to English defaults. */
+/** Hero metric card translations for ko. */
 export const ko: HeroMetricCardTranslations = {
-  'hero-metric-card.loading': 'Loading metric…',
-  'hero-metric-card.trend.up': 'Trending up',
-  'hero-metric-card.trend.down': 'Trending down',
+  'hero-metric-card.loading': '지표를 불러오는 중…',
+  'hero-metric-card.trend.up': '상승세',
+  'hero-metric-card.trend.down': '하락세',
 }

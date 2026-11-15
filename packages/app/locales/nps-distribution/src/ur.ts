@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for ur. Stub — falls back to English defaults. */
+/** NPS distribution translations for ur. */
 export const ur: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'ناقد',
+  'nps-distribution.tier.passive': 'غیر جانبدار',
+  'nps-distribution.tier.promoter': 'حامی',
   'nps-distribution.aria-label': 'NPS تقسیم کا چارٹ، {{total}} جوابات',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'اسکور {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} جوابات',
 }

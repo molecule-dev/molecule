@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for hu. Stub — falls back to English defaults. */
+/** NPS distribution translations for hu. */
 export const hu: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'Kritikus',
+  'nps-distribution.tier.passive': 'Passzív',
+  'nps-distribution.tier.promoter': 'Ajánló',
   'nps-distribution.aria-label': 'NPS eloszlási diagram, {{total}} válasz',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'Pontszám {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} válasz',
 }

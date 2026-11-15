@@ -10,4 +10,5 @@ export const uz: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Chiziq',
   'mapDrawing.tool.select': 'Tanlang',
   'mapDrawing.tool.delete': "O'chirish",
+  'mapDrawing.tool.cancelDraft': 'Loyihani bekor qilish',
 }

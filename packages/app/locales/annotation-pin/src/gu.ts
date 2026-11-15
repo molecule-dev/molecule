@@ -6,4 +6,5 @@ export const gu: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'ટીકા પિન',
   'annotationPin.aria.popup': 'ટીકા વિગતો',
   'annotationPin.empty': 'આ પિન માટે કોઈ નોંધ નથી.',
+  'annotationPin.aria.addPin': 'ટીકા પિન ઉમેરો',
 }

@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Armenian. Stub — falls back to English. */
+/** Canvas translations for Armenian. */
 export const hy: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Կտավի մակերես',
+  'canvas.aria.node': 'Կտավի հանգույց',
+  'canvas.aria.edge': 'Կտավի կապ',
+  'canvas.aria.resizeHandle': 'Փոխել հանգույցի չափը',
+  'canvas.aria.nodeSelected': 'Ընտրված',
 }

@@ -6,4 +6,5 @@ export const th: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'หมุดคำอธิบายประกอบ',
   'annotationPin.aria.popup': 'รายละเอียดคำอธิบายประกอบ',
   'annotationPin.empty': 'ไม่มีหมายเหตุสำหรับพินนี้',
+  'annotationPin.aria.addPin': 'เพิ่มหมุดคำอธิบายประกอบ',
 }

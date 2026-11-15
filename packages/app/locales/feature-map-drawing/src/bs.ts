@@ -10,4 +10,5 @@ export const bs: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Linija',
   'mapDrawing.tool.select': 'Odaberite',
   'mapDrawing.tool.delete': 'Izbriši',
+  'mapDrawing.tool.cancelDraft': 'Otkaži nacrt',
 }

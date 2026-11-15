@@ -6,4 +6,5 @@ export const da: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Noter',
   'marginNotes.aria.panel': 'Noter til dette afsnit',
   'marginNotes.dismiss': 'Skjul noter',
+  'marginNotes.aria.pin': 'Fastgør noter til dette afsnit',
 }

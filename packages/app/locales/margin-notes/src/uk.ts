@@ -6,4 +6,5 @@ export const uk: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Нотатки',
   'marginNotes.aria.panel': 'Примітки до цього розділу',
   'marginNotes.dismiss': 'Приховати нотатки',
+  'marginNotes.aria.pin': 'Закріпити нотатки цього розділу',
 }

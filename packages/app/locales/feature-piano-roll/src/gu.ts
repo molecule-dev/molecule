@@ -8,4 +8,5 @@ export const gu: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'નોંધનું કદ બદલો',
   'pianoRoll.aria.note':
     'નોંધ {{pitch}} બીટથી શરૂ કરીને {{startBeat}} માટે {{durationBeats}} ધબકારા',
+  'pianoRoll.aria.cursor': 'કર્સર {{pitch}} પર, બીટ {{beat}} પર',
 }

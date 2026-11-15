@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Chinese (Traditional). Stub — falls back to English. */
+/** Animation-canvas translations for Chinese (Traditional). */
 export const zhTW: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': '動畫畫布',
+  'animationCanvas.aria.shape': '動畫圖形',
 }

@@ -6,4 +6,5 @@ export const bg: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Бележки',
   'marginNotes.aria.panel': 'Бележки за този раздел',
   'marginNotes.dismiss': 'Скриване на бележки',
+  'marginNotes.aria.pin': 'Закрепване на бележките за този раздел',
 }

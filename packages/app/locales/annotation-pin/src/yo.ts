@@ -6,4 +6,5 @@ export const yo: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Pínì àkíyèsí',
   'annotationPin.aria.popup': 'Àwọn kúlẹ̀kúlẹ̀ àlàyé',
   'annotationPin.empty': 'Ko si akọsilẹ fun pin yii.',
+  'annotationPin.aria.addPin': 'Ṣàfikún Pínì àkíyèsí',
 }

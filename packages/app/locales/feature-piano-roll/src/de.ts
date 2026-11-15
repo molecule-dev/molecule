@@ -7,4 +7,5 @@ export const de: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Notenraster',
   'pianoRoll.aria.resize': 'Größenänderungshinweis',
   'pianoRoll.aria.note': 'Notiz {{pitch}} ab Takt {{startBeat}} für {{durationBeats}} Beats',
+  'pianoRoll.aria.cursor': 'Cursor auf {{pitch}} bei Beat {{beat}}',
 }

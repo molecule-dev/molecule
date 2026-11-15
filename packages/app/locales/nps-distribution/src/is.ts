@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for is. Stub — falls back to English defaults. */
+/** NPS distribution translations for is. */
 export const is: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'Mótvinur',
+  'nps-distribution.tier.passive': 'Hlutlaus',
+  'nps-distribution.tier.promoter': 'Velvinur',
   'nps-distribution.aria-label': 'Dreifingartafla NPS, {{total}} svör',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'Einkunn {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} svör',
 }

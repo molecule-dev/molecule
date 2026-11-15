@@ -6,4 +6,5 @@ export const uz: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Izoh pin',
   'annotationPin.aria.popup': 'Izoh tafsilotlari',
   'annotationPin.empty': "Bu pin uchun hech qanday yozuv yo'q.",
+  'annotationPin.aria.addPin': "Izoh pin qo'shish",
 }

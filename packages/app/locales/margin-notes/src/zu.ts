@@ -6,4 +6,5 @@ export const zu: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Amanothi',
   'marginNotes.aria.panel': 'Amanothi alesi sigaba',
   'marginNotes.dismiss': 'Fihla amanothi',
+  'marginNotes.aria.pin': 'Namathisela amanothi alesi sigaba',
 }

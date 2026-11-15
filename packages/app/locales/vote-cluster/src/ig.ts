@@ -1,11 +1,11 @@
 import type { VoteClusterTranslations } from './types.js'
 
-/** Vote cluster translations for ig. Stub — falls back to English defaults. */
+/** Vote cluster translations for ig. */
 export const ig: VoteClusterTranslations = {
-  'vote-cluster.upvote': 'Upvote',
-  'vote-cluster.removeUpvote': 'Remove upvote',
-  'vote-cluster.downvote': 'Downvote',
-  'vote-cluster.removeDownvote': 'Remove downvote',
-  'vote-cluster.score': 'Score: {{score}}',
+  'vote-cluster.upvote': 'Votu elu',
+  'vote-cluster.removeUpvote': 'Wepụ votu elu',
+  'vote-cluster.downvote': 'Votu ala',
+  'vote-cluster.removeDownvote': 'Wepụ votu ala',
+  'vote-cluster.score': 'Akara: {{score}}',
   'vote-cluster.group': 'Klọb votu, akara ugbu a {{score}}',
 }

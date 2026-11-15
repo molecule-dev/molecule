@@ -10,4 +10,5 @@ export const ta: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'வரி',
   'mapDrawing.tool.select': 'தேர்ந்தெடுக்கவும்',
   'mapDrawing.tool.delete': 'நீக்கு',
+  'mapDrawing.tool.cancelDraft': 'வரைவை ரத்துசெய்',
 }

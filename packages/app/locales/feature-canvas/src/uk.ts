@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Ukrainian. Stub — falls back to English. */
+/** Canvas translations for Ukrainian. */
 export const uk: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Поверхня полотна',
+  'canvas.aria.node': 'Вузол полотна',
+  'canvas.aria.edge': 'З’єднання полотна',
+  'canvas.aria.resizeHandle': 'Змінити розмір вузла',
+  'canvas.aria.nodeSelected': 'Вибрано',
 }

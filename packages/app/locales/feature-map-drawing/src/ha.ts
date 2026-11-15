@@ -10,4 +10,5 @@ export const ha: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Layi',
   'mapDrawing.tool.select': 'Zaɓi',
   'mapDrawing.tool.delete': 'Goge',
+  'mapDrawing.tool.cancelDraft': 'Soke daftarin',
 }

@@ -6,4 +6,5 @@ export const sw: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Vidokezo',
   'marginNotes.aria.panel': 'Maelezo ya sehemu hii',
   'marginNotes.dismiss': 'Ficha madokezo',
+  'marginNotes.aria.pin': 'Banisha madokezo ya sehemu hii',
 }

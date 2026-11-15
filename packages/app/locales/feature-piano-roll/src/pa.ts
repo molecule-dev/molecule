@@ -7,4 +7,5 @@ export const pa: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'ਨੋਟ ਗਰਿੱਡ',
   'pianoRoll.aria.resize': 'ਨੋਟ-ਕਥਨ ਦਾ ਆਕਾਰ ਬਦਲੋ',
   'pianoRoll.aria.note': 'ਨੋਟ {{pitch}} ਬੀਟ ਤੋਂ ਸ਼ੁਰੂ {{startBeat}} ਲਈ {{durationBeats}} ਧੜਕਣਾਂ',
+  'pianoRoll.aria.cursor': 'ਕਰਸਰ {{pitch}} ਤੇ, ਬੀਟ {{beat}} ਤੇ',
 }

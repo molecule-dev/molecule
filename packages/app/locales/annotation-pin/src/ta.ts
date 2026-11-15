@@ -6,4 +6,5 @@ export const ta: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'குறிப்பு முள்',
   'annotationPin.aria.popup': 'குறிப்பு விவரங்கள்',
   'annotationPin.empty': 'இந்தப் பின்னுக்கு குறிப்புகள் இல்லை.',
+  'annotationPin.aria.addPin': 'குறிப்பு முள் சேர்க்கவும்',
 }

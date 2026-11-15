@@ -6,4 +6,5 @@ export const ro: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Note',
   'marginNotes.aria.panel': 'Note pentru această secțiune',
   'marginNotes.dismiss': 'Ascunde notele',
+  'marginNotes.aria.pin': 'Fixați notele acestei secțiuni',
 }

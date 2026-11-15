@@ -6,4 +6,5 @@ export const my: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'မှတ်ချက်တံသင်',
   'annotationPin.aria.popup': 'မှတ်ချက်အသေးစိတ်အချက်အလက်များ',
   'annotationPin.empty': 'ဤ pin အတွက် မှတ်စုများ မရှိပါ။',
+  'annotationPin.aria.addPin': 'မှတ်ချက်တံသင် ထည့်ရန်',
 }

@@ -6,4 +6,5 @@ export const ja: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': '注釈ピン',
   'annotationPin.aria.popup': '注釈の詳細',
   'annotationPin.empty': 'このピンにはコメントがありません。',
+  'annotationPin.aria.addPin': '注釈ピンを追加',
 }

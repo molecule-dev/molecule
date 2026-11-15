@@ -8,4 +8,5 @@ export const fil: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Baguhin ang laki ng tala',
   'pianoRoll.aria.note':
     'Tala {{pitch}} nagsisimula sa beat {{startBeat}} para sa {{durationBeats}} mga ritmo',
+  'pianoRoll.aria.cursor': 'Cursor sa {{pitch}} sa beat {{beat}}',
 }

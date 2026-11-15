@@ -6,4 +6,5 @@ export const ga: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Nótaí',
   'marginNotes.aria.panel': 'Nótaí don chuid seo',
   'marginNotes.dismiss': 'Folaigh nótaí',
+  'marginNotes.aria.pin': 'Pionnáil na nótaí don chuid seo',
 }

@@ -8,4 +8,5 @@ export const uk: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Змінити розмір нотатки',
   'pianoRoll.aria.note':
     'Примітка {{pitch}} починаючи з такту {{startBeat}} для {{durationBeats}} ритми',
+  'pianoRoll.aria.cursor': 'Курсор на {{pitch}} на такті {{beat}}',
 }

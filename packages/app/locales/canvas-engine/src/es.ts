@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Spanish. Stub — falls back to English. */
+/** Canvas-engine translations for Spanish. */
 export const es: CanvasEngineTranslations = {
   'canvasEngine.aria.surface': 'Editor de lienzo vectorial',
 }

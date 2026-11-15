@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Bulgarian. Stub — falls back to English. */
+/** Canvas translations for Bulgarian. */
 export const bg: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Повърхност на платното',
+  'canvas.aria.node': 'Възел на платното',
+  'canvas.aria.edge': 'Връзка на платното',
+  'canvas.aria.resizeHandle': 'Промяна на размера на възела',
+  'canvas.aria.nodeSelected': 'Избрано',
 }

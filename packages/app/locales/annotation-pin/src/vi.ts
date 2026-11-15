@@ -6,4 +6,5 @@ export const vi: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Ghim chú thích',
   'annotationPin.aria.popup': 'Chi tiết chú thích',
   'annotationPin.empty': 'Không có ghi chú nào cho chiếc ghim này.',
+  'annotationPin.aria.addPin': 'Thêm ghim chú thích',
 }

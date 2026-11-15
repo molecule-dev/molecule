@@ -6,4 +6,5 @@ export const zu: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Iphinikhodi yesichasiselo',
   'annotationPin.aria.popup': 'Imininingwane yesichasiselo',
   'annotationPin.empty': 'Awekho amanothi ale phinikhodi.',
+  'annotationPin.aria.addPin': 'Engeza iphinikhodi yesichasiselo',
 }

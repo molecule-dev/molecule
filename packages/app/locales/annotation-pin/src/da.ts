@@ -6,4 +6,5 @@ export const da: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Mærkningsstift',
   'annotationPin.aria.popup': 'Detaljer om anmærkningen',
   'annotationPin.empty': 'Der er ingen noter til denne pin.',
+  'annotationPin.aria.addPin': 'Tilføj mærkningsstift',
 }

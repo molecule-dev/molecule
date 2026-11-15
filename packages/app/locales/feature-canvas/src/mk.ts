@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Macedonian. Stub — falls back to English. */
+/** Canvas translations for Macedonian. */
 export const mk: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Површина на платното',
+  'canvas.aria.node': 'Јазол на платното',
+  'canvas.aria.edge': 'Врска на платното',
+  'canvas.aria.resizeHandle': 'Промени ја големината на јазолот',
+  'canvas.aria.nodeSelected': 'Избрано',
 }

@@ -10,4 +10,5 @@ export const km: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'បន្ទាត់',
   'mapDrawing.tool.select': 'ជ្រើសរើស',
   'mapDrawing.tool.delete': 'លុប',
+  'mapDrawing.tool.cancelDraft': 'បោះបង់ការព្រាង',
 }

@@ -10,4 +10,5 @@ export const he: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'קַו',
   'mapDrawing.tool.select': 'לִבחוֹר',
   'mapDrawing.tool.delete': 'לִמְחוֹק',
+  'mapDrawing.tool.cancelDraft': 'לְבַטֵּל טִיּוּטָה',
 }

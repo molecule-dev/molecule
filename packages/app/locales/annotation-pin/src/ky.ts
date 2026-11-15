@@ -6,4 +6,5 @@ export const ky: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Аннотация төөнөгүчү',
   'annotationPin.aria.popup': 'Аннотациянын чоо-жайы',
   'annotationPin.empty': 'Бул төөнөгүч үчүн эч кандай жазуу жок.',
+  'annotationPin.aria.addPin': 'Аннотация төөнөгүчүн кошуу',
 }

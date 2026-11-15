@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Estonian. Stub — falls back to English. */
+/** Canvas translations for Estonian. */
 export const et: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Lõuendi pind',
+  'canvas.aria.node': 'Lõuendi sõlm',
+  'canvas.aria.edge': 'Lõuendi ühendus',
+  'canvas.aria.resizeHandle': 'Muuda sõlme suurust',
+  'canvas.aria.nodeSelected': 'Valitud',
 }

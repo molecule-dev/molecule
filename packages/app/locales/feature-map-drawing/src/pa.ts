@@ -10,4 +10,5 @@ export const pa: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'ਲਾਈਨ',
   'mapDrawing.tool.select': 'ਚੁਣੋ',
   'mapDrawing.tool.delete': 'ਮਿਟਾਓ',
+  'mapDrawing.tool.cancelDraft': 'ਡ੍ਰਾਫਟ ਰੱਦ ਕਰੋ',
 }

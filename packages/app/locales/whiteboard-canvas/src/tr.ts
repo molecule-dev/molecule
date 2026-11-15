@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Turkish. Stub — falls back to English. */
+/** Whiteboard canvas translations for Turkish. */
 export const tr: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Beyaz tahta tuvali',
+  'whiteboard.stickyNote.placeholder': 'Yeni not',
 }

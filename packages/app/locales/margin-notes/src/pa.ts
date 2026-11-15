@@ -6,4 +6,5 @@ export const pa: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'ਨੋਟਸ',
   'marginNotes.aria.panel': 'ਇਸ ਭਾਗ ਲਈ ਨੋਟਸ',
   'marginNotes.dismiss': 'ਨੋਟਸ ਲੁਕਾਓ',
+  'marginNotes.aria.pin': 'ਇਸ ਭਾਗ ਦੀਆਂ ਨੋਟਸ ਪਿੰਨ ਕਰੋ',
 }

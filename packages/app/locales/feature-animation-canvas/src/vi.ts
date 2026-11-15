@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Vietnamese. Stub — falls back to English. */
+/** Animation-canvas translations for Vietnamese. */
 export const vi: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Canvas hoạt hình',
+  'animationCanvas.aria.shape': 'Hình dạng hoạt hình',
 }

@@ -10,4 +10,5 @@ export const fa: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'خط',
   'mapDrawing.tool.select': 'انتخاب کنید',
   'mapDrawing.tool.delete': 'حذف',
+  'mapDrawing.tool.cancelDraft': 'لغو پیش‌نویس',
 }

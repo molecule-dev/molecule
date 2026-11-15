@@ -6,4 +6,5 @@ export const ru: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Петля для аннотаций',
   'annotationPin.aria.popup': 'Подробности аннотации',
   'annotationPin.empty': 'К этому значку нет заметок.',
+  'annotationPin.aria.addPin': 'Добавить булавку для аннотаций',
 }

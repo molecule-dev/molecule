@@ -60,15 +60,34 @@ describe('<CanvasNode>', () => {
     expect(node.style.top).toBe('50px')
   })
 
-  it('marks selected via aria-selected + data-selected', () => {
-    const { container } = render(
+  it('renders as a named group; a selected node is described as Selected', () => {
+    const { container, rerender } = render(
       <Wrap>
         <CanvasNode id="a" position={{ x: 0, y: 0 }} selected />
       </Wrap>,
     )
-    const node = container.querySelector('[data-mol-id="canvas-node-a"]')!
-    expect(node.getAttribute('aria-selected')).toBe('true')
+    const node = container.querySelector('[data-mol-id="canvas-node-a"]') as HTMLElement
+    // aria-selected is not valid on a group, and the selectable roles need a
+    // listbox/grid/tree parent the application surface is not.
+    expect(node.getAttribute('role')).toBe('group')
+    expect(node.getAttribute('aria-label')).toBe('Canvas node')
+    expect(node.hasAttribute('aria-selected')).toBe(false)
     expect(node.getAttribute('data-selected')).toBe('true')
+    const descriptionId = node.getAttribute('aria-describedby')
+    expect(descriptionId).toBeTruthy()
+    const description = document.getElementById(descriptionId as string) as HTMLElement
+    expect(description.textContent).toBe('Selected')
+    expect(description.hidden).toBe(true)
+    expect(node.contains(description)).toBe(true)
+    rerender(
+      <Wrap>
+        <CanvasNode id="a" position={{ x: 0, y: 0 }} />
+      </Wrap>,
+    )
+    expect(node.hasAttribute('aria-describedby')).toBe(false)
+    expect(node.getAttribute('data-selected')).toBeNull()
+    expect(document.getElementById(descriptionId as string)).toBeNull()
+    expect(node.getAttribute('role')).toBe('group')
   })
 
   it('fires onSelect on pointer-down → pointer-up without movement', () => {

@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Afrikaans. Stub — falls back to English. */
+/** Whiteboard canvas translations for Afrikaans. */
 export const af: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Witbord-kanvas',
+  'whiteboard.stickyNote.placeholder': 'Nuwe nota',
 }

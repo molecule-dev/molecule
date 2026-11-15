@@ -8,4 +8,5 @@ export const zu: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Shintsha usayizi wenothi',
   'pianoRoll.aria.note':
     'Inothi {{pitch}} ukuqala ngesikhathi sokushaya {{startBeat}} ngoba {{durationBeats}} amabhithi',
+  'pianoRoll.aria.cursor': 'Isikhombi ku-{{pitch}} esikhathini sokushaya {{beat}}',
 }

@@ -6,4 +6,5 @@ export const he: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'סיכת ביאור',
   'annotationPin.aria.popup': 'פרטי ביאור',
   'annotationPin.empty': 'אין הערות עבור פין זה.',
+  'annotationPin.aria.addPin': 'הוספת סיכת ביאור',
 }

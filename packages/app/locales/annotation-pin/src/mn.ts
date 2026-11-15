@@ -6,4 +6,5 @@ export const mn: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Тэмдэглэгээний зүү',
   'annotationPin.aria.popup': 'Тэмдэглэгээний дэлгэрэнгүй мэдээлэл',
   'annotationPin.empty': 'Энэ зүүнд тэмдэглэл байхгүй байна.',
+  'annotationPin.aria.addPin': 'Тэмдэглэгээний зүү нэмэх',
 }

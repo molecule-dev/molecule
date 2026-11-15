@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Belarusian. Stub — falls back to English. */
+/** Canvas translations for Belarusian. */
 export const be: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Паверхня холста',
+  'canvas.aria.node': 'Вузол холста',
+  'canvas.aria.edge': 'Злучэнне холста',
+  'canvas.aria.resizeHandle': 'Змяніць памер вузла',
+  'canvas.aria.nodeSelected': 'Выбрана',
 }

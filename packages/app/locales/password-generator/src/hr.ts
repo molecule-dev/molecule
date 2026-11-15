@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for hr. Stub — falls back to English defaults. */
+/** Password generator translations for hr. */
 export const hr: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'Generirana lozinka',
+  'password-generator.copy': 'Kopirati',
+  'password-generator.copied': 'Kopirano!',
+  'password-generator.regenerate': 'Ponovno generiraj',
+  'password-generator.length': 'Dužina: {{length}}',
+  'password-generator.lengthLabel': 'Dužina lozinke',
+  'password-generator.toggle.uppercase': 'Velika slova (A-Z)',
+  'password-generator.toggle.lowercase': 'Mala slova (a-z)',
+  'password-generator.toggle.digits': 'Znamenke (0-9)',
+  'password-generator.toggle.symbols': 'Simboli (!@#…)',
+  'password-generator.toggle.noSimilar': 'Preskoči slične (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous': 'Preskoči dvosmisleno (razmak, navodnici)',
   'password-generator.pick': 'Koristite ovu lozinku',
 }

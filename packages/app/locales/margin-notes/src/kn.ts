@@ -6,4 +6,5 @@ export const kn: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'ಟಿಪ್ಪಣಿಗಳು',
   'marginNotes.aria.panel': 'ಈ ವಿಭಾಗಕ್ಕೆ ಟಿಪ್ಪಣಿಗಳು',
   'marginNotes.dismiss': 'ಟಿಪ್ಪಣಿಗಳನ್ನು ಮರೆಮಾಡಿ',
+  'marginNotes.aria.pin': 'ಈ ವಿಭಾಗದ ಟಿಪ್ಪಣಿಗಳನ್ನು ಪಿನ್ ಮಾಡಿ',
 }

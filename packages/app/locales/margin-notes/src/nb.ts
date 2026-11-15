@@ -6,4 +6,5 @@ export const nb: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Notater',
   'marginNotes.aria.panel': 'Merknader for denne delen',
   'marginNotes.dismiss': 'Skjul notater',
+  'marginNotes.aria.pin': 'Fest notatene for denne delen',
 }

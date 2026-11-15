@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Greek. Stub — falls back to English. */
+/** Animation-canvas translations for Greek. */
 export const el: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Καμβάς κίνησης',
+  'animationCanvas.aria.shape': 'Κινούμενο σχήμα',
 }

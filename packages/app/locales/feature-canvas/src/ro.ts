@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Romanian. Stub — falls back to English. */
+/** Canvas translations for Romanian. */
 export const ro: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Suprafața pânzei',
+  'canvas.aria.node': 'Nodul pânzei',
+  'canvas.aria.edge': 'Muchia pânzei',
+  'canvas.aria.resizeHandle': 'Redimensionează nodul',
+  'canvas.aria.nodeSelected': 'Selectat',
 }

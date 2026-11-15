@@ -6,4 +6,5 @@ export const af: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Annotasiepen',
   'annotationPin.aria.popup': 'Annotasiebesonderhede',
   'annotationPin.empty': 'Geen notas vir hierdie pen nie.',
+  'annotationPin.aria.addPin': 'Voeg annotasiepen toe',
 }

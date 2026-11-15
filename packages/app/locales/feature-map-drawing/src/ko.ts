@@ -10,4 +10,5 @@ export const ko: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': '지도 그리기 표면',
   'mapDrawing.tool.polygon': '다각형',
   'mapDrawing.tool.circle': '원',
+  'mapDrawing.tool.cancelDraft': '초안 취소',
 }

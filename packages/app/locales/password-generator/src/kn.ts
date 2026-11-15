@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for kn. Stub — falls back to English defaults. */
+/** Password generator translations for kn. */
 export const kn: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'ರಚಿಸಿದ ಪಾಸ್‌ವರ್ಡ್',
+  'password-generator.copy': 'ನಕಲಿಸಿ',
+  'password-generator.copied': 'ನಕಲಿಸಲಾಗಿದೆ!',
+  'password-generator.regenerate': 'ಮರುರಚಿಸಿ',
+  'password-generator.length': 'ಉದ್ದ: {{length}}',
+  'password-generator.lengthLabel': 'ಪಾಸ್‌ವರ್ಡ್ ಉದ್ದ',
+  'password-generator.toggle.uppercase': 'ದೊಡ್ಡಕ್ಷರ (A-Z)',
+  'password-generator.toggle.lowercase': 'ಸಣ್ಣಕ್ಷರ (a-z)',
+  'password-generator.toggle.digits': 'ಅಂಕಿಗಳು (0-9)',
+  'password-generator.toggle.symbols': 'ಚಿಹ್ನೆಗಳು (!@#…)',
+  'password-generator.toggle.noSimilar': 'ಹೋಲುವವುಗಳನ್ನು ಬಿಟ್ಟುಬಿಡಿ (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous': 'ಅಸ್ಪಷ್ಟತೆಯನ್ನು ಬಿಟ್ಟುಬಿಡಿ (ಸ್ಥಳ, ಉಲ್ಲೇಖಗಳು)',
   'password-generator.pick': 'ಈ ಪಾಸ್‌ವರ್ಡ್ ಬಳಸಿ',
 }

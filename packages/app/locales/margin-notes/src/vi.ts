@@ -6,4 +6,5 @@ export const vi: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Ghi chú',
   'marginNotes.aria.panel': 'Ghi chú cho phần này',
   'marginNotes.dismiss': 'Ẩn ghi chú',
+  'marginNotes.aria.pin': 'Ghim ghi chú của phần này',
 }

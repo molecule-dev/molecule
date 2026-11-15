@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Swahili. Stub — falls back to English. */
+/** Canvas-engine translations for Swahili. */
 export const sw: CanvasEngineTranslations = {
-  'canvasEngine.aria.surface': 'Kihariri cha turubai cha vekta',
+  'canvasEngine.aria.surface': 'Kihariri cha turubai ya vekta',
 }

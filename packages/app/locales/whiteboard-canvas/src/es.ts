@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Spanish. Stub — falls back to English. */
+/** Whiteboard canvas translations for Spanish. */
 export const es: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Lienzo de la pizarra',
+  'whiteboard.stickyNote.placeholder': 'Nota nueva',
 }

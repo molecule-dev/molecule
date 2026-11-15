@@ -10,4 +10,5 @@ export const ne: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'रेखा',
   'mapDrawing.tool.select': 'चयन गर्नुहोस्',
   'mapDrawing.tool.delete': 'मेटाउनुहोस्',
+  'mapDrawing.tool.cancelDraft': 'ड्राफ्ट रद्द गर्नुहोस्',
 }

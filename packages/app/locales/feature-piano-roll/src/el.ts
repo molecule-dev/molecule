@@ -8,4 +8,5 @@ export const el: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Αλλαγή μεγέθους σημείωσης',
   'pianoRoll.aria.note':
     'Σημείωμα {{pitch}} ξεκινώντας από τον ρυθμό {{startBeat}} για {{durationBeats}} ρυθμοί',
+  'pianoRoll.aria.cursor': 'Δρομέας στο {{pitch}} στον ρυθμό {{beat}}',
 }

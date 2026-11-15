@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Punjabi. Stub — falls back to English. */
+/** Canvas translations for Punjabi. */
 export const pa: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'ਕੈਨਵਸ ਦੀ ਸਤ੍ਹਾ',
+  'canvas.aria.node': 'ਕੈਨਵਸ ਨੋਡ',
+  'canvas.aria.edge': 'ਕੈਨਵਸ ਕਨੈਕਸ਼ਨ',
+  'canvas.aria.resizeHandle': 'ਨੋਡ ਦਾ ਆਕਾਰ ਬਦਲੋ',
+  'canvas.aria.nodeSelected': 'ਚੁਣਿਆ ਗਿਆ',
 }

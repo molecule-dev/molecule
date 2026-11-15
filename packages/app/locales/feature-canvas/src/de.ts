@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for German. Stub — falls back to English. */
+/** Canvas translations for German. */
 export const de: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Canvas-Fläche',
+  'canvas.aria.node': 'Canvas-Knoten',
+  'canvas.aria.edge': 'Canvas-Verbindung',
+  'canvas.aria.resizeHandle': 'Knoten skalieren',
+  'canvas.aria.nodeSelected': 'Ausgewählt',
 }

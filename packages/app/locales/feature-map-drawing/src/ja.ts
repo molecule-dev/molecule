@@ -10,4 +10,5 @@ export const ja: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': '地図描画面',
   'mapDrawing.tool.polygon': 'ポリゴン',
   'mapDrawing.tool.circle': '丸',
+  'mapDrawing.tool.cancelDraft': '下書きをキャンセル',
 }

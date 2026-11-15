@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Vietnamese. Stub — falls back to English. */
+/** Canvas translations for Vietnamese. */
 export const vi: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Bề mặt canvas',
+  'canvas.aria.node': 'Nút canvas',
+  'canvas.aria.edge': 'Kết nối canvas',
+  'canvas.aria.resizeHandle': 'Thay đổi kích thước nút',
+  'canvas.aria.nodeSelected': 'Đã chọn',
 }

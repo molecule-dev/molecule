@@ -6,4 +6,5 @@ export const kk: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Ескертпелер',
   'marginNotes.aria.panel': 'Осы бөлімге арналған ескертпелер',
   'marginNotes.dismiss': 'Ескертпелерді жасыру',
+  'marginNotes.aria.pin': 'Осы бөлімнің ескертпелерін бекіту',
 }

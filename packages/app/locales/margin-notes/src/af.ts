@@ -6,4 +6,5 @@ export const af: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Notas',
   'marginNotes.aria.panel': 'Notas vir hierdie afdeling',
   'marginNotes.dismiss': 'Versteek notas',
+  'marginNotes.aria.pin': 'Notas vir hierdie afdeling vaspen',
 }

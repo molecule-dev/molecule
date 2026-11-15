@@ -8,4 +8,5 @@ export const ml: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'കുറിപ്പിന്റെ വലുപ്പം മാറ്റുക',
   'pianoRoll.aria.note':
     'കുറിപ്പ് {{pitch}} താളത്തിൽ ആരംഭിക്കുന്നു {{startBeat}} വേണ്ടി {{durationBeats}} ബീറ്റുകൾ',
+  'pianoRoll.aria.cursor': '{{pitch}} എന്നതിൽ, താളം {{beat}} എന്നതിൽ കഴ്സർ',
 }

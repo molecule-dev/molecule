@@ -10,4 +10,5 @@ export const ml: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'ലൈൻ',
   'mapDrawing.tool.select': 'തിരഞ്ഞെടുക്കുക',
   'mapDrawing.tool.delete': 'ഇല്ലാതാക്കുക',
+  'mapDrawing.tool.cancelDraft': 'ഡ്രാഫ്റ്റ് റദ്ദാക്കുക',
 }

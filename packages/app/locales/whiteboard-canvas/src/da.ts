@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Danish. Stub — falls back to English. */
+/** Whiteboard canvas translations for Danish. */
 export const da: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Whiteboard-lærred',
+  'whiteboard.stickyNote.placeholder': 'Ny note',
 }

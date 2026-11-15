@@ -1,6 +1,6 @@
 import type { ReadingProgressBarTranslations } from './types.js'
 
-/** Reading-progress-bar translations for sq. Stub — falls back to English. */
+/** Reading-progress-bar translations for sq. */
 export const sq: ReadingProgressBarTranslations = {
-  'readingProgressBar.aria.label': 'Reading progress',
+  'readingProgressBar.aria.label': 'Përparimi i leximit',
 }

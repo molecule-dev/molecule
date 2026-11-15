@@ -6,4 +6,5 @@ export const lv: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Anotācijas piespraude',
   'annotationPin.aria.popup': 'Anotācijas informācija',
   'annotationPin.empty': 'Šai piespraudei nav piezīmju.',
+  'annotationPin.aria.addPin': 'Pievienot anotācijas piespraudi',
 }

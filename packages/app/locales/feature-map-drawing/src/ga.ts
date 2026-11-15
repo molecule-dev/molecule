@@ -10,4 +10,5 @@ export const ga: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Líne',
   'mapDrawing.tool.select': 'Roghnaigh',
   'mapDrawing.tool.delete': 'Scrios',
+  'mapDrawing.tool.cancelDraft': 'Cealaigh an dréacht',
 }

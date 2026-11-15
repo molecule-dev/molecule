@@ -6,4 +6,5 @@ export const lt: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Pastabos',
   'marginNotes.aria.panel': 'Šio skyriaus pastabos',
   'marginNotes.dismiss': 'Slėpti užrašus',
+  'marginNotes.aria.pin': 'Prisegti šio skyriaus pastabas',
 }

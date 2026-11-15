@@ -10,4 +10,5 @@ export const sq: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Vijë',
   'mapDrawing.tool.select': 'Zgjidh',
   'mapDrawing.tool.delete': 'Fshij',
+  'mapDrawing.tool.cancelDraft': 'Anulo skicën',
 }

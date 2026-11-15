@@ -1,11 +1,11 @@
 import type { VoteClusterTranslations } from './types.js'
 
-/** Vote cluster translations for cy. Stub — falls back to English defaults. */
+/** Vote cluster translations for cy. */
 export const cy: VoteClusterTranslations = {
-  'vote-cluster.upvote': 'Upvote',
-  'vote-cluster.removeUpvote': 'Remove upvote',
-  'vote-cluster.downvote': 'Downvote',
-  'vote-cluster.removeDownvote': 'Remove downvote',
-  'vote-cluster.score': 'Score: {{score}}',
+  'vote-cluster.upvote': 'Pleidlais i fyny',
+  'vote-cluster.removeUpvote': 'Dileu pleidlais i fyny',
+  'vote-cluster.downvote': 'Pleidlais i lawr',
+  'vote-cluster.removeDownvote': 'Dileu pleidlais i lawr',
+  'vote-cluster.score': 'Sgôr: {{score}}',
   'vote-cluster.group': 'Clwstwr pleidleisiau, sgôr gyfredol {{score}}',
 }

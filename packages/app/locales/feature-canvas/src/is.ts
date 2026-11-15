@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Icelandic. Stub — falls back to English. */
+/** Canvas translations for Icelandic. */
 export const is: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Yfirborð striga',
+  'canvas.aria.node': 'Hnútur á striga',
+  'canvas.aria.edge': 'Tenging á striga',
+  'canvas.aria.resizeHandle': 'Breyta stærð hnúts',
+  'canvas.aria.nodeSelected': 'Valið',
 }

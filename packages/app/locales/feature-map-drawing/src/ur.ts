@@ -10,4 +10,5 @@ export const ur: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'لائن',
   'mapDrawing.tool.select': 'منتخب کریں۔',
   'mapDrawing.tool.delete': 'حذف کریں۔',
+  'mapDrawing.tool.cancelDraft': 'ڈرافٹ منسوخ کریں',
 }

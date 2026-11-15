@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Kannada. Stub — falls back to English. */
+/** Canvas translations for Kannada. */
 export const kn: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'ಕ್ಯಾನ್ವಾಸ್ ಮೇಲ್ಮೈ',
+  'canvas.aria.node': 'ಕ್ಯಾನ್ವಾಸ್ ನೋಡ್',
+  'canvas.aria.edge': 'ಕ್ಯಾನ್ವಾಸ್ ಸಂಪರ್ಕ',
+  'canvas.aria.resizeHandle': 'ನೋಡ್ ಗಾತ್ರ ಬದಲಿಸಿ',
+  'canvas.aria.nodeSelected': 'ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ',
 }

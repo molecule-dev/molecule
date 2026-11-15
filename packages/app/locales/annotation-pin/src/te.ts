@@ -6,4 +6,5 @@ export const te: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'అనోటేషన్ పిన్',
   'annotationPin.aria.popup': 'వ్యాఖ్యాన వివరాలు',
   'annotationPin.empty': 'ఈ పిన్‌కు గమనికలు లేవు.',
+  'annotationPin.aria.addPin': 'అనోటేషన్ పిన్ జోడించండి',
 }

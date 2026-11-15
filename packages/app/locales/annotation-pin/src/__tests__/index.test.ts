@@ -11,6 +11,7 @@ import * as locales from '../index.js'
 import type { AnnotationPinTranslationKey, AnnotationPinTranslations } from '../types.js'
 
 const REQUIRED_KEYS: AnnotationPinTranslationKey[] = [
+  'annotationPin.aria.addPin',
   'annotationPin.aria.layer',
   'annotationPin.aria.marker',
   'annotationPin.aria.popup',

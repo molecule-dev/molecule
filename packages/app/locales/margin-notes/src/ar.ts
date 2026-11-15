@@ -6,4 +6,5 @@ export const ar: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'ملحوظات',
   'marginNotes.aria.panel': 'ملاحظات لهذا القسم',
   'marginNotes.dismiss': 'إخفاء الملاحظات',
+  'marginNotes.aria.pin': 'تثبيت ملاحظات هذا القسم',
 }

@@ -1,6 +1,6 @@
 import type { ReadingProgressBarTranslations } from './types.js'
 
-/** Reading-progress-bar translations for cy. Stub — falls back to English. */
+/** Reading-progress-bar translations for cy. */
 export const cy: ReadingProgressBarTranslations = {
-  'readingProgressBar.aria.label': 'Reading progress',
+  'readingProgressBar.aria.label': 'Cynnydd darllen',
 }

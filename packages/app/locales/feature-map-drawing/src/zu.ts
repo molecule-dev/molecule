@@ -10,4 +10,5 @@ export const zu: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Umugqa',
   'mapDrawing.tool.select': 'Khetha',
   'mapDrawing.tool.delete': 'Susa',
+  'mapDrawing.tool.cancelDraft': 'Khansela idrafti',
 }

@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Catalan. Stub — falls back to English. */
+/** Canvas-engine translations for Catalan. */
 export const ca: CanvasEngineTranslations = {
   'canvasEngine.aria.surface': 'Editor de llenços vectorials',
 }

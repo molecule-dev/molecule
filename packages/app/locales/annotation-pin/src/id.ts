@@ -6,4 +6,5 @@ export const id: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Penanda anotasi',
   'annotationPin.aria.popup': 'Rincian anotasi',
   'annotationPin.empty': 'Tidak ada catatan untuk pin ini.',
+  'annotationPin.aria.addPin': 'Tambahkan penanda anotasi',
 }

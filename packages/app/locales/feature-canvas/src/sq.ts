@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Albanian. Stub — falls back to English. */
+/** Canvas translations for Albanian. */
 export const sq: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Sipërfaqja e kanavacës',
+  'canvas.aria.node': 'Nyja e kanavacës',
+  'canvas.aria.edge': 'Lidhja e kanavacës',
+  'canvas.aria.resizeHandle': 'Ndrysho madhësinë e nyjës',
+  'canvas.aria.nodeSelected': 'Përzgjedhur',
 }

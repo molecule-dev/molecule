@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Yoruba. Stub — falls back to English. */
+/** Canvas translations for Yoruba. */
 export const yo: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Ojú canvas',
+  'canvas.aria.node': 'Nódù canvas',
+  'canvas.aria.edge': 'Ìjápọ̀ canvas',
+  'canvas.aria.resizeHandle': 'Yí ìwọ̀n nódù padà',
+  'canvas.aria.nodeSelected': 'A ti yàn',
 }

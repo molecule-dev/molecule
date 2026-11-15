@@ -10,4 +10,5 @@ export const uk: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Закріпити',
   'mapDrawing.tool.line': 'Лінія',
   'mapDrawing.tool.select': 'Виберіть',
+  'mapDrawing.tool.cancelDraft': 'Скасувати чернетку',
 }

@@ -10,4 +10,5 @@ export const am: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'መስመር',
   'mapDrawing.tool.select': 'ምረጥ',
   'mapDrawing.tool.delete': 'ሰርዝ',
+  'mapDrawing.tool.cancelDraft': 'ረቂቁን ሰርዝ',
 }

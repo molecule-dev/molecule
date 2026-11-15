@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Maltese. Stub — falls back to English. */
+/** Animation-canvas translations for Maltese. */
 export const mt: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Kanvas tal-animazzjoni',
+  'animationCanvas.aria.shape': 'Forma animata',
 }

@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Hindi. Stub — falls back to English. */
+/** Canvas translations for Hindi. */
 export const hi: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'कैनवास की सतह',
+  'canvas.aria.node': 'कैनवास नोड',
+  'canvas.aria.edge': 'कैनवास कनेक्शन',
+  'canvas.aria.resizeHandle': 'नोड का आकार बदलें',
+  'canvas.aria.nodeSelected': 'चयनित',
 }

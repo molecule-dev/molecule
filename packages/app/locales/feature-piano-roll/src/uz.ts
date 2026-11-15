@@ -8,4 +8,5 @@ export const uz: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': "Qayd o'lchamini o'zgartirish",
   'pianoRoll.aria.note':
     'Eslatma {{pitch}} ritmdan boshlab {{startBeat}} uchun {{durationBeats}} zarbalar',
+  'pianoRoll.aria.cursor': 'Kursor {{pitch}} ustida, {{beat}} ritmda',
 }

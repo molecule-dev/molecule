@@ -6,4 +6,5 @@ export const hi: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'एनोटेशन पिन',
   'annotationPin.aria.popup': 'एनोटेशन विवरण',
   'annotationPin.empty': 'इस पिन के लिए कोई टिप्पणी नहीं है।',
+  'annotationPin.aria.addPin': 'एनोटेशन पिन जोड़ें',
 }

@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Kazakh. Stub — falls back to English. */
+/** Canvas translations for Kazakh. */
 export const kk: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Кенеп беті',
+  'canvas.aria.node': 'Кенеп түйіні',
+  'canvas.aria.edge': 'Кенеп байланысы',
+  'canvas.aria.resizeHandle': 'Түйін өлшемін өзгерту',
+  'canvas.aria.nodeSelected': 'Таңдалды',
 }

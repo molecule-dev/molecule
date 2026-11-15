@@ -6,4 +6,5 @@ export const mk: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Анотација pin',
   'annotationPin.aria.popup': 'Детали за анотацијата',
   'annotationPin.empty': 'Нема белешки за овој игла.',
+  'annotationPin.aria.addPin': 'Додај игла за анотација',
 }

@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Amharic. Stub — falls back to English. */
+/** Canvas translations for Amharic. */
 export const am: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'የካንቫስ ገጽ',
+  'canvas.aria.node': 'የካንቫስ ኖድ',
+  'canvas.aria.edge': 'የካንቫስ ግንኙነት',
+  'canvas.aria.resizeHandle': 'የኖድ መጠን መቀየር',
+  'canvas.aria.nodeSelected': 'የተመረጠ',
 }

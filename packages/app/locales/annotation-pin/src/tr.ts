@@ -6,4 +6,5 @@ export const tr: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Açıklama iğnesi',
   'annotationPin.aria.popup': 'Açıklama detayları',
   'annotationPin.empty': 'Bu rozet için herhangi bir not bulunmamaktadır.',
+  'annotationPin.aria.addPin': 'Açıklama iğnesi ekle',
 }

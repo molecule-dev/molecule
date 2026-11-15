@@ -6,4 +6,5 @@ export const mr: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'नोंदी',
   'marginNotes.aria.panel': 'या विभागासाठी टिपा',
   'marginNotes.dismiss': 'नोट्स लपवा',
+  'marginNotes.aria.pin': 'या विभागाच्या नोट्स पिन करा',
 }

@@ -10,4 +10,5 @@ export const hu: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Pin',
   'mapDrawing.tool.line': 'Vonal',
   'mapDrawing.tool.select': 'Válasszon',
+  'mapDrawing.tool.cancelDraft': 'Vázlat elvetése',
 }

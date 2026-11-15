@@ -1,11 +1,11 @@
 import type { VoteClusterTranslations } from './types.js'
 
-/** Vote cluster translations for af. Stub — falls back to English defaults. */
+/** Vote cluster translations for af. */
 export const af: VoteClusterTranslations = {
-  'vote-cluster.upvote': 'Upvote',
-  'vote-cluster.removeUpvote': 'Remove upvote',
-  'vote-cluster.downvote': 'Downvote',
-  'vote-cluster.removeDownvote': 'Remove downvote',
-  'vote-cluster.score': 'Score: {{score}}',
+  'vote-cluster.upvote': 'Opstem',
+  'vote-cluster.removeUpvote': 'Verwyder opstem',
+  'vote-cluster.downvote': 'Afstem',
+  'vote-cluster.removeDownvote': 'Verwyder afstem',
+  'vote-cluster.score': 'Telling: {{score}}',
   'vote-cluster.group': 'Stemgroep, huidige telling {{score}}',
 }

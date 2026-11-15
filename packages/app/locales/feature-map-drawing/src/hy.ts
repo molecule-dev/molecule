@@ -10,4 +10,5 @@ export const hy: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Գիծ',
   'mapDrawing.tool.select': 'Ընտրել',
   'mapDrawing.tool.delete': 'Ջնջել',
+  'mapDrawing.tool.cancelDraft': 'Չեղարկել սևագիրը',
 }

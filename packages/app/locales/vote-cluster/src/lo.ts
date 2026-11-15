@@ -1,11 +1,11 @@
 import type { VoteClusterTranslations } from './types.js'
 
-/** Vote cluster translations for lo. Stub — falls back to English defaults. */
+/** Vote cluster translations for lo. */
 export const lo: VoteClusterTranslations = {
-  'vote-cluster.upvote': 'Upvote',
-  'vote-cluster.removeUpvote': 'Remove upvote',
-  'vote-cluster.downvote': 'Downvote',
-  'vote-cluster.removeDownvote': 'Remove downvote',
-  'vote-cluster.score': 'Score: {{score}}',
+  'vote-cluster.upvote': 'ສຽງເທິງ',
+  'vote-cluster.removeUpvote': 'ລຶບສຽງເທິງ',
+  'vote-cluster.downvote': 'ສຽງລຸ່ມ',
+  'vote-cluster.removeDownvote': 'ລຶບສຽງລຸ່ມ',
+  'vote-cluster.score': 'ຄະແນນ: {{score}}',
   'vote-cluster.group': 'ກຸ່ມຄະແນນສຽງ, ຄະແນນປັດຈຸບັນ {{score}}',
 }

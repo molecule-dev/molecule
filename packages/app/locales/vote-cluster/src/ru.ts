@@ -1,11 +1,11 @@
 import type { VoteClusterTranslations } from './types.js'
 
-/** Vote cluster translations for ru. Stub — falls back to English defaults. */
+/** Vote cluster translations for ru. */
 export const ru: VoteClusterTranslations = {
-  'vote-cluster.upvote': 'Upvote',
-  'vote-cluster.removeUpvote': 'Remove upvote',
-  'vote-cluster.downvote': 'Downvote',
-  'vote-cluster.removeDownvote': 'Remove downvote',
-  'vote-cluster.score': 'Score: {{score}}',
+  'vote-cluster.upvote': 'Положительный голос',
+  'vote-cluster.removeUpvote': 'Убрать положительный голос',
+  'vote-cluster.downvote': 'Отрицательный голос',
+  'vote-cluster.removeDownvote': 'Убрать отрицательный голос',
+  'vote-cluster.score': 'Балл: {{score}}',
   'vote-cluster.group': 'Группа голосов, текущий балл {{score}}',
 }

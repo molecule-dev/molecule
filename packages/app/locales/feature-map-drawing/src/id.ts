@@ -10,4 +10,5 @@ export const id: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'Permukaan gambar peta',
   'mapDrawing.tool.polygon': 'Poligon',
   'mapDrawing.tool.circle': 'Lingkaran',
+  'mapDrawing.tool.cancelDraft': 'Batalkan draf',
 }

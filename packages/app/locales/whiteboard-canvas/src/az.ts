@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Azerbaijani. Stub — falls back to English. */
+/** Whiteboard canvas translations for Azerbaijani. */
 export const az: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Ağ taxta kanvası',
+  'whiteboard.stickyNote.placeholder': 'Yeni qeyd',
 }

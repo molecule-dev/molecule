@@ -10,4 +10,5 @@ export const ms: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Pin',
   'mapDrawing.tool.line': 'Baris',
   'mapDrawing.tool.select': 'Pilih',
+  'mapDrawing.tool.cancelDraft': 'Batalkan draf',
 }

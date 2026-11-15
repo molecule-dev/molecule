@@ -1,5 +1,6 @@
 /** Translation keys for the annotation-pin locale package. */
 export type AnnotationPinTranslationKey =
+  | 'annotationPin.aria.addPin'
   | 'annotationPin.aria.layer'
   | 'annotationPin.aria.marker'
   | 'annotationPin.aria.popup'

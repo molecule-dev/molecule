@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Romanian. Stub — falls back to English. */
+/** Whiteboard canvas translations for Romanian. */
 export const ro: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Pânza tablei albe',
+  'whiteboard.stickyNote.placeholder': 'Notă nouă',
 }

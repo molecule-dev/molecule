@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Hungarian. Stub — falls back to English. */
+/** Canvas translations for Hungarian. */
 export const hu: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Vászonfelület',
+  'canvas.aria.node': 'Vászoncsomópont',
+  'canvas.aria.edge': 'Vászonkapcsolat',
+  'canvas.aria.resizeHandle': 'Csomópont átméretezése',
+  'canvas.aria.nodeSelected': 'Kijelölve',
 }

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-import { Switch } from '@molecule/app-ui-react'
+import { Icon, Switch } from '@molecule/app-ui-react'
 
 import { buildRows, defaultShownKinds } from './rows.js'
 import type { MarginNote, MarginNotesProps } from './types.js'
@@ -20,7 +20,8 @@ const READING_LINE = 0.35
  * Desktop: a prose column and, to its right, a narrower notes column; each
  * note lines up with the block(s) it belongs to and appears once. Phone: the
  * notes column disappears and a bar fixed to the bottom shows the notes for
- * the section being read (tap a block to pin its notes, tap again to let go),
+ * the section being read (a noted block's pin button pins its notes, a second
+ * press lets go),
  * with the kind switches in the bar. Every default — which kinds show, which
  * surface a width gets — is decided in the first render and by CSS, so
  * server-rendered or prerendered HTML is right before any JavaScript runs.
@@ -44,6 +45,9 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
   } = props
   const cm = getClassMap()
   const { t } = useTranslation()
+  const pinLabel = t('marginNotes.aria.pin', undefined, {
+    defaultValue: 'Pin the notes for this section',
+  })
 
   const rows = useMemo(() => buildRows(blocks, notes), [blocks, notes])
   const notesById = useMemo(() => new Map(notes.map((n) => [n.id, n])), [notes])
@@ -73,7 +77,7 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
     return new Set(b?.noteIds ?? [])
   }, [activeBlock, blocks])
 
-  // Phone: the section being read, and a block the reader tapped.
+  // Phone: the section being read, and a block the reader pinned.
   const firstWithNotes = rows.find((r) => r.noteIds.length > 0)?.id ?? null
   const [readingRow, setReadingRow] = useState<string | null>(firstWithNotes)
   const [pinnedBlock, setPinnedBlock] = useState<string | null>(null)
@@ -132,7 +136,7 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
     return () => window.removeEventListener('resize', measureOffsets)
   }, [hasNotes, rows])
 
-  // Kinds that reach the panel only on a tap (notes about one paragraph).
+  // Kinds that reach the panel only through a block's pin (notes about one paragraph).
   const tapOnly = useMemo(
     () => new Set(kinds.filter((k) => k.panel === 'tap').map((k) => k.id)),
     [kinds],
@@ -141,14 +145,14 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
     if (pinnedBlock) return blocks.find((b) => b.id === pinnedBlock)?.noteIds ?? []
     const ids = rows.find((r) => r.id === readingRow)?.noteIds ?? []
     // A tap kind follows the reader too once its switch is ON: turning the
-    // switch on must show something on a phone, not wait for a tap.
+    // switch on must show something on a phone, not wait for a pin.
     return ids.filter((id) => {
       const note = notesById.get(id)
       return !!note && (!tapOnly.has(note.kind) || isShown(note))
     })
   }, [pinnedBlock, readingRow, blocks, rows, tapOnly, notesById, isShown])
-  // A tapped block's tap-kind notes show whatever their switch says: on a phone
-  // the tap is the only way to reach a note about one paragraph (a prompt that
+  // A pinned block's tap-kind notes show whatever their switch says: on a phone
+  // the pin is the only way to reach a note about one paragraph (a prompt that
   // defaults off). Follow-kind notes keep obeying their switch.
   const inPanel = (note: MarginNote): boolean =>
     isShown(note) || (pinnedBlock !== null && tapOnly.has(note.kind))
@@ -237,11 +241,15 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
                 const ids = block.noteIds ?? []
                 const tinted = !!activeNote && ids.includes(activeNote)
                 const interactive = ids.length > 0
+                const togglePin = (): void =>
+                  setPinnedBlock((p) => (p === block.id ? null : block.id))
                 return (
+                  // The block stays plain prose (its own links stay links); a
+                  // noted block carries a pin toggle, shown where the phone bar
+                  // is, with `aria-pressed` for the pinned state.
                   <div
                     key={block.id}
                     id={block.id}
-                    tabIndex={interactive ? 0 : undefined}
                     data-mol-id={`margin-notes-block-${block.id}`}
                     data-block-marked={block.marked ? 'true' : undefined}
                     data-block-pinned={pinnedBlock === block.id ? 'true' : undefined}
@@ -249,11 +257,6 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
                     onMouseLeave={interactive ? () => setActiveBlock(null) : undefined}
                     onFocus={interactive ? () => setActiveBlock(block.id) : undefined}
                     onBlur={interactive ? () => setActiveBlock(null) : undefined}
-                    onClick={
-                      interactive
-                        ? () => setPinnedBlock((p) => (p === block.id ? null : block.id))
-                        : undefined
-                    }
                     className={cm.cn(cm.position('relative'), tinted && cm.bgPrimarySubtle)}
                   >
                     {block.marked && (
@@ -271,6 +274,20 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
                       />
                     )}
                     {block.content}
+                    {interactive && (
+                      <div className={cm.cn(cm.hiddenFrom('md'), cm.flex({ justify: 'end' }))}>
+                        <button
+                          type="button"
+                          aria-pressed={pinnedBlock === block.id}
+                          aria-label={pinLabel}
+                          data-mol-id={`margin-notes-pin-${block.id}`}
+                          onClick={togglePin}
+                          className={cm.button({ variant: 'ghost', size: 'sm' })}
+                        >
+                          <Icon name="pin" size={16} aria-hidden="true" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )
               })}

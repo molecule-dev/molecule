@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for he. Stub — falls back to English defaults. */
+/** Password generator translations for he. */
 export const he: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'סיסמה שנוצרה',
+  'password-generator.copy': 'העתק',
+  'password-generator.copied': 'הועתק!',
+  'password-generator.regenerate': 'הגרל מחדש',
+  'password-generator.length': 'אורך: {{length}}',
+  'password-generator.lengthLabel': 'אורך הסיסמה',
+  'password-generator.toggle.uppercase': 'אותיות גדולות (A-Z)',
+  'password-generator.toggle.lowercase': 'אותיות קטנות (a-z)',
+  'password-generator.toggle.digits': 'ספרות (0-9)',
+  'password-generator.toggle.symbols': 'סימנים (!@#…)',
+  'password-generator.toggle.noSimilar': 'דלג על דומים (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous': 'דלג על דו-משמעי (רווח, מרכאות)',
   'password-generator.pick': 'השתמש בסיסמה הזו',
 }

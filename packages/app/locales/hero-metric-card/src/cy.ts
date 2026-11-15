@@ -1,8 +1,8 @@
 import type { HeroMetricCardTranslations } from './types.js'
 
-/** Hero metric card translations for cy. Stub — falls back to English defaults. */
+/** Hero metric card translations for cy. */
 export const cy: HeroMetricCardTranslations = {
-  'hero-metric-card.loading': 'Loading metric…',
-  'hero-metric-card.trend.up': 'Trending up',
-  'hero-metric-card.trend.down': 'Trending down',
+  'hero-metric-card.loading': "Yn llwytho'r metrig…",
+  'hero-metric-card.trend.up': 'Yn tueddu i fyny',
+  'hero-metric-card.trend.down': 'Yn tueddu i lawr',
 }

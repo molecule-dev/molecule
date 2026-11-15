@@ -8,4 +8,5 @@ export const ko: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': '크기 조정 메모',
   'pianoRoll.aria.note':
     '메모 {{pitch}} 박자에서 시작 {{startBeat}} ~을 위한 {{durationBeats}} 비트',
+  'pianoRoll.aria.cursor': '{{pitch}} 박자 {{beat}}에 커서',
 }

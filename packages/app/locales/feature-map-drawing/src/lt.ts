@@ -10,4 +10,5 @@ export const lt: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Linija',
   'mapDrawing.tool.select': 'Pasirinkite',
   'mapDrawing.tool.delete': 'Ištrinti',
+  'mapDrawing.tool.cancelDraft': 'Atsisakyti juodraščio',
 }

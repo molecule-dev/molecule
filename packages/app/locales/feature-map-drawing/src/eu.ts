@@ -10,4 +10,5 @@ export const eu: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Lerroa',
   'mapDrawing.tool.select': 'Hautatu',
   'mapDrawing.tool.delete': 'Ezabatu',
+  'mapDrawing.tool.cancelDraft': 'Utzi zirriborroa',
 }

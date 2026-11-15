@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Danish. Stub — falls back to English. */
+/** Canvas-engine translations for Danish. */
 export const da: CanvasEngineTranslations = {
-  'canvasEngine.aria.surface': 'Vektor lærredseditor',
+  'canvasEngine.aria.surface': 'Vektorlærredseditor',
 }

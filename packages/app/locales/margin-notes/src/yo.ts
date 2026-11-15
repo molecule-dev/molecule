@@ -6,4 +6,5 @@ export const yo: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Àwọn Àkíyèsí',
   'marginNotes.aria.panel': 'Àwọn Àkíyèsí fún apá yìí',
   'marginNotes.dismiss': 'Fi awọn akọsilẹ pamọ',
+  'marginNotes.aria.pin': 'Mọ́ àwọn Àkíyèsí apá yìí mọ́lẹ̀',
 }

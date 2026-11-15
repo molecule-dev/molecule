@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for my. Stub — falls back to English defaults. */
+/** NPS distribution translations for my. */
 export const my: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'ဆန့်ကျင်သူ',
+  'nps-distribution.tier.passive': 'ကြားနေ',
+  'nps-distribution.tier.promoter': 'ထောက်ခံသူ',
   'nps-distribution.aria-label': 'NPS ဖြန့်ဖြူးမှုဇယား၊ တုံ့ပြန်မှုများ {{total}}',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'အမှတ် {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': 'တုံ့ပြန်မှုများ {{total}}',
 }

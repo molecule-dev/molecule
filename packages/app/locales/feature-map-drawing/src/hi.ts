@@ -10,4 +10,5 @@ export const hi: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'मानचित्र रेखाचित्र सतह',
   'mapDrawing.tool.polygon': 'बहुभुज',
   'mapDrawing.tool.circle': 'घेरा',
+  'mapDrawing.tool.cancelDraft': 'ड्राफ़्ट रद्द करें',
 }

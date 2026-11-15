@@ -6,4 +6,5 @@ export const es: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Notas',
   'marginNotes.aria.panel': 'Notas para esta sección',
   'marginNotes.dismiss': 'Ocultar notas',
+  'marginNotes.aria.pin': 'Fijar las notas de esta sección',
 }

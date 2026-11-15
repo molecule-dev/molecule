@@ -1,6 +1,5 @@
 import type {
   CSSProperties,
-  KeyboardEvent,
   PointerEvent as ReactPointerEvent,
   ReactElement,
   ReactNode,
@@ -113,9 +112,14 @@ export interface MapDrawingProps {
  * - **select**: pointer-drag draws a marquee; any shape whose anchor
  *   point lies inside the marquee is added to the selection.
  *
- * Pressing `Backspace` or `Delete` while focused removes the current
- * selection. All UI text routes through `t()` so the component
- * translates via the companion locale bond.
+ * The surface is a pointer instrument: drawing and marquee selection are
+ * pointer-driven, and a double-click finalises a path draft. Every command
+ * stays keyboard-reachable through the toolbar — the delete button removes
+ * the current selection and the cancel-draft button discards an in-progress
+ * draft — so no action requires focusing the surface, which is announced to
+ * screen readers as a labeled map graphic (`role="img"`). All UI text
+ * routes through `t()` so the component translates via the companion locale
+ * bond.
  *
  * @param props - Component props.
  * @returns Rendered map-drawing surface.
@@ -157,16 +161,22 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
     [onChange],
   )
 
+  // Reset all three draft states — shared by tool switches and the
+  // toolbar's cancel-draft control.
+  const clearDrafts = useCallback(() => {
+    setDraftPath(null)
+    setDraftCircle(null)
+    setDraftSelection(null)
+  }, [])
+
   const setActiveTool = useCallback(
     (next: ActiveTool) => {
       // Discard any in-progress draft when the user switches tools.
-      setDraftPath(null)
-      setDraftCircle(null)
-      setDraftSelection(null)
+      clearDrafts()
       if (activeToolProp === undefined) setInternalActive(next)
       onActiveToolChange?.(next)
     },
-    [activeToolProp, onActiveToolChange],
+    [activeToolProp, clearDrafts, onActiveToolChange],
   )
 
   /**
@@ -306,24 +316,6 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
     commitShapes(next)
   }, [commitShapes, selection, shapes])
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === 'Backspace' || event.key === 'Delete') {
-        if (selection.size > 0) {
-          event.preventDefault()
-          deleteSelected()
-        }
-        return
-      }
-      if (event.key === 'Escape') {
-        setDraftPath(null)
-        setDraftCircle(null)
-        setDraftSelection(null)
-      }
-    },
-    [deleteSelected, selection],
-  )
-
   // Keep internal active tool in sync if the controlled prop changes.
   useEffect(() => {
     if (activeToolProp !== undefined) {
@@ -353,6 +345,9 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
     cursor: activeTool === 'pin' ? 'crosshair' : activeTool === 'select' ? 'cell' : 'crosshair',
   }
 
+  // A draft is in progress (path vertices, circle drag or marquee selection).
+  const hasDraft = draftPath !== null || draftCircle !== null || draftSelection !== null
+
   const ariaLabel = t('mapDrawing.surface.aria', {}, { defaultValue: 'Map drawing surface' })
 
   return (
@@ -363,21 +358,21 @@ export function MapDrawing(props: MapDrawingProps): ReactElement {
         onActiveToolChange={setActiveTool}
         onDeleteSelected={deleteSelected}
         hasSelection={selection.size > 0}
+        hasDraft={hasDraft}
+        onCancelDraft={clearDrafts}
       />
       <div
         ref={surfaceRef}
-        role="application"
+        role="img"
         aria-label={ariaLabel}
         data-mol-id="map-drawing-surface"
         data-active-tool={activeTool}
-        tabIndex={0}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onDoubleClick={
           handleDoubleClick as unknown as (event: React.MouseEvent<HTMLDivElement>) => void
         }
-        onKeyDown={handleKeyDown}
         className={cm.cn(cm.surface, cm.borderBPrimary)}
         style={surfaceStyle}
       >

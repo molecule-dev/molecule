@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Slovenian. Stub — falls back to English. */
+/** Whiteboard canvas translations for Slovenian. */
 export const sl: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Platno bele plošče',
+  'whiteboard.stickyNote.placeholder': 'Nov zapisek',
 }

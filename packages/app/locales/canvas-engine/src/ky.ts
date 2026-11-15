@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Kyrgyz. Stub — falls back to English. */
+/** Canvas-engine translations for Kyrgyz. */
 export const ky: CanvasEngineTranslations = {
   'canvasEngine.aria.surface': 'Вектордук полотно редактору',
 }

@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Irish. Stub — falls back to English. */
+/** Canvas-engine translations for Irish. */
 export const ga: CanvasEngineTranslations = {
-  'canvasEngine.aria.surface': 'Eagarthóir chanbhás veicteora',
+  'canvasEngine.aria.surface': 'Eagarthóir canbháis veicteora',
 }

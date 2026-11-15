@@ -1,11 +1,11 @@
 import type { VoteClusterTranslations } from './types.js'
 
-/** Vote cluster translations for hy. Stub — falls back to English defaults. */
+/** Vote cluster translations for hy. */
 export const hy: VoteClusterTranslations = {
-  'vote-cluster.upvote': 'Upvote',
-  'vote-cluster.removeUpvote': 'Remove upvote',
-  'vote-cluster.downvote': 'Downvote',
-  'vote-cluster.removeDownvote': 'Remove downvote',
-  'vote-cluster.score': 'Score: {{score}}',
+  'vote-cluster.upvote': 'Դրական քվե',
+  'vote-cluster.removeUpvote': 'Հեռացնել դրական քվեն',
+  'vote-cluster.downvote': 'Բացասական քվե',
+  'vote-cluster.removeDownvote': 'Հեռացնել բացասական քվեն',
+  'vote-cluster.score': 'Միավոր: {{score}}',
   'vote-cluster.group': 'Քվեարկության խումբ, ընթացիկ միավոր {{score}}',
 }

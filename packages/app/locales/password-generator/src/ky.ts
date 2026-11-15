@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for ky. Stub — falls back to English defaults. */
+/** Password generator translations for ky. */
 export const ky: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'Түзүлгөн сырсөз',
+  'password-generator.copy': 'Көчүрүү',
+  'password-generator.copied': 'Көчүрүлдү!',
+  'password-generator.regenerate': 'Кайра түзүү',
+  'password-generator.length': 'Узундук: {{length}}',
+  'password-generator.lengthLabel': 'Сырсөздүн узундугу',
+  'password-generator.toggle.uppercase': 'Баш тамгалар (A-Z)',
+  'password-generator.toggle.lowercase': 'Кичине тамгалар (a-z)',
+  'password-generator.toggle.digits': 'Сандар (0-9)',
+  'password-generator.toggle.symbols': 'Белгилер (!@#…)',
+  'password-generator.toggle.noSimilar': 'Ушшаш белгилерди өткөрүп жиберүү (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous':
     'Көп маанини билдирбеген (боштук, тырмакча) өткөрүп жиберүү',
   'password-generator.pick': 'Бул сырсөздү колдонуңуз',

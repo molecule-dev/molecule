@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Danish. Stub — falls back to English. */
+/** Canvas translations for Danish. */
 export const da: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Lærredsoverflade',
+  'canvas.aria.node': 'Lærredsknude',
+  'canvas.aria.edge': 'Lærredsforbindelse',
+  'canvas.aria.resizeHandle': 'Ændr størrelse på knude',
+  'canvas.aria.nodeSelected': 'Valgt',
 }

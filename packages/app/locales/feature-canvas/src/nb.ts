@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Norwegian Bokmål. Stub — falls back to English. */
+/** Canvas translations for Norwegian Bokmål. */
 export const nb: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Lerretflate',
+  'canvas.aria.node': 'Node på lerret',
+  'canvas.aria.edge': 'Kobling på lerret',
+  'canvas.aria.resizeHandle': 'Endre størrelse på node',
+  'canvas.aria.nodeSelected': 'Valgt',
 }

@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Russian. Stub — falls back to English. */
+/** Animation-canvas translations for Russian. */
 export const ru: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Холст анимации',
+  'animationCanvas.aria.shape': 'Анимированная фигура',
 }

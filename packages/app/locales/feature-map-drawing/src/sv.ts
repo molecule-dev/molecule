@@ -10,4 +10,5 @@ export const sv: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'Kartritningsyta',
   'mapDrawing.tool.polygon': 'Polygon',
   'mapDrawing.tool.circle': 'Cirkel',
+  'mapDrawing.tool.cancelDraft': 'Avbryt utkast',
 }

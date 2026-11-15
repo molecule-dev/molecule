@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Thai. Stub — falls back to English. */
+/** Animation-canvas translations for Thai. */
 export const th: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'ผืนผ้าใบแอนิเมชัน',
+  'animationCanvas.aria.shape': 'รูปทรงเคลื่อนไหว',
 }

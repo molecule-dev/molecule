@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Russian. Stub — falls back to English. */
+/** Canvas translations for Russian. */
 export const ru: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Поверхность холста',
+  'canvas.aria.node': 'Узел холста',
+  'canvas.aria.edge': 'Соединение холста',
+  'canvas.aria.resizeHandle': 'Изменить размер узла',
+  'canvas.aria.nodeSelected': 'Выбрано',
 }

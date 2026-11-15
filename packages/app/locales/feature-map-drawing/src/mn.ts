@@ -10,4 +10,5 @@ export const mn: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Шугам',
   'mapDrawing.tool.select': 'Сонгох',
   'mapDrawing.tool.delete': 'Устгах',
+  'mapDrawing.tool.cancelDraft': 'Ноорог цуцлах',
 }

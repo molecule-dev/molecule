@@ -6,4 +6,5 @@ export const et: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Märkused',
   'marginNotes.aria.panel': 'Selle jaotise märkused',
   'marginNotes.dismiss': 'Peida märkmed',
+  'marginNotes.aria.pin': 'Kinnita selle jaotise märkmed',
 }

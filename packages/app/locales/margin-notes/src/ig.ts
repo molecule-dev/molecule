@@ -6,4 +6,5 @@ export const ig: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Ihe ndetu',
   'marginNotes.aria.panel': 'Ihe ndetu maka nkebi a',
   'marginNotes.dismiss': 'Zoo ihe ndetu',
+  'marginNotes.aria.pin': 'Dobe ihe ndetu maka nkebi a',
 }

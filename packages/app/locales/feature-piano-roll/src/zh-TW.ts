@@ -7,4 +7,5 @@ export const zhTW: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': '筆記網格',
   'pianoRoll.aria.resize': '調整大小註釋',
   'pianoRoll.aria.note': '筆記{{pitch}}從節拍開始{{startBeat}}為了{{durationBeats}}節拍',
+  'pianoRoll.aria.cursor': '游標位於 {{pitch}}，節拍 {{beat}}',
 }

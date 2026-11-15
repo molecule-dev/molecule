@@ -10,4 +10,5 @@ export const kn: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'ಸಾಲು',
   'mapDrawing.tool.select': 'ಆಯ್ಕೆ ಮಾಡಿ',
   'mapDrawing.tool.delete': 'ಅಳಿಸಿ',
+  'mapDrawing.tool.cancelDraft': 'ಡ್ರಾಫ್ಟ್ ರದ್ದುಮಾಡಿ',
 }

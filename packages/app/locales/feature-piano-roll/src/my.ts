@@ -8,4 +8,5 @@ export const my: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'မှတ်စုကို အရွယ်အစားပြောင်းပါ',
   'pianoRoll.aria.note':
     'မှတ်ချက် {{pitch}} စည်းချက်မှစတင်သည် {{startBeat}} အတွက် {{durationBeats}} စည်းချက်',
+  'pianoRoll.aria.cursor': '{{pitch}} ပေါ် စည်းချက် {{beat}} တွင် ကာဆာ',
 }

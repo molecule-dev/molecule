@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Swedish. Stub — falls back to English. */
+/** Canvas translations for Swedish. */
 export const sv: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Dukens yta',
+  'canvas.aria.node': 'Dukens nod',
+  'canvas.aria.edge': 'Dukens anslutning',
+  'canvas.aria.resizeHandle': 'Ändra storlek på nod',
+  'canvas.aria.nodeSelected': 'Vald',
 }

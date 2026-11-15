@@ -1,8 +1,8 @@
 import type { HeroMetricCardTranslations } from './types.js'
 
-/** Hero metric card translations for fil. Stub — falls back to English defaults. */
+/** Hero metric card translations for fil. */
 export const fil: HeroMetricCardTranslations = {
-  'hero-metric-card.loading': 'Loading metric…',
-  'hero-metric-card.trend.up': 'Trending up',
-  'hero-metric-card.trend.down': 'Trending down',
+  'hero-metric-card.loading': 'Naglo-load ang sukatan…',
+  'hero-metric-card.trend.up': 'Pataas ang trend',
+  'hero-metric-card.trend.down': 'Pababa ang trend',
 }

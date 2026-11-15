@@ -1,7 +1,7 @@
 import type { WhiteboardCanvasTranslations } from './types.js'
 
-/** Whiteboard canvas translations for Latvian. Stub — falls back to English. */
+/** Whiteboard canvas translations for Latvian. */
 export const lv: WhiteboardCanvasTranslations = {
-  'whiteboard.aria.canvas': 'Whiteboard canvas',
-  'whiteboard.stickyNote.placeholder': 'New note',
+  'whiteboard.aria.canvas': 'Baltā tāfeļa audekls',
+  'whiteboard.stickyNote.placeholder': 'Jauna piezīme',
 }

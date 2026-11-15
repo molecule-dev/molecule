@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Galician. Stub — falls back to English. */
+/** Animation-canvas translations for Galician. */
 export const gl: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Lenzo de animación',
+  'animationCanvas.aria.shape': 'Forma animada',
 }

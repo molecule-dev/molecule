@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for sr. Stub — falls back to English defaults. */
+/** NPS distribution translations for sr. */
 export const sr: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'Критичар',
+  'nps-distribution.tier.passive': 'Неутралан',
+  'nps-distribution.tier.promoter': 'Промотер',
   'nps-distribution.aria-label': 'Графикон расподеле NPS-а, {{total}} одговора',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'Оцена {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} одговора',
 }

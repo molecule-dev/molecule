@@ -101,7 +101,7 @@ describe('the README example', () => {
       withI18n(<PostBody provenance={provenance} summaries={summaries} />),
     )
     expect(html.match(/data-mol-id="margin-note-gutter-prompt-0"/g)).toHaveLength(1)
-    expect(html.match(new RegExp(PROMPT, 'g'))).toHaveLength(1) // gutter only; the panel waits for a tap
+    expect(html.match(new RegExp(PROMPT, 'g'))).toHaveLength(1) // gutter only; the panel waits for a pin
     expect(html).toContain('Prompt · Haiku 4.5')
   })
 

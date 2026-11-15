@@ -294,6 +294,146 @@ describe('<PianoRoll>', () => {
     expect(() => fireEvent.click(grid, { clientX: 50, clientY: 50 })).not.toThrow()
   })
 
+  it('grid is focusable; Enter paints a note at the home cell cursor', () => {
+    const onNoteAdd = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <PianoRoll
+          notes={[]}
+          pixelsPerBeat={80}
+          noteHeight={20}
+          lowestPitch={60}
+          highestPitch={71}
+          snap="1/16"
+          onNoteAdd={onNoteAdd}
+        />
+      </Wrap>,
+    )
+    const grid = container.querySelector('[data-mol-id="piano-roll-grid"]') as HTMLElement
+    expect(grid.getAttribute('tabindex')).toBe('0')
+    // The cell-cursor highlight only exists while the grid has focus.
+    expect(container.querySelector('[data-mol-id="piano-roll-cell-cursor"]')).toBeNull()
+    fireEvent.focus(grid)
+    expect(container.querySelector('[data-mol-id="piano-roll-cell-cursor"]')).not.toBeNull()
+    // Home cursor position: beat 0, top-most pitch (71 = B4).
+    fireEvent.keyDown(grid, { key: 'Enter' })
+    expect(onNoteAdd).toHaveBeenCalledTimes(1)
+    const arg = onNoteAdd.mock.calls[0][0] as MidiNote
+    expect(arg.startBeat).toBe(0)
+    expect(arg.pitch).toBe(71)
+    expect(arg.durationBeats).toBe(0.25)
+    expect(arg.velocity).toBeGreaterThan(0)
+    // Blur hides the highlight again.
+    fireEvent.blur(grid)
+    expect(container.querySelector('[data-mol-id="piano-roll-cell-cursor"]')).toBeNull()
+  })
+
+  it('arrow keys move the cell cursor and Space paints at the cursor', () => {
+    const onNoteAdd = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <PianoRoll
+          notes={[]}
+          pixelsPerBeat={80}
+          noteHeight={20}
+          lowestPitch={60}
+          highestPitch={71}
+          snap="1/16"
+          onNoteAdd={onNoteAdd}
+        />
+      </Wrap>,
+    )
+    const grid = container.querySelector('[data-mol-id="piano-roll-grid"]') as HTMLElement
+    const status = container.querySelector('[role="status"]') as HTMLElement
+    // The cursor cell is announced for assistive technology.
+    expect(status.textContent).toBe('Cursor on B4 at beat 0.00')
+    fireEvent.focus(grid)
+    fireEvent.keyDown(grid, { key: 'ArrowDown' })
+    expect(status.textContent).toBe('Cursor on A#4 at beat 0.00')
+    fireEvent.keyDown(grid, { key: 'ArrowRight' })
+    expect(status.textContent).toBe('Cursor on A#4 at beat 0.25')
+    fireEvent.keyDown(grid, { key: ' ' })
+    expect(onNoteAdd).toHaveBeenCalledTimes(1)
+    const arg = onNoteAdd.mock.calls[0][0] as MidiNote
+    expect(arg.startBeat).toBe(0.25)
+    expect(arg.pitch).toBe(70)
+  })
+
+  it('clamps the cell cursor to the grid bounds', () => {
+    const onNoteAdd = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <PianoRoll
+          notes={[]}
+          pixelsPerBeat={80}
+          noteHeight={20}
+          lowestPitch={60}
+          highestPitch={71}
+          snap="1/16"
+          onNoteAdd={onNoteAdd}
+        />
+      </Wrap>,
+    )
+    const grid = container.querySelector('[data-mol-id="piano-roll-grid"]') as HTMLElement
+    fireEvent.focus(grid)
+    // Left / Up from the home cell cannot leave the grid.
+    for (let i = 0; i < 3; i++) fireEvent.keyDown(grid, { key: 'ArrowLeft' })
+    for (let i = 0; i < 3; i++) fireEvent.keyDown(grid, { key: 'ArrowUp' })
+    fireEvent.keyDown(grid, { key: 'Enter' })
+    expect(onNoteAdd).toHaveBeenCalledTimes(1)
+    const first = onNoteAdd.mock.calls[0][0] as MidiNote
+    expect(first.startBeat).toBe(0)
+    expect(first.pitch).toBe(71)
+  })
+
+  it('clicking the grid moves the keyboard cursor to the clicked cell', () => {
+    const onNoteAdd = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <PianoRoll
+          notes={[]}
+          pixelsPerBeat={80}
+          noteHeight={20}
+          lowestPitch={60}
+          highestPitch={71}
+          snap="1/16"
+          onNoteAdd={onNoteAdd}
+        />
+      </Wrap>,
+    )
+    const grid = container.querySelector('[data-mol-id="piano-roll-grid"]') as HTMLElement
+    stubRect(grid, 1280, 240)
+    fireEvent.focus(grid)
+    // 12 rows × 20px = 240px tall, 16 default beats × 80px = 1280px wide.
+    // Click at x=90 (≈ 1.125 beats — snaps down to 1.0), y=30 (pitch 70).
+    fireEvent.click(grid, { clientX: 90, clientY: 30 })
+    expect(onNoteAdd).toHaveBeenCalledTimes(1)
+    // The keyboard path continues where the mouse left off.
+    fireEvent.keyDown(grid, { key: 'Enter' })
+    expect(onNoteAdd).toHaveBeenCalledTimes(2)
+    const second = onNoteAdd.mock.calls[1][0] as MidiNote
+    expect(second.startBeat).toBe(1)
+    expect(second.pitch).toBe(70)
+  })
+
+  it('grid stays focusable without onNoteAdd but keyboard painting does nothing', () => {
+    const onNoteAdd = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <PianoRoll notes={[]} lowestPitch={60} highestPitch={71} onNoteAdd={undefined} />
+      </Wrap>,
+    )
+    const grid = container.querySelector('[data-mol-id="piano-roll-grid"]') as HTMLElement
+    // The grid role is interactive, so it must remain focusable even
+    // when painting is disabled.
+    expect(grid.getAttribute('tabindex')).toBe('0')
+    expect(() => fireEvent.focus(grid)).not.toThrow()
+    expect(() => fireEvent.keyDown(grid, { key: 'Enter' })).not.toThrow()
+    expect(() => fireEvent.keyDown(grid, { key: 'ArrowRight' })).not.toThrow()
+    expect(container.querySelector('[data-mol-id="piano-roll-cell-cursor"]')).toBeNull()
+    expect(onNoteAdd).not.toHaveBeenCalled()
+  })
+
   it('fires onNoteMove when a note is dragged horizontally', () => {
     const onNoteMove = vi.fn()
     const note: MidiNote = { id: 'm1', pitch: 60, startBeat: 0, durationBeats: 1 }

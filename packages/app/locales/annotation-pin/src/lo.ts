@@ -6,4 +6,5 @@ export const lo: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'ເຂັມຄຳອະທິບາຍ',
   'annotationPin.aria.popup': 'ລາຍລະອຽດຄຳອະທິບາຍ',
   'annotationPin.empty': 'ບໍ່ມີບັນທຶກສຳລັບໝຸດນີ້.',
+  'annotationPin.aria.addPin': 'ເພີ່ມເຂັມຄຳອະທິບາຍ',
 }

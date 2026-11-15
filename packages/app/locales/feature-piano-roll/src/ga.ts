@@ -8,4 +8,5 @@ export const ga: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Athraigh méid an nóta',
   'pianoRoll.aria.note':
     'Nóta {{pitch}} ag tosú ag buille {{startBeat}} do {{durationBeats}} buillí',
+  'pianoRoll.aria.cursor': 'Cúrsóir ar {{pitch}} ag buille {{beat}}',
 }

@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Swahili. Stub — falls back to English. */
+/** Canvas translations for Swahili. */
 export const sw: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Uso wa kanavasi',
+  'canvas.aria.node': 'Nodi ya kanavasi',
+  'canvas.aria.edge': 'Muunganisho wa kanavasi',
+  'canvas.aria.resizeHandle': 'Badilisha ukubwa wa nodi',
+  'canvas.aria.nodeSelected': 'Imechaguliwa',
 }

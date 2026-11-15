@@ -10,4 +10,5 @@ export const az: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Xətt',
   'mapDrawing.tool.select': 'Seçin',
   'mapDrawing.tool.delete': 'Sil',
+  'mapDrawing.tool.cancelDraft': 'Qaralamanı ləğv et',
 }

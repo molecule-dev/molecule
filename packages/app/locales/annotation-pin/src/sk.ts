@@ -6,4 +6,5 @@ export const sk: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Pripnúť anotáciu',
   'annotationPin.aria.popup': 'Podrobnosti anotácie',
   'annotationPin.empty': 'K tomuto pinu nie sú žiadne poznámky.',
+  'annotationPin.aria.addPin': 'Pridať anotačný pin',
 }

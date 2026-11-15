@@ -6,4 +6,5 @@ export const hu: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Megjegyzések',
   'marginNotes.aria.panel': 'Megjegyzések ehhez a szakaszhoz',
   'marginNotes.dismiss': 'Jegyzetek elrejtése',
+  'marginNotes.aria.pin': 'Megjegyzések rögzítése ehhez a szakaszhoz',
 }

@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Spanish. Stub — falls back to English. */
+/** Canvas translations for Spanish. */
 export const es: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Superficie del lienzo',
+  'canvas.aria.node': 'Nodo del lienzo',
+  'canvas.aria.edge': 'Conexión del lienzo',
+  'canvas.aria.resizeHandle': 'Cambiar tamaño del nodo',
+  'canvas.aria.nodeSelected': 'Seleccionado',
 }

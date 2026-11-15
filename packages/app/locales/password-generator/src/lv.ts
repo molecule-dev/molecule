@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for lv. Stub — falls back to English defaults. */
+/** Password generator translations for lv. */
 export const lv: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'Ģenerēta parole',
+  'password-generator.copy': 'Kopēt',
+  'password-generator.copied': 'Nokopēts!',
+  'password-generator.regenerate': 'Ģenerēt atkārtoti',
+  'password-generator.length': 'Garums: {{length}}',
+  'password-generator.lengthLabel': 'Paroles garums',
+  'password-generator.toggle.uppercase': 'Lielie burti (A-Z)',
+  'password-generator.toggle.lowercase': 'Mazie burti (a-z)',
+  'password-generator.toggle.digits': 'Cipari (0-9)',
+  'password-generator.toggle.symbols': 'Simboli (!@#…)',
+  'password-generator.toggle.noSimilar': 'Izlaist līdzīgos (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous': 'Izlaist neskaidru (atstarpe, pēdiņas)',
   'password-generator.pick': 'Izmantojiet šo paroli',
 }

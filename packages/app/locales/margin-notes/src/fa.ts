@@ -6,4 +6,5 @@ export const fa: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'یادداشت‌ها',
   'marginNotes.aria.panel': 'یادداشت‌های این بخش',
   'marginNotes.dismiss': 'پنهان کردن یادداشت‌ها',
+  'marginNotes.aria.pin': 'سنجاق کردن یادداشت‌های این بخش',
 }

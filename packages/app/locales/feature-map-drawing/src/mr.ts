@@ -10,4 +10,5 @@ export const mr: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'ओळ',
   'mapDrawing.tool.select': 'निवडा',
   'mapDrawing.tool.delete': 'हटवा',
+  'mapDrawing.tool.cancelDraft': 'मसुदा रद्द करा',
 }

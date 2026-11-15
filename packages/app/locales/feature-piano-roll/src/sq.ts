@@ -8,4 +8,5 @@ export const sq: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Ndrysho madhësinë e shënimit',
   'pianoRoll.aria.note':
     'Shënim {{pitch}} duke filluar me ritëm {{startBeat}} për {{durationBeats}} ritme',
+  'pianoRoll.aria.cursor': 'Kursori në {{pitch}} në ritmin {{beat}}',
 }

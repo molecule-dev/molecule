@@ -1,5 +1,5 @@
 import type { CSSProperties, JSX, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
-import { useCallback, useRef } from 'react'
+import { useCallback, useId, useRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -14,7 +14,10 @@ export interface CanvasNodeProps {
   position: Point
   /** Optional canvas-space size. If omitted, the node sizes to content. */
   size?: Size
-  /** Whether the node is currently selected (drives data attributes only). */
+  /**
+   * Whether the node is currently selected. Drives `data-selected`, and a
+   * selected node is described as "Selected" to screen readers.
+   */
   selected?: boolean
   /**
    * Called when the user activates the node (pointerdown that doesn't
@@ -78,6 +81,13 @@ function readSurfaceZoom(el: Element | null): number {
  *
  * It does NOT own visual chrome — wrapper packages compose chrome on
  * top via `children`.
+ *
+ * Accessibility: the base renders as `role="group"` named by `aria-label`.
+ * `aria-selected` is not valid on a group, and the selectable roles
+ * (`option`, `gridcell`, `treeitem`) need a listbox, grid or tree parent the
+ * `role="application"` surface is not; `option` would also flatten the
+ * resize handle button. A selected node is therefore described by a hidden
+ * "Selected" text through `aria-describedby`.
  *
  * @param props - Component props.
  * @returns The node element.
@@ -261,12 +271,13 @@ export function CanvasNode(props: CanvasNodeProps): JSX.Element {
 
   const resolvedAriaLabel = ariaLabel ?? t('canvas.aria.node', {}, { defaultValue: 'Canvas node' })
   const resolvedHandleAriaLabel = t('canvas.aria.resizeHandle', {}, { defaultValue: 'Resize node' })
+  const selectedDescriptionId = useId()
 
   return (
     <div
       role="group"
       aria-label={resolvedAriaLabel}
-      aria-selected={selected ? 'true' : undefined}
+      aria-describedby={selected ? selectedDescriptionId : undefined}
       data-mol-id={id ? `canvas-node-${id}` : 'canvas-node'}
       data-canvas-node-id={id}
       data-selected={selected ? 'true' : undefined}
@@ -278,6 +289,11 @@ export function CanvasNode(props: CanvasNodeProps): JSX.Element {
       onPointerCancel={onPointerUp}
     >
       {children}
+      {selected ? (
+        <span id={selectedDescriptionId} hidden>
+          {t('canvas.aria.nodeSelected', {}, { defaultValue: 'Selected' })}
+        </span>
+      ) : null}
       {onResize && size ? (
         <div
           role="button"

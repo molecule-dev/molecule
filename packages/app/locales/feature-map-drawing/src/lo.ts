@@ -10,4 +10,5 @@ export const lo: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'ສາຍ',
   'mapDrawing.tool.select': 'ເລືອກ',
   'mapDrawing.tool.delete': 'ລຶບ',
+  'mapDrawing.tool.cancelDraft': 'ຍົກເລີກຮ່າງ',
 }

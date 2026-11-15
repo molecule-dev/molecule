@@ -8,4 +8,5 @@ export const hr: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Promjena veličine bilješke',
   'pianoRoll.aria.note':
     'Bilješka {{pitch}} počevši od takta {{startBeat}} za {{durationBeats}} ritmovi',
+  'pianoRoll.aria.cursor': 'Kursor na {{pitch}} na taktu {{beat}}',
 }

@@ -10,4 +10,5 @@ export const cy: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Llinell',
   'mapDrawing.tool.select': 'Dewis',
   'mapDrawing.tool.delete': 'Dileu',
+  'mapDrawing.tool.cancelDraft': "Diddymu'r drafft",
 }

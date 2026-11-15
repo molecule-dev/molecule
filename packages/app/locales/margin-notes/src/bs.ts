@@ -6,4 +6,5 @@ export const bs: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Bilješke',
   'marginNotes.aria.panel': 'Napomene za ovaj odjeljak',
   'marginNotes.dismiss': 'Sakrij bilješke',
+  'marginNotes.aria.pin': 'Prikvači bilješke za ovaj odjeljak',
 }

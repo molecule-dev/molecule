@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for az. Stub — falls back to English defaults. */
+/** NPS distribution translations for az. */
 export const az: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'Tənqidçi',
+  'nps-distribution.tier.passive': 'Neytral',
+  'nps-distribution.tier.promoter': 'Tərəfdar',
   'nps-distribution.aria-label': 'NPS paylanma qrafiki, {{total}} cavablar',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'Bal {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} cavablar',
 }

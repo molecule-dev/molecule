@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Finnish. Stub — falls back to English. */
+/** Canvas translations for Finnish. */
 export const fi: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Kankaan pinta',
+  'canvas.aria.node': 'Kankaan solmu',
+  'canvas.aria.edge': 'Kankaan yhteys',
+  'canvas.aria.resizeHandle': 'Muuta solmun kokoa',
+  'canvas.aria.nodeSelected': 'Valittu',
 }

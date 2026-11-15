@@ -10,4 +10,5 @@ export const mt: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Linja',
   'mapDrawing.tool.select': 'Agħżel',
   'mapDrawing.tool.delete': 'Ħassar',
+  'mapDrawing.tool.cancelDraft': 'Ikkanċella l-abbozz',
 }

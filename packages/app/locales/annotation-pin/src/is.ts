@@ -6,4 +6,5 @@ export const is: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Skýringarpinn',
   'annotationPin.aria.popup': 'Upplýsingar um skýringar',
   'annotationPin.empty': 'Engar athugasemdir við þessa pinna.',
+  'annotationPin.aria.addPin': 'Bæta við skýringarpinna',
 }

@@ -8,4 +8,5 @@ export const yo: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Ṣe àtúnṣe ìwọ̀n àkọsílẹ̀',
   'pianoRoll.aria.note':
     'Àkíyèsí {{pitch}} bẹ̀rẹ̀ ní ìlù {{startBeat}} fún {{durationBeats}} awọn lù',
+  'pianoRoll.aria.cursor': 'Àmì ìtọ́ka lórí {{pitch}} ní ìlù {{beat}}',
 }

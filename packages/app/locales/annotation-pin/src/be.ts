@@ -6,4 +6,5 @@ export const be: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Шпілька для анатацыі',
   'annotationPin.aria.popup': 'Падрабязнасці анатацыі',
   'annotationPin.empty': 'Няма заўваг да гэтага пін-кода.',
+  'annotationPin.aria.addPin': 'Дадаць шпільку для анатацыі',
 }

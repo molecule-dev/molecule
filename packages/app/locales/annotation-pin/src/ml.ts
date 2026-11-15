@@ -6,4 +6,5 @@ export const ml: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'വ്യാഖ്യാന പിൻ',
   'annotationPin.aria.popup': 'വ്യാഖ്യാന വിശദാംശങ്ങൾ',
   'annotationPin.empty': 'ഈ പിന്നിന് കുറിപ്പുകളൊന്നുമില്ല.',
+  'annotationPin.aria.addPin': 'വ്യാഖ്യാന പിൻ ചേർക്കുക',
 }

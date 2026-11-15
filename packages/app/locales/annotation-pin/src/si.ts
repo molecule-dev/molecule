@@ -6,4 +6,5 @@ export const si: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'විවරණ පින් එක',
   'annotationPin.aria.popup': 'විවරණ විස්තර',
   'annotationPin.empty': 'මෙම පින් එක සඳහා සටහන් නොමැත.',
+  'annotationPin.aria.addPin': 'විවරණ පින් එක එක් කරන්න',
 }

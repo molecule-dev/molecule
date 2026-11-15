@@ -6,4 +6,5 @@ export const lt: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Anotacijos smeigtukas',
   'annotationPin.aria.popup': 'Anotacijos detalės',
   'annotationPin.empty': 'Šiam smeigtukui nėra pastabų.',
+  'annotationPin.aria.addPin': 'Pridėti anotacijos smeigtuką',
 }

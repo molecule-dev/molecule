@@ -6,4 +6,5 @@ export const ro: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Pin de adnotare',
   'annotationPin.aria.popup': 'Detalii adnotări',
   'annotationPin.empty': 'Nicio notă pentru acest pin.',
+  'annotationPin.aria.addPin': 'Adaugă pin de adnotare',
 }

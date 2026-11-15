@@ -8,4 +8,5 @@ export const te: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'పరిమాణాన్ని మార్చే గమనిక',
   'pianoRoll.aria.note':
     'గమనిక {{pitch}} బీట్ వద్ద ప్రారంభం {{startBeat}} కోసం {{durationBeats}} బీట్స్',
+  'pianoRoll.aria.cursor': 'కర్సర్ {{pitch}} వద్ద, బీట్ {{beat}} వద్ద',
 }

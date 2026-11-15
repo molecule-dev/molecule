@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for fi. Stub — falls back to English defaults. */
+/** NPS distribution translations for fi. */
 export const fi: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'Kriitikko',
+  'nps-distribution.tier.passive': 'Passiivi',
+  'nps-distribution.tier.promoter': 'Suosittelija',
   'nps-distribution.aria-label': 'NPS-jakaumakaavio, {{total}} vastausta',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'Pisteet {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} vastausta',
 }

@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Slovak. Stub — falls back to English. */
+/** Animation-canvas translations for Slovak. */
 export const sk: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Plátno animácie',
+  'animationCanvas.aria.shape': 'Animovaný tvar',
 }

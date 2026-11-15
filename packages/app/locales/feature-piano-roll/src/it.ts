@@ -8,4 +8,5 @@ export const it: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Ridimensiona nota',
   'pianoRoll.aria.note':
     'Nota {{pitch}} a partire dal battito {{startBeat}} per {{durationBeats}} battiti',
+  'pianoRoll.aria.cursor': 'Cursore su {{pitch}} al battito {{beat}}',
 }

@@ -8,4 +8,5 @@ export const ne: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'नोटको आकार बदल्नुहोस्',
   'pianoRoll.aria.note':
     'नोट {{pitch}} तालबाट सुरु गर्दै {{startBeat}} को लागि {{durationBeats}} धड्कनहरू',
+  'pianoRoll.aria.cursor': '{{pitch}} मा {{beat}} तालमा कर्सर',
 }

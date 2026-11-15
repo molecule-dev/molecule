@@ -8,4 +8,5 @@ export const hy: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Չափափոխել նշումը',
   'pianoRoll.aria.note':
     'Նշում {{pitch}} սկսած ռիթմից {{startBeat}} համար {{durationBeats}} ռիթմերը',
+  'pianoRoll.aria.cursor': 'Կուրսոր {{pitch}} վրա {{beat}} ռիթմում',
 }

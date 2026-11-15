@@ -1,11 +1,11 @@
 import type { VoteClusterTranslations } from './types.js'
 
-/** Vote cluster translations for ky. Stub — falls back to English defaults. */
+/** Vote cluster translations for ky. */
 export const ky: VoteClusterTranslations = {
-  'vote-cluster.upvote': 'Upvote',
-  'vote-cluster.removeUpvote': 'Remove upvote',
-  'vote-cluster.downvote': 'Downvote',
-  'vote-cluster.removeDownvote': 'Remove downvote',
-  'vote-cluster.score': 'Score: {{score}}',
+  'vote-cluster.upvote': 'Оң добуш',
+  'vote-cluster.removeUpvote': 'Оң добушту алып салуу',
+  'vote-cluster.downvote': 'Терис добуш',
+  'vote-cluster.removeDownvote': 'Терис добушту алып салуу',
+  'vote-cluster.score': 'Упай: {{score}}',
   'vote-cluster.group': 'Добуш берүү кластери, учурдагы упай {{score}}',
 }

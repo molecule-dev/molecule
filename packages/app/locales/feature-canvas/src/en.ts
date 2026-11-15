@@ -6,4 +6,5 @@ export const en: CanvasTranslations = {
   'canvas.aria.node': 'Canvas node',
   'canvas.aria.edge': 'Canvas edge',
   'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.nodeSelected': 'Selected',
 }

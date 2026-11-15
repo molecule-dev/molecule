@@ -10,4 +10,5 @@ export const de: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'Kartenzeichnungsfläche',
   'mapDrawing.tool.polygon': 'Polygon',
   'mapDrawing.tool.circle': 'Kreis',
+  'mapDrawing.tool.cancelDraft': 'Entwurf verwerfen',
 }

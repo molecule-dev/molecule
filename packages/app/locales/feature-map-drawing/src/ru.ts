@@ -10,4 +10,5 @@ export const ru: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Линия',
   'mapDrawing.tool.select': 'Выбирать',
   'mapDrawing.tool.delete': 'Удалить',
+  'mapDrawing.tool.cancelDraft': 'Отменить черновик',
 }

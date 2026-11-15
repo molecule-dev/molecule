@@ -10,4 +10,5 @@ export const af: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Lyn',
   'mapDrawing.tool.select': 'Kies',
   'mapDrawing.tool.delete': 'Vee uit',
+  'mapDrawing.tool.cancelDraft': 'Kanselleer konsep',
 }

@@ -10,4 +10,5 @@ export const tr: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'Harita çizim yüzeyi',
   'mapDrawing.tool.polygon': 'Çokgen',
   'mapDrawing.tool.circle': 'Daire',
+  'mapDrawing.tool.cancelDraft': 'Taslağı iptal et',
 }

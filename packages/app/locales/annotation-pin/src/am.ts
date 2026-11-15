@@ -6,4 +6,5 @@ export const am: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'የማብራሪያ ፒን',
   'annotationPin.aria.popup': 'የማብራሪያ ዝርዝሮች',
   'annotationPin.empty': 'ለዚህ ፒን ምንም ማስታወሻዎች የሉም።',
+  'annotationPin.aria.addPin': 'የማብራሪያ ፒን ጨምር',
 }

@@ -6,4 +6,5 @@ export const zhTW: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': '註解圖釘',
   'annotationPin.aria.popup': '註釋詳情',
   'annotationPin.empty': '此別針沒有備註。',
+  'annotationPin.aria.addPin': '新增註解圖釘',
 }

@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Icelandic. Stub — falls back to English. */
+/** Animation-canvas translations for Icelandic. */
 export const is: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Hreyfiflötur',
+  'animationCanvas.aria.shape': 'Hreyft form',
 }

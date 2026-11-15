@@ -6,4 +6,5 @@ export const id: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Catatan',
   'marginNotes.aria.panel': 'Catatan untuk bagian ini',
   'marginNotes.dismiss': 'Sembunyikan catatan',
+  'marginNotes.aria.pin': 'Sematkan catatan untuk bagian ini',
 }

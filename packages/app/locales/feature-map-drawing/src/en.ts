@@ -10,4 +10,5 @@ export const en: MapDrawingTranslations = {
   'mapDrawing.tool.line': 'Line',
   'mapDrawing.tool.select': 'Select',
   'mapDrawing.tool.delete': 'Delete',
+  'mapDrawing.tool.cancelDraft': 'Cancel draft',
 }

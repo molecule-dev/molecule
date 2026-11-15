@@ -6,4 +6,5 @@ export const nl: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Notities',
   'marginNotes.aria.panel': 'Opmerkingen voor dit gedeelte',
   'marginNotes.dismiss': 'Notities verbergen',
+  'marginNotes.aria.pin': 'Notities voor dit gedeelte vastmaken',
 }

@@ -150,25 +150,17 @@ export function AnnotationPin(props: AnnotationPinProps): JSX.Element {
   }
 
   /**
-   * Stop the marker click from bubbling — `<AnnotationLayer>` listens for
-   * surface clicks on the wrapper, so the pin's own click would
-   * otherwise also register as a "place new pin" event.
+   * Stop the marker click from bubbling to arbitrary ancestor click
+   * handlers (a caller may render the pin standalone inside a clickable
+   * container). `<AnnotationLayer>` needs no extra guarding: its
+   * "add pin" surface button sits below the pin markers in stacking
+   * order, so a marker click never reaches it.
    *
    * @param event - The originating mouse event.
    */
   function handleMarkerClick(event: MouseEvent<HTMLButtonElement>): void {
     event.stopPropagation()
     if (onClick) onClick()
-  }
-
-  /**
-   * Stop popup clicks from reaching the layer surface as well — clicking
-   * inside the popup body should not place a new pin.
-   *
-   * @param event - The originating mouse event.
-   */
-  function handlePopupClick(event: MouseEvent<HTMLDivElement>): void {
-    event.stopPropagation()
   }
 
   return (
@@ -201,7 +193,6 @@ export function AnnotationPin(props: AnnotationPinProps): JSX.Element {
           aria-label={popupLabel}
           data-mol-id="annotation-pin-popup"
           data-popup-side={popupSide}
-          onClick={handlePopupClick}
           className={cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))}
           style={popupStyle}
         >

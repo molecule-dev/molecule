@@ -2,7 +2,7 @@
 
 /**
  * The README example in a browser: the two switches really change what is on
- * screen, and tapping an AI paragraph puts its prompt in the phone panel.
+ * screen, and pinning an AI paragraph puts its prompt in the phone panel.
  */
 import { fireEvent, render } from '@testing-library/react'
 import { beforeAll, describe, expect, it } from 'vitest'
@@ -48,14 +48,14 @@ describe('the README example, interactive', () => {
     expect(byMol('margin-note-gutter-summary-0').hidden).toBe(true)
   })
 
-  it('tapping an AI paragraph shows its prompt in the phone panel (Prompts still off); tapping again lets go', () => {
+  it('pinning an AI paragraph shows its prompt in the phone panel (Prompts still off); pressing again lets go', () => {
     render(withI18n(<PostBody provenance={provenance} />))
     const panel = byMol('margin-notes-panel')
     expect(panel.textContent).not.toContain(PROMPT)
     expect(byMol('margin-notes-switch-bar-prompt').getAttribute('aria-checked')).toBe('false')
-    fireEvent.click(byMol('margin-notes-block-block-1'))
+    fireEvent.click(byMol('margin-notes-pin-block-1'))
     expect(panel.textContent).toContain(PROMPT)
-    fireEvent.click(byMol('margin-notes-block-block-1'))
+    fireEvent.click(byMol('margin-notes-pin-block-1'))
     expect(panel.textContent).not.toContain(PROMPT)
   })
 })

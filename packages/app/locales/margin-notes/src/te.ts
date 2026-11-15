@@ -6,4 +6,5 @@ export const te: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'గమనికలు',
   'marginNotes.aria.panel': 'ఈ విభాగానికి సంబంధించిన గమనికలు',
   'marginNotes.dismiss': 'గమనికలను దాచండి',
+  'marginNotes.aria.pin': 'ఈ విభాగం గమనికలను పిన్ చేయండి',
 }

@@ -6,4 +6,5 @@ export const ka: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'შენიშვნები',
   'marginNotes.aria.panel': 'შენიშვნები ამ სექციისთვის',
   'marginNotes.dismiss': 'შენიშვნების დამალვა',
+  'marginNotes.aria.pin': 'ამ სექციის შენიშვნების მიმაგრება',
 }

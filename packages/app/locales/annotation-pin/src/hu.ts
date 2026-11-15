@@ -6,4 +6,5 @@ export const hu: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Jelölőcsap',
   'annotationPin.aria.popup': 'A megjegyzés részletei',
   'annotationPin.empty': 'Ehhez a bejegyzéshez nincs megjegyzés.',
+  'annotationPin.aria.addPin': 'Jelölőcsap hozzáadása',
 }

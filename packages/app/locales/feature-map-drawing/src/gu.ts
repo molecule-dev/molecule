@@ -10,4 +10,5 @@ export const gu: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'રેખા',
   'mapDrawing.tool.select': 'પસંદ કરો',
   'mapDrawing.tool.delete': 'કાઢી નાખો',
+  'mapDrawing.tool.cancelDraft': 'ડ્રાફ્ટ રદ કરો',
 }

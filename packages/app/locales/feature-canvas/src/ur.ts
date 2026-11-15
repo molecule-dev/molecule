@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Urdu. Stub — falls back to English. */
+/** Canvas translations for Urdu. */
 export const ur: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'کینوس کی سطح',
+  'canvas.aria.node': 'کینوس نوڈ',
+  'canvas.aria.edge': 'کینوس کنکشن',
+  'canvas.aria.resizeHandle': 'نوڈ کا سائز تبدیل کریں',
+  'canvas.aria.nodeSelected': 'منتخب شدہ',
 }

@@ -8,4 +8,5 @@ export const fr: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Note de redimensionnement',
   'pianoRoll.aria.note':
     'Note {{pitch}} en commençant au rythme {{startBeat}} pour {{durationBeats}} rythmes',
+  'pianoRoll.aria.cursor': 'Curseur sur {{pitch}} au rythme {{beat}}',
 }

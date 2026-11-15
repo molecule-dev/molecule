@@ -6,4 +6,5 @@ export const sq: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Shënime',
   'marginNotes.aria.panel': 'Shënime për këtë seksion',
   'marginNotes.dismiss': 'Fshih shënimet',
+  'marginNotes.aria.pin': 'Gozhdo shënimet e këtij seksioni',
 }

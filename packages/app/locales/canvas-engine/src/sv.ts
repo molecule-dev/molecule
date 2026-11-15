@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Swedish. Stub — falls back to English. */
+/** Canvas-engine translations for Swedish. */
 export const sv: CanvasEngineTranslations = {
-  'canvasEngine.aria.surface': 'Vektor canvasredigerare',
+  'canvasEngine.aria.surface': 'Vektorcanvasredigerare',
 }

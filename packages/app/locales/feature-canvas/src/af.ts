@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Afrikaans. Stub — falls back to English. */
+/** Canvas translations for Afrikaans. */
 export const af: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Kanvas-oppervlak',
+  'canvas.aria.node': 'Kanvas-knoop',
+  'canvas.aria.edge': 'Kanvas-verbinding',
+  'canvas.aria.resizeHandle': 'Verander grootte van knoop',
+  'canvas.aria.nodeSelected': 'Geselekteer',
 }

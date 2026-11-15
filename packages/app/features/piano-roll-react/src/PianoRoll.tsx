@@ -1,5 +1,6 @@
 import type {
   CSSProperties,
+  KeyboardEvent as ReactKeyboardEvent,
   MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
   ReactElement,
@@ -59,7 +60,11 @@ export interface PianoRollProps {
    * beats so empty rolls are still usable).
    */
   beatsCount?: number
-  /** Called with a freshly-created note when the user clicks an empty cell. */
+  /**
+   * Called with a freshly-created note when the user paints an empty
+   * cell — by clicking it, or via the keyboard cell cursor (arrow keys
+   * to move, Enter / Space to paint).
+   */
   onNoteAdd?: (note: MidiNote) => void
   /** Called with the updated note when a note is dragged horizontally / vertically. */
   onNoteMove?: (noteId: string, startBeat: number, pitch: number) => void
@@ -252,6 +257,10 @@ interface DragState {
  * drag a note body to move it (snapped), drag the right-edge handle to
  * resize, right-click a note to delete it.
  *
+ * Keyboard users get the same paint action: focus the grid (Tab), move
+ * the cell cursor with the arrow keys, and press Enter or Space to
+ * paint a new note at the cursor cell.
+ *
  * All styling routes through `getClassMap()` (no Tailwind / raw class
  * names). All user-visible text routes through `t()` so the roll
  * translates via the companion
@@ -284,6 +293,14 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
   const [, forceRerender] = useState(0)
   const bumpDragTick = useCallback(() => forceRerender((n) => n + 1), [])
 
+  // Keyboard cell cursor (the cell Enter / Space paint into), in raw
+  // beats + pitch. Mouse clicks move it too, so the keyboard path
+  // continues where the mouse left off.
+  const [rawCursor, setRawCursor] = useState(() => ({ beat: 0, pitch: highestPitch }))
+  // `true` while the grid surface (or a child) has keyboard focus —
+  // drives the visible cell-cursor highlight.
+  const [gridFocused, setGridFocused] = useState(false)
+
   // Derive grid dimensions. Highest pitch sits in the top row, so the
   // total row count is `highestPitch - lowestPitch + 1`.
   const safeHighest = Math.max(highestPitch, lowestPitch)
@@ -303,10 +320,22 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
     )
   const gridWidth = beatsToPixels(computedBeats, pixelsPerBeat)
 
+  // The cell cursor clamped into the current grid bounds (props can
+  // change the visible pitch range / grid length between renders).
+  const cursor = {
+    beat: Math.max(0, Math.min(rawCursor.beat, computedBeats)),
+    pitch: Math.max(safeLowest, Math.min(safeHighest, rawCursor.pitch)),
+  }
+
   const rollLabel = t('pianoRoll.aria.roll', {}, { defaultValue: 'Piano roll' })
   const keysLabel = t('pianoRoll.aria.keys', {}, { defaultValue: 'Piano keys' })
   const gridLabel = t('pianoRoll.aria.grid', {}, { defaultValue: 'Note grid' })
   const resizeLabel = t('pianoRoll.aria.resize', {}, { defaultValue: 'Resize note' })
+  const cursorLabel = t(
+    'pianoRoll.aria.cursor',
+    { pitch: pitchLabel(cursor.pitch), beat: cursor.beat.toFixed(2) },
+    { defaultValue: 'Cursor on {{pitch}} at beat {{beat}}' },
+  )
   const noteAria = (n: MidiNote): string =>
     t(
       'pianoRoll.aria.note',
@@ -416,8 +445,29 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
   }
 
   /**
+   * Paint a new note at an exact cell: `startBeat` + `pitch`, with the
+   * configured snap-step duration and the default velocity. Shared by
+   * the mouse click path and the keyboard cell cursor.
+   *
+   * @param startBeat - Snapped start beat of the new note.
+   * @param pitch - MIDI pitch of the row to paint into.
+   */
+  function paintNoteAt(startBeat: number, pitch: number): void {
+    if (!onNoteAdd) return
+    const id = `note-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`
+    onNoteAdd({
+      id,
+      pitch,
+      startBeat,
+      durationBeats: snapToBeats(snap),
+      velocity: DEFAULT_NOTE_VELOCITY,
+    })
+  }
+
+  /**
    * Click handler on the empty grid: paints a new note at the snapped
-   * cell under the cursor with the configured snap-step duration.
+   * cell under the cursor with the configured snap-step duration, and
+   * moves the keyboard cell cursor to that cell.
    *
    * @param event - React click event from the grid surface.
    */
@@ -433,15 +483,48 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
     if (x < 0 || y < 0 || x > rect.width || y > rect.height) return
     const startBeat = snapBeat(pixelsToBeats(x, pixelsPerBeat), snap)
     const pitch = yToPitch(y, noteHeight, safeHighest, safeLowest)
-    const durationBeats = snapToBeats(snap)
-    const id = `note-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`
-    onNoteAdd({
-      id,
-      pitch,
-      startBeat,
-      durationBeats,
-      velocity: DEFAULT_NOTE_VELOCITY,
-    })
+    setRawCursor({ beat: startBeat, pitch })
+    paintNoteAt(startBeat, pitch)
+  }
+
+  /**
+   * Keyboard handler on the grid surface: the arrow keys move the cell
+   * cursor (left / right by one snap step, up / down one pitch row),
+   * and Enter or Space paints a new note at the cursor cell — the
+   * keyboard equivalent of clicking an empty cell.
+   *
+   * @param event - React keydown event from the grid surface.
+   */
+  function handleGridKeyDown(event: ReactKeyboardEvent<HTMLDivElement>): void {
+    if (!onNoteAdd) return
+    // Only the grid surface itself drives the cell cursor — a keydown
+    // bubbling from a focused note child belongs to that note.
+    if (event.target !== event.currentTarget) return
+    if (event.key === 'Enter' || event.key === ' ') {
+      // Ignore key auto-repeat so holding the key doesn't flood the
+      // roll with notes; each press paints exactly one note.
+      event.preventDefault()
+      if (!event.repeat) paintNoteAt(cursor.beat, cursor.pitch)
+      return
+    }
+    switch (event.key) {
+      case 'ArrowLeft':
+        setRawCursor({ ...cursor, beat: cursor.beat - snapToBeats(snap) })
+        break
+      case 'ArrowRight':
+        setRawCursor({ ...cursor, beat: cursor.beat + snapToBeats(snap) })
+        break
+      case 'ArrowUp':
+        setRawCursor({ ...cursor, pitch: cursor.pitch + 1 })
+        break
+      case 'ArrowDown':
+        setRawCursor({ ...cursor, pitch: cursor.pitch - 1 })
+        break
+      default:
+        return
+    }
+    // Keep the scrollable surface from moving while moving the cursor.
+    event.preventDefault()
   }
 
   /**
@@ -549,7 +632,11 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
         data-mol-id="piano-roll-grid"
         data-snap={snap}
         style={gridSurfaceStyle}
+        tabIndex={0}
         onClick={handleGridClick}
+        onKeyDown={handleGridKeyDown}
+        onFocus={() => setGridFocused(true)}
+        onBlur={() => setGridFocused(false)}
       >
         {/* Horizontal pitch rows — alternate row tint for black keys. */}
         {rows.map((pitch) => {
@@ -598,6 +685,32 @@ export function PianoRoll(props: PianoRollProps): ReactElement {
             />
           )
         })}
+
+        {/* Keyboard cell cursor — visible while the grid has focus. */}
+        {onNoteAdd && gridFocused && (
+          <div
+            data-mol-id="piano-roll-cell-cursor"
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: beatsToPixels(cursor.beat, pixelsPerBeat),
+              top: pitchToY(cursor.pitch, noteHeight, safeHighest),
+              width: beatsToPixels(snapToBeats(snap), pixelsPerBeat),
+              height: noteHeight,
+              border: '2px solid var(--mol-piano-roll-note-bg, #5b8def)',
+              borderRadius: 3,
+              boxSizing: 'border-box',
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+
+        {/* Announces keyboard cursor moves to assistive technology. */}
+        {onNoteAdd && (
+          <div role="status" className={cm.srOnly}>
+            {cursorLabel}
+          </div>
+        )}
 
         {/* Notes — drawn on top of the grid. */}
         {notes.map((note) => {

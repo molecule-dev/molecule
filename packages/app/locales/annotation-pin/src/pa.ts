@@ -6,4 +6,5 @@ export const pa: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'ਐਨੋਟੇਸ਼ਨ ਪਿੰਨ',
   'annotationPin.aria.popup': 'ਐਨੋਟੇਸ਼ਨ ਵੇਰਵੇ',
   'annotationPin.empty': 'ਇਸ ਪਿੰਨ ਲਈ ਕੋਈ ਨੋਟਸ ਨਹੀਂ ਹਨ।',
+  'annotationPin.aria.addPin': 'ਐਨੋਟੇਸ਼ਨ ਪਿੰਨ ਜੋੜੋ',
 }

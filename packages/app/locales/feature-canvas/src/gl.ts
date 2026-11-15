@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Galician. Stub — falls back to English. */
+/** Canvas translations for Galician. */
 export const gl: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Superficie do lenzo',
+  'canvas.aria.node': 'Nodo do lenzo',
+  'canvas.aria.edge': 'Conexión do lenzo',
+  'canvas.aria.resizeHandle': 'Cambiar o tamaño do nodo',
+  'canvas.aria.nodeSelected': 'Seleccionado',
 }

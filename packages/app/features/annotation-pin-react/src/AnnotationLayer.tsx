@@ -23,7 +23,9 @@ export interface AnnotationLayerProps {
   /**
    * Called when the user clicks an empty area of the layer (i.e. not on
    * a pin marker or a popup). Coordinates are in the same space as
-   * `Pin.position` — normalised 0..1 by default.
+   * `Pin.position` — normalised 0..1 by default. Keyboard users get the
+   * same action: activating the layer's "add pin" button (Tab to it,
+   * then Enter / Space) places a pin at the surface centre.
    */
   onSurfaceClick?: (position: { x: number; y: number }) => void
   /**
@@ -51,7 +53,12 @@ export interface AnnotationLayerProps {
  * Click behaviour:
  * - clicking a pin marker fires `onPinClick(pinId)`
  * - clicking empty space on the layer fires `onSurfaceClick({ x, y })`,
- *   which callers typically use to add a new pin
+ *   which callers typically use to add a new pin. That action lives on
+ *   an invisible "add annotation pin" button covering the surface (the
+ *   layer region itself is not interactive — it contains the pin
+ *   buttons and popups): pointer clicks place a pin at the click
+ *   position; activating the button with a keyboard (Tab to it, then
+ *   Enter / Space) or assistive tech places a pin at the surface centre.
  *
  * The layer itself sets `position: relative` so absolute pin
  * positioning works without the caller having to provide a wrapper.
@@ -80,6 +87,7 @@ export function AnnotationLayer(props: AnnotationLayerProps): JSX.Element {
   const { t } = useTranslation()
 
   const regionLabel = t('annotationPin.aria.layer', {}, { defaultValue: 'Annotation layer' })
+  const addPinLabel = t('annotationPin.aria.addPin', {}, { defaultValue: 'Add annotation pin' })
 
   const rootStyle: CSSProperties = {
     position: 'relative',
@@ -88,28 +96,35 @@ export function AnnotationLayer(props: AnnotationLayerProps): JSX.Element {
     ...style,
   }
 
+  // Reset the browser's default button chrome — the add-pin button is an
+  // invisible full-surface target, not a visible control. (ClassMap has no
+  // reset tokens; the marker button uses the same inline resets.)
+  const addPinStyle: CSSProperties = {
+    border: 'none',
+    padding: 0,
+    background: 'transparent',
+  }
+
   /**
-   * Compute the click position relative to the layer's bounding box
-   * and forward to `onSurfaceClick`. If `normalised` is `true`, the
-   * returned coordinates are 0..1 fractions; otherwise they are raw
-   * pixel offsets.
+   * Compute the clicked position relative to the add-pin button's box
+   * (which covers the layer) and forward to `onSurfaceClick`. If
+   * `normalised` is `true`, the returned coordinates are 0..1
+   * fractions; otherwise they are raw pixel offsets.
+   *
+   * Clicks produced by keyboard activation (Enter / Space on the
+   * focused button) or assistive tech carry `detail === 0` and no
+   * pointer position — such clicks place the pin at the surface centre.
+   * Pin markers and popups never reach this handler: they stack above
+   * the button and are its siblings, so their clicks do not hit it.
    *
    * @param event - The originating mouse event.
    */
-  function handleSurfaceClick(event: MouseEvent<HTMLDivElement>): void {
+  function handleSurfaceClick(event: MouseEvent<HTMLButtonElement>): void {
     if (!onSurfaceClick) return
-    // Ignore clicks bubbling from inside pin markers / popups —
-    // `<AnnotationPin>` already calls `stopPropagation()` for us, but
-    // a defensive currentTarget check keeps surface clicks honest.
-    if (event.target !== event.currentTarget) {
-      // Allow direct child wrappers to bubble (children prop), but not
-      // the absolutely-positioned pin nodes which set their own data-mol-id.
-      const target = event.target as HTMLElement
-      if (target.closest('[data-mol-id="annotation-pin"]')) return
-    }
     const rect = event.currentTarget.getBoundingClientRect()
-    const px = event.clientX - rect.left
-    const py = event.clientY - rect.top
+    const keyboardActivated = event.detail === 0
+    const px = keyboardActivated ? rect.width / 2 : event.clientX - rect.left
+    const py = keyboardActivated ? rect.height / 2 : event.clientY - rect.top
     const safeRectWidth = rect.width || 1
     const safeRectHeight = rect.height || 1
     const x = normalised ? px / safeRectWidth : px
@@ -122,11 +137,20 @@ export function AnnotationLayer(props: AnnotationLayerProps): JSX.Element {
       role="region"
       aria-label={regionLabel}
       data-mol-id="annotation-layer"
-      onClick={handleSurfaceClick}
       className={cm.cn(className)}
       style={rootStyle}
     >
       {children}
+      {onSurfaceClick && (
+        <button
+          type="button"
+          aria-label={addPinLabel}
+          data-mol-id="annotation-layer-add-pin"
+          onClick={handleSurfaceClick}
+          className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
+          style={addPinStyle}
+        />
+      )}
       {pins.map((pin) => (
         <AnnotationPin
           key={pin.id}

@@ -6,4 +6,5 @@ export const sw: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Pini ya maelezo',
   'annotationPin.aria.popup': 'Maelezo ya maelezo',
   'annotationPin.empty': 'Hakuna maelezo kwa pini hii.',
+  'annotationPin.aria.addPin': 'Ongeza pini ya maelezo',
 }

@@ -6,4 +6,5 @@ export const am: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'ማስታወሻዎች',
   'marginNotes.aria.panel': 'ለዚህ ክፍል ማስታወሻዎች',
   'marginNotes.dismiss': 'ማስታወሻዎችን ደብቅ',
+  'marginNotes.aria.pin': 'ለዚህ ክፍል ማስታወሻዎችን ማሰር',
 }

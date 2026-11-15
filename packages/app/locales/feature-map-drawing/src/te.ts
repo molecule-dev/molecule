@@ -10,4 +10,5 @@ export const te: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'లైన్',
   'mapDrawing.tool.select': 'ఎంచుకోండి',
   'mapDrawing.tool.delete': 'తొలగించు',
+  'mapDrawing.tool.cancelDraft': 'డ్రాఫ్ట్‌ను రద్దు చేయండి',
 }

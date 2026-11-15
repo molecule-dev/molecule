@@ -6,4 +6,5 @@ export const th: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'หมายเหตุ',
   'marginNotes.aria.panel': 'หมายเหตุสำหรับส่วนนี้',
   'marginNotes.dismiss': 'ซ่อนบันทึก',
+  'marginNotes.aria.pin': 'ปักหมุดบันทึกของส่วนนี้',
 }

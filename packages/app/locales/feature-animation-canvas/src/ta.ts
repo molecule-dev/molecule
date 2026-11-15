@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Tamil. Stub — falls back to English. */
+/** Animation-canvas translations for Tamil. */
 export const ta: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'அனிமேஷன் கேன்வாஸ்',
+  'animationCanvas.aria.shape': 'அசையும் வடிவம்',
 }

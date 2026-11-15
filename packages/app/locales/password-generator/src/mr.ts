@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for mr. Stub — falls back to English defaults. */
+/** Password generator translations for mr. */
 export const mr: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'तयार केलेला पासवर्ड',
+  'password-generator.copy': 'कॉपी करा',
+  'password-generator.copied': 'कॉपी केले!',
+  'password-generator.regenerate': 'पुन्हा तयार करा',
+  'password-generator.length': 'लांबी: {{length}}',
+  'password-generator.lengthLabel': 'पासवर्डची लांबी',
+  'password-generator.toggle.uppercase': 'अपरकेस (A-Z)',
+  'password-generator.toggle.lowercase': 'लोअरकेस (a-z)',
+  'password-generator.toggle.digits': 'अंक (0-9)',
+  'password-generator.toggle.symbols': 'चिन्हे (!@#…)',
+  'password-generator.toggle.noSimilar': 'समान वगळा (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous': 'संदिग्ध (जागा, अवतरणचिन्हे) वगळा',
   'password-generator.pick': 'हा पासवर्ड वापरा',
 }

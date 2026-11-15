@@ -6,4 +6,5 @@ export const et: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Märkme-nõel',
   'annotationPin.aria.popup': 'Märkuse üksikasjad',
   'annotationPin.empty': 'Selle märkme kohta pole märkusi.',
+  'annotationPin.aria.addPin': 'Lisa märkme-nõel',
 }

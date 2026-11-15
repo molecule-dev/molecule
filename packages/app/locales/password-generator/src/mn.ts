@@ -1,18 +1,18 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for mn. Stub — falls back to English defaults. */
+/** Password generator translations for mn. */
 export const mn: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
+  'password-generator.readoutLabel': 'Үүсгэсэн нууц үг',
+  'password-generator.copy': 'Хуулбарлах',
+  'password-generator.copied': 'Хуулбарлагдсан!',
+  'password-generator.regenerate': 'Дахин үүсгэх',
+  'password-generator.length': 'Урт: {{length}}',
+  'password-generator.lengthLabel': 'Нууц үгийн урт',
+  'password-generator.toggle.uppercase': 'Том үсэг (A-Z)',
+  'password-generator.toggle.lowercase': 'Жижиг үсэг (a-z)',
+  'password-generator.toggle.digits': 'Тоо (0-9)',
+  'password-generator.toggle.symbols': 'Тэмдэг (!@#…)',
+  'password-generator.toggle.noSimilar': 'Төстэйг алгасах (0/O/1/l/I)',
   'password-generator.toggle.noAmbiguous': 'Тодорхой бус утгатай үгийг алгасах (зай, ишлэл)',
   'password-generator.pick': 'Энэ нууц үгийг ашиглах',
 }

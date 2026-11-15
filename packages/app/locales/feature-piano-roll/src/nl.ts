@@ -8,4 +8,5 @@ export const nl: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Formaat wijzigen',
   'pianoRoll.aria.note':
     'Opmerking {{pitch}} beginnend bij beat {{startBeat}} voor {{durationBeats}} beats',
+  'pianoRoll.aria.cursor': 'Cursor op {{pitch}} bij beat {{beat}}',
 }

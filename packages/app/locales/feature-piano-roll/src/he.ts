@@ -8,4 +8,5 @@ export const he: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'שינוי גודל של הערה',
   'pianoRoll.aria.note':
     'פֶּתֶק {{pitch}} מתחיל בקצב {{startBeat}} עֲבוּר {{durationBeats}} פעימות',
+  'pianoRoll.aria.cursor': 'סמן על {{pitch}} בקצב {{beat}}',
 }

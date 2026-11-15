@@ -10,4 +10,5 @@ export const lv: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Līnija',
   'mapDrawing.tool.select': 'Atlasīt',
   'mapDrawing.tool.delete': 'Dzēst',
+  'mapDrawing.tool.cancelDraft': 'Atcelt melnrakstu',
 }

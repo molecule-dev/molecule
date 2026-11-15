@@ -10,4 +10,5 @@ export const ca: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Línia',
   'mapDrawing.tool.select': 'Selecciona',
   'mapDrawing.tool.delete': 'Suprimeix',
+  'mapDrawing.tool.cancelDraft': "Cancel·la l'esborrany",
 }

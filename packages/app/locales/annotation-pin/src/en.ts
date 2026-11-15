@@ -6,4 +6,5 @@ export const en: AnnotationPinTranslations = {
   'annotationPin.aria.marker': 'Annotation pin',
   'annotationPin.aria.popup': 'Annotation details',
   'annotationPin.empty': 'No notes for this pin.',
+  'annotationPin.aria.addPin': 'Add annotation pin',
 }

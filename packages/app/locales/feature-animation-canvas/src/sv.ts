@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Swedish. Stub — falls back to English. */
+/** Animation-canvas translations for Swedish. */
 export const sv: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Animationsduk',
+  'animationCanvas.aria.shape': 'Animerad form',
 }

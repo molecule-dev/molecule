@@ -6,4 +6,5 @@ export const eu: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Oharrak',
   'marginNotes.aria.panel': 'Atal honetarako oharrak',
   'marginNotes.dismiss': 'Ezkutatu oharrak',
+  'marginNotes.aria.pin': 'Ainguratu atal honen oharrak',
 }

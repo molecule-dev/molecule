@@ -8,4 +8,5 @@ export const lo: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'ປັບຂະໜາດບັນທຶກ',
   'pianoRoll.aria.note':
     'ໝາຍເຫດ {{pitch}} ເລີ່ມຕົ້ນທີ່ຈັງຫວະ {{startBeat}} ສຳລັບ {{durationBeats}} ຈັງຫວະ',
+  'pianoRoll.aria.cursor': 'ຕົວຊີ້ຢູ່ {{pitch}} ຈັງຫວະ {{beat}}',
 }

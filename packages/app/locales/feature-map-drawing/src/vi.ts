@@ -10,4 +10,5 @@ export const vi: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'Bề mặt vẽ bản đồ',
   'mapDrawing.tool.polygon': 'Đa giác',
   'mapDrawing.tool.circle': 'Vòng tròn',
+  'mapDrawing.tool.cancelDraft': 'Hủy bản nháp',
 }

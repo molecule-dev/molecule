@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Finnish. Stub — falls back to English. */
+/** Animation-canvas translations for Finnish. */
 export const fi: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Animaatiokangas',
+  'animationCanvas.aria.shape': 'Animoitu muoto',
 }

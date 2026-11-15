@@ -6,4 +6,5 @@ export const sr: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Означивач напомене',
   'annotationPin.aria.popup': 'Детаљи анотације',
   'annotationPin.empty': 'Нема белешки за ову пину.',
+  'annotationPin.aria.addPin': 'Додај означивач напомене',
 }

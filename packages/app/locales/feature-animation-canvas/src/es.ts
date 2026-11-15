@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Spanish. Stub — falls back to English. */
+/** Animation-canvas translations for Spanish. */
 export const es: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Lienzo de animación',
+  'animationCanvas.aria.shape': 'Forma animada',
 }

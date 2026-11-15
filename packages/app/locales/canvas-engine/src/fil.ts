@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Filipino. Stub — falls back to English. */
+/** Canvas-engine translations for Filipino. */
 export const fil: CanvasEngineTranslations = {
   'canvasEngine.aria.surface': 'Editor ng vector canvas',
 }

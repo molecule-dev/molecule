@@ -6,4 +6,5 @@ export const sl: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Opombe',
   'marginNotes.aria.panel': 'Opombe k temu razdelku',
   'marginNotes.dismiss': 'Skrij zapiske',
+  'marginNotes.aria.pin': 'Pripni opombe za ta razdelek',
 }

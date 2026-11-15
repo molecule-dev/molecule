@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Latvian. Stub — falls back to English. */
+/** Animation-canvas translations for Latvian. */
 export const lv: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'Animācijas audekls',
+  'animationCanvas.aria.shape': 'Animēta forma',
 }

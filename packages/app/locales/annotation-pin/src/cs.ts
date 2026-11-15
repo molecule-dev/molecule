@@ -6,4 +6,5 @@ export const cs: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'Značkovací kolík',
   'annotationPin.aria.popup': 'Podrobnosti o anotaci',
   'annotationPin.empty': 'K tomuto příspěvku nejsou žádné poznámky.',
+  'annotationPin.aria.addPin': 'Přidat značkovací kolík',
 }

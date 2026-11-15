@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Polish. Stub — falls back to English. */
+/** Canvas translations for Polish. */
 export const pl: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Powierzchnia płótna',
+  'canvas.aria.node': 'Węzeł płótna',
+  'canvas.aria.edge': 'Połączenie płótna',
+  'canvas.aria.resizeHandle': 'Zmień rozmiar węzła',
+  'canvas.aria.nodeSelected': 'Wybrano',
 }

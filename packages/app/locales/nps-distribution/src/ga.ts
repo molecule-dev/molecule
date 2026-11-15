@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for ga. Stub — falls back to English defaults. */
+/** NPS distribution translations for ga. */
 export const ga: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'Criticeoir',
+  'nps-distribution.tier.passive': 'Neodrach',
+  'nps-distribution.tier.promoter': 'Moltóir',
   'nps-distribution.aria-label': 'Cairt dáilte NPS, {{total}} freagraí',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'Scór {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} freagraí',
 }

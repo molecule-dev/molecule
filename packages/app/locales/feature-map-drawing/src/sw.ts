@@ -10,4 +10,5 @@ export const sw: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Mstari',
   'mapDrawing.tool.select': 'Chagua',
   'mapDrawing.tool.delete': 'Futa',
+  'mapDrawing.tool.cancelDraft': 'Ghairi rasimu',
 }

@@ -39,9 +39,10 @@ export interface MarginNoteKind {
   /**
    * How this kind reaches the phone panel. `'follow'` (default): the panel
    * shows it for the section being read, following the reader. `'tap'`: only
-   * when the reader taps a block it belongs to (and gone on the second tap) —
-   * for notes about one paragraph rather than the section. A tap shows the
-   * note even while its switch is off: on a phone the tap is how it is found.
+   * when the reader presses the pin button of a block it belongs to (and gone
+   * on the second press) — for notes about one paragraph rather than the
+   * section. The pin shows the note even while its switch is off: on a phone
+   * the pin is how it is found.
    */
   panel?: 'follow' | 'tap'
 }

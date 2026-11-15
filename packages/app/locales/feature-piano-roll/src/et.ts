@@ -8,4 +8,5 @@ export const et: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Märkme suuruse muutmine',
   'pianoRoll.aria.note':
     'Märkus {{pitch}} alustades löögist {{startBeat}} eest {{durationBeats}} rütmid',
+  'pianoRoll.aria.cursor': 'Kursor {{pitch}} peal löögil {{beat}}',
 }

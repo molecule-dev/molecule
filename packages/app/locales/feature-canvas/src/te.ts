@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Telugu. Stub — falls back to English. */
+/** Canvas translations for Telugu. */
 export const te: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'కాన్వాస్ ఉపరితలం',
+  'canvas.aria.node': 'కాన్వాస్ నోడ్',
+  'canvas.aria.edge': 'కాన్వాస్ కనెక్షన్',
+  'canvas.aria.resizeHandle': 'నోడ్ పరిమాణాన్ని మార్చు',
+  'canvas.aria.nodeSelected': 'ఎంపిక చేయబడింది',
 }

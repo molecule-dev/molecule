@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for kn. Stub — falls back to English defaults. */
+/** NPS distribution translations for kn. */
 export const kn: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'ವಿಮರ್ಶಕ',
+  'nps-distribution.tier.passive': 'ತಟಸ್ಥ',
+  'nps-distribution.tier.promoter': 'ಬೆಂಬಲಿಗ',
   'nps-distribution.aria-label': 'NPS ವಿತರಣಾ ಚಾರ್ಟ್, {{total}} ಪ್ರತಿಕ್ರಿಯೆಗಳು',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'ಅಂಕ {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} ಪ್ರತಿಕ್ರಿಯೆಗಳು',
 }

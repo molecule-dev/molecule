@@ -8,4 +8,5 @@ export const fa: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'تغییر اندازه یادداشت',
   'pianoRoll.aria.note':
     'توجه داشته باشید {{pitch}} شروع از ضرب و شتم {{startBeat}} برای {{durationBeats}} ضربان',
+  'pianoRoll.aria.cursor': 'مکان‌نما روی {{pitch}} در ضربان {{beat}}',
 }

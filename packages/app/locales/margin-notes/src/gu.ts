@@ -6,4 +6,5 @@ export const gu: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'નોંધો',
   'marginNotes.aria.panel': 'આ વિભાગ માટે નોંધો',
   'marginNotes.dismiss': 'નોંધો છુપાવો',
+  'marginNotes.aria.pin': 'આ વિભાગની નોંધો પિન કરો',
 }

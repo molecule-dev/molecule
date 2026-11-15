@@ -17,6 +17,10 @@ export interface MapDrawingToolbarProps {
   onDeleteSelected: () => void
   /** Whether anything is currently selected (drives delete-button enabled state). */
   hasSelection: boolean
+  /** Whether a draft (path vertices, circle or marquee) is in progress (drives cancel-button enabled state). */
+  hasDraft: boolean
+  /** Called when the user clicks the cancel-draft button. */
+  onCancelDraft: () => void
 }
 
 /**
@@ -28,16 +32,25 @@ export interface MapDrawingToolbarProps {
  * @returns Toolbar element.
  */
 export function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement {
-  const { tools, activeTool, onActiveToolChange, onDeleteSelected, hasSelection } = props
+  const {
+    tools,
+    activeTool,
+    onActiveToolChange,
+    onDeleteSelected,
+    hasSelection,
+    hasDraft,
+    onCancelDraft,
+  } = props
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  const labels: Record<ActiveTool | 'delete', string> = {
+  const labels: Record<ActiveTool | 'cancelDraft' | 'delete', string> = {
     polygon: t('mapDrawing.tool.polygon', {}, { defaultValue: 'Polygon' }),
     circle: t('mapDrawing.tool.circle', {}, { defaultValue: 'Circle' }),
     pin: t('mapDrawing.tool.pin', {}, { defaultValue: 'Pin' }),
     line: t('mapDrawing.tool.line', {}, { defaultValue: 'Line' }),
     select: t('mapDrawing.tool.select', {}, { defaultValue: 'Select' }),
+    cancelDraft: t('mapDrawing.tool.cancelDraft', {}, { defaultValue: 'Cancel draft' }),
     delete: t('mapDrawing.tool.delete', {}, { defaultValue: 'Delete' }),
   }
 
@@ -75,6 +88,16 @@ export function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement {
         className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
       >
         {labels.select}
+      </button>
+      <button
+        type="button"
+        data-mol-id="map-drawing-tool-cancel-draft"
+        disabled={!hasDraft}
+        aria-disabled={!hasDraft}
+        onClick={onCancelDraft}
+        className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
+      >
+        {labels.cancelDraft}
       </button>
       <button
         type="button"

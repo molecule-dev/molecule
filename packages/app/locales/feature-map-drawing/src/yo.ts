@@ -10,4 +10,5 @@ export const yo: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Ìlà',
   'mapDrawing.tool.select': 'Yan',
   'mapDrawing.tool.delete': 'Paarẹ́',
+  'mapDrawing.tool.cancelDraft': 'Fagilé àbáwọ́',
 }

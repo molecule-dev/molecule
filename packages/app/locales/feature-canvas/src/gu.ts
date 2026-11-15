@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Gujarati. Stub — falls back to English. */
+/** Canvas translations for Gujarati. */
 export const gu: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'કેનવાસની સપાટી',
+  'canvas.aria.node': 'કેનવાસનો નોડ',
+  'canvas.aria.edge': 'કેનવાસનું કનેક્શન',
+  'canvas.aria.resizeHandle': 'નોડનું કદ બદલો',
+  'canvas.aria.nodeSelected': 'પસંદ કરેલ',
 }

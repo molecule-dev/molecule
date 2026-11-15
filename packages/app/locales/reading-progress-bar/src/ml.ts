@@ -1,6 +1,6 @@
 import type { ReadingProgressBarTranslations } from './types.js'
 
-/** Reading-progress-bar translations for ml. Stub — falls back to English. */
+/** Reading-progress-bar translations for ml. */
 export const ml: ReadingProgressBarTranslations = {
-  'readingProgressBar.aria.label': 'Reading progress',
+  'readingProgressBar.aria.label': 'വായനയുടെ പുരോഗതി',
 }

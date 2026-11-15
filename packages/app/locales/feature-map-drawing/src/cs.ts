@@ -10,4 +10,5 @@ export const cs: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Kolík',
   'mapDrawing.tool.line': 'Čára',
   'mapDrawing.tool.select': 'Vybrat',
+  'mapDrawing.tool.cancelDraft': 'Zrušit náčrt',
 }

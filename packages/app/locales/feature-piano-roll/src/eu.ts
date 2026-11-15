@@ -8,4 +8,5 @@ export const eu: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Aldatu oharra tamaina',
   'pianoRoll.aria.note':
     'Oharra {{pitch}} erritmoan hasita {{startBeat}}-rako {{durationBeats}} taupadak',
+  'pianoRoll.aria.cursor': 'Kurtsorea {{pitch}} gainean, {{beat}} taupadan',
 }

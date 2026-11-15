@@ -6,4 +6,5 @@ export const ur: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'نوٹس',
   'marginNotes.aria.panel': 'اس سیکشن کے لیے نوٹس',
   'marginNotes.dismiss': 'نوٹ چھپائیں۔',
+  'marginNotes.aria.pin': 'اس سیکشن کے نوٹس پن کریں',
 }

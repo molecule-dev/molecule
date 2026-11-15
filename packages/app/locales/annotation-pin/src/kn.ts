@@ -6,4 +6,5 @@ export const kn: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'ಟಿಪ್ಪಣಿ ಪಿನ್',
   'annotationPin.aria.popup': 'ಟಿಪ್ಪಣಿ ವಿವರಗಳು',
   'annotationPin.empty': 'ಈ ಪಿನ್‌ಗೆ ಯಾವುದೇ ಟಿಪ್ಪಣಿಗಳಿಲ್ಲ.',
+  'annotationPin.aria.addPin': 'ಟಿಪ್ಪಣಿ ಪಿನ್ ಸೇರಿಸಿ',
 }

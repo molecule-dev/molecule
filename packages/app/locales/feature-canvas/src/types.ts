@@ -1,6 +1,10 @@
 /** Translation keys for the feature-canvas locale package. */
 export type CanvasTranslationKey =
-  'canvas.aria.surface' | 'canvas.aria.node' | 'canvas.aria.edge' | 'canvas.aria.resizeHandle'
+  | 'canvas.aria.surface'
+  | 'canvas.aria.node'
+  | 'canvas.aria.edge'
+  | 'canvas.aria.resizeHandle'
+  | 'canvas.aria.nodeSelected'
 
 /** Translation record mapping canvas keys to translated strings. */
 export type CanvasTranslations = Record<CanvasTranslationKey, string>

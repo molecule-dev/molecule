@@ -1,12 +1,12 @@
 import type { NpsDistributionTranslations } from './types.js'
 
-/** NPS distribution translations for gu. Stub — falls back to English defaults. */
+/** NPS distribution translations for gu. */
 export const gu: NpsDistributionTranslations = {
-  'nps-distribution.tier.detractor': 'Detractor',
-  'nps-distribution.tier.passive': 'Passive',
-  'nps-distribution.tier.promoter': 'Promoter',
+  'nps-distribution.tier.detractor': 'ટીકાકાર',
+  'nps-distribution.tier.passive': 'તટસ્થ',
+  'nps-distribution.tier.promoter': 'પ્રમોટર',
   'nps-distribution.aria-label': 'NPS વિતરણ ચાર્ટ, {{total}} પ્રતિભાવો',
-  'nps-distribution.row.aria': 'Score {{score}} ({{tier}}): {{count}}',
+  'nps-distribution.row.aria': 'સ્કોર {{score}} ({{tier}}): {{count}}',
   'nps-distribution.score.label': 'NPS',
-  'nps-distribution.score.responses': '{{total}} responses',
+  'nps-distribution.score.responses': '{{total}} પ્રતિભાવો',
 }

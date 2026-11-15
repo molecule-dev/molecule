@@ -1,8 +1,8 @@
 import type { HeroMetricCardTranslations } from './types.js'
 
-/** Hero metric card translations for mr. Stub — falls back to English defaults. */
+/** Hero metric card translations for mr. */
 export const mr: HeroMetricCardTranslations = {
-  'hero-metric-card.loading': 'Loading metric…',
-  'hero-metric-card.trend.up': 'Trending up',
-  'hero-metric-card.trend.down': 'Trending down',
+  'hero-metric-card.loading': 'मेट्रिक लोड होत आहे…',
+  'hero-metric-card.trend.up': 'वाढता कल',
+  'hero-metric-card.trend.down': 'घटता कल',
 }

@@ -6,4 +6,5 @@ export const ar: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'دبوس التوضيح',
   'annotationPin.aria.popup': 'تفاصيل التعليق',
   'annotationPin.empty': 'لا توجد ملاحظات لهذا المنشور.',
+  'annotationPin.aria.addPin': 'إضافة دبوس توضيح',
 }

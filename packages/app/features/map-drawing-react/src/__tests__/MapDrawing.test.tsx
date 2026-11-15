@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, fireEvent, render } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -143,7 +143,7 @@ describe('identityBackend', () => {
 })
 
 describe('<MapDrawing> tool switching', () => {
-  it('renders one toolbar button per tool plus select + delete', () => {
+  it('renders one toolbar button per tool plus select, cancel draft and delete', () => {
     const { container } = render(
       <Wrap>
         <MapDrawing onChange={() => {}} />
@@ -154,6 +154,7 @@ describe('<MapDrawing> tool switching', () => {
     expect(container.querySelector('[data-mol-id="map-drawing-tool-pin"]')).not.toBeNull()
     expect(container.querySelector('[data-mol-id="map-drawing-tool-line"]')).not.toBeNull()
     expect(container.querySelector('[data-mol-id="map-drawing-tool-select"]')).not.toBeNull()
+    expect(container.querySelector('[data-mol-id="map-drawing-tool-cancel-draft"]')).not.toBeNull()
     expect(container.querySelector('[data-mol-id="map-drawing-tool-delete"]')).not.toBeNull()
   })
 
@@ -326,7 +327,7 @@ describe('<MapDrawing> delete-selected', () => {
     { id: 'c', kind: 'pin', geometry: { type: 'Point', coordinates: [150, 150] } },
   ]
 
-  it('selects shapes whose anchor lies inside the marquee and deletes them via Delete key', () => {
+  it('selects shapes whose anchor lies inside the marquee and deletes them via the toolbar delete button', () => {
     const onChange = vi.fn()
     const { container } = render(
       <Wrap>
@@ -347,32 +348,10 @@ describe('<MapDrawing> delete-selected', () => {
     ) as HTMLButtonElement
     expect(deleteBtn.disabled).toBe(false)
 
-    act(() => {
-      fireEvent.keyDown(surface, { key: 'Delete' })
-    })
-
-    expect(onChange).toHaveBeenCalledTimes(1)
-    const next = onChange.mock.calls[0][0] as MapShape[]
-    expect(next.map((s) => s.id)).toEqual(['c'])
-  })
-
-  it('deletes the selection when the toolbar delete button is clicked', () => {
-    const onChange = vi.fn()
-    const { container } = render(
-      <Wrap>
-        <MapDrawing initialShapes={seedShapes} onChange={onChange} activeTool="select" />
-      </Wrap>,
-    )
-    stubSurfaceRect(container)
-    const surface = container.querySelector('[data-mol-id="map-drawing-surface"]') as HTMLElement
-
-    fireEvent.pointerDown(surface, { clientX: 0, clientY: 0 })
-    fireEvent.pointerMove(surface, { clientX: 80, clientY: 80 })
-    fireEvent.pointerUp(surface, { clientX: 80, clientY: 80 })
-
-    const deleteBtn = container.querySelector(
-      '[data-mol-id="map-drawing-tool-delete"]',
-    ) as HTMLButtonElement
+    // The delete button is a native <button>, so Enter/Space activation is
+    // the platform's contract (jsdom does not synthesize it — fire the click
+    // the activation would dispatch).
+    expect(deleteBtn.tagName).toBe('BUTTON')
     fireEvent.click(deleteBtn)
 
     expect(onChange).toHaveBeenCalledTimes(1)
@@ -390,6 +369,73 @@ describe('<MapDrawing> delete-selected', () => {
       '[data-mol-id="map-drawing-tool-delete"]',
     ) as HTMLButtonElement
     expect(deleteBtn.disabled).toBe(true)
+  })
+})
+
+describe('<MapDrawing> cancel draft', () => {
+  it('disables the cancel-draft button when no draft is in progress', () => {
+    const { container } = render(
+      <Wrap>
+        <MapDrawing onChange={() => {}} />
+      </Wrap>,
+    )
+    const cancelBtn = container.querySelector(
+      '[data-mol-id="map-drawing-tool-cancel-draft"]',
+    ) as HTMLButtonElement
+    // Native <button>: Enter/Space activation is the platform's contract,
+    // so a disabled button is exactly "no keyboard path while idle".
+    expect(cancelBtn.tagName).toBe('BUTTON')
+    expect(cancelBtn.disabled).toBe(true)
+    expect(cancelBtn.getAttribute('aria-disabled')).toBe('true')
+  })
+
+  it('discards an in-progress polygon draft without committing', () => {
+    const onChange = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <MapDrawing onChange={onChange} />
+      </Wrap>,
+    )
+    stubSurfaceRect(container)
+    const surface = container.querySelector('[data-mol-id="map-drawing-surface"]') as HTMLElement
+
+    fireEvent.pointerDown(surface, { clientX: 10, clientY: 10 })
+    fireEvent.pointerUp(surface, { clientX: 10, clientY: 10 })
+    expect(container.querySelector('[data-mol-id="map-drawing-draft-polygon"]')).not.toBeNull()
+
+    const cancelBtn = container.querySelector(
+      '[data-mol-id="map-drawing-tool-cancel-draft"]',
+    ) as HTMLButtonElement
+    expect(cancelBtn.disabled).toBe(false)
+
+    fireEvent.click(cancelBtn)
+    expect(container.querySelector('[data-mol-id="map-drawing-draft-polygon"]')).toBeNull()
+    expect(onChange).not.toHaveBeenCalled()
+    expect(cancelBtn.disabled).toBe(true)
+  })
+
+  it('discards an in-progress circle drag without committing', () => {
+    const onChange = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <MapDrawing onChange={onChange} activeTool="circle" />
+      </Wrap>,
+    )
+    stubSurfaceRect(container)
+    const surface = container.querySelector('[data-mol-id="map-drawing-surface"]') as HTMLElement
+
+    fireEvent.pointerDown(surface, { clientX: 50, clientY: 50 })
+    expect(container.querySelector('[data-mol-id="map-drawing-draft-circle"]')).not.toBeNull()
+
+    const cancelBtn = container.querySelector(
+      '[data-mol-id="map-drawing-tool-cancel-draft"]',
+    ) as HTMLButtonElement
+    expect(cancelBtn.disabled).toBe(false)
+
+    fireEvent.click(cancelBtn)
+    expect(container.querySelector('[data-mol-id="map-drawing-draft-circle"]')).toBeNull()
+    expect(onChange).not.toHaveBeenCalled()
+    expect(cancelBtn.disabled).toBe(true)
   })
 })
 

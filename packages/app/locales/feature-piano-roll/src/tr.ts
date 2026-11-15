@@ -8,4 +8,5 @@ export const tr: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Yeniden boyutlandırma notu',
   'pianoRoll.aria.note':
     'Not {{pitch}} vuruştan başlayarak {{startBeat}} için {{durationBeats}} vuruşlar',
+  'pianoRoll.aria.cursor': 'İmleç {{pitch}} üzerinde, {{beat}} vuruşunda',
 }

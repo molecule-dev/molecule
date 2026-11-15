@@ -6,4 +6,5 @@ export const sk: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Poznámky',
   'marginNotes.aria.panel': 'Poznámky k tejto časti',
   'marginNotes.dismiss': 'Skryť poznámky',
+  'marginNotes.aria.pin': 'Pripnúť poznámky k tejto časti',
 }

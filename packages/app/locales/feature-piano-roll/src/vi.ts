@@ -8,4 +8,5 @@ export const vi: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Ghi chú thay đổi kích thước',
   'pianoRoll.aria.note':
     'Ghi chú {{pitch}} bắt đầu từ nhịp {{startBeat}} vì {{durationBeats}} nhịp điệu',
+  'pianoRoll.aria.cursor': 'Con trỏ tại {{pitch}} ở nhịp {{beat}}',
 }

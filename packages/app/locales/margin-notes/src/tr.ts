@@ -6,4 +6,5 @@ export const tr: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Notlar',
   'marginNotes.aria.panel': 'Bu bölümle ilgili notlar',
   'marginNotes.dismiss': 'Notları gizle',
+  'marginNotes.aria.pin': 'Bu bölümün notlarını sabitle',
 }

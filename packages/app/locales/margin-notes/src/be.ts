@@ -6,4 +6,5 @@ export const be: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Заўвагі',
   'marginNotes.aria.panel': 'Заўвагі да гэтага раздзела',
   'marginNotes.dismiss': 'Схаваць нататкі',
+  'marginNotes.aria.pin': 'Замацаваць нататкі гэтага раздзела',
 }

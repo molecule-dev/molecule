@@ -6,4 +6,5 @@ export const my: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'မှတ်စုများ',
   'marginNotes.aria.panel': 'ဤအပိုင်းအတွက် မှတ်စုများ',
   'marginNotes.dismiss': 'မှတ်စုများကို ဝှက်ပါ',
+  'marginNotes.aria.pin': 'ဤအပိုင်း၏ မှတ်စုများကို ပင်တင်ပါ',
 }

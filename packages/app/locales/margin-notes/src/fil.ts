@@ -6,4 +6,5 @@ export const fil: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Mga Tala',
   'marginNotes.aria.panel': 'Mga tala para sa seksyong ito',
   'marginNotes.dismiss': 'Itago ang mga tala',
+  'marginNotes.aria.pin': 'I-pin ang mga tala para sa seksyong ito',
 }

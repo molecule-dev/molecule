@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Georgian. Stub — falls back to English. */
+/** Canvas translations for Georgian. */
 export const ka: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'ტილოს ზედაპირი',
+  'canvas.aria.node': 'ტილოს კვანძი',
+  'canvas.aria.edge': 'ტილოს კავშირი',
+  'canvas.aria.resizeHandle': 'კვანძის ზომის შეცვლა',
+  'canvas.aria.nodeSelected': 'არჩეული',
 }

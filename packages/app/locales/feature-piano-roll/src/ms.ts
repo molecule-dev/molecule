@@ -8,4 +8,5 @@ export const ms: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Ubah saiz nota',
   'pianoRoll.aria.note':
     'Nota {{pitch}} bermula pada rentak {{startBeat}} untuk {{durationBeats}} rentak',
+  'pianoRoll.aria.cursor': 'Kursor pada {{pitch}} pada rentak {{beat}}',
 }

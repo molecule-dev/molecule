@@ -10,4 +10,5 @@ export const th: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'เส้น',
   'mapDrawing.tool.select': 'เลือก',
   'mapDrawing.tool.delete': 'ลบ',
+  'mapDrawing.tool.cancelDraft': 'ยกเลิกร่าง',
 }

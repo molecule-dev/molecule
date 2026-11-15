@@ -10,4 +10,5 @@ export const el: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Καρφίτσα',
   'mapDrawing.tool.line': 'Γραμμή',
   'mapDrawing.tool.select': 'Επιλέγω',
+  'mapDrawing.tool.cancelDraft': 'Ακύρωση προσχέδιου',
 }

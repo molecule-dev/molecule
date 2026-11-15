@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for Finnish. Stub — falls back to English. */
+/** Canvas-engine translations for Finnish. */
 export const fi: CanvasEngineTranslations = {
-  'canvasEngine.aria.surface': 'Vektorikuvaeditori',
+  'canvasEngine.aria.surface': 'Vektorikanvaaseditori',
 }

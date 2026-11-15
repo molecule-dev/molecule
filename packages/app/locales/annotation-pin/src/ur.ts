@@ -6,4 +6,5 @@ export const ur: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'تشریح پن',
   'annotationPin.aria.popup': 'تشریح کی تفصیلات',
   'annotationPin.empty': 'اس پن کے لیے کوئی نوٹس نہیں ہے۔',
+  'annotationPin.aria.addPin': 'تشریح پن شامل کریں',
 }

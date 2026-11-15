@@ -6,4 +6,5 @@ export const fa: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.marker': 'پین حاشیه‌نویسی',
   'annotationPin.aria.popup': 'جزئیات حاشیه‌نویسی',
   'annotationPin.empty': 'یادداشتی برای این پین وجود ندارد.',
+  'annotationPin.aria.addPin': 'افزودن پین حاشیه‌نویسی',
 }

@@ -10,4 +10,5 @@ export const ar: Partial<MapDrawingTranslations> = {
   'mapDrawing.surface.aria': 'مساحات رسم الخرائط',
   'mapDrawing.tool.polygon': 'مضلع',
   'mapDrawing.tool.circle': 'دائرة',
+  'mapDrawing.tool.cancelDraft': 'إلغاء المسودة',
 }

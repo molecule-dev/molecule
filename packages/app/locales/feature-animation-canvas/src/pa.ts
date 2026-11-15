@@ -1,7 +1,7 @@
 import type { AnimationCanvasTranslations } from './types.js'
 
-/** Animation-canvas translations for Punjabi. Stub — falls back to English. */
+/** Animation-canvas translations for Punjabi. */
 export const pa: AnimationCanvasTranslations = {
-  'animationCanvas.aria.canvas': 'Animation canvas',
-  'animationCanvas.aria.shape': 'Animated shape',
+  'animationCanvas.aria.canvas': 'ਐਨੀਮੇਸ਼ਨ ਕੈਨਵਸ',
+  'animationCanvas.aria.shape': 'ਐਨੀਮੇਟਿਡ ਆਕਾਰ',
 }

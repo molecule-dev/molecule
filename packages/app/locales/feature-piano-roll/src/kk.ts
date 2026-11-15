@@ -8,4 +8,5 @@ export const kk: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'Ескертпенің өлшемін өзгерту',
   'pianoRoll.aria.note':
     'Ескерту {{pitch}} соғудан бастап {{startBeat}} үшін {{durationBeats}} соққылар',
+  'pianoRoll.aria.cursor': 'Курсор {{pitch}} үстінде, {{beat}} соғуда',
 }

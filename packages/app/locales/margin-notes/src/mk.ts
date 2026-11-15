@@ -6,4 +6,5 @@ export const mk: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.notes': 'Белешки',
   'marginNotes.aria.panel': 'Белешки за овој дел',
   'marginNotes.dismiss': 'Сокриј белешки',
+  'marginNotes.aria.pin': 'Прикачи ги белешките за овој дел',
 }

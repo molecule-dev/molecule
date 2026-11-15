@@ -8,4 +8,5 @@ export const hi: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.resize': 'नोट का आकार बदलें',
   'pianoRoll.aria.note':
     'टिप्पणी {{pitch}} ताल से शुरू {{startBeat}} के लिए {{durationBeats}} धड़कनें',
+  'pianoRoll.aria.cursor': 'कर्सर {{pitch}} पर, ताल {{beat}} पर',
 }

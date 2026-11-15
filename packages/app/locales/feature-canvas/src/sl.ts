@@ -1,9 +1,10 @@
 import type { CanvasTranslations } from './types.js'
 
-/** Canvas translations for Slovenian. Stub — falls back to English. */
+/** Canvas translations for Slovenian. */
 export const sl: CanvasTranslations = {
-  'canvas.aria.surface': 'Canvas surface',
-  'canvas.aria.node': 'Canvas node',
-  'canvas.aria.edge': 'Canvas edge',
-  'canvas.aria.resizeHandle': 'Resize node',
+  'canvas.aria.surface': 'Površina platna',
+  'canvas.aria.node': 'Vozlišče platna',
+  'canvas.aria.edge': 'Povezava platna',
+  'canvas.aria.resizeHandle': 'Spremeni velikost vozlišča',
+  'canvas.aria.nodeSelected': 'Izbrano',
 }

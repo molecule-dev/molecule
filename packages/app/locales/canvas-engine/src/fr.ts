@@ -1,6 +1,6 @@
 import type { CanvasEngineTranslations } from './types.js'
 
-/** Canvas-engine translations for French. Stub — falls back to English. */
+/** Canvas-engine translations for French. */
 export const fr: CanvasEngineTranslations = {
   'canvasEngine.aria.surface': 'Éditeur de canevas vectoriel',
 }

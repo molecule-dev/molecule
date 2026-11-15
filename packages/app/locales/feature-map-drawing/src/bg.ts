@@ -10,4 +10,5 @@ export const bg: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Линия',
   'mapDrawing.tool.select': 'Изберете',
   'mapDrawing.tool.delete': 'Изтриване',
+  'mapDrawing.tool.cancelDraft': 'Отказ на черновата',
 }
