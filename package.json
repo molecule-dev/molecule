@@ -67,7 +67,7 @@
     "@tanstack/table-core": "8.21.3",
     "@tanstack/virtual-core": "3.19.7",
     "@types/node": "26.6.5",
-    "eslint": "10.13.0",
+    "eslint": "10.15.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsdoc": "63.3.2",
     "eslint-plugin-simple-import-sort": "14.0.0",

@@ -40,9 +40,9 @@ const { paymentProvider } = await import('../bondAdapter.js')
 /** Helper to build a fake Google SubscriptionPurchaseV2. */
 function makeSubscription(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    latestOrderId: 'GPA.1234-5678',
     lineItems: [
       {
+        latestSuccessfulOrderId: 'GPA.1234-5678',
         expiryTime: new Date(Date.now() + 86_400_000).toISOString(), // +1 day
         autoRenewingPlan: { autoRenewEnabled: true },
       },
@@ -249,8 +249,13 @@ describe('paymentProvider', () => {
       expect(mockVerifySubscription).toHaveBeenCalledWith('sub-id', 'the-token')
     })
 
-    it('returns transactionId as undefined when latestOrderId is missing', async () => {
-      const sub = makeSubscription({ latestOrderId: undefined })
+    it('returns transactionId as undefined when the line item has no latestSuccessfulOrderId', async () => {
+      // The deprecated subscription-level `latestOrderId` is not read: the order id is the line
+      // item's own `latestSuccessfulOrderId`.
+      const sub = makeSubscription({
+        latestOrderId: 'GPA.legacy-field',
+        lineItems: [{ expiryTime: new Date(Date.now() + 86_400_000).toISOString() }],
+      })
       mockVerifySubscription.mockResolvedValue(sub)
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
@@ -353,9 +358,9 @@ describe('paymentProvider', () => {
     it('verifies the token and derives productId/expiry/order id from the VERIFIED subscription', async () => {
       // The verified subscription's product wins, not the body-supplied subscriptionId.
       const sub = {
-        latestOrderId: 'GPA.1234-5678',
         lineItems: [
           {
+            latestSuccessfulOrderId: 'GPA.1234-5678',
             productId: 'premium_monthly',
             expiryTime: new Date(Date.now() + 86_400_000).toISOString(),
             autoRenewingPlan: { autoRenewEnabled: true },

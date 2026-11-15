@@ -186,7 +186,7 @@ export const paymentProvider: PaymentProvider = {
 
       const verified: VerifiedSubscription = {
         productId: verifiedProductId ?? productId,
-        transactionId: subscription.latestOrderId ?? undefined,
+        transactionId: lineItem?.latestSuccessfulOrderId ?? undefined,
         expiresAt: lineItem?.expiryTime ?? undefined,
         autoRenews: lineItem?.autoRenewingPlan?.autoRenewEnabled ?? undefined,
         data: subscription,
@@ -309,7 +309,7 @@ export const paymentProvider: PaymentProvider = {
       const lineItem = subscription.lineItems?.[0]
 
       const parsed: ParsedNotification = {
-        transactionId: subscription.latestOrderId ?? notification.subscriptionId,
+        transactionId: lineItem?.latestSuccessfulOrderId ?? notification.subscriptionId,
         productId: lineItem?.productId ?? notification.subscriptionId,
         type,
         expiresAt: lineItem?.expiryTime ?? undefined,

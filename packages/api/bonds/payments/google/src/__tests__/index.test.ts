@@ -54,10 +54,10 @@ describe('Google Play Verification', () => {
     it('should verify a subscription purchase', async () => {
       const mockSubscription: androidpublisher_v3.Schema$SubscriptionPurchaseV2 = {
         subscriptionState: 'SUBSCRIPTION_STATE_ACTIVE',
-        latestOrderId: 'GPA.1234-5678-9012',
         startTime: '2023-11-14T00:00:00Z',
         lineItems: [
           {
+            latestSuccessfulOrderId: 'GPA.1234-5678-9012',
             productId: 'premium_monthly',
             expiryTime: '2023-12-14T00:00:00Z',
             autoRenewingPlan: { autoRenewEnabled: true },
@@ -242,10 +242,10 @@ describe('Google Play Verification', () => {
 
       const subscription: androidpublisher_v3.Schema$SubscriptionPurchaseV2 = {
         subscriptionState: 'SUBSCRIPTION_STATE_ACTIVE',
-        latestOrderId: 'GPA.1234-5678-9012',
         startTime: '2023-11-14T00:00:00.000Z',
         lineItems: [
           {
+            latestSuccessfulOrderId: 'GPA.1234-5678-9012',
             productId: 'premium_monthly',
             expiryTime: '2023-12-14T00:00:00.000Z',
             autoRenewingPlan: { autoRenewEnabled: true },
@@ -271,7 +271,6 @@ describe('Google Play Verification', () => {
 
       const subscription: androidpublisher_v3.Schema$SubscriptionPurchaseV2 = {
         subscriptionState: 'SUBSCRIPTION_STATE_CANCELED',
-        latestOrderId: 'GPA.1234-5678-9012',
         startTime: '2023-11-14T00:00:00.000Z',
         canceledStateContext: {
           userInitiatedCancellation: {
@@ -311,7 +310,6 @@ describe('Google Play Verification', () => {
       for (const [googleState, expectedStatus] of Object.entries(stateMap)) {
         const subscription: androidpublisher_v3.Schema$SubscriptionPurchaseV2 = {
           subscriptionState: googleState,
-          latestOrderId: 'GPA.1234-5678-9012',
           lineItems: [{ productId: 'test', autoRenewingPlan: {} }],
         }
 
@@ -325,7 +323,6 @@ describe('Google Play Verification', () => {
 
       const subscription: androidpublisher_v3.Schema$SubscriptionPurchaseV2 = {
         subscriptionState: 'SUBSCRIPTION_STATE_ACTIVE',
-        latestOrderId: 'GPA.1234-5678-9012',
         startTime: '2023-11-14T00:00:00.000Z',
         lineItems: [],
       }
@@ -341,7 +338,6 @@ describe('Google Play Verification', () => {
 
       const subscription: androidpublisher_v3.Schema$SubscriptionPurchaseV2 = {
         subscriptionState: 'UNKNOWN_STATE',
-        latestOrderId: 'GPA.1234-5678-9012',
       }
 
       const normalized = normalizeSubscription(subscription, 'test')
@@ -354,7 +350,6 @@ describe('Google Play Verification', () => {
 
       const subscription: androidpublisher_v3.Schema$SubscriptionPurchaseV2 = {
         subscriptionState: 'SUBSCRIPTION_STATE_ACTIVE',
-        latestOrderId: 'GPA.1234-5678-9012',
       }
 
       const normalized = normalizeSubscription(subscription, 'test')

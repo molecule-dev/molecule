@@ -170,7 +170,9 @@ export const normalizeSubscription = (
 
   return {
     provider: 'google',
-    subscriptionId: subscription.latestOrderId || '',
+    // The subscription-level `latestOrderId` is deprecated (and gone from the client's types):
+    // each line item carries the latest successful order of its own item.
+    subscriptionId: lineItem?.latestSuccessfulOrderId || '',
     productId,
     status: stateMap[subscription.subscriptionState || ''] || 'unknown',
     isActive: isSubscriptionActive(subscription),
