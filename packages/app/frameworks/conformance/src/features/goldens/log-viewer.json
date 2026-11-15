@@ -1,0 +1,298 @@
+{
+ "exports": [
+  "LogViewer"
+ ],
+ "values": {},
+ "cases": {
+  "LogViewer": {
+   "no entries and no empty state": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no entries with an empty state": {
+    "snapshots": [
+     "<p data-empty>\nNo logs\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "one entry": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two entries": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every severity level": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(148, 163, 184); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ntrace\n</span>\n<span class=\"cb5823274\">\ntrace message\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\ndebug message\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:02\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"cb5823274\">\ninfo message\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:03\n</span>\n<span style=\"background: rgb(234, 179, 8); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nwarn\n</span>\n<span class=\"cb5823274\">\nwarn message\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:04\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nerror message\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:05\n</span>\n<span style=\"background: rgb(185, 28, 28); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nfatal\n</span>\n<span class=\"cb5823274\">\nfatal message\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "service label and trace id": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:02\n</span>\n<span style=\"background: rgb(234, 179, 8); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nwarn\n</span>\n<span class=\"c7f74399a\">\ndb\n</span>\n<span class=\"cb5823274\">\nslow query\n</span>\n<span style=\"opacity: 0.6\">\ntr-42\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"query\": \"select 1\",\n  \"ms\": 1200\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no optional fields": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "string structured data": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\nraw text payload\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "multiline string structured data": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\nline one\nline two\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "object structured data": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": \"ECONNREFUSED\",\n  \"nested\": {\n    \"a\": 1\n  },\n  \"list\": [\n    1,\n    2\n  ]\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "array structured data": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n[\n  1,\n  \"two\",\n  {\n    \"three\": 3\n  }\n]\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "null structured data": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\nnull\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "number structured data": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n42\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "false structured data": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\nfalse\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty string structured data": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node-valued entry fields": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n<em>\n10:03\n</em>\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"c7f74399a\">\n<code>\nworker\n</code>\n</span>\n<span class=\"cb5823274\">\n<strong>\nfatal\n</strong>\ncrash\n</span>\n<span style=\"opacity: 0.6\">\n<s>\ntr-9\n</s>\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"ok\": false\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2 cd75bbd18\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty state is ignored while there are entries": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking a summary expands the row and calls onToggle": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details open>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onToggle",
+      "args": [
+       "1",
+       true
+      ]
+     }
+    ]
+   },
+   "clicking a summary twice collapses the row": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details open>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onToggle",
+      "args": [
+       "1",
+       true
+      ]
+     },
+     {
+      "name": "onToggle",
+      "args": [
+       "1",
+       false
+      ]
+     }
+    ]
+   },
+   "clicking a second row leaves the first closed": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details open>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onToggle",
+      "args": [
+       "2",
+       true
+      ]
+     }
+    ]
+   },
+   "expanding two rows": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details open>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details open>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details open>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onToggle",
+      "args": [
+       "1",
+       true
+      ]
+     },
+     {
+      "name": "onToggle",
+      "args": [
+       "2",
+       true
+      ]
+     }
+    ]
+   },
+   "a props change replaces the entries": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a props change adds an entry": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a data change reformats the panel": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 503\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a service label appears on a props change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n00:00\n</span>\n<span style=\"background: rgb(96, 165, 250); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ndebug\n</span>\n<span class=\"c7f74399a\">\nqueue\n</span>\n<span class=\"cb5823274\">\nm\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty state arrives on a props change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n</div>\n@route /",
+     "<p data-empty>\nNo logs\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "entries empty out and the empty state renders": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<p data-empty>\nNo logs\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "className changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2 cd75bbd18\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an expanded row stays open through a className change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details open>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2 cd75bbd18\" role=\"log\">\n<details open>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onToggle",
+      "args": [
+       "1",
+       true
+      ]
+     }
+    ]
+   },
+   "an expanded row disappears with its entry": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details open>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onToggle",
+      "args": [
+       "1",
+       true
+      ]
+     }
+    ]
+   },
+   "no entries and no empty state, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two entries, then entries again as equal new objects": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details data-conformance-mark=\"0\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details data-conformance-mark=\"1\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details data-conformance-mark=\"0\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details data-conformance-mark=\"1\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two entries, then entries reversed": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details>\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details data-conformance-mark=\"0\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n<details data-conformance-mark=\"1\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\" role=\"log\">\n<details data-conformance-mark=\"1\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:01\n</span>\n<span style=\"background: rgb(239, 68, 68); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\nerror\n</span>\n<span class=\"cb5823274\">\nboom\n</span>\n<span style=\"opacity: 0.6\">\ntrace-xyz\n</span>\n</summary>\n<pre class=\"c4647f690 c9cd623cf\" style=\"overflow-x: auto\">\n{\n  \"code\": 500\n}\n</pre>\n</details>\n<details data-conformance-mark=\"0\">\n<summary class=\"c13d4ff0f c1e8176ab c42740ba6 c4647f690 c8d3cd30e c9566e21c ca76eb0c4 cc2d72006 ccae02ff2 cd9b20003\">\n<span style=\"opacity: 0.7; text-align: right; width: 48px\">\n10:00\n</span>\n<span style=\"background: rgb(34, 197, 94); border-radius: 4px; color: rgb(255, 255, 255); display: inline-block; font-weight: 700; min-width: 48px; padding: 0px 6px; text-align: center; text-transform: uppercase\">\ninfo\n</span>\n<span class=\"c7f74399a\">\nauth-api\n</span>\n<span class=\"cb5823274\">\nstarted up\n</span>\n</summary>\n</details>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

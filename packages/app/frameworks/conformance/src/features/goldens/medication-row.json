@@ -1,0 +1,154 @@
+{
+ "exports": [
+  "MedicationRow"
+ ],
+ "values": {},
+ "cases": {
+  "MedicationRow": {
+   "name only": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name and dosage": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n<span class=\"c445db9b9 c80b1c428\">\n10mg\n</span>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name and form": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n<span class=\"c4647f690\">\ntablet\n</span>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "dosage and form together": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n<span class=\"c445db9b9 c80b1c428\">\n1 tablet\n</span>\n<span class=\"c4647f690\">\ntablet\n</span>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "instructions": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<p class=\"c445db9b9\">\nTake with water in the morning\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "pill color dot": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<span aria-hidden=\"true\" class=\"c9052b18c ca596e575\" style=\"background: rgb(74, 222, 128); height: 24px; width: 24px\">\n</span>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "prescriber": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\nPrescribed by Dr. Sarah Chen\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a zero day supply still renders": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\n· 0 day supply\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a zero refill count still renders": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\n· 0 refills\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "supply days and refills": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\n· 14 day supply\n</span>\n<span class=\"c4647f690\">\n· 2 refills\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "prescriber, supply days and refills": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\nPrescribed by Dr. Sarah Chen\n</span>\n<span class=\"c4647f690 c7f74399a\">\n· 30 day supply\n</span>\n<span class=\"c4647f690\">\n· 3 refills\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "actions slot": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n<div class=\"ca596e575\">\n<button data-actions type=\"button\">\nMark taken\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every prop together": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<span aria-hidden=\"true\" class=\"c9052b18c ca596e575\" style=\"background: rgb(74, 222, 128); height: 24px; width: 24px\">\n</span>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n<span class=\"c445db9b9 c80b1c428\">\n10mg\n</span>\n<span class=\"c4647f690\">\ntablet\n</span>\n</header>\n<p class=\"c445db9b9\">\nTake with water in the morning\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\nPrescribed by Dr. Sarah Chen\n</span>\n<span class=\"c4647f690 c7f74399a\">\n· 14 day supply\n</span>\n<span class=\"c4647f690\">\n· 2 refills\n</span>\n</div>\n</div>\n<div class=\"ca596e575\">\n<button data-actions type=\"button\">\nMark taken\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node name, dosage, form and instructions": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\n<strong data-node=\"name\">\nLisinopril\n</strong>\n</h3>\n<span class=\"c445db9b9 c80b1c428\">\n<em data-node=\"dosage\">\n10mg\n</em>\n</span>\n<span class=\"c4647f690\">\n<span data-node=\"form\">\ntablet\n</span>\n</span>\n</header>\n<p class=\"c445db9b9\">\n<span data-node=\"instructions\">\nTake with water\n</span>\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node prescriber and actions": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\nPrescribed by \n<strong data-node=\"prescriber\">\nDr. Sarah Chen\n</strong>\n</span>\n</div>\n</div>\n<div class=\"ca596e575\">\n<button data-actions type=\"button\">\nMark taken\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty strings omit their branches": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className only": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "dosage, form and instructions appear on change": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n<span class=\"c445db9b9 c80b1c428\">\n10mg\n</span>\n<span class=\"c4647f690\">\ntablet\n</span>\n</header>\n<p class=\"c445db9b9\">\nTake with food\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the supply countdown updates": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\n· 14 day supply\n</span>\n<span class=\"c4647f690\">\n· 2 refills\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\n· 7 day supply\n</span>\n<span class=\"c4647f690\">\n· 1 refills\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the pill color dot is removed": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<span aria-hidden=\"true\" class=\"c9052b18c ca596e575\" style=\"background: rgb(74, 222, 128); height: 24px; width: 24px\">\n</span>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "prescriber and instructions are removed": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<p class=\"c445db9b9\">\nTake with food\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\nPrescribed by Dr. Sarah Chen\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "labels follow a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\nPrescribed by Dr. Sarah Chen\n</span>\n<span class=\"c4647f690 c7f74399a\">\n· 14 day supply\n</span>\n<span class=\"c4647f690\">\n· 2 refills\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\n⟦Prescrit par⟧ Dr. Sarah Chen\n</span>\n<span class=\"c4647f690 c7f74399a\">\n· ⟦14 jours de fourniture⟧\n</span>\n<span class=\"c4647f690\">\n· ⟦2 renouvellements⟧\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<header class=\"c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<h3 class=\"c0d99ed10 c504afaf4\">\nLisinopril\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

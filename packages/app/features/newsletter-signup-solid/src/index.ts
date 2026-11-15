@@ -1,0 +1,47 @@
+/**
+ * Solid email subscribe form.
+ *
+ * Exports `NewsletterSignup` with inline + stacked layouts. Tracks its own
+ * submitting / error / success state; the app owns the subscription
+ * side-effect via `onSubscribe`. It is the Solid counterpart of
+ * `@molecule/app-newsletter-signup-react`: same props (React names) and the
+ * same DOM for the same input.
+ *
+ * @example
+ * ```tsx
+ * import { NewsletterSignup } from '@molecule/app-newsletter-signup-solid'
+ *
+ * declare const api: { subscribe: (email: string) => Promise<void> }
+ *
+ * export function Subscribe() {
+ *   return (
+ *     <NewsletterSignup
+ *       title="Stay in the loop"
+ *       description="Get weekly updates delivered to your inbox."
+ *       onSubscribe={async (email) => {
+ *         await api.subscribe(email)
+ *       }}
+ *       layout="inline"
+ *       successContent={<p>Thanks for subscribing!</p>}
+ *     />
+ *   )
+ * }
+ * ```
+ *
+ * @remarks
+ * Requires a wired ClassMap bond and `@molecule/app-solid`'s i18n provider
+ * above it — `getClassMap()` and `useTranslation()` both throw before wiring.
+ * Pair with `@molecule/app-locales-newsletter-signup` for the placeholder /
+ * button strings in 79 languages.
+ *
+ * ALWAYS pass `successContent` — without it a successful submit only clears
+ * the input and re-renders the empty form (no built-in "thanks" message).
+ * Return a Promise from `onSubscribe` so double-submits are blocked while in
+ * flight; a rejected Promise renders the error's `message` verbatim below the
+ * form, so throw user-readable (ideally pre-translated) messages.
+ *
+ * @module
+ */
+
+export * from './NewsletterSignup.jsx'
+export * from './types.js'

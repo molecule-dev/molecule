@@ -1,0 +1,199 @@
+{
+ "exports": [
+  "HeroSection",
+  "PageHeader"
+ ],
+ "values": {},
+ "cases": {
+  "HeroSection": {
+   "a title alone starts the text column": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "an eyebrow above the headline": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nWelcome back\n</div>\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a description under the headline": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n<p class=\"c3d1a3ff6 c6a2a1a28\">\nEverything you need to ship faster.\n</p>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a primary action": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<button data-primary type=\"button\">\nGet started\n</button>\n</div>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a secondary action without a primary": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<a data-secondary href=\"/docs\">\nRead the docs\n</a>\n</div>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "both actions in slot order": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<button data-primary type=\"button\">\nGet started\n</button>\n<a data-secondary href=\"/docs\">\nRead the docs\n</a>\n</div>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a media column swaps the root justify": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n<p class=\"c3d1a3ff6 c6a2a1a28\">\nEverything you need to ship faster.\n</p>\n</div>\n<div class=\"ca596e575\">\n<img alt data-media src=\"/hero.png\">\n</img>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "media without text beside a single action": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<button data-primary type=\"button\">\nGet started\n</button>\n</div>\n</div>\n<div class=\"ca596e575\">\n<img alt data-media src=\"/hero.png\">\n</img>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "center alignment centers the text column": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c16e96f28 c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n<p class=\"c3d1a3ff6 c6a2a1a28\">\nEverything you need to ship faster.\n</p>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "start alignment is the default": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "every slot at once": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 c937ba156 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nWelcome back\n</div>\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n<p class=\"c3d1a3ff6 c6a2a1a28\">\nEverything you need to ship faster.\n</p>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<button data-primary type=\"button\">\nGet started\n</button>\n<a data-secondary href=\"/docs\">\nRead the docs\n</a>\n</div>\n</div>\n<div class=\"ca596e575\">\n<img alt data-media src=\"/hero.png\">\n</img>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a rich headline node": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\n<strong data-strong>\nYour\n</strong>\n workspace\n</h1>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes and an id": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 ceacde2ad\" data-mol-id=\"hero\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "alignment changes": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /",
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c16e96f28 c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes and the id change": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 cc9a5825d ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"hero-before\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /",
+     "<section class=\"c1e8176ab c8740901c c8ca94608 c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\" data-mol-id=\"hero-after\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a title alone starts the text column, then a locale switch": {
+    "snapshots": [
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /",
+     "<section class=\"c1e8176ab c8740901c c9166dbd0 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"c2cbb8333 c9366def6 cb5823274 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 cd542c1f3\">\nYour workspace\n</h1>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "PageHeader": {
+   "a title alone is the normal emphasis": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "breadcrumbs above the title row": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<nav data-crumbs>\nHome / Projects\n</nav>\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "a subtitle under the title": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n<p class=\"c504afaf4\">\nManage your active projects\n</p>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "a leading icon": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "right-aligned actions": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button data-actions type=\"button\">\nNew project\n</button>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "a meta row below the title row": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\nUpdated just now\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "every slot at once": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<nav data-crumbs>\nHome / Projects\n</nav>\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n<p class=\"c504afaf4\">\nManage your active projects\n</p>\n</div>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button data-actions type=\"button\">\nNew project\n</button>\n</div>\n</div>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-meta>\nUpdated just now\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "the extrabold emphasis": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c9a4d1a6c cd542c1f3\">\nDashboard\n</h1>\n<p class=\"c504afaf4\">\nManage your active projects\n</p>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "the normal emphasis accepts a subtitle": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "a rich title node": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\n<strong data-strong>\nDash\n</strong>\nboard\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes and an id": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"page-header\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "emphasis changes": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c9a4d1a6c cd542c1f3\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes and the id change": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 cc9a5825d ccae02ff2\" data-mol-id=\"header-before\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c8ca94608 c9666e3af cbaac6b89 ccae02ff2\" data-mol-id=\"header-after\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "a title alone is the normal emphasis, then a locale switch": {
+    "snapshots": [
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /",
+     "<header class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c9366def6 c937ba156 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h1 class=\"c0d99ed10 c91a3f70a\">\nProjects\n</h1>\n</div>\n</div>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}
