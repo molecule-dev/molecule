@@ -252,10 +252,16 @@ function runTrustNew(
   )
 }
 
+/**
+ * Each case spawns node with the stub npm, most with a phone service too: cases that take
+ * 1-4 s alone ran 5.1-5.5 s at load average 60, past vitest's 5 s default.
+ */
+const RUN_MS = 60_000
+
 const ledgerOf = (root: string): string[] =>
   JSON.parse(readFileSync(join(root, '.trust-state.json'), 'utf8'))
 
-describe('trust:new keeps what it finished', () => {
+describe('trust:new keeps what it finished', { timeout: RUN_MS }, () => {
   it('saves a package the moment it is trusted, so a crash later in the run loses nothing (OLD MUSTFAIL)', async () => {
     const root = scratchRepo({ ledger: [] })
     const run = await runTrustNew(root, ['--ci'], { ci: true, absent: [A, B], crashOn: B })
@@ -265,7 +271,7 @@ describe('trust:new keeps what it finished', () => {
   })
 })
 
-describe("trust:new with the owner's phone", () => {
+describe("trust:new with the owner's phone", { timeout: RUN_MS }, () => {
   it('asks the phone once when one code covers every call', async () => {
     const root = scratchRepo()
     const { socketPath, phone } = await phoneService(root, [{ status: 'code', code: '424242' }])
@@ -356,7 +362,6 @@ describe("trust:new with the owner's phone", () => {
     expect(ledgerOf(root).sort()).toEqual([...names].sort())
   })
 
-  // A real 2 s pause plus three phone answers: 3.9 s at load average 60, near the 5 s default.
   it("waits out npm's 2FA rate limit instead of asking the phone into it (OLD MUSTFAIL)", async () => {
     const names = ['c', 'd', 'e', 'f'].map((x) => `@molecule/api-demo-${x}`)
     const root = scratchRepo({ ledger: [], names })
@@ -386,7 +391,7 @@ describe("trust:new with the owner's phone", () => {
       /npm paused 2FA for a few minutes and the pause is over/,
     )
     expect(ledgerOf(root).sort()).toEqual([...names].sort())
-  }, 60_000)
+  })
 
   it('shares a code only while it is fresh, so its expiry refuses one call and never locks 2FA (OLD MUSTFAIL)', async () => {
     // The sweep of 2026-11-15: eight packages at once, a code that died with four calls
