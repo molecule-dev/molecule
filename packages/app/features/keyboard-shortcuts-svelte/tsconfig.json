@@ -26,6 +26,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    ".svelte-kit"
+    ".svelte-kit",
+    "src/**/__tests__/**"
   ]
 }

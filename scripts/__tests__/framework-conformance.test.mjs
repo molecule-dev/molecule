@@ -15,6 +15,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import {
   BINDING_EXEMPT,
   BINDING_REFERENCE,
+  BUILD_TESTS_EXCLUDE,
   EXEMPT,
   FEATURE_FRAMEWORKS,
   FEATURE_PARITY_PENDING,
@@ -424,6 +425,75 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
       for (const [file, text] of Object.entries(options.files ?? {})) write(`${dir}/${file}`, text)
       return root
     }
+
+    describe('the tsconfig a build type-checks', () => {
+      const pkg = {
+        name: '@molecule/app-widget-vue',
+        devDependencies: { [KIT]: '0.0.0' },
+        scripts: {
+          build:
+            'svelte-check --tsconfig ./tsconfig.json --fail-on-warnings && svelte-package --input src',
+        },
+      }
+      const tsconfig = (exclude) => JSON.stringify({ include: ['src/**/*'], exclude })
+
+      it('fails when its tsconfig type-checks the tests', () => {
+        const root = featureTree({
+          pkg,
+          files: { 'tsconfig.json': tsconfig(['node_modules', 'dist']) },
+        })
+        expect(findConformanceViolations(root)).toEqual([
+          expect.stringContaining(
+            `packages/app/features/widget-vue: ./tsconfig.json must exclude the tests ("${BUILD_TESTS_EXCLUDE}")`,
+          ),
+        ])
+      })
+
+      it('passes when its tsconfig excludes the tests', () => {
+        const root = featureTree({
+          pkg,
+          files: {
+            'tsconfig.json': tsconfig(['node_modules', 'dist', BUILD_TESTS_EXCLUDE]),
+          },
+        })
+        expect(findConformanceViolations(root)).toEqual([])
+      })
+
+      it('reads the tsconfig the build names', () => {
+        const root = featureTree({
+          pkg: {
+            ...pkg,
+            scripts: { build: 'svelte-check --tsconfig ./tsconfig.build.json && svelte-package' },
+          },
+          files: {
+            'tsconfig.json': tsconfig(['dist']),
+            'tsconfig.build.json': tsconfig([BUILD_TESTS_EXCLUDE]),
+          },
+        })
+        expect(findConformanceViolations(root)).toEqual([])
+      })
+
+      it.each([
+        ['tsc', 'tsc'],
+        ['ngc', 'ngc -p tsconfig.json'],
+      ])('holds a %s build to the same rule', (_tool, build) => {
+        const root = featureTree({
+          pkg: { ...pkg, scripts: { build } },
+          files: { 'tsconfig.json': tsconfig(['dist']) },
+        })
+        expect(findConformanceViolations(root)).toEqual([
+          expect.stringContaining('tsconfig.json must exclude the tests'),
+        ])
+      })
+
+      it('leaves a package without a build alone', () => {
+        const root = featureTree({
+          pkg: { ...pkg, scripts: {} },
+          files: { 'tsconfig.json': tsconfig(['dist']) },
+        })
+        expect(findConformanceViolations(root)).toEqual([])
+      })
+    })
 
     it('names the React counterpart of each framework feature package', () => {
       expect(featureReference('@molecule/app-header-vue')).toBe('@molecule/app-header-react')

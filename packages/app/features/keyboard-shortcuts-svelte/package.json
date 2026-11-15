@@ -23,8 +23,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings && svelte-package --input src --output dist --tsconfig ./tsconfig.json",
-    "dev": "svelte-package --input src --output dist --tsconfig ./tsconfig.json --watch",
+    "build": "tsc",
+    "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest"
   },

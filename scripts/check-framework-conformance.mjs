@@ -405,7 +405,47 @@ function bondViolations(root, { dir, pkg }, group) {
     }
   }
   if (!pkg.devDependencies?.[KIT]) out.push(`${dir}: devDependencies must list ${KIT}`)
+  out.push(...buildTsconfigViolations(root, { dir, pkg }))
   return out
+}
+
+/** The tsconfig `exclude` entry that keeps a bond's build out of its tests. */
+export const BUILD_TESTS_EXCLUDE = 'src/**/__tests__/**'
+
+/**
+ * The bond's build (tsc, ngc or svelte-check) type-checks every file its tsconfig includes. The
+ * conformance test imports the kit's TypeScript source, whose own imports resolve only inside this
+ * workspace, so a build that also checks the tests fails wherever the package is built alone (the
+ * publish builds each new package from the committed tree). The tsconfig must exclude the tests.
+ *
+ * @param root - The molecule repository root.
+ * @param bond - The bond's dir and package.json.
+ * @returns One line per violation.
+ */
+function buildTsconfigViolations(root, { dir, pkg }) {
+  const build = pkg.scripts?.build ?? ''
+  const tool = build.match(/\b(svelte-check|tsc|ngc)\b/)?.[1]
+  if (!tool) return []
+  const named = build.match(
+    tool === 'svelte-check'
+      ? /svelte-check\b[^&|;]*?--tsconfig[\s=]+(\S+)/
+      : new RegExp(`\\b${tool}\\b[^&|;]*?(?:-p|--project)[\\s=]+(\\S+)`),
+  )?.[1]
+  const tsconfig = named ?? 'tsconfig.json'
+  const file = join(root, dir, tsconfig)
+  if (!existsSync(file))
+    return [`${dir}: its build runs ${tool} with ${tsconfig}, which is missing`]
+  let exclude
+  try {
+    exclude = readJson(file).exclude
+  } catch (error) {
+    return [`${dir}: ${tsconfig} is not valid JSON (${error.message})`]
+  }
+  if (Array.isArray(exclude) && exclude.some((entry) => /(^|\/)__tests__(\/|$)/.test(entry)))
+    return []
+  return [
+    `${dir}: ${tsconfig} must exclude the tests ("${BUILD_TESTS_EXCLUDE}"): the build's ${tool} otherwise type-checks the conformance test and, through it, the kit's source, which does not resolve when the package is built alone`,
+  ]
 }
 
 /**
