@@ -1,0 +1,164 @@
+{
+ "exports": [
+  "FloatingActionButton"
+ ],
+ "values": {},
+ "cases": {
+  "FloatingActionButton": {
+   "defaults": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "with an icon": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "svg icon and a className": {
+    "snapshots": [
+     "<button aria-label=\"Create\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c7d75ba7f c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Create\" type=\"button\">\n<svg data-icon viewbox=\"0 0 24 24\">\n</svg>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "bottom right position": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "bottom left position": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; left: 24px; position: fixed; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "top right position": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 56px; position: fixed; right: 24px; top: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "top left position": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 56px; left: 24px; position: fixed; top: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "small size": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 40px; position: fixed; right: 24px; width: 40px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "medium size": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "large size": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 64px; position: fixed; right: 24px; width: 64px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "tooltip shown": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "tooltip hidden": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty label": {
+    "snapshots": [
+     "<button aria-label class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "label resolved through i18n": {
+    "snapshots": [
+     "<button aria-label=\"Add item\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add item\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "href renders a link": {
+    "snapshots": [
+     "<a aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" href=\"/new\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\">\n<span data-icon>\n+\n</span>\n</a>\n@route /"
+    ],
+    "calls": []
+   },
+   "href wins over onClick": {
+    "snapshots": [
+     "<a aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" href=\"/new\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\">\n</a>\n@route /",
+     "<a aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" href=\"/new\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\">\n</a>\n@route /\n@click default kept"
+    ],
+    "calls": []
+   },
+   "click calls onClick": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n<span data-icon>\n+\n</span>\n</button>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "click without a handler": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /",
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "prop changes": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 40px; position: fixed; right: 24px; width: 40px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /",
+     "<button aria-label=\"Create\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 64px; left: 24px; position: fixed; top: 24px; width: 64px; z-index: 40\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "switches from a button to a link": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /",
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /",
+     "<a aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" href=\"/new\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\">\n</a>\n@route /",
+     "<a aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" href=\"/new\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\">\n</a>\n@route /\n@click default kept"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<button aria-label=\"Add\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"Add\" type=\"button\">\n</button>\n@route /",
+     "<button aria-label=\"⟦Add⟧\" class=\"c05d40814 c1b5cbda6 c1e8176ab c290ae666 c42740ba6 c59ea18b6 c6ee653d4 c9052b18c c973b6d5b c9773cd2b ccae02ff2 cd9b20003\" style=\"bottom: 24px; height: 56px; position: fixed; right: 24px; width: 56px; z-index: 40\" title=\"⟦Add⟧\" type=\"button\">\n</button>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

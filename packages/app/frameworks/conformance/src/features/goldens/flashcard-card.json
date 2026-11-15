@@ -1,0 +1,167 @@
+{
+ "exports": [
+  "FlashcardCard"
+ ],
+ "values": {},
+ "cases": {
+  "FlashcardCard": {
+   "front before the reveal": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "revealed initially shows the back and the grade buttons": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "progress above the face": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4647f690 c7f74399a\">\n<span data-progress>\nCard 3 of 20\n</span>\n</div>\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "revealed with progress": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4647f690 c7f74399a\">\nCard 4 of 20\n</div>\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "rich front and back": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n<strong>\nQuestion\n</strong>\n — 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "class on the card": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "reveal click shows the back and the grade buttons": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "reveal click with progress keeps the progress row": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4647f690 c7f74399a\">\nCard 5 of 20\n</div>\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4647f690 c7f74399a\">\nCard 5 of 20\n</div>\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "grade again calls onGrade and hides the back": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onGrade",
+      "args": [
+       "again"
+      ]
+     }
+    ]
+   },
+   "grade hard calls onGrade and hides the back": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onGrade",
+      "args": [
+       "hard"
+      ]
+     }
+    ]
+   },
+   "grade good calls onGrade and hides the back": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onGrade",
+      "args": [
+       "good"
+      ]
+     }
+    ]
+   },
+   "grade easy calls onGrade and hides the back": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onGrade",
+      "args": [
+       "easy"
+      ]
+     }
+    ]
+   },
+   "reveal then grade": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onGrade",
+      "args": [
+       "good"
+      ]
+     }
+    ]
+   },
+   "the next card arrives after grading": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 7x8?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onGrade",
+      "args": [
+       "easy"
+      ]
+     }
+    ]
+   },
+   "a swapped back shows while revealed": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n4\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\n56\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c42b7ac33 c45cfc6cf c4b0fcccf c553b152a c7fa4cf55 c85d185d6 c8afefbb7 c8b197f7c c9773cd2b c9866e6d5 cc06b624c ccbae0bb0 cd6f299bb cd6fe318b cee061da5 cf0915c40 cf204def4\" type=\"button\">\nAgain\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0cc83095 c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c434d0929 c45cfc6cf c4b0fcccf c7b771f62 c7d88af62 c7fa4cf55 c856184f0 c8ab1b248 c8b197f7c c9773cd2b c9866e6d5 cc06b624c cd6f299bb cd6fe318b cee061da5 cf0915c40\" type=\"button\">\nHard\n</button>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nGood\n</button>\n<button aria-busy=\"false\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 cb8bb3124 cc06b624c ccfd045bd cd6f299bb cd6fe318b cdd2af26f cee061da5 cf0915c40\" type=\"button\">\nEasy\n</button>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a later defaultRevealed change does not reveal": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "front before the reveal, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nShow answer\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<div class=\"c16e96f28 c4547f4fd c97d61bf0\">\nWhat is 2+2?\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\n⟦Show answer⟧\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}
