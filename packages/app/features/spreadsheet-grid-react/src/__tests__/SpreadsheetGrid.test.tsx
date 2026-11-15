@@ -401,3 +401,50 @@ describe('<SpreadsheetGrid> frozen rows / columns', () => {
     expect(container.querySelector('[role="grid"]')).not.toBeNull()
   })
 })
+
+describe('<SpreadsheetGrid> keyboard focus (a11y)', () => {
+  it('makes cells focusable: the selection anchor is in the tab order, the rest stay programmatically focusable', () => {
+    const { container } = render(
+      <Wrap>
+        <Harness rows={3} columns={3} />
+      </Wrap>,
+    )
+    const cellEls = container.querySelectorAll('[role="gridcell"]')
+    expect(cellEls.length).toBeGreaterThan(1)
+    // Exactly one cell — the anchor (A1 by default) — carries tabIndex={0};
+    // every other cell is focusable via tabIndex={-1} (roving tabindex).
+    for (const cell of cellEls) {
+      expect(cell.getAttribute('tabindex')).not.toBeNull()
+      if (cell === cellEls[0]) expect(cell.getAttribute('tabindex')).toBe('0')
+      else expect(cell.getAttribute('tabindex')).toBe('-1')
+    }
+  })
+
+  it('moves the roving tabindex when the selection anchor moves', () => {
+    const { container } = render(
+      <Wrap>
+        <Harness rows={3} columns={3} />
+      </Wrap>,
+    )
+    const a1 = container.querySelector('[data-mol-id="spreadsheet-grid-cell-A1"]')!
+    const b2 = container.querySelector('[data-mol-id="spreadsheet-grid-cell-B2"]')!
+    expect(a1.getAttribute('tabindex')).toBe('0')
+    fireEvent.mouseDown(b2)
+    expect(b2.getAttribute('tabindex')).toBe('0')
+    expect(a1.getAttribute('tabindex')).toBe('-1')
+  })
+
+  it('keeps the container keyboard paths working from a focused cell', () => {
+    const { container } = render(
+      <Wrap>
+        <Harness rows={3} columns={3} />
+      </Wrap>,
+    )
+    const a1 = container.querySelector('[data-mol-id="spreadsheet-grid-cell-A1"]')!
+    expect(a1.getAttribute('tabindex')).toBe('0')
+    // Enter on the focused cell bubbles to the grid container and opens the
+    // in-cell editor for the selected cell.
+    fireEvent.keyDown(a1, { key: 'Enter' })
+    expect(container.querySelector('[data-mol-id="spreadsheet-grid-editor-A1"]')).not.toBeNull()
+  })
+})

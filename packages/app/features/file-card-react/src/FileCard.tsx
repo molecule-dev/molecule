@@ -32,7 +32,12 @@ export interface FileCardProps {
   file: FileSummary
   /** Selected highlight state. */
   selected?: boolean
-  /** Click handler fired on card body click (not on the actions slot). */
+  /**
+   * Handler fired when the card body is activated: a click anywhere on it, or
+   * Enter / Space on its select button (a transparent button covering the card,
+   * with `aria-pressed` for `selected`). Not fired for the actions slot, which
+   * sits above that button.
+   */
   onClick?: (file: FileSummary, event: MouseEvent<HTMLElement>) => void
   /** Context-menu (right-click) handler. */
   onContextMenu?: (file: FileSummary, event: MouseEvent<HTMLElement>) => void
@@ -124,7 +129,7 @@ function relativeText(at: string | number | Date, t: TFn, now: Date | undefined)
  * @param props - Component props.
  * @param props.file - File summary to render.
  * @param props.selected - Selected highlight state.
- * @param props.onClick - Body click handler.
+ * @param props.onClick - Body click handler (mouse click or Enter/Space).
  * @param props.onContextMenu - Right-click handler.
  * @param props.layout - `'grid'` (default) or `'row'`.
  * @param props.actions - Trailing action slot (button row, kebab menu).
@@ -174,17 +179,13 @@ export function FileCard({
   const rootMolId = dataMolId ?? `file-card-${file.id}`
 
   /**
-   * Wrap a click event so it can be safely fired without consuming clicks
-   * that bubbled up from the actions slot.
+   * Forward a body activation (a click on the select button, or Enter / Space
+   * on it) to the consumer.
    *
    * @param event - DOM mouse event.
    */
   const handleClick = (event: MouseEvent<HTMLElement>): void => {
-    if (!onClick) return
-    // Don't fire body click for events that originated inside the actions slot.
-    const target = event.target as HTMLElement | null
-    if (target?.closest('[data-mol-id="file-card-actions"]')) return
-    onClick(file, event)
+    onClick?.(file, event)
   }
 
   /**
@@ -196,22 +197,38 @@ export function FileCard({
     if (onContextMenu) onContextMenu(file, event)
   }
 
+  // The card's select control: a transparent native button covering the card
+  // (Enter / Space activate it natively), above the content and below the
+  // actions slot. A sibling of the actions, not their wrapper, so the action
+  // buttons stay reachable controls (a button's children are presentational).
+  const selectButton = onClick ? (
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      aria-pressed={Boolean(selected)}
+      data-mol-id="file-card-select"
+      onClick={handleClick}
+      /* mol-bespoke-button: the whole card is the hit area, not a CTA — an
+         empty, transparent button over the card; the inline background/
+         border/padding are native resets. */
+      className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
+      style={{ background: 'transparent', border: 'none', padding: 0 }}
+    />
+  ) : null
+
   if (layout === 'row') {
     return (
       <div
-        role={onClick ? 'button' : 'group'}
-        tabIndex={onClick ? 0 : undefined}
+        role="group"
         aria-label={ariaLabel}
-        aria-pressed={onClick ? Boolean(selected) : undefined}
         data-mol-id={rootMolId}
         data-selected={selected ? 'true' : undefined}
         className={cm.cn(
           cm.flex({ align: 'center', gap: 'md' }),
           cm.sp('p', 2),
-          onClick ? cm.cursorPointer : undefined,
+          onClick ? cm.position('relative') : undefined,
           className,
         )}
-        onClick={handleClick}
         onContextMenu={handleContextMenu}
       >
         <div className={cm.cn(cm.shrink0)} data-mol-id="file-card-icon">
@@ -256,8 +273,12 @@ export function FileCard({
             </div>
           )}
         </div>
+        {selectButton}
         {actions && (
-          <div className={cm.cn(cm.shrink0)} data-mol-id="file-card-actions">
+          <div
+            className={cm.cn(cm.shrink0, cm.position('relative'))}
+            data-mol-id="file-card-actions"
+          >
             {actions}
           </div>
         )}
@@ -268,19 +289,16 @@ export function FileCard({
   // Grid layout (default).
   return (
     <div
-      role={onClick ? 'button' : 'group'}
-      tabIndex={onClick ? 0 : undefined}
+      role="group"
       aria-label={ariaLabel}
-      aria-pressed={onClick ? Boolean(selected) : undefined}
       data-mol-id={rootMolId}
       data-selected={selected ? 'true' : undefined}
       className={cm.cn(
         cm.stack(1 as const),
         cm.sp('p', 3),
-        onClick ? cm.cursorPointer : undefined,
+        onClick ? cm.position('relative') : undefined,
         className,
       )}
-      onClick={handleClick}
       onContextMenu={handleContextMenu}
     >
       <div
@@ -332,9 +350,13 @@ export function FileCard({
           )}
         </div>
       )}
+      {selectButton}
       {actions && (
         <div
-          className={cm.cn(cm.flex({ align: 'center', justify: 'end', gap: 'sm' }))}
+          className={cm.cn(
+            cm.flex({ align: 'center', justify: 'end', gap: 'sm' }),
+            cm.position('relative'),
+          )}
           data-mol-id="file-card-actions"
         >
           {actions}

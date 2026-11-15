@@ -211,8 +211,16 @@ export function SearchAutocomplete<T = unknown>({
               id={optionId(index)}
               role="option"
               aria-selected={index === activeIndex}
+              tabIndex={-1}
+              data-mol-id="search-autocomplete-option"
               onMouseEnter={() => setActiveIndex(index)}
-              onClick={() => select(s)}
+              // Pointer selection happens on press: preventDefault keeps DOM focus on
+              // the input, which owns the combobox (options are its
+              // aria-activedescendant targets; the keyboard selects with Enter there).
+              onMouseDown={(e) => {
+                e.preventDefault()
+                select(s)
+              }}
               className={cm.cn(
                 cm.sp('px', 2),
                 cm.sp('py', 2),

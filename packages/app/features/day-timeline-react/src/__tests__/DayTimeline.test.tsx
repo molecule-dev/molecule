@@ -129,18 +129,46 @@ describe('<DayTimeline>', () => {
     expect(noon.style.top).toBe('360px')
   })
 
-  it('forwards click handlers and Enter key presses', () => {
+  it('forwards the click of the card button, leaving Enter/Space to the native button', () => {
     const onClick = vi.fn()
     const { container } = render(
       <DayTimeline
         events={[{ id: 'tap', title: 'Tap me', startHour: 10, endHour: 11, onClick }]}
       />,
     )
-    const tap = container.querySelector('[data-event-id="tap"]') as HTMLElement
-    fireEvent.click(tap)
-    fireEvent.keyDown(tap, { key: 'Enter' })
-    fireEvent.keyDown(tap, { key: ' ' })
-    expect(onClick).toHaveBeenCalledTimes(3)
+    const action = container.querySelector(
+      '[data-mol-id="day-timeline-event-action"]',
+    ) as HTMLElement
+    expect(action.tagName).toBe('BUTTON')
+    expect((action as HTMLButtonElement).type).toBe('button')
+    fireEvent.click(action)
+    expect(onClick).toHaveBeenCalledTimes(1)
+    // A native button turns Enter / Space into that click itself; a key handler
+    // of its own would run the action a second time in a real browser.
+    fireEvent.keyDown(action, { key: 'Enter' })
+    fireEvent.keyDown(action, { key: ' ' })
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('exposes clickable events as real buttons with an accessible name', () => {
+    render(
+      <DayTimeline
+        events={[{ id: 'flight', title: 'Flight', startHour: 13, endHour: 16, onClick: () => {} }]}
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'Flight from 1 PM to 4 PM' })).toBeDefined()
+  })
+
+  it('keeps non-clickable events inert: no button, no focusable control', () => {
+    const { container } = render(
+      <DayTimeline events={[{ id: 'fixed', title: 'Fixed', startHour: 8, endHour: 9 }]} />,
+    )
+    const card = container.querySelector('[data-event-id="fixed"]') as HTMLElement
+    expect(card.querySelector('button')).toBeNull()
+    expect(card.querySelector('[role="button"]')).toBeNull()
+    expect(card.getAttribute('tabindex')).toBeNull()
+    // The card still paints its content.
+    expect(card.textContent).toContain('Fixed')
   })
 
   it('paints a per-event accent color as the inset accent bar, never a border-left', () => {

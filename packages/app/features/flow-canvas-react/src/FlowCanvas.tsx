@@ -1,5 +1,5 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -38,7 +38,11 @@ export interface FlowCanvasProps {
    * mutating internal state.
    */
   onChange?: (next: FlowChange) => void
-  /** Map of node `type` → renderer. */
+  /**
+   * Map of node `type` → renderer. The output fills the node and names its
+   * keyboard select button (a sibling beneath it), so it may hold its own
+   * controls.
+   */
   nodeRenderers?: FlowNodeRenderers
   /** Fallback children rendered inside every node when `nodeRenderers` has no match. */
   children?: ReactNode
@@ -76,7 +80,8 @@ const DEFAULT_VIEWPORT: FlowViewport = { x: 0, y: 0, zoom: 1 }
  * - **Zoom** — mouse-wheel scroll (anchored on the cursor).
  * - **Connect ports** — press on a source handle (right edge of a node)
  *   and drag onto another node to create an edge.
- * - **Select** — click a node or edge; Backspace / Delete removes
+ * - **Select** — click a node or edge, or Tab to a node's select
+ *   button and press Enter / Space; Backspace / Delete removes
  *   everything in the selection.
  *
  * Style is driven entirely by `getClassMap()`. Inline styles are reserved
@@ -209,6 +214,17 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
   const dragRef = useRef<{ id: string; pointerId: number; lastWorld: FlowPoint } | null>(null)
 
   /**
+   * Select a single node and surface the node-click callback. Shared by
+   * the pointer-down path and the node's select button (keyboard).
+   *
+   * @param node - The node to select.
+   */
+  function selectNode(node: FlowNode): void {
+    setSelectionAndNotify({ nodeIds: [node.id], edgeIds: [] })
+    onNodeClick?.(node)
+  }
+
+  /**
    * Begin a node drag.
    *
    * @param e - Pointer-down event on the node body.
@@ -227,8 +243,7 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
       // Safe to ignore: setPointerCapture is unsupported in jsdom and very old
       // browsers; dragging still works, just without implicit pointer capture.
     }
-    setSelectionAndNotify({ nodeIds: [node.id], edgeIds: [] })
-    onNodeClick?.(node)
+    selectNode(node)
   }
 
   /**
@@ -446,6 +461,7 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
   }
 
   const ariaLabel = t('flowCanvas.aria.canvas', {}, { defaultValue: 'Flow canvas' })
+  const idBase = useId()
 
   return (
     <div
@@ -453,7 +469,6 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
       role="application"
       aria-label={ariaLabel}
       data-mol-id="flow-canvas"
-      tabIndex={0}
       className={cm.cn(cm.position('relative'), cm.surfaceSecondary, className)}
       onPointerDown={onCanvasPointerDown}
       onPointerMove={onCanvasPointerMove}
@@ -538,11 +553,13 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
             })()}
         </svg>
 
-        {nodes.map((node) => {
+        {nodes.map((node, index) => {
           const w = node.width ?? DEFAULT_NODE_WIDTH
           const h = node.height ?? DEFAULT_NODE_HEIGHT
           const isSelected = selection.nodeIds.includes(node.id)
           const renderer = nodeRenderers?.[node.type]
+          // Index-based: a node id may hold spaces, which aria-labelledby would split.
+          const contentId = `${idBase}-node-${index}`
           return (
             <div
               key={node.id}
@@ -571,7 +588,35 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
                 height: h,
               }}
             >
-              {renderer ? renderer(node) : children}
+              {/* The keyboard path to selection: a select button covering the node,
+                  beneath its content and named by it. A sibling, not a wrapper, so a
+                  renderer may hold its own inputs and buttons (nothing interactive may
+                  nest in a button). */}
+              <button
+                type="button"
+                data-mol-id={`flow-canvas-node-select-${node.id}`}
+                aria-labelledby={contentId}
+                onClick={(e) => {
+                  // Only keyboard activation (Enter / Space on the
+                  // focused button) — a browser synthesizes those clicks
+                  // with `detail === 0`. A pointer click already selected
+                  // the node via onNodePointerDown on the group above, and
+                  // firing selectNode twice would double-notify onNodeClick.
+                  if (e.detail === 0) selectNode(node)
+                }}
+                /* mol-bespoke-button: the node's keyboard hit area, not a CTA —
+                   an empty, transparent button under the node's content. The
+                   inline background/border/padding are native resets. */
+                className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
+                style={{ background: 'transparent', border: 'none', padding: 0 }}
+              />
+              <div
+                id={contentId}
+                className={cm.position('relative')}
+                style={{ width: '100%', height: '100%' }}
+              >
+                {renderer ? renderer(node) : children}
+              </div>
               <div
                 role="button"
                 aria-label={t(

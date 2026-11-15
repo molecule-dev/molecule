@@ -207,17 +207,51 @@ describe('<LayerPanel> rendering', () => {
 })
 
 describe('<LayerPanel> selection', () => {
-  it('clicking a row calls onSelect and marks it aria-selected', () => {
+  it('clicking the layer-name button calls onSelect and marks the row aria-selected', () => {
     const onSelect = vi.fn()
     const { container } = render(
       <Wrap>
         <Harness onSelectSpy={onSelect} />
       </Wrap>,
     )
+    const midName = container.querySelector('[data-mol-id="layer-panel-name-mid"]')!
     const mid = container.querySelector('[data-mol-id="layer-panel-row-mid"]')!
-    fireEvent.click(mid)
+    fireEvent.click(midName)
     expect(onSelect).toHaveBeenCalledWith('mid')
     expect(mid.getAttribute('aria-selected')).toBe('true')
+  })
+
+  it('renders the layer name as a native button — Enter/Space select via platform activation', () => {
+    // The select control is a native <button type="button">, so Enter and
+    // Space dispatch the same click → onSelect path pointer users take
+    // (HTML activation behavior). jsdom does not synthesize click from
+    // keydown, so the keyboard contract is pinned structurally here and
+    // through the click path asserted above.
+    const { container } = render(
+      <Wrap>
+        <Harness />
+      </Wrap>,
+    )
+    const nameButton = container.querySelector(
+      '[data-mol-id="layer-panel-name-mid"]',
+    ) as HTMLButtonElement
+    expect(nameButton.tagName).toBe('BUTTON')
+    expect(nameButton.getAttribute('type')).toBe('button')
+    expect(nameButton.textContent).toBe('Mid')
+  })
+
+  it('clicking the row outside the name button does not select', () => {
+    // The row element carries only drag machinery; select lives on the
+    // name button (and the eye/lock toggles on theirs).
+    const onSelect = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <Harness onSelectSpy={onSelect} />
+      </Wrap>,
+    )
+    fireEvent.click(container.querySelector('[data-mol-id="layer-panel-row-mid"]')!)
+    fireEvent.click(container.querySelector('[data-mol-id="layer-panel-meta-mid"]')!)
+    expect(onSelect).not.toHaveBeenCalled()
   })
 })
 
@@ -233,7 +267,7 @@ describe('<LayerPanel> visibility + lock toggles', () => {
     const eye = container.querySelector('[data-mol-id="layer-panel-visibility-top"]')!
     fireEvent.click(eye)
     expect(onVis).toHaveBeenCalledWith('top')
-    // stopPropagation should prevent the row's onClick from firing.
+    // The row element has no click handler, so toggling never selects.
     expect(onSelect).not.toHaveBeenCalled()
   })
 

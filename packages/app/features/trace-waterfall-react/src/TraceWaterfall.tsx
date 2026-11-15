@@ -52,6 +52,8 @@ export interface TraceWaterfallProps {
   spans: Span[]
   /** Optional root span id to focus the view on a single subtree. */
   rootSpanId?: string
+  /** Optional id of the currently selected span; sets `aria-selected` on that row. */
+  selectedSpanId?: string
   /** Click handler invoked when a span row (label or bar) is selected. */
   onSpanClick?: (span: Span) => void
   /** Optional content shown when `spans` is empty. */
@@ -78,6 +80,7 @@ export interface TraceWaterfallProps {
  * @param props - Component props.
  * @param props.spans - Flat list of spans.
  * @param props.rootSpanId - Optional focus span id.
+ * @param props.selectedSpanId - Optional id of the selected span (`aria-selected`).
  * @param props.onSpanClick - Optional row-click callback.
  * @param props.emptyState - Optional fallback when `spans` is empty.
  * @param props.className - Extra classes for the root.
@@ -86,6 +89,7 @@ export interface TraceWaterfallProps {
 export function TraceWaterfall({
   spans,
   rootSpanId,
+  selectedSpanId,
   onSpanClick,
   emptyState,
   className,
@@ -136,6 +140,7 @@ export function TraceWaterfall({
             key={row.span.id}
             row={row}
             labelColumnWidth={LABEL_COLUMN_PX}
+            selected={selectedSpanId === row.span.id}
             onSpanClick={onSpanClick}
             t={t}
           />
@@ -196,11 +201,13 @@ function TimeAxis({
 function SpanRowView({
   row,
   labelColumnWidth,
+  selected,
   onSpanClick,
   t,
 }: {
   row: SpanRow
   labelColumnWidth: number
+  selected: boolean
   onSpanClick?: (span: Span) => void
   t: ReturnType<typeof useTranslation>['t']
 }): React.ReactElement {
@@ -239,6 +246,7 @@ function SpanRowView({
       style={{ height: ROW_HEIGHT_PX }}
       role="treeitem"
       aria-level={depth + 1}
+      aria-selected={selected}
       aria-label={ariaLabel}
       tabIndex={interactive ? 0 : -1}
       onClick={handleClick}

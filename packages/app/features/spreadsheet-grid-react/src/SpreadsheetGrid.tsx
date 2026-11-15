@@ -356,6 +356,11 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
         key={ref}
         role="gridcell"
         data-mol-id={`spreadsheet-grid-cell-${ref}`}
+        // Roving tabindex per the WAI-ARIA grid pattern: exactly one cell —
+        // the selection anchor — is in the tab order; the rest stay
+        // programmatically focusable. Key presses on a cell bubble to the
+        // grid container's keyboard handling.
+        tabIndex={isAnchor ? 0 : -1}
         aria-selected={inSel || undefined}
         className={cm.cn(
           cm.spreadsheetGridCellBorder,

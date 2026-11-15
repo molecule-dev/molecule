@@ -1099,9 +1099,9 @@ export const classMap: UIClassMap = {
   nodeEditorPanelBody: 'overflow-y-auto',
   nodeEditorPanelFooter: 'border-t border-white/5',
   nodeEditorPanelOptionSelected:
-    'bg-surface-container-lowest rounded-xl hover:bg-surface-container-highest transition-colors group',
+    'bg-surface-container-lowest rounded-xl hover:bg-surface-container-highest transition-colors group has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary',
   nodeEditorPanelOption:
-    'bg-surface-container-lowest/50 rounded-xl hover:bg-surface-container-highest transition-colors',
+    'bg-surface-container-lowest/50 rounded-xl hover:bg-surface-container-highest transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary',
   nodeEditorPanelOptionLabelSelected: 'text-on-surface',
   nodeEditorPanelOptionLabel: 'text-on-surface-variant',
   nodeEditorPanelRadioRing: 'w-4 h-4 rounded-full border-2 flex items-center justify-center',

@@ -119,6 +119,20 @@ describe('<ChapterList>', () => {
     )
   })
 
+  it('keeps native list semantics on the chapter list', () => {
+    const { getByRole } = render(
+      <Wrap>
+        <ChapterList chapters={baseChapters} currentTime={0} onSeek={() => {}} />
+      </Wrap>,
+    )
+    // The role is explicit: Safari/VoiceOver drop the implicit list role from a
+    // <ul> styled without bullets.
+    const list = getByRole('list')
+    expect(list.tagName).toBe('UL')
+    expect(list.getAttribute('role')).toBe('list')
+    expect(list.getAttribute('aria-label')).toBe('Chapters')
+  })
+
   it('renders one row per chapter with title and timestamp', () => {
     const { container } = render(
       <Wrap>

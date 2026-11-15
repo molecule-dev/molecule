@@ -17,7 +17,7 @@
  * @module
  */
 
-import { type JSX, type ReactNode, useEffect, useState } from 'react'
+import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
 
 import { useAuthFormState } from '@molecule/app-auth-shell-react'
 import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-react'
@@ -161,6 +161,19 @@ export function AuthModal({
   const isSignup = mode === 'signup'
   const busy = isSignup ? signupStatus === 'pending' : loginStatus === 'pending'
   const errorMessage = useI18nError(isSignup ? signupError : loginError)
+
+  // Dialog pattern (WAI-ARIA): when the modal opens, keyboard and
+  // screen-reader users land on the form's primary field instead of on the
+  // page behind the overlay. This replaces the `autoFocus` prop, which
+  // jsx-a11y/no-autofocus bars: the prop fires on EVERY mount of the input
+  // (e.g. the brief remount after the mode switches), while this effect runs
+  // exactly once per open transition. It runs after the Modal's own
+  // focus-trap effect (child effects first), so the email field wins in both
+  // signup and login mode.
+  const emailRef = useRef<HTMLInputElement | null>(null)
+  useEffect(() => {
+    if (open) emailRef.current?.focus()
+  }, [open])
 
   // Universal post-auth: refresh the session (guards + plan current), show a
   // brief confirmation, run the app's hook, then close — all in place, no
@@ -309,7 +322,7 @@ export function AuthModal({
                 value={email}
                 onChange={(e) => setField('email', e.target.value)}
                 autoComplete="email"
-                autoFocus
+                ref={emailRef}
                 required
                 data-mol-id="auth-modal-email"
                 placeholder={t('auth.login.email', undefined, { defaultValue: 'Email' })}

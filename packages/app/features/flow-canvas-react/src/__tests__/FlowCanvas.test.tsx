@@ -69,7 +69,7 @@ const node = (id: string, x: number, y: number): FlowNode => ({
 })
 
 describe('<FlowCanvas>', () => {
-  it('renders a labelled application root', () => {
+  it('renders a labelled application root without a tab stop', () => {
     const { container } = render(
       <Wrap>
         <FlowCanvas nodes={[]} edges={[]} />
@@ -78,6 +78,82 @@ describe('<FlowCanvas>', () => {
     const root = container.querySelector('[data-mol-id="flow-canvas"]')
     expect(root).not.toBeNull()
     expect(root?.getAttribute('role')).toBe('application')
+    // The canvas root is not a tab stop: keyboard interaction lives on the
+    // nodes' select buttons, not on the non-interactive application root.
+    expect(root?.getAttribute('tabindex')).toBeNull()
+  })
+
+  it('names each node select button by its content and selects on keyboard activation', () => {
+    const onSelectionChange = vi.fn()
+    const onNodeClick = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <FlowCanvas
+          nodes={[node('a', 0, 0)]}
+          edges={[]}
+          nodeRenderers={{
+            task: (n) => <span>{(n.data as { label: string }).label}</span>,
+          }}
+          onSelectionChange={onSelectionChange}
+          onNodeClick={onNodeClick}
+        />
+      </Wrap>,
+    )
+    const selectButton = container.querySelector(
+      'button[data-mol-id="flow-canvas-node-select-a"]',
+    ) as HTMLButtonElement
+    expect(selectButton).not.toBeNull()
+    expect(selectButton.type).toBe('button')
+    // The button sits beneath the content (a sibling, never a wrapper) and is
+    // named by it.
+    expect(selectButton.textContent).toBe('')
+    const content = document.getElementById(selectButton.getAttribute('aria-labelledby') as string)
+    expect(content?.textContent).toBe('A')
+    expect(selectButton.contains(content)).toBe(false)
+    // Browsers synthesize a click with `detail === 0` when Enter / Space
+    // activates a focused button — that is the keyboard path.
+    fireEvent.click(selectButton, { detail: 0 })
+    expect(onSelectionChange).toHaveBeenCalledWith({ nodeIds: ['a'], edgeIds: [] })
+    expect(onNodeClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps the controls a renderer draws outside the select button', () => {
+    const { container } = render(
+      <Wrap>
+        <FlowCanvas
+          nodes={[node('a', 0, 0)]}
+          edges={[]}
+          nodeRenderers={{ task: () => <input aria-label="Step name" /> }}
+        />
+      </Wrap>,
+    )
+    const selectButton = container.querySelector('button[data-mol-id="flow-canvas-node-select-a"]')!
+    const input = container.querySelector('input[aria-label="Step name"]')!
+    expect(input).not.toBeNull()
+    expect(selectButton.contains(input)).toBe(false)
+    expect(input.closest('button')).toBeNull()
+  })
+
+  it('does not double-notify when a pointer click passes through the select button', () => {
+    const onSelectionChange = vi.fn()
+    const onNodeClick = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <FlowCanvas
+          nodes={[node('a', 0, 0)]}
+          edges={[]}
+          onSelectionChange={onSelectionChange}
+          onNodeClick={onNodeClick}
+        />
+      </Wrap>,
+    )
+    const selectButton = container.querySelector('button[data-mol-id="flow-canvas-node-select-a"]')!
+    // Pointer path: pointerdown selects (bubbling to the node group);
+    // the resulting click has detail > 0 and must NOT select again.
+    fireEvent.pointerDown(selectButton, { button: 0, pointerId: 1, clientX: 5, clientY: 5 })
+    fireEvent.click(selectButton, { detail: 1 })
+    expect(onSelectionChange).toHaveBeenCalledTimes(1)
+    expect(onNodeClick).toHaveBeenCalledTimes(1)
   })
 
   it('renders one absolutely-positioned div per node', () => {

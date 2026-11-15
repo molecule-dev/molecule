@@ -212,9 +212,9 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
             onPointerMove={onRowPointerMove}
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
-            onClick={() => {
-              if (draggingId === null && !isEditing) onSelect(layer.id)
-            }}
+            /* The row itself carries only the drag machinery (pointer
+               events); select is a native button on the layer name below,
+               so the row needs no click handler and no keyboard shim. */
             className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.cursorPointer)}
             style={{
               opacity: isDragging ? 0.4 : layer.visible ? 1 : 0.55,
@@ -225,10 +225,7 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
           >
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                onVisibilityToggle(layer.id)
-              }}
+              onClick={() => onVisibilityToggle(layer.id)}
               aria-label={visibilityLabel}
               title={visibilityLabel}
               aria-pressed={!layer.visible}
@@ -245,10 +242,7 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
 
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                onLockToggle(layer.id)
-              }}
+              onClick={() => onLockToggle(layer.id)}
               aria-label={lockLabel}
               title={lockLabel}
               aria-pressed={layer.locked}
@@ -287,14 +281,35 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
                   }}
                   onBlur={() => commitRename(layer)}
                   onKeyDown={(e) => onRenameKeyDown(e, layer)}
-                  onClick={(e) => e.stopPropagation()}
                   onPointerDown={(e) => e.stopPropagation()}
                   aria-label={t('layerPanel.renameInput', {}, { defaultValue: 'Rename layer' })}
                   data-mol-id={`layer-panel-rename-${layer.id}`}
                   style={{ width: '100%' }}
                 />
               ) : (
-                <span data-mol-id={`layer-panel-name-${layer.id}`}>{layer.name}</span>
+                <button
+                  type="button"
+                  onClick={() => onSelect(layer.id)}
+                  data-mol-id={`layer-panel-name-${layer.id}`}
+                  /* mol-bespoke-button: the layer NAME is the row's select
+                     control — a native button carrying plain text, so the
+                     inline background/border/padding/font/color are native
+                     resets, not a missing `cm.button()` surface. Native
+                     Enter/Space activation gives keyboard users the same
+                     select the row click gave mouse users. */
+                  className={cm.cn(cm.cursorPointer)}
+                  style={{
+                    width: '100%',
+                    background: 'transparent',
+                    border: 'none',
+                    padding: 0,
+                    font: 'inherit',
+                    color: 'inherit',
+                    textAlign: 'left',
+                  }}
+                >
+                  {layer.name}
+                </button>
               )}
             </div>
 

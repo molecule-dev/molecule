@@ -148,6 +148,21 @@ describe('<MindMapCanvas>', () => {
     expect(bodies.length).toBeGreaterThanOrEqual(2)
   })
 
+  it('moves focus into the inline editor when it opens (keyboard users can type at once)', () => {
+    const { container } = render(
+      <Wrap>
+        <Host initial={sample()} />
+      </Wrap>,
+    )
+    const body = container.querySelector('[data-mol-id="mind-map-node-body-a"]') as HTMLElement
+    fireEvent.doubleClick(body)
+    const input = container.querySelector(
+      '[data-mol-id="mind-map-node-input-a"]',
+    ) as HTMLInputElement
+    expect(input).not.toBeNull()
+    expect(document.activeElement).toBe(input)
+  })
+
   it('enters inline edit on double-click and commits on Enter', () => {
     const onNodeEdit = vi.fn()
     const { container } = render(

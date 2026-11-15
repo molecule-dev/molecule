@@ -186,22 +186,77 @@ describe('<FileCard>', () => {
     expect(img?.getAttribute('src')).toBe('https://example.test/a.jpg')
   })
 
-  it('exposes role=button + aria-pressed when onClick is set, and fires it on click', () => {
-    const onClick = vi.fn()
+  it.each(['grid', 'row'] as const)(
+    'a clickable %s card is a named group whose select button carries the click and aria-pressed',
+    (layout) => {
+      const onClick = vi.fn()
+      const { container } = render(
+        <Wrap>
+          <FileCard file={baseFile} layout={layout} selected onClick={onClick} />
+        </Wrap>,
+      )
+      const root = container.querySelector('[data-mol-id="file-card-f-1"]') as HTMLElement
+      expect(root.getAttribute('role')).toBe('group')
+      expect(root.getAttribute('tabindex')).toBeNull()
+      expect(root.getAttribute('data-selected')).toBe('true')
+      const select = root.querySelector('[data-mol-id="file-card-select"]') as HTMLButtonElement
+      // A native button: Enter and Space activate it with a click, no key handler needed.
+      expect(select.tagName).toBe('BUTTON')
+      expect(select.type).toBe('button')
+      expect(select.getAttribute('aria-pressed')).toBe('true')
+      expect(select.getAttribute('aria-label')).toContain('Q3-report.pdf')
+      fireEvent.click(select)
+      expect(onClick).toHaveBeenCalledTimes(1)
+      expect(onClick.mock.calls[0]?.[0]).toEqual(baseFile)
+    },
+  )
+
+  it('an unselected card reports aria-pressed false', () => {
     const { container } = render(
       <Wrap>
-        <FileCard file={baseFile} selected onClick={onClick} />
+        <FileCard file={baseFile} onClick={() => {}} />
+      </Wrap>,
+    )
+    const select = container.querySelector('[data-mol-id="file-card-select"]')!
+    expect(select.getAttribute('aria-pressed')).toBe('false')
+  })
+
+  it('has no select button and no tab stop without onClick', () => {
+    const { container } = render(
+      <Wrap>
+        <FileCard file={baseFile} />
       </Wrap>,
     )
     const root = container.querySelector('[data-mol-id="file-card-f-1"]') as HTMLElement
-    expect(root.getAttribute('role')).toBe('button')
-    expect(root.getAttribute('tabindex')).toBe('0')
-    expect(root.getAttribute('aria-pressed')).toBe('true')
-    expect(root.getAttribute('data-selected')).toBe('true')
-    fireEvent.click(root)
-    expect(onClick).toHaveBeenCalledTimes(1)
-    expect(onClick.mock.calls[0]?.[0]).toEqual(baseFile)
+    expect(root.getAttribute('role')).toBe('group')
+    expect(root.getAttribute('tabindex')).toBeNull()
+    expect(root.querySelector('[data-mol-id="file-card-select"]')).toBeNull()
   })
+
+  it.each(['grid', 'row'] as const)(
+    'keeps the %s actions outside the select button, after it in tab order',
+    (layout) => {
+      const { container } = render(
+        <Wrap>
+          <FileCard
+            file={baseFile}
+            layout={layout}
+            onClick={() => {}}
+            actions={
+              <button type="button" data-mol-id="custom-kebab">
+                ...
+              </button>
+            }
+          />
+        </Wrap>,
+      )
+      const select = container.querySelector('[data-mol-id="file-card-select"]')!
+      const kebab = container.querySelector('[data-mol-id="custom-kebab"]')!
+      expect(select.contains(kebab)).toBe(false)
+      expect(kebab.closest('[role="button"]')).toBeNull()
+      expect(select.compareDocumentPosition(kebab) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    },
+  )
 
   it('does not fire onClick for clicks inside the actions slot', () => {
     const onClick = vi.fn()

@@ -77,8 +77,8 @@ export interface SearchResultsProps<T> {
  * @returns An `<a>`.
  */
 function defaultLink(props: SearchResultLinkProps): ReactNode {
-  const { state: _state, ...rest } = props
-  return <a {...rest} />
+  const { state: _state, children, ...rest } = props
+  return <a {...rest}>{children}</a>
 }
 
 /**

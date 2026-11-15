@@ -11,7 +11,15 @@
  * @module
  */
 
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  act,
+  cleanup,
+  createEvent,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { createElement, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -142,6 +150,44 @@ describe('SearchAutocomplete keyboard navigation (L115a-a)', () => {
     fireEvent.focus(input)
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(onSelect).not.toHaveBeenCalled()
+  })
+})
+
+describe('SearchAutocomplete option rows', () => {
+  /**
+   * Opens the popover over the static suggestion fixture.
+   * @param onSelect - Selection callback spy.
+   * @returns The rendered input element.
+   */
+  function renderOpen(onSelect: (item: SuggestionItem) => void): HTMLElement {
+    render(
+      createElement(SearchAutocomplete, { value: 'o', onChange: () => {}, suggestions, onSelect }),
+    )
+    const input = screen.getByRole('combobox')
+    fireEvent.focus(input)
+    return input
+  }
+
+  it('options hold no nested control and are never Tab stops', () => {
+    renderOpen(vi.fn())
+    for (const option of screen.getAllByRole('option')) {
+      // An option's children are presentational: a button inside one is invisible
+      // to assistive technology.
+      expect(option.querySelector('button, a, input, [tabindex="0"]')).toBeNull()
+      expect(option.getAttribute('tabindex')).toBe('-1')
+    }
+  })
+
+  it('pressing a suggestion selects it, keeps focus on the input and closes the popover', () => {
+    const onSelect = vi.fn()
+    renderOpen(onSelect)
+    const option = screen.getAllByRole('option')[1]
+    const press = createEvent.mouseDown(option)
+    fireEvent(option, press)
+    expect(press.defaultPrevented).toBe(true)
+    expect(onSelect).toHaveBeenCalledTimes(1)
+    expect(onSelect).toHaveBeenCalledWith(suggestions[1])
+    expect(screen.queryByRole('listbox')).toBeNull()
   })
 })
 

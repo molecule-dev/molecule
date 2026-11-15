@@ -242,6 +242,44 @@ describe('<TraceWaterfall>', () => {
     expect(onSpanClick.mock.calls[0][0].id).toBe('c')
   })
 
+  it('is keyboard-activatable with Space', () => {
+    const onSpanClick = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <TraceWaterfall spans={sampleSpans} onSpanClick={onSpanClick} />
+      </Wrap>,
+    )
+    const row = container.querySelector('[data-span-id="d"]') as HTMLElement
+    fireEvent.keyDown(row, { key: ' ' })
+    expect(onSpanClick).toHaveBeenCalledTimes(1)
+    expect(onSpanClick.mock.calls[0][0].id).toBe('d')
+  })
+
+  it('marks every treeitem aria-selected=false when nothing is selected', () => {
+    const { container } = render(
+      <Wrap>
+        <TraceWaterfall spans={sampleSpans} />
+      </Wrap>,
+    )
+    const rows = container.querySelectorAll('[data-mol-id="trace-waterfall-row"]')
+    expect(rows).toHaveLength(4)
+    for (const row of rows) {
+      expect(row.getAttribute('aria-selected')).toBe('false')
+    }
+  })
+
+  it('marks the selectedSpanId row aria-selected=true and the rest false', () => {
+    const { container } = render(
+      <Wrap>
+        <TraceWaterfall spans={sampleSpans} selectedSpanId="b" />
+      </Wrap>,
+    )
+    const selected = container.querySelector('[data-span-id="b"]') as HTMLElement
+    expect(selected.getAttribute('aria-selected')).toBe('true')
+    const other = container.querySelector('[data-span-id="a"]') as HTMLElement
+    expect(other.getAttribute('aria-selected')).toBe('false')
+  })
+
   it('restricts the rendered subtree to rootSpanId when provided', () => {
     const { container } = render(
       <Wrap>

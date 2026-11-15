@@ -21,6 +21,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { SearchBox } = await import('../SearchBox.js')
 const { SearchResults } = await import('../SearchResults.js')
+const { QuickSearchDialog } = await import('../QuickSearchDialog.js')
 const { Highlight } = await import('../Highlight.js')
 
 beforeAll(() => setClassMap(classMap))
@@ -136,6 +137,8 @@ describe('SearchResults', () => {
     expect(rows[0].textContent).toContain('core · auth')
     const link = rows[0].querySelector('a') as HTMLAnchorElement
     expect(link.getAttribute('href')).toBe('/packages/api-auth')
+    // The default link renders the row's content inside the anchor, never an empty one.
+    expect(link.textContent).toContain('api-auth')
     act(() => link.click())
     expect(onOpen).toHaveBeenCalledWith(hits[0].doc)
     onOpen.mockClear()
@@ -177,6 +180,44 @@ describe('SearchResults', () => {
       ),
     )
     expect(container.textContent).toBe('Nothing')
+  })
+})
+
+describe('QuickSearchDialog', () => {
+  it('moves focus into the field through its ref when it opens, and renders hits as anchors with content', () => {
+    const inputRef = { current: null as HTMLInputElement | null }
+    const session = {
+      inputRef,
+      query: 'auth',
+      setQuery: () => {},
+      clear: () => {},
+      parsed: { filters: [] },
+      hits: [{ id: 'a', doc: { name: 'api-auth' }, terms: ['auth'] }],
+      active: true,
+      ranked: true,
+      activeIndex: 0,
+      setActiveIndex: () => {},
+      onKeyDown: () => {},
+      removeFilter: () => {},
+      open: () => {},
+      prefetch: () => {},
+      focus: () => {},
+    }
+    const view = (doc: { name: string }) => ({ href: `/packages/${doc.name}`, title: doc.name })
+    render(
+      createElement(QuickSearchDialog, {
+        open: true,
+        onClose: () => {},
+        session,
+        view,
+        placeholder: 'Search packages',
+        emptyText: 'Nothing',
+      }),
+    )
+    expect(q('[role="dialog"]')).not.toBeNull()
+    expect(inputRef.current).toBe(q('[data-mol-id="quick-search-input"]'))
+    expect(document.activeElement).toBe(inputRef.current)
+    expect(q('[data-mol-id="quick-search-link"]')?.textContent).toBe('api-auth')
   })
 })
 

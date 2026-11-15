@@ -5,7 +5,7 @@
  * @module
  */
 
-import { type JSX, useEffect, useState } from 'react'
+import { type JSX, useEffect, useRef, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
@@ -19,7 +19,11 @@ export interface AdminTableRowActionsProps<T> {
   ariaLabel: string
 }
 
-/** Three-dots row actions menu. */
+/**
+ * Three-dots row actions menu. Dismisses on an outside click (mouse) or on
+ * Escape (keyboard, from wherever focus sits); every item is a native
+ * button/link, so the whole menu is keyboard-operable.
+ */
 export function AdminTableRowActions<T>({
   row,
   actions,
@@ -27,11 +31,31 @@ export function AdminTableRowActions<T>({
 }: AdminTableRowActionsProps<T>): JSX.Element {
   const cm = getClassMap()
   const [open, setOpen] = useState(false)
+  const popoverRef = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
     if (!open) return
-    const handler = (): void => setOpen(false)
-    document.addEventListener('click', handler)
-    return () => document.removeEventListener('click', handler)
+    const onClick = (e: MouseEvent): void => {
+      // Close only for clicks OUTSIDE the popover: clicks on the menu surface
+      // or between items stay put, and each item closes the menu itself. (This
+      // containment check replaces the old stopPropagation onClick on the
+      // popover div, which made that div an unusable keyboard-less control.)
+      const target = e.target
+      if (popoverRef.current && target instanceof Node && popoverRef.current.contains(target)) {
+        return
+      }
+      setOpen(false)
+    }
+    // Keyboard parity for the mouse's click-outside dismissal: Escape closes
+    // from wherever focus sits (the trigger, or a tabbable menu item).
+    const onKeyDown = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('click', onClick)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('click', onClick)
+      document.removeEventListener('keydown', onKeyDown)
+    }
   }, [open])
   return (
     <div className={cm.cn(cm.position('relative'))}>
@@ -56,6 +80,7 @@ export function AdminTableRowActions<T>({
         // Surface + border from theme tokens; exact popover geometry (offset,
         // width, radius, elevation) has no cm resolver, so it stays inline.
         <div
+          ref={popoverRef}
           className={cm.cn(cm.surface, cm.borderAll)}
           style={{
             position: 'absolute',
@@ -67,7 +92,6 @@ export function AdminTableRowActions<T>({
             borderRadius: 8,
             boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
           }}
-          onClick={(e) => e.stopPropagation()}
         >
           <div className={cm.cn(cm.sp('py', 1))}>
             {actions.map((action, i) => {

@@ -251,4 +251,60 @@ describe('AdminTableRowActions (kebab menu)', () => {
     expect(allClasses(container)).not.toContain('hover:bg-')
     expect(allClasses(container)).not.toContain('text-gray')
   })
+
+  it('runs the action and closes the menu when an item is activated', async () => {
+    const onSelect = vi.fn()
+    const container = render(
+      createElement(AdminTableRowActions<Row>, {
+        row: rows[0],
+        actions: [{ label: 'Edit', onSelect, dataMolIdFor: () => 'row-action-edit' }],
+        ariaLabel: 'Row actions',
+      }),
+    ).container
+    const trigger = container.querySelector<HTMLElement>(
+      '[data-mol-id="admin-table-row-actions-trigger"]',
+    )
+    if (!trigger) throw new Error('trigger not found')
+    fireEvent.click(trigger)
+    const edit = container.querySelector<HTMLElement>('[data-mol-id="row-action-edit"]')
+    if (!edit) throw new Error('edit item not found')
+    // Native <button>: this click is what Enter/Space produce on it.
+    fireEvent.click(edit)
+    expect(onSelect).toHaveBeenCalledTimes(1)
+    expect(onSelect).toHaveBeenCalledWith(rows[0])
+    expect(container.querySelector('[data-mol-id="row-action-edit"]')).toBeNull()
+  })
+
+  it('keeps the menu open for clicks inside the popover; an outside click closes it', () => {
+    const container = renderOpen()
+    // Click on the menu surface itself (padding/text) — must NOT close.
+    const item = container.querySelector<HTMLElement>('[data-mol-id="row-action-edit"]')
+    if (!item) throw new Error('edit item not found')
+    const surface = item.parentElement
+    if (!surface) throw new Error('menu body not found')
+    fireEvent.click(surface)
+    expect(container.querySelector('[data-mol-id="row-action-edit"]')).not.toBeNull()
+    // A click outside the popover (e.g. elsewhere on the page) closes it.
+    fireEvent.click(document.body)
+    expect(container.querySelector('[data-mol-id="row-action-edit"]')).toBeNull()
+  })
+
+  it('closes the menu on Escape, from inside the menu and from the trigger', () => {
+    const container = renderOpen()
+    const edit = container.querySelector<HTMLElement>('[data-mol-id="row-action-edit"]')
+    if (!edit) throw new Error('edit item not found')
+    // Keydown bubbles to the document-level listener, so Escape works while
+    // keyboard focus is on a menu item…
+    fireEvent.keyDown(edit, { key: 'Escape' })
+    expect(container.querySelector('[data-mol-id="row-action-edit"]')).toBeNull()
+    // …and after reopening, while focus is still on the trigger.
+    const trigger = container.querySelector<HTMLElement>(
+      '[data-mol-id="admin-table-row-actions-trigger"]',
+    )
+    if (!trigger) throw new Error('trigger not found')
+    fireEvent.click(trigger)
+    expect(container.querySelector('[data-mol-id="row-action-edit"]')).not.toBeNull()
+    fireEvent.keyDown(trigger, { key: 'Escape' })
+    expect(container.querySelector('[data-mol-id="row-action-edit"]')).toBeNull()
+  })
 })

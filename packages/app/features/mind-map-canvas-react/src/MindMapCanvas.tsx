@@ -4,7 +4,7 @@ import type {
   KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
 } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   CanvasEdge,
@@ -118,6 +118,13 @@ export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingDraft, setEditingDraft] = useState<string>('')
+  const editInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Move focus into the freshly-mounted inline editor (the WAI-ARIA
+  // inline-edit pattern) without `autoFocus`, which jsx-a11y forbids.
+  useEffect(() => {
+    if (editingId != null) editInputRef.current?.focus()
+  }, [editingId])
 
   /**
    * Push a tree mutation through either the controlled callback or the
@@ -289,7 +296,7 @@ export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
               >
                 {isEditing ? (
                   <input
-                    autoFocus
+                    ref={editInputRef}
                     aria-label={editAriaLabel}
                     data-mol-id={`mind-map-node-input-${node.id}`}
                     value={editingDraft}

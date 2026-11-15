@@ -168,22 +168,35 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
   const top = (event.startHour - startHour) * pxPerHour
   const height = Math.max(20, (safeEnd - event.startHour) * pxPerHour)
 
-  const style: CSSProperties = {
+  // The listitem is a plain container (ARIA forbids a `listitem` to be a
+  // button, and jsx-a11y forbids its handlers): it carries the card's
+  // geometry and look only. The interaction lives on an inner element that
+  // fills the card — a native button when the event is clickable, a plain
+  // content block otherwise (nothing to activate, nothing to focus).
+  const cardStyle: CSSProperties = {
     position: 'absolute',
     top,
     left: 6,
     right: 6,
     height,
-    // The recipe's own left padding is in the class; the shorthand here must
-    // not override it.
-    padding: '0.4rem 0.6rem 0.4rem 30px',
     borderRadius: 6,
     overflow: 'hidden',
     background: 'var(--mol-color-surface-variant, rgba(0,0,0,0.04))',
     // The event's accent color drives an inset bar (DESIGN.md → "Accent
     // bars"), not a hard border-left.
     ['--mol-accent' as string]: event.accentColor ?? 'var(--mol-color-primary, #3366ff)',
-    cursor: event.onClick ? 'pointer' : 'default',
+  }
+
+  // Fills the card so the whole surface is the click target. The 30px left
+  // padding keeps the text clear of the accent bar's inset (`ACCENT_BAR`'s
+  // `pl-[30px]` sits on the listitem above, not on this element).
+  const contentStyle: CSSProperties = {
+    position: 'absolute',
+    inset: 0,
+    padding: '0.4rem 0.6rem 0.4rem 30px',
+    font: 'inherit',
+    color: 'inherit',
+    textAlign: 'left',
   }
 
   const ariaLabel = t(
@@ -196,26 +209,41 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
     { defaultValue: '{{title}} from {{start}} to {{end}}' },
   )
 
+  const content = (
+    <>
+      <div className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{event.title}</div>
+      {event.subtitle && (
+        <div className={cm.accentCardLabel({ tone: 'custom' })}>{event.subtitle}</div>
+      )}
+    </>
+  )
+
   return (
     <div
       role="listitem"
       data-event-id={event.id}
       data-mol-id="day-timeline-event"
-      onClick={event.onClick}
-      onKeyDown={(e) => {
-        if (event.onClick && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault()
-          event.onClick()
-        }
-      }}
-      tabIndex={event.onClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cm.accentCard({ tone: 'custom' })}
-      style={style}
+      style={cardStyle}
     >
-      <div className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{event.title}</div>
-      {event.subtitle && (
-        <div className={cm.accentCardLabel({ tone: 'custom' })}>{event.subtitle}</div>
+      {event.onClick ? (
+        <button
+          type="button"
+          data-mol-id="day-timeline-event-action"
+          aria-label={ariaLabel}
+          // A native button: Enter and Space activate it with a click.
+          onClick={event.onClick}
+          /* mol-bespoke-button: the whole event card is the control — a
+             cm.button() CTA recipe would restyle it as a solid pill. This
+             button is transparent over the card's own surface tint and
+             contributes no look of its own. */
+          style={{ ...contentStyle, cursor: 'pointer', background: 'transparent' }}
+        >
+          {content}
+        </button>
+      ) : (
+        <div style={contentStyle}>{content}</div>
       )}
     </div>
   )

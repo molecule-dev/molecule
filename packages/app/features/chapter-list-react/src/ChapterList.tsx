@@ -132,6 +132,8 @@ export function ChapterList(props: ChapterListProps): ReactNode {
 
   return (
     <ul
+      // Explicit: Safari/VoiceOver drop the list role from a <ul> styled without
+      // bullets, so the role is stated rather than left implicit.
       role="list"
       aria-label={regionLabel}
       data-mol-id="chapter-list"

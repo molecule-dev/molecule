@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 
 import type { ClientSearchDocument } from '@molecule/app-client-search'
 import type { SearchSession } from '@molecule/app-client-search-react'
@@ -58,6 +59,13 @@ export function QuickSearchDialog<T extends ClientSearchDocument>({
 }: QuickSearchDialogProps<T>): React.JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
+
+  // The dialog pattern: focus moves into the field when it opens. The input
+  // is mounted only while open, so its ref is set by the time this effect runs.
+  useEffect(() => {
+    if (open) session.inputRef.current?.focus()
+  }, [open, session.inputRef])
+
   if (!open) return null
   return (
     <Modal
@@ -81,7 +89,6 @@ export function QuickSearchDialog<T extends ClientSearchDocument>({
         onClear={session.clear}
         examples={examples}
         shortcut={null}
-        autoFocus
         molId={molId}
       />
       <div className={cm.dialogBody} data-mol-id={`${molId}-pane`}>
