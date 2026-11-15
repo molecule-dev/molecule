@@ -1,0 +1,274 @@
+{
+ "exports": [
+  "ProgressBar",
+  "ProgressCard"
+ ],
+ "values": {},
+ "cases": {
+  "ProgressBar": {
+   "value only": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "label only": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nStorage\n</span>\n</div>\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "value label only": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n50%\n</span>\n</div>\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "label and value label": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nStorage\n</span>\n<span class=\"c445db9b9\">\n50%\n</span>\n</div>\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "element label and value label": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\n<strong>\nStorage\n</strong>\n</span>\n<span class=\"c445db9b9\">\n<em>\n50%\n</em>\n</span>\n</div>\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "small size": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c092eaa64 c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "medium size": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "large size": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cc6672f07 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "primary color": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "success color": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8 cef6f5494\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "warning color": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04255343 c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "error color": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c0d4608b5 c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "info color": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8 cc9516029\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom max": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"60\" aria-valuemin=\"0\" aria-valuenow=\"30\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "value above the maximum clamps to full": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"500\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 100%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "negative value clamps to empty": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"-10\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 0%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero max renders empty": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"0\" aria-valuemin=\"0\" aria-valuenow=\"10\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 0%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "fractional value": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"33.3\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 33.3%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"10\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 10%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "value changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"25\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 25%\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"75\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 75%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "size and color change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c092eaa64 c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8 cef6f5494\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cc6672f07 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c0d4608b5 c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "label row appears": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nStorage\n</span>\n<span class=\"c445db9b9\">\n50%\n</span>\n</div>\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "label row disappears": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c937ba156 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c80b1c428\">\nStorage\n</span>\n<span class=\"c445db9b9\">\n50%\n</span>\n</div>\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "value only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "ProgressCard": {
+   "title and value": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nBudget\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "element title": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\n<span data-title>\nBudget\n</span>\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "string description": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<p class=\"c445db9b9\">\ndesc-x\n</p>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "description and icon": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n💾\n</i>\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<p class=\"c445db9b9\">\n<em>\n8.5 GB of 10 GB\n</em>\n</p>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "string icon": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n★\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "value label": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n<span class=\"c445db9b9 c7f74399a\">\n40%\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "element value label": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n<span class=\"c445db9b9 c7f74399a\">\n<em>\n50%\n</em>\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "children below the bar": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n<div data-extra>\nResets monthly\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom max": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"60\" aria-valuemin=\"0\" aria-valuenow=\"30\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 50%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "warning color": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"85\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04255343 c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 85%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "value above the maximum": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"150\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 100%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero max": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"0\" aria-valuemin=\"0\" aria-valuenow=\"10\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 0%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every region": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n💾\n</i>\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nStorage used\n</h3>\n<p class=\"c445db9b9\">\n<em>\n8.5 GB of 10 GB\n</em>\n</p>\n</div>\n</div>\n<span class=\"c445db9b9 c7f74399a\">\n85%\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"85\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04255343 c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 85%\">\n</div>\n</div>\n</div>\n<div data-extra>\nResets monthly\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "value changes": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"20\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 20%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"80\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 80%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "description and value label appear": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<p class=\"c445db9b9\">\ndesc-y\n</p>\n</div>\n</div>\n<span class=\"c445db9b9 c7f74399a\">\n40%\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "description and value label disappear": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<p class=\"c445db9b9\">\ndesc-x\n</p>\n</div>\n</div>\n<span class=\"c445db9b9 c7f74399a\">\n40%\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and value, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nBudget\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<div>\n<h3 class=\"c504afaf4 c7f74399a\">\nBudget\n</h3>\n</div>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c8f19053a c9052b18c cbf033fe8 cc5672d74 cf74bfc1b cfc82911d\" role=\"progressbar\">\n<div class=\"c04c34dac c1d1b1057 c7f6faa75 cb5823274 cbf033fe8\" style=\"width: 40%\">\n</div>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

@@ -1,0 +1,179 @@
+{
+ "exports": [
+  "ProgressRings"
+ ],
+ "values": {},
+ "cases": {
+  "ProgressRings": {
+   "one ring with the default size and caps": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#ff0000\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#ff0000\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "concentric triad with per-ring labels": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Steps\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"371.96457018503156 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-dasharray=\"227.76546738526002 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Active\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-dasharray=\"131.94689145077132 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "no rings": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (0 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "class and data-mol-id pass through": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" class=\"ce1f3b6ba\" data-mol-id=\"steps-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "full ring": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#00ff00\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#00ff00\" stroke-dasharray=\"464.9557127312894 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty ring": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#0000ff\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#0000ff\" stroke-dasharray=\"0 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "overflow value clamps to the full circumference": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#123456\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#123456\" stroke-dasharray=\"464.9557127312894 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "underflow value clamps to zero": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#654321\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#654321\" stroke-dasharray=\"0 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "a non-positive max falls back to 1": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#abcdef\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#abcdef\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom size, stroke width and gap": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"240\" role=\"img\" viewbox=\"0 0 240 240\" width=\"240\">\n<g aria-label=\"Steps\" role=\"img\">\n<circle cx=\"120\" cy=\"120\" fill=\"none\" r=\"110\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"20\">\n</circle>\n<circle cx=\"120\" cy=\"120\" fill=\"none\" r=\"110\" stroke=\"#a\" stroke-dasharray=\"552.9203070318036 691.1503837897545\" stroke-linecap=\"round\" stroke-width=\"20\" transform=\"rotate(-90 120 120)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" role=\"img\">\n<circle cx=\"120\" cy=\"120\" fill=\"none\" r=\"82\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"20\">\n</circle>\n<circle cx=\"120\" cy=\"120\" fill=\"none\" r=\"82\" stroke=\"#b\" stroke-dasharray=\"322.0132469929538 515.221195188726\" stroke-linecap=\"round\" stroke-width=\"20\" transform=\"rotate(-90 120 120)\">\n</circle>\n</g>\n<g aria-label=\"Active\" role=\"img\">\n<circle cx=\"120\" cy=\"120\" fill=\"none\" r=\"54\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"20\">\n</circle>\n<circle cx=\"120\" cy=\"120\" fill=\"none\" r=\"54\" stroke=\"#c\" stroke-dasharray=\"169.64600329384882 339.29200658769764\" stroke-linecap=\"round\" stroke-width=\"20\" transform=\"rotate(-90 120 120)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "butt caps": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"348.71678454846705 464.9557127312894\" stroke-linecap=\"butt\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "explicit round caps": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"348.71678454846705 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "an explicit aria label replaces the summary": {
+    "snapshots": [
+     "<svg aria-label=\"Daily activity rings\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "seven rings, the innermost too small to render": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (7 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"66.42224467589848 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Ring 2\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#a\" stroke-dasharray=\"104.121356518976 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Ring 3\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#a\" stroke-dasharray=\"113.09733552923255 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Ring 4\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"26\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"26\" stroke=\"#a\" stroke-dasharray=\"93.35018170666814 163.36281798666926\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Ring 5\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"10\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"10\" stroke=\"#a\" stroke-dasharray=\"44.87989505128276 62.83185307179586\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change: size and stroke width": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"220\" role=\"img\" viewbox=\"0 0 220 220\" width=\"220\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"110\" cy=\"110\" fill=\"none\" r=\"98\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"24\">\n</circle>\n<circle cx=\"110\" cy=\"110\" fill=\"none\" r=\"98\" stroke=\"#a\" stroke-dasharray=\"307.8760800517997 615.7521601035994\" stroke-linecap=\"round\" stroke-width=\"24\" transform=\"rotate(-90 110 110)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"60\" role=\"img\" viewbox=\"0 0 60 60\" width=\"60\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"30\" cy=\"30\" fill=\"none\" r=\"28\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"4\">\n</circle>\n<circle cx=\"30\" cy=\"30\" fill=\"none\" r=\"28\" stroke=\"#a\" stroke-dasharray=\"87.96459430051421 175.92918860102841\" stroke-linecap=\"round\" stroke-width=\"4\" transform=\"rotate(-90 30 30)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change: a ring value and colour": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"116.23892818282235 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#b\" stroke-dasharray=\"464.9557127312894 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change: rings added": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Steps\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"371.96457018503156 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-dasharray=\"227.76546738526002 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Active\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-dasharray=\"131.94689145077132 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change: rings removed": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Steps\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"371.96457018503156 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-dasharray=\"227.76546738526002 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Active\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-dasharray=\"131.94689145077132 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (0 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change: corner radius": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"butt\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change: class and id": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" class=\"ce5a94ed4\" data-mol-id=\"later-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change: an aria label set and cleared": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Custom summary\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change: a per-ring label added and removed": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Steps\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "one ring with the default size and caps, then a locale switch": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (1 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Ring 1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#ff0000\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#ff0000\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"⟦Progress rings (1 rings)⟧\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"⟦Ring 1⟧\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#ff0000\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#ff0000\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "concentric triad with per-ring labels, then rings again as equal new objects": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Steps\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"371.96457018503156 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-dasharray=\"227.76546738526002 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Active\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-dasharray=\"131.94689145077132 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Steps\" data-conformance-mark=\"0\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"371.96457018503156 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" data-conformance-mark=\"1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-dasharray=\"227.76546738526002 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Active\" data-conformance-mark=\"2\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-dasharray=\"131.94689145077132 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Steps\" data-conformance-mark=\"0\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"371.96457018503156 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" data-conformance-mark=\"1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-dasharray=\"227.76546738526002 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Active\" data-conformance-mark=\"2\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-dasharray=\"131.94689145077132 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "concentric triad with per-ring labels, then rings reversed": {
+    "snapshots": [
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Steps\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"371.96457018503156 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-dasharray=\"227.76546738526002 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Active\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-dasharray=\"131.94689145077132 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Steps\" data-conformance-mark=\"0\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#a\" stroke-dasharray=\"371.96457018503156 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" data-conformance-mark=\"1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-dasharray=\"227.76546738526002 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Active\" data-conformance-mark=\"2\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#c\" stroke-dasharray=\"131.94689145077132 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /",
+     "<svg aria-label=\"Progress rings (3 rings)\" data-mol-id=\"progress-rings\" height=\"160\" role=\"img\" viewbox=\"0 0 160 160\" width=\"160\">\n<g aria-label=\"Active\" data-conformance-mark=\"0\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#c\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"74\" stroke=\"#c\" stroke-dasharray=\"232.4778563656447 464.9557127312894\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Sleep\" data-conformance-mark=\"1\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"58\" stroke=\"#b\" stroke-dasharray=\"227.76546738526002 364.424747816416\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n<g aria-label=\"Steps\" data-conformance-mark=\"2\" role=\"img\">\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#a\" stroke-opacity=\"0.18\" stroke-width=\"12\">\n</circle>\n<circle cx=\"80\" cy=\"80\" fill=\"none\" r=\"42\" stroke=\"#a\" stroke-dasharray=\"211.11502632123413 263.89378290154264\" stroke-linecap=\"round\" stroke-width=\"12\" transform=\"rotate(-90 80 80)\">\n</circle>\n</g>\n</svg>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

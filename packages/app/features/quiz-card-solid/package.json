@@ -1,0 +1,64 @@
+{
+  "name": "@molecule/app-quiz-card-solid",
+  "version": "1.0.0",
+  "description": "Question card with multiple-choice options, progress, optional timer, correct/incorrect feedback",
+  "homepage": "https://www.molecule.dev/packages/app-quiz-card-solid",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "molecule",
+    "quiz-card",
+    "solid"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/features/quiz-card-solid"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@molecule/app-solid": "^3.5.0",
+    "@molecule/app-ui": "^1.0.1",
+    "@molecule/app-ui-solid": "^1.1.0",
+    "solid-js": "^1.8.0"
+  },
+  "devDependencies": {
+    "@molecule/app-framework-conformance": "0.0.0",
+    "@molecule/app-i18n": "1.2.1",
+    "@molecule/app-icons": "1.0.4",
+    "@molecule/app-solid": "3.6.0",
+    "@molecule/app-ui": "1.3.11",
+    "@molecule/app-ui-solid": "1.1.2",
+    "@types/node": "26.6.5",
+    "jsdom": "30.1.3",
+    "solid-js": "1.9.17",
+    "typescript": "6.0.3",
+    "vite-plugin-solid": "2.11.15",
+    "vitest": "4.1.12"
+  }
+}
