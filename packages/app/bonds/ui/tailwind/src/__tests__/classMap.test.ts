@@ -530,6 +530,8 @@ describe('classMap', () => {
       'borderBPrimary',
       'bgErrorSubtle',
       'bgBorder',
+      'textOnTone',
+      'bgScrim',
     ]
 
     for (const prop of staticProps) {
@@ -561,6 +563,67 @@ describe('classMap', () => {
       // fine-pointer (mouse) desktop layout keeps its compact control sizing.
       for (const cls of classMap.touchTarget.split(/\s+/).filter(Boolean)) {
         expect(cls.startsWith('pointer-coarse:'), `${cls} must be coarse-pointer scoped`).toBe(true)
+      }
+    })
+  })
+
+  describe('semantic tone classes', () => {
+    const TONES = ['primary', 'secondary', 'success', 'warning', 'error', 'info'] as const
+
+    it('textTone() maps every tone to a text class naming that tone', () => {
+      for (const tone of TONES) {
+        expect(classMap.textTone(tone)).toBe(`text-${tone}`)
+      }
+    })
+
+    it('bgTone() maps every tone to a solid bg class naming that tone', () => {
+      for (const tone of TONES) {
+        expect(classMap.bgTone(tone)).toBe(`bg-${tone}`)
+      }
+    })
+
+    it('bgTone({ subtle: true }) returns the light tint, distinct from solid', () => {
+      for (const tone of TONES) {
+        const subtle = classMap.bgTone(tone, { subtle: true })
+        expect(subtle).toBe(`bg-${tone}-light`)
+        expect(subtle).not.toBe(classMap.bgTone(tone))
+      }
+    })
+
+    it('borderTone() maps every tone to a border colour class naming that tone', () => {
+      for (const tone of TONES) {
+        expect(classMap.borderTone(tone)).toBe(`border-${tone}`)
+      }
+    })
+
+    it('textOnTone is the inverse foreground text colour, bgScrim the overlay colour', () => {
+      expect(classMap.textOnTone).toBe('text-foreground-inverse')
+      expect(classMap.bgScrim).toBe('bg-overlay')
+    })
+
+    it('every tone class resolves to a --color-* token defined in the base.css @theme', () => {
+      // A tone class renders only if its colour token exists in the bond's
+      // @theme block — bg-overlay shipped nothing before --color-overlay was
+      // added there. Strip the utility prefix and require the token defined.
+      const baseCss = readFileSync(
+        join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'base.css'),
+        'utf8',
+      )
+      const defined = new Set([...baseCss.matchAll(/--color-([a-z0-9-]+):/g)].map((m) => m[1]))
+      const classes = [
+        ...TONES.flatMap((tone) => [
+          classMap.textTone(tone),
+          classMap.bgTone(tone),
+          classMap.bgTone(tone, { subtle: true }),
+          classMap.borderTone(tone),
+        ]),
+        classMap.textOnTone,
+        classMap.bgScrim,
+      ]
+      for (const cls of classes) {
+        expect(cls, `${cls} must be non-empty`).toBeTruthy()
+        const token = cls.replace(/^(text|bg|border)-/, '')
+        expect(defined.has(token), `${cls} needs --color-${token} in base.css @theme`).toBe(true)
       }
     })
   })

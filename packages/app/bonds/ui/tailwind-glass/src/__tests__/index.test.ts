@@ -74,6 +74,31 @@ describe('@molecule/app-ui-tailwind-glass', () => {
     })
   })
 
+  describe('semantic tone classes (inherited from the base bond)', () => {
+    const TONES = ['primary', 'secondary', 'success', 'warning', 'error', 'info'] as const
+
+    it('resolves every tone of every tone member to a non-empty class naming that tone', () => {
+      for (const tone of TONES) {
+        expect(classMap.textTone(tone)).toBe(`text-${tone}`)
+        expect(classMap.bgTone(tone)).toBe(`bg-${tone}`)
+        expect(classMap.borderTone(tone)).toBe(`border-${tone}`)
+      }
+    })
+
+    it('bgTone({ subtle: true }) returns the light tint, distinct from solid', () => {
+      for (const tone of TONES) {
+        const subtle = classMap.bgTone(tone, { subtle: true })
+        expect(subtle).toBe(`bg-${tone}-light`)
+        expect(subtle).not.toBe(classMap.bgTone(tone))
+      }
+    })
+
+    it('textOnTone and bgScrim pass through from the base bond', () => {
+      expect(classMap.textOnTone).toBe('text-foreground-inverse')
+      expect(classMap.bgScrim).toBe('bg-overlay')
+    })
+  })
+
   describe('glassOverrides', () => {
     it('exports overrides as a function', () => {
       expect(typeof glassOverrides).toBe('function')

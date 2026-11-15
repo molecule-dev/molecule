@@ -71,6 +71,9 @@ export const themeToTailwind = (theme: Theme): Record<string, Record<string, unk
         DEFAULT: theme.colors.info,
         light: theme.colors.infoLight,
       },
+      overlay: {
+        DEFAULT: theme.colors.overlay,
+      },
       border: {
         DEFAULT: theme.colors.border,
         secondary: theme.colors.borderSecondary,

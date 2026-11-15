@@ -373,6 +373,54 @@ const badgeColorMap: Record<
   info: 'default',
 }
 
+/**
+ * Text colour class for each semantic tone (status text, a tinted icon, a
+ * trend arrow). Literal class strings per tone — Tailwind generates only the
+ * class names it finds written out in source, never a template string.
+ */
+const textToneMap: Record<ColorVariant, string> = {
+  primary: 'text-primary',
+  secondary: 'text-secondary',
+  success: 'text-success',
+  warning: 'text-warning',
+  error: 'text-error',
+  info: 'text-info',
+}
+
+/** Solid background class for each semantic tone (a status dot, a filled chip). */
+const bgToneMap: Record<ColorVariant, string> = {
+  primary: 'bg-primary',
+  secondary: 'bg-secondary',
+  success: 'bg-success',
+  warning: 'bg-warning',
+  error: 'bg-error',
+  info: 'bg-info',
+}
+
+/**
+ * Light-tint background class for each semantic tone — the theme's light
+ * shade of the tone (a highlighted row, a callout, a note's paper colour),
+ * on which body text stays readable.
+ */
+const bgToneSubtleMap: Record<ColorVariant, string> = {
+  primary: 'bg-primary-light',
+  secondary: 'bg-secondary-light',
+  success: 'bg-success-light',
+  warning: 'bg-warning-light',
+  error: 'bg-error-light',
+  info: 'bg-info-light',
+}
+
+/** Border colour class for each semantic tone (width comes from the caller). */
+const borderToneMap: Record<ColorVariant, string> = {
+  primary: 'border-primary',
+  secondary: 'border-secondary',
+  success: 'border-success',
+  warning: 'border-warning',
+  error: 'border-error',
+  info: 'border-info',
+}
+
 // ============================================================================
 // CLASS MAP IMPLEMENTATION
 // ============================================================================
@@ -1270,6 +1318,26 @@ export const classMap: UIClassMap = {
   textSuccess,
   textWarning,
   textError: 'text-error',
+
+  // ---- Semantic tone classes ----
+
+  textTone(tone: ColorVariant): string {
+    return textToneMap[tone]
+  },
+
+  bgTone(tone: ColorVariant, opts?: { subtle?: boolean }): string {
+    return (opts?.subtle ? bgToneSubtleMap : bgToneMap)[tone]
+  },
+
+  borderTone(tone: ColorVariant): string {
+    return borderToneMap[tone]
+  },
+
+  // Readable text on a solid bgTone fill: the theme's inverse text colour.
+  textOnTone: 'text-foreground-inverse',
+
+  // Scrim over media (a lightbox, a video's controls) in the theme's overlay colour.
+  bgScrim: 'bg-overlay',
 
   // ---- Border tokens ----
 

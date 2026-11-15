@@ -596,6 +596,8 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       'borderBPrimary',
       'bgErrorSubtle',
       'bgBorder',
+      'textOnTone',
+      'bgScrim',
     ]
 
     for (const prop of nonEmptyStaticProps) {
@@ -617,6 +619,52 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       // React Native has no fine-pointer mode, so — unlike the web bond — the
       // minimum must NOT be gated behind the `pointer-coarse` variant.
       expect(classMap.touchTarget).not.toContain('pointer-coarse:')
+    })
+  })
+
+  // =================================================================
+  // Tone classes (inherited via spread) — RN-compatible colours only
+  // =================================================================
+
+  describe('tone classes (inherited via spread)', () => {
+    const TONES = ['primary', 'secondary', 'success', 'warning', 'error', 'info'] as const
+
+    it('should resolve every tone of every tone member to a non-empty class naming that tone', () => {
+      for (const tone of TONES) {
+        expect(classMap.textTone(tone)).toBe(`text-${tone}`)
+        expect(classMap.bgTone(tone)).toBe(`bg-${tone}`)
+        expect(classMap.borderTone(tone)).toBe(`border-${tone}`)
+      }
+    })
+
+    it('should return the light tint for subtle, distinct from solid', () => {
+      for (const tone of TONES) {
+        const subtle = classMap.bgTone(tone, { subtle: true })
+        expect(subtle).toBe(`bg-${tone}-light`)
+        expect(subtle).not.toBe(classMap.bgTone(tone))
+      }
+    })
+
+    it('should keep textOnTone and bgScrim from the tailwind bond', () => {
+      expect(classMap.textOnTone).toBe('text-foreground-inverse')
+      expect(classMap.bgScrim).toBe('bg-overlay')
+    })
+
+    it('should use only RN-supported classes (no backdrop-*, no fixed)', () => {
+      const members = [
+        ...TONES.flatMap((tone) => [
+          classMap.textTone(tone),
+          classMap.bgTone(tone),
+          classMap.bgTone(tone, { subtle: true }),
+          classMap.borderTone(tone),
+        ]),
+        classMap.textOnTone,
+        classMap.bgScrim,
+      ]
+      for (const cls of members) {
+        expect(cls).not.toContain('backdrop-')
+        expect(cls).not.toContain('fixed')
+      }
     })
   })
 })

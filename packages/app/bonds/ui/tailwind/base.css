@@ -129,6 +129,7 @@
   --color-border: var(--mol-color-border, #e0e0e0);
   --color-border-secondary: var(--mol-color-border-secondary, #d0d0d0);
   --color-border-focus: var(--mol-color-border-focus, #4070e0);
+  --color-overlay: var(--mol-color-overlay, rgba(0, 0, 0, 0.5));
   /* Button text colors on tinted (bg-<color>/25) backgrounds. The per-variant
      base percentages are the HIGHEST values still passing WCAG AA 4.5:1 against
      the light theme's 25%-tinted button backgrounds (computed over both #f6f6f6

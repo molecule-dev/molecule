@@ -2414,6 +2414,23 @@ export interface UIClassMap {
   /** Error-state text color. */
   textError: string
 
+  // ---- Semantic tone classes ----
+
+  /** Text colour of a semantic tone: status text, a tinted icon, a trend arrow. */
+  textTone(tone: ColorVariant): string
+  /**
+   * Background of a semantic tone. Solid by default (a status dot, a filled chip; put text on it with
+   * {@link UIClassMap.textOnTone}); `{ subtle: true }` gives the theme's light tint of the tone (a highlighted row,
+   * a callout, a note's paper colour), on which body text stays readable.
+   */
+  bgTone(tone: ColorVariant, opts?: { subtle?: boolean }): string
+  /** Border colour of a semantic tone. */
+  borderTone(tone: ColorVariant): string
+  /** Readable text on a solid {@link UIClassMap.bgTone} background (the theme's inverse text colour). */
+  textOnTone: string
+  /** Background in the theme's overlay colour: a scrim over media, such as a lightbox or a video's controls. */
+  bgScrim: string
+
   // ---- Border tokens ----
 
   /** Bottom border in theme border color. */
