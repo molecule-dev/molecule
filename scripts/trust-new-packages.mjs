@@ -71,6 +71,7 @@ import {
   relinkPackage,
   trustPackage,
 } from './lib/npm-trust.mjs'
+import { createOtpGate, npmTwoFactorFailure, TwoFactorRateLimited } from './lib/otp-gate.mjs'
 import {
   collectPackages,
   existsOnRegistry,
@@ -400,11 +401,14 @@ class NoTwoFactorAnswer extends Error {}
  * What the phone shows for a request, in plain words.
  *
  * @param label - What the code is for.
- * @param force - npm rejected the held code.
+ * @param force - npm rejected the held code, or paused 2FA.
+ * @param why - `rate-limited` when npm paused 2FA calls and the pause is over.
  * @returns The text.
  */
-const phonePurpose = (label, force) => {
+const phonePurpose = (label, force, why) => {
   const total = progress.names.length
+  if (force && why === 'rate-limited')
+    return `trust:new needs a new npm code; npm paused 2FA for a few minutes and the pause is over (${total - progress.done} of ${total} package(s) left, at ${label})`
   if (force)
     return `trust:new needs a new npm code; the last one stopped working (${total - progress.done} of ${total} package(s) left, at ${label})`
   const shown = progress.names.slice(0, 3).join(', ')
@@ -427,9 +431,10 @@ const phonePurpose = (label, force) => {
  * @param label - What the code is for.
  * @param force - Compute a fresh one even if a code is held (npm rejected
  *   the held one as spent).
+ * @param why - Why a fresh one is needed (shown on the phone): `rejected` or `rate-limited`.
  * @returns A 6-digit code.
  */
-const ensureOtp = async (label, force = false) => {
+const ensureOtp = async (label, force = false, why = 'rejected') => {
   if (otp && !seedMode && !force && (phoneMode || /^\d{6}$/.test(otp))) return otp
   const seed = loadSeed()
   if (seed) {
@@ -456,7 +461,7 @@ const ensureOtp = async (label, force = false) => {
       let reply
       try {
         reply = await requestOwnerOtp({
-          purpose: phonePurpose(label, force),
+          purpose: phonePurpose(label, force, why),
           link: () => npmApprovalLink(progress.names[0] ?? 'molecule', { bearer: token }),
           bearer: token,
         })
@@ -495,25 +500,40 @@ const ensureOtp = async (label, force = false) => {
   return otp
 }
 
-/** The request for a fresh code in flight, shared by every call npm refused meanwhile. */
-let otpRefresh = null
+/**
+ * Every 2FA'd call goes through this (lib/otp-gate.mjs): a refused code is never sent
+ * again, a new code is tried on one call before the others, and npm's 2FA rate limit
+ * pauses every call instead of asking the phone for codes npm will refuse.
+ * TRUST_NEW_RATE_LIMIT_PAUSE_MS sets the first pause (tests shorten it).
+ */
+const gate = createOtpGate({
+  fetchCode: (label, why) => ensureOtp(label, why !== 'first', why),
+  pauseMs: Number(process.env.TRUST_NEW_RATE_LIMIT_PAUSE_MS) || 180_000,
+})
 
 /**
- * A fresh code after npm refused `spent`. Packages run side by side, so several calls can be
- * refused by one expiry: the first asks, the rest wait for that answer, and a call refused
- * after a newer code arrived just takes it.
+ * What a trust or re-link answer says about the code.
  *
- * @param label - What the code is for.
- * @param spent - The code npm refused.
- * @returns A 6-digit code.
+ * @param result - The outcome from lib/npm-trust.mjs.
+ * @returns `otp`, `rate-limited` or null.
  */
-const freshOtp = (label, spent) => {
-  if (otp && otp !== spent) return Promise.resolve(otp)
-  otpRefresh ??= ensureOtp(label, true).finally(() => {
-    otpRefresh = null
-  })
-  return otpRefresh
-}
+const outcomeFailure = (result) =>
+  result.outcome === 'needs-otp' ? 'otp' : result.outcome === 'rate-limited' ? 'rate-limited' : null
+
+/**
+ * What a publish's output says about the code; null when it succeeded.
+ *
+ * @param result - The publish's exit status and output.
+ * @returns `otp`, `rate-limited` or null.
+ */
+const publishFailure = (result) =>
+  result.status === 0
+    ? null
+    : npmTwoFactorFailure({ text: `${result.stderr ?? ''}${result.stdout ?? ''}` })
+
+/** The gate gave up or the owner gave no code: the sweep stops and keeps what it finished. */
+const stopsTheSweep = (error) =>
+  error instanceof NoTwoFactorAnswer || error instanceof TwoFactorRateLimited
 
 /**
  * Runs `npm publish` with piped output so an OTP rejection can be told apart
@@ -541,16 +561,6 @@ const npmPublish = (args, cwd) =>
       resolve({ status: status ?? 1, stdout, stderr })
     })
   })
-
-/**
- * Whether npm's failure output says the code (not something else) was the
- * problem — only then is it worth asking for a fresh one.
- *
- * @param result
- * @returns
- */
-const isOtpRejection = (result) =>
-  /EOTP|one-time password|\botp\b|two-factor/i.test(`${result.stderr ?? ''}${result.stdout ?? ''}`)
 
 const ledger = readTrustLedger()
 const ledgerBefore = new Set(ledger)
@@ -744,10 +754,13 @@ const trustOne = async (pkg) => {
   // by CI over OIDC with no code at all — which is the arrangement worth having,
   // and the reason this one-time step is worth paying.
   if (pkg.relink) {
-    const held = otp
-    let relinked = await relinkPackage(pkg.name, { otp: held, token })
-    if (relinked.outcome === 'needs-otp')
-      relinked = await relinkPackage(pkg.name, { otp: await freshOtp(pkg.name, held), token })
+    const relinked = CI
+      ? await relinkPackage(pkg.name, { token })
+      : await gate.run(
+          pkg.name,
+          (code) => relinkPackage(pkg.name, { otp: code, token }),
+          outcomeFailure,
+        )
     if (relinked.outcome === 'relinked') {
       record(pkg.name)
       console.log(`  ✓ ${pkg.name} (re-linked)`)
@@ -766,8 +779,9 @@ const trustOne = async (pkg) => {
       // CONCURRENCY packages at a time — npm keeps accepting the same TOTP
       // code until its window tolerance runs out, which is how 592 packages were trusted on a handful of codes on
       // 2026-08-05. A fresh code is asked for ONLY when npm actually rejects
-      // one (long sweeps outliving the window), and non-OTP failures (WAF,
-      // network) surface immediately instead of triggering a prompt. Without
+      // one (long sweeps outliving the window), a rate limit waits instead of
+      // asking (lib/otp-gate.mjs), and non-OTP failures (WAF, network) surface
+      // immediately instead of triggering a prompt. Without
       // any code available, stdio: 'inherit' keeps npm's OWN interactive
       // prompt as the fallback.
       // Publish the placeholder: the EXPORT's manifest carries the placeholder version. The
@@ -788,11 +802,7 @@ const trustOne = async (pkg) => {
               ['publish', '--access', 'public', '--tag', 'stage', '--otp', code, ...loginArgs()],
               pkgDir,
             )
-          const code = await ensureOtp(`${pkg.name} publish`)
-          result = await publishWith(code)
-          if (result.status !== 0 && isOtpRejection(result)) {
-            result = await publishWith(await freshOtp(`${pkg.name} publish`, code))
-          }
+          result = await gate.run(`${pkg.name} publish`, publishWith, publishFailure)
           if (
             result.status === 0 ||
             !/cannot publish using the version/i.test(
@@ -814,7 +824,7 @@ const trustOne = async (pkg) => {
         })
       }
     } catch (error) {
-      if (error instanceof NoTwoFactorAnswer) throw error
+      if (stopsTheSweep(error)) throw error
       // `npm publish` prints its own reason, so its "Command failed" wrapper adds
       // nothing. The build and the pack-completeness gate ran (and reported) in the
       // build pass above, before any code was asked for.
@@ -827,20 +837,18 @@ const trustOne = async (pkg) => {
       return
     }
   }
-  const held = otp
-  let result = await trustPackage(pkg.name, { otp: held, token })
-
-  // A one-time code is single-use, so by the second package the held one is
-  // spent. Ask for a fresh one and retry rather than reporting it as a failure.
-  if (result.outcome === 'needs-otp') {
-    if (CI) {
-      console.error(`  x ${pkg.name}: npm demanded 2FA and CI cannot supply one`)
-      failed.push(pkg.name)
-      return
-    }
-    // Codes are single-use and short-lived, so a long sweep needs a few. Ask
-    // only when npm actually rejects the held one.
-    result = await trustPackage(pkg.name, { otp: await freshOtp(pkg.name, held), token })
+  // The gate asks for a new code only when npm refuses the one it holds.
+  const result = CI
+    ? await trustPackage(pkg.name, { token })
+    : await gate.run(
+        pkg.name,
+        (code) => trustPackage(pkg.name, { otp: code, token }),
+        outcomeFailure,
+      )
+  if (CI && result.outcome === 'needs-otp') {
+    console.error(`  x ${pkg.name}: npm demanded 2FA and CI cannot supply one`)
+    failed.push(pkg.name)
+    return
   }
   if (result.outcome === 'trusted' || result.outcome === 'already') {
     record(pkg.name)
@@ -872,12 +880,12 @@ const work = async () => {
 try {
   // One code up front; the endpoint takes it as a header, so it covers every
   // package until npm says it is spent.
-  if (!CI && ready.length) await ensureOtp('trust config')
+  if (!CI && ready.length) await gate.prime('trust config')
   const workers = Math.min(CI ? 1 : CONCURRENCY, ready.length)
   await Promise.all(Array.from({ length: workers }, work))
   if (stopped) throw stopped
 } catch (error) {
-  if (!(error instanceof NoTwoFactorAnswer)) throw error
+  if (!stopsTheSweep(error)) throw error
   const left = ready.filter((pkg) => !finished.has(pkg.name)).map((pkg) => pkg.name)
   failed.push(...left)
   console.error(

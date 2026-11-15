@@ -31,7 +31,10 @@ const B = '@molecule/api-demo-b'
 // login, and the web sign-in (POST /-/v1/login, then its done-check) hands out
 // scenario.loginToken. scenario.dies names a session that dies once STUB_DEAD exists.
 // scenario.delayMs holds each trust answer that long (after the code is checked), and
-// each logged trust call carries how many were in flight when it arrived.
+// each logged trust call carries how many were in flight when it arrived (and how many of
+// those carried the same code). scenario.rateLimit { after, lockMs } is npm's 2FA lock:
+// after that many refused codes every 2FA'd call answers 429 "rate limited otp" for lockMs,
+// and each call made during the lock extends it.
 const STUB_FETCH = `
 import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 const scenario = JSON.parse(readFileSync(process.env.STUB_SCENARIO, 'utf8'))
@@ -40,6 +43,9 @@ const log = (entry) => appendFileSync(process.env.STUB_LOG, JSON.stringify(entry
 const sessions = scenario.sessions ?? ['stub-token']
 const LOGIN_ID = '0f6c1d2e-3b4a-4c5d-8e9f-a0b1c2d3e4f5'
 let inflight = 0
+const sameCode = {}
+let refused = 0
+let lockedUntil = 0
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
 globalThis.fetch = async (url, init = {}) => {
   const u = new URL(url)
@@ -61,15 +67,26 @@ globalThis.fetch = async (url, init = {}) => {
   if (trust) {
     const name = decodeURIComponent(trust[1])
     inflight++
+    sameCode[otp] = (sameCode[otp] ?? 0) + 1
     try {
-    log({ method, name, otp: otp ?? null, auth, inflight })
+    const rateLimited = Boolean(otp) && lockedUntil > Date.now()
+    log({ method, name, otp: otp ?? null, auth, inflight, sameCode: sameCode[otp], ...(rateLimited ? { rateLimited } : {}) })
     if (!scenario.ci && !live) return json({ error: '{"success":false,"error":"You must be logged in to publish packages."}' }, 401)
     if (!otp && !scenario.ci)
       return headers['npm-auth-type'] === 'web'
         ? json({ authUrl: 'https://www.npmjs.com/auth/cli/8540bc4a-5648-4fe6', doneUrl: 'https://registry.npmjs.org/-/v1/done?authId=8540bc4a' }, 401)
         : json({ error: 'This operation requires a one-time password' }, 401)
     if (!scenario.ci) {
-      if (!budget[otp]) return json({ error: 'otp invalid' }, 401)
+      if (rateLimited) {
+        lockedUntil = Date.now() + scenario.rateLimit.lockMs
+        return json({ error: 'Could not authenticate owner: rate limited otp' }, 429)
+      }
+      if (!budget[otp]) {
+        refused++
+        if (scenario.rateLimit && refused >= scenario.rateLimit.after)
+          lockedUntil = Date.now() + scenario.rateLimit.lockMs
+        return json({ error: 'otp invalid' }, 401)
+      }
       budget[otp]--
     }
     if (scenario.delayMs) await new Promise((resolve) => setTimeout(resolve, scenario.delayMs))
@@ -78,6 +95,7 @@ globalThis.fetch = async (url, init = {}) => {
     return json({}, method === 'POST' ? 201 : 200)
     } finally {
       inflight--
+      sameCode[otp]--
     }
   }
   const name = decodeURIComponent(u.pathname.slice(1))
@@ -170,7 +188,13 @@ async function phoneService(
 }
 
 /** Runs trust:new detached (no controlling terminal), like an agent's shell. */
-function runTrustNew(root: string, args: string[], scenario: object, socketPath?: string) {
+function runTrustNew(
+  root: string,
+  args: string[],
+  scenario: object,
+  socketPath?: string,
+  env: Record<string, string> = {},
+) {
   writeFileSync(join(root, 'scenario.json'), JSON.stringify(scenario))
   return new Promise<{ code: number | null; out: string; calls: Array<Record<string, unknown>> }>(
     (resolve) => {
@@ -190,6 +214,7 @@ function runTrustNew(root: string, args: string[], scenario: object, socketPath?
             STUB_DEAD: join(root, 'login-died'),
             MOL_APPROVAL_SOCKET: socketPath ?? join(root, 'no-service.sock'),
             XDG_RUNTIME_DIR: join(root, 'run'),
+            ...env,
           },
         },
       )
@@ -292,6 +317,60 @@ describe("trust:new with the owner's phone", () => {
     expect(run.code, run.out).toBe(0)
     expect(phone.created).toHaveLength(2)
     expect(run.calls.filter((c) => c.otp === '135791')).toHaveLength(2)
+    expect(ledgerOf(root).sort()).toEqual([...names].sort())
+  })
+
+  it('tries a new code on one call before the others (OLD MUSTFAIL: all at once)', async () => {
+    const names = ['c', 'd', 'e', 'f'].map((x) => `@molecule/api-demo-${x}`)
+    const root = scratchRepo({ ledger: [], names })
+    const { socketPath, phone } = await phoneService(root, [
+      { status: 'code', code: '424242' },
+      { status: 'code', code: '135791' },
+    ])
+    const run = await runTrustNew(
+      root,
+      ['--concurrency=4'],
+      { codes: { '424242': 2, '135791': 10 }, delayMs: 300 },
+      socketPath,
+    )
+    expect(run.code, run.out).toBe(0)
+    expect(phone.created).toHaveLength(2)
+    // Each code went out alone first: a code npm refuses costs one call, not four.
+    for (const code of ['424242', '135791'])
+      expect(run.calls.find((c) => c.otp === code)?.sameCode).toBe(1)
+    const fresh = run.calls.filter((c) => c.otp === '135791')
+    expect(fresh.map((c) => c.sameCode)).toEqual([1, 1])
+    expect(ledgerOf(root).sort()).toEqual([...names].sort())
+  })
+
+  it("waits out npm's 2FA rate limit instead of asking the phone into it (OLD MUSTFAIL)", async () => {
+    const names = ['c', 'd', 'e', 'f'].map((x) => `@molecule/api-demo-${x}`)
+    const root = scratchRepo({ ledger: [], names })
+    const { socketPath, phone } = await phoneService(root, [
+      { status: 'code', code: '424242' },
+      { status: 'code', code: '135791' },
+      { status: 'code', code: '246802' },
+    ])
+    // The first code covers one call; the three after it are refused, which locks 2FA.
+    const run = await runTrustNew(
+      root,
+      ['--concurrency=4'],
+      {
+        codes: { '424242': 1, '135791': 10, '246802': 10 },
+        delayMs: 200,
+        rateLimit: { after: 3, lockMs: 1500 },
+      },
+      socketPath,
+      { TRUST_NEW_RATE_LIMIT_PAUSE_MS: '2000' },
+    )
+    expect(run.code, run.out).toBe(0)
+    expect(run.out).toMatch(/npm is rate-limiting 2FA codes; pausing every call for 2s/)
+    // One call met the lock (the fresh code's first), then nothing until the pause ended.
+    expect(run.calls.filter((c) => c.rateLimited)).toHaveLength(1)
+    expect(phone.created).toHaveLength(3)
+    expect(phone.created[2].purpose).toMatch(
+      /npm paused 2FA for a few minutes and the pause is over/,
+    )
     expect(ledgerOf(root).sort()).toEqual([...names].sort())
   })
 

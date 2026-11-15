@@ -29,6 +29,8 @@ import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
 
+import { npmTwoFactorFailure } from './otp-gate.mjs'
+
 /**
  * The permission pair that makes a name trustable BEFORE it exists.
  *
@@ -95,7 +97,8 @@ export function npmUserconfigWithToken(token, { home = homedir(), dir } = {}) {
  * @param name - Package name.
  * @param options - otp (a current 2FA code), token (the npm session; ~/.npmrc's by
  *   default) and repo/workflow overrides.
- * @returns Outcome: `trusted`, `already`, `needs-otp`, or `error`, with npm's output.
+ * @returns Outcome: `trusted`, `already`, `needs-otp`, `rate-limited` (npm paused 2FA calls) or
+ *   `error`, with npm's output.
  */
 export async function trustPackage(name, options) {
   const { otp, token = readNpmToken(), repo = TRUST_REPO, workflow = TRUST_WORKFLOW } = options
@@ -130,6 +133,9 @@ export async function trustPackage(name, options) {
   const text = (await res.text()).slice(0, 400)
   if (res.ok) return { outcome: 'trusted', status: res.status, text }
   if (/already|duplicate/i.test(text)) return { outcome: 'already', status: res.status, text }
+  // Before the code check: npm's text for it ("rate limited otp") names the code too.
+  if (npmTwoFactorFailure({ status: res.status, text }) === 'rate-limited')
+    return { outcome: 'rate-limited', status: res.status, text }
   // A spent or missing code, reported so the caller can ask for a fresh one
   // rather than treating it as a permanent failure.
   if (res.status === 401 || /otp|one-time|EOTP/i.test(text))
@@ -152,7 +158,8 @@ export async function trustPackage(name, options) {
  *
  * @param name - Package name.
  * @param options - otp (a current 2FA code) and token (the npm session; ~/.npmrc's by default).
- * @returns Outcome: `relinked`, `needs-otp`, `stuck` (npm kept a link it would not revoke) or `error`.
+ * @returns Outcome: `relinked`, `needs-otp`, `rate-limited`, `stuck` (npm kept a link it would
+ *   not revoke) or `error`.
  */
 export async function relinkPackage(name, options) {
   const { otp, token = readNpmToken() } = options
@@ -164,6 +171,8 @@ export async function relinkPackage(name, options) {
   }
   const listed = await fetch(base, { headers, signal: AbortSignal.timeout(20_000) })
   const listText = await listed.text()
+  if (npmTwoFactorFailure({ status: listed.status, text: listText }) === 'rate-limited')
+    return { outcome: 'rate-limited', status: listed.status, text: listText.slice(0, 400) }
   if (listed.status === 401 || /otp|one-time|EOTP/i.test(listText))
     return { outcome: 'needs-otp', status: listed.status, text: listText.slice(0, 400) }
   if (!listed.ok && listed.status !== 404)
@@ -190,7 +199,7 @@ export async function relinkPackage(name, options) {
   const added = await trustPackage(name, { otp, token })
   if (added.outcome === 'trusted')
     return { outcome: 'relinked', status: added.status, text: added.text }
-  if (added.outcome === 'needs-otp') return added
+  if (added.outcome === 'needs-otp' || added.outcome === 'rate-limited') return added
   if (added.outcome === 'already')
     return {
       outcome: 'stuck',
