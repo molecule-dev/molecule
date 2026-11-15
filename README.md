@@ -10,15 +10,16 @@
 
 ## At a glance (humans and AI agents)
 
-- **What it is.** An AI-first, open-source ecosystem of 1,000+ composable `@molecule/*` packages (Apache-2.0, on npm, growing daily) and the tools that assemble them: [molecule.dev](https://www.molecule.dev) with Synthase, the `mlcl` CLI, and the molecule MCP server. The output is plain TypeScript you own and can run anywhere.
+- **What it is.** An AI-first, open-source ecosystem of 1,400+ composable `@molecule/*` packages (Apache-2.0, on npm, growing daily) and the tools that assemble them: [molecule.dev](https://www.molecule.dev) with Synthase, the `mlcl` CLI, and the molecule MCP server. The output is plain TypeScript you own and can run anywhere.
 - **How it works.** Describe the app. Synthase or `mlcl create` picks packages and wires them. Bonds connect providers behind core interfaces. A live sandbox previews it. Deploy with us, or export the code, a database dump and your `.env` files.
+- **Set up your coding agents once.** Run `npx mlcl setup`: it asks whether to set up every project on this machine or just this one, and which of your agents (Claude Code, Codex, Cursor, Gemini CLI, Copilot, …). Each one then gets the molecule MCP server, the Molecule skills and the conventions, so it reaches for `@molecule/*` packages before writing its own.
 - **Faster.** You start from a working, tested app (a library of flagship templates) instead of a blank prompt, and nothing common is written twice.
 - **Cheaper.** The integrations every app needs are packages, not tokens. Strict interfaces and READMEs generated from source let an agent wire a package in one pass, on smaller models.
 - **Higher quality.** Generated code is type-checked, linted and tested before it reaches you, with errors fed back to the agent until green. Unit, integration and E2E tests ship with the project.
 - **Easier to maintain and scale.** Every provider (database, auth, payments, email, AI, analytics, 80+ categories) and every frontend framework (React, Vue, Svelte, Solid, Angular, React Native) sits behind a swappable bond. Change the wiring, not the app. The same architecture serves a side project and an enterprise.
 - **Built in by default.** Auth and OAuth, payments, migrations, i18n in dozens of languages, analytics and telemetry, logging and monitoring, error tracking, realtime, uploads, push, search, feature flags, accessibility, CI/CD, and an `AGENTS.md` that teaches any coding agent the conventions.
 - **Self-improving.** Every app ships with analytics, error tracking and user feedback built in. The AI reads what real users do, improves the app, ships and measures again, in your workspace, with you approving or letting it run. Generated code is type-checked and tested before it ships, and the packages themselves improve from every fix.
-- **If you are an AI agent.** Read a package's `README.md` (generated from its source), call the core interface and never a vendor SDK, wire providers in `bonds.ts`, and run `npx mlcl agent init` or `npx mlcl mcp install` for the tooling. Details below and in [AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
+- **If you are an AI agent.** Read a package's `README.md` (generated from its source), call the core interface and never a vendor SDK, wire providers in `bonds.ts`, and run `npx mlcl setup` for the tooling (the MCP server, the Molecule skills and the conventions). Details below and in [AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
 
 Open-source, composable full-stack packages that an AI can wire correctly, and real TypeScript code you can export and run anywhere. Every provider sits behind an abstract interface, so swapping the database, email, or payments provider means changing the bond that wires it, not the code that uses it.
 
@@ -47,7 +48,7 @@ Try it: [www.molecule.dev](https://www.molecule.dev). Describe an app and Syntha
 ## How it works
 
 1. **Describe** the app at [www.molecule.dev](https://www.molecule.dev). Synthase asks a few questions before it plans.
-2. **Synthase composes packages** from this catalog (1,000+ packages, all Apache-2.0, all on npm) into a real TypeScript project: an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app.
+2. **Synthase composes packages** from this catalog (1,400+ packages, all Apache-2.0, all on npm) into a real TypeScript project: an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app.
 3. **Bonds wire providers** at startup. Application code only ever calls the core interface.
 4. **A live sandbox** runs the project with a preview while you work, and deploys it when you are ready.
 5. **Export anytime.** One archive with the project code, a database dump, and `.env` files holding the keys you own (`GET /projects/:id/export`). Unpack it and run it anywhere.
@@ -120,7 +121,13 @@ npx mlcl add @molecule/api-payments-stripe --inject        # install + wire in o
 npx mlcl swap @molecule/api-database-mysql                 # change a provider
 ```
 
-For AI agents: `npx mlcl mcp install` registers the molecule MCP server (search, scaffold, add, swap, deploy, manage — all as structured tools). `npx mlcl agent init` makes any coding agent molecule-aware. The full agent guide: [docs/AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
+For AI agents, run this once:
+
+```bash
+npx mlcl setup   # asks where (every project on this machine, or this one) and which agents
+```
+
+For each agent you choose (Claude Code, Codex, Cursor, Gemini CLI, Copilot, OpenCode, …) it registers the molecule MCP server (search, scaffold, add, swap, deploy, manage — all as structured tools), installs the Molecule skills, and writes the conventions where that agent reads them, so every agent prefers the molecule way. `npx mlcl mcp install` and `npx mlcl agent init` do one part for one agent. The full agent guide: [docs/AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
 
 Every scaffolded project ships an `AGENTS.md` with the full conventions, so any agent that opens a molecule-built app immediately understands the bond system, ClassMap styling, and handler patterns.
 
