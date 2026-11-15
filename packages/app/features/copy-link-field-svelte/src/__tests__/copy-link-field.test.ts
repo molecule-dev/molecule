@@ -1,0 +1,94 @@
+// @vitest-environment jsdom
+/**
+ * Unit tests for `CopyLinkField`, ported from
+ * `@molecule/app-copy-link-field-react`'s own suite: the same behavioral
+ * assertions, rendered with a real mount (jsdom), the bonded ClassMap and the
+ * bonded i18n provider.
+ */
+import '@molecule/app-framework-conformance/ui/setup'
+import { flushSync, mount, unmount } from 'svelte'
+import { afterEach, describe, expect, it } from 'vitest'
+
+import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
+import { setMoleculeContext } from '@molecule/app-svelte'
+
+import CopyLinkField from '../CopyLinkField.svelte'
+
+/** The instances mounted during one test, unmounted in `afterEach`. */
+const mounted: ReturnType<typeof mount>[] = []
+
+interface Rendered {
+  /** The outer wrapper div (React's root). */
+  wrapper: HTMLElement
+  /** The read-only input. */
+  input: HTMLInputElement
+}
+
+/**
+ * Mounts `CopyLinkField` with the given props and returns the key elements.
+ *
+ * @param props - The field's props.
+ * @returns The outer wrapper div and the input.
+ */
+function render(props: Record<string, unknown> = {}): Rendered {
+  // A fresh host per mount, so the returned elements are THIS mount's even
+  // when an earlier mount is still on the page within the same test.
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  mounted.push(
+    mount(Host, {
+      target: host,
+      props: { config: {}, setMoleculeContext, component: CopyLinkField, props },
+    }),
+  )
+  flushSync()
+  const input = host.querySelector<HTMLInputElement>('input')
+  if (!input) throw new Error('no input rendered')
+  // The wrapper is the input's grandparent (input → flex row → wrapper).
+  const wrapper = input.parentElement?.parentElement
+  if (!(wrapper instanceof HTMLElement)) throw new Error('no wrapper rendered')
+  return { wrapper, input }
+}
+
+afterEach(async () => {
+  for (const instance of mounted.splice(0)) await unmount(instance)
+  document.body.innerHTML = ''
+})
+
+describe('CopyLinkField', () => {
+  it('renders a read-only input carrying the value', () => {
+    const { input } = render({ value: 'https://x.test/abc' })
+    expect(input.getAttribute('value')).toBe('https://x.test/abc')
+    expect(input.value).toBe('https://x.test/abc')
+    expect(input.hasAttribute('readonly')).toBe(true)
+  })
+
+  it('renders the label when present and omits it otherwise', () => {
+    const { wrapper } = render({ value: 'u', label: 'Webhook URL' })
+    expect(wrapper.textContent).toContain('Webhook URL')
+    expect(wrapper.children[0]?.tagName).toBe('SPAN')
+    const bare = render({ value: 'u' })
+    expect(bare.wrapper.textContent).not.toContain('Webhook URL')
+    expect(bare.wrapper.children.length).toBe(1)
+    expect(bare.wrapper.children[0]?.tagName).toBe('DIV')
+  })
+
+  it('uses the label as the input aria-label, falling back to a default', () => {
+    const labeled = render({ value: 'u', label: 'API key' })
+    expect(labeled.input.getAttribute('aria-label')).toBe('API key')
+    const bare = render({ value: 'u' })
+    expect(bare.input.getAttribute('aria-label')).toBe('Link')
+  })
+
+  it('renders the copy button with its default label', () => {
+    render({ value: 'u' })
+    const button = document.body.querySelector('button')
+    expect(button).not.toBeNull()
+    expect(button?.textContent).toContain('Copy')
+  })
+
+  it('forwards className', () => {
+    const { wrapper } = render({ value: 'u', className: 'clf-cls' })
+    expect(wrapper.getAttribute('class')).toContain('clf-cls')
+  })
+})

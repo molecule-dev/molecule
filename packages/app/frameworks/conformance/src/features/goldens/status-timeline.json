@@ -1,0 +1,129 @@
+{
+ "exports": [
+  "StatusTimeline"
+ ],
+ "values": {},
+ "cases": {
+  "StatusTimeline": {
+   "three steps with the middle one current": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "first step current": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "last step current marks every step reached": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "an unknown current key renders every step unreached": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "no steps renders an empty list": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "a single step": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nOnly\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "aria label and data-mol-id": {
+    "snapshots": [
+     "<ol aria-label=\"Order progress\" class=\"c445db9b9 cd766b2f8\" data-mol-id=\"st-x\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "a className": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd75bbd18 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "every prop together": {
+    "snapshots": [
+     "<ol aria-label=\"Order status\" class=\"c445db9b9 cd75bbd18 cd766b2f8\" data-mol-id=\"st-all\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "the current key advances": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "the current key moves back": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "steps change and the current key moves with them": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nQueued\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nDone\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nArchived\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "labels change under the same keys": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nPlaced\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nChecking\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nComplete\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and data-mol-id change": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd75bbd18 cd766b2f8\" data-mol-id=\"st-a\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 ccaded727 cd766b2f8\" data-mol-id=\"st-b\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "aria label changes": {
+    "snapshots": [
+     "<ol aria-label=\"First label\" class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol aria-label=\"Second label\" class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "three steps with the middle one current, then a locale switch": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "three steps with the middle one current, then steps again as equal new objects": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"2\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"2\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   },
+   "three steps with the middle one current, then steps reversed": {
+    "snapshots": [
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nCreated\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"2\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nDone\n</span>\n</li>\n</ol>\n@route /",
+     "<ol class=\"c445db9b9 cd766b2f8\">\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"2\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span>\nDone\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"1\">\n<span aria-hidden=\"true\" class=\"c7f6faa75 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"c7f74399a\">\nIn review\n</span>\n</li>\n<li class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-conformance-mark=\"0\">\n<span aria-hidden=\"true\" class=\"c8b0d0575 c9052b18c cc5672d74 ccf4f0ec9\">\n</span>\n<span class=\"ce823b5bf\">\nCreated\n</span>\n</li>\n</ol>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

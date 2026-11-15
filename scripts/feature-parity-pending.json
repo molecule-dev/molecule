@@ -47,12 +47,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-analytics-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-annotation-pin-react": [
     "vue",
     "solid",
@@ -120,18 +114,6 @@
     "angular"
   ],
   "@molecule/app-billing-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-bonds-default-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-breadcrumb-react": [
     "vue",
     "solid",
     "svelte",
@@ -215,12 +197,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-comparison-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-contact-display-react": [
     "vue",
     "solid",
@@ -234,12 +210,6 @@
     "angular"
   ],
   "@molecule/app-cookie-banner-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-copy-link-field-react": [
     "vue",
     "solid",
     "svelte",
@@ -275,18 +245,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-detail-header-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-detail-page-layout-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-diff-viewer-react": [
     "vue",
     "solid",
@@ -294,12 +252,6 @@
     "angular"
   ],
   "@molecule/app-drawing-toolbar-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-editor-layout-react": [
     "vue",
     "solid",
     "svelte",
@@ -515,12 +467,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-home-page-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-http-inspector-react": [
     "vue",
     "solid",
@@ -569,12 +515,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-job-listing-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-join-code-react": [
     "vue",
     "solid",
@@ -605,12 +545,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-leaderboard-list-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-leaderboard-row-react": [
     "vue",
     "solid",
@@ -618,12 +552,6 @@
     "angular"
   ],
   "@molecule/app-legal-pages-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-list-item-row-react": [
     "vue",
     "solid",
     "svelte",
@@ -719,12 +647,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-note-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-notification-badge-react": [
     "vue",
     "solid",
@@ -810,12 +732,6 @@
     "angular"
   ],
   "@molecule/app-presence-indicator-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-price-range-slider-react": [
     "vue",
     "solid",
     "svelte",
@@ -911,12 +827,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-safe-link-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-search-autocomplete-react": [
     "vue",
     "solid",
@@ -930,12 +840,6 @@
     "angular"
   ],
   "@molecule/app-secret-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-section-divider-react": [
     "vue",
     "solid",
     "svelte",
@@ -983,12 +887,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-sparkline-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-spreadsheet-grid-react": [
     "vue",
     "solid",
@@ -1008,12 +906,6 @@
     "angular"
   ],
   "@molecule/app-status-summary-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-status-timeline-react": [
     "vue",
     "solid",
     "svelte",
@@ -1061,12 +953,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-ticker-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-time-slot-picker-react": [
     "vue",
     "solid",
@@ -1092,24 +978,6 @@
     "angular"
   ],
   "@molecule/app-transactions-table-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-trend-chip-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-typing-indicator-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-vendor-card-react": [
     "vue",
     "solid",
     "svelte",

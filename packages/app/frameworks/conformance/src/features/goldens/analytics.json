@@ -1,0 +1,61 @@
+{
+ "exports": [
+  "AnalyticsRouteListener"
+ ],
+ "values": {},
+ "cases": {
+  "AnalyticsRouteListener": {
+   "mounted inside a route": {
+    "snapshots": [
+     "\n@route /dashboard"
+    ],
+    "calls": []
+   },
+   "a route change": {
+    "snapshots": [
+     "\n@route /a",
+     "\n@route /b"
+    ],
+    "calls": []
+   },
+   "a search change on the same path": {
+    "snapshots": [
+     "\n@route /items",
+     "\n@route /items?page=2"
+    ],
+    "calls": []
+   },
+   "a route change with a query": {
+    "snapshots": [
+     "\n@route /home",
+     "\n@route /settings?tab=2"
+    ],
+    "calls": []
+   },
+   "several route changes": {
+    "snapshots": [
+     "\n@route /one",
+     "\n@route /two?x=1",
+     "\n@route /three",
+     "\n@route /one"
+    ],
+    "calls": []
+   },
+   "unmounted after a route change": {
+    "snapshots": [
+     "\n@route /before",
+     "\n@route /after",
+     "\n@route /after"
+    ],
+    "calls": []
+   },
+   "mounted inside a route, then a locale switch": {
+    "snapshots": [
+     "\n@route /dashboard",
+     "\n@route /dashboard"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

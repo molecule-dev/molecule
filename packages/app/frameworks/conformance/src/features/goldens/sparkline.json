@@ -1,0 +1,109 @@
+{
+ "exports": [
+  "Sparkline"
+ ],
+ "values": {},
+ "cases": {
+  "Sparkline": {
+   "line by default": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 13.333333333333334,17.73913043478261 26.666666666666668,20.869565217391305 40,13.565217391304348 53.333333333333336,5.217391304347824 66.66666666666667,8.347826086956522 80,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty values renders nothing": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "single value renders one zero-step segment": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "constant series sits along the bottom edge": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 40,24 80,24\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "bar variant": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<rect fill=\"currentColor\" height=\"0\" width=\"24.666666666666668\" x=\"0\" y=\"24\">\n</rect>\n<rect fill=\"currentColor\" height=\"24\" width=\"24.666666666666668\" x=\"26.666666666666668\" y=\"0\">\n</rect>\n<rect fill=\"currentColor\" height=\"6\" width=\"24.666666666666668\" x=\"53.333333333333336\" y=\"18\">\n</rect>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "dot variant": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<circle cx=\"0\" cy=\"24\" fill=\"currentColor\" r=\"1.5\">\n</circle>\n<circle cx=\"40\" cy=\"0\" fill=\"currentColor\" r=\"1.5\">\n</circle>\n<circle cx=\"80\" cy=\"18\" fill=\"currentColor\" r=\"1.5\">\n</circle>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom label and size": {
+    "snapshots": [
+     "<svg aria-label=\"Sales trend\" height=\"40\" role=\"img\" viewbox=\"0 0 120 40\" width=\"120\">\n<polyline fill=\"none\" points=\"0,40 120,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom color and className": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" class=\"cbba6dd06\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 80,0\" stroke=\"#ff0000\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "variant changes": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 40,0 80,18\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /",
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<rect fill=\"currentColor\" height=\"0\" width=\"24.666666666666668\" x=\"0\" y=\"24\">\n</rect>\n<rect fill=\"currentColor\" height=\"24\" width=\"24.666666666666668\" x=\"26.666666666666668\" y=\"0\">\n</rect>\n<rect fill=\"currentColor\" height=\"6\" width=\"24.666666666666668\" x=\"53.333333333333336\" y=\"18\">\n</rect>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "size and label change": {
+    "snapshots": [
+     "<svg aria-label=\"First\" height=\"24\" role=\"img\" viewbox=\"0 0 60 24\" width=\"60\">\n<polyline fill=\"none\" points=\"0,24 30,12 60,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /",
+     "<svg aria-label=\"Second\" height=\"48\" role=\"img\" viewbox=\"0 0 100 48\" width=\"100\">\n<polyline fill=\"none\" points=\"0,48 50,24 100,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "values change reshapes the line": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 40,0 80,18\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /",
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,0 26.666666666666668,24 53.333333333333336,0 80,12\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "clearing to empty renders nothing": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 80,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /",
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "line by default, then a locale switch": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 13.333333333333334,17.73913043478261 26.666666666666668,20.869565217391305 40,13.565217391304348 53.333333333333336,5.217391304347824 66.66666666666667,8.347826086956522 80,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /",
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<polyline fill=\"none\" points=\"0,24 13.333333333333334,17.73913043478261 26.666666666666668,20.869565217391305 40,13.565217391304348 53.333333333333336,5.217391304347824 66.66666666666667,8.347826086956522 80,0\" stroke=\"currentColor\" stroke-width=\"1.5\">\n</polyline>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "bar variant, then values again as equal new objects": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<rect fill=\"currentColor\" height=\"0\" width=\"24.666666666666668\" x=\"0\" y=\"24\">\n</rect>\n<rect fill=\"currentColor\" height=\"24\" width=\"24.666666666666668\" x=\"26.666666666666668\" y=\"0\">\n</rect>\n<rect fill=\"currentColor\" height=\"6\" width=\"24.666666666666668\" x=\"53.333333333333336\" y=\"18\">\n</rect>\n</svg>\n@route /",
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<rect data-conformance-mark=\"0\" fill=\"currentColor\" height=\"0\" width=\"24.666666666666668\" x=\"0\" y=\"24\">\n</rect>\n<rect data-conformance-mark=\"1\" fill=\"currentColor\" height=\"24\" width=\"24.666666666666668\" x=\"26.666666666666668\" y=\"0\">\n</rect>\n<rect data-conformance-mark=\"2\" fill=\"currentColor\" height=\"6\" width=\"24.666666666666668\" x=\"53.333333333333336\" y=\"18\">\n</rect>\n</svg>\n@route /",
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<rect data-conformance-mark=\"0\" fill=\"currentColor\" height=\"0\" width=\"24.666666666666668\" x=\"0\" y=\"24\">\n</rect>\n<rect data-conformance-mark=\"1\" fill=\"currentColor\" height=\"24\" width=\"24.666666666666668\" x=\"26.666666666666668\" y=\"0\">\n</rect>\n<rect data-conformance-mark=\"2\" fill=\"currentColor\" height=\"6\" width=\"24.666666666666668\" x=\"53.333333333333336\" y=\"18\">\n</rect>\n</svg>\n@route /"
+    ],
+    "calls": []
+   },
+   "bar variant, then values reversed": {
+    "snapshots": [
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<rect fill=\"currentColor\" height=\"0\" width=\"24.666666666666668\" x=\"0\" y=\"24\">\n</rect>\n<rect fill=\"currentColor\" height=\"24\" width=\"24.666666666666668\" x=\"26.666666666666668\" y=\"0\">\n</rect>\n<rect fill=\"currentColor\" height=\"6\" width=\"24.666666666666668\" x=\"53.333333333333336\" y=\"18\">\n</rect>\n</svg>\n@route /",
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<rect data-conformance-mark=\"0\" fill=\"currentColor\" height=\"0\" width=\"24.666666666666668\" x=\"0\" y=\"24\">\n</rect>\n<rect data-conformance-mark=\"1\" fill=\"currentColor\" height=\"24\" width=\"24.666666666666668\" x=\"26.666666666666668\" y=\"0\">\n</rect>\n<rect data-conformance-mark=\"2\" fill=\"currentColor\" height=\"6\" width=\"24.666666666666668\" x=\"53.333333333333336\" y=\"18\">\n</rect>\n</svg>\n@route /",
+     "<svg aria-label=\"Trend sparkline\" height=\"24\" role=\"img\" viewbox=\"0 0 80 24\" width=\"80\">\n<rect data-conformance-mark=\"0\" fill=\"currentColor\" height=\"6\" width=\"24.666666666666668\" x=\"0\" y=\"18\">\n</rect>\n<rect data-conformance-mark=\"1\" fill=\"currentColor\" height=\"24\" width=\"24.666666666666668\" x=\"26.666666666666668\" y=\"0\">\n</rect>\n<rect data-conformance-mark=\"2\" fill=\"currentColor\" height=\"0\" width=\"24.666666666666668\" x=\"53.333333333333336\" y=\"24\">\n</rect>\n</svg>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "exports": [
+  "JobListingRow"
+ ],
+ "values": {},
+ "cases": {
+  "JobListingRow": {
+   "title only": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSenior Frontend Engineer\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "all meta fields": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nBackend Engineer\n</h3>\n<span class=\"c445db9b9\">\nAcme Corp\n</span>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\n📍 Remote · US\n</span>\n<span class=\"c4647f690\">\n· Full-time\n</span>\n<span class=\"c4647f690 c7f74399a\">\n· $130k–$160k\n</span>\n<span class=\"c4647f690\">\n· 2 days ago\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "leading, tags and actions": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-leading>\nAC\n</span>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nPlatform Engineer\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n<div class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-tag>\nRemote\n</span>\n<span data-tag>\nReact\n</span>\n</div>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c ca596e575 cc2d72006 ccae02ff2 cd9b20003\">\n<button data-actions type=\"button\">\nApply\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node title and company": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong>\nStaff Engineer\n</strong>\n</h3>\n<span class=\"c445db9b9\">\n<em>\nGlobex\n</em>\n</span>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "everything together": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-leading>\nAC\n</span>\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSenior Frontend Engineer\n</h3>\n<span class=\"c445db9b9\">\nAcme Corp\n</span>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\n📍 Remote · US\n</span>\n<span class=\"c4647f690\">\n· Full-time\n</span>\n<span class=\"c4647f690 c7f74399a\">\n· $130k–$160k\n</span>\n<span class=\"c4647f690\">\n· 2 days ago\n</span>\n</div>\n<div class=\"c1e8176ab c9866e6d5 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-tag>\nRemote\n</span>\n<span data-tag>\nReact\n</span>\n</div>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c ca596e575 cc2d72006 ccae02ff2 cd9b20003\">\n<button data-actions type=\"button\">\nApply\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty strings omit their branches": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "click calls onClick": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "h3"
+       }
+      ]
+     }
+    ]
+   },
+   "clickable row forwards className": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "props change adds meta and drops leading": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\nAC\n</div>\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nT\n</h3>\n<span class=\"c445db9b9\">\nAcme Corp\n</span>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690 c7f74399a\">\n· $120k\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSenior Frontend Engineer\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 c9cd623cf cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSenior Frontend Engineer\n</h3>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

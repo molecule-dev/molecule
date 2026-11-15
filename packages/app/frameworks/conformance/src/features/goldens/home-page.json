@@ -1,0 +1,409 @@
+{
+ "exports": [
+  "Home"
+ ],
+ "values": {},
+ "cases": {
+  "Home": {
+   "greets a named user by name": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetingAda Lovelace!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     }
+    ]
+   },
+   "greets a user without a name by email": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetinggrace@example.test!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     }
+    ]
+   },
+   "greets the world when the user has no name or email": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetinghome.world!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.world",
+       "en"
+      ]
+     }
+    ]
+   },
+   "greets the world while signed out": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetinghome.world!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.world",
+       "en"
+      ]
+     }
+    ]
+   },
+   "greets the world while the session is loading": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetinghome.world!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.world",
+       "en"
+      ]
+     }
+    ]
+   },
+   "greets the world when the session is unavailable": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetinghome.world!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.world",
+       "en"
+      ]
+     }
+    ]
+   },
+   "renders a per-app greeting override": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nWelcome back, Ada Lovelace!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     }
+    ]
+   },
+   "re-renders the greeting on a locale switch": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetingAda Lovelace!\n</h2>\n</div>\n@route /",
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\n⟦home.greeting⟧Ada Lovelace!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en-XA"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en-XA"
+      ]
+     }
+    ]
+   },
+   "follows a sign-in from elsewhere": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetinghome.world!\n</h2>\n</div>\n@route /",
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetingGrace Hopper!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.world",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     }
+    ]
+   },
+   "follows a sign-out from elsewhere to the world greeting": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetingAda Lovelace!\n</h2>\n</div>\n@route /",
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetinghome.world!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.world",
+       "en"
+      ]
+     }
+    ]
+   },
+   "follows another account signing in elsewhere": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetingAda Lovelace!\n</h2>\n</div>\n@route /",
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetingLinus Torvalds!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     }
+    ]
+   },
+   "greets a named user by name, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\nhome.greetingAda Lovelace!\n</h2>\n</div>\n@route /",
+     "<div class=\"c16e96f28 c89409342\">\n<h2 class=\"c0d99ed10 c91a3f70a\">\n⟦home.greeting⟧Ada Lovelace!\n</h2>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Locale changed",
+       "en-XA"
+      ]
+     },
+     {
+      "name": "logger.debug",
+      "args": [
+       "i18n",
+       "Missing translation key",
+       "home.greeting",
+       "en-XA"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,62 @@
+{
+ "exports": [
+  "EditorLayout"
+ ],
+ "values": {},
+ "cases": {
+  "EditorLayout": {
+   "top bar and canvas": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "side panel on the right": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "side panel on the left": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "side panel closed": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "classes and an id": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 c5c6c539e cbaac6b89 cc2d72006 ccae02ff2\" data-mol-id=\"editor\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "panel moves to the other side": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "panel toggles": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n<aside class=\"ca596e575\">\n<div data-panel>\nPanel\n</div>\n</aside>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "top bar and canvas, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c2f1a3c22 c42740ba6 cbaac6b89 cc2d72006 ccae02ff2\">\n<div style=\"position: sticky; top: 0px; z-index: 10\">\n<div data-topbar>\nToolbar\n</div>\n</div>\n<div class=\"c2cbb8333 c42740ba6 cb5823274 cc2d72006 ccae02ff2 cd9b20003\">\n<main class=\"cb5823274\">\n<div data-canvas>\nCanvas\n</div>\n</main>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

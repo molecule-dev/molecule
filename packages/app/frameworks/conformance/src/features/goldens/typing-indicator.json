@@ -1,0 +1,96 @@
+{
+ "exports": [
+  "TypingIndicator"
+ ],
+ "values": {},
+ "cases": {
+  "TypingIndicator": {
+   "default": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "hidden": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "a custom aria-label": {
+    "snapshots": [
+     "<span aria-label=\"Alice is typing\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "bigger dots": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 10px; width: 10px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a faster pulse": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 600ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 600ms ease-in-out 100ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 600ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "with a className": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "every prop together": {
+    "snapshots": [
+     "<span aria-label=\"Bob is typing\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 900ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 8px; width: 8px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 900ms ease-in-out 150ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 8px; width: 8px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 900ms ease-in-out 300ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 8px; width: 8px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "visibility toggles": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /",
+     "\n@route /",
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "dot size changes": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 8px; width: 8px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 8px; width: 8px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 8px; width: 8px\">\n</span>\n</span>\n@route /",
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 12px; width: 12px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 12px; width: 12px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 12px; width: 12px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "duration changes": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /",
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 2400ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 2400ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 2400ms ease-in-out 800ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "duration changes while hidden": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /",
+     "\n@route /",
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 2400ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 2400ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 2400ms ease-in-out 800ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "className changes": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /",
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccaded727 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "default, then a locale switch": {
+    "snapshots": [
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /",
+     "<span aria-label=\"Typing…\" class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\" role=\"status\">\n<style>\n@keyframes molecule-typing-pulse { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }\n</style>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 0ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 200ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n<span aria-hidden=\"true\" style=\"animation: molecule-typing-pulse 1200ms ease-in-out 400ms infinite; background: currentcolor; border-radius: 50%; display: inline-block; height: 6px; width: 6px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

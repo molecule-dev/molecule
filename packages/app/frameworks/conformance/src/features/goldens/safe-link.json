@@ -1,0 +1,177 @@
+{
+ "exports": [
+  "SafeLink"
+ ],
+ "values": {},
+ "cases": {
+  "SafeLink": {
+   "a link to another path keeps it": {
+    "snapshots": [
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard"
+    ],
+    "calls": []
+   },
+   "element children render inside the anchor": {
+    "snapshots": [
+     "<a href=\"/settings\">\n<strong>\nSettings\n</strong>\n</a>\n@route /dashboard"
+    ],
+    "calls": []
+   },
+   "no children renders an empty anchor": {
+    "snapshots": [
+     "<a href=\"/settings\">\n</a>\n@route /dashboard"
+    ],
+    "calls": []
+   },
+   "the exact current path appends #top": {
+    "snapshots": [
+     "<a href=\"/settings#top\">\nSettings\n</a>\n@route /settings"
+    ],
+    "calls": []
+   },
+   "the current path with a trailing slash also matches": {
+    "snapshots": [
+     "<a href=\"/settings#top\">\nSettings\n</a>\n@route /settings"
+    ],
+    "calls": []
+   },
+   "a trailing slash on both is stripped before #top": {
+    "snapshots": [
+     "<a href=\"/blog#top\">\nBlog\n</a>\n@route /blog/"
+    ],
+    "calls": []
+   },
+   "a path prefix is not a same-path match": {
+    "snapshots": [
+     "<a href=\"/settings/profile\">\nProfile\n</a>\n@route /settings"
+    ],
+    "calls": []
+   },
+   "a query and hash in the destination are kept": {
+    "snapshots": [
+     "<a href=\"/settings?tab=billing#plan\">\nBilling\n</a>\n@route /dashboard"
+    ],
+    "calls": []
+   },
+   "className, id, data-mol-id and an aria-label pass through": {
+    "snapshots": [
+     "<a aria-label=\"Settings navigation\" class=\"cd75bbd18\" data-mol-id=\"nav-settings\" href=\"/settings\" id=\"#id0\">\nSettings\n</a>\n@route /dashboard"
+    ],
+    "calls": []
+   },
+   "a to change recomputes the fragment": {
+    "snapshots": [
+     "<a href=\"/settings#top\">\nSettings\n</a>\n@route /settings",
+     "<a href=\"/profile\">\nSettings\n</a>\n@route /settings"
+    ],
+    "calls": []
+   },
+   "navigating to the destination appends #top on the same anchor": {
+    "snapshots": [
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard",
+     "<a href=\"/settings#top\">\nSettings\n</a>\n@route /settings"
+    ],
+    "calls": []
+   },
+   "a plain click navigates and prevents the default": {
+    "snapshots": [
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard",
+     "<a href=\"/settings#top\">\nSettings\n</a>\n@route /settings\n@click default prevented"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "a"
+       }
+      ]
+     }
+    ]
+   },
+   "a same-path click still lands on #top": {
+    "snapshots": [
+     "<a href=\"/settings#top\">\nSettings\n</a>\n@route /settings",
+     "<a href=\"/settings#top\">\nSettings\n</a>\n@route /settings\n@click default prevented"
+    ],
+    "calls": []
+   },
+   "a modified click is left to the browser and still calls the handler": {
+    "snapshots": [
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard",
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard\n@click default kept",
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard\n@click default kept",
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard\n@click default kept",
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard\n@click default kept"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "a"
+       }
+      ]
+     },
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "a"
+       }
+      ]
+     },
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "a"
+       }
+      ]
+     },
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "a"
+       }
+      ]
+     }
+    ]
+   },
+   "target=_blank is left to the browser": {
+    "snapshots": [
+     "<a href=\"/settings\" rel=\"noopener noreferrer\" target=\"_blank\">\nSettings\n</a>\n@route /dashboard",
+     "<a href=\"/settings\" rel=\"noopener noreferrer\" target=\"_blank\">\nSettings\n</a>\n@route /dashboard\n@click default kept"
+    ],
+    "calls": []
+   },
+   "state and replace reach the new history entry": {
+    "snapshots": [
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard",
+     "<a href=\"/settings#top\">\nSettings\n</a>\n@route /settings state={\"from\":\"dashboard\"}\n@click default prevented"
+    ],
+    "calls": []
+   },
+   "a destination click lands on its query and hash": {
+    "snapshots": [
+     "<a href=\"/settings?tab=billing#plan\">\nBilling\n</a>\n@route /dashboard",
+     "<a href=\"/settings?tab=billing#plan\">\nBilling\n</a>\n@route /settings?tab=billing\n@click default prevented"
+    ],
+    "calls": []
+   },
+   "a link to another path keeps it, then a locale switch": {
+    "snapshots": [
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard",
+     "<a href=\"/settings\">\nSettings\n</a>\n@route /dashboard"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

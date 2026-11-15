@@ -1,0 +1,84 @@
+{
+ "exports": [
+  "LeaderboardList"
+ ],
+ "values": {},
+ "cases": {
+  "LeaderboardList": {
+   "rows only": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a single child": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"only\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and actions": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h3 class=\"c445db9b9 c7f74399a\">\nTop players\n</h3>\n<button data-actions type=\"button\">\n</button>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h3 class=\"c445db9b9 c7f74399a\">\nTop players\n</h3>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "actions only": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<button data-actions type=\"button\">\n</button>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title as a node": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<h3 class=\"c445db9b9 c7f74399a\">\n<strong>\nTop\n</strong>\n</h3>\n</header>\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "with a className": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty list with an empty state": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<p data-empty>\nNo entries\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty list without an empty state": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty state is ignored when children exist": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccaded727 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "rows only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<div data-row=\"a\">\n</div>\n<div data-row=\"b\">\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

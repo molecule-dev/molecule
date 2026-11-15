@@ -1,0 +1,102 @@
+{
+ "exports": [
+  "TickerRow"
+ ],
+ "values": {},
+ "cases": {
+  "TickerRow": {
+   "symbol, name and price": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nBTC\n</span>\n<span class=\"c4647f690\">\nBitcoin\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$67,000\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name omitted": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nETH\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$3,100\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "positive change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 3.21%\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "negative change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ -1.50%\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\">\n– 0.00%\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "changeDisplay without changePct": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\">\n– +$0.50\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "changeDisplay overrides the formatted percentage": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ +$0.50\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "icon, sparkline and meta slots": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-icon>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"ca596e575\">\n<svg data-spark>\n</svg>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n</div>\n<div class=\"c4647f690 ca596e575\">\n<span data-meta>\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "full row with className": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-icon>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nSOL\n</span>\n<span class=\"c4647f690\">\nSolana\n</span>\n</div>\n<div class=\"ca596e575\">\n<svg data-spark>\n</svg>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$142.10\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ -0.75%\n</span>\n</div>\n<div class=\"c4647f690 ca596e575\">\n<span data-meta>\n$68B vol\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "click calls onClick": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "span"
+       }
+      ]
+     }
+    ]
+   },
+   "change changePct flips arrow and color": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 3.21%\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ -1.50%\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "changeDisplay appears on a later render": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 2.00%\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nX\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ +$0.50\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "symbol, name and price, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nBTC\n</span>\n<span class=\"c4647f690\">\nBitcoin\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$67,000\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c0d99ed10 c445db9b9\">\nBTC\n</span>\n<span class=\"c4647f690\">\nBitcoin\n</span>\n</div>\n<div class=\"c16e96f28 c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n$67,000\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

@@ -50,8 +50,9 @@ export function TypingIndicator({
             height: dotSize,
             borderRadius: '50%',
             background: 'currentColor',
-            animation: `${keyName} ${durationMs}ms ease-in-out infinite`,
-            animationDelay: `${(i * durationMs) / 6}ms`,
+            // One shorthand carries the stagger: mixing it with an `animationDelay`
+            // longhand makes React warn when `durationMs` changes.
+            animation: `${keyName} ${durationMs}ms ease-in-out ${(i * durationMs) / 6}ms infinite`,
           }}
         />
       ))}

@@ -1,0 +1,128 @@
+{
+ "exports": [
+  "ListItemRow"
+ ],
+ "values": {},
+ "cases": {
+  "ListItemRow": {
+   "title only": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nInbox\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title, subtitle and metadata": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n<div class=\"c445db9b9\">\nLast edited 2 hours ago\n</div>\n<div class=\"c4647f690\">\n3 collaborators · 12 files\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "leading and actions slots": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"ca596e575\">\n<span data-leading>\n</span>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n</div>\n<div class=\"ca596e575\">\n<span data-actions>\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title slot node": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\n<span data-title>\nSlotted title\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "selected": {
+    "snapshots": [
+     "<div aria-selected=\"true\" class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "selected false": {
+    "snapshots": [
+     "<div aria-selected=\"false\" class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "disabled": {
+    "snapshots": [
+     "<div aria-disabled=\"true\" class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" style=\"opacity: 0.5\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact density": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clickable row calls onClick": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nProject Alpha\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "disabled clickable row ignores clicks": {
+    "snapshots": [
+     "<div aria-disabled=\"true\" class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" style=\"opacity: 0.5\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-disabled=\"true\" class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" style=\"opacity: 0.5\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "actions click does not trigger the row onClick": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n<div class=\"ca596e575\">\n<span data-actions>\nMenu\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n<div class=\"ca596e575\">\n<span data-actions>\nMenu\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "density changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "subtitle appears on a later render": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n<div class=\"c445db9b9\">\nNew subtitle\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "selected flips": {
+    "snapshots": [
+     "<div aria-selected=\"true\" class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-selected=\"false\" class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "disabled flips on a clickable row": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" tabindex=\"0\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-disabled=\"true\" class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" style=\"opacity: 0.5\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /",
+     "<div aria-disabled=\"true\" class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\" role=\"button\" style=\"opacity: 0.5\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nT\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nBefore\n</div>\n<div class=\"c445db9b9\">\nsub-x\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nAfter\n</div>\n<div class=\"c445db9b9\">\nsub-x\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nInbox\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c ca96eb3ea cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<div class=\"c445db9b9 c7f74399a\">\nInbox\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

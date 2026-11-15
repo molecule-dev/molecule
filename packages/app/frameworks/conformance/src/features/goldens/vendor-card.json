@@ -1,0 +1,102 @@
+{
+ "exports": [
+  "VendorCard"
+ ],
+ "values": {},
+ "cases": {
+  "VendorCard": {
+   "name only": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "logo image": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<img alt=\"Acme Supplies\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/logos/acme.png\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "description with a zero rating and review count": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n<p class=\"c445db9b9\">\nIndustrial parts, fast shipping\n</p>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n★\n</span>\n<span class=\"c7f74399a\">\n0.0\n</span>\n<span>\n(0)\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "rating without a review count": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nV\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nV\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n★\n</span>\n<span class=\"c7f74399a\">\n4.7\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "review count without a rating": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nV\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nV\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "member since with badges and actions slots": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c4647f690\">\n· Jan 2021\n</span>\n<span data-badges>\nVerified\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button type=\"button\">\nFollow\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "everything, with a className": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<img alt=\"Acme Supplies\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/logos/acme.png\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n<p class=\"c445db9b9\">\nIndustrial parts, fast shipping\n</p>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n★\n</span>\n<span class=\"c7f74399a\">\n4.7\n</span>\n<span>\n(312)\n</span>\n</span>\n<span class=\"c4647f690\">\n· Jan 2021\n</span>\n<span data-badges>\nTop seller\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button type=\"button\">\nMessage\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node name falls back to the Vendor alt": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<img alt=\"Vendor\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/logos/acme.png\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\n<strong>\nAcme\n</strong>\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node description and member since": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n<p class=\"c445db9b9\">\n<em>\nTrusted parts seller\n</em>\n</p>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n★\n</span>\n<span class=\"c7f74399a\">\n3.5\n</span>\n</span>\n<span class=\"c4647f690\">\n· \n<small>\nsince 2019\n</small>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking the body calls onClick": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "h3"
+       }
+      ]
+     }
+    ]
+   },
+   "rating and review count change": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n★\n</span>\n<span class=\"c7f74399a\">\n4.7\n</span>\n<span>\n(312)\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n★\n</span>\n<span class=\"c7f74399a\">\n3.9\n</span>\n<span>\n(418)\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "description and actions appear later": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n★\n</span>\n<span class=\"c7f74399a\">\n4.2\n</span>\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n<p class=\"c445db9b9\">\nIndustrial parts, fast shipping\n</p>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n★\n</span>\n<span class=\"c7f74399a\">\n4.2\n</span>\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\nVisit shop\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "name only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c8f19053a c9052b18c c9973e6cd ca596e575 cc26cf386 ccae02ff2 cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nAS\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<header>\n<h3 class=\"c0d99ed10 c6a2a1a28\">\nAcme Supplies\n</h3>\n</header>\n<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

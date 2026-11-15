@@ -1,0 +1,180 @@
+{
+ "exports": [
+  "PriceRangeSlider"
+ ],
+ "values": {},
+ "cases": {
+  "PriceRangeSlider": {
+   "defaults": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom step": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$20\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"100\" min=\"0\" step=\"10\" type=\"range\" value=\"20\" {value=\"20\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"100\" min=\"0\" step=\"10\" type=\"range\" value=\"80\" {value=\"80\"}>\n</input>\n<span class=\"c445db9b9\">\n$80\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom formatter": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n20 pts\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"100\" min=\"0\" step=\"1\" type=\"range\" value=\"20\" {value=\"20\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"100\" min=\"0\" step=\"1\" type=\"range\" value=\"80\" {value=\"80\"}>\n</input>\n<span class=\"c445db9b9\">\n80 pts\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "string label": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nFilter by price\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "element label": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\n<strong>\nBudget\n</strong>\n</span>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "low at min and high at max": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$0\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"0\" {value=\"0\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"1000\" {value=\"1000\"}>\n</input>\n<span class=\"c445db9b9\">\n$1,000\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "equal low and high": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$500\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "nonzero minimum and custom step": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$250\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"2000\" min=\"100\" step=\"25\" type=\"range\" value=\"250\" {value=\"250\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"2000\" min=\"100\" step=\"25\" type=\"range\" value=\"1750\" {value=\"1750\"}>\n</input>\n<span class=\"c445db9b9\">\n$1,750\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "minimum moves below high": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        320,
+        500
+       ]
+      ]
+     }
+    ]
+   },
+   "minimum clamps against high": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        500,
+        500
+       ]
+      ]
+     }
+    ]
+   },
+   "maximum moves above low": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        50,
+        640
+       ]
+      ]
+     }
+    ]
+   },
+   "maximum clamps against low": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        50,
+        50
+       ]
+      ]
+     }
+    ]
+   },
+   "both handles move": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       [
+        120,
+        500
+       ]
+      ]
+     },
+     {
+      "name": "onChange",
+      "args": [
+       [
+        50,
+        480
+       ]
+      ]
+     }
+    ]
+   },
+   "value props change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$80\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"80\" {value=\"80\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"320\" {value=\"320\"}>\n</input>\n<span class=\"c445db9b9\">\n$320\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "step and formatter change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n50 kr\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"25\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"25\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n500 kr\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9\">\n$50\n</span>\n<input aria-label=\"Minimum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"50\" {value=\"50\"}>\n</input>\n<input aria-label=\"Maximum\" class=\"cb5823274\" max=\"1000\" min=\"0\" step=\"1\" type=\"range\" value=\"500\" {value=\"500\"}>\n</input>\n<span class=\"c445db9b9\">\n$500\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

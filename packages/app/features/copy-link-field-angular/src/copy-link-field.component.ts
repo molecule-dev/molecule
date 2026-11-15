@@ -1,0 +1,204 @@
+/**
+ * CopyLinkField component (React parity).
+ *
+ * @module
+ */
+
+import {
+  Component,
+  type DoCheck,
+  ElementRef,
+  EventEmitter,
+  inject,
+  type OnDestroy,
+  Output,
+  signal,
+} from '@angular/core'
+
+import { useTranslation } from '@molecule/app-angular'
+import type { UIClassMap } from '@molecule/app-ui'
+import { getClassMap } from '@molecule/app-ui'
+import { Button } from '@molecule/app-ui-angular'
+
+/**
+ * CopyLinkField component.
+ *
+ * Read-only input + copy-to-clipboard button. Common in share-link panels,
+ * API-key cards, webhook URLs. The host IS the outer `<div>`
+ * (`div[mol-copy-link-field]`), matching React's root exactly. Styling routes
+ * through ClassMap tokens (`cm.stack(1)`, `cm.flex`, `cm.input()`,
+ * `cm.flex1`).
+ *
+ * Copying uses `navigator.clipboard`, which exists only in secure contexts —
+ * elsewhere the button silently does nothing and the `copy` output never
+ * fires. The input is read-only and selects its content on focus, so manual
+ * Ctrl/Cmd+C still works as the fallback. Labels use `copyLink.*` i18n keys,
+ * read through the binding's reactive `useTranslation()`, so a locale switch
+ * refreshes the text (React's components re-render through `useTranslation()`).
+ */
+@Component({
+  selector: 'div[mol-copy-link-field]',
+  standalone: true,
+  imports: [Button],
+  inputs: ['value', 'label', 'feedbackMs', 'size', 'className'],
+  host: {
+    '[class]': 'classes()',
+  },
+  template: `@if (label) {
+      <span [class]="labelClasses()">{{ label }}</span>
+    }
+    <div [class]="rowClasses()">
+      <input
+        readonly
+        type="text"
+        [attr.value]="valueText()"
+        (focus)="onFieldFocus($event)"
+        [class]="inputClasses()"
+        [attr.aria-label]="ariaLabel()"
+      />
+      <button mol-button [variant]="'solid'" [size]="size ?? 'sm'" (click)="copyValue()">
+        {{ buttonLabel() }}
+      </button>
+    </div>`,
+})
+export class CopyLinkField implements DoCheck, OnDestroy {
+  /** Value to display (and copy on click). */
+  value?: string
+  /** Optional label above the field. */
+  label?: string
+  /** How long the "Copied!" state lingers (ms; defaults to 1500 at read time). */
+  feedbackMs?: number
+  /** Size of the copy button (defaults to `'sm'` at read time). */
+  size?: 'sm' | 'md'
+  /** Extra classes. */
+  className?: string
+
+  /** Fires after a successful copy (React's `onCopy`). */
+  @Output() readonly copy = new EventEmitter<void>()
+
+  /** The element ref of the host (the outer div). */
+  private readonly el = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the text on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
+  /** Whether the last copy succeeded ("Copied!" is showing). */
+  private readonly copied = signal(false)
+
+  /** The pending feedback reset timer, cleared when the component dies. */
+  private timer?: ReturnType<typeof setTimeout>
+
+  /**
+   * The current class map.
+   * @returns The UIClassMap.
+   */
+  cm(): UIClassMap {
+    return getClassMap()
+  }
+
+  /**
+   * The wrapper class list (React's `cm.cn(cm.stack(1), className)`).
+   * @returns The class string.
+   */
+  classes(): string {
+    return this.cm().cn(this.cm().stack(1), this.className)
+  }
+
+  /**
+   * The label span's class list (React's
+   * `cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))`).
+   * @returns The class string.
+   */
+  labelClasses(): string {
+    return this.cm().cn(this.cm().textSize('xs'), this.cm().fontWeight('semibold'))
+  }
+
+  /**
+   * The input row's class (React's `cm.flex({ align: 'center', gap: 'sm' })`).
+   * @returns The class string.
+   */
+  rowClasses(): string {
+    return this.cm().flex({ align: 'center', gap: 'sm' })
+  }
+
+  /**
+   * The input's class list (React's `cm.cn(cm.input(), cm.flex1)`).
+   * @returns The class string.
+   */
+  inputClasses(): string {
+    return this.cm().cn(this.cm().input(), this.cm().flex1)
+  }
+
+  /**
+   * The displayed value (React's required `value` prop, `''` until bound).
+   * @returns The value text.
+   */
+  valueText(): string {
+    return this.value ?? ''
+  }
+
+  /**
+   * The input's accessible label (React's `label ?? t('copyLink.field', …)`).
+   * @returns The label text.
+   */
+  ariaLabel(): string {
+    return this.label ?? this.i18n.t('copyLink.field', undefined, { defaultValue: 'Link' })
+  }
+
+  /**
+   * The copy button's text (React's `t('copyLink.copied'|'copyLink.copy', …)`),
+   * following the copied state and the locale.
+   * @returns The button text.
+   */
+  buttonLabel(): string {
+    return this.copied()
+      ? this.i18n.t('copyLink.copied', undefined, { defaultValue: 'Copied!' })
+      : this.i18n.t('copyLink.copy', undefined, { defaultValue: 'Copy' })
+  }
+
+  /**
+   * Selects the input's whole content on focus (React's
+   * `onFocus={(e) => e.target.select()}`), so manual Ctrl/Cmd+C works.
+   *
+   * @param event - The native focus event.
+   */
+  onFieldFocus(event: FocusEvent): void {
+    ;(event.target as HTMLInputElement).select()
+  }
+
+  /**
+   * Copies the value, then shows the "Copied!" feedback for `feedbackMs` and
+   * fires the `copy` output — React's `copy` callback.
+   */
+  copyValue(): void {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      void navigator.clipboard.writeText(this.valueText()).then(() => {
+        this.copied.set(true)
+        this.copy.emit()
+        this.timer = setTimeout(() => this.copied.set(false), this.feedbackMs ?? 1500)
+      })
+    }
+  }
+
+  /**
+   * React's controlled input: the live value always follows the `value` prop
+   * (the `[attr.value]` binding writes the attribute; the property is synced
+   * here so both reads of the field agree after a re-render).
+   */
+  ngDoCheck(): void {
+    const input = (this.el.nativeElement as HTMLElement).querySelector(
+      'input',
+    ) as HTMLInputElement | null
+    const text = this.valueText()
+    if (input && input.value !== text) input.value = text
+  }
+
+  /** Detaches the feedback timer with the component. */
+  ngOnDestroy(): void {
+    clearTimeout(this.timer)
+  }
+}

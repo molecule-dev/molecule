@@ -34,3 +34,4 @@
  */
 
 export * from './SafeLink.js'
+export * from './types.js'

@@ -1,5 +1,7 @@
-import type { ComponentProps, JSX, ReactNode } from 'react'
+import type { JSX } from 'react'
 import { Link, useLocation } from 'react-router'
+
+import type { SafeLinkProps } from './types.js'
 
 /**
  * `<SafeLink>` renders a react-router `Link`, but if its destination
@@ -10,11 +12,7 @@ import { Link, useLocation } from 'react-router'
  * same-path link is clicked — useful for nav primitives that get
  * exercised by behavioural verifiers / e2e probes.
  */
-export function SafeLink({
-  to,
-  children,
-  ...rest
-}: Omit<ComponentProps<typeof Link>, 'to'> & { to: string; children?: ReactNode }): JSX.Element {
+export function SafeLink({ to, children, ...rest }: SafeLinkProps): JSX.Element {
   const location = useLocation()
   const samePath = location.pathname === to || location.pathname + '/' === to
   const target = samePath ? `${to.replace(/\/$/, '')}#top` : to

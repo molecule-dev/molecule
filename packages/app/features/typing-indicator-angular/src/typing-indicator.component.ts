@@ -1,0 +1,140 @@
+/**
+ * TypingIndicator component (React parity).
+ *
+ * @module
+ */
+
+import { type AfterViewInit, Component, Directive, ElementRef, inject } from '@angular/core'
+
+import type { UIClassMap } from '@molecule/app-ui'
+import { getClassMap } from '@molecule/app-ui'
+
+/** The name of the `@keyframes` rule the dots animate with. */
+const KEYFRAMES_NAME = 'molecule-typing-pulse'
+
+/** The injected `@keyframes` rule, written once per indicator. */
+const KEYFRAMES_CSS = `@keyframes ${KEYFRAMES_NAME} { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }`
+
+/**
+ * Injects the indicator's `<style>` element as the span's first child.
+ *
+ * The rule's text contains `@keyframes`, which an Angular template parses as
+ * a control-flow block, so the element cannot be written in the template
+ * (Angular also strips `<style>` elements from templates). The directive sits
+ * on the span inside the component's `@if` block: Angular re-creates the span
+ * (and the directive) whenever visibility turns back on, so the element is
+ * re-inserted each time, and it leaves the DOM with the span when visibility
+ * turns off. The `mol-typing-status` attribute is the directive's mount point
+ * only — DOM normalization strips `mol-*` attributes, so it never appears in
+ * a rendered page.
+ */
+@Directive({
+  selector: 'span[mol-typing-status]',
+  standalone: true,
+})
+class TypingStatusSpan implements AfterViewInit {
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef)
+
+  /** @inheritdoc */
+  ngAfterViewInit(): void {
+    const style = document.createElement('style')
+    style.textContent = KEYFRAMES_CSS
+    this.host.nativeElement.insertBefore(style, this.host.nativeElement.firstChild)
+  }
+}
+
+/**
+ * TypingIndicator component.
+ *
+ * Three-dot "typing…" animation, CSS-only. React's root is the `<span>` when
+ * visible and nothing when hidden, so the host is unwrapped
+ * (`data-parity-unwrap`, `display: contents`) and the span is rendered inside
+ * it. Each instance injects its own `<style>` tag with the shared keyframes
+ * and renders three dots that pulse in sequence.
+ *
+ * The `<style>` element is not a template node (Angular's compiler strips
+ * `<style>` elements from templates, and the rule's `@keyframes` text would
+ * parse as a control-flow block): {@link TypingStatusSpan} inserts it as the
+ * span's first child whenever the span comes into existence. The element
+ * lives INSIDE the span, so it leaves the DOM with the view when visibility
+ * turns off.
+ */
+@Component({
+  selector: 'mol-typing-indicator',
+  standalone: true,
+  imports: [TypingStatusSpan],
+  inputs: ['visible', 'dotSize', 'durationMs', 'ariaLabel', 'className'],
+  host: {
+    'data-parity-unwrap': '',
+    style: 'display: contents',
+  },
+  template: `@if (isVisible()) {
+    <span mol-typing-status role="status" [attr.aria-label]="labelText()" [class]="classes()">
+      <span aria-hidden="true" [style]="dotStyle(0)"></span>
+      <span aria-hidden="true" [style]="dotStyle(1)"></span>
+      <span aria-hidden="true" [style]="dotStyle(2)"></span>
+    </span>
+  }`,
+})
+export class TypingIndicator {
+  /** Whether to render. Defaults to true at read time. */
+  visible?: boolean
+  /** Dot diameter in pixels. Defaults to 6 at read time. */
+  dotSize?: number
+  /** Animation duration in ms. Defaults to 1200 at read time. */
+  durationMs?: number
+  /** Accessible label. Defaults to 'Typing…' at read time. */
+  ariaLabel?: string
+  /** Extra classes. */
+  className?: string
+
+  /**
+   * The current class map.
+   * @returns The UIClassMap.
+   */
+  cm(): UIClassMap {
+    return getClassMap()
+  }
+
+  /**
+   * Whether the indicator renders (React's default parameter: an absent or
+   * later-bound write of `undefined` must not hide it).
+   * @returns True when visible.
+   */
+  isVisible(): boolean {
+    return this.visible ?? true
+  }
+
+  /**
+   * The accessible label (React's default parameter).
+   * @returns The label.
+   */
+  labelText(): string {
+    return this.ariaLabel ?? 'Typing…'
+  }
+
+  /**
+   * Computes the indicator's class list.
+   * @returns The class string.
+   */
+  classes(): string {
+    return this.cm().cn(this.cm().flex({ align: 'center', gap: 'xs' }), this.className)
+  }
+
+  /**
+   * Computes one dot's inline styles.
+   * @param index - The dot's position (0–2); each dot's delay staggers it.
+   * @returns The style map.
+   */
+  dotStyle(index: number): Record<string, string> {
+    const durationMs = this.durationMs ?? 1200
+    return {
+      display: 'inline-block',
+      width: `${this.dotSize ?? 6}px`,
+      height: `${this.dotSize ?? 6}px`,
+      'border-radius': '50%',
+      background: 'currentColor',
+      animation: `${KEYFRAMES_NAME} ${durationMs}ms ease-in-out ${(index * durationMs) / 6}ms infinite`,
+    }
+  }
+}
