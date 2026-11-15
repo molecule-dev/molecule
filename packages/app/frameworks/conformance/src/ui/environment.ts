@@ -24,6 +24,7 @@ import {
   setLayoutStubs,
   type TransferData,
 } from './page.js'
+import { installPseudoLocaleIntl } from './pseudo-locale-intl.js'
 import type { ClickModifiers, Interaction, UICase } from './spec.js'
 
 let installed = false
@@ -31,7 +32,9 @@ let installed = false
 /**
  * The locale a case's `locale` step switches to. Every string `t()` returns in it reads
  * `⟦English⟧`, so a component that does not re-render on a switch keeps plain English and
- * differs from React's recorded output.
+ * differs from React's recorded output. Intl's date, relative-time and list formatters made
+ * for it bracket their output the same way ({@link installPseudoLocaleIntl}), so a component
+ * that formats in a fixed locale differs too.
  */
 export const PSEUDO_LOCALE = 'en-XA'
 
@@ -121,6 +124,7 @@ export function installSharedBonds(): void {
   setClassMap(classMap)
   setIconSet(iconSet)
   setI18nProvider(createConformanceI18nProvider())
+  installPseudoLocaleIntl(PSEUDO_LOCALE)
 }
 
 /**

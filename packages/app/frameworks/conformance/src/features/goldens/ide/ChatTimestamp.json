@@ -152,7 +152,7 @@
  "an inline time five minutes ago, then a locale switch": {
   "snapshots": [
    "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",
-   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /"
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n⟦5 minutes ago⟧\n</time>\n</div>\n@route /"
   ],
   "calls": [
    {
