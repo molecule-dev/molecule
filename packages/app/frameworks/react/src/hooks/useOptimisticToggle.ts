@@ -45,7 +45,10 @@ export interface UseOptimisticToggleResult extends OptimisticValueState<boolean>
 export function useOptimisticToggle(
   options: UseOptimisticToggleOptions,
 ): UseOptimisticToggleResult {
-  const { value, pending, error, update } = useOptimisticValue<boolean>(options)
+  const { value, pending, error, update } = useOptimisticValue<boolean>({
+    ...options,
+    commit: (desired) => options.commit(desired),
+  })
   const toggle = useCallback(() => update((current) => !current), [update])
   return { value, pending, error, toggle }
 }

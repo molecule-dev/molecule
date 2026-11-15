@@ -60,6 +60,7 @@ describe('useOptimisticToggle', () => {
     expect(control.textContent).toBe('Unstar repository')
     expect(control.querySelector('[data-icon="star"]')).not.toBeNull()
     expect(server.requests.map((request) => request.desired)).toEqual([true])
+    expect(server.commit).toHaveBeenCalledExactlyOnceWith(true)
     await act(async () => server.requests[0].reply.resolve(true))
     fireEvent.click(control)
     expect(control.textContent).toBe('Star repository')
