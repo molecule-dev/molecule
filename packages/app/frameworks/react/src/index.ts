@@ -6,6 +6,15 @@
  * chat, workspace, editor, preview), so framework-agnostic providers plug
  * into React idioms.
  *
+ * **Server-backed boolean controls with any markup:** `useOptimisticToggle({ value, commit })`
+ * returns `{ value, toggle, pending, error }`. Render `value` and use `onClick={toggle}`;
+ * `toggle()` takes NO argument. The hook computes the next boolean and passes that
+ * DESIRED value to `commit(desired)`. Return the server's confirmed boolean from commit.
+ * Clicks during a save are queued/coalesced, and the newest failure rolls back. Keep
+ * the control enabled during saves; mount it only after its initial record loads and
+ * key it by record identity. For a flag and a related count, use `useOptimisticValue`
+ * with both fields in one value. Local UI switches without a server save stay local state.
+ *
  * **Editable account/profile forms:** `useProfileForm` composes the bonded form
  * and auth clients. It hydrates asynchronous user data without erasing dirty
  * fields, uses session ownership independently of editable profile identity,
@@ -54,6 +63,35 @@
  * refetches of that record. The hook protects pending intent from refetches and
  * unchanged old props after a save; it cannot order different server snapshots
  * received after saving finishes, or make a missing record ready for a click.
+ *
+ * @example
+ * ```tsx
+ * import { useHttpClient, useOptimisticToggle, useTranslation } from '@molecule/app-react'
+ *
+ * function ThreadSubscription({ thread }: { thread: { id: string; subscribed: boolean } }) {
+ *   const http = useHttpClient()
+ *   const { t } = useTranslation()
+ *   const subscription = useOptimisticToggle({
+ *     value: thread.subscribed,
+ *     commit: async (desired) => {
+ *       const path = `/threads/${encodeURIComponent(thread.id)}/subscription`
+ *       const response = desired
+ *         ? await http.put<{ subscribed: boolean }>(path)
+ *         : await http.delete<{ subscribed: boolean }>(path)
+ *       return response.data.subscribed
+ *     },
+ *   })
+ *   return (
+ *     <button type="button" aria-pressed={subscription.value}
+ *       aria-busy={subscription.pending} onClick={subscription.toggle}>
+ *       {subscription.value
+ *         ? t('thread.unsubscribe', undefined, { defaultValue: 'Unsubscribe' })
+ *         : t('thread.subscribe', undefined, { defaultValue: 'Subscribe' })}
+ *     </button>
+ *   )
+ * }
+ * // Mount <ThreadSubscription key={thread.id} thread={thread} /> once thread is loaded.
+ * ```
  *
  * @example
  * ```tsx
