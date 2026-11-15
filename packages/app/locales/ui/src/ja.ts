@@ -55,4 +55,5 @@ export const ja: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` は `ToastProvider` の内側で使用する必要があります。',
   'ui.pageShell.collapseSidebar': 'サイドバーを折りたたむ',
   'ui.pageShell.expandSidebar': 'サイドバーを展開する',
+  'ui.pageHeader.breadcrumbs': 'パンくずリスト',
 }

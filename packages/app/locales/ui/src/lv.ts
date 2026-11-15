@@ -55,4 +55,5 @@ export const lv: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` ir jāizmanto `ToastProvider` ietvaros.',
   'ui.pageShell.collapseSidebar': 'Sakļaut sānu joslu',
   'ui.pageShell.expandSidebar': 'Izvērst sānu joslu',
+  'ui.pageHeader.breadcrumbs': 'Navigācijas ceļš',
 }

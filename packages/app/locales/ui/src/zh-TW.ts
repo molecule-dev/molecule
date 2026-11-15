@@ -55,4 +55,5 @@ export const zhTW: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast`必須在`ToastProvider`中使用。',
   'ui.pageShell.collapseSidebar': '折疊側邊欄',
   'ui.pageShell.expandSidebar': '展開側邊欄',
+  'ui.pageHeader.breadcrumbs': '麵包屑導覽',
 }

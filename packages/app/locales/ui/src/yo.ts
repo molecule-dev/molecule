@@ -55,4 +55,5 @@ export const yo: UiTranslations = {
   'ui.toast.error.noProvider': 'A gbọ́dọ̀ lo `useToast` nínú `ToastProvider` kan',
   'ui.pageShell.collapseSidebar': 'Ṣe ìdìpọ̀ ẹ̀gbẹ́ ẹ̀gbẹ́',
   'ui.pageShell.expandSidebar': 'Fẹ̀ ẹ̀gbẹ́ ẹ̀gbẹ́',
+  'ui.pageHeader.breadcrumbs': 'Ọna lilọ kiri',
 }

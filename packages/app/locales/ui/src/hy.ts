@@ -60,4 +60,5 @@ export const hy: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` պետք է օգտագործվի `ToastProvider` ի ներսում',
   'ui.pageShell.collapseSidebar': 'Ծալել կողային վահանակը',
   'ui.pageShell.expandSidebar': 'Ընդարձակել կողային վահանակը',
+  'ui.pageHeader.breadcrumbs': 'Նավիգացիոն ուղի',
 }

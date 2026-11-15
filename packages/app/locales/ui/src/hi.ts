@@ -55,4 +55,5 @@ export const hi: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` उपयोग `ToastProvider` के भीतर ही किया जाना चाहिए।',
   'ui.pageShell.collapseSidebar': 'साइडबार को छोटा करें',
   'ui.pageShell.expandSidebar': 'साइडबार का विस्तार करें',
+  'ui.pageHeader.breadcrumbs': 'ब्रेडक्रंब नेविगेशन',
 }

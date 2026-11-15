@@ -56,4 +56,5 @@ export const lo: UiTranslations = {
   'ui.toast.error.noProvider': 'ຕ້ອງໃຊ້ `useToast` ພາຍໃນ `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'ຫຍໍ້ແຖບດ້ານຂ້າງ',
   'ui.pageShell.expandSidebar': 'ຂະຫຍາຍແຖບດ້ານຂ້າງ',
+  'ui.pageHeader.breadcrumbs': 'ເສັ້ນທາງການນຳທາງ',
 }

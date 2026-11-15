@@ -55,4 +55,5 @@ export const zh: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast`必须在`ToastProvider`中使用。',
   'ui.pageShell.collapseSidebar': '折叠侧边栏',
   'ui.pageShell.expandSidebar': '展开侧边栏',
+  'ui.pageHeader.breadcrumbs': '面包屑导航',
 }

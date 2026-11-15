@@ -61,4 +61,5 @@ export const sr: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` мора да се користи унутар `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Склопи бочну траку',
   'ui.pageShell.expandSidebar': 'Прошири бочну траку',
+  'ui.pageHeader.breadcrumbs': 'Навигациона стаза',
 }

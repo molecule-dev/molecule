@@ -55,4 +55,5 @@ export const gl: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` debe usarse dentro de `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Contraer a barra lateral',
   'ui.pageShell.expandSidebar': 'Expandir a barra lateral',
+  'ui.pageHeader.breadcrumbs': 'Ruta de navegación',
 }

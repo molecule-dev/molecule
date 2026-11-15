@@ -55,4 +55,5 @@ export const lt: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` turi būti naudojamas `ToastProvider` viduje',
   'ui.pageShell.collapseSidebar': 'Sutraukti šoninę juostą',
   'ui.pageShell.expandSidebar': 'Išskleisti šoninę juostą',
+  'ui.pageHeader.breadcrumbs': 'Naršymo kelias',
 }

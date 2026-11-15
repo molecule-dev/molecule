@@ -61,4 +61,5 @@ export const ru: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` необходимо использовать внутри `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Свернуть боковую панель',
   'ui.pageShell.expandSidebar': 'Развернуть боковую панель',
+  'ui.pageHeader.breadcrumbs': 'Навигационная цепочка',
 }

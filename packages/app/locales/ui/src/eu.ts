@@ -55,4 +55,5 @@ export const eu: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` baten barruan erabili behar da',
   'ui.pageShell.collapseSidebar': 'Tolestu alboko barra',
   'ui.pageShell.expandSidebar': 'Zabaldu alboko barra',
+  'ui.pageHeader.breadcrumbs': 'Nabigazio-bidea',
 }

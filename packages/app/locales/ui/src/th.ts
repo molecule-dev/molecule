@@ -59,4 +59,5 @@ export const th: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` ต้องใช้ภายใน `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'ยุบแถบด้านข้าง',
   'ui.pageShell.expandSidebar': 'ขยายแถบด้านข้าง',
+  'ui.pageHeader.breadcrumbs': 'เส้นทางการนำทาง',
 }

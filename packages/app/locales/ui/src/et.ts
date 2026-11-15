@@ -55,4 +55,5 @@ export const et: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` peab olema kasutatud `ToastProvider` sees',
   'ui.pageShell.collapseSidebar': 'Sulge külgriba',
   'ui.pageShell.expandSidebar': 'Laienda külgriba',
+  'ui.pageHeader.breadcrumbs': 'Navigeerimisrada',
 }

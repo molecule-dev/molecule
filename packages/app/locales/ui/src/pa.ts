@@ -60,4 +60,5 @@ export const pa: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ।',
   'ui.pageShell.collapseSidebar': 'ਸਾਈਡਬਾਰ ਨੂੰ ਸਮੇਟੋ',
   'ui.pageShell.expandSidebar': 'ਸਾਈਡਬਾਰ ਦਾ ਵਿਸਤਾਰ ਕਰੋ',
+  'ui.pageHeader.breadcrumbs': 'ਬਰੈੱਡਕਰੰਬ ਨੇਵੀਗੇਸ਼ਨ',
 }

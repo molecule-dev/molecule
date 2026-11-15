@@ -55,4 +55,5 @@ export const sl: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` mora biti uporabljen znotraj `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Strni stransko vrstico',
   'ui.pageShell.expandSidebar': 'Razširi stransko vrstico',
+  'ui.pageHeader.breadcrumbs': 'Navigacijska pot',
 }

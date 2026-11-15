@@ -55,4 +55,5 @@ export const mt: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` irid jintuża fi ħdan `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Agħlaq il-menu tal-ġenb',
   'ui.pageShell.expandSidebar': 'Espandi l-menu tal-ġenb',
+  'ui.pageHeader.breadcrumbs': 'Triq in-navigazzjoni',
 }

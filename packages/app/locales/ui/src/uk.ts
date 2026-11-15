@@ -55,4 +55,5 @@ export const uk: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` має використовуватися всередині `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Згорнути бічну панель',
   'ui.pageShell.expandSidebar': 'Розгорнути бічну панель',
+  'ui.pageHeader.breadcrumbs': 'Навігаційний ланцюжок',
 }

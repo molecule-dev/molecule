@@ -61,4 +61,5 @@ export const ur: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` استعمال `ToastProvider` کے اندر ہونا چاہئے۔',
   'ui.pageShell.collapseSidebar': 'سائڈبار کو سکیڑیں۔',
   'ui.pageShell.expandSidebar': 'سائڈبار کو پھیلائیں۔',
+  'ui.pageHeader.breadcrumbs': 'بریڈکرمب نیویگیشن',
 }

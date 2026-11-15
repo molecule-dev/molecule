@@ -55,4 +55,5 @@ export const bn: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` অবশ্যই একটি `ToastProvider` মধ্যে ব্যবহার করতে হবে।',
   'ui.pageShell.collapseSidebar': 'সাইডবার সংকুচিত করুন',
   'ui.pageShell.expandSidebar': 'সাইডবার প্রসারিত করুন',
+  'ui.pageHeader.breadcrumbs': 'ব্রেডক্রাম্ব নেভিগেশন',
 }

@@ -55,4 +55,5 @@ export const ko: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` 내에서 사용해야 합니다.',
   'ui.pageShell.collapseSidebar': '사이드바 접기',
   'ui.pageShell.expandSidebar': '사이드바 펼치기',
+  'ui.pageHeader.breadcrumbs': '브레드크럼 탐색',
 }

@@ -55,4 +55,5 @@ export const vi: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` phải được sử dụng trong `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Thu gọn thanh bên',
   'ui.pageShell.expandSidebar': 'Mở rộng thanh bên',
+  'ui.pageHeader.breadcrumbs': 'Điều hướng phân cấp',
 }

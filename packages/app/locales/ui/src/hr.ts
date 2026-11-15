@@ -55,4 +55,5 @@ export const hr: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` se mora koristiti unutar `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Sažmi bočnu traku',
   'ui.pageShell.expandSidebar': 'Proširi bočnu traku',
+  'ui.pageHeader.breadcrumbs': 'Navigacijska staza',
 }

@@ -55,4 +55,5 @@ export const hu: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` egy `ToastProvider` belül kell használni.',
   'ui.pageShell.collapseSidebar': 'Oldalsáv összecsukása',
   'ui.pageShell.expandSidebar': 'Oldalsáv kibontása',
+  'ui.pageHeader.breadcrumbs': 'Morzsamenü',
 }

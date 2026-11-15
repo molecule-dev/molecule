@@ -6,6 +6,7 @@
 
 import React, { forwardRef } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -17,6 +18,7 @@ import { getClassMap } from '@molecule/app-ui'
  */
 export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
   ({ title, description, actions, breadcrumbs, className, style, testId, automationId }, ref) => {
+    const { t } = useTranslation()
     const cm = getClassMap()
 
     return (
@@ -28,7 +30,10 @@ export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
         data-mol-id={automationId}
       >
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav className={cm.pageHeaderBreadcrumbs} aria-label="Breadcrumb">
+          <nav
+            className={cm.pageHeaderBreadcrumbs}
+            aria-label={t('ui.pageHeader.breadcrumbs', undefined, { defaultValue: 'Breadcrumb' })}
+          >
             {breadcrumbs.map((crumb, index) => (
               <React.Fragment key={index}>
                 {index > 0 && (

@@ -55,4 +55,5 @@ export const ar: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': 'يجب استخدام `useToast` داخل `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'طي الشريط الجانبي',
   'ui.pageShell.expandSidebar': 'توسيع الشريط الجانبي',
+  'ui.pageHeader.breadcrumbs': 'مسار التنقل',
 }

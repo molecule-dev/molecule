@@ -55,4 +55,5 @@ export const sv: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` måste användas inom en `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Komprimera sidofältet',
   'ui.pageShell.expandSidebar': 'Expandera sidofältet',
+  'ui.pageHeader.breadcrumbs': 'Brödsmulsnavigering',
 }

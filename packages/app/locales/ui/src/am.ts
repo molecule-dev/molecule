@@ -55,4 +55,5 @@ export const am: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` በ `ToastProvider` ውስጥ ጥቅም ላይ መዋል አለበት',
   'ui.pageShell.collapseSidebar': 'የጎን አሞሌን ሰብስብ',
   'ui.pageShell.expandSidebar': 'የጎን አሞሌን ዘርጋ',
+  'ui.pageHeader.breadcrumbs': 'የአሰሳ መንገድ',
 }

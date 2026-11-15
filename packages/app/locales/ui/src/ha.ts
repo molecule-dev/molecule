@@ -55,4 +55,5 @@ export const ha: UiTranslations = {
   'ui.toast.error.noProvider': 'Dole ne a yi amfani da `useToast` a cikin `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Rufe gefen gefe',
   'ui.pageShell.expandSidebar': 'Faɗaɗa gefen gefe',
+  'ui.pageHeader.breadcrumbs': 'Hanyar kewaya',
 }

@@ -55,4 +55,5 @@ export const sk: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` musí byť použitý v rámci `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Zbaliť bočný panel',
   'ui.pageShell.expandSidebar': 'Rozbaliť bočný panel',
+  'ui.pageHeader.breadcrumbs': 'Navigačná cesta',
 }

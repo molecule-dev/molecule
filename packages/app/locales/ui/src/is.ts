@@ -55,4 +55,5 @@ export const is: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` verður að vera notað innan `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Fella saman hliðarstiku',
   'ui.pageShell.expandSidebar': 'Stækka hliðarstikuna',
+  'ui.pageHeader.breadcrumbs': 'Brauðmolaslóða',
 }

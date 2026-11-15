@@ -55,4 +55,5 @@ export const af: UiTranslations = {
   'ui.toast.error.noProvider': "`useToast` moet binne 'n `ToastProvider` gebruik word",
   'ui.pageShell.collapseSidebar': 'Vou sybalk in',
   'ui.pageShell.expandSidebar': 'Vou die sybalk uit',
+  'ui.pageHeader.breadcrumbs': 'Broodkrummelnavigasie',
 }

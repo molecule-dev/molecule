@@ -55,4 +55,5 @@ export const gu: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` ઉપયોગ `ToastProvider` માં થવો જોઈએ.',
   'ui.pageShell.collapseSidebar': 'સાઇડબાર સંકુચિત કરો',
   'ui.pageShell.expandSidebar': 'સાઇડબાર વિસ્તૃત કરો',
+  'ui.pageHeader.breadcrumbs': 'બ્રેડક્રમ્બ નેવિગેશન',
 }

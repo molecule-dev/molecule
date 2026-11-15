@@ -58,4 +58,5 @@ export const km: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` ត្រូវតែប្រើនៅក្នុង `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'បង្រួមរបារចំហៀង',
   'ui.pageShell.expandSidebar': 'ពង្រីករបារចំហៀង',
+  'ui.pageHeader.breadcrumbs': 'ផ្លូវរុករក',
 }

@@ -55,4 +55,5 @@ export const az: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` daxilində istifadə olunmalıdır',
   'ui.pageShell.collapseSidebar': 'Yan paneli yığcamlaşdırın',
   'ui.pageShell.expandSidebar': 'Yan paneli genişləndirin',
+  'ui.pageHeader.breadcrumbs': 'Naviqasiya yolu',
 }

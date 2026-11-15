@@ -55,4 +55,5 @@ export const el: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` πρέπει να χρησιμοποιείται μέσα σε ένα `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Σύμπτυξη πλευρικής γραμμής',
   'ui.pageShell.expandSidebar': 'Ανάπτυξη πλευρικής γραμμής',
+  'ui.pageHeader.breadcrumbs': 'Διαδρομή πλοήγησης',
 }

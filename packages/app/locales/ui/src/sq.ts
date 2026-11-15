@@ -55,4 +55,5 @@ export const sq: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` duhet të përdoret brenda një `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Palos shiritin anësor',
   'ui.pageShell.expandSidebar': 'Zgjero shiritin anësor',
+  'ui.pageHeader.breadcrumbs': 'Rruga e navigimit',
 }

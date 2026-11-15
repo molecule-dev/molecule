@@ -55,4 +55,5 @@ export const ga: UiTranslations = {
   'ui.toast.error.noProvider': 'Ní mór `useToast` a úsáid laistigh de `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Laghdaigh an barra taoibh',
   'ui.pageShell.expandSidebar': 'Leathnaigh an barra taoibh',
+  'ui.pageHeader.breadcrumbs': 'Cosán nascleanúna',
 }

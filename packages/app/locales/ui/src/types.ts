@@ -10,6 +10,7 @@ export type UiTranslationKey =
   | 'ui.pagination.next'
   | 'ui.pagination.last'
   | 'ui.pagination.goToPage'
+  | 'ui.pageHeader.breadcrumbs'
   | 'ui.table.empty'
   | 'ui.avatar.alt'
   | 'ui.spinner.loading'

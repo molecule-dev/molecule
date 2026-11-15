@@ -12,6 +12,7 @@ export const en: UiTranslations = {
   'ui.pagination.next': 'Go to next page',
   'ui.pagination.last': 'Go to last page',
   'ui.pagination.goToPage': 'Go to page {{page}}',
+  'ui.pageHeader.breadcrumbs': 'Breadcrumb',
   'ui.table.empty': 'No data available',
   'ui.avatar.alt': 'Avatar',
   'ui.spinner.loading': 'Loading',

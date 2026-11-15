@@ -60,4 +60,5 @@ export const mr: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` वापर `ToastProvider` आतच केला पाहिजे.',
   'ui.pageShell.collapseSidebar': 'साइडबार संकुचित करा',
   'ui.pageShell.expandSidebar': 'साइडबारचा विस्तार करा',
+  'ui.pageHeader.breadcrumbs': 'ब्रेडक्रंब नेव्हिगेशन',
 }

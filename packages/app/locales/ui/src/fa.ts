@@ -55,4 +55,5 @@ export const fa: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` باید درون یک `ToastProvider` استفاده شود.',
   'ui.pageShell.collapseSidebar': 'نوار کناری را جمع کنید',
   'ui.pageShell.expandSidebar': 'نوار کناری را گسترش دهید',
+  'ui.pageHeader.breadcrumbs': 'مسیر ناوبری',
 }

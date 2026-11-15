@@ -55,4 +55,5 @@ export const nl: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` moet binnen een `ToastProvider` worden gebruikt.',
   'ui.pageShell.collapseSidebar': 'Zijbalk inklappen',
   'ui.pageShell.expandSidebar': 'Zijbalk uitklappen',
+  'ui.pageHeader.breadcrumbs': 'Kruimelpad',
 }

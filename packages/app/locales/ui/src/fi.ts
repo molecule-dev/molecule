@@ -55,4 +55,5 @@ export const fi: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` on käytettävä `ToastProvider` kohteen sisällä.',
   'ui.pageShell.collapseSidebar': 'Pienennä sivupalkki',
   'ui.pageShell.expandSidebar': 'Laajenna sivupalkki',
+  'ui.pageHeader.breadcrumbs': 'Polkunavigaatio',
 }

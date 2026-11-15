@@ -3,6 +3,7 @@
   actions.
 -->
 <script lang="ts">
+  import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from '../style.js'
@@ -19,7 +20,11 @@
     automationId,
   }: PageHeaderProps = $props()
 
+  const { t } = useTranslation()
   const cm = $derived(getClassMap())
+  const breadcrumbLabel = $derived(
+    t('ui.pageHeader.breadcrumbs', undefined, { defaultValue: 'Breadcrumb' }),
+  )
 </script>
 
 <div
@@ -29,7 +34,7 @@
   data-mol-id={automationId}
 >
   {#if breadcrumbs && breadcrumbs.length > 0}
-    <nav class={cm.pageHeaderBreadcrumbs} aria-label="Breadcrumb">
+    <nav class={cm.pageHeaderBreadcrumbs} aria-label={breadcrumbLabel}>
       {#each breadcrumbs as crumb, index (index)}
         {#if index > 0}
           <span class={cm.pageHeaderBreadcrumbSeparator} aria-hidden="true">/</span>

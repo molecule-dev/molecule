@@ -55,4 +55,5 @@ export const be: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` павінен выкарыстоўвацца ўнутры `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Згарнуць бакавую панэль',
   'ui.pageShell.expandSidebar': 'Разгарнуць бакавую панэль',
+  'ui.pageHeader.breadcrumbs': 'Навігацыйны шлях',
 }

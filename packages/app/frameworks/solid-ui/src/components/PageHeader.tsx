@@ -6,6 +6,7 @@
 
 import { type Component, Index, type JSX, Show, splitProps } from 'solid-js'
 
+import { useTranslation } from '@molecule/app-solid'
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -32,6 +33,7 @@ export const PageHeader: Component<PageHeaderProps> = (props) => {
     'automationId',
   ])
 
+  const { t } = useTranslation()
   const cm = getClassMap()
 
   return (
@@ -42,7 +44,10 @@ export const PageHeader: Component<PageHeaderProps> = (props) => {
       data-mol-id={local.automationId}
     >
       <Show when={local.breadcrumbs && local.breadcrumbs.length > 0}>
-        <nav class={cm.pageHeaderBreadcrumbs} aria-label="Breadcrumb">
+        <nav
+          class={cm.pageHeaderBreadcrumbs}
+          aria-label={t('ui.pageHeader.breadcrumbs', undefined, { defaultValue: 'Breadcrumb' })}
+        >
           {/* React keys the breadcrumbs `key={index}` (`<React.Fragment
               key={index}>`), so `<Index>` — a position's node survives and its
               content updates, exactly the index-key behavior. */}

@@ -64,4 +64,5 @@ export const ml: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` ഒരു `ToastProvider`-നുള്ളിൽ ഉപയോഗിക്കണം.',
   'ui.pageShell.collapseSidebar': 'സൈഡ്‌ബാർ ചുരുക്കുക',
   'ui.pageShell.expandSidebar': 'സൈഡ്‌ബാർ വികസിപ്പിക്കുക',
+  'ui.pageHeader.breadcrumbs': 'ബ്രെഡ്ക്രംബ് നാവിഗേഷൻ',
 }

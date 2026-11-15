@@ -15,6 +15,7 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -49,7 +50,7 @@ interface Breadcrumb {
     '[attr.data-mol-id]': 'automationId',
   },
   template: `@if (breadcrumbs && breadcrumbs.length > 0) {
-      <nav [class]="cm().pageHeaderBreadcrumbs" aria-label="Breadcrumb">
+      <nav [class]="cm().pageHeaderBreadcrumbs" [attr.aria-label]="breadcrumbLabel()">
         @for (crumb of breadcrumbs; track $index) {
           @if ($index > 0) {
             <span [class]="cm().pageHeaderBreadcrumbSeparator" aria-hidden="true">/</span>
@@ -93,6 +94,13 @@ export class PageHeader implements AfterViewInit, DoCheck {
   /** The actions wrapper (always in the template; detached when unused). */
   @ViewChild('actionsSlot') actionsSlot?: ElementRef<HTMLDivElement>
 
+  /**
+   * Reactive translation, read in the injection context. Its `t` reads the
+   * locale, so the view re-renders the label on a locale switch (the static `t`
+   * does not).
+   */
+  private readonly i18n = useTranslation()
+
   private readonly sync = new SlotWrapper(inject(ElementRef), inject(Renderer2))
   private hasActions = false
   private actionsParent: HTMLElement | null = null
@@ -111,6 +119,14 @@ export class PageHeader implements AfterViewInit, DoCheck {
    */
   classes(): string {
     return this.cm().cn(this.cm().pageHeader, this.className)
+  }
+
+  /**
+   * The breadcrumb nav's accessible label.
+   * @returns The label text.
+   */
+  breadcrumbLabel(): string {
+    return this.i18n.t('ui.pageHeader.breadcrumbs', undefined, { defaultValue: 'Breadcrumb' })
   }
 
   /**

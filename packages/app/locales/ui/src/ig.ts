@@ -55,4 +55,5 @@ export const ig: UiTranslations = {
   'ui.toast.error.noProvider': "A ga-eji `useToast` mee ihe n'ime `ToastProvider`",
   'ui.pageShell.collapseSidebar': 'Gbadaa akụkụ aka nri',
   'ui.pageShell.expandSidebar': 'Gbasaa akụkụ akụkụ aka nri',
+  'ui.pageHeader.breadcrumbs': 'Ụzọ nchọgharị',
 }

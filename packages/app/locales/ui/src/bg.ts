@@ -55,4 +55,5 @@ export const bg: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` трябва да се използва в рамките на `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Свиване на страничната лента',
   'ui.pageShell.expandSidebar': 'Разгъване на страничната лента',
+  'ui.pageHeader.breadcrumbs': 'Навигационен път',
 }

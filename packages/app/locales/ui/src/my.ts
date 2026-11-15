@@ -62,4 +62,5 @@ export const my: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` အတွင်းတွင် အသုံးပြုရမည်',
   'ui.pageShell.collapseSidebar': 'ဘေးဘက်ဘားကို ခေါက်ပါ',
   'ui.pageShell.expandSidebar': 'ဘေးဘက်ဘားကို ချဲ့ထွင်ပါ',
+  'ui.pageHeader.breadcrumbs': 'နေဝိဂေးရှင်း လမ်းကြောင်း',
 }

@@ -55,4 +55,5 @@ export const ms: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` mesti digunakan dalam `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Lipat bar sisi',
   'ui.pageShell.expandSidebar': 'Kembangkan bar sisi',
+  'ui.pageHeader.breadcrumbs': 'Laluan navigasi',
 }

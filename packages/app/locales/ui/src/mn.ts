@@ -61,4 +61,5 @@ export const mn: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` дотор ашиглагдах ёстой',
   'ui.pageShell.collapseSidebar': 'Хажуугийн цэсийг хумих',
   'ui.pageShell.expandSidebar': 'Хажуугийн самбарыг дэлгэх',
+  'ui.pageHeader.breadcrumbs': 'Навигацийн зам',
 }

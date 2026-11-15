@@ -60,4 +60,5 @@ export const si: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` එකක් තුළ භාවිතා කළ යුතුය.',
   'ui.pageShell.collapseSidebar': 'පැති තීරුව හකුළන්න',
   'ui.pageShell.expandSidebar': 'පැති තීරුව දිග හරින්න',
+  'ui.pageHeader.breadcrumbs': 'බ්‍රෙඩ්ක්‍රම්බ් මාර්ගය',
 }

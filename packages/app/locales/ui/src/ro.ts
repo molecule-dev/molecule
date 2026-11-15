@@ -55,4 +55,5 @@ export const ro: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` trebuie utilizat în cadrul unui `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Restrângeți bara laterală',
   'ui.pageShell.expandSidebar': 'Extinde bara laterală',
+  'ui.pageHeader.breadcrumbs': 'Firul Ariadnei',
 }

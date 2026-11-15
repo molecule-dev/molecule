@@ -61,4 +61,5 @@ export const mk: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` мора да се користи во рамките на `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Собери ја страничната лента',
   'ui.pageShell.expandSidebar': 'Прошири ја страничната лента',
+  'ui.pageHeader.breadcrumbs': 'Навигациска патека',
 }

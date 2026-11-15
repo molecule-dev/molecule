@@ -55,4 +55,5 @@ export const pt: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` deve ser usado dentro de um `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Recolher barra lateral',
   'ui.pageShell.expandSidebar': 'Expandir barra lateral',
+  'ui.pageHeader.breadcrumbs': 'Trilha de navegação',
 }

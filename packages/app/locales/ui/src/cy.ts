@@ -55,4 +55,5 @@ export const cy: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': 'Rhaid defnyddio `useToast` o fewn `ToastProvider`',
   'ui.pageShell.collapseSidebar': "Plygu'r bar ochr",
   'ui.pageShell.expandSidebar': "Ehangu'r bar ochr",
+  'ui.pageHeader.breadcrumbs': 'Llwybr brahin bara',
 }

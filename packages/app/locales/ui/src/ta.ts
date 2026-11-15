@@ -62,4 +62,5 @@ export const ta: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` க்குள் பயன்படுத்தப்பட வேண்டும்.',
   'ui.pageShell.collapseSidebar': 'பக்கப் பட்டியைச் சுருக்கு',
   'ui.pageShell.expandSidebar': 'பக்கப் பட்டியை விரிவாக்கு',
+  'ui.pageHeader.breadcrumbs': 'பிரெட் கிரம்ப் வழிசெலுத்தல்',
 }

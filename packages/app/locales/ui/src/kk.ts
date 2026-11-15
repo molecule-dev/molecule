@@ -59,4 +59,5 @@ export const kk: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` ішінде пайдаланылуы тиіс',
   'ui.pageShell.collapseSidebar': 'Бүйірлік тақтаны жию',
   'ui.pageShell.expandSidebar': 'Бүйірлік тақтаны жаю',
+  'ui.pageHeader.breadcrumbs': 'Навигация жолы',
 }

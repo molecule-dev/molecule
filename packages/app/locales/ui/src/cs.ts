@@ -55,4 +55,5 @@ export const cs: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': '`useToast` musí být použit v rámci `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Sbalit postranní panel',
   'ui.pageShell.expandSidebar': 'Rozbalit postranní panel',
+  'ui.pageHeader.breadcrumbs': 'Navigační cesta',
 }

@@ -8,6 +8,7 @@ import { defineComponent, Fragment, h, type PropType, type VNodeChild } from 'vu
 
 import type { PageHeaderProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+import { useTranslation } from '@molecule/app-vue'
 
 import { classOf, styleOf } from '../utilities/attrs.js'
 
@@ -38,6 +39,7 @@ export const PageHeader = defineComponent({
     automationId: String,
   },
   setup(props, { attrs, slots }) {
+    const { t } = useTranslation()
     const cm = getClassMap()
 
     return () => {
@@ -60,7 +62,16 @@ export const PageHeader = defineComponent({
           ]),
         )
         children.push(
-          h('nav', { class: cm.pageHeaderBreadcrumbs, 'aria-label': 'Breadcrumb' }, crumbs),
+          h(
+            'nav',
+            {
+              class: cm.pageHeaderBreadcrumbs,
+              'aria-label': t('ui.pageHeader.breadcrumbs', undefined, {
+                defaultValue: 'Breadcrumb',
+              }),
+            },
+            crumbs,
+          ),
         )
       }
 

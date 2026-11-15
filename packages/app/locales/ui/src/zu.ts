@@ -55,4 +55,5 @@ export const zu: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` kumele isetshenziswe ngaphakathi kwe `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'Goqa ibha eseceleni',
   'ui.pageShell.expandSidebar': 'Nweba ibha eseceleni',
+  'ui.pageHeader.breadcrumbs': 'Indlela yokuzulazela',
 }

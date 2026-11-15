@@ -55,4 +55,5 @@ export const he: Partial<UiTranslations> = {
   'ui.toast.error.noProvider': 'יש להשתמש ב `useToast` בתוך `ToastProvider`',
   'ui.pageShell.collapseSidebar': 'כווץ את סרגל הצד',
   'ui.pageShell.expandSidebar': 'הרחב את הצד',
+  'ui.pageHeader.breadcrumbs': 'ניווט פירורי לחם',
 }

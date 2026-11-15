@@ -62,4 +62,5 @@ export const kn: UiTranslations = {
   'ui.toast.error.noProvider': '`useToast` `ToastProvider` ಒಳಗೆ ಬಳಸಬೇಕು',
   'ui.pageShell.collapseSidebar': 'ಸೈಡ್‌ಬಾರ್ ಅನ್ನು ಕುಗ್ಗಿಸಿ',
   'ui.pageShell.expandSidebar': 'ಸೈಡ್‌ಬಾರ್ ವಿಸ್ತರಿಸಿ',
+  'ui.pageHeader.breadcrumbs': 'ಬ್ರೆಡ್‌ಕ್ರಂಬ್ ನ್ಯಾವಿಗೇಶನ್',
 }
