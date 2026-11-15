@@ -6,8 +6,8 @@ import type { MessageHandler, QueueMessage, ReceiveOptions } from '@molecule/api
 import type { createProvider as CreateProviderFn } from '../provider.js'
 import type { createReceivedMessage as CreateReceivedMessageFn } from '../queue.js'
 
-// Mock BullMQ
-vi.mock('bullmq', () => {
+// Mock BullMQ. The mocks are hoisted so each test reads the same typed objects the bond received.
+const bull = vi.hoisted(() => {
   const mockJob = {
     id: 'job-123',
     data: { test: 'data' },
@@ -32,6 +32,8 @@ vi.mock('bullmq', () => {
   const mockWorker = {
     on: vi.fn().mockReturnThis(),
     close: vi.fn().mockResolvedValue(undefined),
+    /** The processor the bond passed to the last `new Worker(...)`. */
+    processor: (_job: Job): Promise<void> => Promise.reject(new Error('no Worker was constructed')),
   }
 
   return {
@@ -39,21 +41,17 @@ vi.mock('bullmq', () => {
       return mockQueue
     }),
     Worker: vi.fn(function (_name: string, processor: (job: Job) => Promise<void>) {
-      // Store processor for testing
-      ;(mockWorker as unknown as Record<string, unknown>).__processor = processor
+      mockWorker.processor = processor
       return mockWorker
     }),
-    Job: vi.fn(),
   }
 })
+
+vi.mock('bullmq', () => ({ Queue: bull.Queue, Worker: bull.Worker, Job: vi.fn() }))
 
 describe('@molecule/api-queue-redis', () => {
   let createProvider: typeof CreateProviderFn
   let createReceivedMessage: typeof CreateReceivedMessageFn
-  // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-  let BullQueue: any
-  // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-  let Worker: any
 
   beforeEach(async () => {
     vi.resetModules()
@@ -65,10 +63,6 @@ describe('@molecule/api-queue-redis', () => {
 
     const queueModule = await import('../queue.js')
     createReceivedMessage = queueModule.createReceivedMessage
-
-    const bullmq = await import('bullmq')
-    BullQueue = bullmq.Queue
-    Worker = bullmq.Worker
   })
 
   afterEach(() => {
@@ -246,7 +240,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await providerInstance.deleteQueue!('to-obliterate')
 
-      const mockBullQueue = BullQueue.mock.results[0]?.value || BullQueue.mock.results[1]?.value
+      const mockBullQueue = bull.Queue.mock.results[0]?.value || bull.Queue.mock.results[1]?.value
       expect(mockBullQueue?.obliterate).toHaveBeenCalledWith({ force: true })
     })
 
@@ -259,7 +253,7 @@ describe('@molecule/api-queue-redis', () => {
       // Same mock instance is returned for every `new BullQueue(...)` call —
       // one close() for the original queue's own disposer (run + unregistered
       // by deleteQueue) plus one for the short-lived obliterate connection.
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.close).toHaveBeenCalledTimes(2)
     })
 
@@ -269,7 +263,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await providerInstance.deleteQueue!('unregister-check-queue')
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       mockBullQueue.close.mockClear()
 
       await providerInstance.close!()
@@ -290,7 +284,7 @@ describe('@molecule/api-queue-redis', () => {
 
       // One BullQueue per created queue must actually be closed — a close()
       // that leaks connections keeps the consumer's process alive forever.
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.close).toHaveBeenCalledTimes(2)
     })
 
@@ -301,7 +295,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await providerInstance.close!()
 
-      const mockWorker = Worker.mock.results[0].value
+      const mockWorker = bull.Worker.mock.results[0].value
       expect(mockWorker.close).toHaveBeenCalled()
     })
   })
@@ -330,7 +324,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.send(message)
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
         expect.objectContaining({ __molecule_queue_envelope: 1, body: { data: 'test' } }),
@@ -351,7 +345,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.send(message)
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
         expect.objectContaining({ body: 'delayed message' }),
@@ -371,7 +365,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.send(message)
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
         expect.objectContaining({ body: 'immediate message' }),
@@ -387,7 +381,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.send({ body: 'test' })
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
         expect.objectContaining({ body: 'test' }),
@@ -410,7 +404,7 @@ describe('@molecule/api-queue-redis', () => {
         attributes: { type: 'notification', priority: 1 },
       })
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
         expect.objectContaining({
@@ -427,7 +421,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.send({ body: 'test', deduplicationId: 'stable-dedup-key' })
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
         expect.anything(),
@@ -441,7 +435,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.send({ body: 'test', id: 'explicit-id', deduplicationId: 'dedup-key' })
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
         expect.anything(),
@@ -478,7 +472,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.sendBatch!(messages)
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.addBulk).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -506,7 +500,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.sendBatch!(messages)
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.addBulk).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -537,7 +531,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.receive()
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.getJobs).toHaveBeenCalledWith(['waiting'], 0, 9) // maxMessages - 1 = 9
     })
 
@@ -550,7 +544,7 @@ describe('@molecule/api-queue-redis', () => {
       }
       await queue.receive(options)
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.getJobs).toHaveBeenCalledWith(['waiting'], 0, 4) // maxMessages - 1 = 4
     })
 
@@ -589,7 +583,7 @@ describe('@molecule/api-queue-redis', () => {
       const unsubscribe = queue.subscribe(handler)
 
       expect(typeof unsubscribe).toBe('function')
-      expect(Worker).toHaveBeenCalled()
+      expect(bull.Worker).toHaveBeenCalled()
     })
 
     it('should create worker with correct queue name', () => {
@@ -599,7 +593,7 @@ describe('@molecule/api-queue-redis', () => {
       const handler: MessageHandler<string> = vi.fn()
       queue.subscribe(handler)
 
-      expect(Worker).toHaveBeenCalledWith(
+      expect(bull.Worker).toHaveBeenCalledWith(
         'worker-queue',
         expect.any(Function),
         expect.objectContaining({
@@ -616,7 +610,7 @@ describe('@molecule/api-queue-redis', () => {
       const options: ReceiveOptions = { maxMessages: 5 }
       queue.subscribe(handler, options)
 
-      expect(Worker).toHaveBeenCalledWith(
+      expect(bull.Worker).toHaveBeenCalledWith(
         'concurrency-queue',
         expect.any(Function),
         expect.objectContaining({
@@ -632,7 +626,7 @@ describe('@molecule/api-queue-redis', () => {
       const handler: MessageHandler<string> = vi.fn()
       queue.subscribe(handler)
 
-      const mockWorker = Worker.mock.results[0].value
+      const mockWorker = bull.Worker.mock.results[0].value
       expect(mockWorker.on).toHaveBeenCalledWith('completed', expect.any(Function))
       expect(mockWorker.on).toHaveBeenCalledWith('failed', expect.any(Function))
       expect(mockWorker.on).toHaveBeenCalledWith('error', expect.any(Function))
@@ -647,7 +641,7 @@ describe('@molecule/api-queue-redis', () => {
 
       unsubscribe()
 
-      const mockWorker = Worker.mock.results[0].value
+      const mockWorker = bull.Worker.mock.results[0].value
       expect(mockWorker.close).toHaveBeenCalled()
     })
 
@@ -662,8 +656,8 @@ describe('@molecule/api-queue-redis', () => {
         await message.ack()
       })
 
-      const mockWorker = Worker.mock.results[0].value
-      const processor = mockWorker.__processor as (job: Job) => Promise<void>
+      const mockWorker = bull.Worker.mock.results[0].value
+      const processor = mockWorker.processor
 
       const mockRemove = vi.fn()
       const lockedJob = {
@@ -689,8 +683,8 @@ describe('@molecule/api-queue-redis', () => {
         await message.nack!()
       })
 
-      const mockWorker = Worker.mock.results[0].value
-      const processor = mockWorker.__processor as (job: Job) => Promise<void>
+      const mockWorker = bull.Worker.mock.results[0].value
+      const processor = mockWorker.processor
 
       const mockMoveToFailed = vi.fn()
       const lockedJob = {
@@ -722,7 +716,7 @@ describe('@molecule/api-queue-redis', () => {
 
       expect(typeof unsubscribe1).toBe('function')
       expect(typeof unsubscribe2).toBe('function')
-      expect(Worker).toHaveBeenCalledTimes(2)
+      expect(bull.Worker).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -743,7 +737,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.size!()
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.getJobCounts).toHaveBeenCalledWith('waiting', 'active', 'delayed')
     })
   })
@@ -755,7 +749,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.purge!()
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.drain).toHaveBeenCalled()
     })
   })
@@ -997,7 +991,7 @@ describe('@molecule/api-queue-redis', () => {
       const providerInstance = createProvider({ url: 'redis://my-redis:6379' })
       providerInstance.queue('test-url-queue')
 
-      expect(BullQueue).toHaveBeenCalled()
+      expect(bull.Queue).toHaveBeenCalled()
     })
 
     it('should use host/port connection when url is not provided', () => {
@@ -1008,14 +1002,14 @@ describe('@molecule/api-queue-redis', () => {
       })
       providerInstance.queue('test-host-queue')
 
-      expect(BullQueue).toHaveBeenCalled()
+      expect(bull.Queue).toHaveBeenCalled()
     })
 
     it('should use custom prefix', () => {
       const providerInstance = createProvider({ prefix: 'myapp:queues:' })
       providerInstance.queue('test')
 
-      expect(BullQueue).toHaveBeenCalledWith(
+      expect(bull.Queue).toHaveBeenCalledWith(
         'test',
         expect.objectContaining({
           prefix: 'myapp:queues:',
@@ -1027,7 +1021,7 @@ describe('@molecule/api-queue-redis', () => {
       const providerInstance = createProvider()
       providerInstance.queue('default-prefix-test')
 
-      expect(BullQueue).toHaveBeenCalledWith(
+      expect(bull.Queue).toHaveBeenCalledWith(
         'default-prefix-test',
         expect.objectContaining({
           prefix: 'molecule:queue:',
@@ -1039,7 +1033,7 @@ describe('@molecule/api-queue-redis', () => {
       const providerInstance = createProvider()
       providerInstance.queue('fail-fast-producer-queue')
 
-      expect(BullQueue).toHaveBeenCalledWith(
+      expect(bull.Queue).toHaveBeenCalledWith(
         'fail-fast-producer-queue',
         expect.objectContaining({
           connection: expect.objectContaining({
@@ -1055,7 +1049,7 @@ describe('@molecule/api-queue-redis', () => {
       const queue = providerInstance.queue('worker-connection-queue')
       queue.subscribe(vi.fn())
 
-      expect(Worker).toHaveBeenCalledWith(
+      expect(bull.Worker).toHaveBeenCalledWith(
         'worker-connection-queue',
         expect.any(Function),
         expect.objectContaining({
@@ -1076,7 +1070,7 @@ describe('@molecule/api-queue-redis', () => {
         obliterate: vi.fn(),
         close: vi.fn(),
       }
-      BullQueue.mockImplementationOnce(function () {
+      bull.Queue.mockImplementationOnce(function () {
         return errorQueue
       })
 
@@ -1096,7 +1090,7 @@ describe('@molecule/api-queue-redis', () => {
         obliterate: vi.fn(),
         close: vi.fn(),
       }
-      BullQueue.mockImplementationOnce(function () {
+      bull.Queue.mockImplementationOnce(function () {
         return errorQueue
       })
 
@@ -1119,7 +1113,7 @@ describe('@molecule/api-queue-redis', () => {
         close: vi.fn(),
       }
 
-      BullQueue.mockImplementationOnce(function () {
+      bull.Queue.mockImplementationOnce(function () {
         return errorQueue
       })
 
@@ -1140,7 +1134,7 @@ describe('@molecule/api-queue-redis', () => {
         close: vi.fn(),
       }
 
-      BullQueue.mockImplementationOnce(function () {
+      bull.Queue.mockImplementationOnce(function () {
         return errorQueue
       })
 
@@ -1161,7 +1155,7 @@ describe('@molecule/api-queue-redis', () => {
         close: vi.fn(),
       }
 
-      BullQueue.mockImplementationOnce(function () {
+      bull.Queue.mockImplementationOnce(function () {
         return errorQueue
       })
 
@@ -1182,7 +1176,7 @@ describe('@molecule/api-queue-redis', () => {
         close: vi.fn(),
       }
 
-      BullQueue.mockImplementationOnce(function () {
+      bull.Queue.mockImplementationOnce(function () {
         return errorQueue
       })
 
@@ -1220,7 +1214,7 @@ describe('@molecule/api-queue-redis', () => {
 
       await queue.send<OrderMessage>(message)
 
-      const mockBullQueue = BullQueue.mock.results[0].value
+      const mockBullQueue = bull.Queue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
         expect.objectContaining({ body: message.body }),
