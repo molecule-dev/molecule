@@ -73,7 +73,6 @@ it('uses explicit native verification when there was no idle window and stops at
     1,
     expect.any(Function),
     expect.any(AbortSignal),
-    'foreground',
   )
   expect(f.run).toHaveBeenCalledOnce()
 })
@@ -82,7 +81,7 @@ it('reuses current native results but invalidates them on the next source revisi
   const f = fixture()
   f.status('passed')
   f.watcher.changed(['/shop/src/Shipping.vue'])
-  await f.watcher.settled()
+  expect((await f.watcher.check()).map((r) => r.status)).toEqual(['passed', 'passed'])
   expect(f.run).toHaveBeenCalledTimes(2)
   expect((await f.watcher.check()).map((r) => r.status)).toEqual(['passed', 'passed'])
   expect(f.run).toHaveBeenCalledTimes(2)
@@ -102,7 +101,6 @@ it('checks the known inventory on an explicit request even without a preceding s
     0,
     expect.any(Function),
     expect.any(AbortSignal),
-    'foreground',
   )
 })
 
@@ -142,13 +140,11 @@ it('shares parallel checkpoints and discards results if source changes while the
   const a = f.watcher.check(),
     b = f.watcher.check()
   await entered
-  const release = await f.watcher.pause()
   f.watcher.changed(['/shop/src/Shipping.vue'])
   expect(await a).toEqual([])
   expect(await b).toEqual([])
   expect(f.run).toHaveBeenCalledOnce()
   await f.watcher.close()
-  release()
 })
 
 it('keeps an emitted native failure when a hung teardown prevents the final JSON report', async () => {

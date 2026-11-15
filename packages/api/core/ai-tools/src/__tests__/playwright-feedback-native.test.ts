@@ -100,7 +100,7 @@ afterEach(async () => {
 }, 130_000)
 
 describe('native supplied-suite feedback before deploy', () => {
-  it('reports the real filtered-p locator, rendered body and component without waiting for a deploy', async () => {
+  it('reports the real filtered-p locator, rendered body and component before the run exits', async () => {
     broken = true
     const early: PlaywrightFeedbackResult[] = []
     let exited = false,
@@ -113,35 +113,21 @@ describe('native supplied-suite feedback before deploy', () => {
         return result
       },
     }
-    const watcher = createPlaywrightFeedback({
-      load: async () => ({ sources: [], specs: [specs[0]] }),
-      run: (spec, files, revision, emit) =>
-        runPlaywrightFeedback(observing, spec, files, revision, {
-          command: (flags) => `${spec.command} ${flags.join(' ')}`,
-          pollMs: 20,
-          emit,
-        }),
-      onFailures: (r) => {
-        early.push(r)
-        deliveredBeforeExit ||= !exited
+    const result = await runPlaywrightFeedback(
+      observing,
+      specs[0],
+      [join(root, 'src/NoteBody.tsx')],
+      1,
+      {
+        command: (flags) => `${specs[0].command} ${flags.join(' ')}`,
+        pollMs: 20,
+        emit: (r) => {
+          early.push(r)
+          deliveredBeforeExit ||= !exited
+        },
       },
-    })
-    // A completed host run established these failures before the source write.
-    watcher.record(
-      [specs[0]].map(({ path }) => ({
-        spec: path,
-        revision: 0,
-        durationMs: 1,
-        status: 'failed',
-        failures: [],
-      })),
-      0,
     )
-
-    controllers.push(watcher)
-    watcher.changed([join(root, 'src/NoteBody.tsx')])
-    expect(watcher.takeFailures()).toEqual([])
-    await watcher.settled()
+    expect(result.status).toBe('failed')
     expect(early.length).toBeGreaterThan(0)
     expect(deliveredBeforeExit).toBe(true)
     expect(early).toHaveLength(1)
@@ -151,7 +137,6 @@ describe('native supplied-suite feedback before deploy', () => {
     expect(failure.line).toBe(2)
     expect(failure.rendered).toContain('A long observation')
     expect(failure.sourceFiles).toEqual([join(root, 'src/NoteBody.tsx')])
-    await watcher.close()
   }, 20_000)
   it.each([
     [2, 'button.unselected', 'Save item'],
@@ -319,7 +304,7 @@ describe('native supplied-suite feedback before deploy', () => {
     expect(result.failures[0].locator).toContain('Publish entry')
     expect(result.failures[0].rendered).toContain('Update entry')
   }, 20_000)
-  it('gives a corrected app no note while running the same supplied tests', async () => {
+  it('gives a corrected app no failure while running the same supplied tests', async () => {
     broken = false
     const results: PlaywrightFeedbackResult[] = []
     const watcher = createPlaywrightFeedback({
@@ -346,13 +331,13 @@ describe('native supplied-suite feedback before deploy', () => {
 
     controllers.push(watcher)
     watcher.changed([join(root, 'src/NoteBody.tsx')])
-    await watcher.settled()
-    expect(watcher.takeFailures()).toEqual([])
+    expect((await watcher.check()).map((r) => r.status)).toEqual(Array(specs.length).fill('passed'))
     await watcher.close()
     expect(results.map((r) => r.status)).toEqual(Array(specs.length).fill('passed'))
+    expect(results.every((r) => r.failures.length === 0)).toBe(true)
     expect(results.reduce((sum, r) => sum + (r.nativeStats?.expected ?? 0), 0)).toBe(6)
-    // Five independent low-priority native runner startups share CPU with the
-    // package's other tests. Their own assertion budgets remain unchanged.
+    // Five independent native runner startups share CPU with the package's other tests.
+    // Their own assertion budgets remain unchanged.
   }, 60_000)
   it('reports a spec whose every test skips itself in this mode as skipped, and walks past it', async () => {
     const file = join(root, 'e2e', 'mocked-mode.spec.ts')
@@ -372,12 +357,12 @@ describe('native supplied-suite feedback before deploy', () => {
     broken = true
     const watcher = createPlaywrightFeedback({
       load: async () => ({ sources: [], specs: [skipping, specs[0]] }),
-      run: (spec, files, revision, emit, signal, mode) =>
+      run: (spec, files, revision, emit, signal) =>
         runPlaywrightFeedback(backend, spec, files, revision, {
           command: (flags) => `${spec.command} ${flags.join(' ')}`,
           emit,
           signal,
-          foreground: mode === 'foreground',
+          foreground: true,
         }),
     })
     // A completed host run established these failures before the source write.

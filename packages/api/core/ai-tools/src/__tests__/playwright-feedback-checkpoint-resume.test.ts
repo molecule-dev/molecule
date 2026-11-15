@@ -8,7 +8,7 @@ import type {
 } from '../playwright-feedback-types.js'
 
 const controllers: PlaywrightFeedback[] = []
-afterEach(async () => Promise.all(controllers.splice(0).map((controller) => controller.close())))
+afterEach(async () => Promise.all(controllers.splice(0).map((c) => c.close())))
 
 function fixture() {
   const specs = ['checkout', 'delivery'].map((name) => ({
@@ -50,38 +50,25 @@ it.each(['passed', 'failed', 'unavailable'] as const)(
     expect((await f.controller.check()).map((result) => result.status)).toEqual(['failed'])
     f.checkout(status)
     f.controller.changed(['/shop/src/Delivery.vue'])
-    const release = await f.controller.pause()
-    try {
-      const results = await f.controller.check({ failedOnly: true })
-      expect(results.map((result) => [result.spec, result.status])).toEqual([
-        [f.specs[0].path, status],
-      ])
-      expect(f.run.mock.calls.map(([spec]) => spec.path)).toEqual([
-        f.specs[0].path,
-        f.specs[0].path,
-      ])
-    } finally {
-      release()
-    }
-    await f.controller.settled()
+    const results = await f.controller.check({ failedOnly: true })
+    expect(results.map((result) => [result.spec, result.status])).toEqual([
+      [f.specs[0].path, status],
+    ])
+    expect(f.run.mock.calls.map(([spec]) => spec.path)).toEqual([f.specs[0].path, f.specs[0].path])
     expect(f.run.mock.calls.map(([spec]) => spec.path)).not.toContain(f.specs[1].path)
     expect(f.controller.failingSpecs()).not.toContain(f.specs[1].path)
-    expect(f.controller.takeFailures()).toHaveLength(status === 'failed' ? 1 : 0)
   },
 )
 
-it('a failed-only checkpoint with no known failure adds no load or runner work and schedules no inventory walk', async () => {
+it('a failed-only checkpoint with no known failure adds no load or runner work', async () => {
   const f = fixture()
-  f.checkout('passed')
   f.controller.changed(['/shop/src/Delivery.vue'])
   expect(await f.controller.check({ failedOnly: true })).toEqual([])
   expect(f.load).not.toHaveBeenCalled()
   expect(f.run).not.toHaveBeenCalled()
-  await f.controller.settled()
-  expect(f.run).not.toHaveBeenCalled()
 })
 
-it('a complete explicit checkpoint consumes its pending pass without duplicating background work', async () => {
+it('a complete explicit checkpoint answers every file itself', async () => {
   const f = fixture()
   f.checkout('passed')
   f.run.mockImplementation(async (spec, _files, revision) => ({
@@ -93,7 +80,5 @@ it('a complete explicit checkpoint consumes its pending pass without duplicating
   }))
   f.controller.changed(['/shop/src/Delivery.vue'])
   expect((await f.controller.check()).map((result) => result.status)).toEqual(['passed', 'passed'])
-  await f.controller.settled()
   expect(f.run).toHaveBeenCalledTimes(2)
-  expect(f.controller.takeFailures()).toEqual([])
 })

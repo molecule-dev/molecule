@@ -40,27 +40,28 @@ afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })))
 })
 
-async function running(foreground: 'passed' | 'failed' = 'failed') {
-  let emit!: Parameters<PlaywrightFeedbackOptions['run']>[3]
-  let started = false
-  const onFailures = vi.fn()
+/**
+ * A checkpoint whose first run a newer write supersedes. The superseded run is cancelled and its
+ * answer discarded; the known failure stays, and the next checkpoint re-verifies at the current
+ * revision. How the cancelled run itself answered is `superseded` ('cancelled' by default).
+ */
+async function supersededRun(
+  answer: 'passed' | 'failed' = 'failed',
+  staleAnswer: PlaywrightFeedbackResult['status'] = 'cancelled',
+) {
   const run = vi.fn<PlaywrightFeedbackOptions['run']>(
-    async (_spec, _sources, revision, publish, signal, mode) => {
-      if (mode === 'foreground') return result(revision, foreground)
-      emit = publish
-      started = true
+    async (_spec, _sources, revision, _emit, signal) => {
+      if (run.mock.calls.length > 1) return result(revision, answer)
       await new Promise<void>((resolve) => {
         if (signal.aborted) resolve()
         else signal.addEventListener('abort', () => resolve(), { once: true })
       })
-      return result(revision, 'cancelled')
+      return result(revision, staleAnswer)
     },
   )
   const controller = createPlaywrightFeedback({
     load: async () => ({ sources: [], specs: [spec] }),
     run,
-    onFailures,
-    debounceMs: 1,
   })
   // A completed host run established these failures before the source write.
   controller.record(
@@ -76,75 +77,46 @@ async function running(foreground: 'passed' | 'failed' = 'failed') {
 
   controllers.push(controller)
   controller.changed([source])
-  await vi.waitFor(() => expect(started).toBe(true))
-  return { controller, run, onFailures, emit }
+  const stale = controller.check({ failedOnly: true })
+  await vi.waitFor(() => expect(run).toHaveBeenCalledOnce())
+  return { controller, run, stale }
 }
 
-it('remembers an old revision’s live native failure before the run finishes, without delivering it', async () => {
-  const { controller, onFailures, emit } = await running()
+it('rechecks current source before deploy when a write supersedes a running revision', async () => {
+  const { controller, run, stale } = await supersededRun('failed')
   controller.changed([source])
-  emit(result(1, 'failed'))
-  expect(controller.failingSpecs()).toEqual([spec.path])
-  expect(controller.takeFailures()).toEqual([])
-  expect(onFailures).not.toHaveBeenCalled()
-})
-
-it('rechecks current source before deploy when an old running revision emitted a native failure', async () => {
-  const { controller, run, emit } = await running()
-  controller.changed([source])
-  emit(result(1, 'failed'))
+  expect(await stale).toEqual([])
   const checked = await controller.check({ failedOnly: true })
   expect(checked).toEqual([result(2, 'failed')])
   expect(run).toHaveBeenCalledTimes(2)
-  expect(run.mock.calls[1][5]).toBe('foreground')
 })
 
 it('a repaired inventory control passes the current-source checkpoint and clears the stale failure', async () => {
-  const { controller, emit, onFailures } = await running('passed')
+  const { controller, stale } = await supersededRun('passed')
   controller.changed([source])
-  emit(result(1, 'failed'))
+  expect(await stale).toEqual([])
   expect(await controller.check({ failedOnly: true })).toEqual([result(2, 'passed')])
   expect(controller.failingSpecs()).toEqual([])
-  expect(onFailures).not.toHaveBeenCalled()
 })
 
-it('counterexample: a current native failure is still delivered immediately', async () => {
-  const { controller, emit, onFailures } = await running()
-  emit(result(1, 'failed'))
-  expect(controller.failingSpecs()).toEqual([spec.path])
-  expect(controller.takeFailures()).toEqual([result(1, 'failed')])
-  expect(onFailures).toHaveBeenCalledOnce()
-})
-
-it('counterexample: a cancelled repair cannot clear a completed failure after another tool takes the runner', async () => {
-  const { controller, emit } = await running()
+it('counterexample: a cancelled repair cannot clear a completed failure', async () => {
+  const { controller, stale } = await supersededRun('failed')
   controller.changed([source])
-  const release = await controller.pause()
-  emit(result(1, 'failed'))
+  await stale
   expect(controller.failingSpecs()).toEqual([spec.path])
   expect((await controller.check({ failedOnly: true })).map((r) => r.status)).toEqual(['failed'])
-  release()
 })
 
 it('counterexample: a stale pass cannot clear an existing completed failure', async () => {
-  const { controller, emit, run } = await running()
+  const { controller, run, stale } = await supersededRun('failed', 'passed')
   controller.changed([source])
-  emit(result(1, 'passed'))
+  await stale
   expect(controller.failingSpecs()).toEqual([spec.path])
   expect((await controller.check({ failedOnly: true })).map((r) => r.status)).toEqual(['failed'])
   expect(run).toHaveBeenCalledTimes(2)
 })
 
-it('counterexample: closing a subscription invalidates even an old runner’s delayed native event', async () => {
-  const { controller, emit } = await running()
-  controller.changed([source])
-  await controller.close()
-  emit(result(1, 'failed'))
-  expect(controller.failingSpecs()).toEqual([spec.path])
-  expect(controller.takeFailures()).toEqual([])
-})
-
-it('a real native assertion after a source write is rechecked before its old run completes', async () => {
+it('a real native run cancelled by a newer write is rechecked at the fixed source', async () => {
   const root = await mkdtemp(join(tmpdir(), 'native-stale-feedback-'))
   roots.push(root)
   const require = createRequire(import.meta.url)
@@ -171,21 +143,20 @@ it('a real native assertion after a source write is rechecked before its old run
       expect(rendered).toBe('Saved')
     })
     test('remaining tests are still running', async () => {
-      // The old run must stay live until the checkpoint cancels it, even though source is fixed.
+      // The superseded run must stay live until the write cancels it, even though source is fixed.
       if (initial === 'Save') await new Promise(done => setTimeout(done, 10000))
     })
   `,
   )
   const backend = createLocalBackend(root)
   const nativeSpec = { ...spec, path: join(root, 'stock.pw.ts'), cwd: root }
-  let emitted: PlaywrightFeedbackResult | undefined
   const outcomes: PlaywrightFeedbackResult[] = []
   const controller = createPlaywrightFeedback({
     load: async () => ({ root, sources: [], specs: [nativeSpec] }),
     onResult: (result) => {
       outcomes.push(result)
     },
-    run: (selected, sources, revision, emit, signal) =>
+    run: (selected, sources, revision, _emit, signal) =>
       runPlaywrightFeedback(backend, selected, sources, revision, {
         command: (flags) =>
           [
@@ -202,12 +173,7 @@ it('a real native assertion after a source write is rechecked before its old run
         // This fixture owns the native runner slot. OS idle scheduling and foreground
         // preemption have their own real-process tests; they must not starve this contract test.
         foreground: true,
-        emit: (result) => {
-          emitted = result
-          emit(result)
-        },
       }),
-    debounceMs: 1,
   })
   // A completed host run established these failures before the source write.
   controller.record(
@@ -223,6 +189,7 @@ it('a real native assertion after a source write is rechecked before its old run
 
   controllers.push(controller)
   controller.changed(['Stock.tsx'])
+  const stale = controller.check({ failedOnly: true })
   await vi.waitFor(
     async () => {
       expect(outcomes, JSON.stringify(outcomes)).toEqual([])
@@ -231,13 +198,9 @@ it('a real native assertion after a source write is rechecked before its old run
     { timeout: 8000 },
   )
   controller.changed(['Stock.tsx'])
+  expect(await stale).toEqual([])
   await writeFile(join(root, 'value.txt'), 'Saved')
   await writeFile(join(root, 'release'), '')
-  await vi.waitFor(() => expect(emitted?.status).toBe('failed'), { timeout: 8000 })
-  expect(emitted?.failures[0].line).toBeGreaterThan(0)
-  expect(emitted?.failures[0].error).toContain('Saved')
-  expect(controller.failingSpecs()).toEqual([nativeSpec.path])
-  expect(controller.takeFailures()).toEqual([])
   const checked = await controller.check({ failedOnly: true })
   expect(checked.map((result) => result.status)).toEqual(['passed'])
   expect(checked[0].nativeStats?.expected).toBe(2)

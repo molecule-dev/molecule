@@ -1,250 +1,23 @@
 /**
- * A background file stopped by foreground work resumes with only the tests it never finished,
- * instead of starting again at its first test. Every record handed to `--last-failed` names
- * whole serial groups, so a group's later test never runs without the earlier ones.
+ * A run stopped before it finished records exactly the tests it saw fail, in the runner's own
+ * last-run shape, so a later selection re-runs them alone. Every record handed to
+ * `--last-failed` names whole serial groups, so a group's later test never runs without the
+ * earlier ones.
  */
 import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { createLocalBackend } from '../backends/local.js'
-import { createPlaywrightFeedback, runPlaywrightFeedback } from '../playwright-feedback.js'
-import type {
-  FeedbackSpec,
-  PlaywrightFeedback,
-  PlaywrightFeedbackOptions,
-  PlaywrightFeedbackResult,
-} from '../playwright-feedback-types.js'
+import { runPlaywrightFeedback } from '../playwright-feedback.js'
+import type { FeedbackSpec } from '../playwright-feedback-types.js'
 import { shellQuote } from '../utilities.js'
 
-const watchers: PlaywrightFeedback[] = []
-afterEach(async () => Promise.all(watchers.splice(0).map((watcher) => watcher.close())))
-
-const SPEC = '/pantry/e2e/stock.spec.ts'
-const record = (ids: string[]) => JSON.stringify({ status: 'failed', failedTests: ids })
 const ids = (text: string | undefined) =>
   (JSON.parse(text!) as { failedTests: string[] }).failedTests
-
-function result(
-  revision: number,
-  status: PlaywrightFeedbackResult['status'],
-  extra: Partial<PlaywrightFeedbackResult> = {},
-): PlaywrightFeedbackResult {
-  return {
-    spec: SPEC,
-    revision,
-    durationMs: 1,
-    status,
-    failures:
-      status === 'failed'
-        ? [{ spec: SPEC, line: 12, locator: 'row', error: 'not visible', sourceFiles: [] }]
-        : [],
-    ...extra,
-  }
-}
-
-/** A host whose first run stops when paused, with `stopped` as its stopped result. */
-function fixture(
-  stopped: Partial<PlaywrightFeedbackResult>,
-  next: PlaywrightFeedbackOptions['run'],
-) {
-  let started!: () => void
-  const first = new Promise<void>((resolve) => (started = resolve))
-  let calls = 0
-  const run = vi.fn<PlaywrightFeedbackOptions['run']>(async (...args) => {
-    const [, , revision, , signal] = args
-    if (++calls > 1) return next(...args)
-    started()
-    await new Promise<void>((resolve) =>
-      signal.addEventListener('abort', () => resolve(), { once: true }),
-    )
-    return result(revision, 'cancelled', stopped)
-  })
-  const watcher = createPlaywrightFeedback({
-    load: async () => ({
-      sources: [],
-      specs: [{ path: SPEC, content: '', command: '', cwd: '/pantry' }],
-    }),
-    run,
-    debounceMs: 1,
-  })
-  // A completed host run established these failures before the source write.
-  watcher.record(
-    [{ path: SPEC, content: '', command: '', cwd: '/pantry' }].map(({ path }) => ({
-      spec: path,
-      revision: 0,
-      durationMs: 1,
-      status: 'failed',
-      failures: [],
-    })),
-    0,
-  )
-
-  watchers.push(watcher)
-  /** Write, let the first run start, stop it with foreground work, and release that work. */
-  const stopFirstRun = async (during?: () => void) => {
-    watcher.changed(['/pantry/src/Shelf.tsx'])
-    await first
-    const release = await watcher.pause()
-    during?.()
-    release()
-    await watcher.settled()
-  }
-  return { watcher, run, stopFirstRun }
-}
-
-describe('a stopped background file', () => {
-  it('resumes with only the tests it never finished (P348, 2026-11-13)', async () => {
-    const { run, stopFirstRun } = fixture(
-      { passedTests: ['t1'], unfinishedTests: ['t2', 't3'] },
-      async (_spec, _files, revision) =>
-        result(revision, 'passed', { selection: 'last-failed', passedTests: ['t2', 't3'] }),
-    )
-    await stopFirstRun()
-    expect(run).toHaveBeenCalledTimes(2)
-    expect(run.mock.calls[1][5]).toBe('background')
-    expect(ids(run.mock.calls[1][6])).toEqual(['t2', 't3'])
-  })
-
-  it('keeps a resumed repair distinct from whole-file checkpoint coverage', async () => {
-    const { watcher, run, stopFirstRun } = fixture(
-      { passedTests: ['t1'], unfinishedTests: ['t2'] },
-      async (_spec, _files, revision, _emit, _signal, _mode, lastRun) =>
-        result(
-          revision,
-          'passed',
-          lastRun ? { selection: 'last-failed', passedTests: ['t2'] } : {},
-        ),
-    )
-    await stopFirstRun()
-    const [checked] = await watcher.check()
-    expect(run).toHaveBeenCalledTimes(3)
-    expect(checked).toMatchObject({ status: 'passed' })
-    expect(checked.selection).toBeUndefined()
-  })
-
-  it('keeps a failure its stopped run saw after the rest of the file passes', async () => {
-    const { watcher, run, stopFirstRun } = fixture(
-      { lastRun: record(['t1']), unfinishedTests: ['t2', 't3'] },
-      async (_spec, _files, revision, _emit, _signal, mode, lastRun) =>
-        mode === 'foreground'
-          ? result(revision, 'failed', { selection: 'last-failed', lastRun })
-          : result(revision, 'failed', {
-              selection: 'last-failed',
-              passedTests: ['t2', 't3'],
-              lastRun: record(['t1']),
-            }),
-    )
-    await stopFirstRun()
-    expect(watcher.failingSpecs()).toEqual([SPEC])
-    const [held] = await watcher.check({ failedOnly: true })
-    expect(held.status).toBe('failed')
-    expect(ids(run.mock.calls[2][6])).toEqual(['t1'])
-  })
-
-  it('resumes across a write, but the file is not passed whole on the new revision', async () => {
-    const { watcher, run, stopFirstRun } = fixture(
-      { passedTests: ['t1'], unfinishedTests: ['t2'] },
-      async (_spec, _files, revision, _emit, _signal, mode, lastRun) =>
-        result(
-          revision,
-          'passed',
-          lastRun ? { selection: 'last-failed', passedTests: ['t2'] } : {},
-        ),
-    )
-    await stopFirstRun(() => watcher.changed(['/pantry/src/Aisle.tsx']))
-    expect(ids(run.mock.calls[1][6])).toEqual(['t2'])
-    await watcher.check()
-    expect(run).toHaveBeenCalledTimes(3)
-    expect(run.mock.calls[2][5]).toBe('foreground')
-    expect(run.mock.calls[2][6]).toBeUndefined()
-  })
-
-  it('runs whole again once its own spec file is edited', async () => {
-    const { watcher, run, stopFirstRun } = fixture(
-      { passedTests: ['t1'], unfinishedTests: ['t2'] },
-      async (_spec, _files, revision) => result(revision, 'passed'),
-    )
-    await stopFirstRun(() => watcher.changed([SPEC]))
-    expect(run).toHaveBeenCalledTimes(2)
-    expect(run.mock.calls[1]).toHaveLength(5)
-  })
-
-  it('leaves an obsolete resume selection to the explicit checkpoint fallback', async () => {
-    const { watcher, run, stopFirstRun } = fixture(
-      { passedTests: ['t1'], unfinishedTests: ['renamed'] },
-      async (_spec, _files, revision, _emit, _signal, _mode, lastRun) =>
-        lastRun
-          ? result(revision, 'unavailable', { selection: 'last-failed', reason: 'no test' })
-          : result(revision, 'passed'),
-    )
-    await stopFirstRun()
-    expect(run).toHaveBeenCalledTimes(2)
-    await watcher.check({ failedOnly: true })
-    expect(run).toHaveBeenCalledTimes(3)
-    expect(run.mock.calls[2]).toHaveLength(6)
-  })
-
-  it('takes a host that ignores the record at its whole-file answer, without another run', async () => {
-    const { watcher, run, stopFirstRun } = fixture(
-      { passedTests: ['t1'], unfinishedTests: ['t2'] },
-      async (_spec, _files, revision) => result(revision, 'passed'),
-    )
-    await stopFirstRun()
-    await watcher.check()
-    expect(run).toHaveBeenCalledTimes(2)
-  })
-
-  it('keeps its resume point when a later run stopped before selecting any test', async () => {
-    let secondStarted!: () => void
-    const second = new Promise<void>((resolve) => (secondStarted = resolve))
-    let resumedRuns = 0
-    const { watcher, run, stopFirstRun } = fixture(
-      { passedTests: ['t1'], unfinishedTests: ['t2'] },
-      async (_spec, _files, revision, _emit, signal) => {
-        if (++resumedRuns === 1) {
-          secondStarted()
-          await new Promise<void>((resolve) =>
-            signal.addEventListener('abort', () => resolve(), { once: true }),
-          )
-          return result(revision, 'cancelled')
-        }
-        return result(revision, 'passed', { selection: 'last-failed', passedTests: ['t2'] })
-      },
-    )
-    const stopping = stopFirstRun()
-    await second
-    const release = await watcher.pause()
-    release()
-    await stopping
-    await watcher.settled()
-    expect(run).toHaveBeenCalledTimes(3)
-    expect(ids(run.mock.calls[1][6])).toEqual(['t2'])
-    expect(ids(run.mock.calls[2][6])).toEqual(['t2'])
-  })
-
-  it('re-runs a serial group whole, whatever part of it a record names', async () => {
-    const { watcher, run, stopFirstRun } = fixture(
-      {
-        passedTests: ['open'],
-        lastRun: record(['pay']),
-        unfinishedTests: ['ship', 'alone'],
-        serialGroups: [['open', 'pay', 'ship']],
-      },
-      async (_spec, _files, revision, _emit, _signal, mode) =>
-        mode === 'foreground'
-          ? result(revision, 'passed', { selection: 'last-failed' })
-          : result(revision, 'failed', { selection: 'last-failed', lastRun: record(['ship']) }),
-    )
-    await stopFirstRun()
-    expect(ids(run.mock.calls[1][6])).toEqual(['open', 'pay', 'ship', 'alone'])
-    await watcher.check({ failedOnly: true })
-    expect(ids(run.mock.calls[2][6])).toEqual(['open', 'pay', 'ship'])
-  })
-})
 
 describe('the real runner', () => {
   let root: string
@@ -265,7 +38,7 @@ describe('the real runner', () => {
 import {readFileSync} from 'node:fs';
 const state = () => readFileSync(new URL('../state.txt', import.meta.url), 'utf8').trim();
 `
-  /** A background run stopped at its first failure, the way a pause stops one. */
+  /** A run stopped at its first failure, the way an abort stops one. */
   const stoppedAtFailure = (spec: FeedbackSpec) => {
     const abort = new AbortController()
     return runPlaywrightFeedback(backend, spec, [], 1, {
@@ -299,7 +72,7 @@ const state = () => readFileSync(new URL('../state.txt', import.meta.url), 'utf8
     await rm(root, { recursive: true, force: true })
   })
 
-  it('a stopped run names the tests it never finished, and they alone run next', async () => {
+  it('a stopped run names the test it saw fail, and it alone runs next', async () => {
     await state('broken')
     const spec = await file(
       'shelves.spec.ts',
@@ -318,15 +91,15 @@ test('prints the stock list', async () => { if (state() !== 'fixed') await new P
     )
     expect(stopped.selectedTests).toHaveLength(3)
     expect(stopped.passedTests).toHaveLength(1)
-    expect(stopped.unfinishedTests).toHaveLength(1)
-    expect(stopped.unfinishedTests).not.toContain(stopped.passedTests![0])
-    expect(ids(stopped.lastRun)).not.toContain(stopped.unfinishedTests![0])
+    // The record names the failed test alone — never one that already passed.
+    expect(ids(stopped.lastRun)).toHaveLength(1)
+    expect(ids(stopped.lastRun)).not.toContain(stopped.passedTests![0])
 
     await state('fixed')
-    const rest = await selective(spec, record(stopped.unfinishedTests!))
+    const rest = await selective(spec, stopped.lastRun!)
     expect(rest).toMatchObject({ status: 'passed', selection: 'last-failed' })
     expect(rest.nativeStats).toMatchObject({ expected: 1, unexpected: 0 })
-    expect(rest.passedTests).toEqual(stopped.unfinishedTests)
+    expect(rest.passedTests).toEqual(ids(stopped.lastRun))
   }, 60_000)
 
   it('records an expected failure as a completed test, without a failure diagnosis', async () => {

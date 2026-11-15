@@ -77,14 +77,10 @@ describe('native Playwright feedback selection', () => {
   })
 })
 
-describe('nonblocking native feedback', () => {
-  it('returns the write immediately and delivers a precise current native failure later', async () => {
-    let release!: () => void
-    const run = vi.fn(
-      (s, files, revision) =>
-        new Promise<PlaywrightFeedbackResult>((resolve) => {
-          release = () => resolve(failure(s, files, revision))
-        }),
+describe('checkpoint native feedback', () => {
+  it('returns the write immediately and answers a checkpoint with a precise current native failure', async () => {
+    const run = vi.fn(async (s: FeedbackSpec, files: string[], revision: number) =>
+      failure(s, files, revision),
     )
     const watcher = createPlaywrightFeedback({
       load: async () => ({ ...project(), specs: [spec()] }),
@@ -104,12 +100,8 @@ describe('nonblocking native feedback', () => {
 
     expect(watcher.changed(['/app/src/Notes.tsx'])).toBeUndefined()
     expect(run).not.toHaveBeenCalled()
-    const settled = watcher.settled()
-    await vi.waitFor(() => expect(run).toHaveBeenCalledTimes(1))
-    expect(watcher.takeFailures()).toEqual([])
-    release()
-    await settled
-    expect(watcher.takeFailures()[0].failures[0]).toMatchObject({
+    const [checked] = await watcher.check({ failedOnly: true })
+    expect(checked.failures[0]).toMatchObject({
       spec: '/app/e2e/notes.spec.ts',
       line: 12,
       locator: "locator('p').filter({ hasText: 'note' })",
@@ -117,8 +109,7 @@ describe('nonblocking native feedback', () => {
     })
     await watcher.close()
   })
-  it('emits no note for a matching app', async () => {
-    const onFailures = vi.fn()
+  it('reports no failure for a matching app', async () => {
     const watcher = createPlaywrightFeedback({
       load: async () => project(),
       run: async (s, _f, revision) => ({
@@ -128,7 +119,6 @@ describe('nonblocking native feedback', () => {
         status: 'passed',
         failures: [],
       }),
-      onFailures,
     })
     // A completed host run established these failures before the source write.
     watcher.record(
@@ -143,9 +133,9 @@ describe('nonblocking native feedback', () => {
     )
 
     watcher.changed(['/app/src/Notes.tsx'])
-    await watcher.settled()
-    expect(onFailures).not.toHaveBeenCalled()
-    expect(watcher.takeFailures()).toEqual([])
+    const checked = await watcher.check({ failedOnly: true })
+    expect(checked.map((r) => r.status)).toEqual(['passed', 'passed'])
+    expect(checked.every((r) => r.failures.length === 0)).toBe(true)
     await watcher.close()
   })
   it('does no native work for a project with no supplied suite', async () => {
@@ -155,13 +145,13 @@ describe('nonblocking native feedback', () => {
       run,
     })
     watcher.changed(['/app/src/Notes.tsx'])
-    await watcher.settled()
+    expect(await watcher.check()).toEqual([])
     expect(run).not.toHaveBeenCalled()
     await watcher.close()
   })
-  it('drops a stale failure and reruns the latest revision without overlapping native runs', async () => {
+  it('drops a superseded run’s failure and reruns the latest revision without overlapping native runs', async () => {
     let release!: () => void
-    const run = vi.fn(async (s, files, revision) => {
+    const run = vi.fn(async (s: FeedbackSpec, files: string[], revision: number) => {
       if (revision === 1)
         await new Promise<void>((r) => {
           release = r
@@ -187,26 +177,27 @@ describe('nonblocking native feedback', () => {
     )
 
     watcher.changed(['/app/src/Notes.tsx'])
-    const settled = watcher.settled()
+    const stale = watcher.check({ failedOnly: true })
     await vi.waitFor(() => expect(run).toHaveBeenCalledTimes(1))
     watcher.changed(['/app/src/Notes.tsx'])
     expect(run).toHaveBeenCalledTimes(1)
     release()
-    await settled
+    expect(await stale).toEqual([])
+    const checked = await watcher.check({ failedOnly: true })
     expect(run).toHaveBeenCalledTimes(2)
-    expect(watcher.takeFailures()).toEqual([])
+    expect(checked.map((r) => r.status)).toEqual(['passed'])
     await watcher.close()
   })
-  it('redelivers an unchanged failure after a new source revision supersedes its prior diagnostic', async () => {
+  it('re-runs an unchanged failure after a new source revision supersedes its prior diagnostic', async () => {
     let good = false
-    const onFailures = vi.fn()
+    const run = vi.fn(async (s: FeedbackSpec, f: string[], revision: number) =>
+      good
+        ? { spec: s.path, revision, durationMs: 1, status: 'passed' as const, failures: [] }
+        : failure(s, f, revision),
+    )
     const watcher = createPlaywrightFeedback({
       load: async () => ({ ...project(), specs: [spec()] }),
-      run: async (s, f, revision) =>
-        good
-          ? { spec: s.path, revision, durationMs: 1, status: 'passed', failures: [] }
-          : failure(s, f, revision),
-      onFailures,
+      run,
     })
     // A completed host run established these failures before the source write.
     watcher.record(
@@ -222,30 +213,29 @@ describe('nonblocking native feedback', () => {
 
     for (let i = 0; i < 2; i++) {
       watcher.changed(['/app/src/Notes.tsx'])
-      await watcher.settled()
+      await watcher.check({ failedOnly: true })
     }
-    expect(onFailures).toHaveBeenCalledTimes(2)
+    expect(run).toHaveBeenCalledTimes(2)
     good = true
     watcher.changed(['/app/src/Notes.tsx'])
-    await watcher.settled()
+    expect((await watcher.check({ failedOnly: true })).map((r) => r.status)).toEqual(['passed'])
     good = false
     watcher.record([failure(spec(), [], watcher.revision())], watcher.revision())
     watcher.changed(['/app/src/Notes.tsx'])
-    await watcher.settled()
-    expect(onFailures).toHaveBeenCalledTimes(3)
+    expect((await watcher.check({ failedOnly: true })).map((r) => r.status)).toEqual(['failed'])
+    expect(run).toHaveBeenCalledTimes(4)
     await watcher.close()
   })
   it('keeps unavailable/setup errors separate from markup failures and stops at shutdown', async () => {
-    const onFailures = vi.fn(),
-      run = vi.fn(async (s, _f, revision) => ({
-        spec: s.path,
-        revision,
-        durationMs: 1,
-        status: 'unavailable' as const,
-        failures: [],
-        reason: 'not compiled',
-      }))
-    const watcher = createPlaywrightFeedback({ load: async () => project(), run, onFailures })
+    const run = vi.fn(async (s: FeedbackSpec, _f: string[], revision: number) => ({
+      spec: s.path,
+      revision,
+      durationMs: 1,
+      status: 'unavailable' as const,
+      failures: [],
+      reason: 'not compiled',
+    }))
+    const watcher = createPlaywrightFeedback({ load: async () => project(), run })
     // A completed host run established these failures before the source write.
     watcher.record(
       project().specs.map(({ path }) => ({
@@ -259,12 +249,16 @@ describe('nonblocking native feedback', () => {
     )
 
     watcher.changed(['/app/src/Notes.tsx'])
-    await watcher.settled()
+    const checked = await watcher.check({ failedOnly: true })
+    // An outage is not a markup failure: it carries its reason and no failure evidence, and the
+    // checkpoint stops at it.
+    expect(checked).toHaveLength(1)
+    expect(checked[0].failures).toEqual([])
+    expect(checked[0].reason).toBe('not compiled')
     await watcher.close()
     watcher.changed(['/app/src/Notes.tsx'])
-    await watcher.settled()
-    expect(run).toHaveBeenCalledTimes(2)
-    expect(onFailures).not.toHaveBeenCalled()
+    expect(await watcher.check()).toEqual([])
+    expect(run).toHaveBeenCalledTimes(1)
   })
 })
 

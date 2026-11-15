@@ -36,7 +36,7 @@ afterEach(async () => {
   await Promise.all(controllers.splice(0).map((controller) => controller.close()))
 })
 
-/** A controller whose background pass fails the spec once, then whose foreground runs pass. */
+/** A controller whose first checkpoint fails the spec once, and whose later runs pass. */
 async function knownFailure() {
   const run = vi.fn<PlaywrightFeedbackOptions['run']>(async (_spec, _sources, revision, emit) => {
     if (run.mock.calls.length === 1) {
@@ -49,7 +49,6 @@ async function knownFailure() {
   const controller = createPlaywrightFeedback({
     load: async () => ({ sources: [], specs: [spec] }),
     run,
-    debounceMs: 1,
   })
   // A completed host run established these failures before the source write.
   controller.record(
@@ -65,44 +64,36 @@ async function knownFailure() {
 
   controllers.push(controller)
   controller.changed([source])
-  await vi.waitFor(() => expect(controller.failingSpecs()).toEqual([spec.path]))
-  await controller.settled()
+  // The known-failures checkpoint re-verifies and fails once more at the written revision.
+  await controller.check({ failedOnly: true })
   return { controller, run }
 }
 
 it('a host’s own pass at the current revision clears the known failure, so the checkpoint runs nothing', async () => {
   const { controller, run } = await knownFailure()
-  const release = await controller.pause() // the host's explicit test command owns the runner
   controller.changed([source]) // the fix
   const at = controller.revision()
   controller.record([result(at, 'passed')], at)
-  release()
   expect(controller.failingSpecs()).toEqual([])
   expect(await controller.check({ failedOnly: true })).toEqual([])
-  await controller.settled()
-  // Background speculation does not repeat the same spec either: its outcome is current.
   expect(run).toHaveBeenCalledTimes(1)
 })
 
 it('a whole-suite checkpoint reuses the recorded pass instead of running the spec', async () => {
   const { controller, run } = await knownFailure()
-  const release = await controller.pause()
   controller.changed([source])
   const at = controller.revision()
   controller.record([result(at, 'passed')], at)
-  release()
   expect(await controller.check()).toEqual([result(at, 'passed')])
   expect(run).toHaveBeenCalledTimes(1)
 })
 
 it('counterexample: a pass recorded for a revision a write has since replaced is ignored', async () => {
   const { controller, run } = await knownFailure()
-  const release = await controller.pause()
   controller.changed([source]) // the fix
   const at = controller.revision()
   controller.changed([source]) // a write landed while the host's run was going
   controller.record([result(at, 'passed')], at)
-  release()
   expect(controller.failingSpecs()).toEqual([spec.path])
   expect(await controller.check({ failedOnly: true })).toEqual([result(at + 1, 'passed')])
   expect(run).toHaveBeenCalledTimes(2)
@@ -110,11 +101,9 @@ it('counterexample: a pass recorded for a revision a write has since replaced is
 
 it('counterexample: a host failure or outage is not recorded and the checkpoint still verifies', async () => {
   const { controller, run } = await knownFailure()
-  const release = await controller.pause()
   controller.changed([source])
   const at = controller.revision()
   controller.record([result(at, 'failed'), result(at, 'unavailable')], at)
-  release()
   expect(controller.failingSpecs()).toEqual([spec.path])
   expect(await controller.check({ failedOnly: true })).toEqual([result(at, 'passed')])
   expect(run).toHaveBeenCalledTimes(2)

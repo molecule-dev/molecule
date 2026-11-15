@@ -24,42 +24,27 @@
  * - **Trimmed test output keeps every failure named.** Shared log cuts prioritize capped
  *   error, locator and expected/received details over passing progress. A detail budget never
  *   drops failure identities; native reports also name failures beyond their detailed-record cap.
- * - **Background Playwright feedback:** `createPlaywrightFeedback({ load, run, onFailures })`
- *   coalesces `changed(paths)` events without delaying writes. Use `readFeedbackSources`
- *   when a caller needs filesystem inventory and `runPlaywrightFeedback` to run each
- *   project spec through its native command. Its incremental reporter supplies native
- *   errors, locators and the failure-time page snapshot. Healthy runs emit no note;
- *   no suite schedules no runner. Background passes visit the least recently attempted file
- *   first; explicit checkpoints visit previously failing files first, then inventory order.
- *   Interrupted attempts rotate too, so frequent foreground tools cannot starve later files.
- *   A file stopped by foreground work keeps the failures it saw, and its next background run
- *   selects only the tests it never finished (Playwright's `--last-failed` record), so frequent
- *   foreground work still lets long files finish; editing the spec file runs it whole again.
- *   Every record names whole serial groups (`test.describe.serial`): a group's later test never
- *   runs without the earlier ones it depends on.
- *   Application and test source text never determine selection or a verdict.
- *   Pass the runner's cancellation signal to
- *   `runPlaywrightFeedback` in its options and call `pause()` before foreground tools,
- *   then invoke its returned release function afterwards. Speculation yields to
- *   independent native CLI tests, builds, deploys and package installs in the project, but
- *   not to HTTP clients such as Hurl/curl, a type-check or lint, which do not own a browser or rebuild its target. It uses OS idle CPU/I/O
- *   priority and the highest OOM score, so a foreground command keeps the CPU and is not
- *   the process the kernel kills when memory runs out. Cancelled runs distinguish a host pause
- *   from an OS-observed competing process, recording its kind and PID without command arguments. Its
- *   private temporary reports are not a user test result or something to poll.
- *   New writes let a started background file finish, retaining its outcome as a known failure
- *   when it fails. Native per-test clocks preserve tests begun after the latest write and deliver
- *   their failures, even in a spec begun earlier. Tests from older source run again by id;
- *   no dependency or selector inference is used. `settled()`/`close()` are for tests and shutdown,
- *   never a deployment barrier. Diagnoses are not whole-suite completion proof.
- *   A spec whose every test skips itself (`test.skip(condition)`) is `skipped`: neither a
- *   pass nor an outage. `check()` verifies the current revision before an explicit action;
- *   `check({ failedOnly: true })` re-runs only `failingSpecs()` (files whose latest native
- *   outcome failed) and does nothing when none is known. A full checkpoint stops at its first
- *   failure; a known-failures checkpoint re-runs every file known to fail and reports each
- *   recorded test that still fails, so all of them can be fixed before the next check. This
- *   partial checkpoint preserves pending background work on other files, which resumes after
- *   foreground work releases it.
+ * - **Playwright checkpoints:** `createPlaywrightFeedback({ load, run })` tracks source writes
+ *   with `changed(paths)` and runs nothing on a write. `check()` verifies the current revision
+ *   before an explicit action (a deploy), reusing current passes; `check({ failedOnly: true })`
+ *   re-runs only `failingSpecs()` (files whose latest native outcome failed) and does nothing
+ *   when none is known. A full checkpoint stops at its first failure; a known-failures
+ *   checkpoint re-runs every file known to fail and reports each recorded test that still fails,
+ *   so all of them can be fixed before the next check. Within a file only the tests its last
+ *   failed run named are re-run (Playwright's `--last-failed` record); editing the spec or its
+ *   config runs it whole again. Every record names whole serial groups (`test.describe.serial`):
+ *   a group's later test never runs without the earlier ones it depends on. Hand the host's own
+ *   completed runs (a local test command, a deployed walk) to `record(results, revision)` so
+ *   their failures become known failures and their passes are reused. A write during a
+ *   checkpoint interrupts it. Use `readFeedbackSources` when a caller needs filesystem
+ *   inventory and `runPlaywrightFeedback` to run each spec through its native command; its
+ *   incremental reporter supplies native errors, locators and the failure-time page snapshot.
+ *   With `foreground: false` a run beside other work (a CLI watcher) uses idle CPU/I/O priority
+ *   and the highest OOM score, and yields to independent native tests, builds, deploys and
+ *   package installs in the project (not to HTTP clients, type-checks or lint), recording the
+ *   competing process's kind and PID. Application and test source text never determine
+ *   selection or a verdict. A spec whose every test skips itself is `skipped`: neither a pass
+ *   nor an outage. Diagnoses are not whole-suite completion proof.
  * - **Opaque command plans:** prepare each logical step with `streamingBackgroundCommand`,
  *   call `createCommandPlan`, and attach it to the executed wrapper with `commandWithPlan`.
  *   The launcher prints each step's `startMarker` and `endMarker` on their own lines around

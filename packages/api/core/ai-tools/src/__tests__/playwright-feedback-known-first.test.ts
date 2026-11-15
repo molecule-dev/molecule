@@ -1,11 +1,11 @@
 /**
- * After a source write, background diagnosis re-runs the tests known to fail first, by themselves.
+ * A checkpoint re-runs the tests known to fail first, by themselves.
  *
  * The deploy's known-failure check runs exactly that selection before it lets a build publish, and
- * it blocked the deploy call for 50–140 s on a first deploy (cohorts P351–P353). The writes before
- * a deploy left a median 47 s in which background diagnosis ran, but it put a known failure LAST
- * and ran it as a whole file, so the check found nothing done. Now a pass in that window clears the
- * known failure and the check has nothing left to run; a failure answers the write at once.
+ * it blocked the deploy call for 50–140 s on a first deploy (cohorts P351–P353). Before that, a
+ * known failure could sit unverified through the whole window before a deploy; now the checkpoint
+ * in that window re-runs it by its record, so a pass clears the known failure and the deploy's
+ * check has nothing left to run; a failure answers the write at once.
  */
 import { afterEach, expect, it, vi } from 'vitest'
 
@@ -47,12 +47,11 @@ function outcome(
 /**
  * B passes; A fails whole with a record naming `t1`. A record run of A answers `recheck`, and when
  * that is a pass the whole file passes from then on. The inventory lists B first, so the
- * oldest-attempt order alone would run B before A.
+ * inventory order alone would run B before A.
  */
 function fixture(recheck: PlaywrightFeedbackResult['status']) {
-  const onFailures = vi.fn()
   const run = vi.fn<PlaywrightFeedbackOptions['run']>(
-    async (spec, _files, revision, _emit, _signal, _mode, lastRun) => {
+    async (spec, _files, revision, _emit, _signal, lastRun) => {
       if (spec.path === B) return outcome(B, revision, 'passed')
       // The write fixed `t1` exactly when its record run passes: the whole file then passes too.
       if (lastRun === undefined)
@@ -72,71 +71,84 @@ function fixture(recheck: PlaywrightFeedbackResult['status']) {
       specs: [B, A].map((path) => ({ path, content: '', command: '', cwd: '/shop' })),
     }),
     run,
-    onFailures,
-    debounceMs: 1,
   })
   watcher.record([outcome(A, 0, 'failed')], 0)
   watchers.push(watcher)
-  const write = async () => {
-    watcher.changed(['/shop/src/Cart.tsx'])
-    await watcher.settled()
-  }
-  return { watcher, run, onFailures, write }
+  return { watcher, run }
 }
 
 const calls = (run: ReturnType<typeof fixture>['run']) =>
-  run.mock.calls.map(([spec, , revision, , , mode, lastRun]) => ({
+  run.mock.calls.map(([spec, , revision, , , lastRun]) => ({
     spec: spec.path,
     revision,
-    mode: mode ?? 'background',
     record: ids(lastRun),
   }))
 
-it('re-runs a known failure first, by its record, and a pass leaves the deploy check nothing to run', async () => {
+it('a full checkpoint puts the file known to fail ahead of the unvisited one', async () => {
   const f = fixture('passed')
-  await f.write()
+  f.watcher.changed(['/shop/src/Cart.tsx'])
+  // A fails whole and stays known-failing; B has never run.
+  expect((await f.watcher.check({ failedOnly: true })).map((r) => r.spec)).toEqual([A])
+  const before = f.run.mock.calls.length
+  f.watcher.changed(['/shop/src/Cart.tsx'])
+  expect((await f.watcher.check()).map((r) => r.spec)).toEqual([A, B])
+  expect(
+    calls(f.run)
+      .slice(before)
+      .map((call) => call.spec),
+  ).toEqual([A, B])
+})
+
+it('re-runs a known failure by its record, and a pass leaves the deploy check nothing to run', async () => {
+  const f = fixture('passed')
+  f.watcher.changed(['/shop/src/Cart.tsx'])
+  expect((await f.watcher.check({ failedOnly: true })).map((r) => r.spec)).toEqual([A])
   expect(f.watcher.failingSpecs()).toEqual([A])
   const before = f.run.mock.calls.length
-  await f.write()
-  const after = calls(f.run).slice(before)
-  // First in the pass, ahead of B's older attempt, with only the recorded test.
-  expect(after[0]).toEqual({ spec: A, revision: 2, mode: 'background', record: ['t1'] })
+  f.watcher.changed(['/shop/src/Cart.tsx'])
+  expect((await f.watcher.check({ failedOnly: true })).map((r) => [r.spec, r.status])).toEqual([
+    [A, 'passed'],
+  ])
+  // Only the known failure ran, with only the recorded test — never the whole file, never B.
+  expect(calls(f.run).slice(before)).toEqual([{ spec: A, revision: 2, record: ['t1'] }])
   expect(f.watcher.failingSpecs()).toEqual([])
-  expect(after).toHaveLength(1)
   // The deploy's known-failure check finds nothing to re-run.
   const ran = f.run.mock.calls.length
   expect(await f.watcher.check({ failedOnly: true })).toEqual([])
   expect(f.run.mock.calls.length).toBe(ran)
 })
 
-it('delivers a still-failing known failure at once, and does not run its file whole again on that source', async () => {
+it('answers a still-failing known failure with its record alone, and the deploy check re-runs it', async () => {
   const f = fixture('failed')
-  await f.write()
-  f.onFailures.mockClear()
+  f.watcher.changed(['/shop/src/Cart.tsx'])
+  await f.watcher.check({ failedOnly: true })
   const before = f.run.mock.calls.length
-  await f.write()
+  f.watcher.changed(['/shop/src/Cart.tsx'])
+  const held = await f.watcher.check({ failedOnly: true })
   const after = calls(f.run).slice(before)
-  expect(after[0]).toEqual({ spec: A, revision: 2, mode: 'background', record: ['t1'] })
-  expect(after.filter((call) => call.spec === A)).toHaveLength(1)
-  expect(after).toHaveLength(1)
-  expect(f.onFailures).toHaveBeenCalledWith(expect.objectContaining({ spec: A, revision: 2 }))
+  expect(after).toEqual([{ spec: A, revision: 2, record: ['t1'] }])
+  expect(held[0]).toMatchObject({ spec: A, status: 'failed' })
   expect(f.watcher.failingSpecs()).toEqual([A])
-  // The deploy check still re-runs it: a failed outcome is never reused.
-  const [held] = await f.watcher.check({ failedOnly: true })
-  expect(held).toMatchObject({ spec: A, status: 'failed' })
-  expect(calls(f.run).at(-1)).toEqual({ spec: A, revision: 2, mode: 'foreground', record: ['t1'] })
+  // The deploy check still re-runs it by its record: a failed outcome is never reused.
+  const [again] = await f.watcher.check({ failedOnly: true })
+  expect(again).toMatchObject({ spec: A, status: 'failed' })
+  expect(calls(f.run).at(-1)).toEqual({ spec: A, revision: 2, record: ['t1'] })
 })
 
 it('keeps an unavailable repair for the explicit checkpoint to verify', async () => {
   const f = fixture('unavailable')
-  await f.write()
-  const before = f.run.mock.calls.length
-  await f.write()
-  const after = calls(f.run).slice(before)
-  expect(after[0]).toMatchObject({ spec: A, record: ['t1'] })
-  expect(after).toHaveLength(1)
+  f.watcher.changed(['/shop/src/Cart.tsx'])
   await f.watcher.check({ failedOnly: true })
-  expect(calls(f.run).at(-1)?.record).toBeUndefined()
+  const before = f.run.mock.calls.length
+  f.watcher.changed(['/shop/src/Cart.tsx'])
+  const checked = await f.watcher.check({ failedOnly: true })
+  // The record run answered unavailable, so the record is dropped and the whole file verifies.
+  expect(
+    calls(f.run)
+      .slice(before)
+      .map((call) => call.record),
+  ).toEqual([['t1'], undefined])
+  expect(checked.map((r) => r.status)).toEqual(['failed'])
   // The whole-file run failed again with its own record: known, and the record is current.
   expect(f.watcher.failingSpecs()).toEqual([A])
 })

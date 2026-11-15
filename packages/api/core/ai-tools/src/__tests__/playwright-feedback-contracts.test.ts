@@ -121,12 +121,12 @@ it('leaves unvisited native files to an explicit checkpoint after repairing know
   const results: PlaywrightFeedbackResult[] = []
   const controller = createPlaywrightFeedback({
     load: async () => ({ sources: [], specs }),
-    run: (spec, files, revision, emit, signal, mode) =>
+    run: (spec, files, revision, emit, signal) =>
       runPlaywrightFeedback(backend, spec, files, revision, {
         command: (flags) => `${spec.command} ${flags.join(' ')}`,
         emit,
         signal,
-        foreground: mode === 'foreground',
+        foreground: true,
       }),
     onResult: (result) => results.push(result),
   })
@@ -135,19 +135,12 @@ it('leaves unvisited native files to an explicit checkpoint after repairing know
     results.length = 0
     broken = false
     controller.changed(['/equipment/src/Directory.tsx'])
-    const release = await controller.pause()
-    try {
-      expect((await controller.check({ failedOnly: true })).map((result) => result.status)).toEqual(
-        ['passed'],
-      )
-    } finally {
-      release()
-    }
-    await controller.settled()
+    expect((await controller.check({ failedOnly: true })).map((result) => result.status)).toEqual([
+      'passed',
+    ])
     expect(results.map((result) => result.status)).toEqual(['passed'])
     expect(results.map((result) => result.nativeStats?.expected)).toEqual([4])
     expect((await controller.check()).map((result) => result.status)).toEqual(['passed', 'passed'])
-    expect(controller.takeFailures()).toEqual([])
   } finally {
     await controller.close()
   }

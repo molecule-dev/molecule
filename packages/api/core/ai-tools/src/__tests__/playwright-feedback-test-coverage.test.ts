@@ -1,4 +1,4 @@
-/** Source freshness belongs to completed runs; background work never fills an unseen inventory. */
+/** Source freshness belongs to completed runs; a checkpoint never fills an unseen inventory. */
 import { afterEach, expect, it, vi } from 'vitest'
 
 import { createPlaywrightFeedback } from '../playwright-feedback.js'
@@ -41,7 +41,6 @@ function fixture(run: PlaywrightFeedbackOptions['run']) {
       testRoots: ['/inventory/e2e', '/inventory/playwright.config.ts'],
     }),
     run: spy,
-    debounceMs: 1,
   })
   controller.record([result(0, 'failed', { lastRun: record('known') })], 0)
   controllers.push(controller)
@@ -64,11 +63,12 @@ it('a passing repair that spans a later write is rechecked before clearing the k
     return result(revision, 'passed', { selection: 'last-failed' })
   })
   f.controller.changed([source])
-  const settled = f.controller.settled()
+  const stale = f.controller.check({ failedOnly: true })
   await vi.waitFor(() => expect(f.run).toHaveBeenCalledTimes(1))
   f.controller.changed([source])
   release()
-  await settled
+  expect(await stale).toEqual([])
+  expect((await f.controller.check({ failedOnly: true })).map((r) => r.status)).toEqual(['passed'])
   expect(f.run.mock.calls.map((call) => call[2])).toEqual([1, 2])
   expect(f.controller.failingSpecs()).toEqual([])
 })
@@ -80,10 +80,10 @@ it.each([spec.path, '/inventory/e2e/helper.ts', '/inventory/playwright.config.ts
       result(revision, 'failed', { lastRun: record('new') }),
     )
     f.controller.changed([source])
-    await f.controller.settled()
+    await f.controller.check({ failedOnly: true })
     f.controller.changed([path])
-    await f.controller.settled()
-    expect(f.run.mock.calls[1][6]).toBeUndefined()
+    await f.controller.check({ failedOnly: true })
+    expect(f.run.mock.calls[1][5]).toBeUndefined()
   },
 )
 
@@ -92,11 +92,11 @@ it('a changed command invalidates its prior failure record and cached checkpoint
     result(revision, 'failed', { lastRun: record('old') }),
   )
   f.controller.changed([source])
-  await f.controller.settled()
+  await f.controller.check({ failedOnly: true })
   f.command('playwright test --project second')
   f.controller.changed([source])
-  await f.controller.settled()
-  expect(f.run.mock.calls[1][6]).toBeUndefined()
+  await f.controller.check({ failedOnly: true })
+  expect(f.run.mock.calls[1][5]).toBeUndefined()
 })
 
 it('a partial host repair keeps other failures until their own tests pass', async () => {
@@ -108,6 +108,9 @@ it('a partial host repair keeps other failures until their own tests pass', asyn
   )
   expect(f.controller.failingSpecs()).toEqual([spec.path])
   f.controller.changed([source])
-  await f.controller.settled()
-  expect(JSON.parse(f.run.mock.calls[0][6]!)).toEqual({ status: 'failed', failedTests: ['second'] })
+  await f.controller.check({ failedOnly: true })
+  expect(JSON.parse(f.run.mock.calls[0][5]!)).toEqual({
+    status: 'failed',
+    failedTests: ['second'],
+  })
 })

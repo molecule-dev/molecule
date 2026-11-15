@@ -44,7 +44,7 @@ function result(
   }
 }
 
-function fixture(run: PlaywrightFeedbackOptions['run']) {
+function fixture(run: PlaywrightFeedbackOptions['run'], seeded?: string) {
   const spy = vi.fn(run)
   const watcher = createPlaywrightFeedback({
     load: async () => ({
@@ -53,9 +53,9 @@ function fixture(run: PlaywrightFeedbackOptions['run']) {
       specs: [{ path: SPEC, content: '', command: '', cwd: '/clinic' }],
     }),
     run: spy,
-    debounceMs: 1,
   })
-  // A completed host run established these failures before the source write.
+  // A completed host run established these failures — with its failed-test record when it
+  // wrote one — before the source write.
   watcher.record(
     [{ path: SPEC, content: '', command: '', cwd: '/clinic' }].map(({ path }) => ({
       spec: path,
@@ -63,6 +63,7 @@ function fixture(run: PlaywrightFeedbackOptions['run']) {
       durationMs: 1,
       status: 'failed',
       failures: [],
+      ...(seeded === undefined ? {} : { lastRun: seeded }),
     })),
     0,
   )
@@ -71,53 +72,48 @@ function fixture(run: PlaywrightFeedbackOptions['run']) {
   return { watcher, run: spy }
 }
 
-const foregroundCalls = (run: ReturnType<typeof vi.fn>) =>
-  run.mock.calls.filter((call) => call[5] === 'foreground')
-
 describe('known-failures checkpoint', () => {
   it('re-runs only the recorded tests, and their pass is never a whole-file pass', async () => {
-    const f = fixture(async (_spec, _files, revision, _emit, _signal, mode, lastRun) => {
-      if (mode !== 'foreground') return result(revision, 'failed', { lastRun: RECORD })
-      return lastRun
-        ? result(revision, 'passed', { selection: 'last-failed' })
-        : result(revision, 'passed')
-    })
+    const f = fixture(
+      async (_spec, _files, revision, _emit, _signal, lastRun) =>
+        lastRun
+          ? result(revision, 'passed', { selection: 'last-failed' })
+          : result(revision, 'passed'),
+      RECORD,
+    )
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
     expect(f.watcher.failingSpecs()).toEqual([SPEC])
 
     const known = await f.watcher.check({ failedOnly: true })
     expect(known.map((r) => [r.status, r.selection])).toEqual([['passed', 'last-failed']])
-    expect(foregroundCalls(f.run).map((call) => call[6])).toEqual([RECORD])
+    expect(f.run.mock.calls.map((call) => call[5])).toEqual([RECORD])
     expect(f.watcher.failingSpecs()).toEqual([])
 
     // A full checkpoint at the same revision runs the whole file: the subset pass was not reused.
     const full = await f.watcher.check()
     expect(full.map((r) => [r.status, r.selection])).toEqual([['passed', undefined]])
-    expect(foregroundCalls(f.run)).toHaveLength(2)
-    expect(foregroundCalls(f.run)[1]).toHaveLength(6)
+    expect(f.run).toHaveBeenCalledTimes(2)
+    expect(f.run.mock.calls[1]).toHaveLength(5)
   })
 
   it('leaves the rest of a repaired file to an explicit checkpoint', async () => {
-    const background: number[] = []
-    const f = fixture(async (_spec, _files, revision, _emit, _signal, mode, lastRun) => {
-      if (mode !== 'foreground') {
-        background.push(revision)
-        return background.length === 1
-          ? result(revision, 'failed', { lastRun: RECORD })
-          : result(revision, 'passed')
-      }
-      return result(revision, 'passed', lastRun ? { selection: 'last-failed' } : {})
-    })
+    const f = fixture(
+      async (_spec, _files, revision, _emit, _signal, lastRun) =>
+        result(revision, 'passed', lastRun ? { selection: 'last-failed' } : {}),
+      RECORD,
+    )
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
-    // The repair is written, and the deploy checks before background diagnosis starts on it.
+    // The repair is written, and the deploy checks before anything else runs the file.
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
     const known = await f.watcher.check({ failedOnly: true })
     expect(known.map((r) => r.selection)).toEqual(['last-failed'])
-    await f.watcher.settled()
-    // The whole file runs on the repaired revision afterwards; the subset pass did not settle it.
-    expect(background).toEqual([1])
+    // Nothing else runs on the repaired revision: the subset pass settled nothing else.
+    expect(await f.watcher.check({ failedOnly: true })).toEqual([])
+    expect(f.run).toHaveBeenCalledTimes(1)
+    // The whole file still runs on the repaired revision at an explicit full checkpoint.
+    await f.watcher.check()
+    expect(f.run).toHaveBeenCalledTimes(2)
+    expect(f.run.mock.calls[1][5]).toBeUndefined()
   })
 
   it('holds on the recorded tests when they still fail and keeps the runner’s fresh record', async () => {
@@ -125,33 +121,30 @@ describe('known-failures checkpoint', () => {
       status: 'failed',
       failedTests: ['3f1c-reschedule', '9a0e-cancel'],
     })
-    const f = fixture(async (_spec, _files, revision, _emit, _signal, mode, lastRun) => {
-      if (mode !== 'foreground') return result(revision, 'failed', { lastRun: RECORD })
-      return result(revision, 'failed', {
-        selection: lastRun ? 'last-failed' : undefined,
-        lastRun: fresh,
-      })
-    })
+    const f = fixture(
+      async (_spec, _files, revision, _emit, _signal) =>
+        result(revision, 'failed', { selection: 'last-failed', lastRun: fresh }),
+      RECORD,
+    )
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
     const held = await f.watcher.check({ failedOnly: true })
     expect(held.map((r) => r.status)).toEqual(['failed'])
     expect(f.watcher.failingSpecs()).toEqual([SPEC])
-    expect(foregroundCalls(f.run)).toHaveLength(1)
+    expect(f.run).toHaveBeenCalledTimes(1)
     await f.watcher.check({ failedOnly: true })
-    expect(foregroundCalls(f.run).map((call) => call[6])).toEqual([RECORD, fresh])
+    expect(f.run.mock.calls.map((call) => call[5])).toEqual([RECORD, fresh])
   })
 
   it('re-runs every known-failing file, not only the first that still fails', async () => {
     const SECOND = '/clinic/e2e/billing.spec.ts'
     const run = vi.fn<PlaywrightFeedbackOptions['run']>(
-      async (spec, _files, revision, _emit, _signal, mode, lastRun) => ({
+      async (spec, _files, revision, _emit, _signal, lastRun) => ({
         ...result(revision, 'failed', { lastRun: RECORD }),
         spec: spec.path,
         failures: [
           { spec: spec.path, line: 7, locator: 'button', error: 'not visible', sourceFiles: [] },
         ],
-        ...(mode === 'foreground' && lastRun ? { selection: 'last-failed' as const } : {}),
+        ...(lastRun ? { selection: 'last-failed' as const } : {}),
       }),
     )
     const watcher = createPlaywrightFeedback({
@@ -161,9 +154,8 @@ describe('known-failures checkpoint', () => {
         specs: [SPEC, SECOND].map((path) => ({ path, content: '', command: '', cwd: '/clinic' })),
       }),
       run,
-      debounceMs: 1,
     })
-    // A completed host run established these failures before the source write.
+    // A completed host run established these failures, each with its failed-test record.
     watcher.record(
       [SPEC, SECOND]
         .map((path) => ({ path, content: '', command: '', cwd: '/clinic' }))
@@ -173,13 +165,13 @@ describe('known-failures checkpoint', () => {
           durationMs: 1,
           status: 'failed',
           failures: [],
+          lastRun: RECORD,
         })),
       0,
     )
 
     watchers.push(watcher)
     watcher.changed(['/clinic/src/Calendar.tsx'])
-    await watcher.settled()
     expect(watcher.failingSpecs().sort()).toEqual([SECOND, SPEC].sort())
 
     const held = await watcher.check({ failedOnly: true })
@@ -198,210 +190,48 @@ describe('known-failures checkpoint', () => {
   })
 
   it('runs the whole file when the record selects nothing the runner can run', async () => {
-    const f = fixture(async (_spec, _files, revision, _emit, _signal, mode, lastRun) => {
-      if (mode !== 'foreground') return result(revision, 'failed', { lastRun: RECORD })
-      return lastRun
-        ? result(revision, 'unavailable', {
-            selection: 'last-failed',
-            reason: 'zero executed tests',
-          })
-        : result(revision, 'passed')
-    })
+    const f = fixture(
+      async (_spec, _files, revision, _emit, _signal, lastRun) =>
+        lastRun
+          ? result(revision, 'unavailable', {
+              selection: 'last-failed',
+              reason: 'zero executed tests',
+            })
+          : result(revision, 'passed'),
+      RECORD,
+    )
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
     const checked = await f.watcher.check({ failedOnly: true })
     expect(checked.map((r) => [r.status, r.selection])).toEqual([['passed', undefined]])
-    expect(foregroundCalls(f.run).map((call) => call.length)).toEqual([7, 6])
+    expect(f.run.mock.calls.map((call) => call.length)).toEqual([6, 5])
     expect(f.watcher.failingSpecs()).toEqual([])
   })
 
   it('takes a whole-file answer from a host that does not pass records on, without a second run', async () => {
-    const f = fixture(async (_spec, _files, revision, _emit, _signal, mode) =>
-      mode !== 'foreground'
-        ? result(revision, 'failed', { lastRun: RECORD })
-        : result(revision, 'passed'),
-    )
+    const f = fixture(async (_spec, _files, revision) => result(revision, 'passed'), RECORD)
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
     const checked = await f.watcher.check({ failedOnly: true })
     expect(checked.map((r) => [r.status, r.selection])).toEqual([['passed', undefined]])
-    expect(foregroundCalls(f.run)).toHaveLength(1)
+    expect(f.run).toHaveBeenCalledTimes(1)
     expect(f.watcher.failingSpecs()).toEqual([])
     // That answer covered the whole file, so a full checkpoint reuses it.
     await f.watcher.check()
-    expect(foregroundCalls(f.run)).toHaveLength(1)
+    expect(f.run).toHaveBeenCalledTimes(1)
   })
 
   it('never hands a record to a full checkpoint', async () => {
-    const f = fixture(async (_spec, _files, revision, _emit, _signal, mode) =>
-      mode !== 'foreground'
-        ? result(revision, 'failed', { lastRun: RECORD })
-        : result(revision, 'passed'),
-    )
+    const f = fixture(async (_spec, _files, revision) => result(revision, 'passed'), RECORD)
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
     await f.watcher.check()
-    expect(foregroundCalls(f.run).map((call) => call.length)).toEqual([6])
-  })
-
-  it('re-runs only the tests a paused run saw fail, not the whole file (P348, 2026-11-13)', async () => {
-    // The deploy's checkpoint pauses a started background file. Before, a failure it had already
-    // reported left the file known-failing with no record, so the checkpoint ran every test in it.
-    const f = fixture(async (_spec, _files, revision, emit, signal, mode, lastRun) => {
-      if (mode === 'foreground')
-        return result(revision, 'passed', lastRun ? { selection: 'last-failed' } : {})
-      emit(result(revision, 'failed'))
-      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
-      return result(revision, 'cancelled', { lastRun: RECORD })
-    })
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await vi.waitFor(() => expect(f.run).toHaveBeenCalledOnce())
-    const checked = await f.watcher.check({ failedOnly: true })
-    expect(checked.map((r) => [r.status, r.selection])).toEqual([['passed', 'last-failed']])
-    expect(foregroundCalls(f.run).map((call) => call[6])).toEqual([RECORD])
-    expect(f.watcher.failingSpecs()).toEqual([])
-  })
-
-  it('adds a paused run’s failures to the older record instead of replacing it', async () => {
-    const later = JSON.stringify({ status: 'failed', failedTests: ['77b2-waitlist'] })
-    let background = 0
-    const f = fixture(async (_spec, _files, revision, emit, signal, mode, lastRun) => {
-      if (mode === 'foreground')
-        return result(revision, 'passed', lastRun ? { selection: 'last-failed' } : {})
-      if (++background === 1) return result(revision, 'failed', { lastRun: RECORD })
-      emit(result(revision, 'failed'))
-      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
-      return result(revision, 'cancelled', { lastRun: later })
-    })
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await vi.waitFor(() => expect(background).toBe(2))
-    await f.watcher.check({ failedOnly: true })
-    // The paused run never reached the older failure, so that one is still known.
-    expect(JSON.parse(foregroundCalls(f.run)[0][6] as string).failedTests).toEqual([
-      '3f1c-reschedule',
-      '77b2-waitlist',
-    ])
-  })
-
-  it('keeps the older record when a paused run saw no failure', async () => {
-    let background = 0
-    const f = fixture(async (_spec, _files, revision, _emit, signal, mode, lastRun) => {
-      if (mode === 'foreground')
-        return result(revision, 'passed', lastRun ? { selection: 'last-failed' } : {})
-      if (++background === 1) return result(revision, 'failed', { lastRun: RECORD })
-      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
-      return result(revision, 'cancelled')
-    })
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await vi.waitFor(() => expect(background).toBe(2))
-    await f.watcher.check({ failedOnly: true })
-    expect(foregroundCalls(f.run).map((call) => call[6])).toEqual([RECORD])
-  })
-
-  it('drops tests a later paused run saw pass, and the file once none is left (P348, 2026-11-13)', async () => {
-    // A file failed whole before its feature existed; later runs passed those tests but were paused
-    // before they finished, so the checkpoint re-ran all nine at the deploy.
-    const early = JSON.stringify({
-      status: 'failed',
-      failedTests: ['3f1c-reschedule', '9a0e-cancel'],
-    })
-    let background = 0
-    const f = fixture(async (_spec, _files, revision, _emit, signal, mode, lastRun) => {
-      if (mode === 'foreground')
-        return result(revision, 'passed', lastRun ? { selection: 'last-failed' } : {})
-      background++
-      if (background === 1) return result(revision, 'failed', { lastRun: early })
-      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
-      return result(revision, 'cancelled', {
-        passedTests: background === 2 ? ['3f1c-reschedule'] : ['9a0e-cancel', '1b2d-list'],
-      })
-    })
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await vi.waitFor(() => expect(background).toBe(2))
-    await f.watcher.check({ failedOnly: true })
-    expect(foregroundCalls(f.run).map((call) => call[6])).toEqual([
-      JSON.stringify({ status: 'failed', failedTests: ['9a0e-cancel'] }),
-    ])
-  })
-
-  it('stops knowing a file as failing once a paused run passed every test its record named', async () => {
-    const early = JSON.stringify({
-      status: 'failed',
-      failedTests: ['3f1c-reschedule', '9a0e-cancel'],
-    })
-    let background = 0
-    const f = fixture(async (_spec, _files, revision, _emit, signal, mode) => {
-      if (mode === 'foreground') return result(revision, 'passed')
-      if (++background === 1) return result(revision, 'failed', { lastRun: early })
-      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
-      return result(revision, 'cancelled', { passedTests: ['3f1c-reschedule', '9a0e-cancel'] })
-    })
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
-    expect(f.watcher.failingSpecs()).toEqual([SPEC])
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await vi.waitFor(() => expect(background).toBe(2))
-    expect(await f.watcher.check({ failedOnly: true })).toEqual([])
-    expect(foregroundCalls(f.run)).toHaveLength(0)
-    expect(f.watcher.failingSpecs()).toEqual([])
-  })
-
-  it('keeps a file known-failing without a record, whatever a paused run passed', async () => {
-    let background = 0
-    const f = fixture(async (_spec, _files, revision, emit, signal, mode) => {
-      if (mode === 'foreground') return result(revision, 'passed')
-      background++
-      if (background === 1) {
-        // An older runner: a failure, and no last-run record.
-        emit(result(revision, 'failed'))
-        return result(revision, 'failed')
-      }
-      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
-      return result(revision, 'cancelled', { passedTests: ['3f1c-reschedule'] })
-    })
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await vi.waitFor(() => expect(background).toBe(2))
-    await f.watcher.check({ failedOnly: true })
-    // Nothing named the failing test, so the whole file answers.
-    expect(foregroundCalls(f.run).map((call) => call.length)).toEqual([6])
-  })
-
-  it('does not clear a completed failure when a paused repair saw no new failure', async () => {
-    let started = false
-    const f = fixture(async (_spec, _files, revision, _emit, signal, mode) => {
-      if (mode === 'foreground') return result(revision, 'passed')
-      started = true
-      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
-      return result(revision, 'cancelled')
-    })
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await vi.waitFor(() => expect(started).toBe(true))
-    expect((await f.watcher.check({ failedOnly: true })).map((r) => r.status)).toEqual(['passed'])
-    expect(foregroundCalls(f.run)).toHaveLength(1)
+    expect(f.run.mock.calls.map((call) => call.length)).toEqual([5])
   })
 
   it('drops an older record when a later failed run wrote none', async () => {
-    let backgroundRuns = 0
-    const f = fixture(async (_spec, _files, revision, _emit, _signal, mode) => {
-      if (mode === 'foreground') return result(revision, 'passed')
-      backgroundRuns++
-      return result(revision, 'failed', backgroundRuns === 1 ? { lastRun: RECORD } : {})
-    })
+    const f = fixture(async (_spec, _files, revision) => result(revision, 'failed'), RECORD)
     f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
-    f.watcher.changed(['/clinic/src/Calendar.tsx'])
-    await f.watcher.settled()
-    expect(backgroundRuns).toBe(2)
     await f.watcher.check({ failedOnly: true })
-    expect(foregroundCalls(f.run).map((call) => call.length)).toEqual([6])
+    await f.watcher.check({ failedOnly: true })
+    expect(f.run.mock.calls.map((call) => call.length)).toEqual([6, 5])
   })
 })
 
@@ -467,31 +297,23 @@ test('keeps the waiting list', async () => { await new Promise((r) => setTimeout
     await state('broken')
     const watcher = createPlaywrightFeedback({
       load: async () => ({ sources: [], specs: [spec] }),
-      run: (s, files, revision, emit, signal, mode, lastRun) =>
+      run: (s, files, revision, emit, signal, lastRun) =>
         runPlaywrightFeedback(backend, s, files, revision, {
           command: (flags) => `${s.command} ${flags.join(' ')}`,
           emit,
           signal,
-          foreground: mode === 'foreground',
+          foreground: true,
           ...(lastRun === undefined ? {} : { lastFailed: lastRun }),
         }),
-      debounceMs: 1,
     })
-    // A completed host run established these failures before the source write.
-    watcher.record(
-      [spec].map(({ path }) => ({
-        spec: path,
-        revision: 0,
-        durationMs: 1,
-        status: 'failed',
-        failures: [],
-      })),
-      0,
-    )
-
-    watchers.push(watcher)
+    // The host's own whole-file run, handed over with its record, establishes the failure.
+    const at = watcher.revision()
+    const failed = await runPlaywrightFeedback(backend, spec, [], at, {
+      command: (flags) => `${spec.command} ${flags.join(' ')}`,
+    })
+    expect(failed.status).toBe('failed')
+    watcher.record([failed], at)
     watcher.changed([join(root, 'src', 'Visits.tsx')])
-    await watcher.settled()
     expect(watcher.failingSpecs()).toEqual([spec.path])
     await state('fixed')
     const [checked] = await watcher.check({ failedOnly: true })

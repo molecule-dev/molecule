@@ -9,7 +9,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 
 import { createLocalBackend } from '../backends/local.js'
 import { createPlaywrightFeedback, runPlaywrightFeedback } from '../playwright-feedback.js'
-import type { PlaywrightFeedback, PlaywrightFeedbackResult } from '../playwright-feedback-types.js'
+import type { PlaywrightFeedback } from '../playwright-feedback-types.js'
 import { shellQuote } from '../utilities.js'
 
 const controllers: PlaywrightFeedback[] = []
@@ -96,12 +96,9 @@ it.each([true, false])(
   async (broken) => {
     const f = await fixture(broken)
     const visits: string[] = []
-    const results: PlaywrightFeedbackResult[] = []
     const controller = createPlaywrightFeedback({
       load: async () => ({ sources: [], specs: f.specs }),
-      debounceMs: 1,
-      onResult: (result) => results.push(result),
-      run: (spec, files, revision, emit, signal) => {
+      run: (spec, files, revision, _emit, signal) => {
         visits.push(spec.path)
         return runPlaywrightFeedback(f.backend, spec, files, revision, {
           command: (flags) => `${spec.command} ${flags.join(' ')}`,
@@ -112,7 +109,6 @@ it.each([true, false])(
           timeoutMs: 40000,
           pollMs: 10,
           signal,
-          emit,
         })
       },
     })
@@ -128,17 +124,18 @@ it.each([true, false])(
     )
     controllers.push(controller)
     controller.changed(['/equipment/src/Preferences.tsx'])
+    // The slow file's run starts and stays live until a newer write cancels it.
+    const stale = controller.check({ failedOnly: true })
     await vi.waitFor(
       // A native start (node, the runner, the config and the spec's transform) passed 8 s beside
       // the rest of the suite's runs on a loaded machine.
       async () => expect(await readFile(join(f.root, 'started'), 'utf8')).toBe('yes'),
       { timeout: 20000 },
     )
-    const release = await controller.pause()
-    expect(results.map((result) => result.status)).toEqual(['cancelled'])
-    expect(controller.takeFailures()).toEqual([])
-    // The stopped slow file has no completed test to select. Its host pass removes it from
-    // repair work; the other completed failure can now resume without starting a new file.
+    controller.changed(['/equipment/src/Preferences.tsx'])
+    expect(await stale).toEqual([])
+    // The cancelled slow file has no completed test to select. Its host pass removes it from
+    // repair work; the other known failure can now answer without starting a new file.
     controller.record(
       [
         {
@@ -151,18 +148,8 @@ it.each([true, false])(
       ],
       controller.revision(),
     )
-    release()
-    await vi.waitFor(() => expect(visits).toHaveLength(2), { timeout: 5000 })
-    // Stop a repeated first file before asserting, so the known-bad control leaves no process.
-    if (visits[1] !== f.specs[1].path) await controller.pause()
-    expect(visits[1]).toBe(f.specs[1].path)
-    // Wait for as long as the runner may take, or a slow but valid run fails the test.
-    await vi.waitFor(
-      () => expect(results.some((result) => result.spec === f.specs[1].path)).toBe(true),
-      { timeout: 45000 },
-    )
-    await controller.pause()
-    const native = results.find((result) => result.spec === f.specs[1].path)!
+    const [native] = await controller.check({ failedOnly: true })
+    expect(native.spec).toBe(f.specs[1].path)
     expect(native.status, JSON.stringify(native)).toBe(broken ? 'failed' : 'passed')
     expect(native.nativeStats).toMatchObject({
       expected: broken ? 1 : 5,
@@ -183,8 +170,9 @@ it.each([true, false])(
         'page.waitForURL',
       )
     } else {
-      expect(controller.takeFailures()).toEqual([])
+      expect(controller.failingSpecs()).toEqual([])
     }
+    expect(visits).toEqual([f.specs[0].path, f.specs[1].path])
   },
   75000,
 )

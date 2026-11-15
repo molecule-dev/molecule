@@ -63,104 +63,11 @@ afterEach(async () => {
 }, 20_000)
 
 describe('foreground work owns the clock', () => {
-  it('cancels the active revision before granting nested foreground leases and restarts only after both release', async () => {
-    let runs = 0,
-      active = 0
-    const watcher = createPlaywrightFeedback({
-      load: async () => ({ sources: [], specs: [spec] }),
-      debounceMs: 5,
-      run: async (_s, _f, revision, _emit, signal) => {
-        runs++
-        active++
-        if (runs === 1)
-          await new Promise<void>((done) =>
-            signal.addEventListener('abort', () => done(), { once: true }),
-          )
-        active--
-        return signal.aborted ? cancelled(revision) : passed(revision)
-      },
-    })
-    // A completed host run established these failures before the source write.
-    watcher.record(
-      [spec].map(({ path }) => ({
-        spec: path,
-        revision: 0,
-        durationMs: 1,
-        status: 'failed',
-        failures: [],
-      })),
-      0,
-    )
-
-    controllers.push(watcher)
-    watcher.changed(['/app/src/Catalog.tsx'])
-    await vi.waitFor(() => expect(active).toBe(1))
-    const [releaseA, releaseB] = await Promise.all([watcher.pause(), watcher.pause()])
-    expect(active).toBe(0)
-    await watcher.settled()
-    releaseA()
-    releaseA()
-    await watcher.settled()
-    expect(runs).toBe(1)
-    releaseB()
-    await watcher.settled()
-    expect(runs).toBe(2)
-    expect(watcher.takeFailures()).toEqual([])
-  })
-
-  it('lets a running spec finish through a source edit, keeps its failure known unreported, and reruns it', async () => {
-    const signals: AbortSignal[] = []
-    let finish!: () => void
-    const onFailures = vi.fn()
-    const stale: PlaywrightFeedbackResult = {
-      ...passed(1),
-      status: 'failed',
-      failures: [{ spec: spec.path, line: 8, error: 'stale', locator: 'stale', sourceFiles: [] }],
-    }
-    const watcher = createPlaywrightFeedback({
-      load: async () => ({ sources: [], specs: [spec] }),
-      debounceMs: 5,
-      onFailures,
-      run: async (_s, _f, revision, emit, signal) => {
-        signals.push(signal)
-        if (revision !== 1) return { ...stale, revision }
-        await new Promise<void>((done) => (finish = done))
-        emit(stale)
-        return stale
-      },
-    })
-    // A completed host run established these failures before the source write.
-    watcher.record(
-      [spec].map(({ path }) => ({
-        spec: path,
-        revision: 0,
-        durationMs: 1,
-        status: 'failed',
-        failures: [],
-      })),
-      0,
-    )
-
-    controllers.push(watcher)
-    watcher.changed(['/app/src/Catalog.tsx'])
-    await vi.waitFor(() => expect(signals).toHaveLength(1))
-    watcher.changed(['/app/src/Catalog.tsx'])
-    expect(signals[0].aborted).toBe(false)
-    finish()
-    await vi.waitFor(() => expect(signals).toHaveLength(2))
-    await watcher.settled()
-    // The first run described revision 1 only: never reported, but the spec is a known failure.
-    expect(onFailures).toHaveBeenCalledTimes(1)
-    expect(onFailures.mock.calls[0]?.[0]).toMatchObject({ revision: 2 })
-    expect(watcher.failingSpecs()).toEqual([spec.path])
-  })
-
   it('re-runs only a known failure while writes keep arriving', async () => {
     const known = { ...spec, path: '/app/e2e/profile.spec.ts' }
     const visits: string[] = []
     const watcher = createPlaywrightFeedback({
       load: async () => ({ sources: [], specs: [spec, known] }),
-      debounceMs: 1,
       run: async (s, _files, revision) => {
         visits.push(s.path)
         if (visits.length < 6) watcher.changed(['/app/src/Profile.tsx'])
@@ -170,7 +77,9 @@ describe('foreground work owns the clock', () => {
     controllers.push(watcher)
     watcher.record([{ ...passed(0), spec: known.path, status: 'failed' }], 0)
     watcher.changed(['/app/src/Profile.tsx'])
-    await watcher.settled()
+    // Each write interrupts the checkpoint and discards its partial answer; every checkpoint
+    // still re-verifies only the known failure.
+    for (let n = 1; n <= 6; n++) await watcher.check({ failedOnly: true })
     expect(visits).toEqual(Array(6).fill(known.path))
     expect(watcher.failingSpecs()).toEqual([known.path])
   })
@@ -179,9 +88,7 @@ describe('foreground work owns the clock', () => {
     const signals: AbortSignal[] = []
     const watcher = createPlaywrightFeedback({
       load: async () => ({ sources: [], specs: [spec] }),
-      debounceMs: 5,
-      run: async (_s, _f, revision, _emit, signal, mode) => {
-        if (mode !== 'foreground') return passed(revision)
+      run: async (_s, _f, revision, _emit, signal) => {
         signals.push(signal)
         await new Promise<void>((done) =>
           signal.addEventListener('abort', () => done(), { once: true }),
@@ -207,39 +114,6 @@ describe('foreground work owns the clock', () => {
     watcher.changed(['/app/src/Catalog.tsx'])
     expect(signals[0].aborted).toBe(true)
     expect(await result).toEqual([])
-  })
-
-  it('does not wait for an in-flight metadata load or start native work while paused', async () => {
-    let complete!: (value: { sources: []; specs: FeedbackSpec[] }) => void
-    const load = vi.fn(
-      () =>
-        new Promise<{ sources: []; specs: FeedbackSpec[] }>((done) => {
-          complete = done
-        }),
-    )
-    const run = vi.fn()
-    const watcher = createPlaywrightFeedback({ load, run, debounceMs: 5 })
-    // A completed host run established these failures before the source write.
-    watcher.record(
-      [spec].map(({ path }) => ({
-        spec: path,
-        revision: 0,
-        durationMs: 1,
-        status: 'failed',
-        failures: [],
-      })),
-      0,
-    )
-
-    controllers.push(watcher)
-    watcher.changed(['/app/src/Catalog.tsx'])
-    await vi.waitFor(() => expect(load).toHaveBeenCalledOnce())
-    const release = await watcher.pause()
-    complete({ sources: [], specs: [spec] })
-    await watcher.settled()
-    expect(run).not.toHaveBeenCalled()
-    await watcher.close()
-    release()
   })
 })
 

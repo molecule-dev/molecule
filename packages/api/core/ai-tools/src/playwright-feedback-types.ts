@@ -93,16 +93,10 @@ export interface PlaywrightFeedbackResult {
    */
   passedTests?: string[]
   /**
-   * The ids of the tests a `cancelled` run selected but never finished, with the whole serial
-   * group of any of them, when the run got as far as selecting its tests. The next background
-   * run of the file resumes with only these, so tests that already finished are not run again.
-   */
-  unfinishedTests?: string[]
-  /**
    * Each outermost serial group (`test.describe.serial`, `describe.configure({ mode: 'serial' })`)
    * the run selected, by test id. Its tests depend on each other, so a record that names one of
    * them names all of them: `--last-failed` would otherwise run a later test without the ones it
-   * needs. Records this run returns ({@link lastRun}, {@link unfinishedTests}) already do.
+   * needs. A record this run returns ({@link lastRun}) already does.
    */
   serialGroups?: string[][]
   /**
@@ -112,45 +106,38 @@ export interface PlaywrightFeedbackResult {
   selection?: 'last-failed'
 }
 
-/** Host operations for the same scheduler in a CLI process or a remote sandbox. */
+/** Host operations for the same checkpoints in a CLI process or a remote sandbox. */
 export interface PlaywrightFeedbackOptions {
   load: () => Promise<FeedbackProject>
+  /**
+   * Run one spec file for a checkpoint. Every call is explicit verification the caller is waiting
+   * for: hosts run it with `runPlaywrightFeedback`'s `foreground`, unless the host process itself
+   * runs beside other work (a CLI watcher), where it may yield to that work.
+   */
   run: (
     spec: FeedbackSpec,
     sources: string[],
     revision: number,
+    /** Receives native failures as they arrive; checkpoints read the returned result instead. */
     emit: (result: PlaywrightFeedbackResult) => void,
     /** Stop the owned native process group when cancelled; never wait for the tests to finish. */
     signal: AbortSignal,
-    /** A checkpoint is explicit verification and must not yield to its caller's deploy/build. */
-    mode?: 'background' | 'foreground',
     /**
-     * A record of the tests to run, in the last-run shape: the spec's known failures on a
-     * known-failures checkpoint, or the tests a stopped background run of the file never
-     * finished when the background resumes it. Hand it to `runPlaywrightFeedback` as
-     * `lastFailed` so only those tests run; a host that ignores it runs the whole file.
+     * The spec's known failures in the last-run shape, on a known-failures checkpoint. Hand it to
+     * `runPlaywrightFeedback` as `lastFailed` so only those tests run; a host that ignores it
+     * runs the whole file.
      */
     lastRun?: string,
   ) => Promise<PlaywrightFeedbackResult>
-  /** Only current native failures are delivered. Passing apps receive no note. */
-  onFailures?: (result: PlaywrightFeedbackResult) => void
-  /** Operational state is separate from defect feedback. */
+  /** Every native result a checkpoint ran, as operational state apart from defect feedback. */
   onResult?: (result: PlaywrightFeedbackResult) => void
-  debounceMs?: number
-  /**
-   * How long the background waits before trying again after a run yielded to the sandbox's own
-   * foreground work (a test run, build, deploy or install the host did not start). Each further
-   * consecutive yield doubles the wait, up to 16 times this; a run that finishes resets it, and a
-   * source write or a released pause still tries again at once. Default 1000 ms.
-   */
-  yieldRetryMs?: number
 }
 
 /** What an explicit checkpoint runs. */
 export interface PlaywrightFeedbackCheckOptions {
   /**
    * Re-run only the spec files in {@link PlaywrightFeedback.failingSpecs}. With none, the
-   * checkpoint loads and runs nothing and returns no results. Background work resumes only known failures after a later write.
+   * checkpoint loads and runs nothing and returns no results.
    * Within such a file only the tests its last failed run names are re-run, when the runner
    * recorded them; the whole file runs when it did not, or when that record selects no test.
    * Their pass clears the known failure; the rest of the file is left to explicit runs.
@@ -158,16 +145,13 @@ export interface PlaywrightFeedbackCheckOptions {
   failedOnly?: boolean
 }
 
-/** A nonblocking source-change subscription. */
+/** Source-write tracking with explicit native checkpoints. Nothing runs on a write. */
 export interface PlaywrightFeedback {
   /**
-   * Record source writes. A background spec already running finishes; its outcome still updates
-   * {@link PlaywrightFeedback.failingSpecs}, but only a run with no write during it is reported.
+   * Record source writes: the revision advances and passes reused by checkpoints are dropped. A
+   * write during a checkpoint interrupts it and discards its partial result.
    */
   changed: (paths: readonly string[]) => void
-  takeFailures: () => PlaywrightFeedbackResult[]
-  /** Cancel speculation before foreground work. Release after that work; nested callers are safe. */
-  pause: () => Promise<() => void>
   /**
    * Verify the current revision before an explicit action, reusing completed native results.
    * Stops at the first failing or unavailable spec; a skipped spec does not stop it. A source
@@ -184,13 +168,14 @@ export interface PlaywrightFeedback {
   revision: () => number
   /**
    * Record outcomes of a native run the host started itself (an explicit local test command with
-   * the same spec command), so {@link PlaywrightFeedback.check} reuses them instead of running the
-   * spec again. Ignored when a source write landed after `revision` was read. Completed failures seed later background re-runs with the runner's failed-test record.
-   * A pass or self-skip clears the known failure. Cancelled and unavailable runs change nothing.
-   * Partial selections are diagnosis and never replace whole-file checkpoint coverage.
+   * the same spec command, or a deployed walk), so {@link PlaywrightFeedback.check} reuses them
+   * instead of running the spec again. Ignored when a source write landed after `revision` was
+   * read. Failures become known failures, with the runner's failed-test record, for the next
+   * known-failures checkpoint to re-run. A pass or self-skip clears the known failure. Cancelled
+   * and unavailable runs change nothing. Partial selections are diagnosis and never replace
+   * whole-file checkpoint coverage.
    */
   record: (results: readonly PlaywrightFeedbackResult[], revision: number) => void
-  /** Wait for speculative work in tests or shutdown. Use check for explicit verification. */
-  settled: () => Promise<void>
+  /** Stop: a running checkpoint is cancelled and awaited, and later calls do nothing. */
   close: () => Promise<void>
 }
