@@ -9,18 +9,33 @@
  * Replaces the 113-line `bonds/i18n-default.ts` that every flagship
  * app shipped byte-identically.
  *
+ * Pass `supportedLocales`, read from the app's locale file names as in
+ * the example. Without it, the setup loads every locale's `ui.ts` at
+ * boot to find the empty ones: one request per language on a first visit.
+ *
  * @example
  * ```ts
  * import { setupI18nDefault } from '@molecule/app-i18n-default-react'
  *
- * // `en` is the app's eagerly-imported English UI translations —
- * // in your app: `import { ui as en } from '../locales/en/ui.js'`.
- * // The lazy loader MUST stay in the app so Vite can code-split
- * // each locale's ui.ts into its own chunk.
- * const lazyLoadUi = (code: string) =>
- *   import(`../locales/${code}/ui.ts`).then((m) => m.ui)
+ * import { ui as en } from '../locales/en/ui.js'
  *
- * setupI18nDefault({ enUi: en, lazyLoadUi })
+ * // Not eager: each locale's ui.ts stays its own chunk, fetched only
+ * // when the app switches to that language. The table stays in the
+ * // app so Vite can see the files.
+ * const localeFiles = import.meta.glob<{ ui: Record<string, string> }>('../locales/*\/ui.ts')
+ * const localeCode = (file: string): string =>
+ *   file.replace('../locales/', '').replace('/ui.ts', '')
+ *
+ * const lazyLoadUi = async (code: string): Promise<Record<string, string>> => {
+ *   const load = localeFiles[`../locales/${code}/ui.ts`]
+ *   return load ? (await load()).ui : {}
+ * }
+ *
+ * setupI18nDefault({
+ *   enUi: en,
+ *   lazyLoadUi,
+ *   supportedLocales: Object.keys(localeFiles).map(localeCode),
+ * })
  * ```
  *
  * @module

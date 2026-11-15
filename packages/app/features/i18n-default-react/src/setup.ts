@@ -120,20 +120,19 @@ export interface SetupI18nDefaultOptions {
    * need to list it explicitly.
    *
    * When omitted, every entry in the fleet's 80-language
-   * {@link LANGUAGE_DEFINITIONS} list is registered (back-compat).
+   * {@link LANGUAGE_DEFINITIONS} list is registered, then each non-English
+   * locale's `ui.ts` is loaded through `lazyLoadUi` at boot and the empty
+   * ones are removed: one request per language on a first visit.
    *
-   * Typical call-site idiom uses Vite's `import.meta.glob` to
-   * auto-detect which `ui.ts` files in the app's `locales/` directory
-   * have non-empty translation objects:
+   * Read it from the app's locale file names with a NON-eager
+   * `import.meta.glob`, which fetches nothing to build the list
+   * (`{ eager: true }` would put every language in the entry chunk):
    *
    * ```ts
-   * const eager = import.meta.glob<{ ui: Record<string, string> }>(
-   *   '../locales/*\/ui.ts',
-   *   { eager: true },
+   * const localeFiles = import.meta.glob<{ ui: Record<string, string> }>('../locales/*\/ui.ts')
+   * const supportedLocales = Object.keys(localeFiles).map((file) =>
+   *   file.replace('../locales/', '').replace('/ui.ts', ''),
    * )
-   * const supportedLocales = Object.entries(eager)
-   *   .filter(([, m]) => Object.keys(m.ui).length > 0)
-   *   .map(([p]) => p.match(/locales\/([^/]+)\/ui\.ts$/)![1])
    * ```
    */
   supportedLocales?: readonly string[]
@@ -154,11 +153,20 @@ export interface SetupI18nDefaultOptions {
  * import { setupI18nDefault } from '@molecule/app-i18n-default-react'
  * import { ui as en } from '../locales/en/ui.js'
  *
- * const lazyLoadUi = (code: string) =>
- *   import(`../locales/${code}/ui.ts`).then((m) => m.ui)
+ * const localeFiles = import.meta.glob<{ ui: Record<string, string> }>('../locales/*\/ui.ts')
+ * const lazyLoadUi = async (code: string): Promise<Record<string, string>> => {
+ *   const load = localeFiles[`../locales/${code}/ui.ts`]
+ *   return load ? (await load()).ui : {}
+ * }
  *
  * export function setupI18nDefaultBond(): void {
- *   setupI18nDefault({ enUi: en, lazyLoadUi })
+ *   setupI18nDefault({
+ *     enUi: en,
+ *     lazyLoadUi,
+ *     supportedLocales: Object.keys(localeFiles).map((file) =>
+ *       file.replace('../locales/', '').replace('/ui.ts', ''),
+ *     ),
+ *   })
  * }
  * ```
  */
