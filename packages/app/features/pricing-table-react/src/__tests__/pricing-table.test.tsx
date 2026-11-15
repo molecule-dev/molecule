@@ -92,4 +92,17 @@ describe('PricingTable', () => {
     const markup = html(createElement(PricingTable, { plans, features, className: 'pt-cls' }))
     expect(markup).toContain('pt-cls')
   })
+
+  it('keys every feature row, so React logs no missing-key warning', () => {
+    const errors: string[] = []
+    const spy = vi.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+      errors.push(args.map(String).join(' '))
+    })
+    try {
+      html(createElement(PricingTable, { plans, features }))
+    } finally {
+      spy.mockRestore()
+    }
+    expect(errors.filter((e) => e.includes('unique "key"'))).toEqual([])
+  })
 })

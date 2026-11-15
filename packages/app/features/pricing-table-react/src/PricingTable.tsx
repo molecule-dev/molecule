@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
@@ -102,7 +102,7 @@ export function PricingTable({ plans, features, className }: PricingTableProps):
         </thead>
         <tbody>
           {features.map((f, i) => (
-            <>
+            <Fragment key={i}>
               {f.groupHeading && (
                 <tr key={`g-${i}`}>
                   <th colSpan={cols + 1} style={{ textAlign: 'left', padding: '12px 8px' }}>
@@ -122,7 +122,7 @@ export function PricingTable({ plans, features, className }: PricingTableProps):
                   </td>
                 ))}
               </tr>
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>
