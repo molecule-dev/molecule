@@ -1,0 +1,216 @@
+{
+ "exports": [
+  "CurrencyDisplay",
+  "formatCurrency",
+  "formatCurrencyCompact"
+ ],
+ "values": {
+  "formatCurrency": [
+   "$1,234.50",
+   "$1,234.50",
+   "$99.00",
+   "$0.00",
+   "-$50.00",
+   "¥1,234",
+   "1.234,50 €",
+   "£1,234.50",
+   "$1.01"
+  ],
+  "formatCurrencyCompact": [
+   "$12.3K",
+   "$12.3K",
+   "$1.2M",
+   "$99",
+   "$0",
+   "-$12.3K",
+   "$12.3K",
+   "1,2 Mio. €"
+  ]
+ },
+ "cases": {
+  "CurrencyDisplay": {
+   "amount only (defaults)": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$49.99\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero amount": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$0.00\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "negative amount": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n-$12.50\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "fractional amount": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$1,234.50\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "size sm": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c445db9b9\">\n$9.50\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "size lg": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c4547f4fd\">\n$9.50\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "size xl": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\">\n$9.50\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "size md explicitly": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$9.50\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "EUR in de-DE": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n1.234,50 €\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "JPY (no fraction digits)": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n¥1,234\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "runtime default locale": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$1,234.50\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact large amount": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$30K\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact small amount": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$99\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact with original price": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$30K\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$50K\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "original price with savings chip": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "original price rounds the saving": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$1.00\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$3.00\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−67%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "original price below the amount": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$49.99\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "original price equal to the amount": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$10.00\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "original price with showSavings false": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "showSavings without an original price": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "negative original price (zero percent)": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n-$10.00\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n-$5.00\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−0%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom savings label": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\nsave 20.000000000000004 (40%)\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom savings label, not discounted": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$49.99\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom savings label with showSavings false": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$5.00\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "gains an original price": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "changes size, compactness and currency": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$1,234.50\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\">\n$1,234.50\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\">\n$1.2K\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\">\n€1.2K\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "toggles the savings chip and the label": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\nsave 20.000000000000004 (40%)\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\nsave 20.000000000000004 (40%)\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$29.99\n</span>\n<span class=\"c445db9b9\" style=\"text-decoration: line-through\">\n$49.99\n</span>\n<span class=\"c4647f690 c7f74399a\">\n−40%\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "amount only (defaults), then a locale switch": {
+    "snapshots": [
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$49.99\n</span>\n</span>\n@route /",
+     "<span class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c504afaf4\">\n$49.99\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

@@ -1,0 +1,714 @@
+{
+ "exports": [
+  "Countdown",
+  "useCountdown"
+ ],
+ "values": {},
+ "cases": {
+  "Countdown": {
+   "renders the compact format by default, skipping leading zero units": {
+    "snapshots": [
+     "<span>\n1d 2h 3m 4s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact renders only seconds when less than a minute remains": {
+    "snapshots": [
+     "<span>\n30s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact renders hours and minutes without a zero day": {
+    "snapshots": [
+     "<span>\n2h 3m 4s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "compact keeps a zero hour and minute between non-zero units": {
+    "snapshots": [
+     "<span>\n1d 0h 0m 5s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders the long format with pluralised unit words": {
+    "snapshots": [
+     "<span>\n1 day 2 hours 3 minutes 1 second\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the long format uses singular units for one of each": {
+    "snapshots": [
+     "<span>\n1 minute 1 second\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders the colon format zero-padded to two digits": {
+    "snapshots": [
+     "<span>\n01:02:03:04\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the colon format pads a day count past one digit": {
+    "snapshots": [
+     "<span>\n05:04:03:02\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an unknown format falls back to the compact format": {
+    "snapshots": [
+     "<span>\n1d 2h 3m 4s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders the `expired` node once the target has passed": {
+    "snapshots": [
+     "<span data-expired>\nDone\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a past target without an expired node renders the zero display": {
+    "snapshots": [
+     "<span>\n0s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the expired node wins over the render function": {
+    "snapshots": [
+     "<span data-expired>\nDone\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "uses the `render` prop for full control over markup": {
+    "snapshots": [
+     "<span>\n<b data-render>\n1\n</b>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the render wrapper keeps className as it was passed": {
+    "snapshots": [
+     "<span class=\"cd75bbd18\">\n<b data-render>\n30\n</b>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards className onto the wrapper span": {
+    "snapshots": [
+     "<span class=\"cd75bbd18\">\n30s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty className still renders the class attribute": {
+    "snapshots": [
+     "<span>\n30s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a Date target renders the same instant": {
+    "snapshots": [
+     "<span>\n1d 2h 3m 4s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an ISO string target renders the same instant": {
+    "snapshots": [
+     "<span>\n1d 2h 3m 4s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "changing the format re-renders the same remaining time": {
+    "snapshots": [
+     "<span>\n1d 2h 3m 4s\n</span>\n@route /",
+     "<span>\n1 day 2 hours 3 minutes 4 seconds\n</span>\n@route /",
+     "<span>\n01:02:03:04\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "changing the target re-renders the remaining time": {
+    "snapshots": [
+     "<span>\n1d 2h 3m 4s\n</span>\n@route /",
+     "<span>\n1m 1s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "the expired node appears when the clock passes the target": {
+    "snapshots": [
+     "<span>\n2s\n</span>\n@route /",
+     "<span>\n1s\n</span>\n@route /",
+     "<span data-expired>\nDone\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "each tick re-renders the seconds": {
+    "snapshots": [
+     "<span>\n1m 30s\n</span>\n@route /",
+     "<span>\n1m 29s\n</span>\n@route /",
+     "<span>\n1m 28s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a render function follows the clock": {
+    "snapshots": [
+     "<span>\n<b data-render>\n30\n</b>\n</span>\n@route /",
+     "<span>\n<b data-render>\n29\n</b>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a future target after expiry renders the display again": {
+    "snapshots": [
+     "<span data-expired>\nDone\n</span>\n@route /",
+     "<span>\n1m 30s\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders the compact format by default, skipping leading zero units, then a locale switch": {
+    "snapshots": [
+     "<span>\n1d 2h 3m 4s\n</span>\n@route /",
+     "<span>\n1d 2h 3m 4s\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ },
+ "hooks": {
+  "useCountdown": {
+   "decomposes the remaining time into days / hours / minutes / seconds": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 1,
+       "expired": false,
+       "hours": 2,
+       "minutes": 3,
+       "msRemaining": 93784000,
+       "seconds": 4
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "flags expired and clamps units to 0 when the target is in the past": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 0,
+       "expired": true,
+       "hours": 0,
+       "minutes": 0,
+       "msRemaining": -5000,
+       "seconds": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "the target instant itself is expired": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 0,
+       "expired": true,
+       "hours": 0,
+       "minutes": 0,
+       "msRemaining": 0,
+       "seconds": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an untouched clock does not change the state": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 1,
+       "expired": false,
+       "hours": 2,
+       "minutes": 3,
+       "msRemaining": 93784000,
+       "seconds": 4
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "one tick of the default interval moves the remaining time by a second": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 90000,
+       "seconds": 30
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 89000,
+       "seconds": 29
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 88000,
+       "seconds": 28
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a custom tick interval refreshes at that interval": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 90000,
+       "seconds": 30
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 89500,
+       "seconds": 29
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 89000,
+       "seconds": 29
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "tickMs 0 disables the timer": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 90000,
+       "seconds": 30
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 90000,
+       "seconds": 30
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a negative tickMs disables the timer": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 90000,
+       "seconds": 30
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 90000,
+       "seconds": 30
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a Date target is the same instant as its epoch milliseconds": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 1,
+       "expired": false,
+       "hours": 2,
+       "minutes": 3,
+       "msRemaining": 93784000,
+       "seconds": 4
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an ISO string target is the same instant as its epoch milliseconds": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 1,
+       "expired": false,
+       "hours": 2,
+       "minutes": 3,
+       "msRemaining": 93784000,
+       "seconds": 4
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a new target on the same mount re-reads the remaining time": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 60000,
+       "seconds": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 2,
+       "msRemaining": 120000,
+       "seconds": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a target changed into the past expires on the same mount": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 1,
+       "expired": false,
+       "hours": 2,
+       "minutes": 3,
+       "msRemaining": 93784000,
+       "seconds": 4
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": true,
+       "hours": 0,
+       "minutes": 0,
+       "msRemaining": -1000,
+       "seconds": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a new tick interval on the same mount restarts the timer": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "days": "value",
+      "expired": "value",
+      "hours": "value",
+      "minutes": "value",
+      "msRemaining": "value",
+      "seconds": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 90000,
+       "seconds": 30
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 90000,
+       "seconds": 30
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "days": 0,
+       "expired": false,
+       "hours": 0,
+       "minutes": 1,
+       "msRemaining": 89000,
+       "seconds": 29
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  }
+ }
+}
