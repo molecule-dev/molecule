@@ -9,6 +9,12 @@
     "@molecule/app-auth-ui-solid",
     "@molecule/app-auth-ui-svelte",
     "@molecule/app-auth-ui-vue",
+    "@molecule/app-bonds-default",
+    "@molecule/app-bonds-default-angular",
+    "@molecule/app-bonds-default-react",
+    "@molecule/app-bonds-default-solid",
+    "@molecule/app-bonds-default-svelte",
+    "@molecule/app-bonds-default-vue",
     "@molecule/app-breadcrumb-angular",
     "@molecule/app-breadcrumb-solid",
     "@molecule/app-breadcrumb-svelte",
@@ -127,6 +133,7 @@
     "@molecule/app-vue"
   ],
   "changesets": [
+    ".changeset/bonds-default-frameworks.md",
     ".changeset/feature-parity-analytics.md",
     ".changeset/feature-parity-breadcrumb.md",
     ".changeset/feature-parity-comparison-row.md",
