@@ -5,7 +5,10 @@
  */
 
 /**
- * An article row as stored. `tagList` is a JSON array of tag names.
+ * An article row as stored. `tagList` is a JSON array of tag names, in the order they were
+ * given, and it is what every article response returns. The `article_tags` table holds the same
+ * tags one row each, for the tag filter and the tag lists. `createArticle` and `updateArticle`
+ * write both, so an app that goes through this package never keeps them in step itself.
  */
 export interface ArticleRow {
   /** Unique article identifier. */
