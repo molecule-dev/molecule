@@ -31,8 +31,8 @@
  * ```tsx
  * import { Link } from 'react-router'
  * import { getClient, isHttpError } from '@molecule/app-http'
- * import { t } from '@molecule/app-i18n'
  * import { intentPrefetchProps, useQuery } from '@molecule/app-query-react'
+ * import { useTranslation } from '@molecule/app-react'
  *
  * interface PackageDocument {
  *   name: string
@@ -60,6 +60,7 @@
  * }
  *
  * function PackagePage({ name }: { name: string }) {
+ *   const { t } = useTranslation()
  *   const { data, status } = useQuery(packageQuery(name))
  *   if (status === 'error') {
  *     return <p role="alert">{t('packages.loadFailed', undefined, { defaultValue: 'Unable to load package.' })}</p>
@@ -156,8 +157,8 @@
  *
  * ```tsx
  * import { getClient } from '@molecule/app-http'
- * import { t } from '@molecule/app-i18n'
  * import { getQueryClient } from '@molecule/app-query'
+ * import { useTranslation } from '@molecule/app-react'
  *
  * // The key names what the document actually depends on — here the signed-in
  * // principal, the filter and the page. Another principal's feed is a
@@ -185,6 +186,7 @@
  * }
  *
  * function Retry({ principal }: { principal: string }) {
+ *   const { t } = useTranslation()
  *   return (
  *     <button
  *       onClick={() => {

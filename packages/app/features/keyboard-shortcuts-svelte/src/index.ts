@@ -12,8 +12,9 @@
  * ```svelte
  * <script lang="ts">
  *   import { useKeyboardShortcut } from '@molecule/app-keyboard-shortcuts-svelte'
- *   import { t } from '@molecule/app-i18n'
+ *   import { useTranslation } from '@molecule/app-svelte'
  *
+ *   const { t } = useTranslation()
  *   let input: HTMLInputElement | undefined = $state()
  *   useKeyboardShortcut('/', () => input?.focus(), {
  *     description: t('catalogSearch.focus', undefined, { defaultValue: 'Focus search' }),

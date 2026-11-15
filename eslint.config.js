@@ -119,6 +119,18 @@ const APP_CROSS_STACK_IMPORTS = {
     'App packages cannot import from @molecule/api-* packages. This is a cross-stack boundary violation.',
 }
 
+/**
+ * Solid packages write .tsx too, but it is not React: rules for React components skip them,
+ * and the framework rules below hold them instead.
+ */
+const SOLID_TSX = [
+  'packages/app/frameworks/solid/**',
+  'packages/app/frameworks/solid-ui/**',
+  'packages/app/features/*-solid/**',
+  'packages/app/infrastructure/bonds-default-solid/**',
+  'packages/app/bonds/routing/solid-router/**',
+]
+
 /** The naming-convention rule entry: PascalCase only for types and const values. */
 const NAMING_CONVENTION = [
   'warn',
@@ -289,13 +301,7 @@ export default tseslint.config(
     // outside a component takes `t` as a parameter from the component that calls it.
     // Solid's .tsx is not React: its components read translations through its own primitives.
     files: ['packages/app/**/*.tsx'],
-    ignores: [
-      'packages/app/frameworks/solid/**',
-      'packages/app/frameworks/solid-ui/**',
-      '**/__tests__/**',
-      '**/*.test.tsx',
-      '**/*.spec.tsx',
-    ],
+    ignores: [...SOLID_TSX, '**/__tests__/**', '**/*.test.tsx', '**/*.spec.tsx'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -314,12 +320,13 @@ export default tseslint.config(
     },
   },
   {
-    // The same rule for the Vue, Solid, Svelte and Angular UI components: each binding's
-    // `useTranslation()` (a ref, signal, store or Angular signal underneath) follows the
-    // locale; the static `t` does not, so text rendered with it stays in the old language
-    // (the UI conformance's "then a locale switch" cases show it against React's output).
+    // The same rule for the Vue, Solid, Svelte and Angular UI and feature components: each
+    // binding's `useTranslation()` (a ref, signal, store or Angular signal underneath) follows
+    // the locale; the static `t` does not, so text rendered with it stays in the old language
+    // (the conformance's "then a locale switch" cases show it against React's output).
     files: [
       'packages/app/frameworks/{vue-ui,solid-ui,svelte-ui,angular-ui}/src/**/*.{ts,tsx,svelte}',
+      'packages/app/features/*-{vue,solid,svelte,angular}/src/**/*.{ts,tsx,svelte}',
     ],
     ignores: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
     rules: {

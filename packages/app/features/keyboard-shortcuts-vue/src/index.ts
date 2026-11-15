@@ -13,8 +13,9 @@
  * <script setup lang="ts">
  * import { ref } from 'vue'
  * import { useKeyboardShortcut } from '@molecule/app-keyboard-shortcuts-vue'
- * import { t } from '@molecule/app-i18n'
+ * import { useTranslation } from '@molecule/app-vue'
  *
+ * const { t } = useTranslation()
  * const input = ref<HTMLInputElement | null>(null)
  * useKeyboardShortcut('/', () => input.value?.focus(), {
  *   description: t('catalogSearch.focus', undefined, { defaultValue: 'Focus search' }),

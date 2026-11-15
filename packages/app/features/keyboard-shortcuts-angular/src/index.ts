@@ -10,20 +10,23 @@
  *
  * @example
  * ```typescript
- * import { Component, signal, viewChild } from '@angular/core'
+ * import { Component, type ElementRef, viewChild } from '@angular/core'
+ * import { useTranslation } from '@molecule/app-angular'
  * import { useKeyboardShortcut } from '@molecule/app-keyboard-shortcuts-angular'
- * import { t } from '@molecule/app-i18n'
  *
  * @Component({
  *   selector: 'app-search',
  *   template: '<input #input />',
  * })
  * export class Search {
+ *   // The binding's t re-runs the template on a locale switch.
+ *   protected readonly t = useTranslation().t
+ *
  *   readonly input = viewChild.required<ElementRef<HTMLInputElement>>('input')
  *
  *   // A field initializer runs in the injection context.
  *   readonly shortcuts = useKeyboardShortcut('/', () => this.input().nativeElement.focus(), {
- *     description: t('catalogSearch.focus', undefined, { defaultValue: 'Focus search' }),
+ *     description: this.t('catalogSearch.focus', undefined, { defaultValue: 'Focus search' }),
  *   })
  *   readonly palette = useKeyboardShortcut('mod+k', () => openPalette())
  * }

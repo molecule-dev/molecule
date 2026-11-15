@@ -62,6 +62,63 @@ for (const p of pkgs) {
   if (!/@example/.test(idx)) missing.push(relative(ROOT, p))
 }
 
+/**
+ * A framework package's examples translate the way its components must: through the
+ * binding's `useTranslation()`. The static `t` from `@molecule/app-i18n` reads the locale
+ * once, so a component that renders with it keeps the old language after a switch, and
+ * eslint refuses it in component code; an example that teaches it is copied into apps.
+ */
+const FRAMEWORK_BINDING = {
+  react: '@molecule/app-react',
+  vue: '@molecule/app-vue',
+  solid: '@molecule/app-solid',
+  svelte: '@molecule/app-svelte',
+  angular: '@molecule/app-angular',
+}
+const STATIC_T_IN_DOC = /^\s*\*\s*import\s*\{[^}]*\bt\b[^}]*\}\s*from\s*'@molecule\/app-i18n'/
+
+/**
+ * Every source file under a directory (no tests, no build output).
+ *
+ * @param dir - The directory.
+ * @returns The files' paths.
+ */
+function sourceFiles(dir) {
+  const out = []
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (e.name === '__tests__' || e.name === 'node_modules') continue
+    const p = join(dir, e.name)
+    if (e.isDirectory()) out.push(...sourceFiles(p))
+    else if (/\.(ts|tsx|svelte)$/.test(e.name) && !/\.(test|spec)\./.test(e.name)) out.push(p)
+  }
+  return out
+}
+
+const staticT = []
+for (const p of pkgs) {
+  const framework = Object.keys(FRAMEWORK_BINDING).find((f) => p.endsWith(`-${f}`))
+  if (!framework) continue
+  for (const file of sourceFiles(join(p, 'src'))) {
+    readFileSync(file, 'utf8')
+      .split('\n')
+      .forEach((line, i) => {
+        if (STATIC_T_IN_DOC.test(line)) {
+          staticT.push(`${relative(ROOT, file)}:${i + 1} (${FRAMEWORK_BINDING[framework]})`)
+        }
+      })
+  }
+}
+
+if (staticT.length > 0) {
+  console.error(
+    `✗ ${staticT.length} example(s) in framework feature packages import the static \`t\` from @molecule/app-i18n`,
+  )
+  console.error(
+    "  A component that renders with it keeps the old language after a locale switch. In the example, import `useTranslation` from the package's framework binding (named below) and call `const { t } = useTranslation()` inside the component:",
+  )
+  for (const s of staticT) console.error(`  - ${s}`)
+}
+
 if (missing.length > 0) {
   console.error(
     `✗ ${missing.length}/${pkgs.length} app feature package(s) lack a module-level @example in src/index.ts`,
@@ -74,7 +131,10 @@ if (missing.length > 0) {
   )
   console.error('  `mlcl sync-docs --generate -p <package>`. Offenders:')
   for (const m of missing) console.error(`  - ${m}`)
-  process.exit(CHECK ? 1 : 0)
 }
 
-console.log(`✓ all ${pkgs.length} app feature packages have a module-level @example`)
+if (missing.length > 0 || staticT.length > 0) process.exit(CHECK ? 1 : 0)
+
+console.log(
+  `✓ all ${pkgs.length} app feature packages have a module-level @example, and no framework package's example renders the static t`,
+)

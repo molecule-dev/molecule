@@ -10,8 +10,10 @@
  * ```tsx
  * import { useRef } from 'react'
  * import { useKeyboardShortcut } from '@molecule/app-keyboard-shortcuts-react'
+ * import { useTranslation } from '@molecule/app-react'
  *
  * function Search() {
+ *   const { t } = useTranslation()
  *   const input = useRef<HTMLInputElement>(null)
  *   useKeyboardShortcut('/', () => input.current?.focus(), {
  *     description: t('catalogSearch.focus', undefined, { defaultValue: 'Focus search' }),

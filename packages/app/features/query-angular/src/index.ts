@@ -30,8 +30,8 @@
  * @example
  * ```typescript
  * import { Component, OnChanges, computed, input } from '@angular/core'
+ * import { useTranslation } from '@molecule/app-angular'
  * import { getClient, isHttpError } from '@molecule/app-http'
- * import { t } from '@molecule/app-i18n'
  * import { intentPrefetchProps, useQuery } from '@molecule/app-query-angular'
  *
  * interface PackageDocument {
@@ -96,8 +96,8 @@
  *   `,
  * })
  * export class PackagePage {
- *   // Expose the i18n function so every template binding re-reads it.
- *   protected readonly t = t
+ *   // The binding's t re-runs the template on a locale switch.
+ *   protected readonly t = useTranslation().t
  *   readonly name = input('')
  *
  *   readonly query = useQuery<PackageDocument | null>(
@@ -123,8 +123,8 @@
  *
  * ```typescript
  * import { Component, computed, input } from '@angular/core'
+ * import { useTranslation } from '@molecule/app-angular'
  * import { getClient, unwrapList } from '@molecule/app-http'
- * import { t } from '@molecule/app-i18n'
  * import { useQuery } from '@molecule/app-query-angular'
  *
  * interface Invoice {
@@ -153,8 +153,8 @@
  *   `,
  * })
  * export class InvoiceList {
- *   // Expose the i18n function so every template binding re-reads it.
- *   protected readonly t = t
+ *   // The binding's t re-runs the template on a locale switch.
+ *   protected readonly t = useTranslation().t
  *   // The viewer whose invoices these are (also in the key).
  *   readonly viewer = input('anonymous')
  *   // The page to show.
@@ -187,8 +187,8 @@
  *
  * ```typescript
  * import { Component, input } from '@angular/core'
+ * import { useTranslation } from '@molecule/app-angular'
  * import { getClient } from '@molecule/app-http'
- * import { t } from '@molecule/app-i18n'
  * import { getQueryClient } from '@molecule/app-query'
  *
  * // The key names what the document actually depends on — here the signed-in
@@ -222,8 +222,8 @@
  *   host: { type: 'button', '(click)': 'retry()' },
  * })
  * export class FeedRetry {
- *   // Expose the i18n function so every template binding re-reads it.
- *   protected readonly t = t
+ *   // The binding's t re-runs the template on a locale switch.
+ *   protected readonly t = useTranslation().t
  *   readonly principal = input.required<string>()
  *
  *   retry(): void {
@@ -250,8 +250,8 @@
  *
  * ```typescript
  * import { Component, computed, input } from '@angular/core'
+ * import { useTranslation } from '@molecule/app-angular'
  * import { getClient, unwrapList, unwrapSingle } from '@molecule/app-http'
- * import { t } from '@molecule/app-i18n'
  * import { OptimisticToggleButton } from '@molecule/app-ui-angular'
  * import { createQueryResource, QueryContent, useQuery } from '@molecule/app-query-angular'
  *
@@ -287,7 +287,8 @@
  * export class InvoiceFlagControl {
  *   readonly invoice = input.required<Invoice>()
  *   readonly viewer = input.required<string>()
- *   protected readonly t = t
+ *   // The binding's t re-runs the template on a locale switch.
+ *   protected readonly t = useTranslation().t
  *
  *   readonly save = async (flagged: boolean): Promise<boolean> =>
  *     (await invoices.toggle(this.viewer(), this.invoice().id, 'flag', flagged)).flagged
@@ -324,8 +325,8 @@
  *   imports: [QueryContent, InvoiceFlagControl],
  * })
  * export class InvoicePage {
- *   // Expose the i18n function so every template binding re-reads it.
- *   protected readonly t = t
+ *   // The binding's t re-runs the template on a locale switch.
+ *   protected readonly t = useTranslation().t
  *   readonly id = input('')
  *   readonly viewer = input('')
  *

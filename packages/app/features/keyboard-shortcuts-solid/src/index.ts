@@ -13,9 +13,10 @@
  * import { createSignal, onCleanup } from 'solid-js'
  * import { render } from 'solid-js/web'
  * import { useKeyboardShortcut } from '@molecule/app-keyboard-shortcuts-solid'
- * import { t } from '@molecule/app-i18n'
+ * import { useTranslation } from '@molecule/app-solid'
  *
  * function Search() {
+ *   const { t } = useTranslation()
  *   let input!: HTMLInputElement
  *   useKeyboardShortcut('/', () => input.focus(), {
  *     description: t('catalogSearch.focus', undefined, { defaultValue: 'Focus search' }),

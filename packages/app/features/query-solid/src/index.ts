@@ -31,7 +31,7 @@
  * ```tsx
  * import { Match, Show, Switch } from 'solid-js'
  * import { getClient, isHttpError } from '@molecule/app-http'
- * import { t } from '@molecule/app-i18n'
+ * import { useTranslation } from '@molecule/app-solid'
  * import { intentPrefetchProps, useQuery } from '@molecule/app-query-solid'
  *
  * interface PackageDocument {
@@ -64,6 +64,7 @@
  * }
  *
  * function PackagePage(props: { name: string }) {
+ *   const { t } = useTranslation()
  *   // The options are an accessor, so a changed name (route param, input) re-keys
  *   // the observer on the same mounted component, the way React re-renders useQuery.
  *   const query = useQuery(() => packageQuery(props.name))
@@ -183,7 +184,7 @@
  *
  * ```tsx
  * import { getClient } from '@molecule/app-http'
- * import { t } from '@molecule/app-i18n'
+ * import { useTranslation } from '@molecule/app-solid'
  * import { getQueryClient } from '@molecule/app-query'
  *
  * // The key names what the document actually depends on — here the signed-in
@@ -212,6 +213,7 @@
  * }
  *
  * function Retry(props: { principal: string }) {
+ *   const { t } = useTranslation()
  *   return (
  *     <button
  *       onClick={() => {

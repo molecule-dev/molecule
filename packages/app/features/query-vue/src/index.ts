@@ -176,7 +176,7 @@
  * ```ts
  * import { getQueryClient } from '@molecule/app-query'
  * import { getClient } from '@molecule/app-http'
- * import { t } from '@molecule/app-i18n'
+ * import { useTranslation } from '@molecule/app-vue'
  * import { defineComponent, h } from 'vue'
  *
  * // The key names what the document actually depends on — here the signed-in
@@ -207,6 +207,7 @@
  * const Retry = defineComponent({
  *   props: { principal: { type: String, required: true } },
  *   setup(props) {
+ *     const { t } = useTranslation()
  *     return () =>
  *       h(
  *         'button',

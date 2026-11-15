@@ -5,13 +5,34 @@
  * with different i18n libraries (react-i18next, FormatJS, etc.).
  *
  * @example
+ * A component reads `t` from its framework binding's `useTranslation()` (here
+ * `@molecule/app-react`; `-vue`, `-solid`, `-svelte` and `-angular` export the same
+ * hook), so its text changes language at once on a locale switch:
  * ```tsx
+ * import { useTranslation } from '@molecule/app-react'
+ *
+ * function SaveButton() {
+ *   const { t } = useTranslation()
+ *   // ALWAYS pass a defaultValue — it renders immediately as the English text.
+ *   return <button>{t('settings.save', undefined, { defaultValue: 'Save' })}</button>
+ * }
+ * ```
+ *
+ * @example
+ * Code outside a component that produces text once, at the moment it runs (a
+ * notification fired from a handler), calls this package's `t`:
+ * ```ts
  * import { t } from '@molecule/app-i18n'
- * // ALWAYS pass a defaultValue — it renders immediately as the English text.
- * <button>{t('settings.save', undefined, { defaultValue: 'Save' })}</button>
+ *
+ * notify(t('settings.saved', undefined, { defaultValue: 'Settings saved.' }))
  * ```
  *
  * @remarks
+ * Never render this package's `t` inside a component: it does not re-render the
+ * component when the locale changes, so the text stays in the old language. An
+ * error is thrown as an {@link I18nError} (the key, not translated text), so the
+ * component that shows it translates it in the current locale.
+ *
  * Every user-visible string must go through `t()` — never hardcode UI text. And
  * ALWAYS supply `{ defaultValue: 'English text' }`: a bare `t('settings.save')`
  * renders the raw KEY string ("settings.save") in the UI until a translation for
