@@ -503,3 +503,67 @@ describe('audio', () => {
     expect(typeof globalThis.AudioContext).toBe('undefined')
   })
 })
+
+describe('cues steps', () => {
+  /**
+   * A captions line fed by a `<track>`'s text track, the way a player with its
+   * own controls shows captions.
+   *
+   * @param enable - Whether the component sets the track's mode to `hidden`.
+   * @param on - Where it listens: the text track, or the `<track>` element.
+   * @returns The DOM component's builder.
+   */
+  const captions =
+    (enable: boolean, on: 'track' | 'element') =>
+    (container: HTMLElement): (() => void) => {
+      const audio = document.createElement('audio')
+      const el = document.createElement('track')
+      el.setAttribute('kind', 'captions')
+      el.setAttribute('srclang', 'en')
+      audio.appendChild(el)
+      container.appendChild(audio)
+      const p = paragraph(container)
+      const track = el.track
+      if (enable) track.mode = 'hidden'
+      const show = (): void => {
+        const cues = track.activeCues ? Array.from(track.activeCues) : []
+        p.textContent = `${track.language}: [${cues.map((cue) => ('text' in cue ? cue.text : '')).join(' / ')}]`
+      }
+      const target: EventTarget = on === 'track' ? track : el
+      target.addEventListener('cuechange', show)
+      return () => target.removeEventListener('cuechange', show)
+    }
+
+  const steps: UICase = {
+    name: 'captions',
+    interactions: [
+      { type: 'cues', selector: 'track', cues: ['Hello there.'] },
+      { type: 'cues', selector: 'track', cues: ['Two', 'cues'] },
+      { type: 'cues', selector: 'track', cues: [] },
+    ],
+  }
+
+  it('fires cuechange at the text track and at the element, with the active cues', async () => {
+    for (const on of ['track', 'element'] as const) {
+      const { readable } = await run(steps, captions(true, on))
+      expect(readable[1]).toContain('en: [Hello there.]')
+      expect(readable[2]).toContain('en: [Two / cues]')
+      expect(readable[3]).toContain('en: []')
+    }
+  })
+
+  it('reports nothing while the component leaves the track disabled, as a browser does', async () => {
+    const { readable } = await run(steps, captions(false, 'track'))
+    expect(readable[1]).toContain('idle')
+    expect(readable[1]).not.toContain('Hello')
+  })
+
+  it('fails a cues step whose selector is not a <track>', async () => {
+    await expect(
+      run(
+        { name: 'wrong', interactions: [{ type: 'cues', selector: 'p', cues: ['x'] }] },
+        captions(true, 'track'),
+      ),
+    ).rejects.toThrow('matched a <p>, not a <track>')
+  })
+})

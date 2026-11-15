@@ -554,15 +554,119 @@ export function createTransferData(
   }
 }
 
+/** One cue the kit's text track holds: its text only, since time stands still. */
+interface KitCue {
+  readonly text: string
+  readonly startTime: number
+  readonly endTime: number
+}
+
+/**
+ * The text track of a `<track>` element, which jsdom does not implement. It
+ * starts `disabled`, as a browser's captions track without `default` does, and
+ * then reports no cues and fires no `cuechange`: a component that shows the
+ * captions itself has to set `mode` to `hidden` or `showing` first.
+ */
+class KitTextTrack extends EventTarget {
+  mode: 'disabled' | 'hidden' | 'showing' = 'disabled'
+  oncuechange: ((event: Event) => void) | null = null
+  private current: readonly KitCue[] = []
+
+  /**
+   * Creates the text track of one `<track>` element.
+   *
+   * @param element - The `<track>` element the track belongs to.
+   */
+  constructor(private readonly element: HTMLTrackElement) {
+    super()
+  }
+
+  /** The element's `kind` attribute. */
+  get kind(): string {
+    return this.element.getAttribute('kind') ?? 'subtitles'
+  }
+
+  /** The element's `label` attribute. */
+  get label(): string {
+    return this.element.getAttribute('label') ?? ''
+  }
+
+  /** The element's `srclang` attribute. */
+  get language(): string {
+    return this.element.getAttribute('srclang') ?? ''
+  }
+
+  /** The cues showing now, or null while the track is disabled. */
+  get activeCues(): readonly KitCue[] | null {
+    return this.mode === 'disabled' ? null : this.current
+  }
+
+  /** The track's cues, or null while the track is disabled. */
+  get cues(): readonly KitCue[] | null {
+    return this.activeCues
+  }
+
+  /**
+   * Makes these cues the active ones and, unless the track is disabled, fires
+   * `cuechange` at the track and at its element, as the HTML spec has it.
+   *
+   * @param texts - The text of each cue now showing (none: no cue).
+   */
+  reach(texts: string[]): void {
+    this.current = Object.freeze(texts.map((text) => ({ text, startTime: 0, endTime: 0 })))
+    if (this.mode === 'disabled') return
+    const event = new Event('cuechange')
+    this.oncuechange?.(event)
+    this.dispatchEvent(event)
+    this.element.dispatchEvent(new Event('cuechange'))
+  }
+}
+
+/** Each `<track>` element's text track. */
+const textTracks = new WeakMap<HTMLTrackElement, KitTextTrack>()
+
+/**
+ * The text track of a `<track>` element, created on first use.
+ *
+ * @param element - The `<track>` element.
+ * @returns Its text track.
+ */
+function textTrackOf(element: HTMLTrackElement): KitTextTrack {
+  const existing = textTracks.get(element)
+  if (existing) return existing
+  const track = new KitTextTrack(element)
+  textTracks.set(element, track)
+  return track
+}
+
+/**
+ * Shows these cues on a `<track>` element's text track, as a playing media
+ * element does when its position enters or leaves a cue (a `cues` step).
+ *
+ * @param element - The `<track>` element.
+ * @param texts - The text of each cue now showing (none: no cue).
+ */
+export function reachCues(element: HTMLTrackElement, texts: string[]): void {
+  textTrackOf(element).reach(texts)
+}
+
 /** Pointer ids each element captured (`setPointerCapture`). */
 const captures = new WeakMap<Element, Set<number>>()
 
 /**
  * Fills DOM methods jsdom does not implement with ones that do what a page
  * without layout would: pointer capture is tracked, `scrollIntoView` does
- * nothing. Methods jsdom has are left alone.
+ * nothing, a `<track>` element has a text track (`cues` steps drive it).
+ * Methods jsdom has are left alone.
  */
 export function installDomGaps(): void {
+  if (!('track' in HTMLTrackElement.prototype))
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', {
+      configurable: true,
+      get(this: HTMLTrackElement): KitTextTrack {
+        return textTrackOf(this)
+      },
+    })
   const proto = Element.prototype
   if (!('setPointerCapture' in proto))
     Object.defineProperty(proto, 'setPointerCapture', {

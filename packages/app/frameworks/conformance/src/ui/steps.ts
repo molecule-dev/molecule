@@ -524,6 +524,7 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   settle: { callback: 'required', value: 'optional', error: 'optional' },
   navigate: { to: 'required' },
   event: { selector: 'required', event: 'required', bubbles: 'optional' },
+  cues: { selector: 'required', cues: 'required' },
   locale: { locale: 'required' },
   mark: { selector: 'required' },
   http: {

@@ -132,7 +132,9 @@ A case (`UICase`, `src/ui/spec.ts`) is plain data, so every framework reads the 
 
 Interactions: `click`, `dblclick`, `focus`, `blur`, `mouseenter`, `mouseleave`, `pointerdown`,
 `keydown`, `input`, `check`, `submit`, `event` (any DOM event on a selector, `window` or
-`document`), `props` (re-render with new props), `advance` (timers), `settle` (a deferred
+`document`), `cues` (a `<track>` reaches cues with this text, as playback crossing a cue does; its
+text track starts `disabled` and fires `cuechange` only once the component sets `mode` to `hidden`
+or `showing`), `props` (re-render with new props), `advance` (timers), `settle` (a deferred
 callback), `navigate` (the router, from outside), `locale` (`{ type: 'locale', locale: 'en-XA' }`: switches
 the locale, as the hook step of the same name does; besides `en` and `en-XA`, a case may use any locale its
 `context.translations` names, and `fr: {}` alone formats dates and numbers in French), `fetch` (answers the oldest page request

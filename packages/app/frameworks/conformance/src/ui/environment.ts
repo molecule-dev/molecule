@@ -17,7 +17,13 @@ import { iconSet } from '@molecule/app-icons-molecule'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { createTransferData, installDomGaps, setLayoutStubs, type TransferData } from './page.js'
+import {
+  createTransferData,
+  installDomGaps,
+  reachCues,
+  setLayoutStubs,
+  type TransferData,
+} from './page.js'
 import type { ClickModifiers, Interaction, UICase } from './spec.js'
 
 let installed = false
@@ -354,6 +360,15 @@ export function performDomInteraction(step: Interaction): string | undefined {
       eventTarget(step.selector).dispatchEvent(
         new Event(step.event, { bubbles: step.bubbles ?? false, cancelable: true }),
       )
+      return
+    }
+    case 'cues': {
+      const el = query(step.selector)
+      if (!(el instanceof HTMLTrackElement))
+        throw new Error(
+          `cues: "${step.selector}" matched a <${el.tagName.toLowerCase()}>, not a <track>`,
+        )
+      reachCues(el, step.cues)
       return
     }
     case 'pointer': {

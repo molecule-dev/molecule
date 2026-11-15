@@ -214,6 +214,15 @@ export type Interaction =
    */
   | { type: 'event'; selector: string; event: string; bubbles?: boolean }
   /**
+   * The `<track>` element `selector` matches reaches cues with this text (`[]`: none), as
+   * a playing media element does when its position enters or leaves a cue: its text
+   * track's `activeCues` change and `cuechange` fires at the track and at the element.
+   * The track starts `disabled`, as a browser's does without `default`; while it stays
+   * disabled it reports no cues and fires nothing, so a component that shows the captions
+   * itself must set its `mode` to `hidden` or `showing`.
+   */
+  | { type: 'cues'; selector: string; cues: string[] }
+  /**
    * Switches the bonded i18n provider's locale, as a language picker elsewhere in the app
    * would. Translated text must follow at once: React's components re-render through
    * `useTranslation()`.
