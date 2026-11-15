@@ -4,4 +4,9 @@ import type { VideoPlayerTranslations } from './types.js'
 export const pl: Partial<VideoPlayerTranslations> = {
   'video.pause': 'Pauza',
   'video.play': 'Odtwórz',
+  'video.seek': 'Przewijanie',
+  'video.mute': 'Wycisz',
+  'video.unmute': 'Włącz dźwięk',
+  'video.fullscreen': 'Pełny ekran',
+  'video.captions': 'Napisy',
 }

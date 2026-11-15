@@ -4,4 +4,9 @@ import type { VideoPlayerTranslations } from './types.js'
 export const af: Partial<VideoPlayerTranslations> = {
   'video.pause': 'Pouseer',
   'video.play': 'Speel',
+  'video.seek': 'Soek',
+  'video.mute': 'Demp',
+  'video.unmute': 'Ontdemp',
+  'video.fullscreen': 'Volskerm',
+  'video.captions': 'Onderskrifte',
 }

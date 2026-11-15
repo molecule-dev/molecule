@@ -4,4 +4,9 @@ import type { VideoPlayerTranslations } from './types.js'
 export const vi: Partial<VideoPlayerTranslations> = {
   'video.pause': 'Tạm dừng',
   'video.play': 'Phát',
+  'video.seek': 'Tua',
+  'video.mute': 'Tắt tiếng',
+  'video.unmute': 'Bật tiếng',
+  'video.fullscreen': 'Toàn màn hình',
+  'video.captions': 'Phụ đề',
 }

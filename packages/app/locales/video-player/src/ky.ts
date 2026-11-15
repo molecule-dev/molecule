@@ -4,4 +4,9 @@ import type { VideoPlayerTranslations } from './types.js'
 export const ky: Partial<VideoPlayerTranslations> = {
   'video.pause': 'Тыным',
   'video.play': 'Ойнотуу',
+  'video.seek': 'Издөө',
+  'video.mute': 'Үндү өчүрүү',
+  'video.unmute': 'Үндү күйгүзүү',
+  'video.fullscreen': 'Толук экран',
+  'video.captions': 'Субтитрлер',
 }

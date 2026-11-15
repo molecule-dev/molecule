@@ -4,4 +4,9 @@ import type { VideoPlayerTranslations } from './types.js'
 export const ga: Partial<VideoPlayerTranslations> = {
   'video.pause': 'Sos',
   'video.play': 'Seinn',
+  'video.seek': 'Cuardaigh',
+  'video.mute': 'Gan fuaim',
+  'video.unmute': 'Le fuaim',
+  'video.fullscreen': 'Lánscáileán',
+  'video.captions': 'Fotheidil',
 }
