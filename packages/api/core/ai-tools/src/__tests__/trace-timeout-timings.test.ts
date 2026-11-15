@@ -130,7 +130,7 @@ describe('a timed-out attempt’s own server response clocks', () => {
         execFileSync(process.execPath, [script, root], { encoding: 'utf8', timeout: 20000 }),
       )
       expect(items).toHaveLength(1)
-      expect(items[0]!.timeoutTiming?.responseWaitMs).toBeGreaterThan(5000)
+      expect(items[0]!.timeoutTiming?.responseWaitMs ?? 0).toBeGreaterThan(5000)
       expect(items[0]!.timeoutTiming?.slowest[0]).toMatchObject({
         method: 'POST',
         path: '/api/orders',
