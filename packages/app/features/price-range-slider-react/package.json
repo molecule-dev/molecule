@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-price-range-slider-react",
   "version": "4.0.0",
-  "description": "Single- or dual-handle range slider with formatted labels",
+  "description": "Price range slider — two clamped min/max range inputs with formatted labels (low always ≤ high)",
   "homepage": "https://www.molecule.dev/packages/app-price-range-slider-react",
   "type": "module",
   "main": "dist/index.js",

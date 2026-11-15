@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-state",
   "version": "1.2.0",
-  "description": "Client state management interface for molecule.dev",
+  "description": "Global state management with stores",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

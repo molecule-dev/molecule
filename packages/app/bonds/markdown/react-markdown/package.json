@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-markdown-react-markdown",
   "version": "1.0.3",
-  "description": "react-markdown provider for @molecule/app-markdown",
+  "description": "Built-in regex-based markdown renderer for @molecule/app-markdown (sanitized HTML output, no GFM tables)",
   "homepage": "https://www.molecule.dev/packages/app-markdown-react-markdown",
   "type": "module",
   "main": "dist/index.js",

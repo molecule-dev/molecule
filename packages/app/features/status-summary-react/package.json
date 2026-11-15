@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-status-summary-react",
   "version": "4.0.0",
-  "description": "Status-page summary: component grid with operational/degraded/outage badges + incident list",
+  "description": "Status-page summary: component grid with operational/degraded/outage badges",
   "homepage": "https://www.molecule.dev/packages/app-status-summary-react",
   "type": "module",
   "main": "dist/index.js",

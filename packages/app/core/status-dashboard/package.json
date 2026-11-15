@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-status-dashboard",
   "version": "1.0.3",
-  "description": "Status dashboard core interface for molecule.dev",
+  "description": "Status page dashboard interface",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

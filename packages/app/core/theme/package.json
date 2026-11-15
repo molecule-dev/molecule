@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-theme",
   "version": "1.0.4",
-  "description": "Theme interface and utilities for molecule.dev",
+  "description": "Theme system with dark/light mode",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-message-preview-react",
   "version": "4.0.1",
-  "description": "Conversation / thread row with avatar + status dot, name + preview + timestamp + unread pip, active selection state. Extracted from customer-support-chat / ai-customer-service-bot / team-chat.",
+  "description": "Conversation row with avatar + unread pip + presence dot",
   "homepage": "https://www.molecule.dev/packages/app-message-preview-react",
   "type": "module",
   "main": "dist/index.js",

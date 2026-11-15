@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-theme-css-variables-liquid-glass",
   "version": "1.0.3",
-  "description": "Liquid glass theme preset with translucent surfaces for molecule.dev",
+  "description": "Translucent frosted-glass theme preset with CSS custom properties",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

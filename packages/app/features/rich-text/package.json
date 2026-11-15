@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-rich-text",
   "version": "1.0.7",
-  "description": "Rich text editor interface for molecule.dev",
+  "description": "Rich text editing and formatting",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

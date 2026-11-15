@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-reorderable-list-react",
   "version": "4.0.1",
-  "description": "Vertical drag-handle reorder list with onReorder callback",
+  "description": "Vertical drag-handle reorder list with onReorder callback (HTML5 drag — mouse/pointer only, no touch)",
   "homepage": "https://www.molecule.dev/packages/app-reorderable-list-react",
   "type": "module",
   "main": "dist/index.js",

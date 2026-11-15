@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-push-react-native",
   "version": "1.0.6",
-  "description": "React Native push notifications provider for molecule.dev (expo-notifications)",
+  "description": "React Native push notifications provider",
   "homepage": "https://www.molecule.dev/packages/app-push-react-native",
   "type": "module",
   "main": "dist/index.js",

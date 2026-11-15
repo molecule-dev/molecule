@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-video",
   "version": "1.0.3",
-  "description": "Video player interface and utilities for molecule.dev",
+  "description": "Video playback core — provider-swappable player interface with a built-in native HTML5 provider (MP4/WebM/Ogg; HLS/DASH require a custom provider)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

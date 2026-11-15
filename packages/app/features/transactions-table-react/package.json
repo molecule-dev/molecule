@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-transactions-table-react",
   "version": "4.0.1",
-  "description": "Financial transactions table: date / description+icon / category chip / account / signed amount columns. Loading skeleton, error state, empty state. Extracted from personal-finance TransactionsTable.",
+  "description": "Finance ledger table with loading/error/empty states",
   "homepage": "https://www.molecule.dev/packages/app-transactions-table-react",
   "type": "module",
   "main": "dist/index.js",

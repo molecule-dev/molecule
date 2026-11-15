@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-styling-tailwind",
   "version": "1.0.5",
-  "description": "Tailwind CSS styling utilities for molecule.dev",
+  "description": "Utility-first CSS with cn() and cva()",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

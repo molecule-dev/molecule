@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-notifications-page-react",
   "version": "4.0.0",
-  "description": "Drop-in /notifications page composing notification-feed/center primitives — header, filter chips, paginated list, mark-all-read action, empty state. Wires to api-resource-notification via the HTTP bond.",
+  "description": "Drop-in Notifications page composing notification-feed/center components — header, filters, mark-all-read, paginated list, empty state.",
   "homepage": "https://www.molecule.dev/packages/app-notifications-page-react",
   "type": "module",
   "main": "dist/index.js",

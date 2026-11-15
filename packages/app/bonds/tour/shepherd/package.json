@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-tour-shepherd",
   "version": "1.0.4",
-  "description": "Shepherd.js provider for @molecule/app-tour",
+  "description": "Shepherd.js tour provider for @molecule/app-tour — renders real step tooltips, highlight, and modal overlay",
   "homepage": "https://www.molecule.dev/packages/app-tour-shepherd",
   "type": "module",
   "main": "dist/index.js",

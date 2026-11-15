@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-maps",
   "version": "1.0.4",
-  "description": "Map interface and utilities for molecule.dev",
+  "description": "Map provider contract (markers, overlays, viewport, events) with a built-in placeholder provider — bring your own map SDK provider",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

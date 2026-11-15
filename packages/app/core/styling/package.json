@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-styling",
   "version": "1.0.6",
-  "description": "Styling interface and utilities for molecule.dev",
+  "description": "Framework-agnostic class name merging, variant generation, and theme conversion",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

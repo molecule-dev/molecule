@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-status-dashboard-http",
   "version": "1.0.3",
-  "description": "HTTP status dashboard provider implementation",
+  "description": "HTTP status dashboard provider",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

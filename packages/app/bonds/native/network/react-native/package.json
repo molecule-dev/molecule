@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-network-react-native",
   "version": "1.0.5",
-  "description": "React Native network status provider for molecule.dev (@react-native-community/netinfo)",
+  "description": "React Native network status provider",
   "homepage": "https://www.molecule.dev/packages/app-network-react-native",
   "type": "module",
   "main": "dist/index.js",

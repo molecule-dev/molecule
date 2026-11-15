@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-maps-leaflet",
   "version": "1.0.4",
-  "description": "Leaflet (OpenStreetMap) provider for @molecule/app-maps",
+  "description": "Leaflet + OpenStreetMap provider for @molecule/app-maps — renders real slippy maps with markers/popups/overlays, no API key (the built-in default draws a grey placeholder)",
   "homepage": "https://www.molecule.dev/packages/app-maps-leaflet",
   "type": "module",
   "main": "dist/index.js",

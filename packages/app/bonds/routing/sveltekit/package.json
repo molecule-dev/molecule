@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-routing-sveltekit",
   "version": "1.0.0",
-  "description": "SvelteKit provider for @molecule/app-routing",
+  "description": "SvelteKit client router provider for @molecule/app-routing",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-video-hls",
   "version": "1.0.3",
-  "description": "hls.js provider for @molecule/app-video — HLS (.m3u8) streaming in every browser",
+  "description": "hls.js provider for @molecule/app-video — plays HLS (.m3u8) streams in every browser with adaptive bitrate (the built-in HTML5 default only plays HLS in Safari)",
   "homepage": "https://www.molecule.dev/packages/app-video-hls",
   "type": "module",
   "main": "dist/index.js",

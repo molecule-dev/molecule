@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-status-bar-react-native",
   "version": "1.0.5",
-  "description": "React Native status bar provider for molecule.dev (StatusBar API)",
+  "description": "React Native status bar provider",
   "homepage": "https://www.molecule.dev/packages/app-status-bar-react-native",
   "type": "module",
   "main": "dist/index.js",
