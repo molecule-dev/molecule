@@ -1,7 +1,8 @@
 // The directories code search skips by default exist twice: `@molecule/api-ai-tools` applies them to
-// every search server-side, and `@molecule/app-ide-react` shows them in the search panel when the
-// host passes none. App packages cannot import API packages, so the list is duplicated; this test
-// fails when the two copies differ, so the panel never shows a set the server does not apply.
+// every search server-side, and `@molecule/app-ide-panel-logic` (re-exported by
+// `@molecule/app-ide-react`) shows them in the search panel when the host passes none. App packages
+// cannot import API packages, so the list is duplicated; this test fails when the two copies differ,
+// so the panel never shows a set the server does not apply.
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -10,7 +11,7 @@ import { describe, expect, it } from 'vitest'
 
 const PACKAGES = join(dirname(fileURLToPath(import.meta.url)), '../../packages')
 const API = join(PACKAGES, 'api/core/ai-tools/src/utilities.ts')
-const APP = join(PACKAGES, 'app/features/ide-react/src/components/search-utilities.ts')
+const APP = join(PACKAGES, 'app/features/ide-panel-logic/src/components/search-utilities.ts')
 
 /**
  * The string entries of `export const DEFAULT_SEARCH_EXCLUDED_DIRS = [...] as const` in a source file.
