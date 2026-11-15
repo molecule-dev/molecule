@@ -135,9 +135,11 @@
  *   names with `onLoad` to keep them available across turns and compaction.
  * - **Sandbox writes batch transport work.** The optional backend operations
  *   `readFileForUpdate` and `writeFileAndCheck` combine path safety with the old-text
- *   read, then the write with its parse check. Diff tracking and redaction checks
- *   stay in the tools. Format and change hooks retain their ordering before parsing;
- *   large files and backends without these operations use the native file APIs.
+ *   read, then the write with its parse check; `replaceFileAndCheck` does all of it for
+ *   `write_file` in one command, refusing a path outside the root before writing. Diff
+ *   tracking and redaction checks stay in the tools. Format and change hooks retain their
+ *   ordering before parsing; large files and backends without these operations use the
+ *   native file APIs. A host that overrides `readFile` or `writeFile` turns these off.
  *   Hosts that validate/compose background shell scripts use `prepareBackgroundScript`
  *   instead of overriding the backend's ordinary `writeFile`: it runs after the script
  *   is written and before launch, and a rejection prevents the command from starting.

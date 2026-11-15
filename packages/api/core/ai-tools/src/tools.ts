@@ -1344,6 +1344,9 @@ function batchFailureError(
  */
 const SANDBOX_STARTING_BACKOFF_MS: readonly number[] = [300, 800, 1_500]
 
+/** The refusal for a file path that resolves outside the project root (a symlink). */
+const OUTSIDE_WORKSPACE_ERROR = 'Access denied: path resolves outside the project workspace'
+
 /**
  * Whether an error from the sandbox's command channel says the sandbox is still
  * STARTING rather than gone for good.
@@ -1634,7 +1637,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           realPath !== root &&
           !realPath.startsWith(root === '/' ? '/' : root + '/')
         ) {
-          return 'Access denied: path resolves outside the project workspace'
+          return OUTSIDE_WORKSPACE_ERROR
         }
         return null
       } catch (error) {
@@ -1689,6 +1692,39 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // No safety check was requested; a failed optimization leaves the native read in charge.
     }
     return { error: null, content }
+  }
+
+  /**
+   * write_file's guard, previous-text read, write and parse check in one sandbox call, when the
+   * backend offers it and nothing has to run between those steps: no after-write hook (a
+   * formatter rewrites the file before the check) and no redaction mask in the new text (that
+   * refusal needs the previous text before anything is written).
+   *
+   * @param path - The resolved target path.
+   * @param content - The whole new text.
+   * @param maskAllowed - The call declared a redaction placeholder intentional.
+   * @returns The backend's answer, or null for the guarded two-call path.
+   */
+  async function replaceInOneCall(
+    path: string,
+    content: string,
+    maskAllowed: boolean,
+  ): Promise<Awaited<ReturnType<NonNullable<ExecutionBackend['replaceFileAndCheck']>>>> {
+    if (!backend.replaceFileAndCheck || onAfterWrite) return null
+    if (doRedact && !maskAllowed && addedRedactionMask(content, '') !== null) return null
+    try {
+      return await backend.replaceFileAndCheck(
+        path,
+        content,
+        parseCheckCommand(path),
+        symlinkGuards ? root : undefined,
+      )
+    } catch (error) {
+      // A channel that is still attaching ran nothing; the guarded path retries it. Any other
+      // failure may have come after the write landed, and a write is never replayed.
+      if (sandboxStillStarting(error)) return null
+      throw error
+    }
   }
 
   /**
@@ -2426,25 +2462,40 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         return {
           error: `Content too large (${Math.round(content.length / 1024)}KB). Maximum is ${MAX_WRITE_SIZE / 1024 / 1024}MB.`,
         }
-      const before = await readBeforeWrite(path)
+      const maskAllowed = input.intentional_redaction_placeholder === true
+      let oneCall: Awaited<ReturnType<typeof replaceInOneCall>>
+      try {
+        oneCall = await replaceInOneCall(path, content, maskAllowed)
+      } catch (e: unknown) {
+        return { error: `Failed to write ${path}: ${(e as Error).message}` }
+      }
+      if (oneCall?.refused) return { error: OUTSIDE_WORKSPACE_ERROR }
+      const before = oneCall ? { error: null } : await readBeforeWrite(path)
       if (before.error) return { error: before.error }
       try {
         let oldContent: string | null = null
-        try {
-          oldContent = before.content !== undefined ? before.content : await backend.readFile(path)
-        } catch (_error) {
-          /* file doesn't exist yet — oldContent stays null */
-        }
+        if (oneCall) oldContent = oneCall.oldContent
+        else
+          try {
+            oldContent =
+              'content' in before && before.content !== undefined
+                ? before.content
+                : await backend.readFile(path)
+          } catch (_error) {
+            /* file doesn't exist yet — oldContent stays null */
+          }
         // A mask the output filter produced is not a value: refuse writing a NEW one into the
         // project, while allowing a file that already carries one to be rewritten unchanged.
-        if (doRedact && input.intentional_redaction_placeholder !== true) {
+        // (The one-call form is taken only for text that carries no mask at all.)
+        if (!oneCall && doRedact && !maskAllowed) {
           const mask = addedRedactionMask(content, oldContent ?? '')
           if (mask !== null) return { error: redactionMaskError(path, mask) }
         }
 
+        // The one-call form has already written: the diff is reported as soon as it is known.
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
 
-        const checked = await writeAndCheck(path, content)
+        const checked = oneCall ? oneCall.check : await writeAndCheck(path, content)
         // The after-write hook (a formatter) is best-effort on top of a
         // successful write; its failure must not fail the write.
         if (onAfterWrite) await onAfterWrite(path).catch((_error) => {})

@@ -15,6 +15,31 @@ const READ_SCRIPT = `const fs=require('fs'),cp=require('child_process');const p=
 
 const WRITE_SCRIPT = `const fs=require('fs'),cp=require('child_process'),path=require('path');const r=JSON.parse(Buffer.from(process.argv[1],'base64').toString('utf8'));try{fs.mkdirSync(path.dirname(r.path),{recursive:true});fs.writeFileSync(r.path,r.content,'utf8')}catch(e){process.stdout.write('MOL_FILE_NOT_WRITTEN\\n');process.exit(1)}process.stdout.write('MOL_FILE_WRITTEN\\n');const c=cp.spawnSync('sh',['-c',r.command],{cwd:path.dirname(r.path),encoding:'utf8',timeout:15000,maxBuffer:10*1024*1024});process.stdout.write(JSON.stringify({stdout:c.stdout||'',stderr:c.stderr||'',exitCode:c.status??1}))`
 
+const REFUSED_MARK = 'MOL_FILE_REFUSED\n'
+
+// write_file's guard, old-text read, write and parse in one process (X1 write-roundtrips: two
+// sandbox calls and four processes per write were 0.7–1.0 s; one call is 0.3–0.5 s). The path check
+// is the guard's own: `readlink -f`, else the path, refused when it resolves outside the root. The
+// old text must arrive whole BEFORE anything is written: a file whose text does not fit the
+// envelope, has a BOM or cannot be read is left untouched and the caller takes the native path.
+const REPLACE_SCRIPT = `const fs=require('fs'),cp=require('child_process'),path=require('path');const r=JSON.parse(Buffer.from(process.argv[1],'base64').toString('utf8'));const p=r.path,root=r.root;let realPath='';if(root){const x=cp.spawnSync('readlink',['-f',p],{encoding:'utf8'});realPath=(x.status===0?x.stdout:p).trim()}if(root&&realPath&&realPath!==root&&!realPath.startsWith(root==='/'?'/':root+'/')){process.stdout.write('MOL_FILE_REFUSED\\n'+JSON.stringify({realPath}));process.exit(0)}let old;try{if(fs.statSync(p).size<=${MAX_ENVELOPE - 2_000}){const t=fs.readFileSync(p,'utf8');if(t.charCodeAt(0)!==65279&&Buffer.byteLength(JSON.stringify({realPath,oldContent:t}))<=${MAX_ENVELOPE - 2_000})old=t}}catch(e){if(e.code==='ENOENT'||e.code==='ENOTDIR')old=null}if(old===undefined){process.stdout.write('MOL_FILE_NOT_WRITTEN\\n');process.exit(0)}try{fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,r.content,'utf8')}catch(e){process.stdout.write('MOL_FILE_NOT_WRITTEN\\n');process.exit(1)}process.stdout.write('MOL_FILE_WRITTEN\\n'+JSON.stringify({realPath,oldContent:old})+'\\n');if(r.command){const c=cp.spawnSync('sh',['-c',r.command],{cwd:path.dirname(p),encoding:'utf8',timeout:15000,maxBuffer:10*1024*1024});process.stdout.write(JSON.stringify({stdout:c.stdout||'',stderr:c.stderr||'',exitCode:c.status??1}))}`
+
+/** A check result as the parse command printed it, or null when it is missing or cut. */
+function parseCheck(text: string): { stdout: string; stderr: string; exitCode: number } | null {
+  try {
+    const check = JSON.parse(text) as { stdout: unknown; stderr: unknown; exitCode: unknown }
+    if (
+      typeof check.stdout === 'string' &&
+      typeof check.stderr === 'string' &&
+      typeof check.exitCode === 'number'
+    )
+      return { stdout: check.stdout, stderr: check.stderr, exitCode: check.exitCode }
+  } catch (_error) {
+    // A truncated envelope after an acknowledged write: the caller reruns only the check.
+  }
+  return null
+}
+
 /**
  * Batch sandbox filesystem work through the backend's current command wrapper.
  * Keeping `this.run` preserves a host's environment and module-resolution prelude.
@@ -24,10 +49,70 @@ const WRITE_SCRIPT = `const fs=require('fs'),cp=require('child_process'),path=re
  */
 export function sandboxFileOperations(
   native: Pick<ExecutionBackend, 'readFile' | 'writeFile'>,
-): Pick<ExecutionBackend, 'readFileForUpdate' | 'writeFileAndCheck'> {
+): Pick<ExecutionBackend, 'readFileForUpdate' | 'writeFileAndCheck' | 'replaceFileAndCheck'> {
   let supported = false
   const { readFile, writeFile } = native
   return {
+    async replaceFileAndCheck(this: ExecutionBackend, path, content, command, symlinkRoot) {
+      // Relative paths and host file wrappers keep the native APIs, as for the two-call form.
+      if (!path.startsWith('/') || this.readFile !== readFile || this.writeFile !== writeFile)
+        return null
+      const request = Buffer.from(
+        JSON.stringify({ path, content, command, root: symlinkRoot ?? '' }),
+      ).toString('base64')
+      if (request.length > MAX_ENVELOPE) return null
+      const result = await this.run(
+        `node -e ${shellQuote(REPLACE_SCRIPT)} ${shellQuote(request)}`,
+        {
+          cwd: this.projectRoot,
+          timeout: 20_000,
+        },
+      )
+      if (result.stdout.startsWith(REFUSED_MARK)) {
+        try {
+          const body = JSON.parse(result.stdout.slice(REFUSED_MARK.length)) as {
+            realPath?: unknown
+          }
+          if (typeof body.realPath === 'string') return { realPath: body.realPath, refused: true }
+        } catch (_error) {
+          // A cut refusal still wrote nothing; the guard's own path decides with its own read.
+        }
+        return null
+      }
+      if (!result.stdout.startsWith(WRITE_MARK)) {
+        // Nothing was written: no Node, a file too large for the envelope, or a filesystem
+        // error the native API reports in its own words.
+        if (
+          result.stdout.startsWith(NO_WRITE_MARK) ||
+          (result.exitCode === 127 && /node.*not found/.test(result.stderr))
+        )
+          return null
+        throw new Error(
+          'Sandbox file write returned no completion acknowledgement; not retrying an uncertain write',
+        )
+      }
+      const rest = result.stdout.slice(WRITE_MARK.length)
+      const newline = rest.indexOf('\n')
+      let head: { realPath?: unknown; oldContent?: unknown } = {}
+      try {
+        head = JSON.parse(newline === -1 ? rest : rest.slice(0, newline)) as typeof head
+      } catch (_error) {
+        // Handled below: without the old text the result's diff cannot be told.
+      }
+      if (
+        typeof head.realPath !== 'string' ||
+        !(typeof head.oldContent === 'string' || head.oldContent === null)
+      )
+        throw new Error(
+          'Sandbox file write was acknowledged without its previous text; not retrying an uncertain write',
+        )
+      return {
+        realPath: head.realPath,
+        oldContent: head.oldContent,
+        check: command && newline !== -1 ? parseCheck(rest.slice(newline + 1)) : null,
+      }
+    },
+
     async readFileForUpdate(this: ExecutionBackend, path, symlinkRoot) {
       const q = shellQuote(path)
       // The native API may resolve relative paths against a different base than exec.
@@ -89,22 +174,10 @@ export function sandboxFileOperations(
           'Sandbox file write returned no completion acknowledgement; not retrying an uncertain write',
         )
       }
-      try {
-        const check = JSON.parse(result.stdout.slice(WRITE_MARK.length)) as {
-          stdout: string
-          stderr: string
-          exitCode: number
-        }
-        if (
-          typeof check.stdout === 'string' &&
-          typeof check.stderr === 'string' &&
-          typeof check.exitCode === 'number'
-        )
-          return check
-      } catch (_error) {
-        // The write succeeded, but its check output was truncated. Recheck only;
-        // never replay an acknowledged write or a failed transport.
-      }
+      const check = parseCheck(result.stdout.slice(WRITE_MARK.length))
+      if (check) return check
+      // The write succeeded, but its check output was truncated. Recheck only;
+      // never replay an acknowledged write or a failed transport.
       return this.run(command, {
         cwd: path.slice(0, path.lastIndexOf('/')) || '/',
         timeout: 15_000,

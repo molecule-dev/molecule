@@ -57,6 +57,7 @@ async function fixture(latency = 0) {
   const legacy: ExecutionBackend = { ...backend }
   delete legacy.readFileForUpdate
   delete legacy.writeFileAndCheck
+  delete legacy.replaceFileAndCheck
   const tool = (name: string, fast = true, config: ToolBuildConfig = {}) =>
     buildTools(fast ? backend : legacy, { symlinkGuards: true, ...config }).find(
       (t) => t.name === name,
@@ -72,32 +73,38 @@ describe('write/edit sandbox round trips and exact results', () => {
     // switch the batched transport off, so every production write paid a third round trip.
     ['write_file', 'a change notification'],
     ['edit_file', 'a change notification'],
-  ] as const)('%s uses two calls instead of four with %s', async (name, config) => {
-    const f = await fixture(100)
-    const path = join(f.root, 'invoice.json')
-    const input =
-      name === 'write_file'
-        ? { path, content: '{"paid":true}\n' }
-        : { path, old_string: 'false', new_string: 'true' }
-    const callbacks: ToolBuildConfig =
-      config === 'a change notification' ? { onFileChange: () => undefined } : {}
-    await writeFile(path, '{"paid":false}\n')
-    const start = performance.now()
-    const bad = await f.tool(name, false, callbacks).execute(input)
-    const legacyMs = performance.now() - start
-    const oldCalls = f.calls.splice(0)
-    expect(oldCalls.map((c) => c.kind)).toEqual(['exec', 'read', 'write', 'exec'])
-    await writeFile(path, '{"paid":false}\n')
-    const fastStart = performance.now()
-    const good = await f.tool(name, true, callbacks).execute(input)
-    const fastMs = performance.now() - fastStart
-    expect(good).toEqual(bad)
-    expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
-    if (process.env.WRITE_ROUNDTRIP_REPORT === '1')
-      console.log(
-        JSON.stringify({ name, latencyMs: 100, legacyMs, fastMs, oldCalls, calls: f.calls }),
+  ] as const)(
+    '%s uses fewer calls than the four of the native path with %s',
+    async (name, config) => {
+      const f = await fixture(100)
+      const path = join(f.root, 'invoice.json')
+      const input =
+        name === 'write_file'
+          ? { path, content: '{"paid":true}\n' }
+          : { path, old_string: 'false', new_string: 'true' }
+      const callbacks: ToolBuildConfig =
+        config === 'a change notification' ? { onFileChange: () => undefined } : {}
+      await writeFile(path, '{"paid":false}\n')
+      const start = performance.now()
+      const bad = await f.tool(name, false, callbacks).execute(input)
+      const legacyMs = performance.now() - start
+      const oldCalls = f.calls.splice(0)
+      expect(oldCalls.map((c) => c.kind)).toEqual(['exec', 'read', 'write', 'exec'])
+      await writeFile(path, '{"paid":false}\n')
+      const fastStart = performance.now()
+      const good = await f.tool(name, true, callbacks).execute(input)
+      const fastMs = performance.now() - fastStart
+      expect(good).toEqual(bad)
+      // write_file guards, reads, writes and parses in one call; edit_file needs the text first.
+      expect(f.calls.map((c) => c.kind)).toEqual(
+        name === 'write_file' ? ['exec'] : ['exec', 'exec'],
       )
-  })
+      if (process.env.WRITE_ROUNDTRIP_REPORT === '1')
+        console.log(
+          JSON.stringify({ name, latencyMs: 100, legacyMs, fastMs, oldCalls, calls: f.calls }),
+        )
+    },
+  )
 
   it.each([
     ['write_file', 'created', null, '{"amount":12}\n'],
@@ -135,7 +142,13 @@ describe('write/edit sandbox round trips and exact results', () => {
     expect(await run(true)).toEqual(legacy)
     if (kind === 'syntax') expect(legacy.json).toContain('syntaxError')
     if (kind === 'redaction') expect(legacy.json).toContain('Refused:')
-    if (kind === 'created') expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
+    if (kind === 'created')
+      expect(f.calls.map((c) => c.kind)).toEqual(
+        name === 'write_file' ? ['exec'] : ['exec', 'exec'],
+      )
+    // Text carrying a mask takes the guarded path, whose refusal reads the previous text first.
+    if (kind === 'redaction' && name === 'write_file')
+      expect(f.calls.map((c) => c.kind)).toEqual(['exec'])
   })
 
   it.each(['write_file', 'edit_file'])(
@@ -186,7 +199,9 @@ describe('write/edit sandbox round trips and exact results', () => {
         .execute({ path, content: '{"amount":12}', old_string: '10', new_string: '12' })
       expect(seen).toEqual(['{"amount":12}' + (name === 'edit_file' ? '\n' : '')])
       expect(result).not.toHaveProperty('syntaxError')
-      expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
+      expect(f.calls.map((c) => c.kind)).toEqual(
+        name === 'write_file' ? ['exec'] : ['exec', 'exec'],
+      )
       // A hook that changes the file it was told about is `onAfterWrite`: awaited, then checked.
       await writeFile(path, '{"amount":10}\n')
       const formatted = await f
@@ -244,7 +259,7 @@ describe('write/edit sandbox round trips and exact results', () => {
     expect(await f.tool('write_file').execute({ path, content: '{"paid":true}' })).toMatchObject({
       error: expect.stringContaining('transport disconnected'),
     })
-    expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
+    expect(f.calls.map((c) => c.kind)).toEqual(['exec'])
     expect(await readFile(path, 'utf8')).toBe('{"paid":true}')
   })
 
@@ -255,14 +270,95 @@ describe('write/edit sandbox round trips and exact results', () => {
     const run = f.backend.run
     f.backend.run = async (command, opts) => {
       const result = await run(command, opts)
+      if (!result.stdout.startsWith('MOL_FILE_WRITTEN\n')) return result
+      // The one-call form prints its previous-text line first; only the check after it is cut.
+      const head = result.stdout.indexOf('\n', 'MOL_FILE_WRITTEN\n'.length)
+      return { ...result, stdout: result.stdout.slice(0, head + 1) + '{"stderr":' }
+    }
+    const events: unknown[] = []
+    expect(
+      await f
+        .tool('write_file', true, { onFileDiff: (e) => events.push(e) })
+        .execute({ path, content: '{"paid":}' }),
+    ).toHaveProperty('syntaxError')
+    expect(events).toMatchObject([{ oldContent: '{}', newContent: '{"paid":}' }])
+    expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
+  })
+
+  it('rechecks a truncated two-call parse envelope without repeating its write', async () => {
+    const f = await fixture()
+    const path = join(f.root, 'invoice.json')
+    await writeFile(path, '{"amount":10}')
+    const run = f.backend.run
+    f.backend.run = async (command, opts) => {
+      const result = await run(command, opts)
       return result.stdout.startsWith('MOL_FILE_WRITTEN')
         ? { ...result, stdout: 'MOL_FILE_WRITTEN\n{"stderr":' }
         : result
     }
-    expect(await f.tool('write_file').execute({ path, content: '{"paid":}' })).toHaveProperty(
-      'syntaxError',
-    )
+    expect(
+      await f.tool('edit_file').execute({ path, old_string: '10', new_string: '' }),
+    ).toHaveProperty('syntaxError')
     expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec', 'exec'])
+  })
+
+  it('refuses a one-call write acknowledged without its previous text', async () => {
+    const f = await fixture()
+    const path = join(f.root, 'invoice.json')
+    await writeFile(path, '{}')
+    const run = f.backend.run
+    f.backend.run = async (command, opts) => {
+      const result = await run(command, opts)
+      return result.stdout.startsWith('MOL_FILE_WRITTEN')
+        ? { ...result, stdout: 'MOL_FILE_WRITTEN\n{"realPath":' }
+        : result
+    }
+    expect(await f.tool('write_file').execute({ path, content: '{"paid":true}' })).toMatchObject({
+      error: expect.stringContaining('not retrying an uncertain write'),
+    })
+    expect(f.calls.map((c) => c.kind)).toEqual(['exec'])
+  })
+
+  it('never overwrites a file whose previous text does not fit one call', async () => {
+    const f = await fixture()
+    const path = join(f.root, 'catalog.json')
+    const old = JSON.stringify({ items: 'x'.repeat(30_000) })
+    const run = async (fast: boolean) => {
+      await writeFile(path, old)
+      const events: unknown[] = []
+      const result = await f
+        .tool('write_file', fast, { onFileDiff: (e) => events.push(e) })
+        .execute({ path, content: '{"items":""}\n' })
+      return { result, events, text: await readFile(path, 'utf8') }
+    }
+    const legacy = await run(false)
+    f.calls.splice(0)
+    expect(await run(true)).toEqual(legacy)
+    expect(legacy.events).toMatchObject([{ oldContent: old }])
+    // The one call wrote nothing; the guarded path then reads the large text natively.
+    expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec', 'read', 'exec'])
+  })
+
+  it('falls back to the guarded path while the sandbox channel is still attaching', async () => {
+    const f = await fixture()
+    const path = join(f.root, 'invoice.json')
+    await writeFile(path, '{"paid":false}')
+    const run = f.backend.run
+    let starting = true
+    f.backend.run = async (command, opts) => {
+      if (starting) {
+        starting = false
+        throw Object.assign(new Error('Sandbox is probably not running anymore'), {
+          name: 'SandboxNotFoundError',
+        })
+      }
+      return run(command, opts)
+    }
+    expect(await f.tool('write_file').execute({ path, content: '{"paid":true}' })).toMatchObject({
+      ok: true,
+    })
+    expect(await readFile(path, 'utf8')).toBe('{"paid":true}')
+    expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
   })
 
   it('does not replay an unacknowledged write with a successful exit code', async () => {
@@ -277,7 +373,7 @@ describe('write/edit sandbox round trips and exact results', () => {
     expect(await f.tool('write_file').execute({ path, content: '{"paid":true}' })).toMatchObject({
       error: expect.stringContaining('not retrying an uncertain write'),
     })
-    expect(f.calls.map((c) => c.kind)).toEqual(['exec', 'exec'])
+    expect(f.calls.map((c) => c.kind)).toEqual(['exec'])
     expect(await readFile(path, 'utf8')).toBe('{"paid":true}')
   })
 
@@ -378,6 +474,7 @@ describe('write/edit sandbox round trips and exact results', () => {
     // A file API's relative base need not equal the command channel's cwd.
     expect(await f.backend.readFileForUpdate!('invoice.json')).toEqual({ realPath: '' })
     expect(await f.backend.writeFileAndCheck!('invoice.json', '{}', 'true')).toBeNull()
+    expect(await f.backend.replaceFileAndCheck!('invoice.json', '{}', 'true', f.root)).toBeNull()
     expect(await readFile(path, 'utf8')).toBe('{"amount":10}\n')
   })
 
@@ -387,6 +484,7 @@ describe('write/edit sandbox round trips and exact results', () => {
     const backend = createSandboxBackend(files, f.root)
     expect(backend.readFileForUpdate).toBeUndefined()
     expect(backend.writeFileAndCheck).toBeUndefined()
+    expect(backend.replaceFileAndCheck).toBeUndefined()
     const tool = buildTools(backend).find((t) => t.name === 'write_file')!
     expect(await tool.execute({ path: 'notes.md', content: 'Invoice paid\n' })).toMatchObject({
       ok: true,

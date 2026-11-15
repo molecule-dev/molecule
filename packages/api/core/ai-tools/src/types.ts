@@ -51,6 +51,31 @@ export interface ExecutionBackend {
     command: string,
   ): Promise<{ stdout: string; stderr: string; exitCode: number } | null>
 
+  /**
+   * Optional whole-file replacement in ONE transport call: resolve `path`, refuse it when it
+   * resolves outside `symlinkRoot` (nothing written), read the previous text, write, then run
+   * `command` (the parse check) when one is given.
+   * Null means nothing was written (unsupported, a file whose text does not fit, a host
+   * file wrapper); the caller then uses readFileForUpdate/writeFileAndCheck or the native APIs.
+   * `check` is null when there is no command or its output was cut: the caller reruns the check.
+   * Never retry a transport error: the write may have landed.
+   */
+  replaceFileAndCheck?(
+    path: string,
+    content: string,
+    command: string | null,
+    symlinkRoot?: string,
+  ): Promise<
+    | { realPath: string; refused: true }
+    | {
+        realPath: string
+        refused?: false
+        oldContent: string | null
+        check: { stdout: string; stderr: string; exitCode: number } | null
+      }
+    | null
+  >
+
   /** Delete a file. */
   deleteFile(path: string): Promise<void>
 
