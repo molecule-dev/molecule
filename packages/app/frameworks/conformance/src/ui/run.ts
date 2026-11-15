@@ -152,6 +152,14 @@ export const onlyFromEnv = (name: string): string[] | null =>
         .filter(Boolean)
     : null
 
+/**
+ * How long one conformance case may take, whatever the package's own `testTimeout`. A case
+ * mounts, steps and serializes in a second or two, but the first case in a file also pays
+ * the framework's compile and module warm-up: Angular's took over 10 s on a loaded machine,
+ * so the packages' 10 s default failed cases that matched. A case that hangs still fails.
+ */
+export const CONFORMANCE_CASE_TIMEOUT_MS = 60_000
+
 /** One reference package's cases and goldens, as {@link runCaseSuite} compares them. */
 export interface CaseSuite {
   /** The describe title (`vue UI conformance`). */
@@ -218,46 +226,51 @@ export function runCaseSuite(suite: CaseSuite, adapter: FrameworkAdapter, gaps: 
         })
         for (const testCase of family.cases) {
           const gap = exportGap || (gaps[family.component]?.includes(testCase.name) ?? false)
-          ;(gap ? it.fails : it)(testCase.name, async () => {
-            const expected = suite.goldens[family.component]?.[testCase.name]
-            if (!expected) {
-              throw new Error(
-                `no golden for ${family.component} / ${testCase.name}: record them in @molecule/app-framework-conformance`,
-              )
-            }
-            if (!adapter.has(family.component))
-              throw new Error(`${adapter.name} does not export ${family.component}`)
-            const actual = await adapter.run(
-              family.component,
-              testCase,
-              suite.app ? { app: suite.app } : undefined,
-            )
-            if (actual.pages) {
-              writePixelCapture(adapter.name, {
-                reference: suite.reference,
-                component: family.component,
-                case: testCase.name,
-                pages: actual.pages,
-              })
-            }
-            const readableExpected = suite.readable?.[family.component]?.[testCase.name]?.snapshots
-            for (let i = 0; i < expected.snapshots.length; i++) {
-              const step =
-                i === 0
-                  ? 'after mount'
-                  : `after step ${i} (${testCase.interactions?.[i - 1]?.type})`
-              if (
-                readableExpected &&
-                actual.readable &&
-                actual.snapshots[i] !== expected.snapshots[i]
-              ) {
-                // Real class names on both sides make the diff readable.
-                expect(actual.readable[i], step).toBe(readableExpected[i])
+          ;(gap ? it.fails : it)(
+            testCase.name,
+            async () => {
+              const expected = suite.goldens[family.component]?.[testCase.name]
+              if (!expected) {
+                throw new Error(
+                  `no golden for ${family.component} / ${testCase.name}: record them in @molecule/app-framework-conformance`,
+                )
               }
-              expect(actual.snapshots[i], step).toBe(expected.snapshots[i])
-            }
-            expect(actual.calls, 'callback and service calls').toEqual(expected.calls)
-          })
+              if (!adapter.has(family.component))
+                throw new Error(`${adapter.name} does not export ${family.component}`)
+              const actual = await adapter.run(
+                family.component,
+                testCase,
+                suite.app ? { app: suite.app } : undefined,
+              )
+              if (actual.pages) {
+                writePixelCapture(adapter.name, {
+                  reference: suite.reference,
+                  component: family.component,
+                  case: testCase.name,
+                  pages: actual.pages,
+                })
+              }
+              const readableExpected =
+                suite.readable?.[family.component]?.[testCase.name]?.snapshots
+              for (let i = 0; i < expected.snapshots.length; i++) {
+                const step =
+                  i === 0
+                    ? 'after mount'
+                    : `after step ${i} (${testCase.interactions?.[i - 1]?.type})`
+                if (
+                  readableExpected &&
+                  actual.readable &&
+                  actual.snapshots[i] !== expected.snapshots[i]
+                ) {
+                  // Real class names on both sides make the diff readable.
+                  expect(actual.readable[i], step).toBe(readableExpected[i])
+                }
+                expect(actual.snapshots[i], step).toBe(expected.snapshots[i])
+              }
+              expect(actual.calls, 'callback and service calls').toEqual(expected.calls)
+            },
+            CONFORMANCE_CASE_TIMEOUT_MS,
+          )
         }
       })
     }
