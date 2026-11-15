@@ -691,6 +691,12 @@ export interface AskUserPlanReview {
   steps: number
   /** First few checklist step texts, for the in-card preview. */
   preview: string[]
+  /**
+   * True when approving the plan lets the platform publish the app itself (it
+   * publishes once and runs the test suite on the live app) — the card says so
+   * under the step count, so approval is informed. Absent/falsy = not stated.
+   */
+  goesLive?: boolean
 }
 
 /** Coerce the plan-approval card's `planReview` payload (hostile-safe). */
@@ -707,7 +713,10 @@ function normalizePlanReview(raw: unknown): AskUserPlanReview | undefined {
         .slice(0, 8)
     : []
   if (!path && !name && steps === 0) return undefined
-  return { path, name, steps, preview }
+  // goesLive is a declared optional boolean; a model sending junk (a string, a
+  // number) degrades to "not stated" rather than leaking into the card.
+  const goesLive = record.goesLive === true ? true : undefined
+  return { path, name, steps, preview, goesLive }
 }
 
 /**

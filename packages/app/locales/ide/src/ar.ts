@@ -64,6 +64,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'الخطة جاهزة للمراجعة',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'ينشر مباشرةً: تنشر المنصة التطبيق وتشغّل حزمة اختباراته مرة واحدة على التطبيق المباشر.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} مهمة قيد التشغيل في الخلفية',

@@ -62,6 +62,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plan incelemeye hazır.',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Yayına girer: platform uygulamanın yayınlarken test paketini bir kez canlı uygulamada çalıştırır.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Arka planda {{count}} görev çalışıyor',

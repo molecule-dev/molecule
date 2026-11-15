@@ -51,6 +51,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Shirya shiri don yin bita',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Yana zuwa kai tsaye: dandamali yana wallafa app kuma yana gudanar da jerin gwaje-gwajen sa sau ɗaya, akan app din da ke kai tsaye.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} aiki yana gudana a bango',

@@ -232,6 +232,28 @@ describe('normalizeAskUserInput', () => {
     circular.self = circular
     expect(() => normalizeAskUserInput({ question: 'q', options: [circular] })).not.toThrow()
   })
+
+  it('carries planReview.goesLive only when strictly true', () => {
+    const yes = normalizeAskUserInput({
+      question: 'q',
+      options: [],
+      planReview: { path: 'p.md', steps: 2, preview: [], goesLive: true },
+    })
+    expect(yes.planReview?.goesLive).toBe(true)
+    const absent = normalizeAskUserInput({
+      question: 'q',
+      options: [],
+      planReview: { path: 'p.md', steps: 2, preview: [] },
+    })
+    expect(absent.planReview?.goesLive).toBeUndefined()
+    // A model sending junk where a boolean is declared degrades to "not stated".
+    const junk = normalizeAskUserInput({
+      question: 'q',
+      options: [],
+      planReview: { path: 'p.md', steps: 2, preview: [], goesLive: 'yes' },
+    })
+    expect(junk.planReview?.goesLive).toBeUndefined()
+  })
 })
 
 describe('ToolCallCard renders hostile tool input without throwing', () => {
@@ -253,6 +275,44 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
     expect(container.textContent).toContain('Recipe box')
     expect(container.textContent).toContain('Budget tracker')
     expect(container.textContent).not.toContain('[object Object]')
+  })
+
+  it('says the plan goes live under the step count when the review says so', () => {
+    const { container } = render(
+      wrap(
+        <ToolCallCard
+          name="ask_user"
+          input={{
+            question: 'Ship it?',
+            options: [{ label: 'Approve plan' }, { label: 'Request changes' }],
+            planReview: { path: 'plan.md', name: null, steps: 3, preview: [], goesLive: true },
+          }}
+          output={{ status: 'awaiting_response' }}
+          status="running"
+        />,
+      ),
+    )
+    expect(container.textContent).toContain(
+      'Goes live: the platform publishes the app and runs its test suite once, on the live app.',
+    )
+  })
+
+  it('stays silent about going live when the plan review does not flag it', () => {
+    const { container } = render(
+      wrap(
+        <ToolCallCard
+          name="ask_user"
+          input={{
+            question: 'Ship it?',
+            options: [{ label: 'Approve plan' }, { label: 'Request changes' }],
+            planReview: { path: 'plan.md', name: null, steps: 3, preview: [] },
+          }}
+          output={{ status: 'awaiting_response' }}
+          status="running"
+        />,
+      ),
+    )
+    expect(container.textContent).not.toContain('Goes live:')
   })
 
   it('renders an ask_user card for every hostile question/options/hint combination', () => {

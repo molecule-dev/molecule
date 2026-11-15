@@ -183,6 +183,8 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Планът е готов за преглед',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Отива на живо: платформата публикува приложението и пуска тестовете му веднъж върху живото приложение.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} задача, изпълнявана във фонов режим',

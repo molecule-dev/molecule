@@ -182,6 +182,8 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Pla a punt per a la revisió',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    "Es publica en directe: la plataforma publica l'aplicació i executa la seva suite de tests un cop, sobre l'aplicació en directe.",
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} tasca executant-se en segon pla',

@@ -177,6 +177,8 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plan gereed vir hersiening',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Gaan leef: die platform publiseer die toepassing en loop sy toetsuite een keer, op die lewwe toepassing.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} taak loop in die agtergrond',

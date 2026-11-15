@@ -178,6 +178,8 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'ಯೋಜನೆ ಪರಿಶೀಲನೆಗೆ ಸಿದ್ಧವಾಗಿದೆ',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'ಲೈವ್ ಆಗುತ್ತದೆ: ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಆಪ್ ಅನ್ನು ಪ್ರಕಟಿಸಿ ಲೈವ್ ಆಪ್‌ನಲ್ಲಿ ಒಮ್ಮೆ ಅದರ ಪರೀಕ್ಷಾ ಸೂಟ್ ಅನ್ನು ಚಲಾಯಿಸುತ್ತದೆ.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'ಹಿನ್ನೆಲೆಯಲ್ಲಿ {{count}} ಕಾರ್ಯ ಚಾಲನೆಯಲ್ಲಿದೆ',

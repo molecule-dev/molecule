@@ -179,6 +179,8 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'طرح آماده برای بررسی',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'منتشر می‌شود: پلتفرم برنامه را منتشر می‌کند و مجموعه تستش را یک بار روی برنامه زنده اجرا می‌کند.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} وظیفه در حال اجرا در پس‌زمینه',

@@ -58,6 +58,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Σχέδιο έτοιμο για αξιολόγηση',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Πάει live: η πλατφόρμα δημοσιεύει την εφαρμογή και εκτελεί τη σουίτα tests της μία φορά, στην live εφαρμογή.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} εργασία εκτελείται στο παρασκήνιο',

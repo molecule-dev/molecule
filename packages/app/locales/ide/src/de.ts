@@ -61,6 +61,8 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plan zur Überprüfung bereit',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Wird live geschaltet: Die Plattform veröffentlicht die App und führt ihre Testsuite einmal auf der live geschalteten App aus.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} Aufgaben werden im Hintergrund ausgeführt',

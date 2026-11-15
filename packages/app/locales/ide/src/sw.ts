@@ -177,6 +177,8 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Mpango uko tayari kwa ukaguzi',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Hutangazwa moja kwa moja: jukwaa hutoa programu na kuendesha seti yake ya majaribio mara moja, kwenye programu ya moja kwa moja.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Kazi ya {{count}} inayoendeshwa chinichini',

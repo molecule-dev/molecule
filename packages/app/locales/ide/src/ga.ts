@@ -183,6 +183,8 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plean réidh le haghaidh athbhreithnithe',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Téann beo: foilsíonn an ardán an app agus ritheann a sraith tástála uair amháin, ar an app beo.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Tasc {{count}} ag rith sa chúlra',

@@ -176,6 +176,8 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'แผนพร้อมสำหรับการตรวจสอบ',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'เผยแพร่จริง: แพลตฟอร์มเผยแพร่แอปและรันชุดทดสอบของมันหนึ่งครั้งบนแอปที่เผยแพร่',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'มีงาน {{count}} งานกำลังทำงานอยู่เบื้องหลัง',

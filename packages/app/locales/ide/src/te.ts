@@ -178,6 +178,8 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'సమీక్షకు ప్రణాళిక సిద్ధంగా ఉంది',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'లైవ్ అవుతుంది: ప్లాట్‌ఫారమ్ యాప్‌ను ప్రచురించి లైవ్ యాప్‌పై దాని టెస్ట్ సూట్‌ను ఒకసారి నడుపుతుంది.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} టాస్క్ నేపథ్యంలో నడుస్తోంది',

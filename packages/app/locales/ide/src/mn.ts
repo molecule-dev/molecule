@@ -180,6 +180,8 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Төлөвлөгөөг хянан үзэхэд бэлэн байна',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Шууд нэвтрүүлэгт гарна: платформ аппыг нийтэлж түүний тестийн багцыг шууд апп дээр нэг удаа ажиллуулна.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} даалгавар ард ажиллаж байна',

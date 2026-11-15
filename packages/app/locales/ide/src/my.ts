@@ -180,6 +180,8 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'ပြန်လည်သုံးသပ်ရန် အသင့်ဖြစ်နေပြီဖြစ်သော အစီအစဉ်',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'တိုက်ရိုက်ထွက်ရှိသည်- ပလက်ဖောင်းသည် အက်ပလီကေးရှင်းကို ထုတ်ဝေပြီး ၎င်း၏ စမ်းသပ်မှုအစုကို တိုက်ရိုက်အက်ပလီကေးရှင်းပေါ်တွင် တစ်ကြိမ် ပြေးဆွဲသည်။',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'နောက်ခံတွင် လုပ်ဆောင်နေသော {{count}} လုပ်ငန်း',

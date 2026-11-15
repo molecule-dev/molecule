@@ -56,6 +56,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Suunnitelma valmis tarkastettavaksi',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Menee livenä: alusta julkaisee sovelluksen ja ajaa sen testikokonaisuuden kerran live-sovelluksessa.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} tehtävä käynnissä taustalla',

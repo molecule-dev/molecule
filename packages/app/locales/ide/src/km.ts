@@ -180,6 +180,8 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'ផែនការរួចរាល់សម្រាប់ការពិនិត្យឡើងវិញ',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'ទៅផ្សាយផ្ទាល់. វេទិកាសាងសង្គមកម្មវិធី និងដំណើរការជុំសាកល្បងរបស់វាម្តង, លើកម្មវិធីផ្សាយផ្ទាល់។',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'ភារកិច្ច {{count}} កំពុងដំណើរការនៅផ្ទៃខាងក្រោយ',

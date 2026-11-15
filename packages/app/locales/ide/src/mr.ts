@@ -179,6 +179,8 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'पुनरावलोकनासाठी योजना तयार आहे',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'लाइव्ह होते: प्लॅटफॉर्म अ‍ॅप प्रकाशित करते आणि लाइव्ह अ‍ॅपवर एकदा त्याची चाचणी संच चालवते.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'पार्श्वभूमीत चालू असलेले {{count}} कार्य',

@@ -178,6 +178,8 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'പ്ലാൻ അവലോകനത്തിന് തയ്യാറാണ്',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'ലൈവാകുന്നു: പ്ലാറ്റ്ഫോം ആപ്പ് പ്രസിദ്ധീകരിച്ച് ലൈവ് ആപ്പിൽ അതിന്റെ ടെസ്റ്റ് സ്യൂട്ട് ഒരിക്കൽ പ്രവർത്തിപ്പിക്കുന്നു.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'പശ്ചാത്തലത്തിൽ {{count}} ടാസ്‌ക് പ്രവർത്തിക്കുന്നു',

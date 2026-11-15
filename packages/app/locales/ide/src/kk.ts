@@ -182,6 +182,8 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Жоспар қарауға дайын',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Тікелей эфирге шығады: платформа қолданбаны жариялап, оның тест жиынын тікелей қолданбада бір рет жөнелтеді.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Фондық режимде {{count}} тапсырма орындалуда',

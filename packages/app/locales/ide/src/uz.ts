@@ -181,6 +181,8 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': "Reja ko'rib chiqishga tayyor",
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Jonli efirga chiqadi: platforma ilovani nashr etib, jonli ilovada uning test to’plamini bir marta ishga tushiradi.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Orqa fonda {{count}} ta vazifa bajarilmoqda',

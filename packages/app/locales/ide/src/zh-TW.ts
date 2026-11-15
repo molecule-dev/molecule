@@ -170,6 +170,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': '計劃已準備就緒，待審核',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    '上線發布：平台將發布應用程式並在已上線的應用程式上執行一次其測試套件。',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}}個任務正在背景執行',

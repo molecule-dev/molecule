@@ -59,6 +59,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': '计划已准备就绪，待审核',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive': '上线发布：平台将发布应用并在已上线的应用上运行一次其测试套件。',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}}个任务正在后台运行',

@@ -50,6 +50,8 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Hazie atụmatụ maka nyocha dị njikere',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Na-aga na ndụ: ikuku na-ebipụta ngwa ma na-agba ule ya otu oge, na ngwa ndụ.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': "Ọrụ {{count}} na-arụ ọrụ n'azụ",

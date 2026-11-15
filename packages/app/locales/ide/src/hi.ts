@@ -62,6 +62,8 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'समीक्षा के लिए योजना तैयार है',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'लाइव होता है: प्लेटफ़ॉर्म ऐप प्रकाशित करता है और लाइव ऐप पर एक बार उसका टेस्ट सूट चलाता है।',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} कार्य पृष्ठभूमि में चल रहे हैं',

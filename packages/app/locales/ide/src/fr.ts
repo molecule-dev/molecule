@@ -60,6 +60,8 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plan prêt pour examen',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    "Publication en direct : la plateforme publie l'appli et exécute sa suite de tests une fois, sur l'appli en direct.",
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': "Tâche {{count}} en cours d'exécution en arrière-plan",

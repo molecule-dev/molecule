@@ -175,6 +175,8 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'યોજના સમીક્ષા માટે તૈયાર છે',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'લાઇવ થાય: પ્લેટફોર્મ ઍપ પ્રકાશિત કરે અને તેની ટેસ્ટ સ્યુટ એક વાર લાઇવ ઍપ પર ચલાવે.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'પૃષ્ઠભૂમિમાં {{count}} કાર્ય ચાલી રહ્યું છે',

@@ -181,6 +181,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plāns ir gatavs pārskatīšanai',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Tiešsaistē: platforma publicē lietotni un vienreiz palaiž tās testu komplektu tiešsaistes lietotnē.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Fonā darbojas {{count}} uzdevums',

@@ -59,6 +59,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Planul este gata pentru revizuire',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Intră în direct: platforma publică aplicația și rulează suita ei de teste o dată, pe aplicația din direct.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} sarcină rulează în fundal',

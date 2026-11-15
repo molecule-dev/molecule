@@ -169,6 +169,8 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'ለግምገማ ዝግጁ የሆነ እቅድ',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'በᐅርላይቭ ይገባል፦ መድረኑ መተግበሪያውን ያትማልና የሙከራ ስብስቡን አንድ ጊዜ በህይው ያለው መተግበሪያ ላይ ያሂዳል።',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} ተግባር በጀርባ ውስጥ እየሰራ ነው',

@@ -177,6 +177,8 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'සැලැස්ම සමාලෝචනය සඳහා සූදානම්',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'සජීවී වේ: වේදිකාව යෙදුම ප්‍රකාශයට පත් කර සජීවී යෙදුම මත එහි පරීක්ෂණ කට්ටලය එක් වරක් ධාවනය කරයි.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'පසුබිමේ ක්‍රියාත්මක වන {{count}} කාර්යය',

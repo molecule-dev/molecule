@@ -181,6 +181,8 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Պլանը պատրաստ է վերանայման',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Դուրս է գալիս ուղիղ եթեր. հարթակը հրապարակում է հավելվածը և մեկ անգամ գործարկում դրա թեստերի փաթեթը՝ ուղիղ հավելվածի վրա:',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} առաջադրանք աշխատում է ֆոնային ռեժիմում',

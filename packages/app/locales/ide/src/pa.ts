@@ -177,6 +177,8 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'ਯੋਜਨਾ ਸਮੀਖਿਆ ਲਈ ਤਿਆਰ ਹੈ',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'ਲਾਈਵ ਜਾਂਦਾ ਹੈ: ਪਲੇਟਫਾਰਮ ਐਪ ਪ੍ਰਕਾਸ਼ਿਤ ਕਰਦਾ ਹੈ ਅਤੇ ਲਾਈਵ ਐਪ ਤੇ ਇੱਕ ਵਾਰ ਇਸਦੇ ਟੈਸਟ ਸੈੱਟ ਚਲਾਉਂਦਾ ਹੈ।',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} ਕੰਮ ਬੈਕਗ੍ਰਾਊਂਡ ਵਿੱਚ ਚੱਲ ਰਿਹਾ ਹੈ',

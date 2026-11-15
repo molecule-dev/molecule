@@ -58,6 +58,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': '검토 준비 완료',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    '라이브 게시: 플랫폼이 앱을 게시하고 라이브 앱에서 테스트 스위트를 한 번 실행합니다.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '백그라운드에서 {{count}} 개의 작업이 실행 중입니다.',

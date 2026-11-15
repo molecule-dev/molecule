@@ -179,6 +179,8 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'План спреман за преглед',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Иде уживо: платформа објављује апликацију и једном покреће њен пакет тестова на живој апликацији.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} задатак се извршава у позадини',

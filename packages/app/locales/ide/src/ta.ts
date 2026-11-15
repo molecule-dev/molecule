@@ -181,6 +181,8 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'திட்டம் மதிப்பாய்வுக்குத் தயார்',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'நேரடியாக வெளியாகிறது: தளம் ஆப்பை வெளியிட்டு நேரடி ஆப்பில் அதன் சோதனை தொகுப்பை ஒருமுறை இயக்குகிறது.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} பணி பின்னணியில் இயங்குகிறது',

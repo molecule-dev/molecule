@@ -1303,6 +1303,26 @@ export const ToolCallCard = memo(function ToolCallCard({
                 </button>
               )}
             </div>
+            {/* The platform publishes on the plan's behalf when approved — say so
+                under the step count, so approval is informed (owner-approved plan
+                line). Absent when the host did not flag the plan; margins mirror
+                the steps row's rhythm (8px before the preview list) so the card
+                reads the same with or without this line. */}
+            {askInput.planReview.goesLive === true && (
+              <div
+                style={{
+                  fontSize: '12px',
+                  opacity: 0.75,
+                  marginTop: askInput.planReview.preview.length > 0 ? 0 : '8px',
+                  marginBottom: askInput.planReview.preview.length > 0 ? '8px' : 0,
+                }}
+              >
+                {t('ide.chat.planReview.goesLive', undefined, {
+                  defaultValue:
+                    'Goes live: the platform publishes the app and runs its test suite once, on the live app.',
+                })}
+              </div>
+            )}
             {askInput.planReview.preview.length > 0 && (
               <ul
                 style={{

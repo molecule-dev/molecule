@@ -182,6 +182,8 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Pjan lest għar-reviżjoni',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Ippubblikat: il-pjattaforma tippubblika l-app u tħaddem is-suħett ta’ testijiet tagħha darba, fuq l-app li hija pubblikata.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} kompitu qed jaħdem fl-isfond',

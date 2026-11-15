@@ -61,6 +61,8 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Kế hoạch đã sẵn sàng để xem xét.',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Đưa lên trực tuyến: nền tảng xuất bản ứng dụng và chạy bộ kiểm thử của nó một lần trên ứng dụng trực tuyến.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} tác vụ đang chạy ngầm',

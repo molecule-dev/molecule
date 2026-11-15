@@ -178,6 +178,8 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Áætlun tilbúin til endurskoðunar',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Fer í beina útsendingu: vettvangurinn gefur út appið og keyrir prófunarpakkann einu sinni á beinu appinu.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} verkefni keyrir í bakgrunni',

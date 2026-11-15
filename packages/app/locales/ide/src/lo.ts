@@ -176,6 +176,8 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'ແຜນການພ້ອມສຳລັບການທົບທວນຄືນ',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'ເຂົ້າສູ່ສົດ: ແພລດຟອມເຜີຍແຜ່ແອັບ ແລະ ເປີດຊຸດທົດສອບຂອງມັນເທື່ອດຽວ ຢູ່ແອັບສົດ.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'ໜ້າວຽກ {{count}} ກຳລັງເຮັດວຽກຢູ່ໃນພື້ນຫຼັງ',

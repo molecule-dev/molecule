@@ -208,6 +208,8 @@ export const en: IdeTranslations = {
   'ide.chat.planReview.badge': 'Plan ready for review',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Goes live: the platform publishes the app and runs its test suite once, on the live app.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} task running in the background',

@@ -178,6 +178,8 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'جائزہ لینے کے لیے تیار منصوبہ',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'لائیو ہوتا ہے: پلیٹ فارم ایپ شائع کرتا ہے اور لائیو ایپ پر ایک بار اس کا ٹیسٹ سیٹ چلاتا ہے۔',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} کام پس منظر میں چل رہا ہے۔',

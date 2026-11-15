@@ -64,6 +64,8 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': '計画書は審査準備完了です。',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'ライブ公開：プラットフォームがアプリを公開し、ライブアプリに対してテストスイートを一度実行します。',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}}個のタスクがバックグラウンドで実行されています。',

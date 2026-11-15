@@ -57,6 +57,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Terv készen áll a felülvizsgálatra',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Élesbe kerül: a platform közzéteszi az appot és egyszer lefuttatja a tesztcsomagját az éles appon.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} feladat fut a háttérben',

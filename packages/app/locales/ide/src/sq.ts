@@ -181,6 +181,8 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plani gati për shqyrtim',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Publikohet: platforma publikon aplikacionin dhe ekzekuton një herë paketën e testeve të saj në aplikacionin publik.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} detyrë që ekzekutohet në sfond',

@@ -180,6 +180,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plaan on ülevaatamiseks valmis',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Läheb elusse: platvorm avaldab rakendi ja käivitab selle testide kogu ühe korra elavas rakenduses.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} ülesanne töötab taustal',

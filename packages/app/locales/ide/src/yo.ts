@@ -54,6 +54,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Ṣe ètò tí a ti ṣetán fún àtúnyẹ̀wò',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Ó ń di eédu: pẹpẹ ń tẹ app jáde kí ó sì ṣe àdánwò rẹ ní ẹ̀ẹ̀kan lórí app tí ó wà ní eédu.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Iṣẹ́ {{count}} tí ń ṣiṣẹ́ ní ẹ̀yìn',

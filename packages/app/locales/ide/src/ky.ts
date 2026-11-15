@@ -52,6 +52,8 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'План карап чыгууга даяр',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Түз эфирге чыга турган: платформа тиркемени жарыялап, анын тест топтомун түз эфирдеги тиркемеде бир жолу жөнөтөт.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} тапшырма фондо аткарылууда',

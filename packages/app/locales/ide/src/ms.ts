@@ -56,6 +56,8 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Rancang sedia untuk semakan',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Menyiar secara langsung: platform menerbitkan aplikasi dan menjalankan suite ujiannya sekali, pada aplikasi yang menyiar.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} tugasan berjalan di latar belakang',

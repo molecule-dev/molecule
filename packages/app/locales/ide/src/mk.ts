@@ -180,6 +180,8 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Планот е подготвен за преглед',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Оде во живо: платформата ја објавува апликацијата и еднаш ги пушти нејзините тестови врз живата апликација.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} задача се извршува во позадина',

@@ -183,6 +183,8 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Uhlelo lulungele ukubuyekezwa',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Iya ku-bukela phambili: iphethini ithumela i-app phambili bese iyisebenzisa isethi yokuhlolwa kwayo kanye, kwi-app ebukekileyo.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Umsebenzi {{count}} usebenza ngemuva',

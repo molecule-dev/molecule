@@ -182,6 +182,8 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': "Cynllun yn barod i'w adolygu",
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    "Yn mynd yn fyw: mae'r platfform yn cyhoeddi'r ap ac yn rhedeg ei brawf gyfres unwaith, ar yr ap byw.",
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Tasg {{count}} yn rhedeg yn y cefndir',

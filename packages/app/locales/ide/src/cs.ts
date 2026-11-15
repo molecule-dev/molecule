@@ -59,6 +59,8 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plán připraven k revizi',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Přejde na živo: platforma aplikaci publikuje a jednou spustí její testy na živé aplikaci.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} úloha spuštěná na pozadí',

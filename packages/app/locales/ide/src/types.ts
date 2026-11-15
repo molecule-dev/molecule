@@ -74,6 +74,7 @@ export type IdeTranslationKey =
   | 'ide.chat.planReview.badge'
   | 'ide.chat.planReview.fallbackTitle'
   | 'ide.chat.planReview.steps'
+  | 'ide.chat.planReview.goesLive'
   | 'ide.chat.planReview.openPlan'
   | 'ide.chat.planReview.more'
   | 'ide.chat.backgroundRunning'

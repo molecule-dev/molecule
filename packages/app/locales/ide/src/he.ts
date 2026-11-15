@@ -176,6 +176,8 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'התוכנית מוכנה לבדיקה',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'עולה לאוויר: הפלטפורמה מפרסמת את האפליקציה ומריצה את סוויטת הבדיקות שלה פעם אחת, על האפליקציה החיה.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'משימה {{count}} פועלת ברקע',

@@ -177,6 +177,8 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plana berrikusteko prest',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Zuzenean argitaratzen da: plataformak aplikazioa argitaratzen du eta bere proba sorta behin exekutatzen du zuzeneko aplikazioan.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} zeregin atzeko planoan exekutatzen ari da',

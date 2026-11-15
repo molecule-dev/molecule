@@ -180,6 +180,8 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Plan nəzərdən keçirilməyə hazırdır',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Canlıya çıxır: platforma tətbiqi dərc edir və onun test dəstini canlı tətbiq üzərində bir dəfə işə salır.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': 'Arxa fonda {{count}} tapşırıq icra olunur',

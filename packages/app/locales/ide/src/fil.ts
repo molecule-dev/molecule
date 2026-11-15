@@ -57,6 +57,8 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.planReview.badge': 'Handa na ang plano para sa pagsusuri',
   'ide.chat.planReview.fallbackTitle': 'Implementation plan',
   'ide.chat.planReview.steps': '{{count}} steps',
+  'ide.chat.planReview.goesLive':
+    'Napupublika: inilalathala ng platform ang app at pinapatakbo ang test suite nito nang isang beses, sa live na app.',
   'ide.chat.planReview.openPlan': 'Open plan',
   'ide.chat.planReview.more': '+ {{count}} more steps',
   'ide.chat.backgroundRunning': '{{count}} gawain na tumatakbo sa background',
