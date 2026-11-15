@@ -16,6 +16,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createVueAdapter } from '@molecule/app-framework-conformance/adapters/vue'
 import { createVueBindingAdapter } from '@molecule/app-framework-conformance/adapters/vue-bindings'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { queryFeature } from '@molecule/app-framework-conformance/features/cases/query'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Query from '@molecule/app-query'
 import * as UI from '@molecule/app-ui-vue'
@@ -28,6 +29,7 @@ const adapter = createVueAdapter({ exports: { ...UI, ...Feature }, binding: Bind
 
 runFeatureConformance('@molecule/app-query-react', adapter, {
   module: Feature,
+  cases: queryFeature,
   knownGaps: knownGaps as UIKnownGaps,
   bindingAdapter: createVueBindingAdapter({
     exports: { ...Binding, ...Feature },

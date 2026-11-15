@@ -15,6 +15,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 
 import { createSvelteAdapter } from '@molecule/app-framework-conformance/adapters/svelte'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { settingsPanelFeature } from '@molecule/app-framework-conformance/features/cases/settings-panel'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Push from '@molecule/app-push'
 import * as Binding from '@molecule/app-svelte'
@@ -27,6 +28,7 @@ const adapter = createSvelteAdapter({ exports: { ...UI, ...Feature }, binding: B
 
 runFeatureConformance('@molecule/app-settings-panel-react', adapter, {
   module: Feature,
+  cases: settingsPanelFeature,
   knownGaps: knownGaps as UIKnownGaps,
   sharedModules: { '@molecule/app-push': Push },
 })

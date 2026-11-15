@@ -1,0 +1,2454 @@
+{
+ "exports": [
+  "QueryContent",
+  "createQueryResource",
+  "intentPrefetchProps",
+  "prefetchQuery",
+  "usePrefetch",
+  "useQuery"
+ ],
+ "values": {},
+ "cases": {
+  "QueryContent": {
+   "loading shows the pending node": {
+    "snapshots": [
+     "<p data-state=\"pending\">\nloading\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "idle shows the pending node": {
+    "snapshots": [
+     "<p data-state=\"pending\">\nloading\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "a loaded document renders the children with it": {
+    "snapshots": [
+     "<article data-doc=\"pkg-a\">\ndoc pkg-a\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "false is a document": {
+    "snapshots": [
+     "<span data-doc=\"false\">\nfalse\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero is a document": {
+    "snapshots": [
+     "<span data-doc=\"0\">\n0\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty string is a document": {
+    "snapshots": [
+     "<span data-doc>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty list is a document": {
+    "snapshots": [
+     "<span data-doc>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "a null document shows the missing node": {
+    "snapshots": [
+     "<p data-state=\"missing\">\nmissing\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "a null document without the missing prop renders nothing": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "an error renders the error function with the error value": {
+    "snapshots": [
+     "<p data-state=\"error\">\nfailed: boom\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "an error without the error prop falls back to the pending node": {
+    "snapshots": [
+     "<p data-state=\"pending\">\nloading\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "an error with cached data keeps the children mounted": {
+    "snapshots": [
+     "<article data-doc=\"pkg-a\">\ndoc pkg-a\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "a changed document reaches the same mounted children": {
+    "snapshots": [
+     "<article data-doc=\"pkg-a\">\ndoc pkg-a\n</article>\n@route /",
+     "<article data-conformance-mark=\"0\" data-doc=\"pkg-a\">\ndoc pkg-a\n</article>\n@route /",
+     "<article data-conformance-mark=\"0\" data-doc=\"pkg-b\">\ndoc pkg-b\n</article>\n@route /"
+    ],
+    "calls": []
+   },
+   "states move from pending through loaded to error": {
+    "snapshots": [
+     "<p data-state=\"pending\">\nloading\n</p>\n@route /",
+     "<article data-doc=\"pkg-a\">\ndoc pkg-a\n</article>\n@route /",
+     "<p data-state=\"error\">\nfailed: boom\n</p>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading shows the pending node, then a locale switch": {
+    "snapshots": [
+     "<p data-state=\"pending\">\nloading\n</p>\n@route /",
+     "<p data-state=\"pending\">\nloading\n</p>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ },
+ "hooks": {
+  "usePrefetch": {
+   "prefetching warms the cache": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "data": {
+         "name": "pkg-a"
+        },
+        "isFetching": false,
+        "status": "success",
+        "updatedAt": 0
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a fresh cached document is not fetched again": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "data": {
+         "name": "pkg-a"
+        },
+        "isFetching": false,
+        "status": "success",
+        "updatedAt": 0
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an in-flight prefetch is not restarted": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "data": {
+         "name": "pkg-a"
+        },
+        "isFetching": false,
+        "status": "success",
+        "updatedAt": 0
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a failed prefetch is swallowed and the cache shows the error": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "error": {
+         "$error": "warm failed",
+         "name": "Error"
+        },
+        "isFetching": false,
+        "status": "error"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "the data-saver setting prefetches nothing": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "isFetching": false,
+        "status": "idle"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a 2G connection prefetches nothing": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "isFetching": false,
+        "status": "idle"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a 4G connection prefetches": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "=> ()",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "data": {
+         "name": "pkg-a"
+        },
+        "isFetching": false,
+        "status": "success",
+        "updatedAt": 0
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "the prefetch function is stable across a re-render": {
+    "shape": {
+     "kind": "function"
+    },
+    "snapshots": [
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     },
+     {
+      "result": "[function]",
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "stable",
+      "args": [
+       {
+        "$result": "first"
+       }
+      ]
+     },
+     {
+      "name": "stable",
+      "args": [
+       {
+        "$result": "same"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useQuery": {
+   "null options stays idle and fetches nothing": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "idle",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "idle",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "idle",
+       "updatedAt": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "data": {
+         "name": "pkg-a"
+        },
+        "isFetching": false,
+        "status": "success",
+        "updatedAt": 0
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a missing document loads, then succeeds": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a failed load shows the error and keeps it": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": {
+        "$error": "load failed",
+        "name": "Error"
+       },
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "error",
+       "updatedAt": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a cached document renders at once without a fetch": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a fresh cached document is not refetched on remount": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a stale cached document is refetched on the next mount": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a-new"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 1001
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a key change fetches the new key and never shows the old document": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "a1"
+        },
+        {
+         "id": "a2"
+        }
+       ],
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "b1"
+        }
+       ],
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a late answer for the previous key is dropped": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "b1"
+        }
+       ],
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "fetch aborted",
+      "args": [
+       0
+      ]
+     },
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "keepPreviousData keeps the previous document until the new key answers": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "isPreviousData": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "isPreviousData": null,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "a1"
+        },
+        {
+         "id": "a2"
+        }
+       ],
+       "error": null,
+       "isFetching": false,
+       "isPreviousData": null,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "a1"
+        },
+        {
+         "id": "a2"
+        }
+       ],
+       "error": null,
+       "isFetching": true,
+       "isPreviousData": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "b1"
+        }
+       ],
+       "error": null,
+       "isFetching": false,
+       "isPreviousData": null,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "keepPreviousData clears the previous document when the new key fails": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "isPreviousData": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "isPreviousData": null,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "a1"
+        },
+        {
+         "id": "a2"
+        }
+       ],
+       "error": null,
+       "isFetching": false,
+       "isPreviousData": null,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "a1"
+        },
+        {
+         "id": "a2"
+        }
+       ],
+       "error": null,
+       "isFetching": true,
+       "isPreviousData": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": null,
+       "error": {
+        "$error": "next page failed",
+        "name": "Error"
+       },
+       "isFetching": false,
+       "isPreviousData": null,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "error",
+       "updatedAt": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a principal change drops the previous document at once": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "a1"
+        },
+        {
+         "id": "a2"
+        }
+       ],
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "u2-1"
+        }
+       ],
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "keepPreviousData without a principal throws, and corrected options observe": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": {
+       "$threw": "Error"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "isFetching": true,
+       "refetch": "[function]",
+       "setData": "[function]",
+       "status": "loading"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": [
+        {
+         "id": "a1"
+        },
+        {
+         "id": "a2"
+        }
+       ],
+       "isFetching": false,
+       "refetch": "[function]",
+       "setData": "[function]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a new options object with the same key refetches nothing": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "stable",
+      "args": [
+       {
+        "setData": "first",
+        "refetch": "first"
+       }
+      ]
+     },
+     {
+      "name": "stable",
+      "args": [
+       {
+        "setData": "same",
+        "refetch": "same"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "setData publishes a document and the cache holds it": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "saved"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "saved"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "=> setData",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "data": {
+         "name": "saved"
+        },
+        "isFetching": false,
+        "status": "success",
+        "updatedAt": 0
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "setData takes an updater that receives the cached document": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": {
+        "count": 1
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "count": 2
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "bump",
+      "args": [
+       {
+        "count": 1
+       }
+      ]
+     },
+     {
+      "name": "=> setData",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an updater returning undefined leaves the document unchanged": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": {
+        "count": 1
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "count": 1
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "count": 1
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "noop",
+      "args": [
+       {
+        "count": 1
+       }
+      ]
+     },
+     {
+      "name": "=> setData",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "data": {
+         "count": 1
+        },
+        "isFetching": false,
+        "status": "success",
+        "updatedAt": 0
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "setData on a null query does nothing and calls no updater": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "idle",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "idle",
+       "updatedAt": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setData",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "refetch fetches a fresh document and resolves with the state": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a-new"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "=> refetch",
+      "args": [
+       {
+        "resolved": {
+         "data": {
+          "name": "pkg-a-new"
+         },
+         "isFetching": false,
+         "status": "success",
+         "updatedAt": 0
+        }
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a failed refetch resolves with the error state and keeps the cached data": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": {
+        "$error": "reload failed",
+        "name": "Error"
+       },
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "error",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "=> refetch",
+      "args": [
+       {
+        "resolved": {
+         "data": {
+          "name": "pkg-a"
+         },
+         "error": {
+          "$error": "reload failed",
+          "name": "Error"
+         },
+         "isFetching": false,
+         "status": "error",
+         "updatedAt": 0
+        }
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "refetch on a null query stays idle without fetching": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "idle",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "idle",
+       "updatedAt": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> refetch",
+      "args": [
+       {
+        "resolved": {
+         "isFetching": false,
+         "status": "idle"
+        }
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a cache write from outside reaches the observer": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "from-outside"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an invalidation from outside does not refetch a subscribed observer": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a-new"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "unmount while a fetch is pending leaves nothing cached": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": null,
+       "error": null,
+       "isFetching": true,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "loading",
+       "updatedAt": null
+      },
+      "route": "/"
+     },
+     null,
+     null,
+     null
+    ],
+    "calls": [
+     {
+      "name": "fetch",
+      "args": [
+       {}
+      ]
+     },
+     {
+      "name": "fetch aborted",
+      "args": [
+       0
+      ]
+     },
+     {
+      "name": "query.state",
+      "args": [
+       [
+        "pkg",
+        "a"
+       ],
+       {
+        "isFetching": false,
+        "status": "idle"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "setData and refetch keep their functions across a re-render": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "data": "value",
+      "error": "value",
+      "isFetching": "value",
+      "refetch": "method",
+      "setData": "method",
+      "status": "value",
+      "updatedAt": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "pkg-a"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "re-rendered"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "data": {
+        "name": "re-rendered"
+       },
+       "error": null,
+       "isFetching": false,
+       "refetch": "[method]",
+       "setData": "[method]",
+       "status": "success",
+       "updatedAt": 0
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "stable",
+      "args": [
+       {
+        "setData": "first",
+        "refetch": "first"
+       }
+      ]
+     },
+     {
+      "name": "stable",
+      "args": [
+       {
+        "setData": "same",
+        "refetch": "same"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  }
+ }
+}

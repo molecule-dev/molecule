@@ -16,6 +16,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createSvelteAdapter } from '@molecule/app-framework-conformance/adapters/svelte'
 import { createSvelteBindingAdapter } from '@molecule/app-framework-conformance/adapters/svelte-bindings'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { queryFeature } from '@molecule/app-framework-conformance/features/cases/query'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Query from '@molecule/app-query'
 import * as Binding from '@molecule/app-svelte'
@@ -28,6 +29,7 @@ const adapter = createSvelteAdapter({ exports: { ...UI, ...Feature }, binding: B
 
 runFeatureConformance('@molecule/app-query-react', adapter, {
   module: Feature,
+  cases: queryFeature,
   knownGaps: knownGaps as UIKnownGaps,
   bindingAdapter: createSvelteBindingAdapter({
     exports: { ...Binding, ...Feature },

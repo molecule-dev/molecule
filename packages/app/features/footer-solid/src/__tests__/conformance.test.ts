@@ -15,6 +15,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 
 import { createSolidAdapter } from '@molecule/app-framework-conformance/adapters/solid'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { footerFeature } from '@molecule/app-framework-conformance/features/cases/footer'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Binding from '@molecule/app-solid'
 import * as UI from '@molecule/app-ui-solid'
@@ -26,5 +27,6 @@ const adapter = createSolidAdapter({ exports: { ...UI, ...Feature }, binding: Bi
 
 runFeatureConformance('@molecule/app-footer-react', adapter, {
   module: Feature,
+  cases: footerFeature,
   knownGaps: knownGaps as UIKnownGaps,
 })

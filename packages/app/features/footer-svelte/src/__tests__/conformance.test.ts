@@ -15,6 +15,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 
 import { createSvelteAdapter } from '@molecule/app-framework-conformance/adapters/svelte'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { footerFeature } from '@molecule/app-framework-conformance/features/cases/footer'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Binding from '@molecule/app-svelte'
 import * as UI from '@molecule/app-ui-svelte'
@@ -26,5 +27,6 @@ const adapter = createSvelteAdapter({ exports: { ...UI, ...Feature }, binding: B
 
 runFeatureConformance('@molecule/app-footer-react', adapter, {
   module: Feature,
+  cases: footerFeature,
   knownGaps: knownGaps as UIKnownGaps,
 })

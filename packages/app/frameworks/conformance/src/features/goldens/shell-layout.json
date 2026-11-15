@@ -1,0 +1,48 @@
+{
+ "exports": [
+  "AppShellLayout"
+ ],
+ "values": {},
+ "cases": {
+  "AppShellLayout": {
+   "content only": {
+    "snapshots": [
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "header, content and footer": {
+    "snapshots": [
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<header>\nAcme\n</header>\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n<footer>\n© Acme\n</footer>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "narrow, with classes and an id": {
+    "snapshots": [
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cd75bbd18 cdde537c9\" data-mol-id=\"shell\">\n<header>\nAcme\n</header>\n<main class=\"c1297a37a\">\n<div class=\"c830586de c8f3cd634 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "full width": {
+    "snapshots": [
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c0953d619 c8f3cd634 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "width changes": {
+    "snapshots": [
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c77cdc893 c8f3cd634 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c7207aab2 c8f3cd634 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "content only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /",
+     "<div class=\"c521316b1 c815d0c94 c9f01023e cc26cbf54 cdde537c9\">\n<main>\n<div class=\"c8f3cd634 c98e9d303 cbf033fe8 cd5d4be14\">\nMain content\n</div>\n</main>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

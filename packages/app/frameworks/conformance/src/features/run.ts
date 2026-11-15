@@ -4,11 +4,20 @@
  *
  * Every `@molecule/app-<feature>-{vue,solid,svelte,angular}` package calls
  * this from its own `src/__tests__/conformance.test.ts`, with an adapter over
- * its UI package and its own exports, so a change to the package, the cases or
- * the goldens re-runs its conformance in CI.
+ * its UI package and its own exports and the React package's cases
+ * (`@molecule/app-framework-conformance/features/cases/<feature>`), so a change
+ * to the package, the cases or the goldens re-runs its conformance in CI.
+ *
+ * Each React feature package has one cases file (`cases/<feature>.ts`) and one
+ * goldens file (`goldens/<feature>.json`), so recording or editing one feature
+ * never rewrites another's.
  *
  * @module
  */
+
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
@@ -27,37 +36,77 @@ import {
   withLocaleSwitch,
 } from '../ui/run.js'
 import type { AppComposition, FrameworkAdapter } from '../ui/spec.js'
-import * as allCases from './cases/index.js'
-import goldensJson from './goldens.json' with { type: 'json' }
 import type { FeatureCases, FeatureGoldens, FeatureValueCheck } from './spec.js'
 
-/** Every feature package's cases, keyed by its React package, each family with its derived cases. */
-export const featureCases: Record<string, FeatureCases> = Object.fromEntries(
-  (Object.values(allCases) as FeatureCases[])
-    .sort((a, b) => a.package.localeCompare(b.package))
-    .map((feature) => [
-      feature.package,
-      {
-        ...feature,
-        families: [...feature.families]
-          .sort((a, b) => a.component.localeCompare(b.component))
-          .map(withLocaleSwitch)
-          .map(withKeyedLists),
-        ...(feature.hooks
-          ? { hooks: [...feature.hooks].sort((a, b) => a.hook.localeCompare(b.hook)) }
-          : {}),
-      },
-    ]),
-)
+const here = dirname(fileURLToPath(import.meta.url))
 
-/** The React reference results, keyed by React package. */
-export const featureGoldens: Record<string, FeatureGoldens> = goldensJson as Record<
-  string,
-  FeatureGoldens
->
+/**
+ * One feature's cases as every runner sees them: families and hooks sorted, each
+ * family with its derived cases (the pseudo-locale switch, keyed-list reorders).
+ *
+ * @param feature - The cases as written in `cases/<feature>.ts`.
+ * @returns The cases the recorder and every framework run.
+ */
+export function featureCaseSet(feature: FeatureCases): FeatureCases {
+  return {
+    ...feature,
+    families: [...feature.families]
+      .sort((a, b) => a.component.localeCompare(b.component))
+      .map(withLocaleSwitch)
+      .map(withKeyedLists),
+    ...(feature.hooks
+      ? { hooks: [...feature.hooks].sort((a, b) => a.hook.localeCompare(b.hook)) }
+      : {}),
+  }
+}
 
-/** Where the feature recorder writes goldens with real class names (never committed). */
-export const FEATURE_READABLE_GOLDENS = goldensCachePath('features.readable.json')
+/**
+ * The cases file of a React feature package: `@molecule/app-tag-input-react` →
+ * `tag-input` (`src/features/cases/tag-input.ts`, exported as
+ * `@molecule/app-framework-conformance/features/cases/tag-input`).
+ *
+ * @param reactPackage - The React feature package.
+ * @returns The file's base name.
+ */
+export function featureCasesName(reactPackage: string): string {
+  const match = /^@molecule\/app-(.+)-react$/.exec(reactPackage)
+  if (!match)
+    throw new Error(`framework-conformance: ${reactPackage} is not an app-*-react package`)
+  return match[1]!
+}
+
+/** One goldens file per React feature package, so recording one never rewrites another's. */
+export const FEATURE_GOLDENS_DIR = join(here, 'goldens')
+
+/**
+ * The committed goldens file of a React feature package.
+ *
+ * @param reactPackage - The React feature package.
+ * @returns `src/features/goldens/<feature>.json`.
+ */
+export const featureGoldensFile = (reactPackage: string): string =>
+  join(FEATURE_GOLDENS_DIR, `${featureCasesName(reactPackage)}.json`)
+
+/**
+ * The React reference results of one feature package.
+ *
+ * @param reactPackage - The React feature package.
+ * @returns Its goldens, or null before they are recorded.
+ */
+export function loadFeatureGoldens(reactPackage: string): FeatureGoldens | null {
+  const file = featureGoldensFile(reactPackage)
+  if (!existsSync(file)) return null
+  return JSON.parse(readFileSync(file, 'utf8')) as FeatureGoldens
+}
+
+/**
+ * Where the feature recorder writes one package's goldens with real class names (never committed).
+ *
+ * @param reactPackage - The React feature package.
+ * @returns A path under the kit's `node_modules/.cache`.
+ */
+export const featureReadableGoldensFile = (reactPackage: string): string =>
+  goldensCachePath(join('features', `${featureCasesName(reactPackage)}.readable.json`))
 
 /**
  * The comparable value of one export: a constant as plain data, or each call's result.
@@ -101,6 +150,11 @@ export const featureAppComposition: AppComposition = {
 export interface FeatureConformanceOptions {
   /** The feature package's own module (`import * as Feature from '../index.js'`), for the value checks. */
   module: Record<string, unknown>
+  /**
+   * The React package's cases, imported from
+   * `@molecule/app-framework-conformance/features/cases/<feature>`.
+   */
+  cases: FeatureCases
   /** Cases this package does not match yet; `'(export)'` under a name means it is not exported. */
   knownGaps?: UIKnownGaps
   /**
@@ -150,24 +204,26 @@ export function sharedExportProblems(
  *
  * @param reactPackage - The React reference (`@molecule/app-header-react`).
  * @param adapter - An adapter over the framework's UI package plus this package's exports.
- * @param options - The package module and known gaps.
+ * @param options - The package module, its React package's cases and known gaps.
  */
 export function runFeatureConformance(
   reactPackage: string,
   adapter: FrameworkAdapter,
   options: FeatureConformanceOptions,
 ): void {
-  const feature = featureCases[reactPackage]
-  const goldens = featureGoldens[reactPackage]
-  if (!feature) throw new Error(`framework-conformance: no feature cases for ${reactPackage}`)
+  if (options.cases.package !== reactPackage)
+    throw new Error(
+      `framework-conformance: the cases passed for ${reactPackage} are ${options.cases.package}'s`,
+    )
+  const feature = featureCaseSet(options.cases)
+  const goldens = loadFeatureGoldens(reactPackage)
   if (!goldens)
     throw new Error(
-      `framework-conformance: no goldens for ${reactPackage}; record them in @molecule/app-framework-conformance`,
+      `framework-conformance: no goldens for ${reactPackage}; record them: CONFORMANCE_FEATURE=${reactPackage} RECORD_GOLDENS=1 npx vitest run src/__tests__/features-goldens.test.ts in packages/app/frameworks/conformance`,
     )
   const gaps = options.knownGaps ?? {}
   const filter = onlyFromEnv('CONFORMANCE_COMPONENTS')
-  const readable =
-    readGoldensCache<Record<string, FeatureGoldens>>(FEATURE_READABLE_GOLDENS)?.[reactPackage]
+  const readable = readGoldensCache<FeatureGoldens>(featureReadableGoldensFile(reactPackage))
   runCaseSuite(
     {
       title: `${adapter.name} ${reactPackage} conformance`,

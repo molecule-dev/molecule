@@ -21,7 +21,7 @@ import {
   requireSources,
   runHookCase,
 } from '../bindings/index.js'
-import { featureCases } from '../features/index.js'
+import { featureCases } from '../features/all.js'
 import { reactBindingAdapter } from './react-bindings-adapter.js'
 
 const run = (hook: string, testCase: Omit<HookCase, 'name'>) =>

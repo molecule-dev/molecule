@@ -15,6 +15,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 
 import { createVueAdapter } from '@molecule/app-framework-conformance/adapters/vue'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { authUiFeature } from '@molecule/app-framework-conformance/features/cases/auth-ui'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as UI from '@molecule/app-ui-vue'
 import * as Binding from '@molecule/app-vue'
@@ -26,5 +27,6 @@ const adapter = createVueAdapter({ exports: { ...UI, ...Feature }, binding: Bind
 
 runFeatureConformance('@molecule/app-auth-ui-react', adapter, {
   module: Feature,
+  cases: authUiFeature,
   knownGaps: knownGaps as UIKnownGaps,
 })

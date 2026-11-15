@@ -15,6 +15,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 
 import { createSolidAdapter } from '@molecule/app-framework-conformance/adapters/solid'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { authUiFeature } from '@molecule/app-framework-conformance/features/cases/auth-ui'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Binding from '@molecule/app-solid'
 import * as UI from '@molecule/app-ui-solid'
@@ -26,5 +27,6 @@ const adapter = createSolidAdapter({ exports: { ...UI, ...Feature }, binding: Bi
 
 runFeatureConformance('@molecule/app-auth-ui-react', adapter, {
   module: Feature,
+  cases: authUiFeature,
   knownGaps: knownGaps as UIKnownGaps,
 })

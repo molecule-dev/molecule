@@ -15,6 +15,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 
 import { createVueAdapter } from '@molecule/app-framework-conformance/adapters/vue'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { shellLayoutFeature } from '@molecule/app-framework-conformance/features/cases/shell-layout'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as UI from '@molecule/app-ui-vue'
 import * as Binding from '@molecule/app-vue'
@@ -26,5 +27,6 @@ const adapter = createVueAdapter({ exports: { ...UI, ...Feature }, binding: Bind
 
 runFeatureConformance('@molecule/app-shell-layout-react', adapter, {
   module: Feature,
+  cases: shellLayoutFeature,
   knownGaps: knownGaps as UIKnownGaps,
 })

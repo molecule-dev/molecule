@@ -15,6 +15,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 
 import { createSvelteAdapter } from '@molecule/app-framework-conformance/adapters/svelte'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { authUiFeature } from '@molecule/app-framework-conformance/features/cases/auth-ui'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Binding from '@molecule/app-svelte'
 import * as UI from '@molecule/app-ui-svelte'
@@ -26,5 +27,6 @@ const adapter = createSvelteAdapter({ exports: { ...UI, ...Feature }, binding: B
 
 runFeatureConformance('@molecule/app-auth-ui-react', adapter, {
   module: Feature,
+  cases: authUiFeature,
   knownGaps: knownGaps as UIKnownGaps,
 })

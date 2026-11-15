@@ -17,6 +17,7 @@ import * as Binding from '@molecule/app-angular'
 import { createAngularAdapter } from '@molecule/app-framework-conformance/adapters/angular'
 import { createAngularBindingAdapter } from '@molecule/app-framework-conformance/adapters/angular-bindings'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { queryFeature } from '@molecule/app-framework-conformance/features/cases/query'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Query from '@molecule/app-query'
 import * as UI from '@molecule/app-ui-angular'
@@ -28,6 +29,7 @@ const adapter = createAngularAdapter({ exports: { ...UI, ...Feature }, binding: 
 
 runFeatureConformance('@molecule/app-query-react', adapter, {
   module: Feature,
+  cases: queryFeature,
   knownGaps: knownGaps as UIKnownGaps,
   bindingAdapter: createAngularBindingAdapter({
     exports: { ...Binding, ...Feature },

@@ -5,80 +5,100 @@
  * the committed goldens equal what React renders today.
  *
  * `RECORD_GOLDENS=1 npx vitest run src/__tests__/features-goldens.test.ts`
- * rewrites `src/features/goldens.json` (and a local, never-committed readable
- * copy with real class names). Recording changes the contract: every
- * framework's counterpart then has to match it.
+ * rewrites each feature's `src/features/goldens/<feature>.json` (and a local,
+ * never-committed readable copy with real class names). Recording changes the
+ * contract: every framework's counterpart then has to match it.
+ *
+ * `CONFORMANCE_FEATURE=@molecule/app-tag-input-react[,…]` runs (and records)
+ * only those packages: it loads only their cases files and writes only their
+ * goldens files, so ports of different features can record side by side.
  *
  * @module
  */
 
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { mkdirSync, readdirSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
 
 import '../ui/setup.js'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import * as AuthUi from '@molecule/app-auth-ui-react'
-import * as Footer from '@molecule/app-footer-react'
-import * as Header from '@molecule/app-header-react'
-import * as OAuthButtons from '@molecule/app-oauth-buttons-react'
-import * as OAuthLogos from '@molecule/app-oauth-logos-react'
-import * as Push from '@molecule/app-push'
-import * as Query from '@molecule/app-query'
-import * as QueryReact from '@molecule/app-query-react'
 import * as ReactBindings from '@molecule/app-react'
-import * as SettingsPanel from '@molecule/app-settings-panel-react'
-import * as ShellLayout from '@molecule/app-shell-layout-react'
 import * as ReactUI from '@molecule/app-ui-react'
 
 import { type HookCaseResult, runHookCase } from '../bindings/index.js'
+import { featureCaseFileNames, loadFeatureCases } from '../features/all.js'
 import {
-  FEATURE_READABLE_GOLDENS,
+  FEATURE_GOLDENS_DIR,
   featureAppComposition,
-  featureCases,
+  type FeatureCases,
+  featureCaseSet,
+  featureCasesName,
   type FeatureGoldens,
-  featureGoldens,
+  featureGoldensFile,
+  featureReadableGoldensFile,
   featureValue,
+  loadFeatureGoldens,
   sharedExportProblems,
 } from '../features/index.js'
-import { caseExports, type CaseResult, writePixelCapture } from '../ui/index.js'
+import { caseExports, type CaseResult, onlyFromEnv, writePixelCapture } from '../ui/index.js'
 import { createReactAdapter } from './react-adapter.js'
 import { createReactBindingAdapter } from './react-bindings-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
 
+const RECORD = process.env.RECORD_GOLDENS === '1'
+/** The React packages this run is narrowed to, or null for every feature. */
+const ONLY = onlyFromEnv('CONFORMANCE_FEATURE')
+
+/** The cases of each React feature package this run covers, by package. */
+const featureCases: Record<string, FeatureCases> = Object.fromEntries(
+  (
+    await Promise.all(
+      (ONLY ?? featureCaseFileNames()).map((name) =>
+        loadFeatureCases(ONLY ? featureCasesName(name) : name),
+      ),
+    )
+  )
+    .sort((a, b) => a.package.localeCompare(b.package))
+    .map((feature) => [feature.package, featureCaseSet(feature)]),
+)
+
 /** Each React feature package, by name. */
-const MODULES: Record<string, Record<string, unknown>> = {
-  '@molecule/app-auth-ui-react': AuthUi,
-  '@molecule/app-footer-react': Footer,
-  '@molecule/app-header-react': Header,
-  '@molecule/app-oauth-buttons-react': OAuthButtons,
-  '@molecule/app-oauth-logos-react': OAuthLogos,
-  '@molecule/app-query-react': QueryReact,
-  '@molecule/app-settings-panel-react': SettingsPanel,
-  '@molecule/app-shell-layout-react': ShellLayout,
-}
+const MODULES: Record<string, Record<string, unknown>> = Object.fromEntries(
+  await Promise.all(Object.keys(featureCases).map(async (name) => [name, await import(name)])),
+)
 
 /** The framework-neutral packages feature packages re-export from (each feature's `shared` field). */
-const SHARED_MODULES: Record<string, Record<string, unknown>> = {
-  '@molecule/app-push': Push,
-  '@molecule/app-query': Query,
-}
+const SHARED_MODULES: Record<string, Record<string, unknown>> = Object.fromEntries(
+  await Promise.all(
+    [...new Set(Object.values(featureCases).flatMap((f) => Object.values(f.shared ?? {})))].map(
+      async (name) => [name, await import(name)],
+    ),
+  ),
+)
 
-const RECORD = process.env.RECORD_GOLDENS === '1'
-const here = dirname(fileURLToPath(import.meta.url))
-const GOLDENS_FILE = join(here, '..', 'features', 'goldens.json')
 const recorded: Record<string, FeatureGoldens> = {}
 const recordedReadable: Record<string, FeatureGoldens> = {}
+const stale = (name: string) =>
+  `goldens are stale: run CONFORMANCE_FEATURE=${name} RECORD_GOLDENS=1 npx vitest run src/__tests__/features-goldens.test.ts in packages/app/frameworks/conformance`
 
-describe('feature cases cover the React packages', () => {
-  it('every React feature package with cases is imported here, and the other way round', () => {
-    expect(Object.keys(featureCases).sort()).toEqual(Object.keys(MODULES).sort())
+describe.skipIf(ONLY !== null)('feature goldens files', () => {
+  const goldenNames = () =>
+    readdirSync(FEATURE_GOLDENS_DIR)
+      .filter((file) => file.endsWith('.json'))
+      .map((file) => file.slice(0, -'.json'.length))
+  it('every goldens file has a cases file', () => {
+    const cases = featureCaseFileNames()
+    expect(goldenNames().filter((name) => !cases.includes(name))).toEqual([])
+  })
+  it.skipIf(RECORD)('every cases file has a goldens file', () => {
+    const goldens = goldenNames()
+    expect(featureCaseFileNames().filter((name) => !goldens.includes(name))).toEqual([])
   })
 })
 
 for (const [name, module] of Object.entries(MODULES)) {
   const feature = featureCases[name]!
+  const goldens = RECORD ? null : loadFeatureGoldens(name)
   const exportNames = Object.keys(module).sort()
   const adapter = createReactAdapter({
     ...(ReactUI as unknown as Record<string, unknown>),
@@ -112,7 +132,7 @@ for (const [name, module] of Object.entries(MODULES)) {
     })
 
     it.skipIf(RECORD)('the committed goldens list the React exports', () => {
-      expect(featureGoldens[name]?.exports).toEqual(exportNames)
+      expect(goldens?.exports, stale(name)).toEqual(exportNames)
     })
 
     for (const check of feature.values ?? []) {
@@ -120,7 +140,7 @@ for (const [name, module] of Object.entries(MODULES)) {
         const value = featureValue(check, module[check.export])
         recorded[name]!.values[check.export] = value
         recordedReadable[name]!.values[check.export] = value
-        if (!RECORD) expect(featureGoldens[name]?.values[check.export]).toEqual(value)
+        if (!RECORD) expect(goldens?.values[check.export], stale(name)).toEqual(value)
       })
     }
 
@@ -159,10 +179,7 @@ for (const [name, module] of Object.entries(MODULES)) {
             ;((recorded[name]!.hooks ??= {})[family.hook] ??= {})[testCase.name] = golden
             ;((recordedReadable[name]!.hooks ??= {})[family.hook] ??= {})[testCase.name] = golden
             if (!RECORD) {
-              expect(
-                featureGoldens[name]?.hooks?.[family.hook]?.[testCase.name],
-                'goldens are stale: run RECORD_GOLDENS=1 npx vitest run src/__tests__/features-goldens.test.ts in packages/app/frameworks/conformance',
-              ).toEqual(golden)
+              expect(goldens?.hooks?.[family.hook]?.[testCase.name], stale(name)).toEqual(golden)
             }
           })
         }
@@ -199,10 +216,7 @@ for (const [name, module] of Object.entries(MODULES)) {
               calls: result.calls,
             }
             if (!RECORD) {
-              expect(
-                featureGoldens[name]?.cases[family.component]?.[testCase.name],
-                'goldens are stale: run RECORD_GOLDENS=1 npx vitest run src/__tests__/features-goldens.test.ts in packages/app/frameworks/conformance',
-              ).toEqual(golden)
+              expect(goldens?.cases[family.component]?.[testCase.name], stale(name)).toEqual(golden)
             }
           })
         }
@@ -213,25 +227,29 @@ for (const [name, module] of Object.entries(MODULES)) {
 
 afterAll(() => {
   if (!RECORD) return
-  const expected: Record<string, string[]> = {}
-  const got: Record<string, Record<string, unknown> | undefined> = {}
+  // Every feature is checked before any file is written, so an incomplete run writes nothing.
   for (const [name, feature] of Object.entries(featureCases)) {
-    expected[`${name} values`] = (feature.values ?? []).map((v) => v.export)
-    got[`${name} values`] = recorded[name]?.values
+    const expected: Record<string, string[]> = {}
+    const got: Record<string, Record<string, unknown> | undefined> = {}
+    expected.values = (feature.values ?? []).map((v) => v.export)
+    got.values = recorded[name]?.values
     for (const family of feature.families) {
-      expected[`${name} ${family.component}`] = family.cases.map((c) => c.name)
-      got[`${name} ${family.component}`] = recorded[name]?.cases[family.component]
+      expected[family.component] = family.cases.map((c) => c.name)
+      got[family.component] = recorded[name]?.cases[family.component]
     }
     for (const family of feature.hooks ?? []) {
-      expected[`${name} hook ${family.hook}`] = family.cases.map((c) => c.name)
-      got[`${name} hook ${family.hook}`] = recorded[name]?.hooks?.[family.hook]
+      expected[`hook ${family.hook}`] = family.cases.map((c) => c.name)
+      got[`hook ${family.hook}`] = recorded[name]?.hooks?.[family.hook]
     }
+    assertCompleteRecording(missingRecordings(expected, got), featureGoldensFile(name))
   }
-  assertCompleteRecording(missingRecordings(expected, got), GOLDENS_FILE)
-  // A package without hook cases records no `hooks` key.
-  for (const golden of [...Object.values(recorded), ...Object.values(recordedReadable)])
-    if (golden.hooks && Object.keys(golden.hooks).length === 0) delete golden.hooks
-  writeFileSync(GOLDENS_FILE, `${JSON.stringify(recorded, null, 1)}\n`)
-  mkdirSync(dirname(FEATURE_READABLE_GOLDENS), { recursive: true })
-  writeFileSync(FEATURE_READABLE_GOLDENS, JSON.stringify(recordedReadable))
+  for (const name of Object.keys(featureCases)) {
+    // A package without hook cases records no `hooks` key.
+    for (const golden of [recorded[name]!, recordedReadable[name]!])
+      if (golden.hooks && Object.keys(golden.hooks).length === 0) delete golden.hooks
+    writeFileSync(featureGoldensFile(name), `${JSON.stringify(recorded[name], null, 1)}\n`)
+    const readable = featureReadableGoldensFile(name)
+    mkdirSync(dirname(readable), { recursive: true })
+    writeFileSync(readable, JSON.stringify(recordedReadable[name]))
+  }
 })

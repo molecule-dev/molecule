@@ -47,6 +47,19 @@
  * on each React reference (for feature bonds: each one's React package) so a
  * React change re-checks the goldens.
  *
+ * Feature bonds are held to full parity, and every React package has them:
+ * - every React package under packages/app/features/ and
+ *   packages/app/infrastructure/ (`@molecule/app-<x>-react`) has a counterpart
+ *   in each of {@link FEATURE_FRAMEWORKS} beside it (`@molecule/app-<x>-vue`, …),
+ *   except the frameworks {@link FEATURE_PARITY_PENDING} still lists for it. That
+ *   ledger may only shrink: an entry whose counterpart exists is a violation
+ *   until it is removed, and a React package added later has no entry, so it
+ *   ships with its counterparts;
+ * - a feature bond's known-gaps.json is `{}`: it matches React in every case;
+ * - its conformance test passes its React package's cases
+ *   (`${KIT}/features/cases/<x>`), and the kit has that cases file and its
+ *   recorded goldens (`src/features/cases/<x>.ts`, `src/features/goldens/<x>.json`).
+ *
  * @module
  */
 import console from 'node:console'
@@ -91,7 +104,25 @@ export const BINDING_EXEMPT = {
 /** The frameworks a React feature package has counterparts in. */
 export const FEATURE_FRAMEWORKS = ['vue', 'solid', 'svelte', 'angular']
 
+/**
+ * The ledger of React packages that do not have every framework counterpart
+ * yet: React package → the frameworks it still lacks. It may only shrink.
+ */
+export const FEATURE_PARITY_PENDING = 'scripts/feature-parity-pending.json'
+
+/** Where React packages that need framework counterparts live (each counterpart sits beside it). */
+export const COUNTERPART_DIRS = ['packages/app/features', 'packages/app/infrastructure']
+
 const FEATURE_SUFFIX = new RegExp(`-(${FEATURE_FRAMEWORKS.join('|')})$`)
+
+/**
+ * The kit's cases file name for a React feature package.
+ *
+ * @param reactPackage - `@molecule/app-tag-input-react`.
+ * @returns `tag-input` (`src/features/cases/tag-input.ts`).
+ */
+export const featureCasesName = (reactPackage) =>
+  reactPackage.replace(/^@molecule\/app-/, '').replace(/-react$/, '')
 
 /**
  * The React feature package a framework feature package is the counterpart of.
@@ -143,9 +174,11 @@ export const GROUPS = [
     exempt: {},
     entry: `${KIT}/features`,
     runner: 'runFeatureConformance',
-    call: "runFeatureConformance('<React package>', adapter, { module, knownGaps })",
+    call: "runFeatureConformance('<React package>', adapter, { module, cases, knownGaps })",
     goldensTest: 'features-goldens.test.ts',
     gapsKey: 'export',
+    casesEntry: `${KIT}/features/cases`,
+    fullParity: true,
   },
   {
     kind: 'routing bond',
@@ -308,6 +341,11 @@ function bondViolations(root, { dir, pkg }, group) {
     const reference = group.referenceOf?.(pkg.name)
     if (reference && !text.includes(`'${reference}'`))
       out.push(`${dir}: ${testName} must measure the package against '${reference}'`)
+    if (group.casesEntry && reference) {
+      const cases = `${group.casesEntry}/${featureCasesName(reference)}`
+      if (!text.includes(`'${cases}'`))
+        out.push(`${dir}: ${testName} must pass ${reference}'s cases, imported from '${cases}'`)
+    }
   }
   const gapsFile = join(root, dir, 'src', '__tests__', 'conformance', 'known-gaps.json')
   if (!group.gapsKey) {
@@ -335,6 +373,10 @@ function bondViolations(root, { dir, pkg }, group) {
         Object.values(gaps).every((v) => Array.isArray(v) && v.every((c) => typeof c === 'string'))
       if (!valid)
         out.push(`${dir}: known-gaps.json must map ${group.gapsKey} names to arrays of case names`)
+      else if (group.fullParity && Object.keys(gaps).length > 0)
+        out.push(
+          `${dir}: known-gaps.json must be {} (a feature bond matches its React package in every case): ${Object.keys(gaps).join(', ')}`,
+        )
     }
   }
   if (!pkg.devDependencies?.[KIT]) out.push(`${dir}: devDependencies must list ${KIT}`)
@@ -396,6 +438,8 @@ export function findConformanceViolations(root = ROOT) {
     }
   }
 
+  out.push(...featureParityViolations(root, kit))
+
   // Component markup of every UI bond and every feature bond takes its classes from the ClassMap.
   for (const { dir, pkg } of [...packages, ...featureBonds]) {
     if (pkg.name?.startsWith('@molecule/app-ui-') || featureBonds.some((b) => b.dir === dir))
@@ -404,12 +448,95 @@ export function findConformanceViolations(root = ROOT) {
   return out
 }
 
+/**
+ * Lists the packages in {@link COUNTERPART_DIRS}.
+ *
+ * @param root - The molecule repository root.
+ * @returns Each package dir (repo-relative) and its package.json.
+ */
+export function counterpartPackages(root = ROOT) {
+  const out = []
+  for (const rel of COUNTERPART_DIRS) {
+    const base = join(root, rel)
+    if (!existsSync(base)) continue
+    for (const e of readdirSync(base, { withFileTypes: true }))
+      if (e.isDirectory() && existsSync(join(base, e.name, 'package.json')))
+        out.push({ dir: `${rel}/${e.name}`, pkg: readJson(join(base, e.name, 'package.json')) })
+  }
+  return out.sort((a, b) => a.dir.localeCompare(b.dir))
+}
+
+/**
+ * Finds React packages without every framework counterpart, ledger entries
+ * that are out of date, and feature counterparts whose cases or goldens the
+ * kit lacks.
+ *
+ * @param root - The molecule repository root.
+ * @param kit - The kit's dir and package.json, or undefined when it is missing.
+ * @returns One line per violation.
+ */
+export function featureParityViolations(root, kit) {
+  const out = []
+  const all = counterpartPackages(root)
+  const names = new Set(all.map((p) => p.pkg.name))
+  const ledgerFile = join(root, FEATURE_PARITY_PENDING)
+  let ledger = {}
+  if (existsSync(ledgerFile)) {
+    try {
+      ledger = readJson(ledgerFile)
+    } catch (error) {
+      return [`${FEATURE_PARITY_PENDING}: not valid JSON (${error.message})`]
+    }
+  }
+  const reactPackages = all.filter((p) => /^@molecule\/app-.+-react$/.test(p.pkg.name ?? ''))
+  const reactNames = new Set(reactPackages.map((p) => p.pkg.name))
+  for (const name of Object.keys(ledger).sort()) {
+    if (!reactNames.has(name))
+      out.push(
+        `${FEATURE_PARITY_PENDING}: ${name} is not a React package in ${COUNTERPART_DIRS.join(' or ')}; remove its entry`,
+      )
+  }
+  for (const { dir, pkg } of reactPackages) {
+    const pending = ledger[pkg.name] ?? []
+    for (const framework of FEATURE_FRAMEWORKS) {
+      const counterpart = pkg.name.replace(/-react$/, `-${framework}`)
+      const exists = names.has(counterpart)
+      const sibling = `${dirname(dir)}/${counterpart.replace(/^@molecule\/app-/, '')}`
+      if (!exists && !pending.includes(framework))
+        out.push(
+          `${dir}: has no ${framework} counterpart (${counterpart} in ${sibling}); every React package ships with its ${FEATURE_FRAMEWORKS.join(', ')} counterparts`,
+        )
+      if (exists && pending.includes(framework))
+        out.push(
+          `${FEATURE_PARITY_PENDING}: ${pkg.name} lists ${framework}, but ${counterpart} exists; remove it from the entry`,
+        )
+      if (exists && kit && dir.startsWith('packages/app/features/')) {
+        const caseName = featureCasesName(pkg.name)
+        for (const file of [
+          `src/features/cases/${caseName}.ts`,
+          `src/features/goldens/${caseName}.json`,
+        ])
+          if (!existsSync(join(root, kit.dir, file)))
+            out.push(
+              `${kit.dir}: ${file} is missing (${counterpart} is measured against ${pkg.name})`,
+            )
+      }
+    }
+    for (const framework of pending)
+      if (!FEATURE_FRAMEWORKS.includes(framework))
+        out.push(
+          `${FEATURE_PARITY_PENDING}: ${pkg.name} lists ${framework}, which is not one of ${FEATURE_FRAMEWORKS.join(', ')}`,
+        )
+  }
+  return [...new Set(out)]
+}
+
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
 if (isMain) {
   const violations = findConformanceViolations()
   for (const v of violations) console.error(`framework-conformance: ${v}`)
   if (violations.length) process.exit(1)
   console.log(
-    'framework-conformance: every UI bond, framework binding, feature bond and routing bond runs the conformance kit',
+    'framework-conformance: every UI bond, framework binding, feature bond and routing bond runs the conformance kit, and every React package has its framework counterparts (or a pending-ledger entry)',
   )
 }

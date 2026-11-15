@@ -16,6 +16,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 import * as Binding from '@molecule/app-angular'
 import { createAngularAdapter } from '@molecule/app-framework-conformance/adapters/angular'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { oauthLogosFeature } from '@molecule/app-framework-conformance/features/cases/oauth-logos'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as UI from '@molecule/app-ui-angular'
 
@@ -26,5 +27,6 @@ const adapter = createAngularAdapter({ exports: { ...UI, ...Feature }, binding: 
 
 runFeatureConformance('@molecule/app-oauth-logos-react', adapter, {
   module: Feature,
+  cases: oauthLogosFeature,
   knownGaps: knownGaps as UIKnownGaps,
 })

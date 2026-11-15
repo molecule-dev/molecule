@@ -17,6 +17,8 @@ import {
   BINDING_REFERENCE,
   EXEMPT,
   FEATURE_FRAMEWORKS,
+  FEATURE_PARITY_PENDING,
+  featureCasesName,
   featureReference,
   findConformanceViolations,
   KIT,
@@ -351,8 +353,9 @@ runRouterConformance('foo-router', createHarness)
   describe('feature bonds', () => {
     const REACT_FEATURE = '@molecule/app-widget-react'
     const FEATURE_TEST_FILE = `import { runFeatureConformance } from '${KIT}/features'
+import { widgetFeature } from '${KIT}/features/cases/widget'
 import knownGaps from './conformance/known-gaps.json' with { type: 'json' }
-runFeatureConformance('${REACT_FEATURE}', adapter, { module, knownGaps })
+runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeature, knownGaps })
 `
 
     /**
@@ -360,7 +363,9 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, knownGaps })
      *
      * @param [options] - Overrides: the Vue package's fields, test (null for none), gaps
      *   (null for none) and files; `kit` fields; `goldens` false to drop the kit's feature
-     *   goldens test; `react` false to drop the React package.
+     *   goldens test; `react` false to drop the React package; `ledger` for the pending
+     *   ledger (null for none; by default it lists the three missing frameworks);
+     *   `kitFiles` false to drop the kit's widget cases and goldens files.
      * @returns The fixture root.
      */
     function featureTree(options = {}) {
@@ -385,6 +390,17 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, knownGaps })
           'packages/app/features/widget-react/package.json',
           JSON.stringify({ name: REACT_FEATURE }),
         )
+      const ledger =
+        options.ledger === undefined
+          ? options.react === false
+            ? {}
+            : { [REACT_FEATURE]: ['solid', 'svelte', 'angular'] }
+          : options.ledger
+      if (ledger !== null) write(FEATURE_PARITY_PENDING, JSON.stringify(ledger))
+      if (options.kitFiles !== false) {
+        write('packages/app/frameworks/conformance/src/features/cases/widget.ts', '')
+        write('packages/app/frameworks/conformance/src/features/goldens/widget.json', '{}')
+      }
       const dir = 'packages/app/features/widget-vue'
       write(
         `${dir}/package.json`,
@@ -461,6 +477,85 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, knownGaps })
       })
       expect(findConformanceViolations(root)).toEqual([
         'packages/app/features/widget-vue/src/AppWidget.vue:1: class="flex" is a raw class list; use a ClassMap token (class={cm.…})',
+      ])
+    })
+
+    it('names the kit cases file of a React feature package', () => {
+      expect(featureCasesName('@molecule/app-tag-input-react')).toBe('tag-input')
+    })
+
+    it('fails a React package with no counterparts and no ledger entry', () => {
+      const violations = findConformanceViolations(featureTree({ ledger: null }))
+      expect(violations).toEqual(
+        ['solid', 'svelte', 'angular'].map(
+          (fw) =>
+            `packages/app/features/widget-react: has no ${fw} counterpart (@molecule/app-widget-${fw} in packages/app/features/widget-${fw}); every React package ships with its vue, solid, svelte, angular counterparts`,
+        ),
+      )
+    })
+
+    it('fails a React infrastructure package with no counterparts (counterexample: the ledger excuses it)', () => {
+      const root = featureTree()
+      mkdirSync(join(root, 'packages/app/infrastructure/defaults-react'), { recursive: true })
+      writeFileSync(
+        join(root, 'packages/app/infrastructure/defaults-react/package.json'),
+        JSON.stringify({ name: '@molecule/app-defaults-react' }),
+      )
+      expect(findConformanceViolations(root)).toHaveLength(4)
+      writeFileSync(
+        join(root, FEATURE_PARITY_PENDING),
+        JSON.stringify({
+          [REACT_FEATURE]: ['solid', 'svelte', 'angular'],
+          '@molecule/app-defaults-react': FEATURE_FRAMEWORKS,
+        }),
+      )
+      expect(findConformanceViolations(root)).toEqual([])
+    })
+
+    it('fails a ledger entry that is out of date, names an unknown package or framework', () => {
+      const violations = findConformanceViolations(
+        featureTree({
+          ledger: {
+            [REACT_FEATURE]: ['vue', 'solid', 'svelte', 'angular', 'qwik'],
+            '@molecule/app-gone-react': ['vue'],
+          },
+        }),
+      )
+      expect(violations).toEqual([
+        `${FEATURE_PARITY_PENDING}: @molecule/app-gone-react is not a React package in packages/app/features or packages/app/infrastructure; remove its entry`,
+        `${FEATURE_PARITY_PENDING}: @molecule/app-widget-react lists vue, but @molecule/app-widget-vue exists; remove it from the entry`,
+        `${FEATURE_PARITY_PENDING}: @molecule/app-widget-react lists qwik, which is not one of vue, solid, svelte, angular`,
+      ])
+    })
+
+    it('fails a ledger that is not JSON', () => {
+      const root = featureTree()
+      writeFileSync(join(root, FEATURE_PARITY_PENDING), '{')
+      expect(findConformanceViolations(root).join('\n')).toMatch(
+        /feature-parity-pending\.json: not valid JSON/,
+      )
+    })
+
+    it('fails a feature bond with known gaps: feature bonds match React in every case', () => {
+      expect(findConformanceViolations(featureTree({ gaps: '{"AppWidget":["empty"]}' }))).toEqual([
+        'packages/app/features/widget-vue: known-gaps.json must be {} (a feature bond matches its React package in every case): AppWidget',
+      ])
+    })
+
+    it("fails a feature bond that does not pass its React package's cases", () => {
+      const test = FEATURE_TEST_FILE.replace(
+        `import { widgetFeature } from '${KIT}/features/cases/widget'\n`,
+        '',
+      )
+      expect(findConformanceViolations(featureTree({ test }))).toEqual([
+        `packages/app/features/widget-vue: conformance.test.ts must pass @molecule/app-widget-react's cases, imported from '${KIT}/features/cases/widget'`,
+      ])
+    })
+
+    it("fails a kit without the feature's cases or goldens file", () => {
+      expect(findConformanceViolations(featureTree({ kitFiles: false }))).toEqual([
+        'packages/app/frameworks/conformance: src/features/cases/widget.ts is missing (@molecule/app-widget-vue is measured against @molecule/app-widget-react)',
+        'packages/app/frameworks/conformance: src/features/goldens/widget.json is missing (@molecule/app-widget-vue is measured against @molecule/app-widget-react)',
       ])
     })
 

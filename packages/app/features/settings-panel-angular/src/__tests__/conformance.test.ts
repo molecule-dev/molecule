@@ -16,6 +16,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 import * as Binding from '@molecule/app-angular'
 import { createAngularAdapter } from '@molecule/app-framework-conformance/adapters/angular'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { settingsPanelFeature } from '@molecule/app-framework-conformance/features/cases/settings-panel'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Push from '@molecule/app-push'
 import * as UI from '@molecule/app-ui-angular'
@@ -27,6 +28,7 @@ const adapter = createAngularAdapter({ exports: { ...UI, ...Feature }, binding: 
 
 runFeatureConformance('@molecule/app-settings-panel-react', adapter, {
   module: Feature,
+  cases: settingsPanelFeature,
   knownGaps: knownGaps as UIKnownGaps,
   sharedModules: { '@molecule/app-push': Push },
 })

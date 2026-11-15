@@ -268,7 +268,10 @@ renders the same DOM and makes the same calls (`src/features/`, imported from
 `@molecule/app-framework-conformance/features`). An app swaps framework by swapping the
 package name in its imports.
 
-- **Cases:** `src/features/cases/<feature>.ts`, one `FeatureCases` per React package:
+- **Cases:** `src/features/cases/<feature>.ts` (`@molecule/app-<feature>-react`), exporting
+  exactly one `FeatureCases`; there is no index to keep in step (`src/features/all.ts` reads
+  the directory). A counterpart imports only its own file,
+  `@molecule/app-framework-conformance/features/cases/<feature>`:
   - `families`: component cases, written like UI cases (`UICase`) and run with the
     framework's UI adapter over its UI package plus the feature package.
   - `composition: 'app'`: the components read HTTP, push, device, auth …, so every case
@@ -288,9 +291,11 @@ package name in its imports.
   - `frameworkShaped`: exports whose value is the framework's own (a React context object,
     an inline style object, event-handler prop names), with the reason. The name must still
     be exported; the rendered DOM is where the effect is compared.
-- **Goldens:** `src/features/goldens.json`. `src/__tests__/features-goldens.test.ts` re-runs
-  every case in React and fails on a stale golden, a React error or warning, or a runtime
-  export that no case renders, compares, shares or names as framework-shaped.
+- **Goldens:** `src/features/goldens/<feature>.json`, one file per React package, so recording
+  one feature never rewrites another's. `src/__tests__/features-goldens.test.ts` re-runs
+  every case in React and fails on a stale golden, a React error or warning, a runtime
+  export that no case renders, compares, shares or names as framework-shaped, or a cases
+  file without goldens (and the other way round).
 - **Each counterpart** calls, from `src/__tests__/conformance.test.ts`:
 
   ```ts
@@ -299,6 +304,7 @@ package name in its imports.
     createVueAdapter({ exports: { ...VueUI, ...Header }, binding: AppVue }),
     {
       module: Header,
+      cases: headerFeature, // from '@molecule/app-framework-conformance/features/cases/header'
       knownGaps,
       // only for a package with hook cases or shared exports:
       bindingAdapter: createVueBindingAdapter({
@@ -311,11 +317,21 @@ package name in its imports.
   ```
 
   `check-framework-conformance.mjs` puts every `packages/app/features/<x>-<fw>` whose
-  `<x>-react` exists in the "feature bond" group: it must make this call, keep a
-  `known-gaps.json` and list this kit in `devDependencies`.
+  `<x>-react` exists in the "feature bond" group: it must make this call with its React
+  package's cases, keep a `known-gaps.json` that is `{}` (feature bonds match React in every
+  case) and list this kit in `devDependencies`.
+
+- **Every React package has its counterparts.** The same check fails a React package under
+  `packages/app/features/` or `packages/app/infrastructure/` that lacks a `-vue`, `-solid`,
+  `-svelte` or `-angular` counterpart beside it, unless molecule's
+  `scripts/feature-parity-pending.json` still lists that framework for it. The ledger only
+  shrinks: an entry whose counterpart exists fails until it is removed, and a new React
+  package has no entry, so it ships with its counterparts.
 
 ```bash
 # in this kit: check the feature goldens, or re-record them after changing a case or a React package
 npx vitest run src/__tests__/features-goldens.test.ts
 RECORD_GOLDENS=1 npx vitest run src/__tests__/features-goldens.test.ts
+# one feature only (loads only its cases, writes only its goldens file):
+CONFORMANCE_FEATURE=@molecule/app-header-react RECORD_GOLDENS=1 npx vitest run src/__tests__/features-goldens.test.ts
 ```

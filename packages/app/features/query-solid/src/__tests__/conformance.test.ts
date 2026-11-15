@@ -16,6 +16,7 @@ import '@molecule/app-framework-conformance/ui/setup'
 import { createSolidAdapter } from '@molecule/app-framework-conformance/adapters/solid'
 import { createSolidBindingAdapter } from '@molecule/app-framework-conformance/adapters/solid-bindings'
 import { runFeatureConformance } from '@molecule/app-framework-conformance/features'
+import { queryFeature } from '@molecule/app-framework-conformance/features/cases/query'
 import type { UIKnownGaps } from '@molecule/app-framework-conformance/ui'
 import * as Query from '@molecule/app-query'
 import * as Binding from '@molecule/app-solid'
@@ -28,6 +29,7 @@ const adapter = createSolidAdapter({ exports: { ...UI, ...Feature }, binding: Bi
 
 runFeatureConformance('@molecule/app-query-react', adapter, {
   module: Feature,
+  cases: queryFeature,
   knownGaps: knownGaps as UIKnownGaps,
   bindingAdapter: createSolidBindingAdapter({
     exports: { ...Binding, ...Feature },
