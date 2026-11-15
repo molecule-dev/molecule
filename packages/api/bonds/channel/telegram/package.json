@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-channel-telegram",
   "version": "1.0.3",
-  "description": "Telegram channel bond.",
+  "description": "Telegram channel bond — implements @molecule/api-channel for sendMessage, sendPhoto/sendDocument, secret-token webhook verification, and inbound update parsing (message/callback_query/inline_query).",
   "homepage": "https://www.molecule.dev/packages/api-channel-telegram",
   "type": "module",
   "main": "dist/index.js",

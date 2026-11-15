@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-cache",
   "version": "1.1.2",
-  "description": "Cache core interface for molecule.dev",
+  "description": "Application caching",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

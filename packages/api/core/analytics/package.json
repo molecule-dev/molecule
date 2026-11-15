@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-analytics",
   "version": "1.1.2",
-  "description": "Analytics core interface for molecule.dev",
+  "description": "Analytics tracking interface",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

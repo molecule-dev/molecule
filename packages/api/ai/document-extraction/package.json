@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-document-extraction",
   "version": "1.0.4",
-  "description": "Upload document → extract text → AI extract structured fields",
+  "description": "Structured field extraction from text",
   "homepage": "https://www.molecule.dev/packages/api-ai-document-extraction",
   "type": "module",
   "main": "dist/index.js",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-email-composer",
   "version": "1.0.3",
-  "description": "AI-assisted email drafting with tone, length, and audience controls",
+  "description": "Tone/length/audience-controlled AI email drafting",
   "homepage": "https://www.molecule.dev/packages/api-ai-email-composer",
   "type": "module",
   "main": "dist/index.js",

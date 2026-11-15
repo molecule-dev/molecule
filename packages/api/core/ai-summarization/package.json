@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-summarization",
   "version": "1.1.1",
-  "description": "AI text summarization composed over any bonded LLM (@molecule/api-ai), with a swappable provider contract",
+  "description": "AI summarization core interface — the AISummarizationProvider contract composed over any bonded @molecule/api-ai LLM; default provider lives in @molecule/api-ai-summarization-llm",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

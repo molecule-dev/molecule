@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-summarization-molecule",
   "version": "1.1.1",
-  "description": "molecule.dev hosted AI summarization — summaries with hard word caps, billed to your molecule project, no vendor account",
+  "description": "molecule.dev hosted AI summarization — summaries with hard word caps enforced in code, billed to your molecule project",
   "homepage": "https://www.molecule.dev/packages/api-ai-summarization-molecule",
   "type": "module",
   "main": "dist/index.js",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-classification",
   "version": "1.0.3",
-  "description": "Zero-shot AI text classification — score text against candidate labels via the swappable ai chat bond",
+  "description": "Zero-shot AI text classification core interface — score text against candidate labels with an LLM; default provider is @molecule/api-ai-classification-llm",
   "homepage": "https://www.molecule.dev/packages/api-ai-classification",
   "type": "module",
   "main": "dist/index.js",

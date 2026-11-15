@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-workflow-engine",
   "version": "1.0.3",
-  "description": "Trigger / condition / action workflow runner with AI-assisted step suggestions",
+  "description": "Trigger/condition/action workflow runner",
   "homepage": "https://www.molecule.dev/packages/api-ai-workflow-engine",
   "type": "module",
   "main": "dist/index.js",

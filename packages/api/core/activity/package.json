@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-activity",
   "version": "1.0.2",
-  "description": "Activity capture core interface for molecule.dev",
+  "description": "Activity capture interface (dev side-effect surface)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

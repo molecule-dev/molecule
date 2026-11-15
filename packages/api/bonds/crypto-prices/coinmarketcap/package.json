@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-crypto-prices-coinmarketcap",
   "version": "1.0.3",
-  "description": "CoinMarketCap crypto-prices provider for molecule.dev",
+  "description": "CoinMarketCap crypto-prices provider — Pro v1 API with X-CMC_PRO_API_KEY auth.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

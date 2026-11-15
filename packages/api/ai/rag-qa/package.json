@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-rag-qa",
   "version": "1.0.3",
-  "description": "RAG Q&A pipeline — chunk + embed + retrieve + ground answer with sources",
+  "description": "Chunk + embed + retrieve + ground answer pipeline",
   "homepage": "https://www.molecule.dev/packages/api-ai-rag-qa",
   "type": "module",
   "main": "dist/index.js",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-code-sandbox-flyio-sprites",
   "version": "1.0.9",
-  "description": "Fly Sprites (sprites.dev) code sandbox provider — persistent, auto-waking Linux environments",
+  "description": "Fly Sprites (persistent hardware-isolated microVM) code sandbox provider",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

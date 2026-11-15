@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-crypto-prices",
   "version": "1.0.5",
-  "description": "Crypto coin list + historical prices core interface for molecule.dev",
+  "description": "Crypto coin list + historical prices",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

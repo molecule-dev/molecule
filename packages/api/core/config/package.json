@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-config",
   "version": "1.0.4",
-  "description": "Configuration core interface for molecule.dev",
+  "description": "Configuration provider interface",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

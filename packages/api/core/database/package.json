@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-database",
   "version": "1.2.2",
-  "description": "Database core interface for molecule.dev",
+  "description": "Data persistence",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

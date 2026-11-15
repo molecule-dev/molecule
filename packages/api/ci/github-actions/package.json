@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ci-github-actions",
   "version": "1.0.3",
-  "description": "GitHub Actions CI/CD templates and utilities for molecule.dev",
+  "description": "GitHub Actions CI/CD workflows",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-rag-llm",
   "version": "1.0.4",
-  "description": "LLM-composed Retrieval-Augmented Generation provider for molecule.dev — the default ai-rag bond; composes @molecule/api-semantic-search (retrieval) with the bonded @molecule/api-ai chat provider (generation) to answer questions grounded in your own documents",
+  "description": "LLM-backed retrieval-augmented-generation provider for molecule.dev — composes semantic-search (embeddings + vector-store) and the ai chat bond for grounded answers",
   "homepage": "https://www.molecule.dev/packages/api-ai-rag-llm",
   "type": "module",
   "main": "dist/index.js",

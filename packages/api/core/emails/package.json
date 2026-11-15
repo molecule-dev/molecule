@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-emails",
   "version": "1.0.3",
-  "description": "Email core interface for molecule.dev",
+  "description": "Transactional email (password reset, notifications)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-emails-inbound",
   "version": "1.0.6",
-  "description": "Inbound email core interface for molecule.dev",
+  "description": "Inbound email-to-ticket bond (Mailgun Routes / SES Inbound) — sibling to outbound @molecule/api-emails-*.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

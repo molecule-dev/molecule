@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-decisions",
   "version": "1.1.2",
-  "description": "Typed AI decisions for molecule.dev — answer choice, score and yes/no questions about text, JSON or images with calibrated probabilities, behind swappable bonds (Laya, Jeff, Intern-Decision, Jev, any LLM)",
+  "description": "Typed AI decisions for molecule.dev — answer choice, score and yes/no questions about text or JSON with calibrated probabilities, behind swappable bonds (Laya, Jev, any LLM)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

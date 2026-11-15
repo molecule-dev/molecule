@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-decisions-molecule",
   "version": "1.1.1",
-  "description": "molecule.dev hosted AI decisions — typed choice/score/yes-no answers billed to your molecule project, no vendor account",
+  "description": "molecule.dev hosted AI decisions — typed choice/score/yes-no answers with probabilities, billed to your molecule project",
   "homepage": "https://www.molecule.dev/packages/api-ai-decisions-molecule",
   "type": "module",
   "main": "dist/index.js",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-quiz-generation",
   "version": "1.0.3",
-  "description": "AI quiz generation from source material + auto-grading",
+  "description": "Generate quizzes + AI grade responses",
   "homepage": "https://www.molecule.dev/packages/api-ai-quiz-generation",
   "type": "module",
   "main": "dist/index.js",

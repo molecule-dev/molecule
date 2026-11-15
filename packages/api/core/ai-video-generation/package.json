@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-video-generation",
   "version": "1.2.1",
-  "description": "AI video-generation core interface — generate short video clips with audio from text prompts and first-frame images, job-based, via swappable providers",
+  "description": "AI video-generation core interface — generate short video clips with audio from text prompts and first-frame images, job-based, via swappable providers.",
   "homepage": "https://www.molecule.dev/packages/api-ai-video-generation",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "type": "module",

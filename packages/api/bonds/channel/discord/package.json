@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-channel-discord",
   "version": "1.0.3",
-  "description": "Discord channel provider for molecule.dev",
+  "description": "Discord channel bond — implements @molecule/api-channel for sendMessage, ed25519 webhook signature verification, and inbound interaction parsing.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
