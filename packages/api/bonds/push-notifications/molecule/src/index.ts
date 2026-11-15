@@ -41,9 +41,11 @@
  *   overhead); subscriptions need the exact `endpoint` + `keys.p256dh` +
  *   `keys.auth` values `pushManager.subscribe()` returned. Bad calls are
  *   refused locally with 400/413 and never leave the process.
- * - Every push-service answer arrives as a resolved `SendResult`: `statusCode`
- *   201 means delivered; 404/410 mean the subscription is dead — prune it.
- *   `sendMany()` never aborts the batch on one dead subscription.
+ * - A resolved `SendResult` means the push service accepted the message. Any other
+ *   answer throws `PushServiceError` with the push service's status on `statusCode`,
+ *   as web-push's `WebPushError` does, so the core's pruning works with either bond:
+ *   `statusCode` 404/410 means the subscription is dead — delete it. `sendMany()`
+ *   never aborts the batch; a dead subscription's entry carries the error.
  * - Metered per send and billed to the project; the upstream push services
  *   (FCM, Mozilla autopush, Apple) are free, so the real upstream cost is 0 —
  *   the send still counts against the project's rate limit and free-tier

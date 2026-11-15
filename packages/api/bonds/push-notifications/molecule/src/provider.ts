@@ -120,6 +120,40 @@ export class MoleculeServiceError extends Error {
   }
 }
 
+/**
+ * The push service (FCM, Mozilla autopush, Apple) answered a send with a status outside 2xx.
+ *
+ * Thrown by `send` and placed in `SendManyResult.error`, with the push service's status on
+ * `statusCode` — the shape web-push's `WebPushError` has — so the core's documented pruning
+ * (`error.statusCode` 404 or 410 means the subscription is gone) works whichever push bond is
+ * wired. A resolved `SendResult` therefore always means the push service accepted the message.
+ */
+export class PushServiceError extends Error {
+  /** The push service's HTTP status: 404/410 mean the subscription is gone; 429 means slow down. */
+  readonly statusCode: number
+  /** The push service's response headers. */
+  readonly headers: Record<string, string>
+  /** The push service's response body. */
+  readonly body: string
+
+  /**
+   * Create the error.
+   *
+   * @param result - The push service's answer, as molecule.dev relayed it.
+   */
+  constructor(result: SendResult) {
+    const gone = result.statusCode === 404 || result.statusCode === 410
+    super(
+      `The push service answered ${result.statusCode}` +
+        (gone ? ': the subscription is gone; delete it.' : '.'),
+    )
+    this.name = 'PushServiceError'
+    this.statusCode = result.statusCode
+    this.headers = result.headers ?? {}
+    this.body = result.body ?? ''
+  }
+}
+
 /** What to tell the developer for each refusal the service can return. */
 const HINTS: Record<number, string> = {
   400: 'The subscription or payload was refused — check that `keys.p256dh`/`keys.auth` are the exact base64url values pushManager.subscribe() returned and that the endpoint URL is unchanged.',
@@ -243,8 +277,9 @@ export class MoleculePushProvider implements PushNotificationProvider {
    * @param payload - The notification payload (title + display options).
    * @param options - Optional delivery settings (TTL, urgency, topic); molecule.dev sends them
    *   to the push service as its TTL, Urgency and Topic headers.
-   * @returns The push service's answer: `statusCode` 201 means delivered;
-   * 404/410 mean the subscription is dead and should be pruned.
+   * @returns The push service's acceptance (`statusCode` 2xx).
+   * @throws {PushServiceError} When the push service answered outside 2xx; `statusCode`
+   *   404/410 means the subscription is dead and should be pruned.
    */
   async send(
     subscription: PushSubscription,
@@ -253,18 +288,20 @@ export class MoleculePushProvider implements PushNotificationProvider {
   ): Promise<SendResult> {
     assertValidSubscription(subscription)
     assertValidPayload(payload)
-    return this.request<SendResult>('send', {
+    const result = await this.request<SendResult>('send', {
       subscription,
       payload,
       ...(options ? { options } : {}),
     })
+    if (result.statusCode < 200 || result.statusCode > 299) throw new PushServiceError(result)
+    return result
   }
 
   /**
    * Sends a push notification to multiple subscriptions. One refused or
    * failed subscription never aborts the batch — each entry carries either
-   * `result` or `error` (a dead subscription arrives as a `result` whose
-   * `statusCode` is 404/410; prune on it).
+   * `result` or `error` (a dead subscription arrives as a `PushServiceError`
+   * in `error` whose `statusCode` is 404/410; prune on it).
    *
    * @param subscriptions - The push subscriptions to send to.
    * @param payload - The notification payload with title and optional display options.

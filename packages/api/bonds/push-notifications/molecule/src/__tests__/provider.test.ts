@@ -2,7 +2,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { NotificationPayload, PushSubscription } from '@molecule/api-push-notifications'
 
-import { createProvider, MoleculePushProvider, PUSH_SERVICE_LIMITS } from '../provider.js'
+import {
+  createProvider,
+  MoleculePushProvider,
+  PUSH_SERVICE_LIMITS,
+  PushServiceError,
+} from '../provider.js'
 
 /** Stub fetch with `status` and `body`. */
 function stubFetch(status: number, body: unknown): ReturnType<typeof vi.fn> {
@@ -52,14 +57,44 @@ describe('api-push-notifications-molecule', () => {
     expect(JSON.parse(String(init.body))).toEqual({ subscription: SUB, payload: PAYLOAD, options })
   })
 
-  it('relays a dead subscription as a resolved SendResult (prune on 404/410)', async () => {
-    stubFetch(200, { statusCode: 410, headers: {}, body: 'gone' })
+  it('throws a dead subscription as PushServiceError with statusCode, like web-push (OLD MUSTFAIL: resolved)', async () => {
+    stubFetch(200, { statusCode: 410, headers: { 'x-a': '1' }, body: 'gone' })
     const provider = createProvider({
       apiKey: 'mk_test',
       servicesUrl: 'http://localhost:1/api/v1/services',
     })
-    const result = await provider.send(SUB, PAYLOAD)
-    expect(result.statusCode).toBe(410)
+    const error = await provider.send(SUB, PAYLOAD).catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(PushServiceError)
+    expect(error).toMatchObject({ statusCode: 410, headers: { 'x-a': '1' }, body: 'gone' })
+    expect((error as Error).message).toMatch(/gone; delete it/)
+  })
+
+  it('the core’s documented pruning finds the dead subscription in sendMany', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ statusCode: 201, headers: {}, body: '' }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ statusCode: 404, headers: {}, body: '' }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ statusCode: 429, headers: {}, body: '' }), { status: 200 }),
+      )
+    vi.stubGlobal('fetch', fetchMock)
+    const provider = createProvider({
+      apiKey: 'mk_test',
+      servicesUrl: 'http://localhost:1/api/v1/services',
+    })
+    const results = await provider.sendMany([SUB, SUB, SUB], PAYLOAD)
+    // The pattern from @molecule/api-push-notifications' docs, verbatim in shape.
+    const gone = results
+      .map((r, i) => ({ i, code: (r.error as { statusCode?: number } | undefined)?.statusCode }))
+      .filter(({ code }) => code === 404 || code === 410)
+      .map(({ i }) => i)
+    expect(gone).toEqual([1])
+    expect(results[0].result?.statusCode).toBe(201)
+    expect(results[2].error).toMatchObject({ statusCode: 429 })
   })
 
   it('sendMany returns one entry per subscription and never aborts the batch', async () => {
