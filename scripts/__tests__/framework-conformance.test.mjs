@@ -19,6 +19,7 @@ import {
   FEATURE_FRAMEWORKS,
   FEATURE_PARITY_PENDING,
   featureCasesName,
+  featureCounterpart,
   featureReference,
   findConformanceViolations,
   KIT,
@@ -522,10 +523,105 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
         }),
       )
       expect(violations).toEqual([
-        `${FEATURE_PARITY_PENDING}: @molecule/app-gone-react is not a React package (named -react and depending on react) in packages/app/features or packages/app/infrastructure; remove its entry`,
+        `${FEATURE_PARITY_PENDING}: @molecule/app-gone-react is not a React package (depending on react) in packages/app/features or packages/app/infrastructure; remove its entry`,
         `${FEATURE_PARITY_PENDING}: @molecule/app-widget-react lists vue, but @molecule/app-widget-vue exists; remove it from the entry`,
         `${FEATURE_PARITY_PENDING}: @molecule/app-widget-react lists qwik, which is not one of vue, solid, svelte, angular`,
       ])
+    })
+
+    it('names the counterparts of a React package named without the -react suffix', () => {
+      const reactNames = new Set(['@molecule/app-chat-widget', '@molecule/app-header-react'])
+      expect(featureReference('@molecule/app-chat-widget-vue', reactNames)).toBe(
+        '@molecule/app-chat-widget',
+      )
+      expect(featureReference('@molecule/app-header-vue', reactNames)).toBe(
+        '@molecule/app-header-react',
+      )
+      expect(featureCounterpart('@molecule/app-chat-widget', 'solid')).toBe(
+        '@molecule/app-chat-widget-solid',
+      )
+      expect(featureCounterpart('@molecule/app-header-react', 'solid')).toBe(
+        '@molecule/app-header-solid',
+      )
+    })
+
+    it('fails an unsuffixed React package with no counterparts, and measures its counterparts against it', () => {
+      const root = featureTree()
+      const write = (file, text) => {
+        mkdirSync(dirname(join(root, file)), { recursive: true })
+        writeFileSync(join(root, file), text)
+      }
+      write(
+        'packages/app/features/chat-widget/package.json',
+        JSON.stringify({
+          name: '@molecule/app-chat-widget',
+          peerDependencies: { react: '^19.0.0' },
+        }),
+      )
+      expect(findConformanceViolations(root)).toEqual(
+        FEATURE_FRAMEWORKS.map(
+          (fw) =>
+            `packages/app/features/chat-widget: has no ${fw} counterpart (@molecule/app-chat-widget-${fw} in packages/app/features/chat-widget-${fw}); every React package ships with its vue, solid, svelte, angular counterparts`,
+        ),
+      )
+      // A Vue counterpart that measures itself against the -react name it does not have is refused.
+      write(
+        'packages/app/features/chat-widget-vue/package.json',
+        JSON.stringify({
+          name: '@molecule/app-chat-widget-vue',
+          devDependencies: { [KIT]: '0.0.0' },
+        }),
+      )
+      write('packages/app/features/chat-widget-vue/src/__tests__/conformance/known-gaps.json', '{}')
+      write(
+        'packages/app/features/chat-widget-vue/src/__tests__/conformance.test.ts',
+        FEATURE_TEST_FILE.replace(REACT_FEATURE, '@molecule/app-chat-widget-react'),
+      )
+      write(
+        FEATURE_PARITY_PENDING,
+        JSON.stringify({
+          [REACT_FEATURE]: ['solid', 'svelte', 'angular'],
+          '@molecule/app-chat-widget': ['solid', 'svelte', 'angular'],
+        }),
+      )
+      const violations = findConformanceViolations(root).join('\n')
+      expect(violations).toMatch(
+        /chat-widget-vue: conformance\.test\.ts must measure the package against '@molecule\/app-chat-widget'/,
+      )
+      expect(violations).toMatch(
+        /must depend on @molecule\/app-chat-widget so a React change re-checks the goldens/,
+      )
+      expect(violations).toMatch(/src\/features\/cases\/chat-widget\.ts is missing/)
+    })
+
+    it('needs no counterparts for an unsuffixed package without react, or a React Native package', () => {
+      const root = featureTree()
+      const write = (file, text) => {
+        mkdirSync(dirname(join(root, file)), { recursive: true })
+        writeFileSync(join(root, file), text)
+      }
+      write(
+        'packages/app/features/formatters/package.json',
+        JSON.stringify({
+          name: '@molecule/app-formatters',
+          peerDependencies: { '@molecule/app-i18n': '^1.0.0' },
+        }),
+      )
+      write(
+        'packages/app/features/camera-sheet/package.json',
+        JSON.stringify({
+          name: '@molecule/app-camera-sheet',
+          peerDependencies: { react: '^19.0.0', 'react-native': '^0.80.0' },
+        }),
+      )
+      write(
+        'packages/app/features/camera-sheet-react-native/package.json',
+        JSON.stringify({
+          name: '@molecule/app-camera-sheet-react-native',
+          peerDependencies: { react: '^19.0.0' },
+        }),
+      )
+      expect(findConformanceViolations(root)).toEqual([])
     })
 
     it('needs no counterparts for a framework-neutral -react package (no react dependency)', () => {

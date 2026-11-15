@@ -317,6 +317,12 @@
     "svelte",
     "angular"
   ],
+  "@molecule/app-embeddable-chat-widget": [
+    "vue",
+    "solid",
+    "svelte",
+    "angular"
+  ],
   "@molecule/app-emoji-reactions-react": [
     "vue",
     "solid",

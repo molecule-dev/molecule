@@ -49,10 +49,11 @@
  *
  * Feature bonds are held to full parity, and every React package has them:
  * - every React package under packages/app/features/ and
- *   packages/app/infrastructure/ (`@molecule/app-<x>-react` that depends on
- *   `react`; one that does not, like `@molecule/app-i18n-default-react`, is
- *   framework-neutral and every framework uses it as is) has a counterpart
- *   in each of {@link FEATURE_FRAMEWORKS} beside it (`@molecule/app-<x>-vue`, …),
+ *   packages/app/infrastructure/ (an `@molecule/app-*` package that depends on
+ *   `react`, named `-react` or unsuffixed; a `-react` package that does not, like
+ *   `@molecule/app-i18n-default-react`, is framework-neutral and every framework
+ *   uses it as is) has a counterpart in each of {@link FEATURE_FRAMEWORKS} beside it
+ *   (`@molecule/app-<x>-vue`, …; `<name>-vue` for an unsuffixed package),
  *   except the frameworks {@link FEATURE_PARITY_PENDING} still lists for it. That
  *   ledger may only shrink: an entry whose counterpart exists is a violation
  *   until it is removed, and a React package added later has no entry, so it
@@ -128,12 +129,33 @@ export const featureCasesName = (reactPackage) =>
 
 /**
  * The React feature package a framework feature package is the counterpart of.
+ * A React package named without the `-react` suffix (`@molecule/app-chat-widget`,
+ * depending on `react`) has its counterparts at `<name>-vue`, …; `reactNames`
+ * tells the two apart.
  *
  * @param name - A feature package name (`@molecule/app-header-vue`).
- * @returns `@molecule/app-header-react`, or null when the name has no framework suffix.
+ * @param [reactNames] - The React packages that exist. Without it the `-react` name is assumed.
+ * @returns `@molecule/app-header-react` (or the unsuffixed React package `reactNames`
+ *   holds), or null when the name has no framework suffix.
  */
-export const featureReference = (name) =>
-  FEATURE_SUFFIX.test(name) ? name.replace(FEATURE_SUFFIX, '-react') : null
+export const featureReference = (name, reactNames) => {
+  if (!FEATURE_SUFFIX.test(name)) return null
+  const suffixed = name.replace(FEATURE_SUFFIX, '-react')
+  const base = name.replace(FEATURE_SUFFIX, '')
+  return reactNames && !reactNames.has(suffixed) && reactNames.has(base) ? base : suffixed
+}
+
+/**
+ * The counterpart of a React package in one framework.
+ *
+ * @param reactPackage - `@molecule/app-header-react` or an unsuffixed React package.
+ * @param framework - One of {@link FEATURE_FRAMEWORKS}.
+ * @returns `@molecule/app-header-vue` (`<name>-vue` for an unsuffixed package).
+ */
+export const featureCounterpart = (reactPackage, framework) =>
+  reactPackage.endsWith('-react')
+    ? reactPackage.replace(/-react$/, `-${framework}`)
+    : `${reactPackage}-${framework}`
 
 /**
  * Each group of swappable framework bonds: which packages belong to it, the
@@ -168,11 +190,11 @@ export const GROUPS = [
     kind: 'feature bond',
     packages: (root) => featurePackages(root),
     member: (name, all) => {
-      const reference = featureReference(name)
+      const reference = featureReference(name, reactFeatureNames(all))
       return reference !== null && all.some((p) => p.pkg.name === reference)
     },
     reference: null,
-    referenceOf: featureReference,
+    referenceOf: (name, root) => featureReference(name, reactFeatureNames(featurePackages(root))),
     exempt: {},
     entry: `${KIT}/features`,
     runner: 'runFeatureConformance',
@@ -340,7 +362,7 @@ function bondViolations(root, { dir, pkg }, group) {
       out.push(`${dir}: ${testName} does not import '${group.entry}'`)
     if (!new RegExp(`\\b${group.runner}\\s*\\(`).test(text))
       out.push(`${dir}: ${testName} does not call ${group.runner}(`)
-    const reference = group.referenceOf?.(pkg.name)
+    const reference = group.referenceOf?.(pkg.name, root)
     if (reference && !text.includes(`'${reference}'`))
       out.push(`${dir}: ${testName} must measure the package against '${reference}'`)
     if (group.casesEntry && reference) {
@@ -409,7 +431,7 @@ export function findConformanceViolations(root = ROOT) {
               ...new Set(
                 all
                   .filter((b) => b.pkg.name && group.member(b.pkg.name, all))
-                  .map((b) => group.referenceOf(b.pkg.name)),
+                  .map((b) => group.referenceOf(b.pkg.name, root)),
               ),
             ].sort()
           : []
@@ -469,17 +491,32 @@ export function counterpartPackages(root = ROOT) {
 }
 
 /**
- * Whether a package is a React package that needs framework counterparts: named
- * `@molecule/app-<x>-react` and depending on `react`. A `-react` package without
- * a `react` dependency is framework-neutral (mlcl's `packageFramework` reads the
- * same dependencies), so every framework already uses it.
+ * Whether a package is a React package that needs framework counterparts: an
+ * `@molecule/app-*` package depending on `react`, named `-react` or without a
+ * framework suffix (`@molecule/app-embeddable-chat-widget`). A `-react` package
+ * without a `react` dependency is framework-neutral (mlcl's `packageFramework`
+ * reads the same dependencies), so every framework already uses it; React Native
+ * packages are their own platform.
  *
  * @param pkg - A package.json.
  * @returns True when it needs counterparts.
  */
-export const isReactPackage = (pkg) =>
-  /^@molecule\/app-.+-react$/.test(pkg.name ?? '') &&
-  ('react' in (pkg.peerDependencies ?? {}) || 'react' in (pkg.dependencies ?? {}))
+export const isReactPackage = (pkg) => {
+  const name = pkg.name ?? ''
+  const deps = { ...pkg.peerDependencies, ...pkg.dependencies }
+  if (!name.startsWith('@molecule/app-') || !('react' in deps) || 'react-native' in deps)
+    return false
+  return name.endsWith('-react') || !(FEATURE_SUFFIX.test(name) || /-react-native$/.test(name))
+}
+
+/**
+ * The React packages among some packages.
+ *
+ * @param packages - Package dirs and package.jsons.
+ * @returns Their React package names ({@link isReactPackage}).
+ */
+const reactFeatureNames = (packages) =>
+  new Set(packages.filter((p) => isReactPackage(p.pkg)).map((p) => p.pkg.name))
 
 /**
  * Finds React packages without every framework counterpart, ledger entries
@@ -508,13 +545,13 @@ export function featureParityViolations(root, kit) {
   for (const name of Object.keys(ledger).sort()) {
     if (!reactNames.has(name))
       out.push(
-        `${FEATURE_PARITY_PENDING}: ${name} is not a React package (named -react and depending on react) in ${COUNTERPART_DIRS.join(' or ')}; remove its entry`,
+        `${FEATURE_PARITY_PENDING}: ${name} is not a React package (depending on react) in ${COUNTERPART_DIRS.join(' or ')}; remove its entry`,
       )
   }
   for (const { dir, pkg } of reactPackages) {
     const pending = ledger[pkg.name] ?? []
     for (const framework of FEATURE_FRAMEWORKS) {
-      const counterpart = pkg.name.replace(/-react$/, `-${framework}`)
+      const counterpart = featureCounterpart(pkg.name, framework)
       const exists = names.has(counterpart)
       const sibling = `${dirname(dir)}/${counterpart.replace(/^@molecule\/app-/, '')}`
       if (!exists && !pending.includes(framework))
