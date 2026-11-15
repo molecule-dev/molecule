@@ -47,6 +47,7 @@ globalThis.fetch = async (url, init = {}) => {
   const live = sessions.includes(auth)
   if (u.pathname === '/-/v1/login' && method === 'POST') {
     log({ method, name: '(sign-in)', auth: auth || null })
+    if (headers['npm-auth-type'] !== 'web') return json({ error: 'Unauthorized' }, 401)
     return json({ loginUrl: 'https://www.npmjs.com/login?next=/login/cli/' + LOGIN_ID, doneUrl: 'https://registry.npmjs.org/-/v1/done?sessionId=' + LOGIN_ID })
   }
   if (u.pathname === '/-/v1/done' && u.searchParams.has('sessionId')) return json({ token: scenario.loginToken })

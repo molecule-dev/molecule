@@ -325,9 +325,14 @@ export function isNpmLoginPair(pair) {
  * @returns `{ loginUrl, doneUrl }`.
  */
 export async function npmLoginPair({ fetchImpl = fetch } = {}) {
+  // Without `npm-auth-type: web` npm answers 401 instead of a pair (measured 2026-11-15).
   const res = await fetchImpl('https://registry.npmjs.org/-/v1/login', {
     method: 'POST',
-    headers: { 'content-type': 'application/json', accept: 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      accept: 'application/json',
+      'npm-auth-type': 'web',
+    },
     body: '{}',
     signal: AbortSignal.timeout(20_000),
   })

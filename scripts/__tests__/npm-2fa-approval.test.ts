@@ -253,6 +253,8 @@ describe('npmLoginPair', () => {
     expect(seen[0].url).toBe('https://registry.npmjs.org/-/v1/login')
     expect(seen[0].init.method).toBe('POST')
     expect(seen[0].init.headers.authorization).toBeUndefined()
+    // npm answers 401 to a sign-in start without it (measured 2026-11-15).
+    expect(seen[0].init.headers['npm-auth-type']).toBe('web')
   })
 
   it('refuses a pair that is not npm pages', async () => {
