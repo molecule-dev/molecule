@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { stripVTControlCharacters } from 'node:util'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -47,8 +48,10 @@ function fixture({ red = [] } = {}) {
   }
   fs.mkdirSync(path.join(dir, 'tmp'))
   fs.symlinkSync(path.dirname(path.dirname(vitestBin(ROOT))), path.join(dir, 'node_modules'), 'dir')
-  const run = (args, groupSize = 2) =>
-    spawnSync(process.execPath, ['scripts/vitest-grouped.mjs', ...args], {
+  // Vitest colours its output in CI and turns colour off under an AI agent (std-env
+  // `isAgent`), so the same run prints different bytes on each: match on the text only.
+  const run = (args, groupSize = 2) => {
+    const result = spawnSync(process.execPath, ['scripts/vitest-grouped.mjs', ...args], {
       cwd: dir,
       env: {
         ...process.env,
@@ -58,6 +61,12 @@ function fixture({ red = [] } = {}) {
       encoding: 'utf8',
       timeout: 60000,
     })
+    return {
+      ...result,
+      stdout: stripVTControlCharacters(result.stdout),
+      stderr: stripVTControlCharacters(result.stderr),
+    }
+  }
   return { dir, run }
 }
 
