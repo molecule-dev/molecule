@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-noto-serif",
   "version": "1.0.1",
-  "description": "Noto Serif font provider for molecule.dev",
+  "description": "Noto Serif — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

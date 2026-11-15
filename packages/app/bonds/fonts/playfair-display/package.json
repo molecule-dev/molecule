@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-playfair-display",
   "version": "1.1.0",
-  "description": "Playfair Display font provider for molecule.dev",
+  "description": "Playfair Display — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

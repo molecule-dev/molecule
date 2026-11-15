@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-system",
   "version": "1.0.3",
-  "description": "System font provider for molecule.dev",
+  "description": "Native OS font stack — zero network requests, fastest load",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

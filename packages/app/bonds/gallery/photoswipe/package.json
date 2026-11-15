@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-gallery-photoswipe",
   "version": "1.0.3",
-  "description": "PhotoSwipe provider for @molecule/app-gallery",
+  "description": "PhotoSwipe v5 gallery provider for @molecule/app-gallery — opens the real PhotoSwipe lightbox for the core GalleryItem list",
   "homepage": "https://www.molecule.dev/packages/app-gallery-photoswipe",
   "type": "module",
   "main": "dist/index.js",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-caveat",
   "version": "1.0.1",
-  "description": "Caveat font provider for molecule.dev",
+  "description": "Caveat — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

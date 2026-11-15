@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-inter",
   "version": "1.0.6",
-  "description": "Inter font provider for molecule.dev",
+  "description": "Modern sans-serif designed for computer screens (local fonts)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

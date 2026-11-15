@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-keyboard-shortcuts-hotkeys",
   "version": "1.0.3",
-  "description": "hotkeys-js provider for @molecule/app-keyboard-shortcuts",
+  "description": "In-memory shortcut registry for @molecule/app-keyboard-shortcuts (app owns the keydown listener and dispatch)",
   "homepage": "https://www.molecule.dev/packages/app-keyboard-shortcuts-hotkeys",
   "type": "module",
   "main": "dist/index.js",

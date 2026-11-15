@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-lifecycle-react-native",
   "version": "1.0.5",
-  "description": "React Native lifecycle provider for molecule.dev (AppState)",
+  "description": "React Native app lifecycle provider",
   "homepage": "https://www.molecule.dev/packages/app-lifecycle-react-native",
   "type": "module",
   "main": "dist/index.js",

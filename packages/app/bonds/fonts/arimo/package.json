@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-arimo",
   "version": "1.0.5",
-  "description": "Arimo font provider for molecule.dev",
+  "description": "Clean sans-serif, metrically compatible with Arial (local fonts)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-help-button-react",
   "version": "4.0.0",
-  "description": "Floating help button + help-popover chrome for support widgets",
+  "description": "Floating / inline circular help button (FAB) for launching support panels or docs",
   "homepage": "https://www.molecule.dev/packages/app-help-button-react",
   "type": "module",
   "main": "dist/index.js",

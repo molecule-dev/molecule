@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-plus-jakarta-sans",
   "version": "1.0.7",
-  "description": "Plus Jakarta Sans font provider for molecule.dev",
+  "description": "Plus Jakarta Sans — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-lato",
   "version": "1.0.7",
-  "description": "Lato font provider for molecule.dev",
+  "description": "Lato — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

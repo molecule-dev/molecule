@@ -7,7 +7,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/locales/common"
   },
-  "description": "Common UI translations (close/continue/goBack/loading/saving/submit) shared across all molecule.dev apps in 73 languages",
+  "description": "Universal common.* keys (close / continue / goBack / loading / saving / submit) in 73 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-common",
   "type": "module",
   "main": "dist/index.js",

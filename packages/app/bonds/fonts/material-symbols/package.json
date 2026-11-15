@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-material-symbols",
   "version": "1.0.6",
-  "description": "Material Symbols Outlined font provider for molecule.dev",
+  "description": "Material Symbols Outlined — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

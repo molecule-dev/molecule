@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts",
   "version": "1.2.2",
-  "description": "Font interfaces and provider system for molecule.dev",
+  "description": "Font loading and typography — 20 self-hosted families ship as provider bonds (check here before npm-installing a webfont)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-public-sans",
   "version": "1.0.1",
-  "description": "Public Sans font provider for molecule.dev",
+  "description": "Public Sans — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

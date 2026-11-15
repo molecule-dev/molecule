@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-source-serif-4",
   "version": "1.1.0",
-  "description": "Source Serif 4 font provider for molecule.dev",
+  "description": "Source Serif 4 — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

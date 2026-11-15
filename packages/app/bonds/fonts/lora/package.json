@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-lora",
   "version": "1.0.7",
-  "description": "Lora font provider for molecule.dev",
+  "description": "Lora — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

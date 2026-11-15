@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-space-mono",
   "version": "1.0.1",
-  "description": "Space Mono font provider for molecule.dev",
+  "description": "Space Mono — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

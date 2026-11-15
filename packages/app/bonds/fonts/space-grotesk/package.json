@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-space-grotesk",
   "version": "1.0.7",
-  "description": "Space Grotesk font provider for molecule.dev",
+  "description": "Space Grotesk — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

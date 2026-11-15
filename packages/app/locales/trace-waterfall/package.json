@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-locales-trace-waterfall",
   "version": "1.0.4",
-  "description": "Translations for @molecule/app-trace-waterfall-react in 79 languages",
+  "description": "Locale bond for @molecule/app-trace-waterfall-react.",
   "homepage": "https://www.molecule.dev/packages/app-locales-trace-waterfall",
   "type": "module",
   "main": "dist/index.js",

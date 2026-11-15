@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-dm-mono",
   "version": "1.0.1",
-  "description": "DM Mono font provider for molecule.dev",
+  "description": "DM Mono — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

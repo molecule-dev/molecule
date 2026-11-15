@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-dm-sans",
   "version": "1.0.7",
-  "description": "DM Sans font provider for molecule.dev",
+  "description": "DM Sans — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

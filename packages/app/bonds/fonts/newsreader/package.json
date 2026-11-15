@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-newsreader",
   "version": "1.1.0",
-  "description": "Newsreader font provider for molecule.dev",
+  "description": "Newsreader — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

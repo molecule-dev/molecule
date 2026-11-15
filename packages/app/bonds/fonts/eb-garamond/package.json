@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-eb-garamond",
   "version": "1.0.1",
-  "description": "EB Garamond font provider for molecule.dev",
+  "description": "EB Garamond — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

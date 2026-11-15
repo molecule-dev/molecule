@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-image-crop-cropperjs",
   "version": "1.0.3",
-  "description": "Cropper.js provider for @molecule/app-image-crop",
+  "description": "Cropper.js provider for @molecule/app-image-crop — real cropperjs v1 cropper; getCroppedCanvas() returns the cropped canvas",
   "homepage": "https://www.molecule.dev/packages/app-image-crop-cropperjs",
   "type": "module",
   "main": "dist/index.js",

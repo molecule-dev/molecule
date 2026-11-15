@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-http",
   "version": "1.8.0",
-  "description": "Client HTTP interface for molecule.dev",
+  "description": "HTTP client with interceptors and providers",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

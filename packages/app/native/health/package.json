@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-health",
   "version": "1.0.5",
-  "description": "Health and fitness data interface for molecule.dev",
+  "description": "Health and fitness data interface (Apple HealthKit / Android Health Connect / Google Fit) — contract only; no provider ships with the fleet, so implement HealthProvider and setProvider() before use.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

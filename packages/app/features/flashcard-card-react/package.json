@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-flashcard-card-react",
   "version": "4.0.0",
-  "description": "Flashcard flip component with front/back + spaced-repetition grade buttons",
+  "description": "Flashcard study card — front/back reveal + SM-2 grade buttons (Again/Hard/Good/Easy)",
   "homepage": "https://www.molecule.dev/packages/app-flashcard-card-react",
   "type": "module",
   "main": "dist/index.js",

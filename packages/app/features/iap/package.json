@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-iap",
   "version": "1.0.5",
-  "description": "In-App Purchases interface for molecule.dev",
+  "description": "In-app purchase and subscription management",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

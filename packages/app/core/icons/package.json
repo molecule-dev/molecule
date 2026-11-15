@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-icons",
   "version": "1.0.4",
-  "description": "Icon set interfaces for molecule.dev",
+  "description": "Icon set interfaces and provider system",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

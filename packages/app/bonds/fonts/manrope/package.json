@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-manrope",
   "version": "1.0.7",
-  "description": "Manrope font provider for molecule.dev",
+  "description": "Manrope — local, self-hosted font (no external CDN)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

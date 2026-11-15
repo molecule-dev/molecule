@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-fonts-ionicons",
   "version": "1.1.5",
-  "description": "Ionicons 2.0 icon font provider for molecule.dev",
+  "description": "Ionicons 2.0 icon font — local, self-hosted (no external CDN), renders markup using i.ion-* glyph classes",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
