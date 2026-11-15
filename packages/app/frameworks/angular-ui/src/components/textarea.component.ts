@@ -15,12 +15,13 @@ import {
   ViewChild,
 } from '@angular/core'
 
+import { useTranslation } from '@molecule/app-angular'
 import type { Size, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { fieldContext } from '../utilities/form-field-context.js'
-import { moveRestAttributes } from '../utilities/rest-attrs.js'
+import { moveRestAttributes, reapplyRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
 /**
@@ -133,6 +134,13 @@ export class Textarea implements AfterViewInit, AfterViewChecked {
   @ViewChild('textareaEl') textareaEl?: ElementRef<HTMLTextAreaElement>
 
   private readonly host = inject(ElementRef)
+
+  /**
+   * Reactive translation, read in the injection context. Its `locale` marks
+   * this view for check on a locale switch (see {@link ngAfterViewChecked}).
+   */
+  private readonly i18n = useTranslation()
+
   /** The `aria-describedby` the caller spread onto the host (React's rest). */
   private restDescribedBy: string | null = null
   /** Whether the rest-describedby value was captured. */
@@ -267,9 +275,18 @@ export class Textarea implements AfterViewInit, AfterViewChecked {
   /**
    * Re-applies a controlled value and recomputes the autoResize height after
    * every check (React re-runs the value effect whenever `value` changes;
-   * running here covers that and any other input change in one place).
+   * running here covers that and any other input change in one place), and
+   * moves a caller's re-bound rest attribute (an accessible label following a
+   * locale switch) back onto the textarea.
    */
   ngAfterViewChecked(): void {
+    // Registering this view against the locale: a switch marks it for check,
+    // so this hook runs and the reapply below moves the caller's re-bound
+    // rest attribute onto the textarea. Without the read, zoneless change
+    // detection never re-checks this view — the parent's re-bound
+    // `[attr.aria-label]` would land on the host and stay there.
+    void this.i18n.locale()
+    reapplyRestAttributes(this.host.nativeElement, this.textareaEl?.nativeElement)
     this.applyValue(false)
     this.resize()
   }

@@ -22,7 +22,7 @@ import { getClassMap } from '@molecule/app-ui'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { fieldContext } from '../utilities/form-field-context.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
-import { moveRestAttributes } from '../utilities/rest-attrs.js'
+import { moveRestAttributes, reapplyRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
 /** One select option (React's `SelectOption`). */
@@ -309,9 +309,18 @@ export class Select implements AfterViewInit, AfterViewChecked {
 
   /**
    * Re-applies a controlled value after every check (React re-renders the
-   * value prop whenever it changes).
+   * value prop whenever it changes), and moves a caller's re-bound rest
+   * attribute (an accessible label following a locale switch) back onto the
+   * select.
    */
   ngAfterViewChecked(): void {
+    // Registering this view against the locale: a switch marks it for check,
+    // so this hook runs and the reapply below moves the caller's re-bound
+    // rest attribute onto the select. Without the read, zoneless change
+    // detection never re-checks this view — the parent's re-bound
+    // `[attr.aria-label]` would land on the host and stay there.
+    void this.i18n.locale()
+    reapplyRestAttributes(this.host.nativeElement, this.selectEl?.nativeElement)
     this.applyValue(false)
   }
 

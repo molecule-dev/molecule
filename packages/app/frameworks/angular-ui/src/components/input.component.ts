@@ -24,7 +24,7 @@ import { getClassMap } from '@molecule/app-ui'
 import type { FormFieldContext } from '../utilities/form-field-context.js'
 import { fieldContext } from '../utilities/form-field-context.js'
 import { MolIconSvg, type ResolvedIcon, resolveIcon } from '../utilities/render-icon.js'
-import { moveRestAttributes } from '../utilities/rest-attrs.js'
+import { moveRestAttributes, reapplyRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 import { hasNodes, SlotWrapper } from './button.component.js'
 
@@ -326,6 +326,12 @@ export class Input implements DoCheck {
    * already carries the right padding classes.
    */
   ngDoCheck(): void {
+    // Registering this view against the locale: a switch marks it for check,
+    // so this hook runs and the reapply below moves the caller's re-bound
+    // rest attribute onto the input. Without the read, zoneless change
+    // detection never re-checks this view — the parent's re-bound
+    // `[attr.aria-label]` would land on the host and stay there.
+    void this.i18n.locale()
     const host = this.host.nativeElement as HTMLElement
     const input = this.inputEl?.nativeElement ?? host.querySelector('input')
     const left =
@@ -348,9 +354,12 @@ export class Input implements DoCheck {
     this.sync.sync(right, this.hasRight || clear, this.parentOf(right))
     if (!this.movedRest && input) {
       this.restDescribedBy = host.getAttribute('aria-describedby')
-      moveRestAttributes(host, input)
       this.movedRest = true
+      moveRestAttributes(host, input)
     }
+    // A caller's re-bound rest attribute (`[attr.aria-label]` following a
+    // locale switch) lands back on the host; move it onto the input again.
+    reapplyRestAttributes(host, input)
     // React's controlled input: the live value always follows the `value` prop
     // after a re-render (the binding sets the attribute; the property is only
     // moved by the browser on an uncontrolled edit).
