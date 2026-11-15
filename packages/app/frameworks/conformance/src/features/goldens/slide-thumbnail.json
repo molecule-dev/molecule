@@ -1,0 +1,158 @@
+{
+ "exports": [
+  "SlideThumbnail"
+ ],
+ "values": {},
+ "cases": {
+  "SlideThumbnail": {
+   "index only, with the default aspect and width": {
+    "snapshots": [
+     "<button aria-label=\"Slide 3\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"3\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n3\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "live preview children": {
+    "snapshots": [
+     "<button aria-label=\"Slide 1\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"1\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<div data-preview>\n<span>\nTitle slide\n</span>\n</div>\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n1\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "active slide": {
+    "snapshots": [
+     "<button aria-current=\"true\" aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: 2px solid currentColor; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "inactive slide": {
+    "snapshots": [
+     "<button aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "active slide with a live preview": {
+    "snapshots": [
+     "<button aria-current=\"true\" aria-label=\"Slide 4\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"4\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: 2px solid currentColor; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<div data-preview>\n<span>\nTitle slide\n</span>\n</div>\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n4\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "four-by-three aspect": {
+    "snapshots": [
+     "<button aria-label=\"Slide 1\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"1\" style=\"aspect-ratio: 4 / 3; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n1\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "square aspect": {
+    "snapshots": [
+     "<button aria-label=\"Slide 1\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"1\" style=\"aspect-ratio: 1 / 1; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n1\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "default aspect": {
+    "snapshots": [
+     "<button aria-label=\"Slide 1\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"1\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n1\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom width": {
+    "snapshots": [
+     "<button aria-label=\"Slide 1\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"1\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 240px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n1\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero width": {
+    "snapshots": [
+     "<button aria-label=\"Slide 1\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"1\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 0px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n1\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "class passthrough and id data": {
+    "snapshots": [
+     "<button aria-label=\"Slide 7\" class=\"c13d4ff0f cd75bbd18 cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"7\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n7\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "everything together": {
+    "snapshots": [
+     "<button aria-current=\"true\" aria-label=\"Slide 12\" class=\"c13d4ff0f cd75bbd18 cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"12\" style=\"aspect-ratio: 4 / 3; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: 2px solid currentColor; overflow: hidden; padding: 0px; width: 96px\" type=\"button\">\n<div data-preview>\n<span>\nTitle slide\n</span>\n</div>\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n12\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "click calls onClick": {
+    "snapshots": [
+     "<button aria-label=\"Slide 1\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"1\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n1\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Slide 1\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"1\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n1\n</span>\n</button>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "click on the active tile calls onClick": {
+    "snapshots": [
+     "<button aria-current=\"true\" aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: 2px solid currentColor; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<div data-preview>\n<span>\nTitle slide\n</span>\n</div>\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /",
+     "<button aria-current=\"true\" aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: 2px solid currentColor; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<div data-preview>\n<span>\nTitle slide\n</span>\n</div>\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "index and active change": {
+    "snapshots": [
+     "<button aria-label=\"Slide 1\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"1\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n1\n</span>\n</button>\n@route /",
+     "<button aria-current=\"true\" aria-label=\"Slide 4\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"4\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: 2px solid currentColor; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n4\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "width and aspect change": {
+    "snapshots": [
+     "<button aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 1 / 1; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 300px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "active tile becomes inactive": {
+    "snapshots": [
+     "<button aria-current=\"true\" aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: 2px solid currentColor; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /",
+     "<button aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "inactive tile becomes active": {
+    "snapshots": [
+     "<button aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /",
+     "<button aria-current=\"true\" aria-label=\"Slide 2\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"2\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: 2px solid currentColor; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n2\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "label follows a locale switch": {
+    "snapshots": [
+     "<button aria-label=\"Slide 5\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"5\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n5\n</span>\n</button>\n@route /",
+     "<button aria-label=\"⟦Diapositive 5⟧\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"5\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n5\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   },
+   "index only, with the default aspect and width, then a locale switch": {
+    "snapshots": [
+     "<button aria-label=\"Slide 3\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"3\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n3\n</span>\n</button>\n@route /",
+     "<button aria-label=\"⟦Slide 3⟧\" class=\"c13d4ff0f cfc82911d\" data-mol-id=\"slide-thumbnail\" data-slide-index=\"3\" style=\"aspect-ratio: 16 / 9; background: var(--mol-color-surface, #fff); border: medium; outline-offset: 2px; outline: none; overflow: hidden; padding: 0px; width: 160px\" type=\"button\">\n<span style=\"background: rgba(0, 0, 0, 0.6); border-radius: 3px; color: rgb(255, 255, 255); font-size: 10px; font-weight: 700; left: 4px; padding: 0px 4px; position: absolute; top: 4px\">\n3\n</span>\n</button>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

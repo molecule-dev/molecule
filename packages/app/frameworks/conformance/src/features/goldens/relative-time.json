@@ -1,0 +1,186 @@
+{
+ "exports": [
+  "RelativeTime",
+  "formatRelativeTime"
+ ],
+ "values": {
+  "formatRelativeTime": [
+   "5 seconds ago",
+   "now",
+   "59 seconds ago",
+   "1 minute ago",
+   "5 minutes ago",
+   "60 minutes ago",
+   "2 hours ago",
+   "yesterday",
+   "3 days ago",
+   "last week",
+   "last month",
+   "last year",
+   "in 5 minutes",
+   "in 1 hour",
+   "tomorrow",
+   "next week",
+   "next year",
+   "1 minute ago",
+   "1 minute ago",
+   "1 minute ago",
+   "il y a 5 minutes",
+   "hace 5 minutos",
+   "5 minutes ago"
+  ]
+ },
+ "cases": {
+  "RelativeTime": {
+   "a past date renders its relative text": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "a future date renders \"in 3 days\"": {
+    "snapshots": [
+     "<time datetime=\"2026-05-16T12:00:00.000Z\">\nin 3 days\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "epoch milliseconds render the same instant": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "a Date instance renders the same instant": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:00:00.000Z\">\n1 hour ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "an ISO string without milliseconds keeps its own dateTime text": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:55:00Z\">\n5 minutes ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "the locale is passed through to Intl": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:55:00.000Z\">\nil y a 5 minutes\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "no locale uses the runtime locale": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "titleLocale adds the absolute date as a title": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:59:00.000Z\" title=\"Wednesday, May 13, 2026 at 11:59 AM\">\n1 minute ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "titleLocale in another locale formats the title": {
+    "snapshots": [
+     "<time datetime=\"2026-05-10T12:00:00.000Z\" title=\"Sonntag, 10. Mai 2026 um 12:00\">\n3 days ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "className is passed to the time element": {
+    "snapshots": [
+     "<time class=\"cd75bbd18\" datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "an unparseable date renders the fallback text": {
+    "snapshots": [
+     "<time datetime=\"not-a-date\">\nin NaNs\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "the default refresh interval re-renders after a minute": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n2 minutes ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "a custom refresh interval re-renders sooner": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:59:55.000Z\">\n5 seconds ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:59:55.000Z\">\n6 seconds ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "refreshMs 0 disables the timer": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "a negative refreshMs disables the timer": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "changing refreshMs restarts the timer": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n2 minutes ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "changing the date re-renders": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-10T12:00:00.000Z\">\n3 days ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "changing the locale re-renders": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:55:00.000Z\">\nvor 5 Minuten\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "changing the titleLocale re-renders": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:59:00.000Z\" title=\"Wednesday, 13 May 2026 at 11:59\">\n1 minute ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "adding and removing className re-renders": {
+    "snapshots": [
+     "<time class=\"cd75bbd18\" datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:59:00.000Z\">\n1 minute ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "a date half a second ahead renders \"now\"": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T13:00:00.000Z\">\nnow\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "a year back renders \"last year\"": {
+    "snapshots": [
+     "<time datetime=\"2025-05-12T12:00:00.000Z\">\nlast year\n</time>\n@route /"
+    ],
+    "calls": []
+   },
+   "a past date renders its relative text, then a locale switch": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /",
+     "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

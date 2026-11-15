@@ -1,0 +1,56 @@
+{
+ "exports": [
+  "RootErrorBoundary"
+ ],
+ "values": {},
+ "cases": {
+  "RootErrorBoundary": {
+   "text child": {
+    "snapshots": [
+     "App content\n@route /"
+    ],
+    "calls": []
+   },
+   "element child": {
+    "snapshots": [
+     "<main data-app>\napp content\n</main>\n@route /"
+    ],
+    "calls": []
+   },
+   "several children": {
+    "snapshots": [
+     "<header>\nAcme\n</header>\n<main>\nMain content\n</main>\n<footer>\n© Acme\n</footer>\n@route /"
+    ],
+    "calls": []
+   },
+   "children survive a re-render": {
+    "snapshots": [
+     "<main>\nMain content\n</main>\n@route /",
+     "<main data-conformance-mark=\"0\">\nMain content\n</main>\n@route /",
+     "<main data-conformance-mark=\"0\">\nMain content\n</main>\n@route /"
+    ],
+    "calls": []
+   },
+   "children survive a locale switch": {
+    "snapshots": [
+     "<main>\nMain content\n</main>\n@route /",
+     "<main>\nMain content\n</main>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty children": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "text child, then a locale switch": {
+    "snapshots": [
+     "App content\n@route /",
+     "App content\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}
