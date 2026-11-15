@@ -61,7 +61,8 @@
  * - a feature bond's known-gaps.json is `{}`: it matches React in every case;
  * - its conformance test passes its React package's cases
  *   (`${KIT}/features/cases/<x>`), and the kit has that cases file and its
- *   recorded goldens (`src/features/cases/<x>.ts`, `src/features/goldens/<x>.json`).
+ *   recorded goldens (`src/features/cases/<x>.ts`, `src/features/goldens/<x>.json` or, stored
+ *   per component, `src/features/goldens/<x>/index.json`).
  *
  * @module
  */
@@ -564,14 +565,18 @@ export function featureParityViolations(root, kit) {
         )
       if (exists && kit && dir.startsWith('packages/app/features/')) {
         const caseName = featureCasesName(pkg.name)
-        for (const file of [
-          `src/features/cases/${caseName}.ts`,
-          `src/features/goldens/${caseName}.json`,
-        ])
-          if (!existsSync(join(root, kit.dir, file)))
-            out.push(
-              `${kit.dir}: ${file} is missing (${counterpart} is measured against ${pkg.name})`,
-            )
+        const missing = (file) =>
+          out.push(
+            `${kit.dir}: ${file} is missing (${counterpart} is measured against ${pkg.name})`,
+          )
+        if (!existsSync(join(root, kit.dir, `src/features/cases/${caseName}.ts`)))
+          missing(`src/features/cases/${caseName}.ts`)
+        // Goldens are one file, or a directory per component (`goldensPerComponent`) with an index.
+        if (
+          !existsSync(join(root, kit.dir, `src/features/goldens/${caseName}.json`)) &&
+          !existsSync(join(root, kit.dir, `src/features/goldens/${caseName}/index.json`))
+        )
+          missing(`src/features/goldens/${caseName}.json`)
       }
     }
     for (const framework of pending)

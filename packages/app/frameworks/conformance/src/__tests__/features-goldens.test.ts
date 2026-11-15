@@ -16,8 +16,8 @@
  * @module
  */
 
-import { mkdirSync, readdirSync, writeFileSync } from 'node:fs'
-import { dirname } from 'node:path'
+import { existsSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 
 import '../ui/setup.js'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -29,6 +29,7 @@ import { type HookCaseResult, runHookCase } from '../bindings/index.js'
 import { featureCaseFileNames, loadFeatureCases } from '../features/all.js'
 import {
   FEATURE_GOLDENS_DIR,
+  FEATURE_GOLDENS_INDEX,
   featureAppComposition,
   type FeatureCases,
   featureCaseSet,
@@ -36,11 +37,12 @@ import {
   type FeatureGoldens,
   featureGoldensFile,
   featurePartProblems,
-  featureReadableGoldensFile,
   featureValue,
   loadFeatureGoldens,
   reactPartsUrl,
   sharedExportProblems,
+  writeFeatureGoldens,
+  writeFeatureReadableGoldens,
 } from '../features/index.js'
 import { caseExports, type CaseResult, onlyFromEnv, writePixelCapture } from '../ui/index.js'
 import { createReactAdapter } from './react-adapter.js'
@@ -50,6 +52,14 @@ import { assertCompleteRecording, missingRecordings } from './recording.js'
 const RECORD = process.env.RECORD_GOLDENS === '1'
 /** The React packages this run is narrowed to, or null for every feature. */
 const ONLY = onlyFromEnv('CONFORMANCE_FEATURE')
+/**
+ * The components this run is narrowed to (`CONFORMANCE_COMPONENTS=ChatPanel,…`), or null for all.
+ * A narrowed run skips value and hook checks; a narrowed recording rewrites only those
+ * components' goldens, so it needs a feature stored per component.
+ */
+const COMPONENTS = onlyFromEnv('CONFORMANCE_COMPONENTS')
+/** Whether a component family runs in this run. */
+const runsComponent = (component: string): boolean => !COMPONENTS || COMPONENTS.includes(component)
 
 /** The cases of each React feature package this run covers, by package. */
 const featureCases: Record<string, FeatureCases> = Object.fromEntries(
@@ -87,16 +97,29 @@ const SHARED_MODULES: Record<string, Record<string, unknown>> = Object.fromEntri
   ),
 )
 
+if (RECORD && COMPONENTS)
+  for (const [name, feature] of Object.entries(featureCases))
+    if (!feature.goldensPerComponent)
+      throw new Error(
+        `framework-conformance: CONFORMANCE_COMPONENTS narrows a recording, which would rewrite ${name}'s one goldens file without its other components; record it whole, or set goldensPerComponent in its cases`,
+      )
+
 const recorded: Record<string, FeatureGoldens> = {}
 const recordedReadable: Record<string, FeatureGoldens> = {}
 const stale = (name: string) =>
   `goldens are stale: run CONFORMANCE_FEATURE=${name} RECORD_GOLDENS=1 npx vitest run src/__tests__/features-goldens.test.ts in packages/app/frameworks/conformance`
 
 describe.skipIf(ONLY !== null)('feature goldens files', () => {
+  // A feature's goldens are one `<feature>.json`, or a `<feature>/` directory per component.
   const goldenNames = () =>
-    readdirSync(FEATURE_GOLDENS_DIR)
-      .filter((file) => file.endsWith('.json'))
-      .map((file) => file.slice(0, -'.json'.length))
+    readdirSync(FEATURE_GOLDENS_DIR, { withFileTypes: true }).flatMap((entry) =>
+      entry.isFile() && entry.name.endsWith('.json')
+        ? [entry.name.slice(0, -'.json'.length)]
+        : entry.isDirectory() &&
+            existsSync(join(FEATURE_GOLDENS_DIR, entry.name, FEATURE_GOLDENS_INDEX))
+          ? [entry.name]
+          : [],
+    )
   it('every goldens file has a cases file', () => {
     const cases = featureCaseFileNames()
     expect(goldenNames().filter((name) => !cases.includes(name))).toEqual([])
@@ -160,7 +183,7 @@ for (const [name, module] of Object.entries(MODULES)) {
       expect(goldens?.exports, stale(name)).toEqual(exportNames)
     })
 
-    for (const check of feature.values ?? []) {
+    for (const check of COMPONENTS ? [] : (feature.values ?? [])) {
       it(`value: ${check.export}`, () => {
         const value = featureValue(check, module[check.export])
         recorded[name]!.values[check.export] = value
@@ -183,7 +206,7 @@ for (const [name, module] of Object.entries(MODULES)) {
       vi.restoreAllMocks()
     })
 
-    for (const family of feature.hooks ?? []) {
+    for (const family of COMPONENTS ? [] : (feature.hooks ?? [])) {
       describe(`hook ${family.hook}`, () => {
         it('has unique case names', () => {
           const names = family.cases.map((c) => c.name)
@@ -211,7 +234,7 @@ for (const [name, module] of Object.entries(MODULES)) {
       })
     }
 
-    for (const family of feature.families) {
+    for (const family of feature.families.filter((f) => runsComponent(f.component))) {
       describe(family.component, () => {
         it('has unique case names', () => {
           const names = family.cases.map((c) => c.name)
@@ -256,25 +279,26 @@ afterAll(() => {
   for (const [name, feature] of Object.entries(featureCases)) {
     const expected: Record<string, string[]> = {}
     const got: Record<string, Record<string, unknown> | undefined> = {}
-    expected.values = (feature.values ?? []).map((v) => v.export)
-    got.values = recorded[name]?.values
-    for (const family of feature.families) {
+    if (!COMPONENTS) {
+      expected.values = (feature.values ?? []).map((v) => v.export)
+      got.values = recorded[name]?.values
+    }
+    for (const family of feature.families.filter((f) => runsComponent(f.component))) {
       expected[family.component] = family.cases.map((c) => c.name)
       got[family.component] = recorded[name]?.cases[family.component]
     }
-    for (const family of feature.hooks ?? []) {
+    for (const family of COMPONENTS ? [] : (feature.hooks ?? [])) {
       expected[`hook ${family.hook}`] = family.cases.map((c) => c.name)
       got[`hook ${family.hook}`] = recorded[name]?.hooks?.[family.hook]
     }
     assertCompleteRecording(missingRecordings(expected, got), featureGoldensFile(name))
   }
-  for (const name of Object.keys(featureCases)) {
+  for (const [name, feature] of Object.entries(featureCases)) {
     // A package without hook cases records no `hooks` key.
     for (const golden of [recorded[name]!, recordedReadable[name]!])
       if (golden.hooks && Object.keys(golden.hooks).length === 0) delete golden.hooks
-    writeFileSync(featureGoldensFile(name), `${JSON.stringify(recorded[name], null, 1)}\n`)
-    const readable = featureReadableGoldensFile(name)
-    mkdirSync(dirname(readable), { recursive: true })
-    writeFileSync(readable, JSON.stringify(recordedReadable[name]))
+    const form = { perComponent: feature.goldensPerComponent === true, components: COMPONENTS }
+    writeFeatureGoldens(name, recorded[name]!, form)
+    writeFeatureReadableGoldens(name, recordedReadable[name]!, form)
   }
 })

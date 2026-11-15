@@ -64,6 +64,13 @@ export interface FeatureCases {
    * {@link runFeatureConformance} and into its adapter's exports.
    */
   parts?: string[]
+  /**
+   * Store the goldens per component (`goldens/<feature>/<Component>.json` plus
+   * `index.json`) instead of in one file, for a package with many components: a
+   * recording narrowed with `CONFORMANCE_COMPONENTS=<Component>,…` then rewrites only
+   * those components' files, so ports of different components record side by side.
+   */
+  goldensPerComponent?: boolean
   /** Plain exports compared by value. */
   values?: FeatureValueCheck[]
   /**

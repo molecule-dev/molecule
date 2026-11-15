@@ -366,7 +366,8 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
      *   (null for none) and files; `kit` fields; `goldens` false to drop the kit's feature
      *   goldens test; `react` false to drop the React package; `ledger` for the pending
      *   ledger (null for none; by default it lists the three missing frameworks);
-     *   `kitFiles` false to drop the kit's widget cases and goldens files.
+     *   `kitFiles` false to drop the kit's widget cases and goldens files, `'per-component'` to
+     *   store the goldens as a directory with an index.
      * @returns The fixture root.
      */
     function featureTree(options = {}) {
@@ -400,7 +401,12 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
       if (ledger !== null) write(FEATURE_PARITY_PENDING, JSON.stringify(ledger))
       if (options.kitFiles !== false) {
         write('packages/app/frameworks/conformance/src/features/cases/widget.ts', '')
-        write('packages/app/frameworks/conformance/src/features/goldens/widget.json', '{}')
+        write(
+          options.kitFiles === 'per-component'
+            ? 'packages/app/frameworks/conformance/src/features/goldens/widget/index.json'
+            : 'packages/app/frameworks/conformance/src/features/goldens/widget.json',
+          '{}',
+        )
       }
       const dir = 'packages/app/features/widget-vue'
       write(
@@ -666,6 +672,10 @@ runFeatureConformance('${REACT_FEATURE}', adapter, { module, cases: widgetFeatur
         'packages/app/frameworks/conformance: src/features/cases/widget.ts is missing (@molecule/app-widget-vue is measured against @molecule/app-widget-react)',
         'packages/app/frameworks/conformance: src/features/goldens/widget.json is missing (@molecule/app-widget-vue is measured against @molecule/app-widget-react)',
       ])
+    })
+
+    it('accepts goldens stored per component (a directory with index.json)', () => {
+      expect(findConformanceViolations(featureTree({ kitFiles: 'per-component' }))).toEqual([])
     })
 
     it('leaves a framework package without a React counterpart alone', () => {

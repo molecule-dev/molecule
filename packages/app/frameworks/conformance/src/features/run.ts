@@ -15,7 +15,15 @@
  * @module
  */
 
-import { existsSync, readFileSync, realpathSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -29,7 +37,6 @@ import type { BindingAdapter, BindingContext } from '../bindings/spec.js'
 import {
   goldensCachePath,
   onlyFromEnv,
-  readGoldensCache,
   runCaseSuite,
   type UIKnownGaps,
   withKeyedLists,
@@ -92,15 +99,114 @@ export const featureGoldensFile = (reactPackage: string): string =>
   join(FEATURE_GOLDENS_DIR, `${featureCasesName(reactPackage)}.json`)
 
 /**
+ * The goldens directory of a feature stored per component
+ * ({@link FeatureCases.goldensPerComponent}): `index.json` holds the exports, values and
+ * hooks, and `<Component>.json` each component's case results.
+ *
+ * @param reactPackage - The React feature package.
+ * @returns `src/features/goldens/<feature>/`.
+ */
+export const featureGoldensDir = (reactPackage: string): string =>
+  join(FEATURE_GOLDENS_DIR, featureCasesName(reactPackage))
+
+/** The file of a per-component goldens directory that holds everything but the component cases. */
+export const FEATURE_GOLDENS_INDEX = 'index.json'
+
+/**
+ * Reads goldens stored either as one file or per component in a directory.
+ *
+ * @param file - The one-file form.
+ * @param dir - The per-component form.
+ * @returns The goldens, or null when neither exists.
+ */
+export function readFeatureGoldensAt(file: string, dir: string): FeatureGoldens | null {
+  if (existsSync(file)) return JSON.parse(readFileSync(file, 'utf8')) as FeatureGoldens
+  const index = join(dir, FEATURE_GOLDENS_INDEX)
+  if (!existsSync(index)) return null
+  const goldens = JSON.parse(readFileSync(index, 'utf8')) as Omit<FeatureGoldens, 'cases'>
+  const cases: FeatureGoldens['cases'] = {}
+  for (const name of readdirSync(dir).sort())
+    if (name.endsWith('.json') && name !== FEATURE_GOLDENS_INDEX)
+      cases[name.slice(0, -'.json'.length)] = JSON.parse(readFileSync(join(dir, name), 'utf8'))
+  return { ...goldens, cases }
+}
+
+/**
+ * Writes goldens in one file, or per component when the feature asks for it. A run
+ * narrowed to some components writes only theirs and leaves every other file as it is.
+ *
+ * @param file - The one-file form.
+ * @param dir - The per-component form.
+ * @param goldens - What the run recorded.
+ * @param options - `perComponent` (the feature's {@link FeatureCases.goldensPerComponent}),
+ *   `components` (the components the run was narrowed to, or null for all) and the
+ *   JSON indent.
+ */
+export function writeFeatureGoldensAt(
+  file: string,
+  dir: string,
+  goldens: FeatureGoldens,
+  options: { perComponent: boolean; components: string[] | null; indent?: number },
+): void {
+  const json = (value: unknown): string => `${JSON.stringify(value, null, options.indent)}\n`
+  if (!options.perComponent) {
+    if (options.components)
+      throw new Error(
+        'framework-conformance: a recording narrowed to components rewrites the one goldens file without the others; record the whole feature, or store it per component (goldensPerComponent)',
+      )
+    mkdirSync(dirname(file), { recursive: true })
+    writeFileSync(file, json(goldens))
+    // The other form, left by an earlier recording, would be read in place of this one.
+    rmSync(dir, { recursive: true, force: true })
+    return
+  }
+  rmSync(file, { force: true })
+  mkdirSync(dir, { recursive: true })
+  const { cases, ...rest } = goldens
+  if (!options.components) {
+    writeFileSync(join(dir, FEATURE_GOLDENS_INDEX), json(rest))
+    // A component no family renders any more leaves no file behind.
+    for (const name of readdirSync(dir))
+      if (name.endsWith('.json') && name !== FEATURE_GOLDENS_INDEX && !(name.slice(0, -5) in cases))
+        rmSync(join(dir, name))
+  }
+  for (const [component, results] of Object.entries(cases))
+    if (!options.components || options.components.includes(component))
+      writeFileSync(join(dir, `${component}.json`), json(results))
+}
+
+/**
  * The React reference results of one feature package.
  *
  * @param reactPackage - The React feature package.
  * @returns Its goldens, or null before they are recorded.
  */
 export function loadFeatureGoldens(reactPackage: string): FeatureGoldens | null {
-  const file = featureGoldensFile(reactPackage)
-  if (!existsSync(file)) return null
-  return JSON.parse(readFileSync(file, 'utf8')) as FeatureGoldens
+  return readFeatureGoldensAt(featureGoldensFile(reactPackage), featureGoldensDir(reactPackage))
+}
+
+/**
+ * Writes one feature package's committed goldens (the React recorder).
+ *
+ * @param reactPackage - The React feature package.
+ * @param goldens - What the run recorded.
+ * @param options - Whether the feature stores goldens per component, and the components a
+ *   narrowed run recorded (null for all).
+ */
+export function writeFeatureGoldens(
+  reactPackage: string,
+  goldens: FeatureGoldens,
+  options: { perComponent: boolean; components: string[] | null },
+): void {
+  writeFeatureGoldensAt(
+    featureGoldensFile(reactPackage),
+    featureGoldensDir(reactPackage),
+    goldens,
+    {
+      ...options,
+      indent: 1,
+    },
+  )
 }
 
 /**
@@ -111,6 +217,55 @@ export function loadFeatureGoldens(reactPackage: string): FeatureGoldens | null 
  */
 export const featureReadableGoldensFile = (reactPackage: string): string =>
   goldensCachePath(join('features', `${featureCasesName(reactPackage)}.readable.json`))
+
+/**
+ * The readable copy's per-component directory (never committed).
+ *
+ * @param reactPackage - The React feature package.
+ * @returns A path under the kit's `node_modules/.cache`.
+ */
+const featureReadableGoldensDir = (reactPackage: string): string =>
+  goldensCachePath(join('features', `${featureCasesName(reactPackage)}.readable`))
+
+/**
+ * Reads one feature package's readable goldens (real class names), in either form.
+ *
+ * @param reactPackage - The React feature package.
+ * @returns The readable goldens, or null before a recording on this machine.
+ */
+export function loadFeatureReadableGoldens(reactPackage: string): FeatureGoldens | null {
+  try {
+    return readFeatureGoldensAt(
+      featureReadableGoldensFile(reactPackage),
+      featureReadableGoldensDir(reactPackage),
+    )
+  } catch (error) {
+    throw new Error(
+      `framework-conformance: the readable goldens of ${reactPackage} are not valid JSON; delete ${featureReadableGoldensFile(reactPackage)} and ${featureReadableGoldensDir(reactPackage)}`,
+      { cause: error },
+    )
+  }
+}
+
+/**
+ * Writes one feature package's readable goldens, in the same form as its committed ones.
+ *
+ * @param reactPackage - The React feature package.
+ * @param goldens - The readable results.
+ * @param options - As for {@link writeFeatureGoldens}.
+ */
+export function writeFeatureReadableGoldens(
+  reactPackage: string,
+  goldens: FeatureGoldens,
+  options: { perComponent: boolean; components: string[] | null },
+): void {
+  writeFeatureGoldensAt(
+    featureReadableGoldensFile(reactPackage),
+    featureReadableGoldensDir(reactPackage),
+    goldens,
+    options,
+  )
+}
 
 /**
  * The comparable value of one export: a constant as plain data, or each call's result.
@@ -288,7 +443,7 @@ export function runFeatureConformance(
     )
   const gaps = options.knownGaps ?? {}
   const filter = onlyFromEnv('CONFORMANCE_COMPONENTS')
-  const readable = readGoldensCache<FeatureGoldens>(featureReadableGoldensFile(reactPackage))
+  const readable = loadFeatureReadableGoldens(reactPackage)
   runCaseSuite(
     {
       title: `${adapter.name} ${reactPackage} conformance`,

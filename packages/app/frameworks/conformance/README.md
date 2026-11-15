@@ -304,8 +304,12 @@ package name in its imports.
     React's built `dist/parts.js`; a counterpart passes its own module as `parts` and in its
     adapter's exports. A part may not also be a public export, and some family must render it.
 - **Goldens:** `src/features/goldens/<feature>.json`, one file per React package, so recording
-  one feature never rewrites another's. `src/__tests__/features-goldens.test.ts` re-runs
-  every case in React and fails on a stale golden, a React error or warning, a runtime
+  one feature never rewrites another's. A package with many components sets
+  `goldensPerComponent`: its goldens are `src/features/goldens/<feature>/<Component>.json` plus
+  `index.json` (exports, values, hooks), and `CONFORMANCE_COMPONENTS=<Component>,…` narrows a
+  recording to those components' files, so ports of different components record side by side
+  (a narrowed recording of a one-file feature is refused: it would drop the other components).
+  `src/__tests__/features-goldens.test.ts` re-runs every case in React and fails on a stale golden, a React error or warning, a runtime
   export that no case renders, compares, shares or names as framework-shaped, or a cases
   file without goldens (and the other way round).
 - **Each counterpart** calls, from `src/__tests__/conformance.test.ts`:
