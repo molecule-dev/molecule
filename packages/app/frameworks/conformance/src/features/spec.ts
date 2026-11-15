@@ -11,7 +11,7 @@
  */
 
 import type { BindingContext, HookCaseResult, HookCases } from '../bindings/spec.js'
-import type { CaseResult, UICase, UIComponentCases } from '../ui/spec.js'
+import type { CaseContext, CaseResult, UICase, UIComponentCases } from '../ui/spec.js'
 
 /** One plain export compared by value: a constant, or a function called with each argument list. */
 export interface FeatureValueCheck {
@@ -21,9 +21,19 @@ export interface FeatureValueCheck {
   calls?: unknown[][]
 }
 
+/**
+ * A feature case's context: the binding kit's services (HTTP, auth, storage,
+ * areas …) with the UI kit's translations. A feature component renders through
+ * the UI kit's i18n provider, so its translations take any locale, the
+ * pseudo-locale `en-XA` included, not only the binding provider's four.
+ */
+export interface FeatureCaseContext extends Omit<BindingContext, 'translations'> {
+  translations?: CaseContext['translations']
+}
+
 /** One feature case: a UI case whose context may also seed the binding kit's services. */
 export interface FeatureCase extends UICase {
-  context?: BindingContext
+  context?: FeatureCaseContext
 }
 
 /** One component's feature cases. */

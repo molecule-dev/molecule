@@ -48,7 +48,7 @@ export const withLocaleSwitch = (family: UIComponentCases): UIComponentCases => 
   const switched: UICase = {
     ...first,
     name: `${first.name}, then a locale switch`,
-    interactions: [...(first.interactions ?? []), { type: 'locale', code: PSEUDO_LOCALE }],
+    interactions: [...(first.interactions ?? []), { type: 'locale', locale: PSEUDO_LOCALE }],
   }
   return { ...family, cases: [...family.cases, switched] }
 }

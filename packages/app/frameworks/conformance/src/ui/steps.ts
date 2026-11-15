@@ -26,6 +26,7 @@ import type {
   UICase,
   WindowContext,
 } from './spec.js'
+import { checkFields, checkStepFields, type FieldsOf, type StepFields } from './step-fields.js'
 import { loadReferenceStylesheet, referenceStyles } from './stylesheet.js'
 
 /** The services one case runs against, identical for every adapter. */
@@ -383,6 +384,7 @@ export async function runSteps(
   recorder: CallRecorder,
   app: AppServices | null = null,
 ): Promise<CaseResult> {
+  checkCaseFields(testCase)
   if (testCase.fakeTimers)
     vi.useFakeTimers({
       toFake: [
@@ -455,6 +457,79 @@ export async function runSteps(
   return { snapshots, readable, ...(pages ? { pages } : {}), calls: recorder.calls }
 }
 
+/** The fields a UI case takes. */
+const CASE_FIELDS: FieldsOf<UICase> = {
+  name: 'required',
+  props: 'optional',
+  children: 'optional',
+  slots: 'optional',
+  callbacks: 'optional',
+  callbackResults: 'optional',
+  interactions: 'optional',
+  context: 'optional',
+  fakeTimers: 'optional',
+  viewportWidth: 'optional',
+  pointer: 'optional',
+  layout: 'optional',
+}
+
+/** The fields each interaction takes. */
+const INTERACTION_FIELDS: StepFields<Interaction> = {
+  click: { selector: 'required', modifiers: 'optional' },
+  dblclick: { selector: 'required' },
+  focus: { selector: 'required' },
+  blur: { selector: 'required' },
+  mouseenter: { selector: 'required' },
+  mouseleave: { selector: 'required' },
+  pointerdown: { selector: 'required' },
+  keydown: {
+    selector: 'required',
+    key: 'required',
+    metaKey: 'optional',
+    ctrlKey: 'optional',
+    shiftKey: 'optional',
+    altKey: 'optional',
+  },
+  input: { selector: 'required', value: 'required' },
+  check: { selector: 'required', checked: 'required' },
+  submit: { selector: 'required' },
+  advance: { ms: 'required' },
+  props: { props: 'required' },
+  settle: { callback: 'required', value: 'optional', error: 'optional' },
+  navigate: { to: 'required' },
+  event: { selector: 'required', event: 'required', bubbles: 'optional' },
+  locale: { locale: 'required' },
+  mark: { selector: 'required' },
+  http: {
+    method: 'required',
+    url: 'required',
+    status: 'optional',
+    data: 'optional',
+    networkError: 'optional',
+  },
+  auth: { status: 'required', user: 'optional' },
+  control: { name: 'required', args: 'optional' },
+  pointer: { selector: 'required', event: 'required', clientX: 'optional', clientY: 'optional' },
+  transfer: { selector: 'required', event: 'required', files: 'optional', data: 'optional' },
+  message: { data: 'optional', origin: 'optional', from: 'optional' },
+  storage: { key: 'required', value: 'required' },
+  fetch: {},
+  unmount: {},
+}
+
+/**
+ * Fails a UI case that carries a field the case or one of its interactions does
+ * not take (a misspelled field is otherwise never read, and the case tests nothing).
+ *
+ * @param testCase - The case.
+ */
+export function checkCaseFields(testCase: UICase): void {
+  checkFields(testCase, CASE_FIELDS, `the case "${testCase.name}"`)
+  ;(testCase.interactions ?? []).forEach((step, index) =>
+    checkStepFields(step, INTERACTION_FIELDS, `interaction ${index + 1} of "${testCase.name}"`),
+  )
+}
+
 /** The steps that still mean something once the component is gone: they settle what it started. */
 const AFTER_UNMOUNT = new Set<Interaction['type']>([
   'fetch',
@@ -506,7 +581,7 @@ const runStep = async (
       else if (step.type === 'settle') recorder.settle(step.callback, step.value, step.error)
       else if (step.type === 'fetch') page.answerFetch()
       else if (step.type === 'navigate') mounted.navigate(step.to)
-      else if (step.type === 'locale') await getI18nProvider().setLocale(step.code)
+      else if (step.type === 'locale') await getI18nProvider().setLocale(step.locale)
       else if (step.type === 'http') {
         const { method, url, status, data, networkError } = step
         controls().answerHttp({ method, url, status, data, networkError })

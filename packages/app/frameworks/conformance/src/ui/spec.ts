@@ -218,7 +218,7 @@ export type Interaction =
    * would. Translated text must follow at once: React's components re-render through
    * `useTranslation()`.
    */
-  | { type: 'locale'; code: string }
+  | { type: 'locale'; locale: string }
   /**
    * Stamps `data-conformance-mark="<n>"` on every element matching `selector`, from outside
    * the framework. A later snapshot shows which DOM nodes the component kept: a node it

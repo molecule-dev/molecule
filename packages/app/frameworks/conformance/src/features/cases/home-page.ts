@@ -60,7 +60,7 @@ export const homePageFeature: FeatureCases = {
         {
           name: 're-renders the greeting on a locale switch',
           context: authed,
-          interactions: [{ type: 'locale', code: 'en-XA' }],
+          interactions: [{ type: 'locale', locale: 'en-XA' }],
         },
         {
           name: 'follows a sign-in from elsewhere',

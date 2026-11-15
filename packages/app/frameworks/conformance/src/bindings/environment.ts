@@ -82,6 +82,86 @@ function unmatchedMediaQuery(media: string): MediaQueryList {
   }
 }
 
+/** A `matchMedia` whose answers a case sets, and the way to change one. */
+export interface MediaQueryControl {
+  /**
+   * Makes `query` match or not and notifies the `change` listeners of every list
+   * created for it whose answer changed.
+   *
+   * @param query - The query, compared as an exact string.
+   * @param matches - Whether it matches now.
+   */
+  set(query: string, matches: boolean): void
+  /** Restores the `matchMedia` that was there before. */
+  restore(): void
+}
+
+/**
+ * Installs a `matchMedia` that answers each query from a set the case controls
+ * (exact strings), and returns the control. Lists keep their own `matches`
+ * current and fire `change` (to `addEventListener('change')`, `addListener` and
+ * `onchange`) when a {@link MediaQueryControl.set} changes their answer.
+ *
+ * @param matching - The queries that match at first.
+ * @returns The control.
+ */
+export function installControlledMediaQueries(matching: readonly string[]): MediaQueryControl {
+  type Listener =
+    | EventListenerOrEventListenerObject
+    | ((this: MediaQueryList, event: MediaQueryListEvent) => unknown)
+    | null
+  const answers = new Set(matching)
+  const lists: { list: MediaQueryList; state: { matches: boolean }; listeners: Set<Listener> }[] =
+    []
+  const matchMedia = (media: string): MediaQueryList => {
+    const state = { matches: answers.has(media) }
+    const listeners = new Set<Listener>()
+    const list: MediaQueryList = {
+      get matches() {
+        return state.matches
+      },
+      media,
+      onchange: null,
+      addEventListener: (type: string, listener: Listener) => {
+        if (type === 'change') listeners.add(listener)
+      },
+      removeEventListener: (type: string, listener: Listener) => {
+        if (type === 'change') listeners.delete(listener)
+      },
+      addListener: (listener: Listener) => {
+        listeners.add(listener)
+      },
+      removeListener: (listener: Listener) => {
+        listeners.delete(listener)
+      },
+      dispatchEvent: () => false,
+    }
+    lists.push({ list, state, listeners })
+    return list
+  }
+  const restore = patchProperty(window, 'matchMedia', matchMedia)
+  return {
+    set(query, matches) {
+      if (matches) answers.add(query)
+      else answers.delete(query)
+      for (const { list, state, listeners } of lists) {
+        if (list.media !== query || state.matches === matches) continue
+        state.matches = matches
+        const event: MediaQueryListEvent = Object.assign(new Event('change'), {
+          matches,
+          media: query,
+        })
+        for (const listener of [...listeners]) {
+          if (typeof listener === 'function') listener.call(list, event)
+          else listener?.handleEvent(event)
+        }
+        list.onchange?.call(list, event)
+      }
+    },
+    restore,
+  }
+}
+
 /**
  * Pins the page environment to fixed values: a desktop Linux browser with a
  * 1280×800 window and screen, pixel ratio 1, four CPU cores, English, online,

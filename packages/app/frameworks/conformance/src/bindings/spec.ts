@@ -183,6 +183,30 @@ export type HookStep =
    * `push.receive`, …); see `src/bindings/fakes/`. Its result is awaited.
    */
   | { type: 'control'; name: string; args?: unknown[] }
+  /**
+   * Press a key: a `keydown` that bubbles from `target` (default `body`: nothing
+   * focused; `input`: a text field; `editor`: inside a code editor's
+   * `.monaco-editor` root) up to `document`. Records `@keydown` with the key and
+   * whether a listener prevented its default, so a global shortcut hook shows both
+   * that it fired and that it claimed the key. After `unmount` it shows the
+   * listener was removed.
+   */
+  | {
+      type: 'keydown'
+      key: string
+      metaKey?: boolean
+      ctrlKey?: boolean
+      altKey?: boolean
+      shiftKey?: boolean
+      target?: 'body' | 'input' | 'editor'
+    }
+  /**
+   * Make a media query start or stop matching (a window resized across a
+   * breakpoint, a touch screen attached) and notify its `change` listeners. The
+   * case's {@link HookCase.media} lists what matches at mount; every other query
+   * matches nothing until a `media` step says otherwise.
+   */
+  | { type: 'media'; query: string; matches: boolean }
   /** Unmount the host (later snapshots show only calls; cleanup is observable through them). */
   | { type: 'unmount' }
   /**
@@ -200,6 +224,12 @@ export interface HookCase {
   context?: BindingContext
   steps?: HookStep[]
   fakeTimers?: boolean
+  /**
+   * Media queries that match at mount (`'(max-width: 767px)'`), compared as
+   * exact strings. Without it every query matches nothing, unless a `media` step
+   * changes one.
+   */
+  media?: string[]
 }
 
 /** All cases for one hook export. */

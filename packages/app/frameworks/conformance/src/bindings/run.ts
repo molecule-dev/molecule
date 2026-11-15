@@ -12,9 +12,15 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
+import { checkFields, checkStepFields, type FieldsOf, type StepFields } from '../ui/step-fields.js'
 import { CallRecorder, settle } from '../ui/steps.js'
 import * as allCases from './cases/index.js'
-import { isolateBondRegistry, pinBrowserEnvironment } from './environment.js'
+import {
+  installControlledMediaQueries,
+  isolateBondRegistry,
+  type MediaQueryControl,
+  pinBrowserEnvironment,
+} from './environment.js'
 import goldensJson from './goldens.json' with { type: 'json' }
 import { buildBindingServices } from './services.js'
 import type {
@@ -92,6 +98,101 @@ const stepLabel = (step: HookStep): string =>
       ? `http ${step.method} ${step.url}`
       : step.type
 
+/** The fields a hook case takes. */
+const HOOK_CASE_FIELDS: FieldsOf<HookCase> = {
+  name: 'required',
+  args: 'optional',
+  context: 'optional',
+  steps: 'optional',
+  fakeTimers: 'optional',
+  media: 'optional',
+}
+
+/** The fields each hook step takes. */
+const HOOK_STEP_FIELDS: StepFields<HookStep> = {
+  call: { method: 'optional', args: 'optional', as: 'optional', on: 'optional' },
+  stable: { methods: 'optional' },
+  args: { args: 'required' },
+  advance: { ms: 'required' },
+  settle: { fn: 'required', value: 'optional', error: 'optional' },
+  http: {
+    method: 'required',
+    url: 'required',
+    status: 'optional',
+    data: 'optional',
+    networkError: 'optional',
+  },
+  auth: { status: 'required', user: 'optional' },
+  locale: { locale: 'required' },
+  theme: { mode: 'required' },
+  navigate: { to: 'required' },
+  back: {},
+  storage: { key: 'required', value: 'optional' },
+  control: { name: 'required', args: 'optional' },
+  keydown: {
+    key: 'required',
+    metaKey: 'optional',
+    ctrlKey: 'optional',
+    altKey: 'optional',
+    shiftKey: 'optional',
+    target: 'optional',
+  },
+  media: { query: 'required', matches: 'required' },
+  unmount: {},
+  remount: { args: 'optional' },
+}
+
+/**
+ * Fails a hook case that carries a field the case or one of its steps does not
+ * take (a misspelled field is otherwise never read, and the case tests nothing).
+ *
+ * @param testCase - The case.
+ */
+export function checkHookCaseFields(testCase: HookCase): void {
+  checkFields(testCase, HOOK_CASE_FIELDS, `the hook case "${testCase.name}"`)
+  ;(testCase.steps ?? []).forEach((step, index) =>
+    checkStepFields(step, HOOK_STEP_FIELDS, `step ${index + 1} of "${testCase.name}"`),
+  )
+}
+
+/**
+ * Dispatches a `keydown` step's event from its target (a temporary text field or
+ * code-editor root for `input` / `editor`, removed afterwards).
+ *
+ * @param step - The step.
+ * @returns What the step records: the key and whether a listener prevented its default.
+ */
+function pressKey(step: Extract<HookStep, { type: 'keydown' }>): {
+  key: string
+  defaultPrevented: boolean
+} {
+  let temporary: HTMLElement | null = null
+  let target: HTMLElement = document.body
+  if (step.target === 'input') {
+    temporary = target = document.createElement('input')
+    document.body.append(target)
+  } else if (step.target === 'editor') {
+    // Monaco marks its root with this class; editors and shortcut hooks look for it.
+    temporary = document.createElement('div')
+    temporary.className = 'monaco-editor'
+    target = document.createElement('textarea')
+    temporary.append(target)
+    document.body.append(temporary)
+  }
+  const event = new KeyboardEvent('keydown', {
+    key: step.key,
+    metaKey: step.metaKey ?? false,
+    ctrlKey: step.ctrlKey ?? false,
+    altKey: step.altKey ?? false,
+    shiftKey: step.shiftKey ?? false,
+    bubbles: true,
+    cancelable: true,
+  })
+  target.dispatchEvent(event)
+  temporary?.remove()
+  return { key: step.key, defaultPrevented: event.defaultPrevented }
+}
+
 /**
  * Runs one hook case through a framework adapter.
  *
@@ -112,6 +213,7 @@ export async function runHookCase(
     (f) => f.hook === hook,
   ),
 ): Promise<HookCaseResult> {
+  checkHookCaseFields(testCase)
   const stepArgs = (testCase.steps ?? []).flatMap((s) =>
     s.type === 'call' || s.type === 'args' ? (s.args ?? []) : [],
   )
@@ -130,6 +232,11 @@ export async function runHookCase(
   // patches over the pinned one and restores it.
   const restoreBonds = isolateBondRegistry()
   const restoreEnvironment = pinBrowserEnvironment()
+  // A case that names media queries, or changes one, answers them from its own set.
+  const media: MediaQueryControl | null =
+    testCase.media || (testCase.steps ?? []).some((s) => s.type === 'media')
+      ? installControlledMediaQueries(testCase.media ?? [])
+      : null
   // Everything after the pins runs inside one try, so a case that throws mid-run still
   // restores the bonds and the browser for every later case.
   let disposeControls: (() => Promise<void>) | null = null
@@ -348,6 +455,14 @@ export async function runHookCase(
           case 'control':
             await run(() => controls.control(step.name, step.args ?? []))
             break
+          case 'keydown':
+            await run(() => {
+              recorder.calls.push({ name: '@keydown', args: [pressKey(step)] })
+            })
+            break
+          case 'media':
+            await run(() => media?.set(step.query, step.matches))
+            break
           case 'unmount':
             if (!state.unmounted) await state.mounted.unmount()
             state.unmounted = true
@@ -383,6 +498,7 @@ export async function runHookCase(
   } finally {
     if (testCase.fakeTimers) vi.useRealTimers()
     await disposeControls?.()
+    media?.restore()
     restoreEnvironment()
     restoreBonds()
   }
