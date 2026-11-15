@@ -35,7 +35,7 @@
     "directory": "packages/api/bonds/push-notifications/molecule"
   },
   "peerDependencies": {
-    "@molecule/api-push-notifications": ">=1.0.2",
+    "@molecule/api-push-notifications": "^1.1.0",
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
