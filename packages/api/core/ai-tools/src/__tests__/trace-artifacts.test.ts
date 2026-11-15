@@ -1672,30 +1672,70 @@ describe('diagnosisTraceCommand — the trace a run must record', () => {
     expect(out.change).toBeNull()
   })
 
-  it('adds the flag to the whole-suite proof run too (xr-molecule-flash-m163 +24:58)', async () => {
-    const out = await diagnosisTraceCommand({
-      command: PROOF,
-      cwd: '/workspace/my-app/app',
-      readFile: config(''),
+  /**
+   * X1 P373–P385: a local whole walk ran a median 4.36 s a passed test with the flag (22 walks) and
+   * 3.06 s with the executor's own `--trace=off` (3 walks) — the recording fills a 2-vCPU sandbox
+   * the walk already fills. The rule: a local run of the WHOLE suite keeps the suite's own trace
+   * setting; a run that narrows the suite records a trace for each failure.
+   */
+  describe('a local walk of the whole suite keeps the suite’s own trace setting (P385)', () => {
+    const traced = (command: string, approvedExclusions: string[] = []) =>
+      diagnosisTraceCommand({
+        command,
+        cwd: '/workspace/my-app/app',
+        readFile: config("use: { trace: 'on-first-retry' }"),
+        approvedExclusions,
+      })
+
+    it('leaves the uncapped whole-suite walk as sent', async () => {
+      const out = await traced(PROOF)
+      expect(out.command).toBe(PROOF)
+      expect(out.change).toBeNull()
     })
-    // The proof run's one deployed failure left only an `error-context.md`: its config traces
-    // `on-first-retry` and the run has no retries, so no trace was kept and the executor hunted a
-    // `trace.zip` that could not exist. `retain-on-failure` keeps a trace only for a failing test,
-    // so a green proof retains nothing and a failing one leaves the log its cause is read from.
-    expect(out.command).toBe(`${PROOF} ${DIAGNOSIS_TRACE_FLAG}`)
-    expect(out.change).toContain(DIAGNOSIS_TRACE_FLAG)
-    expect(out.change).toContain('keeps a trace only for a test that fails')
+
+    it('leaves a whole walk that inverts only the titles the request excludes as sent', async () => {
+      const excluded = 'Comments should require login to post comment'
+      const command = `${PROOF} --grep-invert '${excluded}'`
+      expect((await traced(command, [excluded])).command).toBe(command)
+    })
+
+    it('still records a trace for each narrowing: a file, a title filter, a cap, the last failures', async () => {
+      for (const command of [
+        DIAGNOSIS,
+        `${PROOF} --grep 'checkout'`,
+        `${PROOF} --grep-invert 'an unapproved title'`,
+        PROOF.replace('--max-failures=0', '--max-failures=1'),
+        `${PROOF} --last-failed`,
+      ]) {
+        const out = await traced(command)
+        expect(out.command).toBe(`${command} ${DIAGNOSIS_TRACE_FLAG}`)
+        expect(out.change).toContain('keeps a trace only for a test that fails')
+      }
+    })
+
+    it('applies the same rule outside the benchmark suite (non-X1)', async () => {
+      const read = async (path: string): Promise<string> =>
+        path === '/srv/shop/playwright.config.ts' ? 'export default { use: {} }' : ''
+      const whole = 'cd /srv/shop && npx playwright test'
+      const named = 'cd /srv/shop && npx playwright test e2e/login.spec.ts'
+      expect(
+        (await diagnosisTraceCommand({ command: whole, cwd: '/srv', readFile: read })).change,
+      ).toBeNull()
+      expect(
+        (await diagnosisTraceCommand({ command: named, cwd: '/srv', readFile: read })).command,
+      ).toBe(`${named} ${DIAGNOSIS_TRACE_FLAG}`)
+    })
   })
 
-  it('puts the proof run’s flag inside a step its output is piped from, and the rewrite keeps it', async () => {
-    const piped = `${PROOF} 2>&1 | tail -60`
+  it('puts a narrowed run’s flag inside a step its output is piped from, and the rewrite keeps it', async () => {
+    const piped = `${DIAGNOSIS} 2>&1 | tail -60`
     const traced = await diagnosisTraceCommand({
       command: piped,
       cwd: '/workspace/my-app/app',
       readFile: config("use: { trace: 'on-first-retry' }"),
     })
     expect(traced.command).toContain(
-      `--config e2e/realworld.config.ts --retries=0 --reporter=list ${DIAGNOSIS_TRACE_FLAG} 2>&1`,
+      `social.spec.ts:22 --retries=0 --reporter=list ${DIAGNOSIS_TRACE_FLAG} 2>&1`,
     )
     const streamed = streamingBackgroundCommand(traced.command)
     expect(streamed.command).toContain(DIAGNOSIS_TRACE_FLAG)

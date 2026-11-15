@@ -87,13 +87,14 @@ describe('the Playwright runner, however its launcher is spelled', () => {
   })
 
   it.each(LAUNCHERS)(
-    'gets the trace flag on the run’s own arguments: %s',
-    async (_name, command) => {
-      const out = await diagnosisTraceCommand({
-        command,
-        cwd: '/workspace',
-        readFile: async () => '',
-      })
+    'gets the trace flag on a narrowed run’s own arguments: %s',
+    async (_name, whole) => {
+      // A local walk of the whole suite keeps the suite's own trace setting, whatever launches
+      // it; a run that names a spec records one.
+      const read = { cwd: '/workspace', readFile: async () => '' }
+      expect((await diagnosisTraceCommand({ command: whole, ...read })).change).toBeNull()
+      const command = `${whole} e2e/login.spec.ts`
+      const out = await diagnosisTraceCommand({ command, ...read })
       // Nothing in the config records a trace, so the platform adds it — at the end of the
       // runner's statement, never after a pipe or a redirect.
       expect(out.change).toContain(DIAGNOSIS_TRACE_FLAG)
@@ -111,11 +112,11 @@ describe('the Playwright runner, however its launcher is spelled', () => {
   it('puts the pin and the trace inside the run, before a pipe or a redirect', async () => {
     const command =
       'cd /workspace && node /workspace/node_modules/.bin/playwright test ' +
-      '--config pw.config.ts 2>&1 | tail -5'
+      '--config pw.config.ts e2e/login.spec.ts 2>&1 | tail -5'
     const pinned = suiteRunBudgetCommand(command, ['--timeout=15000']).command
     expect(pinned).toBe(
       'cd /workspace && node /workspace/node_modules/.bin/playwright test ' +
-        '--config pw.config.ts --timeout=15000 2>&1 | tail -5',
+        '--config pw.config.ts e2e/login.spec.ts --timeout=15000 2>&1 | tail -5',
     )
     const traced = await diagnosisTraceCommand({
       command,
@@ -124,7 +125,7 @@ describe('the Playwright runner, however its launcher is spelled', () => {
     })
     expect(traced.command).toBe(
       'cd /workspace && node /workspace/node_modules/.bin/playwright test ' +
-        `--config pw.config.ts ${DIAGNOSIS_TRACE_FLAG} 2>&1 | tail -5`,
+        `--config pw.config.ts e2e/login.spec.ts ${DIAGNOSIS_TRACE_FLAG} 2>&1 | tail -5`,
     )
   })
 

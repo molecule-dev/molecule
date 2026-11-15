@@ -3360,6 +3360,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         cwd,
         readFile: (path) => backend.readFile(path),
         readDir: (path) => backend.readDir(path),
+        approvedExclusions: excludedTestTitles?.() ?? [],
       })
       const requestScope = requestScopedCommand(
         traced.command,

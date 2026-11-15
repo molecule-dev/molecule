@@ -586,23 +586,29 @@ describe('buildTools', () => {
     expect(result.note).toContain('--trace=retain-on-failure')
   })
 
-  it('adds the flag to the whole-suite proof run too, and leaves an existing --trace alone', async () => {
+  it('leaves a local whole-suite walk to the suite’s own trace setting, and an existing --trace alone', async () => {
     const backend = mockBackend()
     backend.readFile = vi.fn(async () => "export default { use: { trace: 'on-first-retry' } }")
-    const tools = buildTools(backend)
+    const excluded = 'should require login to post comment'
+    const tools = buildTools(backend, { excludedTestTitles: () => [excluded] })
     const exec = tools.find((t) => t.name === 'exec_command')!
 
-    // xr-molecule-flash-m163 (+24:58): the whole-suite proof run's one failure left no trace, and
-    // the result pointed at a trace reading that could not exist. `retain-on-failure` keeps a
-    // trace only for a failing test, so the green proof retains nothing (tools.ts).
+    // X1 P373–P385: the recording slowed every local whole walk (4.36 s a passed test with the
+    // flag, 3.06 s with `--trace=off`); a failure is diagnosed in the narrowed re-run instead.
     await exec.execute({ command: 'npx playwright test --max-failures=0 --config p.config.ts' })
-    expect(String(backend.run.mock.calls[0]?.[0])).toContain('--trace=retain-on-failure')
+    expect(String(backend.run.mock.calls[0]?.[0])).not.toContain('--trace')
+    // Inverting only the titles the request excludes still walks the whole suite.
+    await exec.execute({ command: `npx playwright test --config p.config.ts -G '${excluded}'` })
+    expect(String(backend.run.mock.calls[1]?.[0])).not.toContain('--trace')
+    // A cap narrows the walk, so it records a trace for its failure.
+    await exec.execute({ command: 'npx playwright test --max-failures=1 --config p.config.ts' })
+    expect(String(backend.run.mock.calls[2]?.[0])).toContain('--trace=retain-on-failure')
 
     await exec.execute({
       command: 'npx playwright test e2e/a.spec.ts:3 --trace=on --config p.config.ts',
     })
-    expect(String(backend.run.mock.calls[1]?.[0])).toContain('--trace=on')
-    expect(String(backend.run.mock.calls[1]?.[0])).not.toContain('retain-on-failure')
+    expect(String(backend.run.mock.calls[3]?.[0])).toContain('--trace=on')
+    expect(String(backend.run.mock.calls[3]?.[0])).not.toContain('retain-on-failure')
   })
 
   it('says nothing when the suite’s own config already records failures', async () => {
@@ -3278,7 +3284,7 @@ describe('exec_command run_in_background', () => {
     expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
         `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
-        'npx playwright test --retries=1 --trace=retain-on-failure --reporter=list,json\n',
+        'npx playwright test --retries=1 --reporter=list,json\n',
     )
     expect(r.note).toContain('lower CPU and IO priority')
   })
@@ -3318,7 +3324,7 @@ describe('exec_command run_in_background', () => {
     expect(written).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
         `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
-        'cd e2e && npx playwright test --trace=retain-on-failure --reporter=list,json 2>&1\n',
+        'cd e2e && npx playwright test --reporter=list,json 2>&1\n',
     )
     expect(r.note).toContain('Dropped the trailing `| tail -70`')
     expect(r.note).toContain('--reporter=list')
@@ -3343,7 +3349,7 @@ describe('exec_command run_in_background', () => {
     expect(written).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
         `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
-        'cd spec/run && npx playwright test --retries=0 --reporter=list,json --trace=retain-on-failure\n',
+        'cd spec/run && npx playwright test --retries=0 --reporter=list,json\n',
     )
     expect(r.note).toContain('Switched the test reporters to `--reporter=list`')
   })
@@ -3423,7 +3429,7 @@ describe('exec_command run_in_background', () => {
     expect(r.note).toContain('writes its own output to /test/out.log')
   })
 
-  it('keeps its own reporter, adds no drop note, and gains only the trace flag', async () => {
+  it('keeps its own reporter, adds no drop note, and gains only the machine report', async () => {
     const backend = bgBackend()
     const tools = buildTools(backend)
     const exec = tools.find((t) => t.name === 'exec_command')!
@@ -3435,8 +3441,7 @@ describe('exec_command run_in_background', () => {
     expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
         `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
-        'npx playwright test --reporter=list,json ' +
-        '--trace=retain-on-failure > out.txt\n',
+        'npx playwright test --reporter=list,json > out.txt\n',
     )
     expect(r.note).not.toContain('Dropped')
   })

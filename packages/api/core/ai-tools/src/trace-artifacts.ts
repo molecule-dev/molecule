@@ -33,7 +33,7 @@
 import { logicalCommandText } from './command-plan.js'
 import { locatedCommandSegments, statementArgumentEnd } from './command-position.js'
 import { codeWithModuleSpecifiers } from './source-code.js'
-import { playwrightCommandTarget, suiteRunDirectory } from './suite-overlap.js'
+import { isDiagnosisRun, playwrightCommandTarget, suiteRunDirectory } from './suite-overlap.js'
 import { isPlaywrightRunCommand, redactSecrets } from './utilities.js'
 
 /** One request a traced page made, as `*.network` records it. */
@@ -5709,9 +5709,10 @@ export interface DiagnosisTraceRewrite {
  * the platform's re-run note carries `--trace=on` for a run that did leave none.
  *
  * Which runs are proof-capable is {@link suiteCommandTarget}'s answer: a run against a deployed
- * URL. A LOCAL run is never left to its config, because the launcher gives every local run
- * `--retries=0` (`@molecule/api-ai-tools` `streamingBackgroundCommand`), so its retry trace would
- * never happen. A run that pins `--retries=0` itself is in the same position, whatever its target.
+ * URL. A LOCAL run that narrows the suite is not left to its config, because the launcher gives
+ * every local run `--retries=0` (`@molecule/api-ai-tools` `streamingBackgroundCommand`), so its
+ * retry trace would never happen. A deployed run that pins `--retries=0` itself is in the same
+ * position.
  *
  * A proof-capable run is left alone WHATEVER its config traces. `--trace` is a per-run override of
  * the suite's own `use.trace` (Playwright merges the CLI's `use` into every project's), and a test
@@ -5723,7 +5724,19 @@ export interface DiagnosisTraceRewrite {
  * +18.2 and +22.9, and neither counted). A failure in a suite that keeps no trace at all is still
  * readable: the platform's re-run note carries `--trace=on` for a run that left none.
  *
- * @param args - The command, the directory it starts in, and the backend's file read.
+ * A LOCAL walk of the WHOLE suite keeps the suite's own trace setting too, and only a run that
+ * narrows the suite records one: the rule is "a local run of the whole suite runs with the suite's
+ * own trace setting; a run that names files or tests, filters titles, re-runs the last failures or
+ * caps failures records a trace for each failure", and its one input is the command's own
+ * arguments ({@link isDiagnosisRun}, the reading the launcher's `--retries=0` rule already uses).
+ * The recording is paid on every action of every test, and on a 2-vCPU sandbox a whole walk
+ * already fills both cores: X1 P373–P385 local whole walks ran a median 4.36 s a passed test with
+ * the flag (22 walks) and 3.06 s without it (3 walks the executor ran with `--trace=off`), about a
+ * minute a walk on a 73-test suite. A failure is diagnosed in the narrowed re-run the platform
+ * hands back, which names the failing tests and so gets the flag.
+ *
+ * @param args - The command, the directory it starts in, the backend's file read, and the titles
+ *   the request excludes by name (an inversion of exactly those still walks the whole suite).
  * @returns The command to run and the sentence to report, or the command unchanged.
  */
 export async function diagnosisTraceCommand(args: {
@@ -5731,15 +5744,22 @@ export async function diagnosisTraceCommand(args: {
   cwd: string
   readFile: (path: string) => Promise<string>
   readDir?: ReadConfigDirectory
+  approvedExclusions?: readonly string[]
 }): Promise<DiagnosisTraceRewrite> {
   const unchanged = { command: args.command, change: null }
   if (namesTraceMode(args.command)) return unchanged
   // Only a Playwright run leaves a trace to read.
   if (!isPlaywrightRunCommand(args.command)) return unchanged
+  const target = playwrightCommandTarget(args.command)
   // A proof-capable run keeps the suite's own tracing and retries: the graded measurement is the
   // suite's own settings, and a flag here would make the run's records unprovable (see above). No
   // config needs reading to know that.
-  if (playwrightCommandTarget(args.command) !== 'local' && !namesNoRetries(args.command))
+  if (target !== 'local' && !namesNoRetries(args.command)) return unchanged
+  // A local walk of the whole suite runs with the suite's own trace setting (see above).
+  if (
+    target === 'local' &&
+    !isDiagnosisRun(args.command, { approvedExclusions: args.approvedExclusions ?? [] })
+  )
     return unchanged
   const config = await readRunConfig(args.command, args.cwd, args.readFile, args.readDir)
   if (suiteRecordsTraces(config)) return unchanged

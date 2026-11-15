@@ -249,8 +249,10 @@ describe('single-failure delivery', () => {
     const label = `LABEL=${'long'.repeat(1200)}`
     const log = runLog(7000, BLOCK.replace(ERROR, `${ERROR}: ${'response text '.repeat(2000)}`))
     const tool = buildTools(backendFor(log)).find((tool) => tool.name === 'exec_command')!
+    // A run that names its spec: the trace advice is added to a narrowed run only (a local walk of
+    // the whole suite keeps the suite's own trace setting), and it shares the result's budget.
     const result = (await tool.execute({
-      command: `${label} npx playwright test --reporter=list`,
+      command: `${label} npx playwright test invoices.spec.ts --reporter=list`,
     })) as {
       note?: string
       executionNote?: string

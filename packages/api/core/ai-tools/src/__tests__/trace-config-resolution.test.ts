@@ -9,6 +9,8 @@ import { DIAGNOSIS_TRACE_FLAG, diagnosisTraceCommand } from '../trace-artifacts.
 
 const ON = "export default {use: {trace: 'on'}}"
 const OFF = "export default {use: {trace: 'off'}}"
+// The local runs below name a spec (`cart.spec.ts`): only a run that narrows the suite has its
+// config read for a trace decision; a local walk of the whole suite keeps the suite's own setting.
 async function rewrite(command: string, files: Record<string, string>, cwd = '/srv') {
   const reads: string[] = []
   const result = await diagnosisTraceCommand({
@@ -25,7 +27,7 @@ async function rewrite(command: string, files: Record<string, string>, cwd = '/s
 
 describe('trace diagnosis reads the same config as the native runner', () => {
   it('does not fall back to an unrelated config in the starting directory', async () => {
-    const out = await rewrite('cd /srv/shop && npx playwright test', {
+    const out = await rewrite('cd /srv/shop && npx playwright test cart.spec.ts', {
       '/srv/playwright.config.ts': ON,
       '/srv/shop/playwright.config.js': OFF,
     })
@@ -33,20 +35,22 @@ describe('trace diagnosis reads the same config as the native runner', () => {
     expect(out.reads).not.toContain('/srv/playwright.config.ts')
   })
   it('uses Playwright default-name precedence and reaches cts and cjs within six reads', async () => {
-    const js = await rewrite('npx playwright test', {
+    const js = await rewrite('npx playwright test cart.spec.ts', {
       '/srv/playwright.config.js': OFF,
       '/srv/playwright.config.mts': ON,
     })
     expect(js.command).toContain(DIAGNOSIS_TRACE_FLAG)
     for (const suffix of ['cts', 'cjs']) {
-      const out = await rewrite('npx playwright test', { [`/srv/playwright.config.${suffix}`]: ON })
+      const out = await rewrite('npx playwright test cart.spec.ts', {
+        [`/srv/playwright.config.${suffix}`]: ON,
+      })
       expect(out.change).toBeNull()
       expect(out.reads.length).toBeLessThanOrEqual(6)
     }
   })
   it('follows consecutive cd steps, clamps parent paths at root, and ignores a later cd', async () => {
     const out = await rewrite(
-      'cd shop && cd ../../../../srv/store && npx playwright test; cd /elsewhere',
+      'cd shop && cd ../../../../srv/store && npx playwright test cart.spec.ts; cd /elsewhere',
       {
         '/srv/store/playwright.config.ts': ON,
       },
@@ -55,17 +59,20 @@ describe('trace diagnosis reads the same config as the native runner', () => {
     expect(out.reads[0]).toBe('/srv/store/playwright.config.ts')
   })
   it('does not let a subshell cd change the outer runner directory', async () => {
-    const out = await rewrite('(cd /elsewhere && echo ok); npx playwright test', {
+    const out = await rewrite('(cd /elsewhere && echo ok); npx playwright test cart.spec.ts', {
       '/srv/playwright.config.ts': ON,
     })
     expect(out.change).toBeNull()
     expect(out.reads[0]).toBe('/srv/playwright.config.ts')
   })
   it('takes the config from the runner arguments, including -c, rather than another step', async () => {
-    const out = await rewrite('echo --config fake.ts; npx playwright test -c ./suite.ts', {
-      '/srv/suite.ts': ON,
-      '/srv/fake.ts': OFF,
-    })
+    const out = await rewrite(
+      'echo --config fake.ts; npx playwright test -c ./suite.ts cart.spec.ts',
+      {
+        '/srv/suite.ts': ON,
+        '/srv/fake.ts': OFF,
+      },
+    )
     expect(out.change).toBeNull()
     expect(out.reads[0]).toBe('/srv/suite.ts')
   })
@@ -73,7 +80,7 @@ describe('trace diagnosis reads the same config as the native runner', () => {
 
 describe('relative config imports do not manufacture trace evidence', () => {
   it('does not follow comments or strings that look like imports', async () => {
-    const out = await rewrite('npx playwright test', {
+    const out = await rewrite('npx playwright test cart.spec.ts', {
       '/srv/playwright.config.ts': `// import old from './old.ts'
         const example = "import x from './old.ts'";
         const from = "import old from './old.ts'";
@@ -84,7 +91,7 @@ describe('relative config imports do not manufacture trace evidence', () => {
     expect(out.reads).not.toContain('/srv/old.ts')
   })
   it('honors the runner loader extension precedence', async () => {
-    const out = await rewrite('npx playwright test', {
+    const out = await rewrite('npx playwright test cart.spec.ts', {
       '/srv/playwright.config.ts': "import base from './base'; export default {...base}",
       '/srv/base.js': OFF,
       '/srv/base.ts': ON,
@@ -101,7 +108,7 @@ describe('relative config imports do not manufacture trace evidence', () => {
       '/srv/base.mts',
     ],
   ])('follows loader-compatible imports: %s', async (source, file) => {
-    const out = await rewrite('npx playwright test', {
+    const out = await rewrite('npx playwright test cart.spec.ts', {
       '/srv/playwright.config.ts': source,
       [file]: ON,
     })
@@ -110,7 +117,7 @@ describe('relative config imports do not manufacture trace evidence', () => {
     expect(out.reads.length).toBeLessThanOrEqual(7)
   })
   it('does not use an imported recording mode after the wrapper explicitly turns it off', async () => {
-    const out = await rewrite('npx playwright test', {
+    const out = await rewrite('npx playwright test cart.spec.ts', {
       '/srv/playwright.config.ts':
         "import base from './base.ts'; export default {...base, use: {...base.use, trace: 'off'}}",
       '/srv/base.ts': ON,
@@ -123,7 +130,7 @@ describe('relative config imports do not manufacture trace evidence', () => {
       "import helper from './base.ts'; export default {}",
       `const example = "trace: 'on'"; export default {}`,
     ]) {
-      const out = await rewrite('npx playwright test', {
+      const out = await rewrite('npx playwright test cart.spec.ts', {
         '/srv/playwright.config.ts': source,
         '/srv/base.ts': ON,
       })
@@ -131,7 +138,7 @@ describe('relative config imports do not manufacture trace evidence', () => {
     }
   })
   it('keeps explicit trace overrides at the second import level too', async () => {
-    const out = await rewrite('npx playwright test', {
+    const out = await rewrite('npx playwright test cart.spec.ts', {
       '/srv/playwright.config.ts': "import middle from './middle.ts'; export default {...middle}",
       '/srv/middle.ts':
         "import base from './base.ts'; export default {...base, use: {...base.use, trace: 'off'}}",
@@ -140,7 +147,7 @@ describe('relative config imports do not manufacture trace evidence', () => {
     expect(out.command).toContain(DIAGNOSIS_TRACE_FLAG)
   })
   it('stops at two import levels and never reads a candidate twice, including misses', async () => {
-    const out = await rewrite('npx playwright test', {
+    const out = await rewrite('npx playwright test cart.spec.ts', {
       '/srv/playwright.config.ts': "import a from './a.ts'; import b from './b.ts'",
       '/srv/a.ts': "import missing from './missing.js'; import b from './b.ts'",
       '/srv/b.ts': "import missing from './missing.js'; import c from './c.ts'",
@@ -184,7 +191,7 @@ describe('the native Playwright loader and the backend directory capability agre
       )
       const reads: string[] = []
       const result = await diagnosisTraceCommand({
-        command: 'npx playwright test',
+        command: 'npx playwright test cart.spec.ts',
         cwd: directory,
         readFile: async (path) => {
           reads.push(path)
@@ -216,7 +223,7 @@ describe('trace decisions inspect the runner own flags', () => {
   })
   it('does not mistake a preceding program or title URL for a deployed target', async () => {
     for (const command of [
-      'HOST=https://store.example hurl --test api.hurl; npx playwright test',
+      'HOST=https://store.example hurl --test api.hurl; npx playwright test cart.spec.ts',
       "npx playwright test --grep 'https://store.example'",
     ]) {
       const out = await rewrite(command, { '/srv/playwright.config.ts': OFF })
@@ -224,7 +231,7 @@ describe('trace decisions inspect the runner own flags', () => {
     }
   })
   it('does not read another command trace flag as the local runner own choice', async () => {
-    const out = await rewrite('echo --trace=on; npx playwright test', {
+    const out = await rewrite('echo --trace=on; npx playwright test cart.spec.ts', {
       '/srv/playwright.config.ts': OFF,
     })
     expect(out.command).toContain(DIAGNOSIS_TRACE_FLAG)
