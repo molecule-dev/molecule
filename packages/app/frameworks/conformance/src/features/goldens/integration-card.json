@@ -1,0 +1,257 @@
+{
+ "exports": [
+  "IntegrationCard"
+ ],
+ "values": {},
+ "cases": {
+  "IntegrationCard": {
+   "title only": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and description": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<p class=\"c445db9b9\">\nSend notifications to your team channels.\n</p>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an icon": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-icon>\n🔌\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node title": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-node=\"title\">\nSlack\n</strong>\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node title, description and icon": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-icon>\n🔌\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong data-node=\"title\">\nSlack\n</strong>\n</h3>\n<p class=\"c445db9b9\">\n<em data-node=\"description\">\nTeam notifications\n</em>\n</p>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty description is omitted": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "status connected": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nConnected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "status pending": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nConnecting…\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "status error": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nError\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "status disconnected": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "action button": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "action button without a handler": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "action link": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<a href=\"/oauth/slack\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</a>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "disabled action button": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" disabled type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "disabled action link": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<a href=\"/oauth\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" disabled type=\"button\">\nConnect\n</button>\n</a>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading action shows the ellipsis": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" disabled type=\"button\">\n…\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "loading action link keeps its label": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<a href=\"/oauth\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</a>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "action with a node label": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\n<span data-node=\"action\">\nConnect\n</span>\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "action with an empty label": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "cta variant": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\" style=\"background-image: linear-gradient(135deg, var(--color-primary, #4070e0), var(--color-primary-container, #6b8fe8))\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "card variant": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and dataMolId": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"slack-card\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking the action calls onClick": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "connect",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "clicking a disabled action calls nothing": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" disabled type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" disabled type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking a loading action calls nothing": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" disabled type=\"button\">\n…\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" disabled type=\"button\">\n…\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "status changes": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nConnected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nError\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and description change": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<p class=\"c445db9b9\">\nSend notifications\n</p>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nTeams\n</h3>\n<p class=\"c445db9b9\">\nPost to a channel\n</p>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the icon appears and is removed": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"ca596e575\">\n<span data-icon>\n🔌\n</span>\n</div>\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the description appears and is removed": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<p class=\"c445db9b9\">\nSend notifications\n</p>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an action is added after mount and clicks": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "connect",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "the action switches from a button to a link": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n<a href=\"/oauth\">\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6f299bb cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40\" type=\"button\">\nConnect\n</button>\n</a>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the variant switches to cta and back": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\" style=\"background-image: linear-gradient(135deg, var(--color-primary, #4070e0), var(--color-primary-container, #6b8fe8))\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and dataMolId are removed": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"slack-card\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every status label follows a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nConnected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\n⟦Conectado⟧\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\nNot connected\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9566e21c cb5823274 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nSlack\n</h3>\n<div class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<span class=\"c4647f690 c7f74399a\">\n⟦Not connected⟧\n</span>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

@@ -1,0 +1,196 @@
+{
+ "exports": [
+  "LeaderboardRow"
+ ],
+ "values": {},
+ "cases": {
+  "LeaderboardRow": {
+   "name, score and avatar": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#5\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Zoe\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/zoe.png\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nZoe\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n1,200\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no avatar src": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nB\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nBo\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n980\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "gold medal for rank 1": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n🥇\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nAlice\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n4820\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "silver medal for rank 2": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n🥈\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nB\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nBo\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n4515\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "bronze medal for rank 3": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n🥉\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nC\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nCy\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n3907\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "numeric rank past the podium": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#8\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nD\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nDee\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n120\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "rank zero and a zero score": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#0\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nE\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nEve\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n0\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "subtitle": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n<span class=\"c4647f690\">\nTeam Red\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "empty subtitle renders nothing": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node name and node score": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n🥈\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nP\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\n<strong>\nNova\n</strong>\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n<em>\n50 pts\n</em>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node subtitle": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n<span class=\"c4647f690\">\n<em>\nTeam Phoenix\n</em>\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "climbing delta": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 2\n</span>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "falling delta": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ 3\n</span>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero delta renders nothing": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "highlighted as the current user": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" style=\"background: rgba(96, 165, 250, 0.1); border-radius: 8px\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "isMe false has no highlight": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clickable row calls onClick": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "span"
+       }
+      ]
+     }
+    ]
+   },
+   "delta flips": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 2\n</span>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ 3\n</span>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "delta disappears on a later render": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 2\n</span>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "delta appears on a later render": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ 1\n</span>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "highlight toggles off": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\" style=\"background: rgba(96, 165, 250, 0.1); border-radius: 8px\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "subtitle appears on a later render": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nA\n</span>\n<span class=\"c4647f690\">\nTeam Nova\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "rank and name change": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#4\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nB\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nBefore\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n🥇\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nA\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nAfter\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n🥉\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<div class=\"c1d1b1057 c1e8176ab c9052b18c c9773cd2b cbf033fe8 ccae02ff2 ce823b5bf cf74bfc1b\">\n<span class=\"c445db9b9 c80b1c428\">\nT\n</span>\n</div>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nThird\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n9\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "everything at once, clicked on a child": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n🥇\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Chen\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.png\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nAlice Chen\n</span>\n<span class=\"c4647f690\">\nTeam Phoenix\n</span>\n</div>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 2\n</span>\n<span class=\"c0d99ed10 c445db9b9\">\n4820\n</span>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd75bbd18 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n🥇\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Alice Chen\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/alice.png\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nAlice Chen\n</span>\n<span class=\"c4647f690\">\nTeam Phoenix\n</span>\n</div>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 2\n</span>\n<span class=\"c0d99ed10 c445db9b9\">\n4820\n</span>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "event": "click",
+        "target": "span"
+       }
+      ]
+     }
+    ]
+   },
+   "name, score and avatar, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#5\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Zoe\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/zoe.png\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nZoe\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n1,200\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c42740ba6 c8e3cd4a1 c9566e21c caa6eb57d cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c16e96f28 ca596e575\" style=\"min-width: 32px\">\n#5\n</span>\n<div class=\"c8f19053a c9052b18c ca596e575 cbf672402 ccae02ff2 cd54f183b cfc82911d\">\n<img alt=\"Zoe\" class=\"c1d1b1057 cb3f945f3 cbf033fe8 cc068d510\" src=\"/avatars/zoe.png\">\n</img>\n</div>\n<div class=\"c2cbb8333 c9766e542 cb5823274 cbaac6b89 ccae02ff2\">\n<span class=\"c445db9b9 c7f74399a\">\nZoe\n</span>\n</div>\n<span class=\"c0d99ed10 c445db9b9\">\n1,200\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

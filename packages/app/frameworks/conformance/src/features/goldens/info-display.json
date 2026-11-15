@@ -1,0 +1,158 @@
+{
+ "exports": [
+  "DefinitionList",
+  "InfoCard"
+ ],
+ "values": {},
+ "cases": {
+  "DefinitionList": {
+   "default columns stack the fields": {
+    "snapshots": [
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns=2 arranges a grid": {
+    "snapshots": [
+     "<dl class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns=3 arranges a grid": {
+    "snapshots": [
+     "<dl class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "field icons render before the labels": {
+    "snapshots": [
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n★\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "labels and values as nodes": {
+    "snapshots": [
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<strong>\nIndustry\n</strong>\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n<em>\nTechnology\n</em>\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\n<span data-label>\nPlan\n</span>\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n<b>\nPro\n</b>\n plan\n</dd>\n</div>\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "className is forwarded": {
+    "snapshots": [
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2 cd75bbd18\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty list renders an empty dl": {
+    "snapshots": [
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns changes through all three": {
+    "snapshots": [
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n@route /",
+     "<dl class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n@route /",
+     "<dl class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n@route /",
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "fields change in place": {
+    "snapshots": [
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n@route /",
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nSector\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nSoftware\n</dd>\n</div>\n</dl>\n@route /",
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "className changes": {
+    "snapshots": [
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2 cd75bbd18\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n@route /",
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccaded727 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n@route /"
+    ],
+    "calls": []
+   },
+   "default columns stack the fields, then a locale switch": {
+    "snapshots": [
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n@route /",
+     "<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "InfoCard": {
+   "title and fields": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "icon and actions slots": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<i data-icon>\n</i>\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n<button data-actions>\nEdit\n</button>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title as a node": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<span data-title>\nCompany \n<b>\nDetails\n</b>\n</span>\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns=2 arranges a grid": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns=3 arranges a grid": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and data-mol-id": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"company-info-card\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty card renders its header and an empty list": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns changes": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c49bc009c c9366def6 ca216a595 caf871a91\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c49bc009c c899479ee c9366def6 ca216a595 caf871a91\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nEmployees\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n120–150\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "fields change in place": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nSector\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nSoftware\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and data-mol-id change": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"first-id\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 ccaded727 cdccefb20\" data-mol-id=\"second-id\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 ccaded727 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and fields, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<h3 class=\"c504afaf4 c7f74399a\">\nCompany Details\n</h3>\n</div>\n</header>\n<dl class=\"c2cbb8333 c9666e3af cbaac6b89 ccae02ff2\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nIndustry\n</span>\n</dt>\n<dd class=\"c445db9b9\">\nTechnology\n</dd>\n</div>\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<dt class=\"c1e8176ab c42740ba6 c4647f690 c7f74399a c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span>\nFounded\n</span>\n</dt>\n<dd class=\"c445db9b9\">\n2018\n</dd>\n</div>\n</dl>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

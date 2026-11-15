@@ -1,0 +1,135 @@
+{
+ "exports": [
+  "expandKeys",
+  "useKeyboardShortcut"
+ ],
+ "values": {
+  "expandKeys": [
+   [
+    "ctrl+k",
+    "command+k"
+   ],
+   [
+    "/",
+    "shift+?"
+   ],
+   [
+    "ctrl+k",
+    "command+k"
+   ],
+   [
+    "shift+tab"
+   ],
+   [],
+   [
+    "ctrl+a",
+    "command+a",
+    "ctrl+s"
+   ],
+   [],
+   [
+    "ctrl+alt+p"
+   ]
+  ]
+ },
+ "cases": {},
+ "hooks": {
+  "useKeyboardShortcut": {
+   "a shortcut without a bonded provider registers nothing": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a disabled shortcut registers nothing": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a blank keys list registers nothing": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a remount registers the fresh shortcut call, still nothing": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "unmounting without a provider leaves nothing behind": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     null
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  }
+ }
+}

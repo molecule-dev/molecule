@@ -1,0 +1,284 @@
+{
+ "exports": [
+  "ImageGallery"
+ ],
+ "values": {},
+ "cases": {
+  "ImageGallery": {
+   "defaults": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/only.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no images": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "two images": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "more images than the default max thumbnails": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/d.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "exactly the default max thumbnails": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/d.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "alt text supplied for every image": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"First photo\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"First photo\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Second photo\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Third photo\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "alt text supplied for only the first image": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"First photo\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"First photo\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "extra classes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "controlled selected index": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 3\" src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "selected index beyond the last image": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 6\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max thumbnails one": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max thumbnails two": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+1\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max thumbnails three": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max thumbnails five": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c899479ee c9142a835 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-1.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-2.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-3.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 5\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-4.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max thumbnails six": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c899479ee c8e42a37c c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-1.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-2.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-3.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 5\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-4.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 6\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-5.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max thumbnails twelve": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c3ae4cbc1 c49bc009c c8e9481cd c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-1.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-2.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-3.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 5\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-4.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 6\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-5.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 7\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-6.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 8\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-7.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 9\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-8.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 10\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-9.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 11\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-10.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 12\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-11.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "unsupported max thumbnails snaps to six columns": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c899479ee c8e42a37c c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-1.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-2.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-3.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 5\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-4.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 6\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-5.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 7\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-6.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 8\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-7.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "very large max thumbnails snaps to twelve columns": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c3ae4cbc1 c49bc009c c8e9481cd c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-1.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-2.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-3.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 5\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-4.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 6\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-5.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 7\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-6.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 8\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-7.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 9\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-8.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 10\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-9.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 11\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-10.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 12\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-11.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 13\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-12.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 14\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-13.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 15\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-14.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 16\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-15.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 17\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-16.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 18\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-17.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 19\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-18.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 20\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-19.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "zero max thumbnails snaps to one column": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c9566e21c ca216a595 caf871a91\">\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+3\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "negative max thumbnails drops the last thumbnails": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "fractional max thumbnails snaps down": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-0.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-1.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/img-2.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "click a thumbnail in an uncontrolled gallery": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 2\" src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 3\" src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSelect",
+      "args": [
+       1
+      ]
+     },
+     {
+      "name": "onSelect",
+      "args": [
+       2
+      ]
+     },
+     {
+      "name": "onSelect",
+      "args": [
+       0
+      ]
+     }
+    ]
+   },
+   "click a thumbnail without a select callback": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 2\" src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "controlled click reports the index and keeps the selection": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSelect",
+      "args": [
+       2
+      ]
+     },
+     {
+      "name": "onSelect",
+      "args": [
+       1
+      ]
+     }
+    ]
+   },
+   "controlled selection changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 3\" src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "becomes controlled after a click": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 2\" src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 3\" src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSelect",
+      "args": [
+       1
+      ]
+     }
+    ]
+   },
+   "max thumbnails changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/d.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+4\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "max thumbnails reset to the default": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+4\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/d.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "images change": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/x.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/x.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/y.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "images grow": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 4\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/d.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+2\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "images shrink below the selected index": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 3\" src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 3\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "images become empty": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"Image 1\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "alt text changes": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"First photo\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"First photo\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 2\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Image 3\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"One\" src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c8c947ea7 c9566e21c ca216a595 caf871a91\">\n<button aria-current=\"true\" aria-label=\"One\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Two\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Three\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every prop, then a click": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c8ea5574f c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Three\" src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"One\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Two\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Three\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+3\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c8ea5574f c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Three\" src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n<div class=\"c49bc009c c899479ee c9566e21c ca216a595 caf871a91\">\n<button aria-label=\"One\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/a.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-label=\"Two\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/b.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<button aria-current=\"true\" aria-label=\"Three\" style=\"aspect-ratio: 1 / 1\" type=\"button\">\n<img alt src=\"/c.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</button>\n<div class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c9773cd2b ccae02ff2 cd9b20003\" style=\"aspect-ratio: 1 / 1\">\n+3\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onSelect",
+      "args": [
+       0
+      ]
+     }
+    ]
+   },
+   "defaults, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/only.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n</div>\n@route /",
+     "<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div style=\"aspect-ratio: 4 / 3\">\n<img alt=\"Image 1\" src=\"/only.jpg\" style=\"height: 100%; object-fit: cover; width: 100%\">\n</img>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}
