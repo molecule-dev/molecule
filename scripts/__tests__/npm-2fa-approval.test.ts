@@ -46,7 +46,9 @@ afterEach(async () => {
 
 /**
  * A stand-in approval service on a real Unix socket. `views` is the sequence of
- * GET /requests/:id answers; the last one repeats.
+ * GET /requests/:id answers; the last one repeats. A view `{ httpStatus }` answers
+ * with that status (404: a restarted service that forgot the request), and
+ * `{ drop: true }` hangs up without answering (a service going down).
  */
 async function fakeService(views: Array<Record<string, unknown>>) {
   const dir = mkdtempSync(join(tmpdir(), 'approval-socket-'))
@@ -68,8 +70,15 @@ async function fakeService(views: Array<Record<string, unknown>>) {
         res.statusCode = 201
         return res.end(JSON.stringify({ id: 'req-1', expiresAt: 0 }))
       }
-      if (req.method === 'GET' && req.url === '/requests/req-1')
-        return res.end(JSON.stringify(views[Math.min(view++, views.length - 1)]))
+      if (req.method === 'GET' && req.url === '/requests/req-1') {
+        const next = views[Math.min(view++, views.length - 1)]
+        if (next.drop) return req.socket.destroy()
+        if (typeof next.httpStatus === 'number') {
+          res.statusCode = next.httpStatus
+          return res.end(JSON.stringify({ error: 'no such request' }))
+        }
+        return res.end(JSON.stringify(next))
+      }
       res.end(JSON.stringify({ ok: true }))
     })
   })
@@ -215,11 +224,95 @@ describe('requestOwnerOtp', () => {
     expect(calls.some((c) => c.method === 'DELETE')).toBe(true)
   })
 
-  it('stops at once when the service has withdrawn the request, instead of waiting out the timeout', async () => {
-    const { socketPath } = await fakeService([{ status: 'abandoned' }])
-    await expect(
-      requestOwnerOtp({ purpose: 'p', socketPath, sleep: noSleep, timeoutMs: 500 }),
-    ).rejects.toThrow(/ended without an answer \(abandoned\)/)
+  const posts = (calls: Call[]) =>
+    calls.filter((c) => c.method === 'POST' && c.path === '/requests')
+
+  it('asks again, until the owner answers, when a request expires unanswered (OLD MUSTFAIL: stopped)', async () => {
+    const { socketPath, calls } = await fakeService([
+      { status: 'pending' },
+      { status: 'expired' },
+      { status: 'expired' },
+      { status: 'code', code: '246810' },
+    ])
+    const answer = await requestOwnerOtp({ purpose: 'p', socketPath, sleep: noSleep })
+    expect(answer).toEqual({ otp: '246810', kind: 'code' })
+    expect(posts(calls)).toHaveLength(3)
+  })
+
+  it('asks again when the service took this program for stopped and withdrew the request', async () => {
+    const { socketPath, calls } = await fakeService([
+      { status: 'abandoned' },
+      { status: 'code', code: '135790' },
+    ])
+    const answer = await requestOwnerOtp({ purpose: 'p', socketPath, sleep: noSleep })
+    expect(answer.otp).toBe('135790')
+    expect(posts(calls)).toHaveLength(2)
+  })
+
+  it('asks again when a restarted service no longer knows the request (OLD MUSTFAIL: threw)', async () => {
+    const { socketPath, calls } = await fakeService([
+      { httpStatus: 404 },
+      { status: 'code', code: '112233' },
+    ])
+    const answer = await requestOwnerOtp({ purpose: 'p', socketPath, sleep: noSleep })
+    expect(answer.otp).toBe('112233')
+    expect(posts(calls)).toHaveLength(2)
+  })
+
+  it('keeps waiting while the service stops answering, and while npm fails', async () => {
+    const { socketPath, calls } = await fakeService([
+      { drop: true },
+      { drop: true },
+      { status: 'pending' },
+      { status: 'pending' },
+      { status: 'code', code: '998877' },
+    ])
+    let checks = 0
+    const fetchImpl = async () => {
+      checks++
+      if (checks === 1) throw new Error('getaddrinfo EAI_AGAIN registry.npmjs.org')
+      return json({}, 202)
+    }
+    const answer = await requestOwnerOtp({
+      purpose: 'p',
+      link: async () => PAIR,
+      bearer: 'b',
+      socketPath,
+      fetchImpl,
+      sleep: noSleep,
+    })
+    expect(answer.otp).toBe('998877')
+    expect(checks).toBe(2)
+    expect(posts(calls)).toHaveLength(1)
+  })
+
+  it("asks again with npm's current link, not the first one", async () => {
+    const { socketPath, calls } = await fakeService([
+      { status: 'pending' },
+      { status: 'expired' },
+      { status: 'code', code: '101010' },
+    ])
+    const links = [PAIR, FRESH]
+    const answer = await requestOwnerOtp({
+      purpose: 'p',
+      link: async () => links.shift() ?? FRESH,
+      bearer: 'b',
+      socketPath,
+      fetchImpl: async () => json({ message: 'not found' }, 404),
+      sleep: noSleep,
+    })
+    expect(answer.otp).toBe('101010')
+    expect(posts(calls).map((c) => (c.body as { authUrl?: string }).authUrl)).toEqual([
+      PAIR.authUrl,
+      FRESH.authUrl,
+    ])
+  })
+
+  it('still stops on a cancellation', async () => {
+    const { socketPath } = await fakeService([{ status: 'cancelled' }])
+    await expect(requestOwnerOtp({ purpose: 'p', socketPath, sleep: noSleep })).rejects.toThrow(
+      /ended without an answer \(cancelled\)/,
+    )
   })
 })
 

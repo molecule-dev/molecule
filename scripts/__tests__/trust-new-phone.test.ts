@@ -29,9 +29,9 @@ const B = '@molecule/api-demo-b'
 // unknown code answers 401 the way npm does, so the script must ask for a new one. A
 // session token not in scenario.sessions (default: the scratch ~/.npmrc's) is a dead
 // login, and the web sign-in (POST /-/v1/login, then its done-check) hands out
-// scenario.loginToken.
+// scenario.loginToken. scenario.dies names a session that dies once STUB_DEAD exists.
 const STUB_FETCH = `
-import { appendFileSync, readFileSync } from 'node:fs'
+import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 const scenario = JSON.parse(readFileSync(process.env.STUB_SCENARIO, 'utf8'))
 const budget = { ...(scenario.codes ?? {}) }
 const log = (entry) => appendFileSync(process.env.STUB_LOG, JSON.stringify(entry) + '\\n')
@@ -44,7 +44,8 @@ globalThis.fetch = async (url, init = {}) => {
   const headers = init.headers ?? {}
   const otp = headers['npm-otp']
   const auth = (headers.authorization ?? '').replace(/^Bearer /, '')
-  const live = sessions.includes(auth)
+  // scenario.dies: a session that stops working once the test drops STUB_DEAD.
+  const live = sessions.includes(auth) && !(auth === scenario.dies && existsSync(process.env.STUB_DEAD))
   if (u.pathname === '/-/v1/login' && method === 'POST') {
     log({ method, name: '(sign-in)', auth: auth || null })
     if (headers['npm-auth-type'] !== 'web') return json({ error: 'Unauthorized' }, 401)
@@ -121,8 +122,16 @@ function scratchRepo({
   return root
 }
 
-/** The phone side: hands out `answers` in order, one per request. */
-async function phoneService(root: string, answers: Array<Record<string, unknown>>) {
+/**
+ * The phone side: hands out `answers` in order, one per request. A request past the
+ * scripted answers is denied, so a run that asks more often than expected ends instead
+ * of asking forever. `onCreate` runs as each request opens (given its 1-based number).
+ */
+async function phoneService(
+  root: string,
+  answers: Array<Record<string, unknown>>,
+  onCreate: (n: number) => void = () => {},
+) {
   const socketPath = join(root, 'approvals.sock')
   const phone: Phone = { answers, created: [] }
   const views = new Map<string, Record<string, unknown>>()
@@ -135,7 +144,8 @@ async function phoneService(root: string, answers: Array<Record<string, unknown>
       if (req.method === 'POST' && req.url === '/requests') {
         const id = `req-${phone.created.length + 1}`
         phone.created.push(JSON.parse(data))
-        views.set(id, phone.answers.shift() ?? { status: 'expired' })
+        views.set(id, phone.answers.shift() ?? { status: 'denied' })
+        onCreate(phone.created.length)
         res.statusCode = 201
         return res.end(JSON.stringify({ id, expiresAt: 0 }))
       }
@@ -167,6 +177,7 @@ function runTrustNew(root: string, args: string[], scenario: object, socketPath?
             HOME: join(root, 'home'),
             STUB_SCENARIO: join(root, 'scenario.json'),
             STUB_LOG: join(root, 'calls.log'),
+            STUB_DEAD: join(root, 'login-died'),
             MOL_APPROVAL_SOCKET: socketPath ?? join(root, 'no-service.sock'),
             XDG_RUNTIME_DIR: join(root, 'run'),
           },
@@ -310,6 +321,44 @@ describe("trust:new with the owner's phone", () => {
     expect(readFileSync(join(root, 'home', '.npmrc'), 'utf8')).toBe(
       '//registry.npmjs.org/:_authToken=stub-token\n',
     )
+    expect(readdirSync(join(root, 'run'))).toEqual([])
+  })
+
+  it('signs in again when the npm login dies while a request waits, and asks for a fresh code (OLD MUSTFAIL)', async () => {
+    const root = scratchRepo()
+    // The saved login works at the start, then dies while the first code request is open.
+    const { socketPath, phone } = await phoneService(
+      root,
+      [
+        { status: 'code', code: '424242' },
+        { status: 'pending' },
+        { status: 'code', code: '135791' },
+      ],
+      (n) => {
+        if (n === 1) writeFileSync(join(root, 'login-died'), '')
+      },
+    )
+    const run = await runTrustNew(
+      root,
+      [],
+      {
+        sessions: ['stub-token', 'phone-session'],
+        dies: 'stub-token',
+        loginToken: 'phone-session',
+        codes: { '424242': 4, '135791': 4 },
+      },
+      socketPath,
+    )
+    expect(run.code, run.out).toBe(0)
+    expect(run.out).toMatch(/the npm login expired while waiting; that answer is dropped/)
+    expect(phone.created.map((r) => r.kind)).toEqual(['code', 'login', 'code'])
+    expect(phone.created[1].purpose).toMatch(/sign in to npm again \(the login expired\)/)
+    // Every 2FA'd call (the code-less ones only fetch an approval link) used the new login
+    // and the fresh code; the code that arrived for the dead login was never sent.
+    const gated = run.calls.filter((c) => c.name !== '(sign-in)' && c.otp)
+    expect(gated).toHaveLength(4)
+    expect(gated.every((c) => c.auth === 'phone-session' && c.otp === '135791')).toBe(true)
+    expect(ledgerOf(root).sort()).toEqual([A, B])
     expect(readdirSync(join(root, 'run'))).toEqual([])
   })
 

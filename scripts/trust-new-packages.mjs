@@ -253,6 +253,53 @@ if (!CI && savedLoginStatus !== 200) {
 }
 
 /**
+ * whoami for a check in the middle of a run. npm not answering is not a dead login:
+ * it reads as 200, so the next call (which fails on its own if npm is down) goes ahead
+ * instead of the run stopping after the owner has answered.
+ *
+ * @returns The HTTP status.
+ */
+const midRunWhoami = async () => {
+  try {
+    return await whoamiStatus(token)
+  } catch (error) {
+    console.error(`  could not check the npm login (${error.message}); going on`)
+    return 200
+  }
+}
+
+/**
+ * Signs in again from the phone when this run's npm login has stopped working (an
+ * `npm login` session lasts at most 12 hours, and a run can wait that long for the
+ * owner). The new login replaces the old one for every later call.
+ */
+const ensureLogin = async () => {
+  const status = await midRunWhoami()
+  if (status === 200) return
+  console.error(
+    `  the npm login stopped working (whoami -> ${status}); asked the owner's phone to sign in again…`,
+  )
+  const left = progress.names.length - progress.done
+  let fresh
+  try {
+    fresh = await requestOwnerNpmLogin({
+      purpose: `trust:new needs you to sign in to npm again (the login expired); ${left} of ${progress.names.length} package(s) left`,
+    })
+  } catch (error) {
+    throw new NoTwoFactorAnswer(`no npm sign-in from the phone: ${error.message}`, {
+      cause: error,
+    })
+  }
+  const after = await whoamiStatus(fresh)
+  if (after !== 200)
+    throw new NoTwoFactorAnswer(`npm does not accept the new sign-in (whoami -> ${after})`)
+  token = fresh
+  phoneLogin?.dispose()
+  phoneLogin = npmUserconfigWithToken(token)
+  console.error('  signed in to npm again from the phone (kept for this run only)')
+}
+
+/**
  * Arguments that point an `npm publish` at this run's phone sign-in, when there is one.
  *
  * @returns Extra npm arguments.
@@ -385,22 +432,34 @@ const ensureOtp = async (label, force = false) => {
   }
   if (PHONE) {
     phoneMode = true
-    console.error(`  asked the owner's phone for an npm code (${label})…`)
-    let reply
-    try {
-      reply = await requestOwnerOtp({
-        purpose: phonePurpose(label, force),
-        link: () => npmApprovalLink(progress.names[0] ?? 'molecule', { bearer: token }),
-        bearer: token,
-      })
-    } catch (error) {
-      throw new NoTwoFactorAnswer(`no npm code from the phone: ${error.message}`, { cause: error })
+    // A request waits for the owner as long as it takes, which can outlast the npm
+    // login (12 hours at most). A code for a dead login is rejected like a spent one,
+    // so the login is checked on both sides of the wait.
+    for (;;) {
+      await ensureLogin()
+      console.error(`  asked the owner's phone for an npm code (${label})…`)
+      let reply
+      try {
+        reply = await requestOwnerOtp({
+          purpose: phonePurpose(label, force),
+          link: () => npmApprovalLink(progress.names[0] ?? 'molecule', { bearer: token }),
+          bearer: token,
+        })
+      } catch (error) {
+        throw new NoTwoFactorAnswer(`no npm code from the phone: ${error.message}`, {
+          cause: error,
+        })
+      }
+      console.error(
+        `  got ${reply.kind === 'code' ? 'a code' : 'an approval for one call'} from the phone`,
+      )
+      if ((await midRunWhoami()) === 200) {
+        otp = reply.otp
+        return otp
+      }
+      // Its window is spent by the time the sign-in is done; ask for a fresh one.
+      console.error('  the npm login expired while waiting; that answer is dropped')
     }
-    console.error(
-      `  got ${reply.kind === 'code' ? 'a code' : 'an approval for one call'} from the phone`,
-    )
-    otp = reply.otp
-    return otp
   }
   const answer = await askOtp(
     `${label} — 6-digit code, or paste the authenticator SECRET (base32 / otpauth:// URI) to store it at ${SEED_PATH} and never be asked again`,

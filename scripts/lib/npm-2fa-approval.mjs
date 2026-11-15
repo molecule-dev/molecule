@@ -24,8 +24,8 @@
  *
  * Service protocol (HTTP over the socket):
  *   GET    /health                 -> { ok, subscriptions }
- *   POST   /requests               { purpose, pid, kind?: 'code'|'login', authUrl? } -> 201 { id, expiresAt }
- *   GET    /requests/:id           -> { status: pending|code|approved|denied|expired|cancelled|used|abandoned, code? }
+ *   POST   /requests               { purpose, pid, kind?: 'code'|'login', authUrl? } -> 201 { id }
+ *   GET    /requests/:id           -> { status: pending|code|approved|denied|cancelled|used|abandoned (|expired), code? }
  *   POST   /requests/:id/link      { authUrl }
  *   POST   /requests/:id/resolve   { status: 'approved' }
  *   DELETE /requests/:id
@@ -154,51 +154,94 @@ export async function npmApprovalLink(name, { bearer, fetchImpl = fetch }) {
 }
 
 /**
+ * Request states after which the owner has still not answered, so the request is put in
+ * front of them again: `expired` (a service that expires requests), `abandoned` (the
+ * service took this program for stopped, e.g. after the machine froze), and a request
+ * the service no longer knows (it restarted).
+ */
+const ASK_AGAIN = new Set(['expired', 'abandoned'])
+
+/**
  * Puts one request in front of the owner and waits for its answer, from the phone
  * (`fromPhone`, given the service's view) or from npm (`fromNpm`, an approval seen
- * through npm's done-check). Withdraws the request when no answer comes.
+ * through npm's done-check). By default it waits until the owner answers: a request
+ * that ends unanswered, or that a restarted service forgot, is asked again (a fresh
+ * notification), and a service or npm that stops answering is retried. Only the
+ * owner's denial, a cancellation, or `timeoutMs` ends the wait. Withdraws the request
+ * when it gives up.
  *
  * @param options - Request options.
- * @param options.request - The POST /requests body, without pid.
+ * @param options.request - Returns the POST /requests body, without pid (called again
+ *   for each new request, so it carries the current link).
  * @param options.fromPhone - Returns the answer the phone sent, or null.
  * @param options.fromNpm - Returns the answer npm holds, or null; given the request id
  *   so it can put a fresh link in front of the owner.
  * @param options.socketPath - The approval service socket.
- * @param options.timeoutMs - Give up after this long.
+ * @param options.timeoutMs - Give up after this long (Infinity: never).
  * @param options.pollMs - How often to check both sides.
  * @param options.sleep - Waits between checks.
  * @returns The answer.
  */
 async function askOwner({ request, fromPhone, fromNpm, socketPath, timeoutMs, pollMs, sleep }) {
-  const created = await socketJson(socketPath, 'POST', '/requests', {
-    ...request,
-    pid: process.pid,
-  })
-  if (created.status !== 201 || !created.body?.id)
-    throw new Error(
-      `approval service refused the request (${created.status} ${created.body?.error ?? ''})`,
-    )
-  const { id } = created.body
+  let id = null
   let answered = false
+  // Each outage is reported once, when it starts.
+  const down = { service: false, npm: false }
   const deadline = Date.now() + timeoutMs
   try {
     while (Date.now() < deadline) {
-      const view = await socketJson(socketPath, 'GET', `/requests/${id}`)
-      if (view.status === 404)
-        throw new Error('the approval service lost the request (was it restarted?)')
+      let view
+      try {
+        if (!id) {
+          const created = await socketJson(socketPath, 'POST', '/requests', {
+            ...request(),
+            pid: process.pid,
+          })
+          if (created.status !== 201 || !created.body?.id)
+            throw new Error(
+              `approval service refused the request (${created.status} ${created.body?.error ?? ''})`,
+            )
+          id = created.body.id
+        }
+        view = await socketJson(socketPath, 'GET', `/requests/${id}`)
+        down.service = false
+      } catch (error) {
+        if (/refused the request/.test(error.message)) throw error
+        // Not answering (restarting, or gone): keep waiting and try again.
+        if (!down.service)
+          console.error(`  the approval service is not answering (${error.message}); retrying`)
+        down.service = true
+        await sleep(pollMs)
+        continue
+      }
+      const status = view.body?.status
+      if (view.status === 404 || ASK_AGAIN.has(status)) {
+        console.error(
+          view.status === 404
+            ? '  the approval service no longer knows the request (restarted?); asking again'
+            : `  the request ended unanswered (${status}); asking again`,
+        )
+        id = null
+        continue
+      }
       const phoneAnswer = fromPhone(view.body)
       if (phoneAnswer) {
         answered = true
         return phoneAnswer
       }
-      const status = view.body?.status
       if (status === 'denied') throw new Error('the owner denied the request')
-      // `abandoned`: the service saw this program stop checking the request (it does so
-      // every few seconds) and withdrew it from the phone.
-      if (['expired', 'cancelled', 'used', 'abandoned'].includes(status))
+      if (['cancelled', 'used'].includes(status))
         throw new Error(`the request ended without an answer (${status})`)
 
-      const npmAnswer = await fromNpm(id)
+      let npmAnswer = null
+      try {
+        npmAnswer = await fromNpm(id)
+        down.npm = false
+      } catch (error) {
+        // A network blip on npm's side must not end a wait that can last hours.
+        if (!down.npm) console.error(`  npm did not answer (${error.message}); retrying`)
+        down.npm = true
+      }
       if (npmAnswer) {
         answered = true
         await socketJson(socketPath, 'POST', `/requests/${id}/resolve`, {
@@ -213,9 +256,9 @@ async function askOwner({ request, fromPhone, fromNpm, socketPath, timeoutMs, po
     }
     throw new Error(`no answer within ${Math.round(timeoutMs / 60_000)} minutes`)
   } finally {
-    if (!answered)
+    if (!answered && id)
       await socketJson(socketPath, 'DELETE', `/requests/${id}`).catch((error) => {
-        // The request expires on its own; the phone just shows it a little longer.
+        // The service withdraws it once this program stops checking it.
         console.error(`  could not withdraw the phone request: ${error.message}`)
       })
   }
@@ -232,7 +275,8 @@ async function askOwner({ request, fromPhone, fromNpm, socketPath, timeoutMs, po
  * @param [options.bearer] - The npm session token, for the done-check.
  * @param [options.socketPath] - The approval service socket.
  * @param [options.fetchImpl] - fetch, for npm.
- * @param [options.timeoutMs] - Give up after this long.
+ * @param [options.timeoutMs] - Give up after this long. Default: never; the owner is
+ *   asked again until they answer.
  * @param [options.pollMs] - How often to check both sides.
  * @param [options.sleep] - Waits between checks (tests pass a fake).
  * @returns `{ otp, kind }`: kind `code` (reusable inside its window) or `npm`
@@ -244,13 +288,13 @@ export async function requestOwnerOtp({
   bearer,
   socketPath = APPROVAL_SOCKET,
   fetchImpl = fetch,
-  timeoutMs = 10 * 60_000,
+  timeoutMs = Infinity,
   pollMs = 2_000,
   sleep = (ms) => delay(ms),
 }) {
   let pair = await link()
   return askOwner({
-    request: { purpose, kind: 'code', ...(pair ? { authUrl: pair.authUrl } : {}) },
+    request: () => ({ purpose, kind: 'code', ...(pair ? { authUrl: pair.authUrl } : {}) }),
     fromPhone: (view) =>
       view?.status === 'code' && /^\d{6}$/.test(view.code ?? '')
         ? { otp: view.code, kind: 'code' }
@@ -357,7 +401,8 @@ export async function npmLoginPair({ fetchImpl = fetch } = {}) {
  * @param options.purpose - Why a sign-in is needed, in plain words (shown on the phone).
  * @param [options.socketPath] - The approval service socket.
  * @param [options.fetchImpl] - fetch, for npm.
- * @param [options.timeoutMs] - Give up after this long.
+ * @param [options.timeoutMs] - Give up after this long. Default: never; the owner is
+ *   asked again until they answer.
  * @param [options.pollMs] - How often to check both sides (npm asks for 3 s).
  * @param [options.sleep] - Waits between checks (tests pass a fake).
  * @returns The npm session token.
@@ -366,13 +411,13 @@ export async function requestOwnerNpmLogin({
   purpose,
   socketPath = APPROVAL_SOCKET,
   fetchImpl = fetch,
-  timeoutMs = 10 * 60_000,
+  timeoutMs = Infinity,
   pollMs = 3_000,
   sleep = (ms) => delay(ms),
 }) {
   let pair = await npmLoginPair({ fetchImpl })
   return askOwner({
-    request: { purpose, kind: 'login', authUrl: pair.loginUrl },
+    request: () => ({ purpose, kind: 'login', authUrl: pair.loginUrl }),
     fromPhone: () => null,
     fromNpm: async (id) => {
       const done = await fetchImpl(pair.doneUrl, {
