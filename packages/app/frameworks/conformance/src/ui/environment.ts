@@ -39,9 +39,13 @@ const lookup = (tree: Translations | undefined, key: string): string | undefined
   return typeof node === 'string' ? node : undefined
 }
 
+/** The kit provider's own simple provider, which holds the locales (set by {@link installSharedBonds}). */
+let localeRegistry: I18nProvider | null = null
+
 /**
  * Serves translations for one case. The kit's locales carry none, so a case
- * translation is the only value for its key; `null` clears them.
+ * translation is the only value for its key; `null` clears them. Every locale the
+ * translations name exists from here on, so the case can start in it or switch to it.
  *
  * @param translations - Per-locale translations, or null.
  */
@@ -49,12 +53,23 @@ export function setCaseTranslations(
   translations: Partial<Record<string, Translations>> | null,
 ): void {
   caseTranslations = translations ?? {}
+  for (const code of Object.keys(caseTranslations))
+    if (localeRegistry && !localeRegistry.getLocales().some((known) => known.code === code))
+      localeRegistry.addLocale({ code, name: code, direction: 'ltr', translations: {} })
 }
+
+/** The locales every case has: English and {@link PSEUDO_LOCALE}. */
+const BUILT_IN_LOCALES = ['en', PSEUDO_LOCALE]
 
 /**
  * The simple provider with English and {@link PSEUDO_LOCALE}. Neither locale carries
  * translations: a component's own English defaults are what it renders, bracketed in the
  * pseudo-locale.
+ *
+ * A case may also switch to any locale its translations name (`translations: { fr: {} }`,
+ * an empty entry when only dates and numbers change): that locale exists, left to right,
+ * for that case only. `getLocales()` lists the built-in two and the case's own, so a
+ * component that lists the locales renders the same whichever cases ran before it.
  *
  * @returns The provider.
  */
@@ -63,8 +78,19 @@ function createConformanceI18nProvider(): I18nProvider {
     { code: 'en', name: 'English', direction: 'ltr', translations: {} },
     { code: PSEUDO_LOCALE, name: 'Pseudo', direction: 'ltr', translations: {} },
   ])
+  localeRegistry = base
+  const inCase = (code: string): boolean =>
+    BUILT_IN_LOCALES.includes(code) || caseTranslations[code] !== undefined
   return {
     ...base,
+    getLocales: () => base.getLocales().filter((locale) => inCase(locale.code)),
+    setLocale: async (locale) => {
+      if (!inCase(locale))
+        throw new Error(
+          `conformance: a step switches to the locale "${locale}", which the case's context.translations does not name; add \`${locale}: {}\` (an empty entry formats dates and numbers in that locale and keeps the English text)`,
+        )
+      await base.setLocale(locale)
+    },
     t: (key, values, options) => {
       const own =
         lookup(caseTranslations[base.getLocale()], key) ?? lookup(caseTranslations.en, key)

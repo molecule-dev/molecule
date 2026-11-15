@@ -134,7 +134,8 @@ Interactions: `click`, `dblclick`, `focus`, `blur`, `mouseenter`, `mouseleave`, 
 `keydown`, `input`, `check`, `submit`, `event` (any DOM event on a selector, `window` or
 `document`), `props` (re-render with new props), `advance` (timers), `settle` (a deferred
 callback), `navigate` (the router, from outside), `locale` (`{ type: 'locale', locale: 'en-XA' }`: switches
-the locale, as the hook step of the same name does), `fetch` (answers the oldest page request
+the locale, as the hook step of the same name does; besides `en` and `en-XA`, a case may use any locale its
+`context.translations` names, and `fr: {}` alone formats dates and numbers in French), `fetch` (answers the oldest page request
 held by `context.window.fetch` with `defer: true`), `control` (calls a control an area's fakes
 registered, such as `chat.emit` or `chat.finish`, so a feature case with `composition: 'app'`
 scripts what a service does from the other side), `pointer` (a pointer event at `clientX`/`clientY`,

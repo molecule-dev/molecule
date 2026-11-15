@@ -392,8 +392,9 @@ export async function runSteps(
 ): Promise<CaseResult> {
   checkCaseFields(testCase)
   installCaseClock(testCase)
-  await getI18nProvider().setLocale(testCase.context?.locale ?? 'en')
+  // The case's translations first: they name the locales the case may start in.
   setCaseTranslations(testCase.context?.translations ?? null)
+  await getI18nProvider().setLocale(testCase.context?.locale ?? 'en')
   const page = applyWindowContext(testCase.context?.window, recorder)
   const container = freshContainer(testCase)
   const keepReferences = caseStrings(testCase)
@@ -407,6 +408,7 @@ export async function runSteps(
   } catch (error) {
     page.restore()
     setCaseTranslations(null)
+    if (testCase.fakeTimers || testCase.now !== undefined) vi.useRealTimers()
     throw error
   }
   // Set by an `unmount` step: the end of the case then has nothing left to tear down, and

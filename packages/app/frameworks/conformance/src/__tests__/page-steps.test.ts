@@ -12,6 +12,8 @@
 import '../ui/setup.js'
 import { describe, expect, it } from 'vitest'
 
+import { getProvider as getI18nProvider } from '@molecule/app-i18n'
+
 import { CallRecorder, type MountedCase, runSteps, settle, type UICase } from '../ui/index.js'
 import { pinCaseTimeZone } from '../ui/page.js'
 
@@ -61,6 +63,57 @@ const paragraph = (container: HTMLElement): HTMLParagraphElement => {
   container.appendChild(p)
   return p
 }
+
+describe('locales', () => {
+  /**
+   * A paragraph showing the current locale and the locales the provider lists,
+   * kept current through the provider's change notice.
+   *
+   * @param container - Where it goes.
+   * @returns The teardown.
+   */
+  const localeReadout = (container: HTMLElement): (() => void) => {
+    const p = paragraph(container)
+    const show = (): void => {
+      const i18n = getI18nProvider()
+      p.textContent = `${i18n.getLocale()} of ${i18n
+        .getLocales()
+        .map((l) => l.code)
+        .join(',')}`
+    }
+    show()
+    return getI18nProvider().onLocaleChange(show)
+  }
+
+  it('a case switches to any locale its translations name, for that case only', async () => {
+    const { readable } = await run(
+      {
+        name: 'to French',
+        context: { translations: { fr: {} } },
+        interactions: [{ type: 'locale', locale: 'fr' }],
+      },
+      localeReadout,
+    )
+    expect(readable[0]).toContain('en of en,en-XA,fr')
+    expect(readable[1]).toContain('fr of en,en-XA,fr')
+    const after = await run({ name: 'no French' }, localeReadout)
+    expect(after.readable[0]).toContain('en of en,en-XA\n')
+  })
+
+  it('starts a case in a locale its translations name', async () => {
+    const { readable } = await run(
+      { name: 'in German', context: { locale: 'de', translations: { de: {} } } },
+      localeReadout,
+    )
+    expect(readable[0]).toContain('de of en,en-XA,de')
+  })
+
+  it('refuses a switch to a locale the case does not name, saying how to add it', async () => {
+    await expect(
+      run({ name: 'to French', interactions: [{ type: 'locale', locale: 'fr' }] }, localeReadout),
+    ).rejects.toThrow('add `fr: {}`')
+  })
+})
 
 describe('time zone', () => {
   const noonUtc = new Date(Date.UTC(2026, 4, 13, 12))
