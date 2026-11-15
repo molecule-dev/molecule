@@ -27,11 +27,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import type { SkillInfo } from '@molecule/app-ide-panel-logic/panels'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import type { SkillInfo } from '../components/chat-skills-utilities.js'
 import { RelevantSkillSuggestion } from '../components/RelevantSkillSuggestion.js'
 
 const SKILL: SkillInfo = {

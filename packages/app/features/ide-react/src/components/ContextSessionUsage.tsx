@@ -1,9 +1,12 @@
 import { type JSX, useEffect, useState } from 'react'
 
+import {
+  type ChatUsageTokens,
+  formatTokenTotal,
+  totalPromptTokens,
+} from '@molecule/app-ide-panel-logic/panels'
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-
-import { type ChatUsageTokens, formatTokenTotal, totalPromptTokens } from './chat-cost-utilities.js'
 
 interface SessionUsage extends ChatUsageTokens {
   allowancePercent?: number | null

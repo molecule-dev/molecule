@@ -16,11 +16,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
+import type { ScriptInfo } from '@molecule/app-ide-panel-logic/panels'
 import { HttpProvider, I18nProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import type { ScriptInfo } from '../components/chat-scripts-utilities.js'
 import { ScriptsCard } from '../components/ScriptsCard.js'
 
 const PARAM_SCRIPT: ScriptInfo = {

@@ -16,14 +16,14 @@ import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import type { ToolCallCardProps } from '@molecule/app-ide-panel-logic'
+import { isSkippedByUser, toolSummary } from '@molecule/app-ide-panel-logic/panels'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
 import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { isSkippedByUser, toolSummary } from '../components/tool-call-utilities.js'
 import { ToolCallCard } from '../components/ToolCallCard.js'
-import type { ToolCallCardProps } from '../types.js'
 
 /** The output the API sends back for a call the person skipped. */
 const SKIPPED_OUTPUT = {

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
+import { toolLabel } from '@molecule/app-ide-panel-logic/panels'
+
 import { backgroundTaskCommands } from '../components/background-task-context.js'
-import { toolLabel } from '../components/tool-call-utilities.js'
 
 describe('backgroundTaskCommands', () => {
   it('maps a background exec_command task id to its command', () => {

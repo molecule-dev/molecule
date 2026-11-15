@@ -32,15 +32,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { buildSettingsList, type SettingsDisplayValues } from '@molecule/app-ide-panel-logic/panels'
 import * as ideLocales from '@molecule/app-locales-ide'
 import { HttpProvider, ThemeProvider } from '@molecule/app-react'
 import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
-import {
-  buildSettingsList,
-  type SettingsDisplayValues,
-} from '../components/chat-settings-utilities.js'
 import { ReportModal } from '../components/ReportModal.js'
 import { SettingsCard } from '../components/SettingsCard.js'
 

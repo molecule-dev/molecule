@@ -18,9 +18,9 @@
  * @module
  */
 
+import { type AgentIdentity, DEFAULT_AGENT_IDENTITY } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
-import { type AgentIdentity, DEFAULT_AGENT_IDENTITY } from '@molecule/app-react'
 
 /**
  * The `/help` intro paragraph (i18n key + English default). Shared by the

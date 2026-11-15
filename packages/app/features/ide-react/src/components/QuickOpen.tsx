@@ -10,12 +10,13 @@ import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 
+import type { QuickOpenProps } from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 
 const logger = getLogger('quick-open')
 
-import type { QuickOpenProps, QuickPickerItem } from '../types.js'
+import type { QuickPickerItem } from '../types.js'
 import { QuickPicker } from './QuickPicker.js'
 
 /**

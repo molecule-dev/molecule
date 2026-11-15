@@ -25,11 +25,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { I18nProvider as I18nProviderType } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import type { SkillInfo } from '@molecule/app-ide-panel-logic/panels'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import type { SkillInfo } from '../components/chat-skills-utilities.js'
 import { RelevantSkillSuggestion } from '../components/RelevantSkillSuggestion.js'
 
 /** The bonded provider from {@link beforeEach}, so the switch drives the exact provider the component's `t` resolves against. */

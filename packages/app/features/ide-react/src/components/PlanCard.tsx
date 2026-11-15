@@ -1,11 +1,11 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
 
+import { normalizeTaskListInput, type TaskListRow } from '@molecule/app-ide-panel-logic/panels'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { DockStrip, StatusMark } from './DockStrip.js'
-import { normalizeTaskListInput, type TaskListRow } from './tool-call-utilities.js'
 
 const MARK: Record<TaskListRow['status'], 'done' | 'active' | 'todo'> = {
   completed: 'done',

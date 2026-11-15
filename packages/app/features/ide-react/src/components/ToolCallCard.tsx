@@ -17,14 +17,8 @@
 import type { JSX, ReactNode } from 'react'
 import { memo, useCallback, useContext, useMemo, useState } from 'react'
 
-import { useThemeMode, useTranslation, type UseTranslationResult } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-
-import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
-import type { ToolCallCardProps } from '../types.js'
-import { BackgroundTaskCommandsContext } from './background-task-context.js'
-import { MarkdownContent } from './MarkdownContent.js'
-import type { ToolOutput } from './tool-call-utilities.js'
+import type { ToolCallCardProps } from '@molecule/app-ide-panel-logic'
+import type { ToolOutput } from '@molecule/app-ide-panel-logic/panels'
 import {
   basename,
   extractFilePath,
@@ -41,7 +35,13 @@ import {
   subagentErrorLine,
   toolLabel,
   toolSummary,
-} from './tool-call-utilities.js'
+} from '@molecule/app-ide-panel-logic/panels'
+import { useThemeMode, useTranslation, type UseTranslationResult } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
+
+import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
+import { BackgroundTaskCommandsContext } from './background-task-context.js'
+import { MarkdownContent } from './MarkdownContent.js'
 
 type Inp = Record<string, unknown>
 type Out = ToolOutput

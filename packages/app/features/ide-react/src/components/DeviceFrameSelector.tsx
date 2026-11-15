@@ -33,12 +33,12 @@
 import { type JSX, type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react'
 
 import type { IconName } from '@molecule/app-icons'
+import type { DeviceFrameSelectorProps } from '@molecule/app-ide-panel-logic'
+import { DEVICE_FRAMES, DEVICE_META } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
-import type { DeviceFrameSelectorProps } from '../types.js'
-import { DEVICE_FRAMES, DEVICE_META } from './device-cycle.js'
 import { Icon } from './Icon.js'
 
 /**

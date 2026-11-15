@@ -26,11 +26,11 @@
 import type { JSX, ReactNode } from 'react'
 import { useEffect } from 'react'
 
+import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
+import { DEFAULT_SHARE_ROLE } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-import type { ShareLinkResult, ShareRole } from './chat-share-utilities.js'
-import { DEFAULT_SHARE_ROLE } from './chat-share-utilities.js'
 import { ShareLinkManager } from './ShareLinkManager.js'
 
 /**

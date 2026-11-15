@@ -18,14 +18,14 @@
 
 import type { JSX } from 'react'
 
+import type { TestItem } from '@molecule/app-ide-panel-logic'
+import type { TestsRunState } from '@molecule/app-ide-panel-logic'
+import type { TestsBarSummary, TestsBarTone } from '@molecule/app-ide-panel-logic/panels'
+import { summariseTestsBar } from '@molecule/app-ide-panel-logic/panels'
 import { useTranslation, type UseTranslationResult } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-import type { TestItem } from '../types.js'
 import { DockStrip, StatusMark, type StatusMarkState } from './DockStrip.js'
-import type { TestsBarSummary, TestsBarTone } from './tests-bar-utilities.js'
-import { summariseTestsBar } from './tests-bar-utilities.js'
-import type { TestsRunState } from './tests-card-utilities.js'
 import { runningLabel } from './TestsCard.js'
 
 /**

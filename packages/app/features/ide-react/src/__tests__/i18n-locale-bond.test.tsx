@@ -26,6 +26,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider, t } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import type { AutoCommitState } from '@molecule/app-ide-panel-logic'
+import type { TestList } from '@molecule/app-ide-panel-logic'
+import { DEVICE_META } from '@molecule/app-ide-panel-logic'
+import { EMPTY_RUN_STATE } from '@molecule/app-ide-panel-logic'
 import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-live-preview'
 import * as ideLocales from '@molecule/app-locales-ide'
 import { PreviewProvider as PreviewContextProvider } from '@molecule/app-react'
@@ -33,14 +37,10 @@ import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { AutoCommitBadge } from '../components/AutoCommitBadge.js'
-import type { AutoCommitState } from '../components/chat-autocommit-utilities.js'
-import { DEVICE_META } from '../components/device-cycle.js'
 import { DeviceFrameSelector } from '../components/DeviceFrameSelector.js'
 import { PreviewPanel } from '../components/PreviewPanel.js'
 import { StreamingIndicator } from '../components/StreamingIndicator.js'
-import { EMPTY_RUN_STATE } from '../components/tests-card-utilities.js'
 import { TestsCard } from '../components/TestsCard.js'
-import type { TestList } from '../types.js'
 
 const fr = ideLocales.fr as Record<string, string>
 const en = ideLocales.en as Record<string, string>

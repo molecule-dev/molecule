@@ -29,16 +29,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { buildSettingsList, type SettingsDisplayValues } from '@molecule/app-ide-panel-logic/panels'
+import { SETTINGS } from '@molecule/app-ide-panel-logic/settings-metadata'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import {
-  buildSettingsList,
-  type SettingsDisplayValues,
-} from '../components/chat-settings-utilities.js'
 import { SettingsCard } from '../components/SettingsCard.js'
-import { SETTINGS } from '../settings-metadata.js'
 
 const SAMPLE_VALUES: SettingsDisplayValues = {
   model: 'Claude Opus 4.6',

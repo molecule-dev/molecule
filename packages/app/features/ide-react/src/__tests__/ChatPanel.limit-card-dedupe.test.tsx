@@ -34,6 +34,7 @@ import type { ChatConfig, ChatMessage, ChatProvider, ChatStreamEvent } from '@mo
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { registerCustomEventCard } from '@molecule/app-ide-panel-logic'
 import {
   ChatProvider as ChatContextProvider,
   HttpProvider,
@@ -46,7 +47,6 @@ import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ChatPanel } from '../components/ChatPanel.js'
-import { registerCustomEventCard } from '../customEventCards.js'
 import type { ChatPanelProps } from '../types.js'
 
 /** The card the interrupted turn recorded (the host's copy). */

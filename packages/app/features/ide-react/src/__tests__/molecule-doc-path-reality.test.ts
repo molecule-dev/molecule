@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { moleculeDocPath } from '../components/tool-call-utilities.js'
+import { moleculeDocPath } from '@molecule/app-ide-panel-logic/panels'
 
 /**
  * Reality anchor for the doc path the find_package / read_molecule_doc cards

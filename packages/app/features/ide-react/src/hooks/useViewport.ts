@@ -5,24 +5,14 @@
  * rule there are no stylesheets in this package), so responsive behavior is
  * expressed by branching on these hooks rather than `@media` rules. Consumers
  * (e.g. molecule.dev's Workspace) keep their own breakpoint in sync with
- * {@link NARROW_VIEWPORT_QUERY}'s 768px threshold.
+ * `NARROW_VIEWPORT_QUERY`'s 768px threshold (from `@molecule/app-ide-panel-logic`).
  *
  * @module
  */
 
 import { useEffect, useState } from 'react'
 
-/**
- * The phone-width media query — matches viewports below 768px, mirroring the
- * host workspace's single-pane mobile breakpoint.
- */
-export const NARROW_VIEWPORT_QUERY = '(max-width: 767px)'
-
-/**
- * The touch-first media query — matches when the PRIMARY pointer is coarse
- * (finger), i.e. phones/tablets, regardless of viewport width.
- */
-export const COARSE_POINTER_QUERY = '(pointer: coarse)'
+import { COARSE_POINTER_QUERY, NARROW_VIEWPORT_QUERY } from '@molecule/app-ide-panel-logic'
 
 /**
  * Subscribes to a CSS media query. SSR-safe: reports `false` until mounted in

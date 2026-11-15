@@ -18,12 +18,8 @@
 import type { CSSProperties, JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { getLogger } from '@molecule/app-logger'
-import { DEFAULT_AGENT_NAME, useHttpClient, useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-
-import { chatCardStyle } from './chat-card-style.js'
-import type { ScriptInfo, ScriptParam, ScriptRunResult } from './chat-scripts-utilities.js'
+import { chatCardStyle } from '@molecule/app-ide-panel-logic'
+import type { ScriptInfo, ScriptParam, ScriptRunResult } from '@molecule/app-ide-panel-logic/panels'
 import {
   buildSaveScriptPayload,
   filterScripts,
@@ -31,7 +27,10 @@ import {
   isSaveScriptValid,
   missingRequiredParams,
   runSucceeded,
-} from './chat-scripts-utilities.js'
+} from '@molecule/app-ide-panel-logic/panels'
+import { getLogger } from '@molecule/app-logger'
+import { DEFAULT_AGENT_NAME, useHttpClient, useTranslation } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
 
 const logger = getLogger('scripts-card')
 

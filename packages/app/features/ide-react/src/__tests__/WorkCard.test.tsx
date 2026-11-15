@@ -11,6 +11,8 @@ import { cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import type { TestItem } from '@molecule/app-ide-panel-logic'
+import { EMPTY_RUN_STATE, type TestsRunState } from '@molecule/app-ide-panel-logic'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
 import { lightTheme, type ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
@@ -19,10 +21,8 @@ import { classMap } from '@molecule/app-ui-tailwind'
 import { BackgroundTasksStrip } from '../components/BackgroundTasksStrip.js'
 import { DockStrip } from '../components/DockStrip.js'
 import { latestPlan, PlanCard } from '../components/PlanCard.js'
-import { EMPTY_RUN_STATE, type TestsRunState } from '../components/tests-card-utilities.js'
 import { TestStatusBar } from '../components/TestStatusBar.js'
 import { WorkCard } from '../components/WorkCard.js'
-import type { TestItem } from '../types.js'
 
 /** A minimal light theme so `useThemeMode` resolves. */
 function buildThemeProvider(): ThemeProviderType {

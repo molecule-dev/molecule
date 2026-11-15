@@ -22,6 +22,14 @@ import type { AuthClient, AuthState, UserProfile } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import type {
+  TestList,
+  TestRunEvent,
+  TestRunFeedEvent,
+  TestRunHandle,
+  TestSelection,
+} from '@molecule/app-ide-panel-logic'
+import { COMMANDS } from '@molecule/app-ide-panel-logic/command-metadata'
 import {
   AuthProvider,
   ChatProvider as ChatContextProvider,
@@ -34,16 +42,8 @@ import { lightTheme, type ThemeProvider as ThemeProviderType } from '@molecule/a
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { COMMANDS } from '../command-metadata.js'
 import { ChatPanel } from '../components/ChatPanel.js'
-import type {
-  ChatPanelProps,
-  TestList,
-  TestRunEvent,
-  TestRunFeedEvent,
-  TestRunHandle,
-  TestSelection,
-} from '../types.js'
+import type { ChatPanelProps } from '../types.js'
 
 const PROJECT_ID = 'proj-test-command'
 

@@ -1,0 +1,77 @@
+{
+ "an empty tree": {
+  "snapshots": [
+   "<div class=\"c12226537 ca76eb0c4\" role=\"tree\" style=\"outline: none; overflow-y: auto\" tabindex=\"0\">\n<div class=\"c445db9b9 c9cd623cf ce823b5bf\">\nide.files.empty\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Missing translation key",
+     "ide.files.empty",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an empty tree, then a locale switch": {
+  "snapshots": [
+   "<div class=\"c12226537 ca76eb0c4\" role=\"tree\" style=\"outline: none; overflow-y: auto\" tabindex=\"0\">\n<div class=\"c445db9b9 c9cd623cf ce823b5bf\">\nide.files.empty\n</div>\n</div>\n@route /",
+   "<div class=\"c12226537 ca76eb0c4\" role=\"tree\" style=\"outline: none; overflow-y: auto\" tabindex=\"0\">\n<div class=\"c445db9b9 c9cd623cf ce823b5bf\">\n⟦ide.files.empty⟧\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Missing translation key",
+     "ide.files.empty",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Missing translation key",
+     "ide.files.empty",
+     "en-XA"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Missing translation key",
+     "ide.files.empty",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

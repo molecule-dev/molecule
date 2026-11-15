@@ -31,19 +31,19 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import type { TestItem } from '@molecule/app-ide-panel-logic'
+import { EMPTY_RUN_STATE } from '@molecule/app-ide-panel-logic'
+import type { SkillInfo } from '@molecule/app-ide-panel-logic/panels'
+import { buildSettingsList } from '@molecule/app-ide-panel-logic/panels'
 import { HttpProvider, I18nProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { buildSettingsList } from '../components/chat-settings-utilities.js'
-import type { SkillInfo } from '../components/chat-skills-utilities.js'
 import { HelpCard } from '../components/HelpCard.js'
 import { ScriptsCard } from '../components/ScriptsCard.js'
 import { SettingsCard } from '../components/SettingsCard.js'
 import { SkillsCard } from '../components/SkillsCard.js'
-import { EMPTY_RUN_STATE } from '../components/tests-card-utilities.js'
 import { TestsCard } from '../components/TestsCard.js'
-import type { TestItem } from '../types.js'
 
 /**
  * Every variant an ACTION may render as — resolved from the bond, not written

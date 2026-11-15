@@ -10,11 +10,11 @@
 
 import { type JSX, useState } from 'react'
 
+import { resolveUserAvatar } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Icon } from './Icon.js'
-import { resolveUserAvatar } from './user-avatar-utilities.js'
 
 /**
  * Props for {@link UserAvatar}.

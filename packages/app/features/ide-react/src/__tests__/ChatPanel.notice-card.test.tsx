@@ -22,6 +22,7 @@ import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-cha
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { registerCustomEventCard } from '@molecule/app-ide-panel-logic'
 import {
   ChatProvider as ChatContextProvider,
   HttpProvider,
@@ -34,7 +35,6 @@ import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ChatPanel } from '../components/ChatPanel.js'
-import { registerCustomEventCard } from '../customEventCards.js'
 
 /** History seeded with one system card message per registered custom-event name. */
 function buildChatProvider(cardNames: string[]): ChatProvider {

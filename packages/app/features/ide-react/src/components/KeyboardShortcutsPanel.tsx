@@ -8,10 +8,9 @@
 import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import type { KeyboardShortcutsPanelProps, ShortcutEntry } from '@molecule/app-ide-panel-logic'
 import { useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-
-import type { KeyboardShortcutsPanelProps, ShortcutEntry } from '../types.js'
 
 /**
  * Groups shortcuts by category, preserving insertion order.

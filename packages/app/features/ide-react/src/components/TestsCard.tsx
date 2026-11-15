@@ -36,20 +36,17 @@
 import type { CSSProperties, JSX } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { DEFAULT_AGENT_NAME, useTranslation, type UseTranslationResult } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-
-import type { TestItem, TestKind, TestSelection, TestStatus } from '../types.js'
-import { chatCardStyle } from './chat-card-style.js'
+import type { TestItem, TestKind, TestSelection, TestStatus } from '@molecule/app-ide-panel-logic'
 import type {
   TestCaseProgress,
   TestFailure,
   TestGroup,
   TestResultEntry,
   TestsRunState,
-} from './tests-card-utilities.js'
+} from '@molecule/app-ide-panel-logic'
 import {
   canSkipRun,
+  chatCardStyle,
   countByKind,
   currentRunRowId,
   failedTests,
@@ -59,7 +56,9 @@ import {
   summarizeResults,
   testCaseLabel,
   testRowLabel,
-} from './tests-card-utilities.js'
+} from '@molecule/app-ide-panel-logic'
+import { DEFAULT_AGENT_NAME, useTranslation, type UseTranslationResult } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
 
 /**
  * The card's button vocabulary, which is the command cards' vocabulary (see

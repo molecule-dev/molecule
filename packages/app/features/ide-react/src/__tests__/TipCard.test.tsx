@@ -32,10 +32,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { addTranslations, t } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { ENTRY_TIP } from '@molecule/app-ide-panel-logic/panels'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { ENTRY_TIP } from '../components/chat-tips-utilities.js'
 import { TipCard } from '../components/TipCard.js'
 
 /** The English source the locale bond ships for the entry tip (verbatim). */

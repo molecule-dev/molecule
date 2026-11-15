@@ -8,10 +8,9 @@ import type { JSX } from 'react'
 import { useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
+import type { FileNode } from '@molecule/app-ide-panel-logic'
 import { useTranslation, type UseTranslationResult } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-
-import type { FileNode } from '../types.js'
 
 /** Action identifiers for context menu items. */
 export type ContextMenuAction =

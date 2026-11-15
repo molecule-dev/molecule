@@ -27,6 +27,7 @@ import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-cha
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { TIP_IDLE_MS, TIP_MIN_MESSAGES } from '@molecule/app-ide-panel-logic/panels'
 import {
   ChatProvider as ChatContextProvider,
   HttpProvider,
@@ -38,7 +39,6 @@ import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-th
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { TIP_IDLE_MS, TIP_MIN_MESSAGES } from '../components/chat-tips-utilities.js'
 import { ChatPanel } from '../components/ChatPanel.js'
 import type { ChatPanelProps } from '../types.js'
 

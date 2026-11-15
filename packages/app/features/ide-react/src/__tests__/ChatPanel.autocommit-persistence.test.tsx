@@ -37,6 +37,7 @@ import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-cha
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { DEFAULT_AUTO_COMMIT_SECONDS } from '@molecule/app-ide-panel-logic'
 import {
   ChatProvider as ChatContextProvider,
   HttpProvider,
@@ -48,7 +49,6 @@ import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-th
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { DEFAULT_AUTO_COMMIT_SECONDS } from '../components/chat-autocommit-utilities.js'
 import { ChatPanel } from '../components/ChatPanel.js'
 
 const PROJECT_ID = 'proj-syn3'

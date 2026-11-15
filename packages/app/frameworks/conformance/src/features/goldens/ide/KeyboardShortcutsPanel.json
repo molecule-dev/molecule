@@ -1,0 +1,41 @@
+{
+ "no shortcuts": {
+  "snapshots": [
+   "<div style=\"background: rgba(0, 0, 0, 0.4); inset: 0px; position: fixed; z-index: 1000\">\n</div>\n<div style=\"background: rgb(255, 255, 255); border-radius: 8px; border: 1px solid var(--color-border, #333); box-shadow: 0 8px 32px rgba(0,0,0,0.18); display: flex; flex-direction: column; left: 50%; max-height: 70vh; max-width: 90vw; outline: none; overflow: hidden; position: fixed; top: 50%; transform: translate(-50%, -50%); width: 480px; z-index: 1001\" tabindex=\"-1\">\n<div style=\"align-items: center; border-bottom: 1px solid var(--color-border, #333); display: flex; flex-shrink: 0; justify-content: space-between; padding: 14px 16px 10px\">\n<span style=\"font-size: 14px; font-weight: 600\">\nKeyboard Shortcuts\n</span>\n<button aria-label=\"Close\" class=\"c4a6e980a c9f45aa9d ca596e575\" data-mol-id=\"shortcuts-close\" style=\"align-items: center; background: transparent; border-radius: 4px; border: medium; color: inherit; cursor: pointer; display: inline-flex; height: 18px; justify-content: center; opacity: 0.6; transition: opacity 100ms, background 100ms; width: 18px\" title=\"Close\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"none\" height=\"11\" viewbox=\"0 0 16 16\" width=\"11\">\n<path d=\"M3 3l10 10M13 3L3 13\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"1.6\">\n</path>\n</svg>\n</button>\n</div>\n<div style=\"flex: 1 1 0%; overflow: auto; padding: 8px 0px\">\n</div>\n<div style=\"border-top: 1px solid var(--color-border, #333); color: var(--mol-color-text-secondary, #888); flex-shrink: 0; font-size: 11px; padding: 8px 16px; text-align: center\">\nArrow keys to navigate · Enter to run · Esc to close\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:1"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "no shortcuts, then a locale switch": {
+  "snapshots": [
+   "<div style=\"background: rgba(0, 0, 0, 0.4); inset: 0px; position: fixed; z-index: 1000\">\n</div>\n<div style=\"background: rgb(255, 255, 255); border-radius: 8px; border: 1px solid var(--color-border, #333); box-shadow: 0 8px 32px rgba(0,0,0,0.18); display: flex; flex-direction: column; left: 50%; max-height: 70vh; max-width: 90vw; outline: none; overflow: hidden; position: fixed; top: 50%; transform: translate(-50%, -50%); width: 480px; z-index: 1001\" tabindex=\"-1\">\n<div style=\"align-items: center; border-bottom: 1px solid var(--color-border, #333); display: flex; flex-shrink: 0; justify-content: space-between; padding: 14px 16px 10px\">\n<span style=\"font-size: 14px; font-weight: 600\">\nKeyboard Shortcuts\n</span>\n<button aria-label=\"Close\" class=\"c4a6e980a c9f45aa9d ca596e575\" data-mol-id=\"shortcuts-close\" style=\"align-items: center; background: transparent; border-radius: 4px; border: medium; color: inherit; cursor: pointer; display: inline-flex; height: 18px; justify-content: center; opacity: 0.6; transition: opacity 100ms, background 100ms; width: 18px\" title=\"Close\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"none\" height=\"11\" viewbox=\"0 0 16 16\" width=\"11\">\n<path d=\"M3 3l10 10M13 3L3 13\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"1.6\">\n</path>\n</svg>\n</button>\n</div>\n<div style=\"flex: 1 1 0%; overflow: auto; padding: 8px 0px\">\n</div>\n<div style=\"border-top: 1px solid var(--color-border, #333); color: var(--mol-color-text-secondary, #888); flex-shrink: 0; font-size: 11px; padding: 8px 16px; text-align: center\">\nArrow keys to navigate · Enter to run · Esc to close\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:1",
+   "<div style=\"background: rgba(0, 0, 0, 0.4); inset: 0px; position: fixed; z-index: 1000\">\n</div>\n<div style=\"background: rgb(255, 255, 255); border-radius: 8px; border: 1px solid var(--color-border, #333); box-shadow: 0 8px 32px rgba(0,0,0,0.18); display: flex; flex-direction: column; left: 50%; max-height: 70vh; max-width: 90vw; outline: none; overflow: hidden; position: fixed; top: 50%; transform: translate(-50%, -50%); width: 480px; z-index: 1001\" tabindex=\"-1\">\n<div style=\"align-items: center; border-bottom: 1px solid var(--color-border, #333); display: flex; flex-shrink: 0; justify-content: space-between; padding: 14px 16px 10px\">\n<span style=\"font-size: 14px; font-weight: 600\">\n⟦Keyboard Shortcuts⟧\n</span>\n<button aria-label=\"⟦Close⟧\" class=\"c4a6e980a c9f45aa9d ca596e575\" data-mol-id=\"shortcuts-close\" style=\"align-items: center; background: transparent; border-radius: 4px; border: medium; color: inherit; cursor: pointer; display: inline-flex; height: 18px; justify-content: center; opacity: 0.6; transition: opacity 100ms, background 100ms; width: 18px\" title=\"⟦Close⟧\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"none\" height=\"11\" viewbox=\"0 0 16 16\" width=\"11\">\n<path d=\"M3 3l10 10M13 3L3 13\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-width=\"1.6\">\n</path>\n</svg>\n</button>\n</div>\n<div style=\"flex: 1 1 0%; overflow: auto; padding: 8px 0px\">\n</div>\n<div style=\"border-top: 1px solid var(--color-border, #333); color: var(--mol-color-text-secondary, #888); flex-shrink: 0; font-size: 11px; padding: 8px 16px; text-align: center\">\n⟦Arrow keys to navigate · Enter to run · Esc to close⟧\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:1"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

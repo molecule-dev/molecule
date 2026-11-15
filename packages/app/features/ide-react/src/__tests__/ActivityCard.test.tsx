@@ -29,12 +29,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import type { Activity } from '@molecule/app-ide-panel-logic'
+import { ACTIVITY_TYPES, activityIconName } from '@molecule/app-ide-panel-logic'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import type { Activity } from '../components/activity-utilities.js'
-import { ACTIVITY_TYPES, activityIconName } from '../components/activity-utilities.js'
 import { ActivityCard } from '../components/ActivityCard.js'
 
 // The emoji + bare-# glyphs the old map used — none may survive in the DOM.

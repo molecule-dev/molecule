@@ -11,7 +11,7 @@ import {
   CHAT_TIMESTAMPS_EVENT,
   CHAT_TIMESTAMPS_STORAGE_KEY,
   getChatTimestampsVisible,
-} from '../components/chat-timestamps-utilities.js'
+} from '@molecule/app-ide-panel-logic'
 
 /**
  * Subscribes to preference changes from this tab (the custom event) and from

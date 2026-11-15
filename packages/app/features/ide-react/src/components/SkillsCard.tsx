@@ -49,14 +49,14 @@
 import type { CSSProperties, JSX } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 
+import { chatCardStyle } from '@molecule/app-ide-panel-logic'
+import type { SkillInfo } from '@molecule/app-ide-panel-logic/panels'
+import { filterSkills, loadProjectSkillsResilient } from '@molecule/app-ide-panel-logic/panels'
 import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
-import { chatCardStyle } from './chat-card-style.js'
-import type { SkillInfo } from './chat-skills-utilities.js'
-import { filterSkills, loadProjectSkillsResilient } from './chat-skills-utilities.js'
 import { Icon } from './Icon.js'
 
 const logger = getLogger('skills-card')

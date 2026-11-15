@@ -7,18 +7,18 @@
 import { describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
-import { en } from '@molecule/app-locales-ide'
-
+import type { TestItem } from '@molecule/app-ide-panel-logic'
+import type { TestsRunState } from '@molecule/app-ide-panel-logic'
+import { EMPTY_RUN_STATE } from '@molecule/app-ide-panel-logic'
 import {
   parseTestsBarArg,
   parseTestsBarVisible,
   shouldShowTestsBar,
   summariseTestsBar,
-} from '../components/tests-bar-utilities.js'
-import type { TestsRunState } from '../components/tests-card-utilities.js'
-import { EMPTY_RUN_STATE } from '../components/tests-card-utilities.js'
+} from '@molecule/app-ide-panel-logic/panels'
+import { en } from '@molecule/app-locales-ide'
+
 import { testsBarLabel } from '../components/TestStatusBar.js'
-import type { TestItem } from '../types.js'
 
 // The label helper takes its translator as a parameter now (the component passes
 // the one from `useTranslation()`); this test hands it a real provider's `t`

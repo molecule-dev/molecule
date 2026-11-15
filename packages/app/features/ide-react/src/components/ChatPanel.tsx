@@ -51,8 +51,126 @@ import {
   voiceEngineCoversLanguage,
 } from '@molecule/app-ai-voice'
 import { getCountryFlag } from '@molecule/app-country-flags'
-import { getLocale } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
+import type {
+  Activity,
+  ChatEventCard,
+  ChatEventCardAction,
+  ChatEventCardCode,
+  ChatEventCardSegment,
+  ChatTimestampSlot,
+  ChatUserIdentity,
+  IdeClientAction,
+  ReportResult,
+  ShareLinkResult,
+  ShareRole,
+  TestFailure,
+  TestItem,
+  TestRunEvent,
+  TestRunFeedEvent,
+  TestRunHandle,
+  TestSelection,
+  TestsRunState,
+} from '@molecule/app-ide-panel-logic'
+import {
+  activityFromEvent,
+  applyTestRunEvent,
+  AUTO_COMMIT_DISABLED,
+  autoCommitReducer,
+  buildShareUrl,
+  buildTestFixMessage,
+  CHAT_CARD_ICON_SIZE,
+  chatCardStyle,
+  DEFAULT_SHARE_ROLE,
+  EMPTY_RUN_STATE,
+  failRun,
+  formatReportConfirmation,
+  getChatTimestampsVisible,
+  getCustomEventCardFactory,
+  isAutoCommitArmed,
+  isAutoCommitDue,
+  isAutoCommitEnabled,
+  markSkipUnavailable,
+  parseAutoCommitCommand,
+  parseReportCommand,
+  parseShareCommand,
+  parseTestCommand,
+  parseTimestampsCommand,
+  planChatTimestamps,
+  requestSkip,
+  resolveAutoCommitSeconds,
+  setChatTimestampsVisible,
+  SHARE_ROLES,
+  TestRunProjection,
+} from '@molecule/app-ide-panel-logic'
+import type {
+  CommandId,
+  EffortLevel,
+  EffortMode,
+  EffortOption,
+  FreeTierLockReason,
+  ModelMode,
+  ModelSortColumn,
+  ScriptInfo,
+  ScriptRunResult,
+  SettingDescriptor,
+  SkillInfo,
+  SortDirection,
+} from '@molecule/app-ide-panel-logic/panels'
+import {
+  buildHelpText,
+  buildNewSkillTemplate,
+  buildSettingsList,
+  cachedPromptTokens,
+  COMMAND_CATEGORIES,
+  type CommandDef,
+  COMMANDS,
+  defaultEffortForModel,
+  effectiveModeModelId,
+  effortOptionsForModel,
+  ENTRY_TIP,
+  estimateTurnTokens,
+  findScriptByName,
+  formatRunOutput,
+  formatTokenTotal,
+  freeTierLockReason,
+  freeTierUsableMode,
+  getTestsBarVisible,
+  isModeModelLocked,
+  loadProjectSkills,
+  matchesSideChannelCommand,
+  missingRequiredParams,
+  modelHasPeakPricing,
+  modelPeakMultiplier,
+  modelPeakWindowLabels,
+  modelUsageRate,
+  modeSettingKey,
+  nativeEffortName,
+  newSkillPath,
+  parseEffortCommand,
+  parseModelModeCommand,
+  parseRunCommand,
+  parseScriptsCommand,
+  parseSkillMeta,
+  parseTestsBarArg,
+  pickIdleTip,
+  pickRelevantSkill,
+  readFilePaths,
+  recentUserText,
+  resolveEffortArg,
+  resolveModeModel,
+  runSucceeded,
+  setTestsBarVisible,
+  shouldShowIdleTip,
+  shouldShowTestsBar,
+  sortModels,
+  str,
+  stripCommitCoauthorTrailer,
+  summarizeSounds,
+  timelineSortKey,
+  TIP_IDLE_MS,
+  TIP_MIN_MESSAGES,
+} from '@molecule/app-ide-panel-logic/panels'
 import { getLogger } from '@molecule/app-logger'
 import {
   DEFAULT_AGENT_NAME,
@@ -67,124 +185,14 @@ import {
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
-import { timelineSortKey } from '../chatTimelineOrdering.js'
-import type {
-  ChatEventCard,
-  ChatEventCardAction,
-  ChatEventCardCode,
-  ChatEventCardSegment,
-} from '../customEventCards.js'
-import { getCustomEventCardFactory } from '../customEventCards.js'
 import { useChatTimestampsVisible, useMinuteNow } from '../hooks/useChatTimestampsVisible.js'
 import { useTestsBarVisible } from '../hooks/useTestsBarVisible.js'
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
-import type {
-  ChatPanelProps,
-  ChatUserIdentity,
-  IdeClientAction,
-  TestItem,
-  TestRunEvent,
-  TestRunFeedEvent,
-  TestRunHandle,
-  TestSelection,
-} from '../types.js'
-import type { Activity } from './activity-utilities.js'
-import { activityFromEvent } from './activity-utilities.js'
+import type { ChatPanelProps } from '../types.js'
 import { ActivityCard } from './ActivityCard.js'
 import { AutoCommitBadge } from './AutoCommitBadge.js'
 import { backgroundTaskCommands, BackgroundTaskCommandsContext } from './background-task-context.js'
 import { BackgroundTasksStrip } from './BackgroundTasksStrip.js'
-import {
-  AUTO_COMMIT_DISABLED,
-  autoCommitReducer,
-  isAutoCommitArmed,
-  isAutoCommitDue,
-  isAutoCommitEnabled,
-  parseAutoCommitCommand,
-  resolveAutoCommitSeconds,
-} from './chat-autocommit-utilities.js'
-import { CHAT_CARD_ICON_SIZE, chatCardStyle } from './chat-card-style.js'
-import type { CommandId } from './chat-commands.js'
-import {
-  COMMAND_CATEGORIES,
-  type CommandDef,
-  COMMANDS,
-  matchesSideChannelCommand,
-} from './chat-commands.js'
-import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
-import { cachedPromptTokens, formatTokenTotal } from './chat-cost-utilities.js'
-import type { EffortLevel, EffortMode, EffortOption } from './chat-effort-utilities.js'
-import {
-  defaultEffortForModel,
-  effortOptionsForModel,
-  nativeEffortName,
-  parseEffortCommand,
-  resolveEffortArg,
-} from './chat-effort-utilities.js'
-import { buildHelpText } from './chat-help-utilities.js'
-import type { FreeTierLockReason, ModelMode } from './chat-model-mode-utilities.js'
-import {
-  effectiveModeModelId,
-  freeTierLockReason,
-  freeTierUsableMode,
-  isModeModelLocked,
-  modeSettingKey,
-  parseModelModeCommand,
-  resolveModeModel,
-} from './chat-model-mode-utilities.js'
-import type { ModelSortColumn, SortDirection } from './chat-models-utilities.js'
-import {
-  modelHasPeakPricing,
-  modelPeakMultiplier,
-  modelPeakWindowLabels,
-  modelUsageRate,
-  sortModels,
-} from './chat-models-utilities.js'
-import type { ReportResult } from './chat-report-utilities.js'
-import { formatReportConfirmation, parseReportCommand } from './chat-report-utilities.js'
-import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
-import {
-  findScriptByName,
-  formatRunOutput,
-  missingRequiredParams,
-  parseRunCommand,
-  parseScriptsCommand,
-  runSucceeded,
-} from './chat-scripts-utilities.js'
-import type { SettingDescriptor } from './chat-settings-utilities.js'
-import { buildSettingsList, summarizeSounds } from './chat-settings-utilities.js'
-import type { ShareLinkResult, ShareRole } from './chat-share-utilities.js'
-import {
-  buildShareUrl,
-  DEFAULT_SHARE_ROLE,
-  parseShareCommand,
-  SHARE_ROLES,
-} from './chat-share-utilities.js'
-import type { SkillInfo } from './chat-skills-utilities.js'
-import {
-  buildNewSkillTemplate,
-  loadProjectSkills,
-  newSkillPath,
-  parseSkillMeta,
-  pickRelevantSkill,
-  recentUserText,
-} from './chat-skills-utilities.js'
-import { estimateTurnTokens } from './chat-stream-utilities.js'
-import {
-  type ChatTimestampSlot,
-  getChatTimestampsVisible,
-  parseTimestampsCommand,
-  planChatTimestamps,
-  resolveChatLocale,
-  setChatTimestampsVisible,
-} from './chat-timestamps-utilities.js'
-import {
-  ENTRY_TIP,
-  pickIdleTip,
-  shouldShowIdleTip,
-  TIP_IDLE_MS,
-  TIP_MIN_MESSAGES,
-} from './chat-tips-utilities.js'
 import { ChatItemBoundary } from './ChatItemBoundary.js'
 import { ChatTimestamp } from './ChatTimestamp.js'
 import { ContextUsageIndicator, mergeContextHistory } from './ContextUsageIndicator.js'
@@ -200,28 +208,10 @@ import { SettingsCard } from './SettingsCard.js'
 import { ShareModal } from './ShareModal.js'
 import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
-import {
-  getTestsBarVisible,
-  parseTestsBarArg,
-  setTestsBarVisible,
-  shouldShowTestsBar,
-} from './tests-bar-utilities.js'
-import type { TestFailure, TestsRunState } from './tests-card-utilities.js'
-import {
-  applyTestRunEvent,
-  buildTestFixMessage,
-  EMPTY_RUN_STATE,
-  failRun,
-  markSkipUnavailable,
-  parseTestCommand,
-  requestSkip,
-  TestRunProjection,
-} from './tests-card-utilities.js'
 import type { TestsStatus } from './TestsCard.js'
 import { TestsCard } from './TestsCard.js'
 import { TestStatusBar } from './TestStatusBar.js'
 import { TipCard } from './TipCard.js'
-import { readFilePaths, str } from './tool-call-utilities.js'
 import { ToolCallCard } from './ToolCallCard.js'
 import { UserAvatar } from './UserAvatar.js'
 import { WorkCard } from './WorkCard.js'
@@ -2945,7 +2935,7 @@ function ChatInner({
   // feedbackUrl: prop kept for back-compat (callers still pass it), but no longer
   // consumed here — its only use was the command-menu footer link removed in P3-21.
 }: ChatInnerProps): JSX.Element {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const cm = getClassMap()
   // Share-link management may be gated ABOVE canEdit by the host (molecule.dev
   // mints/lists/revokes at admin+) — every /share surface below uses this, so
@@ -8605,7 +8595,7 @@ function ChatInner({
   const shownTimestampIds = planChatTimestamps(timestampSlots, {
     visible: timestampsVisible,
     now: minuteNow,
-    locale: resolveChatLocale(getLocale),
+    locale,
   })
 
   /**

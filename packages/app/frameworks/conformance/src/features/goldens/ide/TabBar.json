@@ -1,0 +1,41 @@
+{
+ "no tabs": {
+  "snapshots": [
+   "\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "no tabs, then a locale switch": {
+  "snapshots": [
+   "\n@route /",
+   "\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

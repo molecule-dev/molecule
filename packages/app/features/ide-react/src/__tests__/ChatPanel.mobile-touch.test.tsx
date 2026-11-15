@@ -32,6 +32,7 @@ import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-cha
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { COARSE_POINTER_QUERY, NARROW_VIEWPORT_QUERY } from '@molecule/app-ide-panel-logic'
 import {
   ChatProvider as ChatContextProvider,
   HttpProvider,
@@ -47,7 +48,6 @@ import { ChatPanel } from '../components/ChatPanel.js'
 import { MarkdownContent } from '../components/MarkdownContent.js'
 import { StreamingIndicator } from '../components/StreamingIndicator.js'
 import { ToolCallCard } from '../components/ToolCallCard.js'
-import { COARSE_POINTER_QUERY, NARROW_VIEWPORT_QUERY } from '../hooks/useViewport.js'
 
 /**
  * Stub `window.matchMedia` so exactly the given queries match. The viewport

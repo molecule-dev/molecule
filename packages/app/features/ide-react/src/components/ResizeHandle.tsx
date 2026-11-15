@@ -11,10 +11,9 @@ import type {
 } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
+import type { ResizeHandleProps } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-
-import type { ResizeHandleProps } from '../types.js'
 
 /**
  * Width (px) of the invisible grab zone — far wider than the visible line so it

@@ -19,12 +19,17 @@
 
 import type { JSX } from 'react'
 
+import type { ChatEventCardAction } from '@molecule/app-ide-panel-logic'
+import { chatCardStyle } from '@molecule/app-ide-panel-logic'
+import {
+  HELP_INTRO,
+  HELP_MODES,
+  HELP_SHORTCUTS,
+  HELP_TIPS,
+} from '@molecule/app-ide-panel-logic/panels'
 import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-import type { ChatEventCardAction } from '../customEventCards.js'
-import { chatCardStyle } from './chat-card-style.js'
-import { HELP_INTRO, HELP_MODES, HELP_SHORTCUTS, HELP_TIPS } from './chat-help-utilities.js'
 import { Icon } from './Icon.js'
 import { isAllowedLinkHref } from './MarkdownContent.js'
 

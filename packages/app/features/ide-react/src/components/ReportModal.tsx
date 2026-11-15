@@ -18,6 +18,13 @@
 import type { JSX } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 
+import type { ReportFormState, ReportResult } from '@molecule/app-ide-panel-logic'
+import {
+  buildReportPayload,
+  collectClientInfo,
+  EMPTY_REPORT_FORM,
+  isReportFormValid,
+} from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
 import {
   DEFAULT_PRODUCT_NAME,
@@ -28,13 +35,6 @@ import {
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
-import type { ReportFormState, ReportResult } from './chat-report-utilities.js'
-import {
-  buildReportPayload,
-  collectClientInfo,
-  EMPTY_REPORT_FORM,
-  isReportFormValid,
-} from './chat-report-utilities.js'
 
 const logger = getLogger('report-modal')
 

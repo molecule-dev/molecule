@@ -9,15 +9,15 @@ import { useEffect, useRef, useState } from 'react'
 import { useCallback } from 'react'
 
 import type { EditorConfig } from '@molecule/app-code-editor'
+import type { EditorPanelProps } from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
 import { useEditor, useEditorProvider, useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-const logger = getLogger('editor-panel')
-
 import { useNarrowViewport } from '../hooks/useViewport.js'
-import type { EditorPanelProps } from '../types.js'
 import { TabBar } from './TabBar.js'
+
+const logger = getLogger('editor-panel')
 
 /**
  * Editor option overrides applied while the viewport is phone-width: no minimap

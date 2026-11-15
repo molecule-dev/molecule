@@ -1,0 +1,41 @@
+{
+ "a horizontal handle": {
+  "snapshots": [
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a horizontal handle, then a locale switch": {
+  "snapshots": [
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"⟦Resize panels⟧\" aria-orientation=\"vertical\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

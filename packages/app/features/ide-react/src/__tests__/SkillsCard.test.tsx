@@ -40,11 +40,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import type { SkillInfo } from '@molecule/app-ide-panel-logic/panels'
 import { HttpProvider, I18nProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import type { SkillInfo } from '../components/chat-skills-utilities.js'
 import { SkillsCard } from '../components/SkillsCard.js'
 
 const PROJECT_ID = 'p1'

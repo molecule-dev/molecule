@@ -1,0 +1,41 @@
+{
+ "initials from a name": {
+  "snapshots": [
+   "<span aria-label=\"Ada Lovelace\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<span aria-hidden=\"true\" style=\"font-size: 11px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "initials from a name, then a locale switch": {
+  "snapshots": [
+   "<span aria-label=\"Ada Lovelace\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<span aria-hidden=\"true\" style=\"font-size: 11px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n@route /",
+   "<span aria-label=\"Ada Lovelace\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<span aria-hidden=\"true\" style=\"font-size: 11px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

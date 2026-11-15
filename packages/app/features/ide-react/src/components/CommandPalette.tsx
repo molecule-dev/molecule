@@ -7,9 +7,10 @@
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
+import type { CommandPaletteProps } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-react'
 
-import type { CommandPaletteProps, QuickPickerItem } from '../types.js'
+import type { QuickPickerItem } from '../types.js'
 import { QuickPicker } from './QuickPicker.js'
 
 /**

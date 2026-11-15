@@ -36,15 +36,14 @@
 
 import type { JSX } from 'react'
 
-import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-
-import type { AutoCommitState } from './chat-autocommit-utilities.js'
+import type { AutoCommitState } from '@molecule/app-ide-panel-logic'
 import {
   formatAutoCommitBadge,
   isAutoCommitCountdownVisible,
   isAutoCommitEnabled,
-} from './chat-autocommit-utilities.js'
+} from '@molecule/app-ide-panel-logic'
+import { useTranslation } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
 
 /**
  * Renders the green auto-commit button while auto-commit is enabled: a "Commit"

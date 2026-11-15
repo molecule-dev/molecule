@@ -27,18 +27,18 @@
 import type { JSX } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { getLogger } from '@molecule/app-logger'
-import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-
-import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
-import type { ShareLinkResult, ShareRole } from './chat-share-utilities.js'
+import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
 import {
   buildSharePayload,
   buildShareUrl,
   DEFAULT_SHARE_ROLE,
   SHARE_ROLE_LABELS,
-} from './chat-share-utilities.js'
+} from '@molecule/app-ide-panel-logic'
+import { getLogger } from '@molecule/app-logger'
+import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
+
+import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import { Icon } from './Icon.js'
 
 const logger = getLogger('share-link-manager')

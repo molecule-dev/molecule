@@ -8,14 +8,14 @@ import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
+import type { SearchPanelProps, SearchResponse, SearchResult } from '@molecule/app-ide-panel-logic'
+import { DEFAULT_SEARCH_EXCLUDED_DIRS } from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-react'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
-import type { SearchPanelProps, SearchResponse, SearchResult } from '../types.js'
-import { DEFAULT_SEARCH_EXCLUDED_DIRS } from './search-utilities.js'
 
 const logger = getLogger('search')
 

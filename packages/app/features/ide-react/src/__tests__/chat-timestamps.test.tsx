@@ -2,9 +2,7 @@
 import { act, cleanup, render, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { setClassMap } from '@molecule/app-ui'
-
-import { COMMANDS } from '../command-metadata.js'
+import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 import {
   CHAT_TIMESTAMPS_STORAGE_KEY,
   type ChatTimestampSlot,
@@ -14,10 +12,13 @@ import {
   parseTimestampsCommand,
   planChatTimestamps,
   setChatTimestampsVisible,
-} from '../components/chat-timestamps-utilities.js'
+} from '@molecule/app-ide-panel-logic'
+import { COMMANDS } from '@molecule/app-ide-panel-logic/command-metadata'
+import { SETTINGS } from '@molecule/app-ide-panel-logic/settings-metadata'
+import { setClassMap } from '@molecule/app-ui'
+
 import { ChatTimestamp } from '../components/ChatTimestamp.js'
 import { useChatTimestampsVisible, useMinuteNow } from '../hooks/useChatTimestampsVisible.js'
-import { SETTINGS } from '../settings-metadata.js'
 
 const MINUTE = 60_000
 // Local noon, so "earlier today" / "another day" do not depend on the runner's time zone.
@@ -191,6 +192,26 @@ describe('ChatTimestamp', () => {
     expect(label()).toBe('4 minutes ago')
     act(() => void vi.advanceTimersByTime(MINUTE))
     expect(label()).toBe('5 minutes ago')
+  })
+
+  it('re-formats its label in the new language on a locale switch', async () => {
+    const i18n = createSimpleI18nProvider('en', [
+      { code: 'en', name: 'English', direction: 'ltr', translations: {} },
+      { code: 'fr', name: 'Français', direction: 'ltr', translations: {} },
+    ])
+    setI18nProvider(i18n)
+    vi.useFakeTimers({ now: NOW })
+    renderHook(() => useMinuteNow())
+    const { container } = render(<ChatTimestamp timestamp={NOW - 5 * MINUTE} />)
+    const label = (): string | null | undefined =>
+      container.querySelector('[data-mol-id="chat-timestamp"]')?.textContent
+    try {
+      expect(label()).toBe('5 minutes ago')
+      await act(() => i18n.setLocale('fr'))
+      expect(label()).toBe('il y a 5 minutes')
+    } finally {
+      setI18nProvider(createSimpleI18nProvider('en'))
+    }
   })
 })
 

@@ -8,11 +8,11 @@ import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
+import type { TabBarProps } from '@molecule/app-ide-panel-logic'
 import { useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer } from '../hooks/useViewport.js'
-import type { TabBarProps } from '../types.js'
 
 // ---------------------------------------------------------------------------
 // Status colors — dark/light variants for readability

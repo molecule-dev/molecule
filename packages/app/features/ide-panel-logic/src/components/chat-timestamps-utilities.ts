@@ -46,17 +46,21 @@ export function getChatTimestampsVisible(): boolean {
 }
 
 /**
- * Resolves the active i18n locale, falling back to the browser's when no i18n
- * provider is bonded.
+ * The active i18n locale, or the browser's when reading it throws.
  *
- * @param getLocale - The i18n accessor (throws when no provider is bonded).
+ * @deprecated A component that formats with this keeps the old language after a
+ *   locale switch, because nothing re-renders it. Read the locale through the
+ *   framework binding instead (`useLocale()` in React), which re-renders on a switch.
+ *   `getLocale()` from `@molecule/app-i18n` does not throw: with no provider bonded
+ *   it bonds a default one.
+ * @param getLocale - The i18n accessor.
  * @returns A BCP 47 locale.
  */
 export function resolveChatLocale(getLocale: () => string): string {
   try {
     return getLocale()
   } catch (_error) {
-    // No i18n provider bonded — format in the browser's own locale instead.
+    // A custom accessor that throws (no locale yet) — format in the browser's own locale.
     return typeof navigator !== 'undefined' ? navigator.language : 'en'
   }
 }

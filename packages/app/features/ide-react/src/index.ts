@@ -115,9 +115,7 @@
  * @module
  */
 
-export * from './command-metadata.js'
 export * from './components/index.js'
-export * from './customEventCards.js'
 export * from './hooks/index.js'
-export * from './settings-metadata.js'
 export type * from './types.js'
+export * from '@molecule/app-ide-panel-logic'

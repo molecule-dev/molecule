@@ -98,6 +98,8 @@
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-icons-molecule": "1.0.3",
     "@molecule/app-ide": "1.1.0",
+    "@molecule/app-ide-panel-logic": "1.0.0",
+    "@molecule/app-ide-react": "4.0.3",
     "@molecule/app-job-listing-row-react": "4.0.0",
     "@molecule/app-leaderboard-list-react": "4.0.0",
     "@molecule/app-lifecycle": "1.0.3",

@@ -1,0 +1,1067 @@
+{
+ "exports": [
+  "ACTIVITY_TYPES",
+  "AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS",
+  "AUTO_COMMIT_DISABLED",
+  "ActivityCard",
+  "CHAT_CARD_ICON_SIZE",
+  "CHAT_CARD_NEUTRAL_ACCENT",
+  "CHAT_TIMESTAMPS_EVENT",
+  "CHAT_TIMESTAMPS_STORAGE_KEY",
+  "COARSE_POINTER_QUERY",
+  "COMMANDS",
+  "COMMAND_CATEGORIES",
+  "ChatPanel",
+  "ChatTimestamp",
+  "CommandPalette",
+  "DEFAULT_AUTO_COMMIT_SECONDS",
+  "DEFAULT_SEARCH_EXCLUDED_DIRS",
+  "DEFAULT_SHARE_ROLE",
+  "DEVICE_DIMENSIONS",
+  "DEVICE_FRAMES",
+  "DEVICE_META",
+  "DeviceFrameSelector",
+  "EMPTY_REPORT_FORM",
+  "EMPTY_RUN_STATE",
+  "EditorPanel",
+  "FileExplorer",
+  "IS_MAC",
+  "Icon",
+  "KeyboardShortcutsPanel",
+  "MAX_AVATAR_SRC_LENGTH",
+  "MAX_FIX_MESSAGE_OUTPUT_CHARS",
+  "MAX_FIX_OUTPUT_CHARS",
+  "MAX_OUTPUT_LINES",
+  "MAX_PANEL_PERCENT",
+  "MIN_PANEL_PERCENT",
+  "NARROW_VIEWPORT_QUERY",
+  "PreviewPanel",
+  "QuickOpen",
+  "QuickPicker",
+  "ReportModal",
+  "ResizeHandle",
+  "SETTINGS",
+  "SHARE_ROLES",
+  "SHARE_ROLE_LABELS",
+  "SearchPanel",
+  "ShareLinkManager",
+  "ShareModal",
+  "SidebarTabs",
+  "TabBar",
+  "TestRunProjection",
+  "TestsCard",
+  "ToolCallCard",
+  "UserAvatar",
+  "WorkspaceLayout",
+  "activityFromEvent",
+  "activityIconName",
+  "activityStatusColors",
+  "activityStatusLabel",
+  "activitySummaryLine",
+  "activityTypeLabel",
+  "applyTestRunEvent",
+  "autoCommitReducer",
+  "buildReportPayload",
+  "buildSharePayload",
+  "buildShareUrl",
+  "buildTestFixMessage",
+  "canSkipRun",
+  "chatCardBg",
+  "chatCardBorder",
+  "chatCardStyle",
+  "clampPanelSize",
+  "collectClientInfo",
+  "countByKind",
+  "currentRunRowId",
+  "deviceIconName",
+  "failRun",
+  "failedTests",
+  "filterActivitiesByType",
+  "filterTests",
+  "findKeyboardShortcut",
+  "formatAutoCommitBadge",
+  "formatChatFullTime",
+  "formatChatRelativeTime",
+  "formatReportConfirmation",
+  "getChatTimestampsVisible",
+  "getCustomEventCardFactory",
+  "groupCommandsByCategory",
+  "groupTests",
+  "hasRenderableAvatar",
+  "isAutoCommitArmed",
+  "isAutoCommitCountdownVisible",
+  "isAutoCommitDue",
+  "isAutoCommitEnabled",
+  "isDeviceRotatable",
+  "isInputFocused",
+  "isMonacoFocused",
+  "isReportFormValid",
+  "isRowRunning",
+  "isShareRole",
+  "isShortcutBlockedByFocus",
+  "livePanelSize",
+  "markSkipUnavailable",
+  "matchesSideChannelCommand",
+  "normalizeKeys",
+  "parseAutoCommitCommand",
+  "parseChatTimestampsVisible",
+  "parseReportCommand",
+  "parseShareCommand",
+  "parseTestCommand",
+  "parseTimestampsCommand",
+  "planChatTimestamps",
+  "registerCustomEventCard",
+  "requestSkip",
+  "resolveAutoCommitSeconds",
+  "resolveChatLocale",
+  "resolveDeviceSize",
+  "resolveUserAvatar",
+  "serializeEvent",
+  "setChatTimestampsVisible",
+  "summarizeResults",
+  "testCaseLabel",
+  "testRowLabel",
+  "useChatTimestampsVisible",
+  "useCoarsePointer",
+  "useKeyboardShortcuts",
+  "useMediaQueryMatch",
+  "useMinuteNow",
+  "useNarrowViewport"
+ ],
+ "values": {},
+ "hooks": {
+  "useChatTimestampsVisible": {
+   "off by default; another tab turning it on and off is followed": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "on when the page already stores true; only an explicit true counts": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": true,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a same-tab change is read on its notice; another key and another notice are ignored": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "stops listening after unmount": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": false,
+      "route": "/"
+     },
+     null,
+     null,
+     null
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useCoarsePointer": {
+   "matches at mount and follows the query": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": true,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "does not match by default and ignores every other query": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "stops following the query after unmount": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": true,
+      "route": "/"
+     },
+     null,
+     null
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useKeyboardShortcuts": {
+   "mod+p calls its handler and claims the key; p alone and another combo pass through": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "quickOpen",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "p",
+        "defaultPrevented": true
+       }
+      ]
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "p",
+        "defaultPrevented": false
+       }
+      ]
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "p",
+        "defaultPrevented": false
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "mod+shift+F matches whatever case the key arrives in": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "searchFiles",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "F",
+        "defaultPrevented": true
+       }
+      ]
+     },
+     {
+      "name": "searchFiles",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "f",
+        "defaultPrevented": true
+       }
+      ]
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "f",
+        "defaultPrevented": false
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "off a Mac, mod is Ctrl: Meta and a ctrl combo do not match": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "s",
+        "defaultPrevented": false
+       }
+      ]
+     },
+     {
+      "name": "save",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "s",
+        "defaultPrevented": true
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "in a text field only a shortcut that allows input fires": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "dismiss",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "Escape",
+        "defaultPrevented": true
+       }
+      ]
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "s",
+        "defaultPrevented": false
+       }
+      ]
+     },
+     {
+      "name": "save",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "s",
+        "defaultPrevented": true
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "in the editor only a shortcut that allows the editor fires": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "save",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "s",
+        "defaultPrevented": true
+       }
+      ]
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "p",
+        "defaultPrevented": false
+       }
+      ]
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "Escape",
+        "defaultPrevented": false
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "the first matching shortcut wins; a skipped one lets a later one fire": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "palette",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "k",
+        "defaultPrevented": true
+       }
+      ]
+     },
+     {
+      "name": "inInput",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "k",
+        "defaultPrevented": true
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an empty list listens to nothing": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "Escape",
+        "defaultPrevented": false
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "new shortcuts replace the old ones on the same mount": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "p",
+        "defaultPrevented": false
+       }
+      ]
+     },
+     {
+      "name": "palette",
+      "args": []
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "k",
+        "defaultPrevented": true
+       }
+      ]
+     },
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "k",
+        "defaultPrevented": false
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "unmounting removes the listener": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     null,
+     null
+    ],
+    "calls": [
+     {
+      "name": "@keydown",
+      "args": [
+       {
+        "key": "Escape",
+        "defaultPrevented": false
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useMediaQueryMatch": {
+   "matches at mount and follows the query": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": true,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a query nothing lists does not match": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a new query is read at once and followed instead of the old one": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": true,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "stops following the query after unmount": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": false,
+      "route": "/"
+     },
+     null,
+     null
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useMinuteNow": {
+   "reads the clock at mount and again once a minute, not in between": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": 1767323045000,
+      "route": "/"
+     },
+     {
+      "result": 1767323045000,
+      "route": "/"
+     },
+     {
+      "result": 1767323105000,
+      "route": "/"
+     },
+     {
+      "result": 1767323105000,
+      "route": "/"
+     },
+     {
+      "result": 1767323165000,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a second mount after the first is gone starts from the current time": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": 1767323045000,
+      "route": "/"
+     },
+     {
+      "result": 1767323105000,
+      "route": "/"
+     },
+     null,
+     null,
+     {
+      "result": 1767323150000,
+      "route": "/"
+     },
+     {
+      "result": 1767323210000,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useNarrowViewport": {
+   "matches at mount and follows the query": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": true,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "does not match by default and ignores every other query": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": false,
+      "route": "/"
+     },
+     {
+      "result": true,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "stops following the query after unmount": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": true,
+      "route": "/"
+     },
+     null,
+     null
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  }
+ }
+}

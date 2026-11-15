@@ -36,17 +36,14 @@ import { render } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { setClassMap, type UIClassMap } from '@molecule/app-ui'
-
-import { COMMANDS as METADATA_COMMANDS } from '../command-metadata.js'
+import { COMMANDS as METADATA_COMMANDS } from '@molecule/app-ide-panel-logic/command-metadata'
 import {
   COMMANDS as REGISTRY_COMMANDS,
   groupCommandsByCategory,
-} from '../components/chat-commands.js'
-import {
-  buildSettingsList,
-  type SettingsDisplayValues,
-} from '../components/chat-settings-utilities.js'
+} from '@molecule/app-ide-panel-logic/panels'
+import { buildSettingsList, type SettingsDisplayValues } from '@molecule/app-ide-panel-logic/panels'
+import { setClassMap, type UIClassMap } from '@molecule/app-ui'
+
 import { SettingsCard } from '../components/SettingsCard.js'
 
 /**

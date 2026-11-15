@@ -1,0 +1,127 @@
+{
+ "no open file": {
+  "snapshots": [
+   "<div class=\"c1af9479c c1d1b1057 c2cbb8333 c42740ba6 c4b92e3a8 cbaac6b89 cc2d72006 ccae02ff2 cf2ca6f94\">\n<div style=\"display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0px; overflow: hidden; position: relative\">\n<div style=\"height: 100%; overflow: hidden; visibility: hidden; width: 100%\">\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "editor.getTabs",
+    "args": []
+   },
+   {
+    "name": "editor.onChange",
+    "args": []
+   },
+   {
+    "name": "editor.getTabs",
+    "args": []
+   },
+   {
+    "name": "editor.updateConfig",
+    "args": [
+     {
+      "theme": "vs"
+     }
+    ]
+   },
+   {
+    "name": "editor.updateConfig",
+    "args": [
+     {
+      "readOnly": false
+     }
+    ]
+   },
+   {
+    "name": "editor.onFixWithAI",
+    "args": []
+   },
+   {
+    "name": "editor.mount",
+    "args": [
+     "[node div]",
+     null
+    ]
+   },
+   {
+    "name": "editor.dispose",
+    "args": []
+   }
+  ]
+ },
+ "no open file, then a locale switch": {
+  "snapshots": [
+   "<div class=\"c1af9479c c1d1b1057 c2cbb8333 c42740ba6 c4b92e3a8 cbaac6b89 cc2d72006 ccae02ff2 cf2ca6f94\">\n<div style=\"display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0px; overflow: hidden; position: relative\">\n<div style=\"height: 100%; overflow: hidden; visibility: hidden; width: 100%\">\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c1af9479c c1d1b1057 c2cbb8333 c42740ba6 c4b92e3a8 cbaac6b89 cc2d72006 ccae02ff2 cf2ca6f94\">\n<div style=\"display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0px; overflow: hidden; position: relative\">\n<div style=\"height: 100%; overflow: hidden; visibility: hidden; width: 100%\">\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "editor.getTabs",
+    "args": []
+   },
+   {
+    "name": "editor.onChange",
+    "args": []
+   },
+   {
+    "name": "editor.getTabs",
+    "args": []
+   },
+   {
+    "name": "editor.updateConfig",
+    "args": [
+     {
+      "theme": "vs"
+     }
+    ]
+   },
+   {
+    "name": "editor.updateConfig",
+    "args": [
+     {
+      "readOnly": false
+     }
+    ]
+   },
+   {
+    "name": "editor.onFixWithAI",
+    "args": []
+   },
+   {
+    "name": "editor.mount",
+    "args": [
+     "[node div]",
+     null
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   },
+   {
+    "name": "editor.dispose",
+    "args": []
+   }
+  ]
+ }
+}

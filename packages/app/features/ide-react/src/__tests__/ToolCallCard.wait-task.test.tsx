@@ -18,6 +18,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import type { ToolCallCardProps } from '@molecule/app-ide-panel-logic'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
 import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
@@ -25,7 +26,6 @@ import { classMap } from '@molecule/app-ui-tailwind'
 
 import { BackgroundTaskCommandsContext } from '../components/background-task-context.js'
 import { ToolCallCard } from '../components/ToolCallCard.js'
-import type { ToolCallCardProps } from '../types.js'
 
 /** A minimal light theme so `useThemeMode` resolves. */
 function buildThemeProvider(): ThemeProviderType {

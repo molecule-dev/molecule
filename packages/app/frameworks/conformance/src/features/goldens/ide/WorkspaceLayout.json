@@ -1,0 +1,73 @@
+{
+ "one child": {
+  "snapshots": [
+   "<div class=\"c1d1b1057 c2cbb8333 c42740ba6 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003\" data-workspace-layout style=\"min-height: 0px; overflow: hidden\">\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "workspace.getLayout",
+    "args": []
+   },
+   {
+    "name": "workspace.getLayout",
+    "args": []
+   },
+   {
+    "name": "workspace.subscribe",
+    "args": []
+   },
+   {
+    "name": "workspace.getLayout",
+    "args": []
+   }
+  ]
+ },
+ "one child, then a locale switch": {
+  "snapshots": [
+   "<div class=\"c1d1b1057 c2cbb8333 c42740ba6 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003\" data-workspace-layout style=\"min-height: 0px; overflow: hidden\">\n</div>\n@route /",
+   "<div class=\"c1d1b1057 c2cbb8333 c42740ba6 cbf033fe8 cc2d72006 ccae02ff2 cd9b20003\" data-workspace-layout style=\"min-height: 0px; overflow: hidden\">\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "workspace.getLayout",
+    "args": []
+   },
+   {
+    "name": "workspace.getLayout",
+    "args": []
+   },
+   {
+    "name": "workspace.subscribe",
+    "args": []
+   },
+   {
+    "name": "workspace.getLayout",
+    "args": []
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

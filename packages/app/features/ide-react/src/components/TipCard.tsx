@@ -12,10 +12,10 @@
 import type { CSSProperties, JSX, ReactNode } from 'react'
 
 import type { IconName } from '@molecule/app-icons'
+import { CHAT_CARD_ICON_SIZE, chatCardStyle } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-import { CHAT_CARD_ICON_SIZE, chatCardStyle } from './chat-card-style.js'
 import { Icon } from './Icon.js'
 
 /** Inline monospace code style for command/`@file` tokens in a tip (mvp #10). */

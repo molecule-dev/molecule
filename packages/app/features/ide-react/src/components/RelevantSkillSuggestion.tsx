@@ -26,11 +26,11 @@
 
 import type { JSX } from 'react'
 
+import type { SkillInfo } from '@molecule/app-ide-panel-logic/panels'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
-import type { SkillInfo } from './chat-skills-utilities.js'
 import { Icon } from './Icon.js'
 
 /**

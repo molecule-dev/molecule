@@ -1,0 +1,41 @@
+{
+ "a running read": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 4px\">\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<div role=\"button\" style=\"align-items: flex-start; background: none; border: medium; color: inherit; cursor: default; display: flex; gap: 6px; min-width: 0px; padding: 2px 0px; text-align: left; user-select: text; width: 100%\">\n<span style=\"flex: 1 1 0%; min-width: 0px\">\n<span style=\"align-items: center; display: flex; font-size: 13px; gap: 6px\">\n<svg height=\"10\" style=\"flex-shrink: 0\" viewbox=\"0 0 10 10\" width=\"10\">\n<circle cx=\"5\" cy=\"5\" fill=\"#e8a000\" opacity=\"0.35\" r=\"3\">\n</circle>\n<circle cx=\"5\" cy=\"5\" fill=\"none\" r=\"3\" stroke=\"#e8a000\" stroke-width=\"2\">\n</circle>\n</svg>\n<span style=\"flex: 1 1 0%; min-width: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nRead \n<code style=\"font-family: &quot;SF Mono&quot;, Menlo, Consolas, &quot;Courier New&quot;, monospace; font-size: inherit; opacity: 0.75\">\nindex.ts\n</code>\n</span>\n<span class=\"c4647f690 ce823b5bf\" style=\"flex-shrink: 0; margin-left: 8px; white-space: nowrap\">\nRunning…\n</span>\n</span>\n</span>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a running read, then a locale switch": {
+  "snapshots": [
+   "<div style=\"margin-bottom: 4px\">\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<div role=\"button\" style=\"align-items: flex-start; background: none; border: medium; color: inherit; cursor: default; display: flex; gap: 6px; min-width: 0px; padding: 2px 0px; text-align: left; user-select: text; width: 100%\">\n<span style=\"flex: 1 1 0%; min-width: 0px\">\n<span style=\"align-items: center; display: flex; font-size: 13px; gap: 6px\">\n<svg height=\"10\" style=\"flex-shrink: 0\" viewbox=\"0 0 10 10\" width=\"10\">\n<circle cx=\"5\" cy=\"5\" fill=\"#e8a000\" opacity=\"0.35\" r=\"3\">\n</circle>\n<circle cx=\"5\" cy=\"5\" fill=\"none\" r=\"3\" stroke=\"#e8a000\" stroke-width=\"2\">\n</circle>\n</svg>\n<span style=\"flex: 1 1 0%; min-width: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nRead \n<code style=\"font-family: &quot;SF Mono&quot;, Menlo, Consolas, &quot;Courier New&quot;, monospace; font-size: inherit; opacity: 0.75\">\nindex.ts\n</code>\n</span>\n<span class=\"c4647f690 ce823b5bf\" style=\"flex-shrink: 0; margin-left: 8px; white-space: nowrap\">\nRunning…\n</span>\n</span>\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div style=\"margin-bottom: 4px\">\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<div role=\"button\" style=\"align-items: flex-start; background: none; border: medium; color: inherit; cursor: default; display: flex; gap: 6px; min-width: 0px; padding: 2px 0px; text-align: left; user-select: text; width: 100%\">\n<span style=\"flex: 1 1 0%; min-width: 0px\">\n<span style=\"align-items: center; display: flex; font-size: 13px; gap: 6px\">\n<svg height=\"10\" style=\"flex-shrink: 0\" viewbox=\"0 0 10 10\" width=\"10\">\n<circle cx=\"5\" cy=\"5\" fill=\"#e8a000\" opacity=\"0.35\" r=\"3\">\n</circle>\n<circle cx=\"5\" cy=\"5\" fill=\"none\" r=\"3\" stroke=\"#e8a000\" stroke-width=\"2\">\n</circle>\n</svg>\n<span style=\"flex: 1 1 0%; min-width: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nRead \n<code style=\"font-family: &quot;SF Mono&quot;, Menlo, Consolas, &quot;Courier New&quot;, monospace; font-size: inherit; opacity: 0.75\">\nindex.ts\n</code>\n</span>\n<span class=\"c4647f690 ce823b5bf\" style=\"flex-shrink: 0; margin-left: 8px; white-space: nowrap\">\n⟦Running…⟧\n</span>\n</span>\n</span>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

@@ -25,13 +25,13 @@ import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
+import { fileDiffStats } from '@molecule/app-ide-panel-logic/panels'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
 import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { streamingActivityLabel } from '../components/ChatPanel.js'
-import { fileDiffStats } from '../components/tool-call-utilities.js'
 import { ToolCallCard } from '../components/ToolCallCard.js'
 
 /** A minimal light theme so `useThemeMode` resolves. */

@@ -26,12 +26,12 @@ import { fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import type { AutoCommitState } from '@molecule/app-ide-panel-logic'
+import { AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS } from '@molecule/app-ide-panel-logic'
 import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { AutoCommitBadge } from '../components/AutoCommitBadge.js'
-import type { AutoCommitState } from '../components/chat-autocommit-utilities.js'
-import { AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS } from '../components/chat-autocommit-utilities.js'
 
 beforeEach(() => {
   setClassMap(classMap)

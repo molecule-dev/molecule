@@ -26,14 +26,13 @@
 
 import type { JSX } from 'react'
 
+import { chatCardStyle } from '@molecule/app-ide-panel-logic'
+import type { CommandId } from '@molecule/app-ide-panel-logic/panels'
+import type { SettingDescriptor } from '@molecule/app-ide-panel-logic/panels'
+import { groupCommandsByCategory } from '@molecule/app-ide-panel-logic/panels'
 import { DEFAULT_AGENT_NAME, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
-
-import { chatCardStyle } from './chat-card-style.js'
-import type { CommandId } from './chat-commands.js'
-import { groupCommandsByCategory } from './chat-commands.js'
-import type { SettingDescriptor } from './chat-settings-utilities.js'
 
 /**
  * The settings + command-reference card shown by `/settings`.

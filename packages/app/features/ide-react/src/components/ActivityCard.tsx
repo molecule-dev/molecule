@@ -11,18 +11,20 @@
 
 import type { JSX } from 'react'
 
-import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-
-import { useCoarsePointer } from '../hooks/useViewport.js'
-import type { Activity } from './activity-utilities.js'
+import type { Activity } from '@molecule/app-ide-panel-logic'
 import {
   activityIconName,
   activityStatusColors,
   activityStatusLabel,
   activitySummaryLine,
-} from './activity-utilities.js'
-import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-style.js'
+  CHAT_CARD_ICON_SIZE,
+  chatCardBorder,
+  chatCardStyle,
+} from '@molecule/app-ide-panel-logic'
+import { useTranslation } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
+
+import { useCoarsePointer } from '../hooks/useViewport.js'
 import { Icon } from './Icon.js'
 
 /**

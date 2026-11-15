@@ -1,0 +1,57 @@
+{
+ "no files yet": {
+  "snapshots": [
+   "<div style=\"background: rgba(0, 0, 0, 0.4); inset: 0px; position: fixed; z-index: 1000\">\n</div>\n<div style=\"background: rgb(255, 255, 255); border-radius: 8px; border: 1px solid var(--color-border, #333); box-shadow: 0 8px 32px rgba(0,0,0,0.18); left: 50%; max-width: 90vw; overflow: hidden; position: fixed; top: 50%; transform: translate(-50%, -50%); width: 500px; z-index: 1001\">\n<input placeholder=\"Search files by name…\" style=\"background: transparent; border-bottom: 1px solid var(--color-border, #333); border-image: none; border-left: medium; border-right: medium; border-top: medium; box-sizing: border-box; color: var(--mol-color-text, currentColor); flex-shrink: 0; font-size: 13px; outline: none; padding: 10px 12px; width: 100%\" type=\"text\" value {value=\"\"}>\n</input>\n<div style=\"max-height: 300px; min-height: 0px; overflow: auto\">\n<div style=\"color: var(--mol-color-text-secondary, #888); font-size: 12px; padding: 12px; text-align: center\">\nNo matching results\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:1>input:0"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   }
+  ]
+ },
+ "no files yet, then a locale switch": {
+  "snapshots": [
+   "<div style=\"background: rgba(0, 0, 0, 0.4); inset: 0px; position: fixed; z-index: 1000\">\n</div>\n<div style=\"background: rgb(255, 255, 255); border-radius: 8px; border: 1px solid var(--color-border, #333); box-shadow: 0 8px 32px rgba(0,0,0,0.18); left: 50%; max-width: 90vw; overflow: hidden; position: fixed; top: 50%; transform: translate(-50%, -50%); width: 500px; z-index: 1001\">\n<input placeholder=\"Search files by name…\" style=\"background: transparent; border-bottom: 1px solid var(--color-border, #333); border-image: none; border-left: medium; border-right: medium; border-top: medium; box-sizing: border-box; color: var(--mol-color-text, currentColor); flex-shrink: 0; font-size: 13px; outline: none; padding: 10px 12px; width: 100%\" type=\"text\" value {value=\"\"}>\n</input>\n<div style=\"max-height: 300px; min-height: 0px; overflow: auto\">\n<div style=\"color: var(--mol-color-text-secondary, #888); font-size: 12px; padding: 12px; text-align: center\">\nNo matching results\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:1>input:0",
+   "<div style=\"background: rgba(0, 0, 0, 0.4); inset: 0px; position: fixed; z-index: 1000\">\n</div>\n<div style=\"background: rgb(255, 255, 255); border-radius: 8px; border: 1px solid var(--color-border, #333); box-shadow: 0 8px 32px rgba(0,0,0,0.18); left: 50%; max-width: 90vw; overflow: hidden; position: fixed; top: 50%; transform: translate(-50%, -50%); width: 500px; z-index: 1001\">\n<input placeholder=\"⟦Search files by name…⟧\" style=\"background: transparent; border-bottom: 1px solid var(--color-border, #333); border-image: none; border-left: medium; border-right: medium; border-top: medium; box-sizing: border-box; color: var(--mol-color-text, currentColor); flex-shrink: 0; font-size: 13px; outline: none; padding: 10px 12px; width: 100%\" type=\"text\" value {value=\"\"}>\n</input>\n<div style=\"max-height: 300px; min-height: 0px; overflow: auto\">\n<div style=\"color: var(--mol-color-text-secondary, #888); font-size: 12px; padding: 12px; text-align: center\">\n⟦No matching results⟧\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:1>input:0"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

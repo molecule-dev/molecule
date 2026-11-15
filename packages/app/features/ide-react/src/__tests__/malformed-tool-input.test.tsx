@@ -18,12 +18,12 @@ import type { ReactElement, ReactNode } from 'react'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
+import { normalizeAskUserInput, toolLabel } from '@molecule/app-ide-panel-logic/panels'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
 import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { normalizeAskUserInput, toolLabel } from '../components/tool-call-utilities.js'
 import { ToolCallCard } from '../components/ToolCallCard.js'
 
 beforeAll(() => {

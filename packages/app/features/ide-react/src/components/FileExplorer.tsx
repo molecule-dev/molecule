@@ -8,19 +8,19 @@ import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { useThemeMode, useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-
-import { useCoarsePointer } from '../hooks/useViewport.js'
-import type { FileExplorerProps, FileNode } from '../types.js'
-import type { ContextMenuAction } from './FileExplorerContextMenu.js'
-import { FileExplorerContextMenu } from './FileExplorerContextMenu.js'
+import type { FileExplorerProps, FileNode } from '@molecule/app-ide-panel-logic'
 import {
   type ExpandState,
   loadExpandState,
   saveExpandState,
   watchExpandState,
-} from './fileExplorerPersistence.js'
+} from '@molecule/app-ide-panel-logic/panels'
+import { useThemeMode, useTranslation } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
+
+import { useCoarsePointer } from '../hooks/useViewport.js'
+import type { ContextMenuAction } from './FileExplorerContextMenu.js'
+import { FileExplorerContextMenu } from './FileExplorerContextMenu.js'
 
 // Git status → filename color — dark/light variants for readability
 const DARK_GIT_COLORS: Record<string, string> = {

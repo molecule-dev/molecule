@@ -10,7 +10,7 @@ import {
   getTestsBarVisible,
   TESTS_BAR_EVENT,
   TESTS_BAR_STORAGE_KEY,
-} from '../components/tests-bar-utilities.js'
+} from '@molecule/app-ide-panel-logic/panels'
 
 /**
  * Subscribes to preference changes from this tab (the custom event) and from

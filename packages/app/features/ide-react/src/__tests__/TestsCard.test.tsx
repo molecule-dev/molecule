@@ -17,18 +17,18 @@ import type { ComponentProps } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { setClassMap } from '@molecule/app-ui'
-import { classMap } from '@molecule/app-ui-tailwind'
-
+import type { TestItem, TestRunEvent, TestSelection } from '@molecule/app-ide-panel-logic'
 import {
   applyTestRunEvent,
   EMPTY_RUN_STATE,
   type TestFailure,
   type TestsRunState,
-} from '../components/tests-card-utilities.js'
+} from '@molecule/app-ide-panel-logic'
+import { setClassMap } from '@molecule/app-ui'
+import { classMap } from '@molecule/app-ui-tailwind'
+
 import { TestsCard } from '../components/TestsCard.js'
 import * as barrel from '../index.js'
-import type { TestItem, TestRunEvent, TestSelection } from '../types.js'
 
 const TESTS: TestItem[] = [
   {

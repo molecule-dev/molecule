@@ -25,11 +25,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
+import { DEVICE_FRAMES, deviceIconName } from '@molecule/app-ide-panel-logic'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { DEVICE_FRAMES, deviceIconName } from '../components/device-cycle.js'
 import { DeviceFrameSelector } from '../components/DeviceFrameSelector.js'
 
 /**

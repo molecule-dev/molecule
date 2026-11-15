@@ -7,12 +7,12 @@
 import type { JSX } from 'react'
 import { Children, Fragment, isValidElement, useCallback } from 'react'
 
+import { clampPanelSize, livePanelSize } from '@molecule/app-ide-panel-logic'
 import { useWorkspace } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { WorkspaceLayoutProps } from '../types.js'
 import { ResizeHandle } from './ResizeHandle.js'
-import { clampPanelSize, livePanelSize } from './workspace-layout-utilities.js'
 
 /**
  * Top-level workspace layout that arranges child panels in a row with draggable

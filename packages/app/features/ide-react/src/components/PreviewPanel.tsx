@@ -56,6 +56,12 @@
 import { type JSX, useCallback, useEffect, useRef, useState } from 'react'
 
 import type { IconName } from '@molecule/app-icons'
+import type { PreviewRenderState, PreviewUiResult } from '@molecule/app-ide-panel-logic'
+import {
+  type DeviceOrientation,
+  isDeviceRotatable,
+  resolveDeviceSize,
+} from '@molecule/app-ide-panel-logic'
 import { withCacheBuster } from '@molecule/app-live-preview'
 import { usePreview, useTranslation } from '@molecule/app-react'
 import { get as storageGet, set as storageSet } from '@molecule/app-storage'
@@ -63,8 +69,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
-import type { PreviewPanelProps, PreviewRenderState, PreviewUiResult } from '../types.js'
-import { type DeviceOrientation, isDeviceRotatable, resolveDeviceSize } from './device-cycle.js'
+import type { PreviewPanelProps } from '../types.js'
 import { DeviceFrameSelector } from './DeviceFrameSelector.js'
 import { Icon } from './Icon.js'
 

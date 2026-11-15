@@ -13,16 +13,12 @@
 
 import type { JSX } from 'react'
 
-import { getLocale } from '@molecule/app-i18n'
+import { formatChatFullTime, formatChatRelativeTime } from '@molecule/app-ide-panel-logic'
+import { useLocale } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import { useMinuteNow } from '../hooks/useChatTimestampsVisible.js'
-import {
-  formatChatFullTime,
-  formatChatRelativeTime,
-  resolveChatLocale,
-} from './chat-timestamps-utilities.js'
 
 /** Props for {@link ChatTimestamp}. */
 export interface ChatTimestampProps {
@@ -49,10 +45,11 @@ export function ChatTimestamp({
   align = 'left',
 }: ChatTimestampProps): JSX.Element | null {
   const now = useMinuteNow()
+  // Re-renders on a locale switch, so the label and its tooltip change language at once.
+  const locale = useLocale()
   if (!Number.isFinite(timestamp)) return null
 
   const cm = getClassMap()
-  const locale = resolveChatLocale(getLocale)
   const label = (
     <time
       dateTime={new Date(timestamp).toISOString()}
