@@ -105,9 +105,30 @@ describe('push capture provider', () => {
       const push = createPushCaptureProvider(real)
 
       const result = await push.send(subscription, payload)
-      expect(real.send).toHaveBeenCalledWith(subscription, payload)
+      // No options given: the third argument is passed through as undefined.
+      expect(real.send).toHaveBeenCalledWith(subscription, payload, undefined)
       expect(result).toBe(realResult)
       expect(record.mock.calls[0][0].status).toBe('sent')
+    })
+
+    it('passes send options to the real provider and records them', async () => {
+      const realResult: SendResult = { statusCode: 201, headers: {}, body: '' }
+      const real: PushNotificationProvider = {
+        configure: vi.fn(),
+        send: vi.fn(() => Promise.resolve(realResult)),
+        sendMany: vi.fn(),
+        generateVapidKeys: vi.fn(() => ({ publicKey: 'pub', privateKey: 'priv' })),
+        getPublicKey: vi.fn(() => 'pub'),
+      }
+      const push = createPushCaptureProvider(real)
+      const options = { ttl: 600, urgency: 'high' as const }
+
+      await push.sendMany([subscription], payload, options)
+      expect(real.send).toHaveBeenCalledWith(subscription, payload, options)
+      expect(record.mock.calls[0][0].payload).toEqual({ subscription, payload, options })
+
+      await push.send(subscription, payload)
+      expect(record.mock.calls[1][0].payload).toEqual({ subscription, payload })
     })
 
     it('records a failed event and rethrows', async () => {

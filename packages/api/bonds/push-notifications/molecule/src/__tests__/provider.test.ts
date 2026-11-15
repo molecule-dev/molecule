@@ -40,6 +40,18 @@ describe('api-push-notifications-molecule', () => {
     expect(JSON.parse(String(init.body))).toEqual({ subscription: SUB, payload: PAYLOAD })
   })
 
+  it('sends delivery options to push/send only when given', async () => {
+    const fetchMock = stubFetch(200, { statusCode: 201, headers: {}, body: '' })
+    const provider = createProvider({
+      apiKey: 'mk_test',
+      servicesUrl: 'http://localhost:1/api/v1/services',
+    })
+    const options = { ttl: 600, urgency: 'high' as const, topic: 'approval-1' }
+    await provider.sendMany([SUB], PAYLOAD, options)
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(JSON.parse(String(init.body))).toEqual({ subscription: SUB, payload: PAYLOAD, options })
+  })
+
   it('relays a dead subscription as a resolved SendResult (prune on 404/410)', async () => {
     stubFetch(200, { statusCode: 410, headers: {}, body: 'gone' })
     const provider = createProvider({

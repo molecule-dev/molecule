@@ -16,6 +16,7 @@ import type {
   PushNotificationProvider,
   PushSubscription,
   SendManyResult,
+  SendOptions,
   SendResult,
   VapidConfig,
   VapidKeys,
@@ -61,19 +62,25 @@ export function createPushCaptureProvider(
       realProvider?.configure(config)
     },
 
-    async send(subscription: PushSubscription, payload: NotificationPayload): Promise<SendResult> {
+    async send(
+      subscription: PushSubscription,
+      payload: NotificationPayload,
+      options?: SendOptions,
+    ): Promise<SendResult> {
       const id = crypto.randomUUID()
+      // The delivery settings are recorded only when the caller passed some.
+      const recorded = { subscription, payload, ...(options ? { options } : {}) }
 
       if (realProvider) {
         try {
-          const result = await realProvider.send(subscription, payload)
+          const result = await realProvider.send(subscription, payload, options)
           await recordBestEffort({
             id,
             type: 'push',
             status: 'sent',
             recipient: subscription.endpoint,
             summary: payload.title,
-            payload: { subscription, payload },
+            payload: recorded,
             result,
             timestamp: new Date().toISOString(),
           })
@@ -85,7 +92,7 @@ export function createPushCaptureProvider(
             status: 'failed',
             recipient: subscription.endpoint,
             summary: payload.title,
-            payload: { subscription, payload },
+            payload: recorded,
             result: { error: error instanceof Error ? error.message : String(error) },
             timestamp: new Date().toISOString(),
           })
@@ -101,7 +108,7 @@ export function createPushCaptureProvider(
         status: 'captured',
         recipient: subscription.endpoint,
         summary: payload.title,
-        payload: { subscription, payload },
+        payload: recorded,
         result,
         timestamp: new Date().toISOString(),
       })
@@ -112,11 +119,12 @@ export function createPushCaptureProvider(
     async sendMany(
       subscriptions: PushSubscription[],
       payload: NotificationPayload,
+      options?: SendOptions,
     ): Promise<SendManyResult[]> {
       const results: SendManyResult[] = []
       for (const subscription of subscriptions) {
         try {
-          const result = await this.send(subscription, payload)
+          const result = await this.send(subscription, payload, options)
           results.push({ subscription, result })
         } catch (error) {
           results.push({

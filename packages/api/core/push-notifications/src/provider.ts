@@ -15,6 +15,7 @@ import type {
   PushNotificationProvider,
   PushSubscription,
   SendManyResult,
+  SendOptions,
   SendResult,
   VapidConfig,
   VapidKeys,
@@ -84,13 +85,15 @@ export const configure = (config?: VapidConfig): void => {
  *
  * @param subscription - The push subscription containing the client endpoint and encryption keys.
  * @param payload - The notification payload with title and optional display options.
+ * @param options - Optional delivery settings: TTL, urgency and topic.
  * @returns The send result containing status code, headers, and response body.
  */
 export const send = (
   subscription: PushSubscription,
   payload: NotificationPayload,
+  options?: SendOptions,
 ): Promise<SendResult> => {
-  return requireProvider().send(subscription, payload)
+  return requireProvider().send(subscription, payload, options)
 }
 
 /**
@@ -100,13 +103,15 @@ export const send = (
  *
  * @param subscriptions - The push subscriptions to send to.
  * @param payload - The notification payload with title and optional display options.
+ * @param options - Optional delivery settings (TTL, urgency, topic) for every message.
  * @returns One result entry per subscription, each containing either `result` or `error`.
  */
 export const sendMany = (
   subscriptions: PushSubscription[],
   payload: NotificationPayload,
+  options?: SendOptions,
 ): Promise<SendManyResult[]> => {
-  return requireProvider().sendMany(subscriptions, payload)
+  return requireProvider().sendMany(subscriptions, payload, options)
 }
 
 /**

@@ -266,4 +266,44 @@ describe('@molecule/api-push-notifications-web-push × REAL web-push', () => {
     // And a single send() to the dead endpoint THROWS the same labeled error.
     await expect(provider.send(dead, { title: 'Hi' })).rejects.toMatchObject({ statusCode: 410 })
   })
+
+  it('CONSUMER PROPERTY: send options reach the push service as the TTL, Urgency and Topic headers', async () => {
+    // A time-limited message (a sign-in code, a 10-minute approval) must not be held for
+    // web-push's four-week default and delivered long after it expired.
+    const provider = createProvider()
+    const keys = provider.generateVapidKeys()
+    provider.configure({
+      email: 'ops@app.com',
+      publicKey: keys.publicKey,
+      privateKey: keys.privateKey,
+    })
+
+    await provider.send(
+      makeSubscription('/push/options'),
+      { title: 'Approve?' },
+      { ttl: 600, urgency: 'high', topic: 'approval-1' },
+    )
+    const req = captured.find((r) => r.url === '/push/options')
+    expect(req!.headers.ttl).toBe('600')
+    expect(req!.headers.urgency).toBe('high')
+    expect(req!.headers.topic).toBe('approval-1')
+
+    // sendMany applies the same options to every message.
+    await provider.sendMany([makeSubscription('/push/options-many')], { title: 'Hi' }, { ttl: 0 })
+    expect(captured.find((r) => r.url === '/push/options-many')!.headers.ttl).toBe('0')
+
+    // Without options web-push keeps its defaults.
+    await provider.send(makeSubscription('/push/defaults'), { title: 'Hi' })
+    const plain = captured.find((r) => r.url === '/push/defaults')
+    expect(plain!.headers.ttl).toBe('2419200')
+    expect(plain!.headers.urgency).toBe('normal')
+    expect(plain!.headers.topic).toBeUndefined()
+
+    // An invalid option is refused before any request leaves.
+    const before = captured.length
+    await expect(
+      provider.send(makeSubscription('/push/bad'), { title: 'Hi' }, { topic: 'not base64url!' }),
+    ).rejects.toThrow(/filename-safe Base64/)
+    expect(captured.length).toBe(before)
+  })
 })

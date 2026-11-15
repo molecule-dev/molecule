@@ -13,6 +13,7 @@ import type {
   PushNotificationProvider,
   PushSubscription,
   SendManyResult,
+  SendOptions,
   SendResult,
   VapidConfig,
 } from '@molecule/api-push-notifications'
@@ -240,13 +241,23 @@ export class MoleculePushProvider implements PushNotificationProvider {
    *
    * @param subscription - The push subscription (endpoint + keys).
    * @param payload - The notification payload (title + display options).
+   * @param options - Optional delivery settings (TTL, urgency, topic); molecule.dev sends them
+   *   to the push service as its TTL, Urgency and Topic headers.
    * @returns The push service's answer: `statusCode` 201 means delivered;
    * 404/410 mean the subscription is dead and should be pruned.
    */
-  async send(subscription: PushSubscription, payload: NotificationPayload): Promise<SendResult> {
+  async send(
+    subscription: PushSubscription,
+    payload: NotificationPayload,
+    options?: SendOptions,
+  ): Promise<SendResult> {
     assertValidSubscription(subscription)
     assertValidPayload(payload)
-    return this.request<SendResult>('send', { subscription, payload })
+    return this.request<SendResult>('send', {
+      subscription,
+      payload,
+      ...(options ? { options } : {}),
+    })
   }
 
   /**
@@ -257,14 +268,16 @@ export class MoleculePushProvider implements PushNotificationProvider {
    *
    * @param subscriptions - The push subscriptions to send to.
    * @param payload - The notification payload with title and optional display options.
+   * @param options - Optional delivery settings applied to every message.
    * @returns One result entry per subscription.
    */
   async sendMany(
     subscriptions: PushSubscription[],
     payload: NotificationPayload,
+    options?: SendOptions,
   ): Promise<SendManyResult[]> {
     const settled = await Promise.allSettled(
-      (subscriptions ?? []).map((subscription) => this.send(subscription, payload)),
+      (subscriptions ?? []).map((subscription) => this.send(subscription, payload, options)),
     )
     return settled.map((outcome, i) =>
       outcome.status === 'fulfilled'

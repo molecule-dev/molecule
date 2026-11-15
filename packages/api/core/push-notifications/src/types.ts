@@ -42,6 +42,30 @@ export interface NotificationPayload {
 }
 
 /**
+ * How the push service should deliver one message: the Web Push protocol's TTL, Urgency and
+ * Topic headers (RFC 8030 §5). Every field is optional; a provider leaves an unset one to the
+ * push service's default.
+ */
+export interface SendOptions {
+  /**
+   * Seconds the push service keeps the message for a device that is offline, after which it
+   * is dropped undelivered. `0` means deliver now or never. The web-push default is four weeks,
+   * so set this for anything that goes stale (a sign-in code, a time-limited approval).
+   */
+  ttl?: number
+  /**
+   * How soon the device should be woken for it. `high` is for messages the user must act on
+   * now; phones on battery saver may hold `normal` and lower.
+   */
+  urgency?: 'very-low' | 'low' | 'normal' | 'high'
+  /**
+   * A label (up to 32 URL-safe base64 characters) that replaces any message with the same topic
+   * still waiting for an offline device, so only the latest one arrives.
+   */
+  topic?: string
+}
+
+/**
  * Result of sending a single push notification.
  */
 export interface SendResult {
@@ -92,17 +116,23 @@ export interface PushNotificationProvider {
   configure(config?: VapidConfig): void
 
   /**
-   * Sends a push notification to a single subscription endpoint.
+   * Sends a push notification to a single subscription endpoint, with optional delivery
+   * settings (`options`: TTL, urgency, topic).
    */
-  send(subscription: PushSubscription, payload: NotificationPayload): Promise<SendResult>
+  send(
+    subscription: PushSubscription,
+    payload: NotificationPayload,
+    options?: SendOptions,
+  ): Promise<SendResult>
 
   /**
    * Sends a push notification to multiple subscriptions, handling
-   * partial failures gracefully.
+   * partial failures gracefully. `options` applies to every message.
    */
   sendMany(
     subscriptions: PushSubscription[],
     payload: NotificationPayload,
+    options?: SendOptions,
   ): Promise<SendManyResult[]>
 
   /**

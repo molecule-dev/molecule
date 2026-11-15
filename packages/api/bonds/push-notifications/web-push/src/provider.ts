@@ -21,6 +21,7 @@ import type {
   PushNotificationProvider,
   PushSubscription,
   SendManyResult,
+  SendOptions,
   SendResult,
   VapidConfig,
 } from '@molecule/api-push-notifications'
@@ -30,6 +31,22 @@ import type {
  * for VAPID-authenticated push notification delivery over the Web Push protocol.
  */
 const logger = getLogger()
+
+/**
+ * The web-push request options for `options`. Each unset field is left out, so web-push
+ * applies its own default for it (TTL four weeks, urgency normal, no topic).
+ *
+ * @param options - The delivery settings the caller asked for.
+ * @returns web-push's options, or undefined when nothing was asked for.
+ */
+function webPushOptions(options?: SendOptions): webPush.RequestOptions | undefined {
+  if (!options) return undefined
+  const requestOptions: webPush.RequestOptions = {}
+  if (options.ttl !== undefined) requestOptions.TTL = options.ttl
+  if (options.urgency !== undefined) requestOptions.urgency = options.urgency
+  if (options.topic !== undefined) requestOptions.topic = options.topic
+  return requestOptions
+}
 
 /**
  * Web Push implementation of `PushNotificationProvider` using the `web-push` library.
@@ -77,9 +94,16 @@ class WebPushProvider implements PushNotificationProvider {
    * Auto-configures VAPID on first call if not already configured.
    * @param subscription - The browser push subscription (endpoint + keys).
    * @param payload - The notification payload (title, body, icon, etc.) serialized as JSON.
+   * @param options - Optional delivery settings, sent as the TTL, Urgency and Topic headers;
+   *   web-push refuses an invalid one (a negative TTL, an unknown urgency, a topic that is not
+   *   URL-safe base64 of up to 32 characters) before any request leaves.
    * @returns The HTTP status code, headers, and body from the push service response.
    */
-  async send(subscription: PushSubscription, payload: NotificationPayload): Promise<SendResult> {
+  async send(
+    subscription: PushSubscription,
+    payload: NotificationPayload,
+    options?: SendOptions,
+  ): Promise<SendResult> {
     if (!this.configured) this.configure()
     if (!this.configured) {
       throw new Error(
@@ -88,10 +112,17 @@ class WebPushProvider implements PushNotificationProvider {
     }
 
     try {
-      const result = await webPush.sendNotification(
-        subscription as webPush.PushSubscription,
-        JSON.stringify(payload),
-      )
+      const requestOptions = webPushOptions(options)
+      const result = requestOptions
+        ? await webPush.sendNotification(
+            subscription as webPush.PushSubscription,
+            JSON.stringify(payload),
+            requestOptions,
+          )
+        : await webPush.sendNotification(
+            subscription as webPush.PushSubscription,
+            JSON.stringify(payload),
+          )
       return { statusCode: result.statusCode, headers: result.headers, body: result.body }
     } catch (error) {
       logger.error('WebPush send error:', error)
@@ -103,13 +134,17 @@ class WebPushProvider implements PushNotificationProvider {
    * Sends a push notification to multiple subscriptions in parallel using `Promise.allSettled`.
    * @param subscriptions - An array of browser push subscriptions.
    * @param payload - The notification payload to send to all subscriptions.
+   * @param options - Optional delivery settings applied to every message.
    * @returns An array of results, each containing the subscription, send result (if successful), and error (if failed).
    */
   async sendMany(
     subscriptions: PushSubscription[],
     payload: NotificationPayload,
+    options?: SendOptions,
   ): Promise<SendManyResult[]> {
-    const results = await Promise.allSettled(subscriptions.map((sub) => this.send(sub, payload)))
+    const results = await Promise.allSettled(
+      subscriptions.map((sub) => this.send(sub, payload, options)),
+    )
 
     return results.map((result, i) => ({
       subscription: subscriptions[i],

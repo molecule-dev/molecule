@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-push-notifications-web-push",
   "version": "1.0.3",
-  "description": "Web Push provider for molecule.dev push notifications",
+  "description": "Push notification provider using web-push library with VAPID authentication",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

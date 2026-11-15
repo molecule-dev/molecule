@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-push-notifications",
   "version": "1.0.3",
-  "description": "Push notification provider interface for molecule.dev",
+  "description": "Push notification provider interface (bond-compatible)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
