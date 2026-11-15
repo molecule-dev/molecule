@@ -6,6 +6,7 @@
  */
 
 import {
+  type AfterViewChecked,
   type AfterViewInit,
   Component,
   type DoCheck,
@@ -98,7 +99,7 @@ import { Modal } from './modal.component.js'
     </form></mol-modal
   >`,
 })
-export class PromptDialog implements AfterViewInit, DoCheck {
+export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
   /** Whether the dialog is open. */
   open = false
   /** Dialog heading (node-valued prop). */
@@ -149,6 +150,8 @@ export class PromptDialog implements AfterViewInit, DoCheck {
 
   private lastOpen = false
   private lastInitial = ''
+  /** Whether an open transition is waiting for the after-view input focus. */
+  private pendingInputFocus = false
 
   /**
    * The current class map.
@@ -191,7 +194,8 @@ export class PromptDialog implements AfterViewInit, DoCheck {
 
   /**
    * Seeds the value when the dialog opens (React's `[open, initialValue]`
-   * effect).
+   * effect). The composed `Modal`'s view init has already run (children init
+   * first) and moved focus into the dialog.
    */
   ngAfterViewInit(): void {
     this.applyInputLabel()
@@ -200,11 +204,17 @@ export class PromptDialog implements AfterViewInit, DoCheck {
     if (this.open) {
       this.value.set(this.initialValue)
       this.pending.set(false)
+      // The dialog exists to take one string, so opening it puts focus in the
+      // input — after the Modal has focused the dialog's first control.
+      this.pendingInputFocus = true
     }
   }
 
   /**
-   * Re-seeds the value on a later open transition (React's effect).
+   * Re-seeds the value on a later open transition (React's effect). The flag
+   * set here is consumed in ngAfterViewChecked, which runs after the child
+   * `Modal`'s own check (where its open transition focuses the dialog) has
+   * completed.
    */
   ngDoCheck(): void {
     const open = !!this.open
@@ -215,8 +225,28 @@ export class PromptDialog implements AfterViewInit, DoCheck {
       if (open) {
         this.value.set(this.initialValue)
         this.pending.set(false)
+        this.pendingInputFocus = true
       }
     }
+  }
+
+  /**
+   * Focuses the input after the view — and the composed `Modal`'s focus move —
+   * has settled (React's `[open]` effect running after the Modal's effects).
+   */
+  ngAfterViewChecked(): void {
+    if (!this.pendingInputFocus) return
+    this.pendingInputFocus = false
+    this.focusInput()
+  }
+
+  /**
+   * Moves focus into the dialog's input (the input ends up focused, exactly as
+   * React's post-Modal focus effect leaves it). Does nothing without a
+   * rendered input.
+   */
+  focusInput(): void {
+    this.inputComponent?.inputEl?.nativeElement.focus()
   }
 
   /**

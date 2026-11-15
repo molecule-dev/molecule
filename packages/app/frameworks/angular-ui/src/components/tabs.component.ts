@@ -53,7 +53,7 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
     '[style]': 'hostStyle()',
     '[attr.data-testid]': 'testId',
   },
-  template: `<div [class]="listClasses()" role="tablist" (keydown)="handleKeyDown($event)">
+  template: `<div [class]="listClasses()" role="tablist">
       @for (item of items; track item.value) {
         <button
           #tabBtn
@@ -66,6 +66,7 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
           [attr.tabindex]="item.value === activeValue() ? 0 : -1"
           [disabled]="!!item.disabled"
           (click)="selectTab(item.value)"
+          (keydown)="handleKeyDown($event)"
           [class]="triggerClasses()"
         >
           @if (item.icon) {

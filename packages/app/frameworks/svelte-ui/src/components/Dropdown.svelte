@@ -329,10 +329,7 @@
 
   // Focus lands on the menu's items (roving `tabindex`), not on the menu
   // container — the APG menu-button pattern, and exactly what React's
-  // reference renders. The role is referenced through a constant so
-  // svelte-check's focusable-role heuristic, which wants a tabindex here,
-  // accepts the parity markup.
-  const menuRole = 'menu' as const
+  // reference renders.
 </script>
 
 {#snippet triggerNodes()}
@@ -342,10 +339,14 @@
 <div bind:this={triggerHost}>{@render triggerNodes()}</div>
 
 {#if isOpen}
+  <!-- Focusable but never a Tab stop (the items carry the roving tab stop):
+       a click on a separator or the menu's padding keeps focus in the menu,
+       so the arrow keys still move between its items. -->
   <div
     bind:this={menuEl}
     id={menuId}
-    role={menuRole}
+    role="menu"
+    tabindex={-1}
     data-state="open"
     class={cm.cn(cm.dropdownContent, className)}
     use:reactStyle={menuStyle}

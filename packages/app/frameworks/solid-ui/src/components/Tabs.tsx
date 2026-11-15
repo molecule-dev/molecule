@@ -67,7 +67,7 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
     local.onChange?.(tabValue)
   }
 
-  const handleKeyDown = (event: KeyboardEvent & { currentTarget: HTMLDivElement }): void => {
+  const handleKeyDown = (event: KeyboardEvent & { currentTarget: HTMLButtonElement }): void => {
     const enabled = local.items.filter((item) => !item.disabled)
     if (enabled.length === 0) return
     const currentIndex = enabled.findIndex((item) => item.value === activeValue())
@@ -115,7 +115,6 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
           local.fitted && cm.tabsFitted,
         )}
         role="tablist"
-        onKeyDown={handleKeyDown}
       >
         <For each={tabs.keys()}>
           {(key) => {
@@ -137,10 +136,13 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
                 // what those selectors key off, it is not a class option.
                 data-state={isActive() ? 'active' : 'inactive'}
                 // Roving tabindex: only the active tab is a Tab stop —
-                // arrow keys (handled above) move focus among the rest.
+                // arrow keys (handled below) move focus among the rest.
                 tabindex={isActive() ? 0 : -1}
                 disabled={item().disabled}
                 onClick={() => selectTab(item().value)}
+                // The arrow keys act on the focused tab (the tablist itself never
+                // takes focus), so the handler sits on each tab.
+                onKeyDown={handleKeyDown}
                 class={cm.cn(
                   cm.tabsTrigger({ variant: local.variant, size: local.size }),
                   local.fitted && cm.tabTriggerFitted,

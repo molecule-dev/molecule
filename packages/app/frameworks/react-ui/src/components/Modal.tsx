@@ -156,10 +156,16 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
     // The element focused right before this dialog opened — restored on close.
     const previouslyFocusedRef = useRef<HTMLElement | null>(null)
 
+    // The wrapper is a presentation layer around the dialog: a click on the
+    // wrapper itself (the backdrop) closes, and a click that bubbled up from
+    // inside the dialog stops here, so it never reaches whatever rendered the
+    // modal. Escape closes from the keyboard (Effect C).
     const handleOverlayClick = (e: React.MouseEvent): void => {
-      if (closeOnOverlayClick && e.target === e.currentTarget) {
-        onClose()
+      if (e.target !== e.currentTarget) {
+        e.stopPropagation()
+        return
       }
+      if (closeOnOverlayClick) onClose()
     }
 
     // Effect A — stack registration + move focus INTO the dialog on open +
@@ -285,7 +291,12 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
         <div className={cm.dialogOverlay} aria-hidden="true" />
 
         {/* Centering wrapper */}
-        <div className={cm.dialogWrapper} style={wrapperStyle} onClick={handleOverlayClick}>
+        <div
+          className={cm.dialogWrapper}
+          style={wrapperStyle}
+          role="presentation"
+          onClick={handleOverlayClick}
+        >
           {/* Content */}
           <div
             ref={setDialogRef}
@@ -296,7 +307,6 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
             className={cm.cn(cm.modal({ size }), className)}
             style={style}
             data-testid={testId}
-            onClick={(e: React.MouseEvent) => e.stopPropagation()}
             {...passthrough}
           >
             {/* With a title the close button shares the header row; without

@@ -54,12 +54,24 @@ export const Card: Component<CardProps & { 'data-mol-id'?: string }> = (props) =
     return out
   }
 
+  // An interactive card is announced as a button and sits in the tab order, so
+  // Enter and Space activate it the way they activate a native button: by
+  // clicking it, which runs `onClick` with a real click event. Keys pressed in a
+  // control inside the card belong to that control.
+  const handleKeyDown = (event: KeyboardEvent & { currentTarget: HTMLDivElement }): void => {
+    if (!local.interactive || event.target !== event.currentTarget) return
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    event.currentTarget.click()
+  }
+
   return (
     <div
       class={cardClasses()}
       style={toStyleProps(local.style)}
       data-testid={local.testId}
       onClick={local.onClick as JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>}
+      onKeyDown={handleKeyDown}
       role={local.interactive ? 'button' : undefined}
       tabIndex={local.interactive ? 0 : undefined}
       {...passthrough()}

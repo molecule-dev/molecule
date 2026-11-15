@@ -146,6 +146,7 @@ type DropdownAlign = 'start' | 'center' | 'end'
       ><div
         [attr.id]="menuId"
         role="menu"
+        tabindex="-1"
         data-state="open"
         [class]="menuClasses()"
         [style]="menuStyleText()"

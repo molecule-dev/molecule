@@ -85,6 +85,7 @@ let modalInstance = 0
       #wrapper
       [class]="cm().dialogWrapper"
       [style]="wrapperStyle()"
+      role="presentation"
       (click)="handleOverlayClick($event)"
     >
       <div
@@ -96,7 +97,6 @@ let modalInstance = 0
         [class]="dialogClasses()"
         [style]="dialogStyle()"
         [attr.data-testid]="testId"
-        (click)="stopPropagation($event)"
       >
         @if (title) {
           <div [class]="cm().dialogHeader">
@@ -245,21 +245,19 @@ export class Modal implements AfterViewInit, DoCheck, OnDestroy {
   }
 
   /**
-   * Stops a click inside the dialog from reaching the overlay handler.
-   *
-   * @param event - The click event.
-   */
-  stopPropagation(event: MouseEvent): void {
-    event.stopPropagation()
-  }
-
-  /**
-   * Closes when the click is on the wrapper itself (not bubbled content).
+   * The wrapper is a presentation layer around the dialog: a click on the
+   * wrapper itself (the backdrop) closes when `closeOnOverlayClick` allows it,
+   * and a click that bubbled up from inside the dialog stops here, so it never
+   * reaches whatever rendered the modal. Escape closes from the keyboard.
    *
    * @param event - The click event.
    */
   handleOverlayClick(event: MouseEvent): void {
-    if (this.closeOnOverlayClick && event.target === event.currentTarget) this.requestClose()
+    if (event.target !== event.currentTarget) {
+      event.stopPropagation()
+      return
+    }
+    if (this.closeOnOverlayClick) this.requestClose()
   }
 
   /** Emits the close request (React's `onClose`). */

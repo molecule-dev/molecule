@@ -48,7 +48,7 @@
  * @module
  */
 
-import React, { type JSX, useEffect, useState } from 'react'
+import React, { type JSX, useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -117,6 +117,7 @@ export function PromptDialog({
   const { t } = useTranslation()
   const [value, setValue] = useState(initialValue)
   const [pending, setPending] = useState(false)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   // Re-seed from initialValue each open so a reopened dialog shows the
   // CURRENT value, not whatever the user typed last time.
@@ -126,6 +127,13 @@ export function PromptDialog({
       setPending(false)
     }
   }, [open, initialValue])
+
+  // The dialog exists to take one string, so opening it puts focus in the
+  // input. This effect runs after Modal's own (which focuses the dialog's first
+  // control, the close button), so the input ends up focused.
+  useEffect(() => {
+    if (open) inputRef.current?.focus()
+  }, [open])
 
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault()
@@ -153,12 +161,12 @@ export function PromptDialog({
           <h2 className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{title}</h2>
           {description ? <p className={cm.textSize('sm')}>{description}</p> : null}
           <Input
+            ref={inputRef}
             value={value}
             onChange={(e) => setValue((e.target as HTMLInputElement).value)}
             placeholder={placeholder}
             aria-label={typeof title === 'string' ? title : placeholder}
             disabled={pending}
-            autoFocus
             data-mol-id={inputMolId}
           />
           {children}

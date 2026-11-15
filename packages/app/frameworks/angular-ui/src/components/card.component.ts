@@ -35,6 +35,7 @@ const VARIANT_MAP: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> 
     '[attr.data-testid]': 'testId',
     '[attr.role]': 'interactive ? "button" : null',
     '[attr.tabindex]': 'interactive ? 0 : null',
+    '(keydown)': 'handleKeyDown($event)',
   },
   template: `<ng-content></ng-content>`,
 })
@@ -80,6 +81,22 @@ export class Card {
    */
   hostStyle(): string | null {
     return styleText(this.style)
+  }
+
+  /**
+   * An interactive card is announced as a button and sits in the tab order, so
+   * Enter and Space activate it the way they activate a native button: by
+   * clicking it, which runs the consumer's click handler with a real click
+   * event. Keys pressed in a control inside the card belong to that control,
+   * and a card that is not interactive ignores keys.
+   *
+   * @param event - The key event.
+   */
+  handleKeyDown(event: KeyboardEvent): void {
+    if (!this.interactive || event.target !== event.currentTarget) return
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    ;(event.currentTarget as HTMLElement).click()
   }
 }
 

@@ -56,19 +56,7 @@ Container.displayName = 'Container'
  */
 export const Flex = forwardRef<HTMLDivElement, FlexProps>(
   (
-    {
-      children,
-      direction = 'row',
-      justify,
-      align,
-      wrap,
-      gap,
-      className,
-      style,
-      testId,
-      onClick,
-      ...rest
-    },
+    { children, direction = 'row', justify, align, wrap, gap, className, style, testId, ...rest },
     ref,
   ) => {
     const cm = getClassMap()
@@ -113,7 +101,10 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(
         className={flexClasses}
         style={{ ...style, ...gapStyle }}
         data-testid={testId}
-        onClick={onClick as unknown as React.MouseEventHandler<HTMLDivElement>}
+        // Every element prop (role, tabIndex, onClick, onKeyDown…) is forwarded
+        // as given, the way Grid and Container forward theirs: a Flex is a plain
+        // box, and a consumer that makes one clickable gives it the role and keys
+        // that go with the click.
         {...(rest as React.HTMLAttributes<HTMLDivElement>)}
       >
         {children as React.ReactNode}

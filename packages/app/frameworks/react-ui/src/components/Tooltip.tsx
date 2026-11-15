@@ -332,8 +332,12 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
 
     return (
       <>
+        {/* The wrapper is not a control: it listens for the events that bubble
+            up from the control inside it (hover, focus, Escape, a click), so it
+            is a presentation element and the control keeps its own role. */}
         <div
           ref={triggerRef}
+          role="presentation"
           onMouseEnter={show}
           onMouseLeave={scheduleHide}
           onFocus={handleFocus}

@@ -143,7 +143,6 @@ export const Tabs = defineComponent({
                 props.fitted && cm.tabsFitted,
               ),
               role: 'tablist',
-              onKeydown: handleKeyDown,
             },
             props.items.map((item) => {
               const isActive = item.value === activeValue
@@ -165,10 +164,13 @@ export const Tabs = defineComponent({
                   // what those selectors key off, it is not a class option.
                   'data-state': isActive ? 'active' : 'inactive',
                   // Roving tabindex: only the active tab is a Tab stop —
-                  // arrow keys (handled above) move focus among the rest.
+                  // arrow keys (handled on each tab) move focus among the rest.
                   tabindex: isActive ? 0 : -1,
                   disabled: item.disabled,
                   onClick: () => selectTab(item.value as string),
+                  // The arrow keys act on the focused tab (the tablist itself never
+                  // takes focus), so the handler sits on each tab.
+                  onKeydown: handleKeyDown,
                   class: cm.cn(
                     cm.tabsTrigger({ variant: props.variant, size: props.size }),
                     props.fitted && cm.tabTriggerFitted,

@@ -51,6 +51,17 @@ export const Card = forwardRef<HTMLDivElement, CardProps & { 'data-mol-id'?: str
       if (k.startsWith('data-') || k.startsWith('aria-')) passthrough[k] = v
     }
 
+    // An interactive card is announced as a button and sits in the tab order, so
+    // Enter and Space activate it the way they activate a native button: by
+    // clicking it, which runs `onClick` with a real click event. Keys pressed in a
+    // control inside the card belong to that control.
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+      if (!interactive || event.target !== event.currentTarget) return
+      if (event.key !== 'Enter' && event.key !== ' ') return
+      event.preventDefault()
+      event.currentTarget.click()
+    }
+
     return (
       <div
         ref={ref}
@@ -58,6 +69,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps & { 'data-mol-id'?: str
         style={style}
         data-testid={testId}
         onClick={onClick as unknown as React.MouseEventHandler<HTMLDivElement>}
+        onKeyDown={handleKeyDown}
         role={interactive ? 'button' : undefined}
         tabIndex={interactive ? 0 : undefined}
         {...passthrough}

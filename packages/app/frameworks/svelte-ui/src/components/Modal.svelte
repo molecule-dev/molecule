@@ -17,7 +17,6 @@
     lockBodyScroll,
     popModalStack,
     pushModalStack,
-    spreadEvents,
     unlockBodyScroll,
     useGeneratedId,
   } from '../dom.js'
@@ -129,16 +128,17 @@
     return out
   })
 
-  // Clicking the wrapper itself (the backdrop area around the dialog) closes.
-  // The listener is attached with the spreadEvents action rather than an
-  // onclick directive: the wrapper is a backdrop, not a widget, and React's
-  // reference markup gives it no role — the conformance suite compares every
-  // attribute, so the checker's `role="presentation"` remedy would break parity.
-  const overlayHandlers = $derived({
-    onclick: (event: MouseEvent): void => {
-      if (closeOnOverlayClick && event.target === event.currentTarget) onClose()
-    },
-  })
+  // The wrapper is a presentation layer around the dialog: a click on the
+  // wrapper itself (the backdrop) closes, and a click that bubbled up from
+  // inside the dialog stops here, so it never reaches whatever rendered the
+  // modal. Escape closes from the keyboard (Effect C).
+  const handleOverlayClick = (event: MouseEvent): void => {
+    if (event.target !== event.currentTarget) {
+      event.stopPropagation()
+      return
+    }
+    if (closeOnOverlayClick) onClose()
+  }
 </script>
 
 {#if open}
@@ -151,8 +151,9 @@
   <div
     class={cm.dialogWrapper}
     use:reactStyle={centered ? undefined : { alignItems: 'flex-start' }}
+    role="presentation"
+    onclick={handleOverlayClick}
     use:bodyPortal
-    use:spreadEvents={overlayHandlers}
   >
     <div
       bind:this={dialogRef}
@@ -163,7 +164,6 @@
       class={cm.cn(cm.modal({ size }), className)}
       use:reactStyle={style}
       data-testid={testId}
-      onclick={(e) => e.stopPropagation()}
       {...passthrough}
     >
       {#if title}

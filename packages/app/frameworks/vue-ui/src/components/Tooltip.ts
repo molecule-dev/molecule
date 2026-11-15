@@ -388,10 +388,14 @@ export const Tooltip = defineComponent({
         )
       }
 
+      // The wrapper is not a control: it listens for the events that bubble
+      // up from the control inside it (hover, focus, Escape, a click), so it
+      // is a presentation element and the control keeps its own role.
       const trigger = h(
         'div',
         {
           ref: triggerRef,
+          role: 'presentation',
           onMouseover: handleMouseEnter,
           onMouseout: handleMouseLeave,
           onFocusin: handleFocus,

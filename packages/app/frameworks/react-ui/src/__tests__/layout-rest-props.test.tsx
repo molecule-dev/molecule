@@ -9,7 +9,7 @@
  *
  * @module
  */
-import { render } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -47,6 +47,23 @@ describe('layout components forward rest props to the DOM', () => {
     // Handled props are consumed, never rendered as DOM attributes.
     expect(el.hasAttribute('justify')).toBe(false)
     expect(el.hasAttribute('gap')).toBe(false)
+  })
+
+  it('Flex forwards onClick together with the role, tabIndex and onKeyDown a clickable box needs', () => {
+    const onClick = vi.fn()
+    const onKeyDown = vi.fn()
+    const { container } = render(
+      <Flex role="button" tabIndex={0} onClick={onClick} onKeyDown={onKeyDown}>
+        <span>child</span>
+      </Flex>,
+    )
+    const el = container.firstElementChild as HTMLElement
+    expect(el.getAttribute('role')).toBe('button')
+    expect(el.tabIndex).toBe(0)
+    fireEvent.click(el)
+    fireEvent.keyDown(el, { key: 'Enter' })
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
   })
 
   it('Container passes data-mol-id through', () => {

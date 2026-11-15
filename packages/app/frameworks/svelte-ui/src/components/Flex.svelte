@@ -17,7 +17,6 @@
     className,
     style,
     testId,
-    onClick,
     ...rest
   }: FlexProps = $props()
 
@@ -54,11 +53,13 @@
   )
 </script>
 
+<!-- Every element prop (role, tabIndex, onClick, onKeyDown…) is forwarded
+     as given: a Flex is a plain box, and a consumer that makes one clickable
+     gives it the role and keys that go with the click. -->
 <div
   class={flexClasses}
   use:reactStyle={{ ...style, ...gapStyle }}
   data-testid={testId}
-  onclick={onClick}
   {...reactAttrs(withoutEvents(rest))}
   use:spreadEvents={rest}
 >

@@ -126,8 +126,7 @@ export const Flex = defineComponent({
     style: [String, Object] as PropType<FlexProps['style']>,
     testId: String,
   },
-  emits: ['click'],
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots }) {
     const cm = getClassMap()
 
     return () => {
@@ -165,7 +164,10 @@ export const Flex = defineComponent({
           class: flexClasses,
           style: mergeStyles(styleOf(props.style, attrs), gapStyle),
           'data-testid': props.testId,
-          onClick: (event: MouseEvent) => emit('click', event),
+          // Every element prop (role, tabIndex, onClick, onKeyDown…) is forwarded
+          // as given, the way Grid and Container forward theirs: a Flex is a plain
+          // box, and a consumer that makes one clickable gives it the role and keys
+          // that go with the click.
           ...restAttrs(attrs),
         },
         slots.default?.(),

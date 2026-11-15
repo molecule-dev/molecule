@@ -476,7 +476,9 @@ describe('@molecule/app-ui-react × REAL react-dom + REAL @molecule/app-ui bonds
     const first = screen.getByRole('tab', { name: 'First' })
     const second = screen.getByRole('tab', { name: 'Second' })
     const third = screen.getByRole('tab', { name: 'Third' })
-    const tablist = screen.getByRole('tablist')
+    // Keys go to the focused tab, as they do for a keyboard user who tabbed in.
+    const focused = (): Element => document.activeElement ?? document.body
+    first.focus()
 
     // Roving tabindex: only the active tab is a Tab stop — previously every
     // trigger was individually tabbable.
@@ -486,7 +488,7 @@ describe('@molecule/app-ui-react × REAL react-dom + REAL @molecule/app-ui bonds
 
     // ArrowRight from "First" skips the disabled "Second" and lands on
     // "Third" — automatic activation moves BOTH focus and selection.
-    fireEvent.keyDown(tablist, { key: 'ArrowRight' })
+    fireEvent.keyDown(focused(), { key: 'ArrowRight' })
     expect(document.activeElement).toBe(third)
     expect(third.getAttribute('aria-selected')).toBe('true')
     expect(third.tabIndex).toBe(0)
@@ -494,17 +496,17 @@ describe('@molecule/app-ui-react × REAL react-dom + REAL @molecule/app-ui bonds
     expect(screen.getByRole('tabpanel').textContent).toBe('third')
 
     // Home returns focus + selection to the first enabled tab.
-    fireEvent.keyDown(tablist, { key: 'Home' })
+    fireEvent.keyDown(focused(), { key: 'Home' })
     expect(document.activeElement).toBe(first)
     expect(first.getAttribute('aria-selected')).toBe('true')
 
     // ArrowLeft wraps around past the disabled tab to the last enabled one.
-    fireEvent.keyDown(tablist, { key: 'ArrowLeft' })
+    fireEvent.keyDown(focused(), { key: 'ArrowLeft' })
     expect(document.activeElement).toBe(third)
 
     // End jumps straight to the last enabled tab from anywhere.
-    fireEvent.keyDown(tablist, { key: 'Home' })
-    fireEvent.keyDown(tablist, { key: 'End' })
+    fireEvent.keyDown(focused(), { key: 'Home' })
+    fireEvent.keyDown(focused(), { key: 'End' })
     expect(document.activeElement).toBe(third)
   })
 

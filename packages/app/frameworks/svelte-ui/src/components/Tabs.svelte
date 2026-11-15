@@ -86,13 +86,11 @@
 </script>
 
 <div class={className} use:reactStyle={style} data-testid={testId}>
-  <div
-    class={cm.cn(cm.tabsList({ variant, size }), fitted && cm.tabsFitted)}
-    role={tablistRole}
-    onkeydown={handleKeyDown}
-  >
+  <div class={cm.cn(cm.tabsList({ variant, size }), fitted && cm.tabsFitted)} role={tablistRole}>
     {#each items as item (item.value)}
       {@const isActive = item.value === activeValue}
+      <!-- The arrow keys act on the focused tab (the tablist itself never
+           takes focus), so the handler sits on each tab. -->
       <button
         id={`${idBase}-tab-${item.value}`}
         use:tabRef={item.value}
@@ -104,6 +102,7 @@
         tabindex={isActive ? 0 : -1}
         disabled={item.disabled}
         onclick={() => selectTab(item.value)}
+        onkeydown={handleKeyDown}
         class={cm.cn(cm.tabsTrigger({ variant, size }), fitted && cm.tabTriggerFitted)}
       >
         {#if item.icon}<span class={cm.tabTriggerIcon}>{@render item.icon()}</span>{/if}

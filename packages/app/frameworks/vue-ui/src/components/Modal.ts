@@ -170,10 +170,16 @@ export const Modal = defineComponent({
     let openBookkeeping = false
     let scrollLocked = false
 
+    // The wrapper is a presentation layer around the dialog: a click on the
+    // wrapper itself (the backdrop) closes, and a click that bubbled up from
+    // inside the dialog stops here, so it never reaches whatever rendered the
+    // modal. Escape closes from the keyboard.
     const handleOverlayClick = (e: MouseEvent): void => {
-      if (props.closeOnOverlayClick && e.target === e.currentTarget) {
-        emit('close')
+      if (e.target !== e.currentTarget) {
+        e.stopPropagation()
+        return
       }
+      if (props.closeOnOverlayClick) emit('close')
     }
 
     const handleKeyDown = (e: KeyboardEvent): void => {
@@ -342,6 +348,7 @@ export const Modal = defineComponent({
           {
             class: cm.dialogWrapper,
             style: wrapperStyle,
+            role: 'presentation',
             onClick: handleOverlayClick,
           },
           [
@@ -357,7 +364,6 @@ export const Modal = defineComponent({
                 class: cm.cn(cm.modal({ size: props.size }), ...classOf(props.className, attrs)),
                 style: styleOf(props.style, attrs),
                 'data-testid': props.testId,
-                onClick: (e: MouseEvent) => e.stopPropagation(),
                 ...passthrough,
               },
               [

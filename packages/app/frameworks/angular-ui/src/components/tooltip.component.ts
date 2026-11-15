@@ -160,6 +160,7 @@ function calculatePosition(
   template: `<div
       #triggerWrap
       [class]="cm().tooltipTrigger"
+      role="presentation"
       (mouseover)="show()"
       (mouseout)="scheduleHide()"
       (focusin)="handleFocus($event)"

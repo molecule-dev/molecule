@@ -11,13 +11,7 @@
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
-  import {
-    bodyPortal,
-    getFocusableElements,
-    lockBodyScroll,
-    spreadEvents,
-    unlockBodyScroll,
-  } from '../dom.js'
+  import { bodyPortal, getFocusableElements, lockBodyScroll, unlockBodyScroll } from '../dom.js'
   import { useShellContext } from '../shell-context.js'
   import { reactStyle } from '../style.js'
   import type { ResponsiveAppShellDrawerProps } from '../types.js'
@@ -127,18 +121,13 @@
     return () => document.removeEventListener('keydown', handleKeyDown)
   })
 
-  // The backdrop wrapper closes only on a click whose target is the wrapper
-  // itself; clicks inside the dialog have the inner element as their target,
-  // so they never reach that branch. The listener goes through the
-  // spreadEvents action instead of an onclick directive: the wrapper is a
-  // backdrop, not a widget, React's reference markup gives it no role, and the
-  // conformance suite compares every attribute — so the checker's
-  // `role="presentation"` remedy would break parity.
-  const overlayHandlers = $derived({
-    onclick: (event: MouseEvent): void => {
-      if (event.target === event.currentTarget) shell.closeDrawer()
-    },
-  })
+  // The backdrop wrapper is a presentation layer around the panel: a click on
+  // the wrapper itself (the backdrop) closes, and a click that bubbled up
+  // from the panel stops here. Escape closes from the keyboard (Effect C).
+  const handleWrapperClick = (event: MouseEvent): void => {
+    if (event.target === event.currentTarget) shell.closeDrawer()
+    else event.stopPropagation()
+  }
 </script>
 
 {#if open && hasDocument}
@@ -148,8 +137,9 @@
   <div
     class={cm.cn(cm.position('fixed'), cm.inset0)}
     use:reactStyle={{ zIndex: 41 }}
+    role="presentation"
+    onclick={handleWrapperClick}
     use:bodyPortal
-    use:spreadEvents={overlayHandlers}
   >
     <div
       bind:this={panelRef}

@@ -765,13 +765,15 @@ export const ResponsiveAppShellDrawer = defineComponent({
       const closeLabel = t('appShell.closeMenu', {}, { defaultValue: 'Close navigation menu' })
 
       return h(Teleport, { to: 'body' }, [
-        // Backdrop click-to-close. The panel stops propagation, so only a
-        // click that reaches the wrapper (the backdrop itself) closes.
+        // Backdrop click-to-close. The wrapper is a presentation layer: a click
+        // on the wrapper itself (the backdrop) closes, and a click that bubbled
+        // up from the panel stops here. Escape closes from the keyboard.
         h('div', { class: cm.overlay, 'aria-hidden': 'true' }),
         h(
           'div',
           {
             class: cm.cn(cm.position('fixed'), cm.inset0),
+            role: 'presentation',
             // The WRAPPER carries the z-index: a positioned element with
             // z-index:auto forms its own stacking context, which would trap
             // the panel's z-index inside it and let the z-40 backdrop paint
@@ -780,6 +782,7 @@ export const ResponsiveAppShellDrawer = defineComponent({
             style: { zIndex: 41 },
             onClick: (event: MouseEvent) => {
               if (event.target === event.currentTarget) shell.closeDrawer()
+              else event.stopPropagation()
             },
           },
           [
@@ -810,7 +813,6 @@ export const ResponsiveAppShellDrawer = defineComponent({
                   maxWidth: '85vw',
                   overflowY: 'auto',
                 },
-                onClick: (event: MouseEvent) => event.stopPropagation(),
                 'data-mol-id': props.dataMolId,
                 'data-testid': props.testId,
               },

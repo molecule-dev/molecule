@@ -151,10 +151,16 @@ export const Modal: Component<ModalProps & { 'data-mol-id'?: string }> = (props)
     return out
   }
 
+  // The wrapper is a presentation layer around the dialog: a click on the
+  // wrapper itself (the backdrop) closes, and a click that bubbled up from
+  // inside the dialog stops here, so it never reaches whatever rendered the
+  // modal. Escape closes from the keyboard (Effect C).
   const handleOverlayClick = (e: MouseEvent & { currentTarget: HTMLDivElement }): void => {
-    if ((local.closeOnOverlayClick ?? true) && e.target === e.currentTarget) {
-      local.onClose()
+    if (e.target !== e.currentTarget) {
+      e.stopPropagation()
+      return
     }
+    if (local.closeOnOverlayClick ?? true) local.onClose()
   }
 
   const handleKeyDown = (e: KeyboardEvent): void => {
@@ -287,6 +293,7 @@ export const Modal: Component<ModalProps & { 'data-mol-id'?: string }> = (props)
         <div
           class={cm.dialogWrapper}
           style={toStyleProps(wrapperStyle())}
+          role="presentation"
           onClick={handleOverlayClick}
         >
           {/* Content */}
@@ -299,7 +306,6 @@ export const Modal: Component<ModalProps & { 'data-mol-id'?: string }> = (props)
             class={cm.cn(cm.modal({ size: local.size ?? 'md' }), local.className)}
             style={toStyleProps(local.style)}
             data-testid={local.testId}
-            onClick={(e: MouseEvent) => e.stopPropagation()}
             {...passthrough()}
           >
             {/* With a title the close button shares the header row; without

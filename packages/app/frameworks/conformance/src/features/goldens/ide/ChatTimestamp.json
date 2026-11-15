@@ -1,7 +1,7 @@
 {
  "an inline time five minutes ago": {
   "snapshots": [
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /"
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -16,7 +16,7 @@
  },
  "a time days ago on its own line": {
   "snapshots": [
-   "<div style=\"display: flex; justify-content: flex-start; line-height: 1.3; margin-bottom: 2px\">\n<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nJan 1, 12:00 AM\n</time>\n</div>\n</div>\n@route /"
+   "<div style=\"display: flex; justify-content: flex-start; line-height: 1.3; margin-bottom: 2px\">\n<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nJan 1, 12:00 AM\n</time>\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -31,7 +31,7 @@
  },
  "a centered line, months ago": {
   "snapshots": [
-   "<div style=\"display: flex; justify-content: center; line-height: 1.3; margin-bottom: 2px\">\n<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nJan 1, 12:00 AM\n</time>\n</div>\n</div>\n@route /"
+   "<div style=\"display: flex; justify-content: center; line-height: 1.3; margin-bottom: 2px\">\n<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nJan 1, 12:00 AM\n</time>\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -46,7 +46,7 @@
  },
  "a time ahead of the clock shows as now, never in the future": {
   "snapshots": [
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:30.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nnow\n</time>\n</div>\n@route /"
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:30.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nnow\n</time>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -76,9 +76,9 @@
  },
  "the label advances with the minute clock": {
   "snapshots": [
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n6 minutes ago\n</time>\n</div>\n@route /",
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n12:00 AM\n</time>\n</div>\n@route /"
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n6 minutes ago\n</time>\n</div>\n@route /",
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n12:00 AM\n</time>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -93,9 +93,9 @@
  },
  "hovering shows the exact date and time": {
   "snapshots": [
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2025-12-31T23:58:30.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n6 minutes ago\n</time>\n</div>\n@route /",
-   "<div class=\"c1b02b894\">\n<time aria-describedby=\"#id0\" class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2025-12-31T23:58:30.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n6 minutes ago\n</time>\n</div>\n<div style=\"left: 8px; position: absolute; top: 8px; z-index: 9999\">\n<div class=\"c0e0dac04 c1200412c c1f523237 c385aeaf8 c3f64b5fe c4172119d c445db9b9 c4b92e3a8 c5b8ef7a8 c8e3cd4a1 c8f19053a c978a2871 cc26cbf54 cd299eb1a cf63b9937\" id=\"#id0\" role=\"tooltip\">\nDec 31, 2025, 11:58 PM\n</div>\n</div>\n@route /",
-   "<div class=\"c1b02b894\">\n<time aria-describedby=\"#id0\" class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2025-12-31T23:58:30.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n6 minutes ago\n</time>\n</div>\n<div style=\"left: 8px; position: absolute; top: 8px; z-index: 9999\">\n<div class=\"c0e0dac04 c1200412c c1f523237 c385aeaf8 c3f64b5fe c4172119d c445db9b9 c4b92e3a8 c5b8ef7a8 c8e3cd4a1 c8f19053a c978a2871 cc26cbf54 cd299eb1a cf63b9937\" id=\"#id0\" role=\"tooltip\">\nDec 31, 2025, 11:58 PM\n</div>\n</div>\n@route /"
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2025-12-31T23:58:30.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n6 minutes ago\n</time>\n</div>\n@route /",
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time aria-describedby=\"#id0\" class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2025-12-31T23:58:30.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n6 minutes ago\n</time>\n</div>\n<div style=\"left: 8px; position: absolute; top: 8px; z-index: 9999\">\n<div class=\"c0e0dac04 c1200412c c1f523237 c385aeaf8 c3f64b5fe c4172119d c445db9b9 c4b92e3a8 c5b8ef7a8 c8e3cd4a1 c8f19053a c978a2871 cc26cbf54 cd299eb1a cf63b9937\" id=\"#id0\" role=\"tooltip\">\nDec 31, 2025, 11:58 PM\n</div>\n</div>\n@route /",
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time aria-describedby=\"#id0\" class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2025-12-31T23:58:30.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n6 minutes ago\n</time>\n</div>\n<div style=\"left: 8px; position: absolute; top: 8px; z-index: 9999\">\n<div class=\"c0e0dac04 c1200412c c1f523237 c385aeaf8 c3f64b5fe c4172119d c445db9b9 c4b92e3a8 c5b8ef7a8 c8e3cd4a1 c8f19053a c978a2871 cc26cbf54 cd299eb1a cf63b9937\" id=\"#id0\" role=\"tooltip\">\nDec 31, 2025, 11:58 PM\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -110,9 +110,9 @@
  },
  "a switch to French re-formats the label and the exact time": {
   "snapshots": [
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nil y a 5 minutes\n</time>\n</div>\n@route /",
-   "<div class=\"c1b02b894\">\n<time aria-describedby=\"#id0\" class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nil y a 5 minutes\n</time>\n</div>\n<div style=\"left: 8px; position: absolute; top: 8px; z-index: 9999\">\n<div class=\"c0e0dac04 c1200412c c1f523237 c385aeaf8 c3f64b5fe c4172119d c445db9b9 c4b92e3a8 c5b8ef7a8 c8e3cd4a1 c8f19053a c978a2871 cc26cbf54 cd299eb1a cf63b9937\" id=\"#id0\" role=\"tooltip\">\n1 janv. 2026, 00:00\n</div>\n</div>\n@route /"
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nil y a 5 minutes\n</time>\n</div>\n@route /",
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time aria-describedby=\"#id0\" class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\nil y a 5 minutes\n</time>\n</div>\n<div style=\"left: 8px; position: absolute; top: 8px; z-index: 9999\">\n<div class=\"c0e0dac04 c1200412c c1f523237 c385aeaf8 c3f64b5fe c4172119d c445db9b9 c4b92e3a8 c5b8ef7a8 c8e3cd4a1 c8f19053a c978a2871 cc26cbf54 cd299eb1a cf63b9937\" id=\"#id0\" role=\"tooltip\">\n1 janv. 2026, 00:00\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -135,8 +135,8 @@
  },
  "a new timestamp prop re-renders the label": {
   "snapshots": [
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:04:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n1 minute ago\n</time>\n</div>\n@route /"
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:04:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n1 minute ago\n</time>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -151,8 +151,8 @@
  },
  "an inline time five minutes ago, then a locale switch": {
   "snapshots": [
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",
-   "<div class=\"c1b02b894\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /"
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /"
   ],
   "calls": [
    {

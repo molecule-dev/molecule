@@ -413,6 +413,10 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
         ref={menuRef}
         id={menuId}
         role="menu"
+        // Focusable but never a Tab stop (the items carry the roving tab stop):
+        // a click on a separator or the menu's padding keeps focus in the menu,
+        // so the arrow keys still move between its items.
+        tabIndex={-1}
         data-state="open"
         className={cm.cn(cm.dropdownContent, className)}
         style={{

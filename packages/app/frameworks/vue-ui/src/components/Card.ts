@@ -23,7 +23,8 @@ const variantMap: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> =
  *
  * Faithful port of `@molecule/app-ui-react`'s Card: a styled surface `div`
  * whose children ride the default slot. `interactive` adds the button role,
- * the tab order and the interactive classes; a click emits `click` with the
+ * the tab order and the interactive classes, and Enter/Space on the card
+ * itself activate it by clicking the element; a click emits `click` with the
  * original DOM event; `data-*` / `aria-*` fallthrough attributes (including
  * `data-mol-id`) reach the root element, and every other rest attribute is
  * dropped, exactly as React's passthrough filter does.
@@ -69,6 +70,17 @@ export const Card = defineComponent({
         if (key.startsWith('data-') || key.startsWith('aria-')) passthrough[key] = value
       }
 
+      // An interactive card is announced as a button and sits in the tab order, so
+      // Enter and Space activate it the way they activate a native button: by
+      // clicking it, which runs `onClick` with a real click event. Keys pressed in a
+      // control inside the card belong to that control.
+      const handleKeyDown = (event: KeyboardEvent): void => {
+        if (!props.interactive || event.target !== event.currentTarget) return
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault()
+        ;(event.currentTarget as HTMLElement).click()
+      }
+
       return h(
         'div',
         {
@@ -76,6 +88,7 @@ export const Card = defineComponent({
           style: styleOf(props.style, attrs),
           'data-testid': props.testId,
           onClick: (event: MouseEvent) => emit('click', event),
+          onKeydown: handleKeyDown,
           role: props.interactive ? 'button' : undefined,
           tabindex: props.interactive ? 0 : undefined,
           ...passthrough,

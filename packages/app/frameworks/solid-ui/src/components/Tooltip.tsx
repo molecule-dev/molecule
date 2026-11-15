@@ -336,6 +336,10 @@ export const Tooltip: Component<TooltipProps> = (props) => {
         ref={(el) => {
           triggerRef = el
         }}
+        // The wrapper is not a control: it listens for the events that bubble
+        // up from the control inside it (hover, focus, Escape, a click), so it
+        // is a presentation element and the control keeps its own role.
+        role="presentation"
         onMouseOver={(event) => {
           if (crossedBoundary(triggerRef ?? event.currentTarget, event)) show()
         }}

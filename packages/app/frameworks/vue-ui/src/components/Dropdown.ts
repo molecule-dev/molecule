@@ -537,6 +537,10 @@ export const Dropdown = defineComponent({
                 ref: setMenuRef,
                 id: menuId,
                 role: 'menu',
+                // Focusable but never a Tab stop (the items carry the roving tab stop):
+                // a click on a separator or the menu's padding keeps focus in the menu,
+                // so the arrow keys still move between its items.
+                tabindex: -1,
                 'data-state': 'open',
                 class: cm.cn(cm.dropdownContent, ...classOf(props.className, attrs)),
                 style: menuStyle,

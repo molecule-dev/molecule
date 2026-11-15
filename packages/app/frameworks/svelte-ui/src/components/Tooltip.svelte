@@ -228,37 +228,50 @@
     else single.removeAttribute('aria-describedby')
   })
 
-  // The trigger wrapper and the floating box are non-semantic wrappers (the
-  // tooltip box itself carries role="tooltip"), so their listeners go through
-  // the spreadEvents action instead of event directives: React's reference
-  // markup gives these wrappers no role, the conformance suite compares every
-  // attribute, and the checker's `role="presentation"` remedy would break parity.
-  const triggerHandlers = $derived({
-    onmouseover: (event: MouseEvent): void => {
-      // React derives onMouseEnter from the BUBBLING mouseover (with a
-      // relatedTarget check); a raw mouseenter listener would miss events
-      // dispatched on the child trigger.
-      if (event.relatedTarget && triggerEl?.contains(event.relatedTarget as Node)) return
-      show()
-    },
-    onmouseout: (event: MouseEvent): void => {
-      if (event.relatedTarget && triggerEl?.contains(event.relatedTarget as Node)) return
-      scheduleHide()
-    },
-    onfocusin: handleFocus,
-    onfocusout: hide,
-    onkeydown: (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') hide()
-    },
-    onclick: hide,
-  })
+  // The trigger wrapper is not a control: it listens for the events that
+  // bubble up from the control inside it (hover, focus, Escape, a click), so
+  // it is a presentation element and the control keeps its own role.
+  const handleMouseOver = (event: MouseEvent): void => {
+    // React derives onMouseEnter from the BUBBLING mouseover (with a
+    // relatedTarget check); a raw mouseenter listener would miss events
+    // dispatched on the child trigger.
+    if (event.relatedTarget && triggerEl?.contains(event.relatedTarget as Node)) return
+    show()
+  }
+  const handleMouseOut = (event: MouseEvent): void => {
+    if (event.relatedTarget && triggerEl?.contains(event.relatedTarget as Node)) return
+    scheduleHide()
+  }
+  // WCAG 1.4.13: hover/focus-triggered content must be dismissable WITHOUT
+  // moving the pointer or focus — Escape hides the tooltip (the keydown on
+  // the focused child bubbles up to this wrapper).
+  const handleTriggerKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape') hide()
+  }
+  // The floating box wrapper is non-semantic (the tooltip box itself carries
+  // role="tooltip") and its listeners forward no consumer events, so they go
+  // through the spreadEvents action instead of event directives.
   const boxHandlers = {
     onmouseenter: keepVisible,
     onmouseleave: scheduleHide,
   }
 </script>
 
-<div bind:this={triggerEl} use:spreadEvents={triggerHandlers} class={cm.tooltipTrigger}>
+<!-- Any click on a tooltip-wrapped control hides the tooltip — clicking a
+     button shouldn't leave its hover/focus tooltip lingering. The wrapper
+     wraps children directly, so this single handler covers every
+     button-with-tooltip consumer. -->
+<div
+  bind:this={triggerEl}
+  role="presentation"
+  onmouseover={handleMouseOver}
+  onmouseout={handleMouseOut}
+  onfocusin={handleFocus}
+  onfocusout={hide}
+  onkeydown={handleTriggerKeyDown}
+  onclick={hide}
+  class={cm.tooltipTrigger}
+>
   {@render children?.()}
 </div>
 {#if isVisible && typeof document !== 'undefined'}

@@ -15,7 +15,15 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, ref, watch } from 'vue'
+import {
+  type ComponentPublicInstance,
+  defineComponent,
+  h,
+  nextTick,
+  type PropType,
+  ref,
+  watch,
+} from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
@@ -84,6 +92,9 @@ export const PromptDialog = defineComponent({
     const { t } = useTranslation()
     const value = ref(props.initialValue)
     const pending = ref(false)
+    // The Input component instance, whose root wraps the native input this
+    // dialog focuses on open.
+    const inputRef = ref<ComponentPublicInstance | null>(null)
 
     // Re-seed from initialValue each open so a reopened dialog shows the
     // CURRENT value, not whatever the user typed last time.
@@ -93,6 +104,26 @@ export const PromptDialog = defineComponent({
         pending.value = false
       }
     })
+
+    // The dialog exists to take one string, so opening it puts focus in the
+    // input. Modal's own open watcher moves focus to the dialog's first
+    // control (the close button), and its post-flush watcher — registered in
+    // the child setup, which runs after this component's — flushes after this
+    // one, so focusing here directly would lose to it. One tick of deferral
+    // runs after Modal's focus, and the input ends up focused. `immediate`
+    // covers the dialog mounted already open (React's effect runs on mount
+    // too); the DOM exists by the deferred tick.
+    watch(
+      () => props.open,
+      (open) => {
+        if (!open) return
+        void nextTick(() => {
+          const root = inputRef.value?.$el as HTMLElement | undefined
+          root?.querySelector<HTMLInputElement>('input')?.focus()
+        })
+      },
+      { flush: 'post', immediate: true },
+    )
 
     const handleSubmit = (e: Event): void => {
       e.preventDefault()
@@ -135,6 +166,7 @@ export const PromptDialog = defineComponent({
                 h('h2', { class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) }, [title]),
                 description ? h('p', { class: cm.textSize('sm') }, [description]) : null,
                 h(Input, {
+                  ref: inputRef,
                   value: value.value,
                   onChange: (e: Event) => {
                     value.value = (e.target as HTMLInputElement).value

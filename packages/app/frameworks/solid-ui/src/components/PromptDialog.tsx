@@ -89,6 +89,8 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
   const [value, setValue] = createSignal(local.initialValue ?? '')
   const [pending, setPending] = createSignal(false)
 
+  let inputRef: HTMLInputElement | undefined
+
   // Re-seed from initialValue each open so a reopened dialog shows the
   // CURRENT value, not whatever the user typed last time.
   createEffect(
@@ -99,6 +101,25 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
           setValue(local.initialValue ?? '')
           setPending(false)
         }
+      },
+    ),
+  )
+
+  // The dialog exists to take one string, so opening it puts focus in the
+  // input. Solid runs parent effects before child ones, so this effect runs
+  // before Modal's — which moves focus to the dialog's first control (the
+  // close button) one microtask after it runs. The double microtask queues
+  // this focus BEHIND Modal's, so the input ends up focused.
+  createEffect(
+    on(
+      () => local.open,
+      (open) => {
+        if (!open) return
+        queueMicrotask(() => {
+          queueMicrotask(() => {
+            inputRef?.focus()
+          })
+        })
       },
     ),
   )
@@ -146,6 +167,9 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
             <p class={cm.textSize('sm')}>{local.description}</p>
           </Show>
           <Input
+            ref={(element: HTMLInputElement) => {
+              inputRef = element
+            }}
             value={value()}
             onChange={(event) => setValue((event.target as HTMLInputElement).value)}
             placeholder={local.placeholder}

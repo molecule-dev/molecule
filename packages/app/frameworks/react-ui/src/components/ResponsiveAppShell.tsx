@@ -719,11 +719,13 @@ export function ResponsiveAppShellDrawer({
 
   const drawer = (
     <>
-      {/* Backdrop click-to-close. The panel stops propagation, so only a
-          click that reaches the wrapper (the backdrop itself) closes. */}
+      {/* Backdrop click-to-close. The wrapper is a presentation layer: a click
+          on the wrapper itself (the backdrop) closes, and a click that bubbled
+          up from the panel stops here. Escape closes from the keyboard. */}
       <div className={cm.overlay} aria-hidden="true" />
       <div
         className={cm.cn(cm.position('fixed'), cm.inset0)}
+        role="presentation"
         // The WRAPPER carries the z-index: a positioned element with
         // z-index:auto forms its own stacking context, which would trap
         // the panel's z-index inside it and let the z-40 backdrop paint
@@ -733,6 +735,7 @@ export function ResponsiveAppShellDrawer({
         style={{ zIndex: 41 }}
         onClick={(e: React.MouseEvent) => {
           if (e.target === e.currentTarget) closeDrawer()
+          else e.stopPropagation()
         }}
       >
         <div
@@ -755,7 +758,6 @@ export function ResponsiveAppShellDrawer({
             maxWidth: '85vw',
             overflowY: 'auto',
           }}
-          onClick={(e: React.MouseEvent) => e.stopPropagation()}
           data-mol-id={dataMolId}
           data-testid={testId}
         >

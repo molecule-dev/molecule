@@ -43,6 +43,9 @@ vi.mock('vue', () => ({
   provide: (...args: unknown[]) => mockProvide(...args),
   inject: (...args: unknown[]) => mockInject(...args),
   reactive: (obj: unknown) => mockReactive(obj),
+  // These suites invoke watchers by hand; a deferred tick would never run in
+  // them, so run the callback in place (the callers only assert the wiring).
+  nextTick: (fn: () => void) => Promise.resolve(fn()),
   toRaw: (val: unknown) => val,
   toValue: (val: unknown) =>
     typeof val === 'function'
@@ -1926,6 +1929,86 @@ describe('Card components', () => {
     expect(rootCall[1]).toHaveProperty('tabindex', 0)
   })
 
+  /** Renders a Card once and returns its root element props. */
+  const renderCard = async (interactive: boolean): Promise<Record<string, unknown>> => {
+    const { Card } = await import('../components/Card.js')
+    const renderFn = (Card.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
+      { variant: 'elevated', padding: 'md', interactive, className: undefined },
+      { attrs: {}, emit: vi.fn(), slots: { default: () => 'content' } },
+    )
+    renderFn()
+    return mockH.mock.calls[mockH.mock.calls.length - 1][1] as Record<string, unknown>
+  }
+
+  for (const key of ['Enter', ' '] as const) {
+    it(`an interactive card clicks itself on ${key === ' ' ? 'Space' : key}`, async () => {
+      const root = await renderCard(true)
+      const cardEl = { click: vi.fn() }
+      const preventDefault = vi.fn()
+
+      ;(root.onKeydown as (event: unknown) => void)({
+        key,
+        target: cardEl,
+        currentTarget: cardEl,
+        preventDefault,
+      })
+
+      // A native button fires click on both keys; the card does the same so
+      // the click handler runs with a real click event.
+      expect(preventDefault).toHaveBeenCalled()
+      expect(cardEl.click).toHaveBeenCalled()
+    })
+  }
+
+  it('an interactive card ignores Enter pressed in an inner control', async () => {
+    const root = await renderCard(true)
+    const cardEl = { click: vi.fn() }
+    const preventDefault = vi.fn()
+
+    ;(root.onKeydown as (event: unknown) => void)({
+      key: 'Enter',
+      target: { click: vi.fn() },
+      currentTarget: cardEl,
+      preventDefault,
+    })
+
+    // The key belongs to the control it was pressed in.
+    expect(preventDefault).not.toHaveBeenCalled()
+    expect(cardEl.click).not.toHaveBeenCalled()
+  })
+
+  it('an interactive card ignores keys other than Enter and Space', async () => {
+    const root = await renderCard(true)
+    const cardEl = { click: vi.fn() }
+    const preventDefault = vi.fn()
+
+    ;(root.onKeydown as (event: unknown) => void)({
+      key: 'a',
+      target: cardEl,
+      currentTarget: cardEl,
+      preventDefault,
+    })
+
+    expect(preventDefault).not.toHaveBeenCalled()
+    expect(cardEl.click).not.toHaveBeenCalled()
+  })
+
+  it('a plain card ignores keys', async () => {
+    const root = await renderCard(false)
+    const cardEl = { click: vi.fn() }
+    const preventDefault = vi.fn()
+
+    ;(root.onKeydown as (event: unknown) => void)({
+      key: 'Enter',
+      target: cardEl,
+      currentTarget: cardEl,
+      preventDefault,
+    })
+
+    expect(preventDefault).not.toHaveBeenCalled()
+    expect(cardEl.click).not.toHaveBeenCalled()
+  })
+
   it('Card setup should handle none padding', async () => {
     const { Card } = await import('../components/Card.js')
     const mockEmit = vi.fn()
@@ -2545,12 +2628,24 @@ describe('Modal component', () => {
     expect(mockEmit.mock.calls[0]).toEqual(['close'])
   })
 
-  it('overlay click on an inner element does not call onClose', async () => {
+  it('overlay click on an inner element stops propagation and does not call onClose', async () => {
     const { mockEmit } = await renderModal({ title: 'Overlay' })
     const wrapperCall = mockH.mock.calls.find((call) => call[1]?.class === 'dialog-wrapper-classes')
     const onClick = wrapperCall![1].onClick as (e: unknown) => void
-    onClick({ target: 'inner', currentTarget: 'self' })
+    const fake = { target: 'inner', currentTarget: 'self', stopPropagation: vi.fn() }
+    onClick(fake)
     expect(mockEmit).not.toHaveBeenCalled()
+    // The click never reaches whatever rendered the modal.
+    expect(fake.stopPropagation).toHaveBeenCalledTimes(1)
+  })
+
+  it('the centering wrapper is a presentation element and the dialog has no click handler', async () => {
+    await renderModal({ title: 'Overlay' })
+    const wrapperCall = mockH.mock.calls.find((call) => call[1]?.class === 'dialog-wrapper-classes')
+    expect(wrapperCall![1].role).toBe('presentation')
+    const dialogCall = mockH.mock.calls.find((call) => call[1]?.role === 'dialog')
+    expect(dialogCall).toBeDefined()
+    expect(dialogCall![1].onClick).toBeUndefined()
   })
 
   it('closeOnOverlayClick=false ignores overlay clicks', async () => {
@@ -3176,6 +3271,15 @@ describe('Tabs component', () => {
     return calls.slice(-ITEMS.length).map((call) => call[1] as Record<string, unknown>)
   }
 
+  /** The ACTIVE tab button's element props of the most recent render. */
+  const activeTabButton = (): Record<string, unknown> => {
+    const buttons = lastTabButtons()
+    return (buttons.find((b) => b['aria-selected'] === true) ?? buttons[0]) as Record<
+      string,
+      unknown
+    >
+  }
+
   /** The tablist element props of the most recent render. */
   const lastTabList = (): Record<string, unknown> => {
     const calls = mockH.mock.calls.filter(
@@ -3367,7 +3471,7 @@ describe('Tabs component', () => {
     const { emit, renderFn } = await renderTabs({ items: ITEMS })
 
     const preventDefault = vi.fn()
-    const keydown = lastTabList().onKeydown as (event: {
+    const keydown = activeTabButton().onKeydown as (event: {
       key: string
       preventDefault: () => void
     }) => void
@@ -3379,10 +3483,18 @@ describe('Tabs component', () => {
     expect(lastTabButtons()[1]['aria-selected']).toBe(true)
   })
 
+  it('keeps the arrow-key handler on each tab, not on the tablist', async () => {
+    await renderTabs({ items: ITEMS })
+
+    // Keys come from the focused tab; the tablist itself never takes focus.
+    expect(lastTabList().onKeydown).toBeUndefined()
+    for (const button of lastTabButtons()) expect(button.onKeydown).toBeTypeOf('function')
+  })
+
   it('should wrap from the first to the last tab on ArrowLeft', async () => {
     const { emit, renderFn } = await renderTabs({ items: ITEMS })
 
-    ;(lastTabList().onKeydown as (event: { key: string; preventDefault: () => void }) => void)({
+    ;(activeTabButton().onKeydown as (event: { key: string; preventDefault: () => void }) => void)({
       key: 'ArrowLeft',
       preventDefault: vi.fn(),
     })
@@ -3394,7 +3506,7 @@ describe('Tabs component', () => {
 
   it('should jump to the ends on Home and End', async () => {
     const { emit, renderFn } = await renderTabs({ items: ITEMS, defaultValue: 'profile' })
-    const keydown = lastTabList().onKeydown as (event: {
+    const keydown = activeTabButton().onKeydown as (event: {
       key: string
       preventDefault: () => void
     }) => void
@@ -3419,7 +3531,7 @@ describe('Tabs component', () => {
       ],
     })
 
-    ;(lastTabList().onKeydown as (event: { key: string; preventDefault: () => void }) => void)({
+    ;(activeTabButton().onKeydown as (event: { key: string; preventDefault: () => void }) => void)({
       key: 'ArrowRight',
       preventDefault: vi.fn(),
     })
@@ -3432,7 +3544,7 @@ describe('Tabs component', () => {
   it('should ignore keys other than the navigation keys', async () => {
     const { emit } = await renderTabs({ items: ITEMS })
 
-    ;(lastTabList().onKeydown as (event: { key: string; preventDefault: () => void }) => void)({
+    ;(activeTabButton().onKeydown as (event: { key: string; preventDefault: () => void }) => void)({
       key: 'a',
       preventDefault: vi.fn(),
     })
@@ -4274,9 +4386,23 @@ describe('Layout components', () => {
       expect(props.direction.default).toBe('row')
     })
 
-    it('should emit click events', async () => {
+    it('should forward onClick like any other element prop', async () => {
       const { Flex } = await import('../components/Layout.js')
-      expect(Flex.emits).toContain('click')
+      // A Flex is a plain box: onClick is not a declared emit — it rides the
+      // rest attrs onto the root element, the way role/tabIndex/onKeyDown do.
+      expect(Flex.emits).toBeUndefined()
+
+      const onClick = vi.fn()
+      const renderFn = (Flex.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
+        { direction: 'row' },
+        { attrs: { onClick, role: 'button', tabIndex: 0 }, slots: { default: () => 'content' } },
+      )
+      renderFn()
+
+      const divCall = mockH.mock.calls[mockH.mock.calls.length - 1]
+      expect(divCall[1].onClick).toBe(onClick)
+      expect(divCall[1].role).toBe('button')
+      expect(divCall[1].tabIndex).toBe(0)
     })
 
     it('should render with correct direction class', async () => {
@@ -5899,6 +6025,44 @@ describe('PromptDialog component', () => {
     await Promise.resolve()
     expect(mockEmit).toHaveBeenCalledWith('close')
   })
+
+  it('focuses its input when the dialog opens', async () => {
+    const { PromptDialog } = await import('../components/PromptDialog.js')
+    const mockEmit = vi.fn()
+
+    const renderFn = (
+      PromptDialog.setup as (...args: unknown[]) => (...args: unknown[]) => unknown
+    )(
+      { open: true, title: 'Rename', initialValue: '', onSubmit: vi.fn() },
+      { emit: mockEmit, slots: {}, attrs: {} },
+    )
+    renderFn()
+
+    // The form lives in Modal's default slot; render it so its vnode exists
+    // (the mocked Modal does not render slots itself).
+    const modalCall = mockH.mock.calls.find((call) => call[0]?.name === 'MModal')
+    ;(modalCall![2] as { default: () => unknown }).default()
+
+    // The ref handed to the Input vnode is the dialog's own input ref; wire it
+    // to a fake Input root wrapping the native input.
+    const inputCall = mockH.mock.calls.find((call) => call[0]?.name === 'MInput')
+    const inputRef = (inputCall![1] as { ref: { value: unknown } }).ref
+    const fakeInput = { focus: vi.fn() }
+    inputRef.value = {
+      $el: {
+        querySelector: (selector: string) => (selector === 'input' ? fakeInput : null),
+      },
+    }
+
+    // The open watcher defers one tick so Modal's focus-into-dialog runs
+    // first, then the input ends up focused.
+    const focusWatch = mockWatch.mock.calls
+      .filter((call) => (call[2] as { immediate?: boolean } | undefined)?.immediate)
+      .pop()
+    ;(focusWatch![1] as (open: boolean) => void)(true)
+
+    expect(fakeInput.focus).toHaveBeenCalled()
+  })
 })
 
 // ============================================================================
@@ -7351,18 +7515,26 @@ describe('ResponsiveAppShell components', () => {
       const wrapper = mockH.mock.calls.find(
         (call) => call[1]?.class === 'position-fixed inset-0-classes',
       )
-      ;(wrapper![1].onClick as (e: unknown) => void)({ target: 'inner', currentTarget: 'self' })
+      // The wrapper is a presentation element; a click that bubbled up from
+      // the panel stops here and does not close.
+      const inner = { target: 'inner', currentTarget: 'self', stopPropagation: vi.fn() }
+      ;(wrapper![1].onClick as (e: unknown) => void)(inner)
       expect(context.closeDrawer).not.toHaveBeenCalled()
-      ;(wrapper![1].onClick as (e: unknown) => void)({ target: 'self', currentTarget: 'self' })
+      expect(inner.stopPropagation).toHaveBeenCalledTimes(1)
+      ;(wrapper![1].onClick as (e: unknown) => void)({
+        target: 'self',
+        currentTarget: 'self',
+        stopPropagation: vi.fn(),
+      })
       expect(context.closeDrawer).toHaveBeenCalledTimes(1)
     })
 
-    it('panel clicks stop propagation and the close button closes', async () => {
+    it('the wrapper stops bubbled panel clicks, and the close button closes', async () => {
       const context = await renderOpenDrawer()
+      // The panel itself has no click handler any more; the wrapper's handler
+      // (tested above) stops the bubbled click.
       const panel = mockH.mock.calls.find((call) => call[1]?.role === 'dialog')
-      const event = { type: 'click', stopPropagation: vi.fn() }
-      ;(panel![1].onClick as (e: unknown) => void)(event)
-      expect(event.stopPropagation).toHaveBeenCalledTimes(1)
+      expect(panel![1].onClick).toBeUndefined()
       const close = mockH.mock.calls.find(
         (call) => call[0] === 'button' && call[1]?.['data-mol-id'] === 'shell-drawer-close',
       )

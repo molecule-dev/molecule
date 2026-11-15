@@ -46,6 +46,17 @@
     return out
   })
 
+  // An interactive card is announced as a button and sits in the tab order, so
+  // Enter and Space activate it the way they activate a native button: by
+  // clicking it, which runs `onClick` with a real click event. Keys pressed in
+  // a control inside the card belong to that control.
+  const handleKeyDown = (event: KeyboardEvent): void => {
+    if (event.target !== event.currentTarget) return
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    ;(event.currentTarget as HTMLElement).click()
+  }
+
   // A card that is not interactive renders a plain <div> with React's onClick
   // and no role, so the listener is attached with the spreadEvents action
   // rather than an onclick directive: the reference markup is intentionally
@@ -60,7 +71,8 @@
     data-testid={testId}
     role="button"
     tabindex={0}
-    use:spreadEvents={clickHandlers}
+    onclick={onClick}
+    onkeydown={handleKeyDown}
     {...passthrough}
   >
     {@render children?.()}

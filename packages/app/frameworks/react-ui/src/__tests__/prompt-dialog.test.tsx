@@ -95,6 +95,11 @@ describe('PromptDialog', () => {
     expect(input.value).toBe('Sprint 5')
   })
 
+  it('focuses the input when it opens', () => {
+    const { getByLabelText } = renderDialog()
+    expect(document.activeElement).toBe(getByLabelText('Rename board'))
+  })
+
   it('cancel closes without calling onSubmit', () => {
     const d = renderDialog()
     fireEvent.click(d.getByText('Cancel'))

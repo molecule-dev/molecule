@@ -41,6 +41,7 @@
   let value = $state(untrack(() => initialValue))
   let pending = $state(false)
   let titleEl = $state<HTMLHeadingElement | null>(null)
+  let formEl = $state<HTMLFormElement | null>(null)
   // React names the input with the title when it is a plain string, else the
   // placeholder. A Svelte title is a snippet, so the string case is detected
   // after it renders: exactly one text node under the heading. The opening
@@ -54,6 +55,14 @@
       value = initialValue
       pending = false
     }
+  })
+
+  // The dialog exists to take one string, so opening it puts focus in the
+  // input. Effects run child-before-parent, so this runs after Modal's own
+  // (which moves focus into the dialog) — the input ends up focused.
+  $effect(() => {
+    if (!open) return
+    formEl?.querySelector<HTMLInputElement>('input')?.focus()
   })
 
   $effect(() => {
@@ -89,7 +98,7 @@
 </script>
 
 <Modal {open} onClose={pending ? () => undefined : onClose}>
-  <form onsubmit={handleSubmit}>
+  <form bind:this={formEl} onsubmit={handleSubmit}>
     <div class={cm.stack(3)}>
       <h2 bind:this={titleEl} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
         <ReactNode node={title} />
@@ -103,7 +112,6 @@
         {placeholder}
         aria-label={inputLabel}
         disabled={pending}
-        autoFocus
         data-mol-id={inputMolId}
       />
       {@render children?.()}

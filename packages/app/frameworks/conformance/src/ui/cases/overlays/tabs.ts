@@ -72,19 +72,23 @@ export const tabsCases: UIComponentCases = {
     {
       name: 'arrow right moves selection',
       props: { items: ITEMS },
-      interactions: [{ type: 'keydown', selector: '[role="tablist"]', key: 'ArrowRight' }],
+      interactions: [
+        { type: 'keydown', selector: '[role="tab"][aria-selected="true"]', key: 'ArrowRight' },
+      ],
     },
     {
       name: 'arrow left wraps to the last tab',
       props: { items: ITEMS },
-      interactions: [{ type: 'keydown', selector: '[role="tablist"]', key: 'ArrowLeft' }],
+      interactions: [
+        { type: 'keydown', selector: '[role="tab"][aria-selected="true"]', key: 'ArrowLeft' },
+      ],
     },
     {
       name: 'home and end move selection',
       props: { items: ITEMS, defaultValue: 'profile' },
       interactions: [
-        { type: 'keydown', selector: '[role="tablist"]', key: 'End' },
-        { type: 'keydown', selector: '[role="tablist"]', key: 'Home' },
+        { type: 'keydown', selector: '[role="tab"][aria-selected="true"]', key: 'End' },
+        { type: 'keydown', selector: '[role="tab"][aria-selected="true"]', key: 'Home' },
       ],
     },
     {
@@ -96,7 +100,9 @@ export const tabsCases: UIComponentCases = {
           { value: 'c', label: 'C', content: 'C body' },
         ],
       },
-      interactions: [{ type: 'keydown', selector: '[role="tablist"]', key: 'ArrowRight' }],
+      interactions: [
+        { type: 'keydown', selector: '[role="tab"][aria-selected="true"]', key: 'ArrowRight' },
+      ],
     },
     {
       name: 'disabled tab click does not call onChange',
@@ -163,12 +169,16 @@ export const tabsCases: UIComponentCases = {
     {
       name: 'arrow right moves focus to the newly active tab',
       props: { items: ITEMS },
-      interactions: [{ type: 'keydown', selector: '[role="tablist"]', key: 'ArrowRight' }],
+      interactions: [
+        { type: 'keydown', selector: '[role="tab"][aria-selected="true"]', key: 'ArrowRight' },
+      ],
     },
     {
       name: 'arrow left wraps focus to the last tab',
       props: { items: ITEMS },
-      interactions: [{ type: 'keydown', selector: '[role="tablist"]', key: 'ArrowLeft' }],
+      interactions: [
+        { type: 'keydown', selector: '[role="tab"][aria-selected="true"]', key: 'ArrowLeft' },
+      ],
     },
   ],
 }

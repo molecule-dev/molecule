@@ -71,7 +71,6 @@ export const Flex: Component<FlexProps> = (props) => {
     'className',
     'style',
     'testId',
-    'onClick',
   ])
 
   const cm = getClassMap()
@@ -114,7 +113,10 @@ export const Flex: Component<FlexProps> = (props) => {
       class={flexClasses()}
       style={toStyleProps({ ...local.style, ...gapStyle() })}
       data-testid={local.testId}
-      onClick={local.onClick as JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>}
+      // Every element prop (role, tabindex, onClick, onKeyDown…) is forwarded
+      // as given, the way Grid and Container forward theirs: a Flex is a plain
+      // box, and a consumer that makes one clickable gives it the role and keys
+      // that go with the click.
       {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
     >
       {local.children as JSX.Element}

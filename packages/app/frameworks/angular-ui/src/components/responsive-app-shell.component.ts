@@ -620,6 +620,7 @@ export class ResponsiveAppShellSidebar implements AfterViewInit, DoCheck, OnDest
       #wrapper
       [class]="cm().cn(cm().position('fixed'), cm().inset0)"
       [style]="wrapperStyle()"
+      role="presentation"
       (click)="handleBackdropClick($event)"
     >
       <div
@@ -633,7 +634,6 @@ export class ResponsiveAppShellSidebar implements AfterViewInit, DoCheck, OnDest
         [style]="panelStyle()"
         [attr.data-mol-id]="dataMolId"
         [attr.data-testid]="testId"
-        (click)="stopPropagation($event)"
       >
         <div
           #headerRow
@@ -823,21 +823,18 @@ export class ResponsiveAppShellDrawer implements AfterViewInit, DoCheck, OnDestr
   }
 
   /**
-   * Stops a click inside the panel from reaching the backdrop handler.
-   *
-   * @param event - The click event.
-   */
-  stopPropagation(event: MouseEvent): void {
-    event.stopPropagation()
-  }
-
-  /**
-   * Closes when the click is on the wrapper itself (the backdrop area).
+   * The wrapper is a presentation layer around the panel: a click on the
+   * wrapper itself (the backdrop area) closes the drawer, and a click that
+   * bubbled up from the panel stops here. Escape closes from the keyboard.
    *
    * @param event - The click event.
    */
   handleBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) this.shell().closeDrawer()
+    if (event.target !== event.currentTarget) {
+      event.stopPropagation()
+      return
+    }
+    this.shell().closeDrawer()
   }
 
   /** Registers the drawer, reads slots and applies the initial open state. */
