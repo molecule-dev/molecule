@@ -25,7 +25,7 @@
  * Service protocol (HTTP over the socket):
  *   GET    /health                 -> { ok, subscriptions }
  *   POST   /requests               { purpose, pid, kind?: 'code'|'login', authUrl? } -> 201 { id, expiresAt }
- *   GET    /requests/:id           -> { status: pending|code|approved|denied|expired|cancelled|used, code? }
+ *   GET    /requests/:id           -> { status: pending|code|approved|denied|expired|cancelled|used|abandoned, code? }
  *   POST   /requests/:id/link      { authUrl }
  *   POST   /requests/:id/resolve   { status: 'approved' }
  *   DELETE /requests/:id
@@ -193,7 +193,9 @@ async function askOwner({ request, fromPhone, fromNpm, socketPath, timeoutMs, po
       }
       const status = view.body?.status
       if (status === 'denied') throw new Error('the owner denied the request')
-      if (status === 'expired' || status === 'cancelled' || status === 'used')
+      // `abandoned`: the service saw this program stop checking the request (it does so
+      // every few seconds) and withdrew it from the phone.
+      if (['expired', 'cancelled', 'used', 'abandoned'].includes(status))
         throw new Error(`the request ended without an answer (${status})`)
 
       const npmAnswer = await fromNpm(id)

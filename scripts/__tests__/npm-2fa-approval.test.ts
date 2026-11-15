@@ -214,6 +214,13 @@ describe('requestOwnerOtp', () => {
     ).rejects.toThrow(/no answer/)
     expect(calls.some((c) => c.method === 'DELETE')).toBe(true)
   })
+
+  it('stops at once when the service has withdrawn the request, instead of waiting out the timeout', async () => {
+    const { socketPath } = await fakeService([{ status: 'abandoned' }])
+    await expect(
+      requestOwnerOtp({ purpose: 'p', socketPath, sleep: noSleep, timeoutMs: 500 }),
+    ).rejects.toThrow(/ended without an answer \(abandoned\)/)
+  })
 })
 
 describe('isNpmLoginPair', () => {
