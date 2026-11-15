@@ -515,10 +515,11 @@ export const client = createJWTAuthClient({
     expect(diagnostics.join('\n')).toContain('id')
   })
 
-  // Three profiles × two entrypoints is six full TypeScript programs — the CPU-bound
-  // shape the neighbouring tests budget 30 s for (CI timed out here at 5 s, 2026-10-24).
-  it('rejects primitive and null profiles in the factory and the config', () => {
-    for (const profile of ['string', 'number', 'null']) {
+  // Give each independent profile its own unchanged compiler-probe budget. Grouping
+  // six or sixteen TypeScript programs in one case times out under normal shared load.
+  it.each(['string', 'number', 'null'])(
+    'rejects primitive or null profile %s in the factory and the config',
+    (profile) => {
       const factory = diagnosticsFor(`
 import { createJWTAuthClient } from '../client.js'
 
@@ -532,13 +533,13 @@ import type { AuthClientConfig } from '../types.js'
 export const config: AuthClientConfig<${profile}> = {}
 `)
       expect(config.join('\n'), profile).not.toEqual('')
-    }
-  }, 30_000)
+    },
+    30_000,
+  )
 
-  // Four profiles × four entrypoints is sixteen full TypeScript programs; under a
-  // loaded machine that is CPU-bound, not a hang.
-  it('rejects array, function and Date profiles at every entrypoint', () => {
-    for (const profile of ['string[]', 'readonly string[]', '() => void', 'Date']) {
+  it.each(['string[]', 'readonly string[]', '() => void', 'Date'])(
+    'rejects array, function or Date profile %s at every entrypoint',
+    (profile) => {
       const factory = diagnosticsFor(`
 import { createJWTAuthClient } from '../client.js'
 
@@ -569,21 +570,17 @@ export const client = getClient<${profile}>()
 export const signedIn = login<${profile}>({ email: 'a@b.test', password: 'pw' })
 `)
       expect(accessor.join('\n'), profile).toContain(`Type '${profile}' does not satisfy`)
-    }
-  }, 30_000)
+    },
+    30_000,
+  )
 
   // The constraint must reject a UNION that contains an invalid member, not
   // just a bare invalid profile: `AuthProfileShape<T>` distributes, so the
   // un-tuple'd `… extends AuthProfileRejection` test read `object | rejection`
   // as valid and widened every entrypoint (R3-1).
-  it('rejects a union that contains an array, a function or a Date at every entrypoint', () => {
-    const unions = [
-      'ExistingUser | ExistingUser[]',
-      'UserProfile | Date',
-      'UserProfile | (() => void)',
-    ]
-
-    for (const profile of unions) {
+  it.each(['ExistingUser | ExistingUser[]', 'UserProfile | Date', 'UserProfile | (() => void)'])(
+    'rejects invalid union %s at every entrypoint',
+    (profile) => {
       const factory = diagnosticsFor(`
 import { createJWTAuthClient, type UserProfile } from '../index.js'
 
@@ -619,8 +616,9 @@ interface ExistingUser extends UserProfile {
 export const config: AuthClientConfig<${profile}> = {}
 `)
       expect(config.join('\n'), profile).toContain('must be a JSON object type of named fields')
-    }
-  }, 30_000)
+    },
+    30_000,
+  )
 
   it('accepts a union of object profiles at every entrypoint', () => {
     expect(
