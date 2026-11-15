@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { createStore, getProvider, hasProvider, simpleProvider } from '@molecule/app-state'
+import { createStore, hasProvider } from '@molecule/app-state'
 
-import { setupAllDefaultBonds, setupAppStateSimple } from '../setup.js'
+import { setupAllDefaultBonds } from '../setup.js'
 
 describe('default app bonds wire the state provider (flash-m65)', () => {
   it('setupAllDefaultBonds() bonds a state provider, so createStore() works in a scaffolded app', () => {
@@ -19,12 +19,5 @@ describe('default app bonds wire the state provider (flash-m65)', () => {
     expect(store.getState()).toEqual({ sidebarOpen: false })
     store.setState({ sidebarOpen: true })
     expect(store.getState().sidebarOpen).toBe(true)
-  })
-
-  it('setupAppStateSimple() is that same wiring on its own', () => {
-    setupAppStateSimple()
-
-    expect(hasProvider()).toBe(true)
-    expect(getProvider()).toBe(simpleProvider)
   })
 })

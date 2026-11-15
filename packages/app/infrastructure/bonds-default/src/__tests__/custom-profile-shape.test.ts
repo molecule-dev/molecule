@@ -7,7 +7,7 @@
  * default wrappers kept `TUser extends UserProfile` — so the very helpers a
  * scaffolded app wires in `bonds/auth-default.ts` still rejected the profile the
  * factory beneath them accepts. Every probe here compiles through the PUBLIC
- * entrypoint (`@molecule/app-bonds-default-react`) and the three factories it
+ * entrypoint (`@molecule/app-bonds-default`) and the three factories it
  * exports. The acceptance probes are POSITIVE controls: they fail on the pre-fix
  * wrappers (verified against 4363aa74c's parent), so a revert fails this suite.
  * The negative probes keep the untyped default (`UserProfile`, `id: string`) and

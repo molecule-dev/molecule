@@ -181,5 +181,8 @@
     "@molecule/app-virtual-scroll-tanstack": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "@molecule/app-bonds-default": "1.0.0"
   }
 }

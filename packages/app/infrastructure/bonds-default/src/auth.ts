@@ -53,7 +53,7 @@ function registerAuthGate(authClient: { whenRestored?: () => Promise<void> }): v
  * @example
  * ```ts
  * // bonds/http-default.ts
- * import { createDefaultHttpClient } from '@molecule/app-bonds-default-react'
+ * import { createDefaultHttpClient } from '@molecule/app-bonds-default'
  * import { API_BASE_URL } from '../config.js'
  *
  * export const { httpClient, setupHttpDefault } = createDefaultHttpClient(API_BASE_URL)
@@ -156,7 +156,7 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * @example
  * ```ts
  * // bonds/auth-default.ts
- * import { createDefaultAuthClient } from '@molecule/app-bonds-default-react'
+ * import { createDefaultAuthClient } from '@molecule/app-bonds-default'
  * import { authConfig } from '../config.js'
  *
  * export const { authClient, setupAuthDefault } =

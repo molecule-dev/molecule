@@ -40,6 +40,13 @@
  * This factory adds no render gate: `AuthProvider` renders children immediately.
  * The HTTP-sync variants gate requests during restore, not rendering.
  *
+ * The framework-neutral half of this package (the auth/http factories, the
+ * seven non-routing setups and every optional wiring) lives in
+ * `@molecule/app-bonds-default` and is re-exported here unchanged; the sibling
+ * `@molecule/app-bonds-default-vue` / `-solid` / `-svelte` / `-angular`
+ * packages export the same names for their framework, so switching framework
+ * means changing the package name in the imports.
+ *
  * @example
  * ```tsx
  * // src/main.tsx
@@ -118,6 +125,6 @@
  * @module
  */
 
-export * from './auth.js'
 export * from './bootstrap.js'
 export * from './setup.js'
+export * from '@molecule/app-bonds-default'
