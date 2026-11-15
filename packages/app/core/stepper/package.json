@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-stepper",
   "version": "1.0.3",
-  "description": "",
+  "description": "Stepper core interface for molecule.dev.",
   "homepage": "https://www.molecule.dev/packages/app-stepper",
   "type": "module",
   "main": "dist/index.js",

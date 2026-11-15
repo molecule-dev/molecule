@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-auth",
   "version": "1.0.5",
+  "description": "Translations for molecule auth components in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-auth",
   "license": "Apache-2.0",
   "repository": {

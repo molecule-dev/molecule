@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-tour",
   "version": "1.0.3",
-  "description": "",
+  "description": "Tour core interface for molecule.dev.",
   "homepage": "https://www.molecule.dev/packages/app-tour",
   "type": "module",
   "main": "dist/index.js",

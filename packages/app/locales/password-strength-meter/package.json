@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-password-strength-meter",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-password-strength-meter-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-password-strength-meter",
   "license": "Apache-2.0",
   "repository": {

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-ai-voice",
   "version": "1.0.3",
-  "description": "",
+  "description": "Voice input/output core interface — speech-to-text transcripts and text-to-speech playback with feature detection (Web Speech in the default bond).",
   "homepage": "https://www.molecule.dev/packages/app-ai-voice",
   "type": "module",
   "main": "dist/index.js",

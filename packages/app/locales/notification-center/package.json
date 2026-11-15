@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-notification-center",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-notification-center-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-notification-center",
   "license": "Apache-2.0",
   "repository": {

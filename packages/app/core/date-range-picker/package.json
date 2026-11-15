@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-date-range-picker",
   "version": "1.0.3",
-  "description": "",
+  "description": "Date range picker core interface for molecule.dev.",
   "homepage": "https://www.molecule.dev/packages/app-date-range-picker",
   "type": "module",
   "main": "dist/index.js",

@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-storage",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-storage in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-storage",
   "license": "Apache-2.0",
   "repository": {

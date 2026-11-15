@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-ai-image-generator",
   "version": "1.0.3",
-  "description": "",
+  "description": "AI image generation core interface — prompt-to-image via your backend with progress/image/done events, history, and abort.",
   "homepage": "https://www.molecule.dev/packages/app-ai-image-generator",
   "type": "module",
   "main": "dist/index.js",

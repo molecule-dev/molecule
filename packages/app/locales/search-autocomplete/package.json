@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-search-autocomplete",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-search-autocomplete-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-search-autocomplete",
   "license": "Apache-2.0",
   "repository": {

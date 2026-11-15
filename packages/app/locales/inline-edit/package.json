@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-inline-edit",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-inline-edit-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-inline-edit",
   "license": "Apache-2.0",
   "repository": {

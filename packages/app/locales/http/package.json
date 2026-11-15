@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-http",
   "version": "1.0.3",
+  "description": "Translations for molecule HTTP components in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-http",
   "license": "Apache-2.0",
   "repository": {

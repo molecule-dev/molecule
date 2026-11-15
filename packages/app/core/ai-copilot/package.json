@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-ai-copilot",
   "version": "1.0.3",
-  "description": "",
+  "description": "Inline AI suggestion (copilot) core interface — editor-style completions streamed from your backend for a prefix/suffix cursor context, with accept/reject/abort.",
   "homepage": "https://www.molecule.dev/packages/app-ai-copilot",
   "type": "module",
   "main": "dist/index.js",

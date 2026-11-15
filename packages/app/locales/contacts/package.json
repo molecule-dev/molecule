@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-contacts",
   "version": "1.0.5",
+  "description": "Translations for molecule contacts components in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-contacts",
   "license": "Apache-2.0",
   "repository": {

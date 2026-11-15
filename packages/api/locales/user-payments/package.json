@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-user-payments",
   "version": "1.0.4",
+  "description": "Translations for molecule user payment handlers in 79 languages",
   "homepage": "https://www.molecule.dev/packages/api-locales-user-payments",
   "license": "Apache-2.0",
   "repository": {

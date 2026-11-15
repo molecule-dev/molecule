@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-image-crop",
   "version": "1.0.3",
-  "description": "",
+  "description": "Image crop core interface for molecule.dev.",
   "homepage": "https://www.molecule.dev/packages/app-image-crop",
   "type": "module",
   "main": "dist/index.js",

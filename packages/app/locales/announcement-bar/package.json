@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-announcement-bar",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-announcement-bar-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-announcement-bar",
   "license": "Apache-2.0",
   "repository": {

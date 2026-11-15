@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-keyboard-shortcuts",
   "version": "1.0.3",
-  "description": "",
+  "description": "Keyboard shortcuts core interface for molecule.dev.",
   "homepage": "https://www.molecule.dev/packages/app-keyboard-shortcuts",
   "type": "module",
   "main": "dist/index.js",

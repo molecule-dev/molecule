@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-breadcrumb-solid",
   "version": "1.0.0",
-  "description": "React breadcrumb navigation component",
+  "description": "Solid breadcrumb navigation component",
   "homepage": "https://www.molecule.dev/packages/app-breadcrumb-solid",
   "type": "module",
   "main": "dist/index.js",

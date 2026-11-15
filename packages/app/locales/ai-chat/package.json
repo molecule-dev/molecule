@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-ai-chat",
   "version": "1.0.4",
+  "description": "Translations for molecule AI chat components in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-ai-chat",
   "license": "Apache-2.0",
   "repository": {

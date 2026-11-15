@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-image-generation",
   "version": "1.1.1",
-  "description": "",
+  "description": "AI image-generation core interface — generate images from text prompts, with optional edit/image-to-image/upscale, via swappable providers.",
   "homepage": "https://www.molecule.dev/packages/api-ai-image-generation",
   "type": "module",
   "main": "dist/index.js",

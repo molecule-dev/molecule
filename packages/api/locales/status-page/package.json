@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-status-page",
   "version": "1.0.3",
+  "description": "Translations for molecule status resource in 79 languages",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",

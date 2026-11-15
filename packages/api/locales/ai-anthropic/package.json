@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-ai-anthropic",
   "version": "1.0.2",
+  "description": "Translations for @molecule/api-bond-ai-anthropic in 79 languages",
   "homepage": "https://www.molecule.dev/packages/api-locales-ai-anthropic",
   "license": "Apache-2.0",
   "repository": {

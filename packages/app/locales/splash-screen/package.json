@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-splash-screen",
   "version": "1.0.5",
+  "description": "Translations for @molecule/app-splash-screen in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-splash-screen",
   "license": "Apache-2.0",
   "repository": {

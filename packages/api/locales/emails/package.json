@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-emails",
   "version": "1.0.2",
+  "description": "Translations for molecule emails in 79 languages",
   "homepage": "https://www.molecule.dev/packages/api-locales-emails",
   "license": "Apache-2.0",
   "repository": {

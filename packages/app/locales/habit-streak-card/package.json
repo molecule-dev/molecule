@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-habit-streak-card",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-habit-streak-card-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-habit-streak-card",
   "license": "Apache-2.0",
   "repository": {

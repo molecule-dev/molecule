@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-vue",
   "version": "1.0.5",
+  "description": "Translations for @molecule/app-vue in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-vue",
   "license": "Apache-2.0",
   "repository": {

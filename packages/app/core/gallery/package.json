@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-gallery",
   "version": "1.0.3",
-  "description": "",
+  "description": "Gallery core interface for molecule.dev.",
   "homepage": "https://www.molecule.dev/packages/app-gallery",
   "type": "module",
   "main": "dist/index.js",

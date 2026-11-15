@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-openai",
   "version": "1.5.2",
-  "description": "",
+  "description": "OpenAI (GPT) provider for @molecule/api-ai: streaming chat with tool calls through the Responses API, or any OpenAI-compatible /v1/chat/completions server.",
   "homepage": "https://www.molecule.dev/packages/api-ai-openai",
   "type": "module",
   "main": "dist/index.js",

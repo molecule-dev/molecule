@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-ai-assistant",
   "version": "1.0.3",
-  "description": "",
+  "description": "AI assistant panel core interface — headless contextual side-panel state: streaming chat via your backend, context items, suggestions, session persistence.",
   "homepage": "https://www.molecule.dev/packages/app-ai-assistant",
   "type": "module",
   "main": "dist/index.js",

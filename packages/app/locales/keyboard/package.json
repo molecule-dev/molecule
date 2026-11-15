@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-keyboard",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-keyboard in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-keyboard",
   "license": "Apache-2.0",
   "repository": {

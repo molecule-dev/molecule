@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-breadcrumb-vue",
   "version": "1.0.0",
-  "description": "React breadcrumb navigation component",
+  "description": "Vue breadcrumb navigation component",
   "homepage": "https://www.molecule.dev/packages/app-breadcrumb-vue",
   "type": "module",
   "main": "dist/index.js",

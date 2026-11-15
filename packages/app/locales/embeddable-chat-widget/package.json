@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-embeddable-chat-widget",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-embeddable-chat-widget in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-embeddable-chat-widget",
   "license": "Apache-2.0",
   "repository": {

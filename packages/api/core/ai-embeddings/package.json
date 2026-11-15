@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-embeddings",
   "version": "1.1.1",
-  "description": "",
+  "description": "Text embeddings core interface — turn text into vectors for semantic search, clustering, and similarity scoring via a swappable AI provider.",
   "homepage": "https://www.molecule.dev/packages/api-ai-embeddings",
   "type": "module",
   "main": "dist/index.js",

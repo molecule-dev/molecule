@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-amount-input",
   "version": "1.1.0",
+  "description": "Translations for @molecule/app-amount-input-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-amount-input",
   "license": "Apache-2.0",
   "repository": {

@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-http-inspector",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-http-inspector-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-http-inspector",
   "license": "Apache-2.0",
   "repository": {

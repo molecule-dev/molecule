@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-oauth-buttons",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-oauth-buttons-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-oauth-buttons",
   "license": "Apache-2.0",
   "repository": {

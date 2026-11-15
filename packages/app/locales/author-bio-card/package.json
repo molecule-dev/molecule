@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-author-bio-card",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-author-bio-card-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-author-bio-card",
   "license": "Apache-2.0",
   "repository": {

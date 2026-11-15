@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-translation",
   "version": "1.1.1",
-  "description": "",
+  "description": "AI text-translation core interface — translate content between languages with detection, batching, and usage quotas via swappable providers.",
   "homepage": "https://www.molecule.dev/packages/api-ai-translation",
   "type": "module",
   "main": "dist/index.js",

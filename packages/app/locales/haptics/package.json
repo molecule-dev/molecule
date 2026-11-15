@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-haptics",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-haptics in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-haptics",
   "license": "Apache-2.0",
   "repository": {

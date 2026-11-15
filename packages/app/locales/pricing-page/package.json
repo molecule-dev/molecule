@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-pricing-page",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-pricing-page-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-pricing-page",
   "license": "Apache-2.0",
   "repository": {

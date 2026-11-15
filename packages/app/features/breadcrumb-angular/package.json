@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-breadcrumb-angular",
   "version": "1.0.0",
-  "description": "React breadcrumb navigation component",
+  "description": "Angular breadcrumb navigation component",
   "homepage": "https://www.molecule.dev/packages/app-breadcrumb-angular",
   "type": "module",
   "main": "dist/index.js",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-project-archive",
   "version": "1.0.3",
-  "description": "",
+  "description": "Project archive core interface — pack a dormant project (source + database dump) into a verified artifact in cold storage and restore it on demand, via swappable providers.",
   "homepage": "https://www.molecule.dev/packages/api-project-archive",
   "type": "module",
   "main": "dist/index.js",

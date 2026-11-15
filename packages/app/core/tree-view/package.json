@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-tree-view",
   "version": "1.0.3",
-  "description": "",
+  "description": "Tree view core interface for molecule.dev.",
   "homepage": "https://www.molecule.dev/packages/app-tree-view",
   "type": "module",
   "main": "dist/index.js",

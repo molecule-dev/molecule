@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-search-ui",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-search-ui-react in 79 languages",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

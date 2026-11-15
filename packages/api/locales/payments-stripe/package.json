@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-payments-stripe",
   "version": "1.0.2",
+  "description": "Translations for @molecule/api-payments-stripe in 79 languages",
   "homepage": "https://www.molecule.dev/packages/api-locales-payments-stripe",
   "license": "Apache-2.0",
   "repository": {

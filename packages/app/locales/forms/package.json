@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-forms",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-forms in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-forms",
   "license": "Apache-2.0",
   "repository": {

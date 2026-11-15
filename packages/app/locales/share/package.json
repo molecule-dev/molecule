@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-share",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-share in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-share",
   "license": "Apache-2.0",
   "repository": {

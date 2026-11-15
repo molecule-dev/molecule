@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-body-parser",
   "version": "1.0.2",
+  "description": "Translations for @molecule/api-middleware-body-parser in 79 languages",
   "homepage": "https://www.molecule.dev/packages/api-locales-body-parser",
   "license": "Apache-2.0",
   "repository": {

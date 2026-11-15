@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-ai-voice-default",
   "version": "1.0.4",
-  "description": "",
+  "description": "Default ai-voice provider for molecule.dev — uses the browser Web Speech API",
   "homepage": "https://www.molecule.dev/packages/app-ai-voice-default",
   "type": "module",
   "main": "dist/index.js",

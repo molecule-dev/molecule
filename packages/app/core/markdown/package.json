@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-markdown",
   "version": "1.0.4",
-  "description": "",
+  "description": "Markdown rendering core interface for molecule.dev.",
   "homepage": "https://www.molecule.dev/packages/app-markdown",
   "type": "module",
   "main": "dist/index.js",

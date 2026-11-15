@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-screen-orientation",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-screen-orientation in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-screen-orientation",
   "license": "Apache-2.0",
   "repository": {

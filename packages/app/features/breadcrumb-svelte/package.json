@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-breadcrumb-svelte",
   "version": "1.0.0",
-  "description": "React breadcrumb navigation component",
+  "description": "Svelte breadcrumb navigation component",
   "homepage": "https://www.molecule.dev/packages/app-breadcrumb-svelte",
   "type": "module",
   "main": "dist/index.js",

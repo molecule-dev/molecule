@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-day-timeline",
   "version": "1.0.4",
+  "description": "Translations for @molecule/app-day-timeline-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-day-timeline",
   "license": "Apache-2.0",
   "repository": {

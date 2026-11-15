@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-vector-store",
   "version": "1.0.3",
-  "description": "",
+  "description": "Vector store core interface — named collections of embedding vectors with upsert and similarity query (metadata filters, topK) via swappable providers (pgvector, Pinecone, Chroma, memory).",
   "homepage": "https://www.molecule.dev/packages/api-ai-vector-store",
   "type": "module",
   "main": "dist/index.js",

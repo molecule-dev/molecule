@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-biometrics",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-biometrics in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-biometrics",
   "license": "Apache-2.0",
   "repository": {

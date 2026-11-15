@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-geolocation",
   "version": "1.0.3",
+  "description": "Translations for molecule geolocation components in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-geolocation",
   "license": "Apache-2.0",
   "repository": {

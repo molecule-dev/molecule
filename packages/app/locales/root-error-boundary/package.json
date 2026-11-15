@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-root-error-boundary",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-root-error-boundary-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-root-error-boundary",
   "license": "Apache-2.0",
   "repository": {

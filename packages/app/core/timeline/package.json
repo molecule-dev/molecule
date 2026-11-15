@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-timeline",
   "version": "1.0.3",
-  "description": "",
+  "description": "Timeline core interface for molecule.dev.",
   "homepage": "https://www.molecule.dev/packages/app-timeline",
   "type": "module",
   "main": "dist/index.js",

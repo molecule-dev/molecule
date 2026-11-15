@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-device",
   "version": "1.0.2",
+  "description": "Translations for molecule device resource in 79 languages",
   "homepage": "https://www.molecule.dev/packages/api-locales-device",
   "license": "Apache-2.0",
   "repository": {

@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-hero-metric-card",
   "version": "1.0.3",
+  "description": "Translations for @molecule/app-hero-metric-card-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-hero-metric-card",
   "license": "Apache-2.0",
   "repository": {
