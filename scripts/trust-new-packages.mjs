@@ -37,8 +37,9 @@
  *
  *   node scripts/trust-new-packages.mjs            # publish + trust anything new
  *   node scripts/trust-new-packages.mjs --list     # report only, never prompt
+ *   node scripts/trust-new-packages.mjs --concurrency=1  # one package at a time (default 8)
  */
-import { execFileSync, spawnSync } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import console from 'node:console'
 import { closeSync, existsSync, openSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -117,6 +118,20 @@ const RELEASE = args.includes('--release')
 // --from-hook: the pre-push hook. A push never waits on the owner's phone; with no
 // terminal it only says what to run.
 const FROM_HOOK = args.includes('--from-hook')
+// --concurrency=<n>: packages handled at once. A 6-digit code is accepted for every call
+// inside its window (about 30 s), and a first publish takes several seconds, so one at a
+// time spent a code on about 8 packages (2026-11-15: 42 packages on 5 codes, about 30 more
+// codes to go for one sweep). Calls made together share the code's window.
+const CONCURRENCY = (() => {
+  const value = (args.find((a) => a.startsWith('--concurrency=')) || '').split('=')[1]
+  if (value === undefined) return 8
+  const n = Number(value)
+  if (!Number.isInteger(n) || n < 1) {
+    console.error(`--concurrency must be a positive whole number, not ${value}`)
+    process.exit(2)
+  }
+  return n
+})()
 
 // In CI the ledger does not exist — .trust-state.json is gitignored, so a fresh
 // checkout reads it as empty and EVERY package looks untrusted. That made one run
@@ -480,6 +495,26 @@ const ensureOtp = async (label, force = false) => {
   return otp
 }
 
+/** The request for a fresh code in flight, shared by every call npm refused meanwhile. */
+let otpRefresh = null
+
+/**
+ * A fresh code after npm refused `spent`. Packages run side by side, so several calls can be
+ * refused by one expiry: the first asks, the rest wait for that answer, and a call refused
+ * after a newer code arrived just takes it.
+ *
+ * @param label - What the code is for.
+ * @param spent - The code npm refused.
+ * @returns A 6-digit code.
+ */
+const freshOtp = (label, spent) => {
+  if (otp && otp !== spent) return Promise.resolve(otp)
+  otpRefresh ??= ensureOtp(label, true).finally(() => {
+    otpRefresh = null
+  })
+  return otpRefresh
+}
+
 /**
  * Runs `npm publish` with piped output so an OTP rejection can be told apart
  * from every other failure — the interactive prompt is never needed in this
@@ -488,14 +523,24 @@ const ensureOtp = async (label, force = false) => {
  *
  * @param args - Full npm argv, including the --otp value.
  * @param cwd - The package directory to publish from.
- * @returns The result.
+ * @returns The exit status and output.
  */
-const npmPublish = (args, cwd) => {
-  const result = spawnSync('npm', args, { cwd, encoding: 'utf8' })
-  if (result.stdout?.trim()) console.log(result.stdout)
-  if (result.stderr?.trim()) console.error(result.stderr)
-  return result
-}
+const npmPublish = (args, cwd) =>
+  new Promise((resolve) => {
+    // Not spawnSync: packages publish side by side, which a blocking call would serialize.
+    const child = spawn('npm', args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] })
+    let stdout = ''
+    let stderr = ''
+    child.stdout.on('data', (chunk) => (stdout += chunk))
+    child.stderr.on('data', (chunk) => (stderr += chunk))
+    // A spawn failure (npm missing) reaches 'close' too; keep its reason with the output.
+    child.on('error', (error) => (stderr += `${error.message}\n`))
+    child.on('close', (status) => {
+      if (stdout.trim()) console.log(stdout)
+      if (stderr.trim()) console.error(stderr)
+      resolve({ status: status ?? 1, stdout, stderr })
+    })
+  })
 
 /**
  * Whether npm's failure output says the code (not something else) was the
@@ -699,9 +744,10 @@ const trustOne = async (pkg) => {
   // by CI over OIDC with no code at all — which is the arrangement worth having,
   // and the reason this one-time step is worth paying.
   if (pkg.relink) {
-    let relinked = await relinkPackage(pkg.name, { otp, token })
+    const held = otp
+    let relinked = await relinkPackage(pkg.name, { otp: held, token })
     if (relinked.outcome === 'needs-otp')
-      relinked = await relinkPackage(pkg.name, { otp: await ensureOtp(pkg.name, true), token })
+      relinked = await relinkPackage(pkg.name, { otp: await freshOtp(pkg.name, held), token })
     if (relinked.outcome === 'relinked') {
       record(pkg.name)
       console.log(`  ✓ ${pkg.name} (re-linked)`)
@@ -716,9 +762,9 @@ const trustOne = async (pkg) => {
     console.log(`\n  ${pkg.name}: publishing it first`)
     try {
       // ONE code per run is the contract: the up-front prompt (or --otp, or
-      // the stored seed) is reused for every publish and trust call — npm
-      // keeps accepting the same TOTP code until its window tolerance runs
-      // out, which is how 592 packages were trusted on a handful of codes on
+      // the stored seed) is reused for every publish and trust call, made
+      // CONCURRENCY packages at a time — npm keeps accepting the same TOTP
+      // code until its window tolerance runs out, which is how 592 packages were trusted on a handful of codes on
       // 2026-08-05. A fresh code is asked for ONLY when npm actually rejects
       // one (long sweeps outliving the window), and non-OTP failures (WAF,
       // network) surface immediately instead of triggering a prompt. Without
@@ -737,16 +783,15 @@ const trustOne = async (pkg) => {
         for (const version of placeholders) {
           staged.version = version
           writeFileSync(manifestPath, `${JSON.stringify(staged, null, 2)}\n`)
-          const attempt = async (force) => {
-            const code = await ensureOtp(`${pkg.name} publish`, force)
-            return npmPublish(
+          const publishWith = (code) =>
+            npmPublish(
               ['publish', '--access', 'public', '--tag', 'stage', '--otp', code, ...loginArgs()],
               pkgDir,
             )
-          }
-          result = await attempt(false)
+          const code = await ensureOtp(`${pkg.name} publish`)
+          result = await publishWith(code)
           if (result.status !== 0 && isOtpRejection(result)) {
-            result = await attempt(true)
+            result = await publishWith(await freshOtp(`${pkg.name} publish`, code))
           }
           if (
             result.status === 0 ||
@@ -782,7 +827,8 @@ const trustOne = async (pkg) => {
       return
     }
   }
-  let result = await trustPackage(pkg.name, { otp, token })
+  const held = otp
+  let result = await trustPackage(pkg.name, { otp: held, token })
 
   // A one-time code is single-use, so by the second package the held one is
   // spent. Ask for a fresh one and retry rather than reporting it as a failure.
@@ -794,7 +840,7 @@ const trustOne = async (pkg) => {
     }
     // Codes are single-use and short-lived, so a long sweep needs a few. Ask
     // only when npm actually rejects the held one.
-    result = await trustPackage(pkg.name, { otp: await ensureOtp(pkg.name, true), token })
+    result = await trustPackage(pkg.name, { otp: await freshOtp(pkg.name, held), token })
   }
   if (result.outcome === 'trusted' || result.outcome === 'already') {
     record(pkg.name)
@@ -805,17 +851,34 @@ const trustOne = async (pkg) => {
   }
 }
 
+// Packages run CONCURRENCY at a time (one in CI, which needs no code), so calls made
+// together share a code's window. Any error stops new packages from starting; the ones
+// already running finish, and then the error is handled as before.
+const finished = new Set()
+const queue = [...ready]
+let stopped = null
+const work = async () => {
+  while (!stopped && queue.length) {
+    const pkg = queue.shift()
+    try {
+      await trustOne(pkg)
+      finished.add(pkg.name)
+      progress.done++
+    } catch (error) {
+      stopped ??= error
+    }
+  }
+}
 try {
   // One code up front; the endpoint takes it as a header, so it covers every
   // package until npm says it is spent.
   if (!CI && ready.length) await ensureOtp('trust config')
-  for (const pkg of ready) {
-    await trustOne(pkg)
-    progress.done++
-  }
+  const workers = Math.min(CI ? 1 : CONCURRENCY, ready.length)
+  await Promise.all(Array.from({ length: workers }, work))
+  if (stopped) throw stopped
 } catch (error) {
   if (!(error instanceof NoTwoFactorAnswer)) throw error
-  const left = ready.slice(progress.done).map((pkg) => pkg.name)
+  const left = ready.filter((pkg) => !finished.has(pkg.name)).map((pkg) => pkg.name)
   failed.push(...left)
   console.error(
     `\nStopped: ${error.message}. ${left.length} package(s) not done; run \`npm run trust:new\` again to finish them.`,

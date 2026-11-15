@@ -30,6 +30,8 @@ const B = '@molecule/api-demo-b'
 // session token not in scenario.sessions (default: the scratch ~/.npmrc's) is a dead
 // login, and the web sign-in (POST /-/v1/login, then its done-check) hands out
 // scenario.loginToken. scenario.dies names a session that dies once STUB_DEAD exists.
+// scenario.delayMs holds each trust answer that long (after the code is checked), and
+// each logged trust call carries how many were in flight when it arrived.
 const STUB_FETCH = `
 import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 const scenario = JSON.parse(readFileSync(process.env.STUB_SCENARIO, 'utf8'))
@@ -37,6 +39,7 @@ const budget = { ...(scenario.codes ?? {}) }
 const log = (entry) => appendFileSync(process.env.STUB_LOG, JSON.stringify(entry) + '\\n')
 const sessions = scenario.sessions ?? ['stub-token']
 const LOGIN_ID = '0f6c1d2e-3b4a-4c5d-8e9f-a0b1c2d3e4f5'
+let inflight = 0
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
 globalThis.fetch = async (url, init = {}) => {
   const u = new URL(url)
@@ -57,7 +60,9 @@ globalThis.fetch = async (url, init = {}) => {
   const trust = /^\\/-\\/package\\/(.+?)\\/trust(\\/.*)?$/.exec(u.pathname)
   if (trust) {
     const name = decodeURIComponent(trust[1])
-    log({ method, name, otp: otp ?? null, auth })
+    inflight++
+    try {
+    log({ method, name, otp: otp ?? null, auth, inflight })
     if (!scenario.ci && !live) return json({ error: '{"success":false,"error":"You must be logged in to publish packages."}' }, 401)
     if (!otp && !scenario.ci)
       return headers['npm-auth-type'] === 'web'
@@ -67,9 +72,13 @@ globalThis.fetch = async (url, init = {}) => {
       if (!budget[otp]) return json({ error: 'otp invalid' }, 401)
       budget[otp]--
     }
+    if (scenario.delayMs) await new Promise((resolve) => setTimeout(resolve, scenario.delayMs))
     if (method === 'POST' && name === scenario.crashOn) throw new Error('network down')
     if (method === 'GET') return json([])
     return json({}, method === 'POST' ? 201 : 200)
+    } finally {
+      inflight--
+    }
   }
   const name = decodeURIComponent(u.pathname.slice(1))
   if (method === 'HEAD') return new Response(null, { status: (scenario.absent ?? []).includes(name) ? 404 : 200 })
@@ -94,7 +103,8 @@ afterEach(async () => {
 function scratchRepo({
   ledger = [A, B],
   inWorkspace = false,
-}: { ledger?: string[]; inWorkspace?: boolean } = {}) {
+  names = [A, B],
+}: { ledger?: string[]; inWorkspace?: boolean; names?: string[] } = {}) {
   const base = mkdtempSync(join(tmpdir(), 'trust-new-'))
   cleanups.push(() => rmSync(base, { recursive: true, force: true }))
   // Inside the workspace the repo sits next to the workspace's own scripts/release.mjs.
@@ -109,7 +119,7 @@ function scratchRepo({
   writeFileSync(join(root, 'bin', 'gh'), '#!/bin/sh\necho "$@" >> "$GH_LOG"\n', { mode: 0o755 })
   cpSync(join(SCRIPTS, 'lib'), join(root, 'scripts', 'lib'), { recursive: true })
   cpSync(join(SCRIPTS, 'trust-new-packages.mjs'), join(root, 'scripts', 'trust-new-packages.mjs'))
-  for (const name of [A, B]) {
+  for (const name of names) {
     const dir = join(root, 'packages', 'api', 'bonds', name.split('/')[1])
     mkdirSync(dir, { recursive: true })
     writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, version: '1.0.0' }))
@@ -237,8 +247,14 @@ describe("trust:new with the owner's phone", () => {
       { status: 'code', code: '424242' },
       { status: 'code', code: '135791' },
     ])
-    // Each re-link makes two 2FA'd calls; the first code dies after A's two.
-    const run = await runTrustNew(root, [], { codes: { '424242': 2, '135791': 2 } }, socketPath)
+    // Each re-link makes two 2FA'd calls; the first code dies after A's two (one package at
+    // a time, so the order is fixed).
+    const run = await runTrustNew(
+      root,
+      ['--concurrency=1'],
+      { codes: { '424242': 2, '135791': 2 } },
+      socketPath,
+    )
     expect(run.code).toBe(0)
     expect(phone.created).toHaveLength(2)
     expect(phone.created[1].purpose).toMatch(
@@ -246,6 +262,45 @@ describe("trust:new with the owner's phone", () => {
     )
     expect(ledgerOf(root).sort()).toEqual([A, B])
     expect(run.calls.filter((c) => c.otp === '135791').map((c) => c.name)).toEqual([B, B])
+  })
+
+  it('handles several packages at once, so their calls share one code (OLD MUSTFAIL: one at a time)', async () => {
+    const names = ['c', 'd', 'e', 'f', 'g', 'h'].map((x) => `@molecule/api-demo-${x}`)
+    const root = scratchRepo({ ledger: [], names })
+    const { socketPath, phone } = await phoneService(root, [{ status: 'code', code: '424242' }])
+    const run = await runTrustNew(root, [], { codes: { '424242': 6 }, delayMs: 300 }, socketPath)
+    expect(run.code, run.out).toBe(0)
+    expect(phone.created).toHaveLength(1)
+    expect(Math.max(...run.calls.map((c) => Number(c.inflight)))).toBeGreaterThan(1)
+    expect(ledgerOf(root).sort()).toEqual([...names].sort())
+  })
+
+  it('calls refused by the same expiry share one new request (MUTANT MUSTFAIL: no shared request)', async () => {
+    const names = ['c', 'd', 'e', 'f'].map((x) => `@molecule/api-demo-${x}`)
+    const root = scratchRepo({ ledger: [], names })
+    const { socketPath, phone } = await phoneService(root, [
+      { status: 'code', code: '424242' },
+      { status: 'code', code: '135791' },
+    ])
+    // All four calls arrive together; the first code covers two of them.
+    const run = await runTrustNew(
+      root,
+      ['--concurrency=4'],
+      { codes: { '424242': 2, '135791': 10 }, delayMs: 300 },
+      socketPath,
+    )
+    expect(run.code, run.out).toBe(0)
+    expect(phone.created).toHaveLength(2)
+    expect(run.calls.filter((c) => c.otp === '135791')).toHaveLength(2)
+    expect(ledgerOf(root).sort()).toEqual([...names].sort())
+  })
+
+  it('refuses a --concurrency that is not a positive whole number', async () => {
+    const root = scratchRepo()
+    const run = await runTrustNew(root, ['--concurrency=0'], {})
+    expect(run.code).toBe(2)
+    expect(run.out).toMatch(/--concurrency must be a positive whole number, not 0/)
+    expect(run.calls).toHaveLength(0)
   })
 
   it('stops cleanly when the owner denies a request, keeping the packages already done', async () => {
