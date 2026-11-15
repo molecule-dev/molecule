@@ -41,6 +41,7 @@
   "useLogin",
   "useNavigate",
   "useOAuth",
+  "useOptimisticToggle",
   "useOptimisticValue",
   "useParams",
   "usePasswordReset",
@@ -49950,6 +49951,660 @@
      "router": 0,
      "theme": 0,
      "window.message": 0
+    }
+   }
+  },
+  "useOptimisticToggle": {
+   "shows the server value until it is toggled": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "error": "value",
+      "pending": "value",
+      "toggle": "method",
+      "value": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "toggle shows the flipped value at once and saves the desired value": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "error": "value",
+      "pending": "value",
+      "toggle": "method",
+      "value": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "save",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "the server's confirmed value replaces the shown value": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "error": "value",
+      "pending": "value",
+      "toggle": "method",
+      "value": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "save",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a rejected save rolls back and reports the failure": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "error": "value",
+      "pending": "value",
+      "toggle": "method",
+      "value": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": {
+        "$error": "save failed",
+        "name": "Error"
+       },
+       "pending": false,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "save",
+      "args": [
+       false
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "saveError",
+      "args": [
+       {
+        "$error": "save failed",
+        "name": "Error"
+       },
+       true
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "toggles during a save coalesce to the newest desired value": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "error": "value",
+      "pending": "value",
+      "toggle": "method",
+      "value": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": true,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": true,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": true,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "save",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a toggle back during a save is saved after it": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "error": "value",
+      "pending": "value",
+      "toggle": "method",
+      "value": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": true,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": true,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": true,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "save",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "save",
+      "args": [
+       false
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "toggle is the same function on every render": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "error": "value",
+      "pending": "value",
+      "toggle": "method",
+      "value": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "stable",
+      "args": [
+       {
+        "toggle": "first"
+       }
+      ]
+     },
+     {
+      "name": "save",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "stable",
+      "args": [
+       {
+        "toggle": "same"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an outside value during a save does not flip the shown value": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "error": "value",
+      "pending": "value",
+      "toggle": "method",
+      "value": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": true,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": true,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": true,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "save",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "save",
+      "args": [
+       false
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an outside value after a save becomes the shown value": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "error": "value",
+      "pending": "value",
+      "toggle": "method",
+      "value": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": true
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "error": null,
+       "pending": false,
+       "toggle": "[method]",
+       "value": false
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "save",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "=> toggle",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
     }
    }
   },

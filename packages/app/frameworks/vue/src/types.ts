@@ -211,6 +211,28 @@ export interface UseStoragePreferenceReturn<T> {
   ready: Ref<boolean>
 }
 
+/** Options for {@link useOptimisticToggle}. */
+export interface UseOptimisticToggleOptions {
+  /** The loaded server value. Mount the control only after its record exists. */
+  value: boolean
+  /** Saves the DESIRED value and returns the server-confirmed value; reject on failure. */
+  commit: (desired: boolean) => Promise<boolean>
+  /** Receives the newest failed save and the confirmed value restored by the controller. */
+  onError?: (error: unknown, value: boolean) => void
+}
+
+/** What {@link useOptimisticToggle} returns: the boolean to render and an argument-free action. */
+export interface UseOptimisticToggleReturn {
+  /** The newest value the person chose, or the server's value when nothing is being saved. */
+  value: Ref<boolean>
+  /** Whether a save is running or waiting to run. */
+  pending: Ref<boolean>
+  /** The failure of the newest change, after the value went back; `null` otherwise. */
+  error: Ref<unknown>
+  /** Flips the value shown now and saves it; the same function for the component's life. */
+  toggle: () => void
+}
+
 /**
  * What {@link useOptimisticValue} returns: the state to render and the two ways to change it.
  */

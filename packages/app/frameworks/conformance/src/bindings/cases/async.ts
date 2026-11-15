@@ -309,3 +309,94 @@ export const useOptimisticValueCases: HookCases = {
     },
   ],
 }
+
+/**
+ * `useOptimisticToggle(options)`: a server-backed boolean for markup the app
+ * owns. `toggle()` takes no argument: it flips the value shown now and passes
+ * the DESIRED value to `commit`, which returns the server's answer.
+ */
+export const useOptimisticToggleCases: HookCases = {
+  hook: 'useOptimisticToggle',
+  // Its arguments change between renders; every binding follows them on the same mount.
+  reactiveArgs: true,
+  cases: [
+    {
+      name: 'shows the server value until it is toggled',
+      args: [{ value: false, commit: { $fn: 'save' } }],
+    },
+    {
+      name: 'toggle shows the flipped value at once and saves the desired value',
+      args: [{ value: false, commit: { $fn: 'save', resolve: true } }],
+      steps: [{ type: 'call', method: 'toggle' }],
+    },
+    {
+      name: "the server's confirmed value replaces the shown value",
+      args: [{ value: false, commit: { $fn: 'save', resolve: false } }],
+      steps: [{ type: 'call', method: 'toggle' }],
+    },
+    {
+      name: 'a rejected save rolls back and reports the failure',
+      args: [
+        {
+          value: true,
+          commit: { $fn: 'save', reject: 'save failed' },
+          onError: { $fn: 'saveError' },
+        },
+      ],
+      steps: [{ type: 'call', method: 'toggle' }],
+    },
+    {
+      name: 'toggles during a save coalesce to the newest desired value',
+      // Three toggles end on the value the running save already saves: nothing more is saved.
+      args: [{ value: false, commit: { $fn: 'save', defer: true } }],
+      steps: [
+        { type: 'call', method: 'toggle' },
+        { type: 'call', method: 'toggle' },
+        { type: 'call', method: 'toggle' },
+        { type: 'settle', fn: 'save' },
+      ],
+    },
+    {
+      name: 'a toggle back during a save is saved after it',
+      args: [{ value: false, commit: { $fn: 'save', defer: true } }],
+      steps: [
+        { type: 'call', method: 'toggle' },
+        { type: 'call', method: 'toggle' },
+        { type: 'settle', fn: 'save' },
+        { type: 'settle', fn: 'save' },
+      ],
+    },
+    {
+      name: 'toggle is the same function on every render',
+      args: [{ value: false, commit: { $fn: 'save' } }],
+      steps: [
+        { type: 'stable', methods: ['toggle'] },
+        { type: 'call', method: 'toggle' },
+        { type: 'stable', methods: ['toggle'] },
+      ],
+    },
+    {
+      name: 'an outside value during a save does not flip the shown value',
+      // The second save is running when the server value changes: the shown value stays the
+      // one being saved, as React keeps it.
+      args: [{ value: false, commit: { $fn: 'save', defer: true } }],
+      steps: [
+        { type: 'call', method: 'toggle' },
+        { type: 'settle', fn: 'save' },
+        { type: 'call', method: 'toggle' },
+        { type: 'args', args: [{ value: true, commit: { $fn: 'save', defer: true } }] },
+        { type: 'settle', fn: 'save' },
+      ],
+    },
+    {
+      name: 'an outside value after a save becomes the shown value',
+      // A server value is taken when it differs from the last one received.
+      args: [{ value: false, commit: { $fn: 'save', resolve: true } }],
+      steps: [
+        { type: 'call', method: 'toggle' },
+        { type: 'args', args: [{ value: true, commit: { $fn: 'save', resolve: true } }] },
+        { type: 'args', args: [{ value: false, commit: { $fn: 'save', resolve: true } }] },
+      ],
+    },
+  ],
+}
