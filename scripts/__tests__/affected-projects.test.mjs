@@ -29,6 +29,7 @@ function fixture() {
     }).trim()
   for (const file of [
     'scripts/affected-projects.mjs',
+    'scripts/vitest-grouped.mjs',
     'scripts/vitest-with-tmp-root.mjs',
     'scripts/vitest.config.ts',
     'vitest.config.ts',
@@ -41,7 +42,9 @@ function fixture() {
       name: 'affected-fixture',
       private: true,
       type: 'module',
-      scripts: { test: 'node scripts/vitest-with-tmp-root.mjs run' },
+      scripts: {
+        test: JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).scripts.test,
+      },
     }),
   )
   write('.trust-state.json', '[]\n')

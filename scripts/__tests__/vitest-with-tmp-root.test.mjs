@@ -47,7 +47,14 @@ describe('the wiring', () => {
 
   it('runs npm test through the confined-root runner', () => {
     const manifest = JSON.parse(fs.readFileSync(join(repo, 'package.json'), 'utf8'))
-    expect(manifest.scripts.test).toBe('node scripts/vitest-with-tmp-root.mjs run')
+    // npm test runs the project groups (scripts/vitest-grouped.mjs); each group's Vitest
+    // process is started by this runner.
+    expect(manifest.scripts.test).toBe('node scripts/vitest-grouped.mjs')
+    const grouped = fs.readFileSync(join(repo, 'scripts/vitest-grouped.mjs'), 'utf8')
+    expect(grouped).toContain(
+      "import { createRunRoot, runVitest } from './vitest-with-tmp-root.mjs'",
+    )
+    expect(grouped).toMatch(/runVitest\(vitestArgs, \{ cwd: root, createRoot: /)
   })
 
   it('resolves a real Vitest entry for this repo', () => {
