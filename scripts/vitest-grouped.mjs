@@ -22,18 +22,28 @@
  *   - Anything else (a flag, or a filter that names no project path): one Vitest process
  *     with the arguments unchanged, as `npm test` ran before this runner existed.
  *
- * Every group runs even when an earlier one fails; the exit code is the first failure's.
- * A signal stops the run at the current group. Groups are balanced (sizes differ by at most
- * one), so a run that fits in one group is exactly one Vitest run, as before.
+ * Every group runs even when an earlier one fails; the exit code is the lowest-numbered
+ * failing group's. A signal stops the run: no further group starts. Groups are balanced (sizes
+ * differ by at most one), so a run that fits in one group is exactly one Vitest run, as before.
+ *
+ * Up to `MOL_VITEST_GROUP_CONCURRENCY` groups (default {@link DEFAULT_GROUP_CONCURRENCY}) run
+ * at once, each with an equal share of Vitest's default workers (CPUs − 1). Why: run one after
+ * another, each group waits for its slowest file before the next starts, and every module
+ * transform runs in one Vitest main process; on 2026-11-15 the grouped CI step took 1,434 s
+ * where one process had taken 948 s for 14% less test work (runs 43698714841, 43672144670).
+ * Memory stays bounded by the concurrency times the group size. When groups run at once, each
+ * group's output is held in a file and printed whole when the group ends, so lines from two
+ * groups never interleave; a single group or a concurrency of 1 prints live, as before.
  *
  * Usage: `node scripts/vitest-grouped.mjs [path filters…]` (this is `npm test`).
  *
  * @module scripts/vitest-grouped
  */
 
+import { spawn } from 'node:child_process'
 import console from 'node:console'
 import fs from 'node:fs'
-import { tmpdir } from 'node:os'
+import { availableParallelism, tmpdir } from 'node:os'
 import { dirname, join, posix, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -42,6 +52,9 @@ import { createRunRoot, runVitest } from './vitest-with-tmp-root.mjs'
 
 /** The most projects one Vitest process starts, unless `MOL_VITEST_GROUP_PROJECTS` says otherwise. */
 export const DEFAULT_GROUP_PROJECTS = 60
+
+/** The most groups that run at once, unless `MOL_VITEST_GROUP_CONCURRENCY` says otherwise. */
+export const DEFAULT_GROUP_CONCURRENCY = 2
 
 /** Exit codes `runVitest` returns for a forwarded signal; the run stops there. */
 const SIGNAL_CODES = new Set([129, 130, 143])
@@ -130,6 +143,44 @@ export function balancedGroups(items, max) {
 }
 
 /**
+ * Each concurrent group's share of Vitest's default worker count (CPUs − 1), rounded up so
+ * the groups together use at least that many.
+ *
+ * @param cpus - Available parallelism.
+ * @param concurrency - Groups running at once.
+ * @returns Workers for one group, at least 1.
+ */
+export function workersPerGroup(cpus, concurrency) {
+  return Math.max(1, Math.ceil((cpus - 1) / concurrency))
+}
+
+/**
+ * Run tasks with at most `limit` in flight, in order, until all have run or `stop()` says no
+ * more may start.
+ *
+ * @param count - Number of tasks.
+ * @param limit - Most tasks in flight.
+ * @param task - Runs task `index` and resolves its result.
+ * @param stop - Called after each task ends; true starts no further task.
+ * @returns The results by index; tasks never started are absent.
+ */
+export async function runPool(count, limit, task, stop = () => false) {
+  const results = []
+  let next = 0
+  let stopped = false
+  const lane = async () => {
+    while (!stopped && next < count) {
+      const index = next
+      next += 1
+      results[index] = await task(index)
+      if (stop(results[index])) stopped = true
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, count) }, lane))
+  return results
+}
+
+/**
  * The Vitest config of one group: the repository root and that group's project configs.
  *
  * @param root - Repository root.
@@ -148,9 +199,13 @@ export function groupConfigSource(root, configs) {
  * @param [options.root] - Repository root.
  * @param [options.patterns] - Root `projects` globs; read from `vitest.config.ts` by default.
  * @param [options.max] - Largest group.
- * @param [options.run] - Runs one Vitest invocation and resolves its exit code.
+ * @param [options.concurrency] - Most groups running at once.
+ * @param [options.cpus] - Available parallelism, for the per-group worker share.
+ * @param [options.run] - Runs one Vitest invocation and resolves its exit code; `output`, when
+ *   given, names the files its stdout and stderr go to instead of this process's.
  * @param [options.globSync] - Glob implementation, for tests.
  * @param [options.log] - Progress output.
+ * @param [options.print] - Writes a held group's output: `(stream, bytes)`.
  * @returns The exit code.
  */
 export async function runGrouped(args, options = {}) {
@@ -160,11 +215,20 @@ export async function runGrouped(args, options = {}) {
   const {
     root = ROOT,
     max = Number(process.env.MOL_VITEST_GROUP_PROJECTS || DEFAULT_GROUP_PROJECTS),
-    run = (vitestArgs) =>
-      runVitest(vitestArgs, { cwd: root, createRoot: () => createRunRoot({ base }) }),
+    concurrency = Number(process.env.MOL_VITEST_GROUP_CONCURRENCY || DEFAULT_GROUP_CONCURRENCY),
+    cpus = availableParallelism(),
+    run = (vitestArgs, { output } = {}) =>
+      runVitest(vitestArgs, {
+        cwd: root,
+        createRoot: () => createRunRoot({ base }),
+        spawnImpl: output ? spawnTo(output) : spawn,
+      }),
     globSync = fs.globSync,
     log = (line) => console.error(line),
+    print = (stream, bytes) => (stream === 'stderr' ? process.stderr : process.stdout).write(bytes),
   } = options
+  if (!Number.isInteger(concurrency) || concurrency < 1)
+    throw new Error(`group concurrency must be a positive integer, got ${concurrency}`)
   const unchanged = () => run(['run', ...args])
   if (args.some((arg) => arg.startsWith('-'))) return unchanged()
   const paths = args.map((arg) => repoPath(arg, root))
@@ -177,34 +241,71 @@ export async function runGrouped(args, options = {}) {
     return unchanged()
   }
   const groups = balancedGroups([...selected.keys()], max)
+  const parallel = Math.min(concurrency, groups.length)
+  const workers = parallel > 1 ? [`--maxWorkers=${workersPerGroup(cpus, parallel)}`] : []
   const scratch = fs.mkdtempSync(join(base, 'mol-vitest-groups-'))
-  let exitCode = 0
   try {
-    for (const [index, group] of groups.entries()) {
-      const config = join(scratch, `group-${index + 1}.config.mjs`)
-      fs.writeFileSync(
-        config,
-        groupConfigSource(
-          root,
-          group.map((dir) => join(root, configs.get(dir))),
-        ),
-      )
-      const filters = [...new Set(group.flatMap((dir) => selected.get(dir)))]
-      const started = Date.now()
-      log(
-        `[vitest-grouped] group ${index + 1}/${groups.length}: ${group.length} projects (${group[0]} … ${group.at(-1)})`,
-      )
-      const code = await run(['run', '--config', config, ...filters])
-      log(
-        `[vitest-grouped] group ${index + 1}/${groups.length} exited ${code} after ${Math.round((Date.now() - started) / 1000)} s`,
-      )
-      if (code !== 0 && exitCode === 0) exitCode = code
-      if (SIGNAL_CODES.has(code)) break
-    }
+    const codes = await runPool(
+      groups.length,
+      parallel,
+      async (index) => {
+        const group = groups[index]
+        const name = `group ${index + 1}/${groups.length}`
+        const config = join(scratch, `group-${index + 1}.config.mjs`)
+        fs.writeFileSync(
+          config,
+          groupConfigSource(
+            root,
+            group.map((dir) => join(root, configs.get(dir))),
+          ),
+        )
+        const filters = [...new Set(group.flatMap((dir) => selected.get(dir)))]
+        const output =
+          parallel > 1
+            ? {
+                stdout: join(scratch, `group-${index + 1}.stdout`),
+                stderr: join(scratch, `group-${index + 1}.stderr`),
+              }
+            : undefined
+        const started = Date.now()
+        log(`[vitest-grouped] ${name}: ${group.length} projects (${group[0]} … ${group.at(-1)})`)
+        const code = await run(['run', '--config', config, ...workers, ...filters], { output })
+        if (output)
+          for (const stream of ['stdout', 'stderr'])
+            if (fs.existsSync(output[stream])) print(stream, fs.readFileSync(output[stream]))
+        log(
+          `[vitest-grouped] ${name} exited ${code} after ${Math.round((Date.now() - started) / 1000)} s`,
+        )
+        return code
+      },
+      (code) => SIGNAL_CODES.has(code),
+    )
+    return codes.find((code) => code !== undefined && code !== 0) ?? 0
   } finally {
     fs.rmSync(scratch, { recursive: true, force: true })
   }
-  return exitCode
+}
+
+/**
+ * A spawner that sends the child's stdout and stderr to two files.
+ *
+ * @param output - File paths for each stream.
+ * @param output.stdout - Where stdout goes.
+ * @param output.stderr - Where stderr goes.
+ * @returns A `spawn` replacement for `runVitest`.
+ */
+function spawnTo(output) {
+  return (command, args, options) => {
+    const out = fs.openSync(output.stdout, 'w')
+    const err = fs.openSync(output.stderr, 'w')
+    try {
+      return spawn(command, args, { ...options, stdio: ['ignore', out, err] })
+    } finally {
+      // The child holds its own copies of the descriptors.
+      fs.closeSync(out)
+      fs.closeSync(err)
+    }
+  }
 }
 
 /**

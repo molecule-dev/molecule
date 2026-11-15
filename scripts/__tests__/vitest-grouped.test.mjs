@@ -7,15 +7,18 @@ import { stripVTControlCharacters } from 'node:util'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { balancedGroups, selectProjects } from '../vitest-grouped.mjs'
+import { balancedGroups, runPool, selectProjects, workersPerGroup } from '../vitest-grouped.mjs'
 import { vitestBin } from '../vitest-with-tmp-root.mjs'
 
 const ROOT = path.resolve(import.meta.dirname, '../..')
 const scratch = path.resolve(ROOT, '../.experiments/vitest-grouped-tests')
 const fixtures = []
 
-/** A repository with six packages (any red when asked), the real runner and the real root config. */
-function fixture({ red = [] } = {}) {
+/**
+ * A repository with six packages (any red or slow when asked), the real runner and the real
+ * root config.
+ */
+function fixture({ red = [], slow = [] } = {}) {
   fs.mkdirSync(scratch, { recursive: true })
   const dir = fs.mkdtempSync(path.join(scratch, 'repo-'))
   fixtures.push(dir)
@@ -41,22 +44,24 @@ function fixture({ red = [] } = {}) {
       `${pkg}/vitest.config.ts`,
       `import {defineConfig} from 'vitest/config';export default defineConfig({test:{name:${JSON.stringify(name)},root:import.meta.dirname,include:['src/__tests__/*.test.ts'],environment:'node',maxWorkers:1}})\n`,
     )
+    const wait = slow.includes(name) ? 'await new Promise((r)=>setTimeout(r,12000));' : ''
     write(
       `${pkg}/src/__tests__/sample.test.ts`,
-      `import {it,expect} from 'vitest';it('package ${name} test',()=>expect(1).toBe(${red.includes(name) ? 2 : 1}))\n`,
+      `import {it,expect} from 'vitest';it('package ${name} test',async()=>{${wait}expect(1).toBe(${red.includes(name) ? 2 : 1})},20000)\n`,
     )
   }
   fs.mkdirSync(path.join(dir, 'tmp'))
   fs.symlinkSync(path.dirname(path.dirname(vitestBin(ROOT))), path.join(dir, 'node_modules'), 'dir')
   // Vitest colours its output in CI and turns colour off under an AI agent (std-env
   // `isAgent`), so the same run prints different bytes on each: match on the text only.
-  const run = (args, groupSize = 2) => {
+  const run = (args, groupSize = 2, concurrency = 2) => {
     const result = spawnSync(process.execPath, ['scripts/vitest-grouped.mjs', ...args], {
       cwd: dir,
       env: {
         ...process.env,
         TMPDIR: path.join(dir, 'tmp'),
         MOL_VITEST_GROUP_PROJECTS: String(groupSize),
+        MOL_VITEST_GROUP_CONCURRENCY: String(concurrency),
       },
       encoding: 'utf8',
       timeout: 60000,
@@ -74,6 +79,24 @@ const ran = (result) =>
   [...(result.stdout + result.stderr).matchAll(/package (\w) test|meta guard/g)].map(
     (m) => m[1] ?? 'meta',
   )
+
+/** Group start and exit events in the order the runner logged them. */
+const events = (result) =>
+  [...result.stderr.matchAll(/\[vitest-grouped\] group (\d+)\/\d+(:| exited)/g)].map((m) => ({
+    group: Number(m[1]),
+    exit: m[2] === ' exited',
+  }))
+
+/** The most groups that were running at once. */
+const peakInFlight = (result) => {
+  let running = 0
+  let peak = 0
+  for (const { exit } of events(result)) {
+    running += exit ? -1 : 1
+    peak = Math.max(peak, running)
+  }
+  return peak
+}
 
 afterEach(() => {
   for (const dir of fixtures.splice(0)) fs.rmSync(dir, { recursive: true, force: true })
@@ -116,6 +139,37 @@ describe('grouped Vitest runs', () => {
     expect(ran(result)).toEqual(['a'])
   }, 60000)
 
+  it('runs two groups at once, so a slow group does not hold the later ones', () => {
+    const result = fixture({ slow: ['a'] }).run([])
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+    expect(peakInFlight(result)).toBe(2)
+    // The other lane moves on while group 1 waits on its slow test: group 3 starts before
+    // group 1 ends. One group at a time, group 3 would start only after it.
+    const order = events(result).map((e) => `${e.group}${e.exit ? ' exit' : ' start'}`)
+    expect(order.indexOf('3 start')).toBeGreaterThan(-1)
+    expect(order.indexOf('3 start')).toBeLessThan(order.indexOf('1 exit'))
+    expect(result.stdout).toMatch(/Test Files {2}2 passed/)
+  }, 60000)
+
+  it('prints each held group whole: one header and one summary per block', () => {
+    const result = fixture().run([])
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+    const blocks = result.stdout.split(/^ RUN /m).slice(1)
+    expect(blocks).toHaveLength(4)
+    for (const block of blocks) expect(block.match(/Test Files /g)).toHaveLength(1)
+  }, 60000)
+
+  it('runs the groups one after another when the concurrency is 1', () => {
+    const result = fixture({ slow: ['a'] }).run([], 2, 1)
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+    expect(peakInFlight(result)).toBe(1)
+    expect(
+      events(result)
+        .filter((e) => e.exit)
+        .map((e) => e.group),
+    ).toEqual([1, 2, 3, 4])
+  }, 60000)
+
   it('runs Vitest unchanged when a filter names no project path', () => {
     const result = fixture({ red: ['b'] }).run(['sample.test'])
     expect(result.status).toBe(1)
@@ -139,6 +193,45 @@ describe('selection and grouping rules', () => {
       ['scripts', ['scripts/__tests__/x.test.mjs']],
     ])
     expect(selectProjects(dirs, ['packages/api/core/abc'])).toBeNull()
+  })
+
+  it('gives each concurrent group an equal share of the default workers', () => {
+    expect(workersPerGroup(4, 2)).toBe(2)
+    expect(workersPerGroup(14, 2)).toBe(7)
+    expect(workersPerGroup(2, 2)).toBe(1)
+    expect(workersPerGroup(1, 4)).toBe(1)
+  })
+
+  it('keeps at most the limit in flight and starts nothing after a stop', async () => {
+    let running = 0
+    let peak = 0
+    let release
+    const gate = new Promise((resolve) => {
+      release = resolve
+    })
+    const started = []
+    const results = await runPool(
+      6,
+      2,
+      async (index) => {
+        started.push(index)
+        running += 1
+        peak = Math.max(peak, running)
+        await (index === 0 ? gate : null)
+        running -= 1
+        return index === 2 ? 'stop' : index
+      },
+      (result) => {
+        if (result !== 'stop') return false
+        process.nextTick(release)
+        return true
+      },
+    )
+    // Task 0 is held until task 2 has stopped the pool, so tasks 1 and 2 run in the other
+    // lane meanwhile, and the lane that ran task 0 starts nothing more.
+    expect(peak).toBe(2)
+    expect(started).toEqual([0, 1, 2])
+    expect(results).toEqual([0, 1, 'stop'])
   })
 
   it('balances groups so sizes differ by at most one', () => {

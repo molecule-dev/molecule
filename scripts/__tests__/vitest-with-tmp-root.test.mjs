@@ -54,7 +54,7 @@ describe('the wiring', () => {
     expect(grouped).toContain(
       "import { createRunRoot, runVitest } from './vitest-with-tmp-root.mjs'",
     )
-    expect(grouped).toMatch(/runVitest\(vitestArgs, \{ cwd: root, createRoot: /)
+    expect(grouped).toMatch(/runVitest\(vitestArgs, \{\s*cwd: root,\s*createRoot: /)
   })
 
   it('resolves a real Vitest entry for this repo', () => {
