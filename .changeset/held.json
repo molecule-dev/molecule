@@ -79,10 +79,12 @@
     "@molecule/app-price-range-slider-solid",
     "@molecule/app-price-range-slider-svelte",
     "@molecule/app-price-range-slider-vue",
+    "@molecule/app-pricing-table-react",
     "@molecule/app-query-angular",
     "@molecule/app-query-solid",
     "@molecule/app-query-svelte",
     "@molecule/app-query-vue",
+    "@molecule/app-react",
     "@molecule/app-routing-angular-router",
     "@molecule/app-safe-link-angular",
     "@molecule/app-safe-link-solid",
@@ -155,6 +157,7 @@
     ".changeset/feature-parity-trend-chip.md",
     ".changeset/feature-parity-typing-indicator.md",
     ".changeset/feature-parity-vendor-card.md",
-    ".changeset/framework-optimistic-toggle.md"
+    ".changeset/framework-optimistic-toggle.md",
+    ".changeset/pricing-table-react-row-keys.md"
   ]
 }
