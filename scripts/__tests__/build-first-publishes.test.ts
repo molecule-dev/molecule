@@ -27,7 +27,7 @@ describe('buildFirstPublishes', () => {
     expect(calls).toEqual([names])
   })
 
-  it('when the joint build fails, builds each alone so only the broken package is held back', () => {
+  it('when the joint build fails, splits it in halves so only the broken package is held back', () => {
     const { calls, build } = fakeBuild(['@molecule/app-b-vue'])
     const names = ['@molecule/app-a-vue', '@molecule/app-b-vue', '@molecule/app-c-vue']
     expect(buildFirstPublishes(names, { build, log: quiet })).toEqual({
@@ -36,10 +36,33 @@ describe('buildFirstPublishes', () => {
     })
     expect(calls).toEqual([
       names,
+      ['@molecule/app-a-vue', '@molecule/app-b-vue'],
       ['@molecule/app-a-vue'],
       ['@molecule/app-b-vue'],
       ['@molecule/app-c-vue'],
     ])
+  })
+
+  it('one broken package among 277 costs about two calls per halving, not one per package (OLD MUSTFAIL: 278 calls)', () => {
+    const names = Array.from({ length: 277 }, (_, i) => `@molecule/app-p${i}-svelte`)
+    const { calls, build } = fakeBuild(['@molecule/app-p200-svelte'])
+    const result = buildFirstPublishes(names, { build, log: quiet })
+    expect(result.failed).toEqual(['@molecule/app-p200-svelte'])
+    expect(result.built).toEqual(names.filter((name) => name !== '@molecule/app-p200-svelte'))
+    expect(calls.length).toBeLessThanOrEqual(1 + 2 * Math.ceil(Math.log2(277)))
+  })
+
+  it('reports every broken package, in the order given', () => {
+    const names = Array.from({ length: 10 }, (_, i) => `@molecule/app-p${i}-vue`)
+    const broken = ['@molecule/app-p7-vue', '@molecule/app-p1-vue', '@molecule/app-p8-vue']
+    const { build } = fakeBuild(broken)
+    const result = buildFirstPublishes(names, { build, log: quiet })
+    expect(result.failed).toEqual([
+      '@molecule/app-p1-vue',
+      '@molecule/app-p7-vue',
+      '@molecule/app-p8-vue',
+    ])
+    expect(result.built).toHaveLength(7)
   })
 
   it('a lone package that fails is not built a second time', () => {
