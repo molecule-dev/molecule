@@ -17,6 +17,7 @@ import { iconSet } from '@molecule/app-icons-molecule'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
+import { createTransferData, installDomGaps, setLayoutStubs, type TransferData } from './page.js'
 import type { ClickModifiers, Interaction, UICase } from './spec.js'
 
 let installed = false
@@ -92,30 +93,39 @@ export function installSharedBonds(): void {
 
 /**
  * Installs a `matchMedia` that answers `(min-width: Npx)` / `(max-width: Npx)`
- * against a fixed viewport width, plus `(prefers-color-scheme: dark)` = false.
+ * against a fixed viewport width, pointer and hover queries for the given pointer,
+ * and false for anything else (`(prefers-color-scheme: dark)` included).
  *
  * @param width - Viewport width in CSS pixels.
+ * @param pointer - The primary pointer ({@link UICase.pointer}); without it every
+ *   pointer and hover query answers false.
  */
-export function installViewport(width: number): void {
+export function installViewport(width: number, pointer?: 'fine' | 'coarse'): void {
   const answer = (query: string): boolean => {
     const min = /min-width:\s*(\d+(?:\.\d+)?)px/.exec(query)
     const max = /max-width:\s*(\d+(?:\.\d+)?)px/.exec(query)
     if (min) return width >= Number(min[1])
     if (max) return width <= Number(max[1])
+    const device = /\((?:any-)?(pointer|hover):\s*([a-z]+)\s*\)/.exec(query)
+    if (device && pointer) {
+      const value = device[1] === 'pointer' ? pointer : pointer === 'coarse' ? 'none' : 'hover'
+      return device[2] === value
+    }
     return false
   }
   Object.defineProperty(window, 'innerWidth', { configurable: true, value: width })
-  window.matchMedia = ((query: string) => ({
-    matches: answer(query),
-    media: query,
-    onchange: null,
-    addListener: () => undefined,
-    removeListener: () => undefined,
-    addEventListener: () => undefined,
-    removeEventListener: () => undefined,
-    dispatchEvent: () => false,
-  })) as unknown as typeof window.matchMedia
+  window.matchMedia = (query: string): MediaQueryList =>
+    Object.assign(new EventTarget(), {
+      matches: answer(query),
+      media: query,
+      onchange: null,
+      addListener: (): void => undefined,
+      removeListener: (): void => undefined,
+    })
 }
+
+/** The case's last paste or drag data, which a later `transfer` step without its own reuses. */
+let transfer: TransferData | null = null
 
 /**
  * Prepares a clean document for one case and returns the mount container.
@@ -127,7 +137,10 @@ export function freshContainer(testCase: UICase): HTMLElement {
   document.body.innerHTML = ''
   document.body.removeAttribute('style')
   document.body.removeAttribute('class')
-  installViewport(testCase.viewportWidth ?? 1280)
+  installViewport(testCase.viewportWidth ?? 1280, testCase.pointer)
+  installDomGaps()
+  setLayoutStubs(testCase.layout ?? [])
+  transfer = null
   const container = document.createElement('div')
   container.setAttribute('data-parity-unwrap', '')
   document.body.appendChild(container)
@@ -139,6 +152,15 @@ const query = (selector: string): HTMLElement => {
   if (!el) throw new Error(`parity: no element matches ${selector}`)
   return el as HTMLElement
 }
+
+/**
+ * The target of a step that may also name `window` or `document`.
+ *
+ * @param selector - A CSS selector, `window` or `document`.
+ * @returns The target.
+ */
+const eventTarget = (selector: string): EventTarget =>
+  selector === 'window' ? window : selector === 'document' ? document : query(selector)
 
 const setNativeValue = (
   el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
@@ -286,15 +308,79 @@ export function performDomInteraction(step: Interaction): string | undefined {
       return
     }
     case 'event': {
-      const target: EventTarget =
-        step.selector === 'window'
-          ? window
-          : step.selector === 'document'
-            ? document
-            : query(step.selector)
-      target.dispatchEvent(
+      eventTarget(step.selector).dispatchEvent(
         new Event(step.event, { bubbles: step.bubbles ?? false, cancelable: true }),
       )
+      return
+    }
+    case 'pointer': {
+      const target = eventTarget(step.selector)
+      const pressed = step.event === 'pointerdown' || step.event === 'pointermove'
+      const init = {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        clientX: step.clientX ?? 0,
+        clientY: step.clientY ?? 0,
+        button: step.event === 'pointermove' ? -1 : 0,
+        buttons: pressed ? 1 : 0,
+      }
+      target.dispatchEvent(
+        new PointerEvent(step.event, {
+          ...init,
+          pointerId: 1,
+          pointerType: 'mouse',
+          isPrimary: true,
+        }),
+      )
+      const mouse = { pointerdown: 'mousedown', pointermove: 'mousemove', pointerup: 'mouseup' }[
+        step.event as 'pointerdown' | 'pointermove' | 'pointerup'
+      ]
+      if (mouse) target.dispatchEvent(new MouseEvent(mouse, init))
+      return
+    }
+    case 'transfer': {
+      if (step.files || step.data || !transfer)
+        transfer = createTransferData(step.files ?? [], step.data ?? {})
+      const paste = step.event === 'paste'
+      const init = {
+        bubbles: true,
+        cancelable: step.event !== 'dragleave' && step.event !== 'dragend',
+        composed: true,
+      }
+      const event = paste ? new Event('paste', init) : new MouseEvent(step.event, init)
+      Object.defineProperty(event, paste ? 'clipboardData' : 'dataTransfer', { value: transfer })
+      query(step.selector).dispatchEvent(event)
+      const outcome = `@${step.event} default ${event.defaultPrevented ? 'prevented' : 'kept'}`
+      return paste ? outcome : `${outcome} dropEffect=${transfer.dropEffect}`
+    }
+    case 'message': {
+      const source = step.from
+        ? ((query(step.from) as HTMLIFrameElement).contentWindow ?? null)
+        : null
+      if (step.from && !source) throw new Error(`message: ${step.from} has no window`)
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: structuredClone(step.data),
+          origin: step.origin ?? '',
+          source,
+        }),
+      )
+      return
+    }
+    case 'storage': {
+      const oldValue = localStorage.getItem(step.key)
+      if (step.value === null) localStorage.removeItem(step.key)
+      else localStorage.setItem(step.key, step.value)
+      const event = new StorageEvent('storage', {
+        key: step.key,
+        oldValue,
+        newValue: step.value,
+        url: location.href,
+      })
+      // jsdom's constructor only takes its own Storage; the kit's is the page's.
+      Object.defineProperty(event, 'storageArea', { value: localStorage })
+      window.dispatchEvent(event)
       return
     }
     case 'mark': {

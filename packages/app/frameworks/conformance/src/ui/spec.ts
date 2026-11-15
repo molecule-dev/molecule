@@ -256,6 +256,45 @@ export type Interaction =
    */
   | { type: 'control'; name: string; args?: unknown[] }
   /**
+   * A pointer event at viewport coordinates, for drag handles and resizers: the primary mouse
+   * pointer (`pointerId` 1), pressing the main button from `pointerdown` to `pointerup`. The
+   * mouse event a browser sends after it (`mousedown`, `mousemove`, `mouseup`) follows.
+   * `selector` may be `window` or `document` (a move that left the element).
+   */
+  | {
+      type: 'pointer'
+      selector: string
+      event: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel'
+      clientX?: number
+      clientY?: number
+    }
+  /**
+   * A paste (the data as `clipboardData`) or a drag event (as `dataTransfer`). `files` or
+   * `data` start new data; a step with neither reuses the case's last data, so what a
+   * `dragstart` handler wrote is what the `drop` handler reads. The snapshot after it notes
+   * whether the event's default was prevented, and a drag event's `dropEffect`.
+   */
+  | {
+      type: 'transfer'
+      selector: string
+      event: 'paste' | 'dragstart' | 'dragenter' | 'dragover' | 'dragleave' | 'drop' | 'dragend'
+      files?: TransferFile[]
+      /** String entries by format (`text/plain`). */
+      data?: Record<string, string>
+    }
+  /**
+   * A `message` event on the window, as another window's `postMessage` delivers it. `from`
+   * selects the iframe whose window sent it (`event.source`); omit it for a sender the page
+   * has no window for. After an `unmount` step, it shows whether the component removed its
+   * listener.
+   */
+  | { type: 'message'; data: unknown; origin?: string; from?: string }
+  /**
+   * Writes one `localStorage` entry as another tab would (`value: null` removes it) and
+   * dispatches the `storage` event that tab's write fires on this page.
+   */
+  | { type: 'storage'; key: string; value: string | null }
+  /**
    * Answers the oldest page `fetch` still waiting, with the case's
    * `context.window.fetch` answer (one with `defer: true`).
    */
@@ -301,10 +340,58 @@ export interface WindowContext {
   /** `sessionStorage` entries. */
   sessionStorage?: Record<string, string>
   /**
+   * `localStorage` entries. Every case runs on an in-memory `localStorage` of the kit's own,
+   * empty unless this seeds it, so every framework sees the same storage under every Node
+   * version. With this set, the entries left when the case ends are recorded as a
+   * `localStorage` call.
+   */
+  localStorage?: Record<string, string>
+  /**
+   * Installs a recording `AudioContext`: each node created, connected, started or stopped
+   * and each parameter set is a call (`audio.createOscillator`,
+   * `audio.oscillator.frequency.value`, `audio.gain.gain.setValueAtTime`). `currentTime` is 0.
+   */
+  audio?: boolean
+  /**
    * What `fetch` answers, for every request. Each request is recorded as a
    * `fetch` call: `[url, { method, body }]`, with a JSON body parsed.
    */
   fetch?: FetchAnswer
+}
+
+/** A file a `transfer` step carries. */
+export interface TransferFile {
+  name: string
+  /** Its MIME type (`image/png`). */
+  type: string
+  /** Its text content. */
+  content: string
+}
+
+/**
+ * Layout jsdom does not compute, for every element a selector matches (now, or after a
+ * later step renders it).
+ */
+export interface LayoutStub {
+  selector: string
+  /**
+   * `scrollHeight` is this many pixels per child element, so rendering more children grows
+   * it as layout would.
+   */
+  childHeight?: number
+  /** `clientHeight` in pixels. */
+  clientHeight?: number
+  /**
+   * The starting `scrollTop`. Writes (`scrollTop =`, `scrollTo`, `scrollBy`) are kept between 0
+   * and `scrollHeight - clientHeight`, and each snapshot ends with
+   * `@scroll <selector> <scrollTop>,…`.
+   */
+  scrollTop?: number
+  /**
+   * `getBoundingClientRect()`, `offsetWidth`, `offsetHeight`, `clientWidth` (and
+   * `clientHeight`, unless set above), in pixels.
+   */
+  rect?: { x?: number; y?: number; width: number; height: number }
 }
 
 /** One `fetch` answer. */
@@ -353,6 +440,15 @@ export interface UICase {
    * Responsive components (shells, drawers) are rendered at this width.
    */
   viewportWidth?: number
+  /**
+   * The primary pointer `matchMedia` reports: `coarse` (a touch screen) matches
+   * `(pointer: coarse)` and `(hover: none)`, `fine` matches `(pointer: fine)` and
+   * `(hover: hover)`, and the `any-` forms alike. Without it, every pointer and hover query
+   * answers false.
+   */
+  pointer?: 'fine' | 'coarse'
+  /** Layout geometry for elements jsdom gives none (a scrolling message list). */
+  layout?: LayoutStub[]
 }
 
 /**

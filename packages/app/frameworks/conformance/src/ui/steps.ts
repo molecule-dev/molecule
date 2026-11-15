@@ -14,6 +14,7 @@ import type { ThemeProvider } from '@molecule/app-theme'
 import { freshContainer, performDomInteraction, setCaseTranslations } from './environment.js'
 import { createFakeAuthClient, createFakeThemeProvider } from './fakes.js'
 import { normalizeArg, normalizeDom } from './normalize.js'
+import { applyLayout, installAudio, installLocalStorage, layoutNote } from './page.js'
 import { capturePage, pixelCaptureDir } from './pixel-capture.js'
 import type {
   AppComposition,
@@ -237,8 +238,9 @@ export function caseStrings(testCase: UICase): Set<string> {
 }
 
 /**
- * Puts the page into a case's {@link WindowContext}: URL, `sessionStorage` and
- * a recording `fetch`. Every request is recorded as a `fetch` call; with
+ * Puts the page into a case's {@link WindowContext}: URL, `sessionStorage`,
+ * `localStorage` (the kit's in-memory one, for every case), a recording `fetch` and
+ * a recording `AudioContext`. Every request is recorded as a `fetch` call; with
  * `fetch.defer` each one waits for {@link PageControls.answerFetch}.
  *
  * @param context - The case's window context.
@@ -258,7 +260,11 @@ export function applyWindowContext(
       )
     next()
   }
-  if (!context) return { restore: () => {}, answerFetch }
+  const local = installLocalStorage(context?.localStorage ?? {})
+  if (!context) return { restore: () => local.restore(), answerFetch }
+  const audio = context.audio
+    ? installAudio((name, args) => recorder.calls.push({ name, args }))
+    : null
   const url = `${location.pathname}${location.search}${location.hash}`
   const storage = Object.fromEntries(
     Array.from({ length: sessionStorage.length }, (_v, i) => sessionStorage.key(i)!).map((k) => [
@@ -310,6 +316,10 @@ export function applyWindowContext(
           name: 'window.location',
           args: [`${location.pathname}${location.search}`],
         })
+      if (context.localStorage !== undefined)
+        recorder.calls.push({ name: 'localStorage', args: [local.contents()] })
+      audio?.restore()
+      local.restore()
       globalThis.fetch = realFetch
       sessionStorage.clear()
       for (const [key, value] of Object.entries(storage)) sessionStorage.setItem(key, value)
@@ -409,6 +419,9 @@ export async function runSteps(
   }
   try {
     const snap = (note?: string): void => {
+      applyLayout()
+      const scroll = layoutNote()
+      if (scroll) note = note ? `${note}\n${scroll}` : scroll
       const focus = focusPath()
       const where = state.unmounted ? (state.location ?? '') : mounted.location()
       const route = routeStateText(
@@ -428,6 +441,7 @@ export async function runSteps(
     await mounted.flush()
     snap()
     for (const step of testCase.interactions ?? []) {
+      applyLayout()
       snap(await runStep(step, mounted, recorder, app, page, state))
     }
   } finally {
@@ -449,6 +463,8 @@ const AFTER_UNMOUNT = new Set<Interaction['type']>([
   'http',
   'auth',
   'control',
+  'message',
+  'storage',
 ])
 
 const runStep = async (

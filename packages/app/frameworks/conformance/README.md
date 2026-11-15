@@ -124,6 +124,9 @@ A case (`UICase`, `src/ui/spec.ts`) is plain data, so every framework reads the 
 | `{ probe, value: true, label }`                         | the same button showing the hook's current value as `data-parity-value` (JSON)                                              |
 | `callbacks`, `callbackResults`                          | callback props to record, and what each returns: `returns`, `resolve`, `reject`, or `defer` (pending until a `settle` step) |
 | `context`                                               | app state: auth status/user, theme mode, initial route, locale                                                              |
+| `context.window`                                        | the page: URL, `sessionStorage`, `localStorage` (recorded at the end), a recording `fetch`, a recording `AudioContext`      |
+| `pointer`                                               | `fine` or `coarse`: what `(pointer: …)` and `(hover: …)` queries answer (all false without it)                              |
+| `layout`                                                | geometry jsdom has none of, per selector: `scrollHeight` per child, `clientHeight`, a kept `scrollTop`, a rect              |
 | `viewportWidth`, `fakeTimers`                           | `matchMedia` width; fake timers for `advance` steps                                                                         |
 
 Interactions: `click`, `dblclick`, `focus`, `blur`, `mouseenter`, `mouseleave`, `pointerdown`,
@@ -132,12 +135,26 @@ Interactions: `click`, `dblclick`, `focus`, `blur`, `mouseenter`, `mouseleave`, 
 callback), `navigate` (the router, from outside), `fetch` (answers the oldest page request
 held by `context.window.fetch` with `defer: true`), `control` (calls a control an area's fakes
 registered, such as `chat.emit` or `chat.finish`, so a feature case with `composition: 'app'`
-scripts what a service does from the other side), `unmount` (tears the component down; only
-`fetch`, `settle`, `advance`, `http`, `auth` and `control` may follow, so a case shows whether
-work that settles after the page is left still reaches a callback, which React's never do).
+scripts what a service does from the other side), `pointer` (a pointer event at `clientX`/`clientY`,
+then the mouse event a browser sends after it, for drag handles), `transfer` (a `paste` or a drag
+event carrying files or string data; a drag sequence shares one data object), `message` (a
+`postMessage` from the window of the iframe `from` selects), `storage` (another tab writes
+`localStorage`), `unmount` (tears the component down; only `fetch`, `settle`, `advance`, `http`,
+`auth`, `control`, `message` and `storage` may follow, so a case shows whether work that settles
+after the page is left still reaches a callback, which React's never do, and whether a listener
+was removed).
 
 A `keydown` takes `metaKey`, `ctrlKey`, `altKey` and `shiftKey`; it bubbles, so a shortcut
 listener on `document` or `window` sees it.
+
+The page is the same for every framework and every Node version: each case gets an in-memory
+`localStorage` of the kit's own (Node 26 shadows jsdom's with its own, unusable one), pointer
+capture is tracked and `scrollIntoView` does nothing. The snapshot after a `transfer` step notes
+whether the event's default was prevented (and a drag event's `dropEffect`); a `layout` entry
+with a `scrollTop` adds `@scroll <selector> <scrollTop>` to every snapshot, so scroll anchoring
+is compared. With `context.window.audio`, every oscillator, gain node, connection, parameter
+change and start is a call (`audio.oscillator.frequency.value`); a component that keeps one
+context across mounts records the same calls in every case.
 
 A `props` step that changes a controlled value (`checked`, `value`) holds a framework to
 React's update path, which differs from its mount path: React sets the `checked` attribute
