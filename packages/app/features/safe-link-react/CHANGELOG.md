@@ -1,5 +1,11 @@
 # @molecule/app-safe-link-react
 
+## 1.0.6
+
+### Patch Changes
+
+- Export `SafeLinkProps`, the props type of `SafeLink`.
+
 ## 1.0.5
 
 ### Patch Changes

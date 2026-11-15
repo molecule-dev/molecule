@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 4.1.0
+
+### Minor Changes
+
+- Expose useOptimisticToggle through the React Native framework bindings.
+
 ## 4.0.1
 
 ### Patch Changes

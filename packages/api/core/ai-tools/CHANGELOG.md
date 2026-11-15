@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 2.1.0
+
+### Minor Changes
+
+- `write_file` checks the path, reads the previous text, writes the file and parses it in one sandbox command when the backend offers the new optional `replaceFileAndCheck`.
+
 ## 2.0.0
 
 ### Major Changes

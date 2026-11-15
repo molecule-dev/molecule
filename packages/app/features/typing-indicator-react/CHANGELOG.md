@@ -1,5 +1,11 @@
 # @molecule/app-typing-indicator-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Set each dot's stagger inside the `animation` shorthand, so changing `durationMs` no longer logs a React style warning.
+
 ## 4.0.0
 
 ### Patch Changes
