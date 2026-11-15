@@ -143,8 +143,9 @@ describe('<DayTimeline>', () => {
     expect((action as HTMLButtonElement).type).toBe('button')
     fireEvent.click(action)
     expect(onClick).toHaveBeenCalledTimes(1)
-    // A native button turns Enter / Space into that click itself; a key handler
-    // of its own would run the action a second time in a real browser.
+    // A native button turns Enter / Space into that click itself, so the event has
+    // no key handler. jsdom does not synthesize that click, so these key presses
+    // reach onClick only through a key handler of the component's own.
     fireEvent.keyDown(action, { key: 'Enter' })
     fireEvent.keyDown(action, { key: ' ' })
     expect(onClick).toHaveBeenCalledTimes(1)
