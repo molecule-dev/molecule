@@ -356,6 +356,7 @@ describe("trust:new with the owner's phone", () => {
     expect(ledgerOf(root).sort()).toEqual([...names].sort())
   })
 
+  // A real 2 s pause plus three phone answers: 3.9 s at load average 60, near the 5 s default.
   it("waits out npm's 2FA rate limit instead of asking the phone into it (OLD MUSTFAIL)", async () => {
     const names = ['c', 'd', 'e', 'f'].map((x) => `@molecule/api-demo-${x}`)
     const root = scratchRepo({ ledger: [], names })
@@ -385,7 +386,7 @@ describe("trust:new with the owner's phone", () => {
       /npm paused 2FA for a few minutes and the pause is over/,
     )
     expect(ledgerOf(root).sort()).toEqual([...names].sort())
-  })
+  }, 60_000)
 
   it('shares a code only while it is fresh, so its expiry refuses one call and never locks 2FA (OLD MUSTFAIL)', async () => {
     // The sweep of 2026-11-15: eight packages at once, a code that died with four calls
