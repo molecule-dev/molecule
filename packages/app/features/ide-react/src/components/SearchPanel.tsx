@@ -15,7 +15,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { SearchPanelProps, SearchResponse, SearchResult } from '../types.js'
-import { DEFAULT_SEARCH_EXCLUDED_DIRS } from '../types.js'
+import { DEFAULT_SEARCH_EXCLUDED_DIRS } from './search-utilities.js'
 
 const logger = getLogger('search')
 

@@ -1070,26 +1070,6 @@ export interface SearchPanelProps {
 }
 
 /**
- * Default search-excluded directory names shown when the host supplies none —
- * VS Code's `search.exclude`/`files.exclude` defaults plus the platform's
- * vendored/build dirs. MUST stay in sync with the API-side list in
- * `@molecule/api-ai-tools` (utilities.ts) — the cross-stack import boundary
- * forces the duplication.
- */
-export const DEFAULT_SEARCH_EXCLUDED_DIRS = [
-  'node_modules',
-  'bower_components',
-  '.git',
-  '.svn',
-  '.hg',
-  'CVS',
-  'dist',
-  '.next',
-  '.vite',
-  'molecule',
-] as const
-
-/**
  * A single file's search results.
  */
 export interface SearchResult {
