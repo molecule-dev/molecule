@@ -4,6 +4,77 @@ import { nativeProvider } from '../controller.js'
 import { formValuesEqual } from '../utilities.js'
 
 describe('native late form values', () => {
+  it('uses each previous baseline when edited and incoming objects share aliases', () => {
+    const form = nativeProvider.createForm({
+      defaultValues: { a: { x: 0, y: 1 }, b: { x: 1, y: 0 } },
+    })
+    const local = { x: 1, y: 1 }
+    form.setValues({ a: local, b: local })
+    const incoming = { x: 2, y: 2 }
+    form.updateValues({ a: incoming, b: incoming }, { keepDirtyValues: true })
+    expect(form.getValues()).toEqual({ a: { x: 1, y: 2 }, b: { x: 2, y: 1 } })
+  })
+  it('preserves a nested edited leaf while hydrating pristine siblings and new keys', () => {
+    const form = nativeProvider.createForm({
+      defaultValues: {
+        preferences: { notifications: { email: false, sms: false }, theme: 'system' },
+      },
+    })
+    form.setValue('preferences', { notifications: { email: true, sms: false }, theme: 'system' })
+    form.updateValues(
+      { preferences: { notifications: { email: false, sms: true }, theme: 'dark' } },
+      { keepDirtyValues: true },
+    )
+    expect(form.getValue('preferences')).toEqual({
+      notifications: { email: true, sms: true },
+      theme: 'dark',
+    })
+    expect(form.getFieldState('preferences').dirty).toBe(true)
+    form.reset()
+    expect(form.getValue('preferences')).toEqual({
+      notifications: { email: false, sms: true },
+      theme: 'dark',
+    })
+  })
+
+  it('keeps arrays atomic and respects local deletions while loading remote record properties', () => {
+    const form = nativeProvider.createForm<{ metadata: Record<string, string>; tags: string[] }>({
+      defaultValues: { metadata: { keep: 'old', removed: 'old' }, tags: ['old'] },
+    })
+    form.setValue('metadata', { keep: 'old', local: 'typed' })
+    form.setValue('tags', ['draft'])
+    form.updateValues(
+      { metadata: { keep: 'loaded', removed: 'remote', added: 'remote' }, tags: ['remote'] },
+      { keepDirtyValues: true },
+    )
+    expect(form.getValues()).toEqual({
+      metadata: { keep: 'loaded', local: 'typed', added: 'remote' },
+      tags: ['draft'],
+    })
+  })
+
+  it('merges cyclic plain-object values without recursion or caller mutation', () => {
+    interface Node {
+      label: string
+      loaded: string
+      self?: Node
+    }
+    const defaults: Node = { label: 'old', loaded: 'old' }
+    defaults.self = defaults
+    const local: Node = { label: 'draft', loaded: 'old' }
+    local.self = local
+    const incoming: Node = { label: 'remote', loaded: 'remote' }
+    incoming.self = incoming
+    const form = nativeProvider.createForm({ defaultValues: { node: defaults } })
+    form.setValue('node', local)
+    form.updateValues({ node: incoming }, { keepDirtyValues: true })
+    const result = form.getValue('node')
+    expect(result.label).toBe('draft')
+    expect(result.loaded).toBe('remote')
+    expect(result.self).toBe(result)
+    expect(incoming.label).toBe('remote')
+  })
+
   it('preserves submission state while rebasing values', async () => {
     const form = nativeProvider.createForm({
       defaultValues: { title: '', body: '' },

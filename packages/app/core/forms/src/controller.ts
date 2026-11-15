@@ -22,6 +22,82 @@ import type {
 import { formValuesEqual, snapshotFormValue } from './utilities.js'
 import { validateValue } from './validation.js'
 
+/** Whether nested fields can be merged without changing an opaque value’s identity. */
+function isPlainFormRecord(value: object): value is Record<string, unknown> {
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
+}
+
+/**
+ * Rebase a form on incoming values while preserving only changed plain-object
+ * leaves. An edit to notifications.email must not freeze notifications.sms.
+ * Arrays and opaque values remain atomic; a removed local property stays removed.
+ * @param current - The locally edited values.
+ * @param previous - Their previous clean baseline.
+ * @param incoming - The new clean baseline.
+ * @returns Detached incoming values with local edits retained.
+ */
+function preserveDirtyValues<T>(current: T, previous: T, incoming: T): T {
+  const seen = new WeakMap<object, WeakMap<object, WeakMap<object, unknown>>>()
+  const merge = (local: unknown, before: unknown, next: unknown): unknown => {
+    if (formValuesEqual(local, before)) return snapshotFormValue(next)
+    if (
+      !local ||
+      !before ||
+      !next ||
+      typeof local !== 'object' ||
+      typeof before !== 'object' ||
+      typeof next !== 'object' ||
+      !isPlainFormRecord(local) ||
+      !isPlainFormRecord(before) ||
+      !isPlainFormRecord(next)
+    )
+      return snapshotFormValue(local)
+    const prior = seen.get(local)?.get(before)?.get(next)
+    if (prior) return prior
+    const result: Record<string, unknown> = Object.create(Object.getPrototypeOf(next))
+    const baselines = seen.get(local) ?? new WeakMap<object, WeakMap<object, unknown>>()
+    const matches = baselines.get(before) ?? new WeakMap<object, unknown>()
+    matches.set(next, result)
+    baselines.set(before, matches)
+    seen.set(local, baselines)
+    for (const key of new Set([
+      ...Object.keys(next),
+      ...Object.keys(local),
+      ...Object.keys(before),
+    ])) {
+      const localHas = Object.hasOwn(local, key)
+      const beforeHas = Object.hasOwn(before, key)
+      const nextHas = Object.hasOwn(next, key)
+      if (localHas !== beforeHas) {
+        if (localHas)
+          Object.defineProperty(result, key, {
+            value: snapshotFormValue(local[key]),
+            enumerable: true,
+            writable: true,
+            configurable: true,
+          })
+      } else if (localHas && (!formValuesEqual(local[key], before[key]) || nextHas)) {
+        Object.defineProperty(result, key, {
+          value: merge(local[key], before[key], next[key]),
+          enumerable: true,
+          writable: true,
+          configurable: true,
+        })
+      } else if (nextHas) {
+        Object.defineProperty(result, key, {
+          value: snapshotFormValue(next[key]),
+          enumerable: true,
+          writable: true,
+          configurable: true,
+        })
+      }
+    }
+    return result
+  }
+  return merge(current, previous, incoming) as T
+}
+
 /**
  * Creates a native form provider that manages form state, validation,
  * and field registration without any external library. This is the
@@ -496,14 +572,11 @@ export const createNativeFormProvider = (): FormProvider => {
             submissionValidationVersion++
             replacementRevision++
           }
-          const nextValues = snapshotFormValue(nextDefaultValues)
-          if (resetOptions.keepDirtyValues) {
-            for (const key of Object.keys(currentValues)) {
-              if (!formValuesEqual(currentValues[key], previousDefaultValues[key])) {
-                nextValues[key] = snapshotFormValue(currentValues[key])
-              }
-            }
-          }
+          // Dirty preservation follows plain-object leaves, so a nested edit
+          // cannot prevent an untouched sibling from receiving its loaded value.
+          const nextValues = resetOptions.keepDirtyValues
+            ? preserveDirtyValues(currentValues, previousDefaultValues, nextDefaultValues)
+            : snapshotFormValue(nextDefaultValues)
           reviseChangedValues(values, nextValues)
           defaultValues = nextDefaultValues
           values = nextValues
