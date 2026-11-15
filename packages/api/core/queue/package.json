@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-queue",
   "version": "1.1.2",
-  "description": "Queue/messaging core interface for molecule.dev",
+  "description": "Message queue interface",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

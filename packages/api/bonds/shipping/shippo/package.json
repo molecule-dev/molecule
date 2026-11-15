@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-shipping-shippo",
   "version": "1.0.4",
-  "description": "Shippo shipping provider for molecule.dev.",
+  "description": "Shippo shipping provider — multi-carrier rate quotes, label purchase and refund, and tracking via the Shippo REST API.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

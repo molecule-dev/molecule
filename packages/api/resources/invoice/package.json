@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-invoice",
   "version": "1.0.6",
-  "description": "Invoice CRUD + line items + draft/sent/paid/overdue status. Extracted from invoice-billing flagship.",
+  "description": "Line-item invoicing with payment tracking",
   "homepage": "https://www.molecule.dev/packages/api-resource-invoice",
   "type": "module",
   "main": "dist/index.js",

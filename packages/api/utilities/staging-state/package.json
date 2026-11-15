@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-staging-state",
   "version": "1.0.3",
-  "description": "State management for active staging environments in molecule.dev",
+  "description": "State management for active staging environments",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

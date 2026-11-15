@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-comment",
   "version": "1.2.6",
-  "description": "Threaded comments on any resource with polymorphic attachment and pagination",
+  "description": "Threaded comments on any resource with polymorphic attachment, pagination and sequential integer comment numbers (createNumberedComment)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

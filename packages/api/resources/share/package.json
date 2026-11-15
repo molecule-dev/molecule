@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-share",
   "version": "1.0.10",
-  "description": "Generic ACL table keyed by (resource_type, resource_id, principal_id) + role + expiry + public-link slug.",
+  "description": "Generic ACL grants keyed by (resourceType, resourceId, principalType, principalId) with roles and expiry, plus public link-share tokens resolved by slug.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-spaced-repetition",
   "version": "1.0.3",
-  "description": "SM-2 algorithm + opinionated review_log helpers.",
+  "description": "SM-2 algorithm + opinionated.",
   "homepage": "https://www.molecule.dev/packages/api-spaced-repetition",
   "type": "module",
   "main": "dist/index.js",

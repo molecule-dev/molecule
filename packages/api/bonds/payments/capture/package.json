@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-payments-capture",
   "version": "1.0.3",
-  "description": "In-memory payments capture provider for molecule.dev — simulates a hosted-checkout vendor with no network calls.",
+  "description": "In-memory payments provider for the dev, browser and offline profile — simulates a hosted-checkout vendor with no network calls: checkouts complete, subscriptions activate, refunds record, and signed webhook events can be built locally. Answers to the stripe name by default so app code is identical; production swaps the stripe bond in.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

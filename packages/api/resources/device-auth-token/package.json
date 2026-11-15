@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-device-auth-token",
   "version": "1.0.3",
-  "description": "Per-device long-lived bearer tokens — hashed at rest, scoped, revocable, with last-used tracking. Distinct from human user session tokens.",
+  "description": "Per-device long-lived bearer tokens (revocable, scoped, last-used tracking) for headless device authentication.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

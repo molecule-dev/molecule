@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-payments",
   "version": "1.2.3",
-  "description": "Payments core interface for molecule.dev",
+  "description": "Subscriptions and in-app purchases",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

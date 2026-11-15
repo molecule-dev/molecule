@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-stack-fingerprint",
   "version": "1.0.4",
-  "description": "Error stack-trace fingerprinting (group similar errors) via SHA-1 of normalized frames.",
+  "description": "Error stack-trace fingerprinting (group similar errors) via SHA-1 of normalized frames. Pure functions: input = error stack + metadata, output = stable fingerprint hash + grouping key.",
   "homepage": "https://www.molecule.dev/packages/api-stack-fingerprint",
   "type": "module",
   "main": "dist/index.js",

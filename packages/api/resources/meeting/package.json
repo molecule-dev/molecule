@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-meeting",
   "version": "1.0.6",
-  "description": "Meeting capture + transcription + action-item extraction",
+  "description": "Meeting records with attendees, transcript and summary slots, plus nested action items with assignee, due date, and completion tracking.",
   "homepage": "https://www.molecule.dev/packages/api-resource-meeting",
   "type": "module",
   "main": "dist/index.js",

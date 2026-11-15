@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-project-archive-external-state-motherduck",
   "version": "1.1.0",
-  "description": "MotherDuck external-state capture for project archives — exports a project's configured MotherDuck databases (DuckDB EXPORT DATABASE, parquet) into the archive and imports them back on restore.",
+  "description": "MotherDuck external-state capture for project archives — exports a project's configured MotherDuck databases (DuckDB EXPORT DATABASE, parquet) into the archive and imports them back on restore",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

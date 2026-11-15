@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-property",
   "version": "1.0.7",
-  "description": "Property resource handlers (units, photos, amenities) with CRUD and soft-delete",
+  "description": "Property resource (units, photos, amenities)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-staging",
   "version": "1.0.3",
-  "description": "Staging environment management core interface for molecule.dev",
+  "description": "Abstract staging environment driver interface with branch-to-slug utilities",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

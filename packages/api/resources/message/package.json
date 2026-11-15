@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-message",
   "version": "1.0.9",
-  "description": "1:1 messaging threads + messages with read-tracking and realtime broadcast",
+  "description": "1:1 messaging threads with read-tracking and realtime broadcast.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

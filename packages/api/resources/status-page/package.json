@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-status-page",
   "version": "1.0.9",
-  "description": "System status page resource for molecule.dev.",
+  "description": "Status page resource with service monitoring, incidents, and uptime",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

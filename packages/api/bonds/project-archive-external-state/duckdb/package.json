@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-project-archive-external-state-duckdb",
   "version": "1.1.0",
-  "description": "DuckDB external-state capture for project archives — copies a project's configured .duckdb database files (and their .wal siblings) into the archive and writes them back on restore.",
+  "description": "DuckDB external-state capture for project archives — copies a project's configured .duckdb database files (and their .wal siblings) into the archive and writes them back on restore",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

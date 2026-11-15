@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-proxy-agent",
   "version": "1.1.2",
-  "description": "CONNECT-capable HTTP(S) proxy agent built from the standard proxy environment, for vendor SDKs that ignore it.",
+  "description": "CONNECT-capable HTTP(S) proxy agent built from the standard proxy environment (HTTPS_PROXY / HTTP_PROXY / NO_PROXY), for vendor SDKs that build their own HTTP agent and ignore it.",
   "homepage": "https://www.molecule.dev/packages/api-proxy-agent",
   "type": "module",
   "main": "dist/index.js",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-shipping",
   "version": "1.0.4",
-  "description": "Shipping core interface for molecule.dev",
+  "description": "Carrier-agnostic shipping labels + tracking.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

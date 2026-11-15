@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-scheduler-default",
   "version": "1.0.3",
-  "description": "Default in-process scheduler provider for molecule.dev",
+  "description": "Default in-process task scheduler",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-shipping-easypost",
   "version": "1.0.4",
-  "description": "EasyPost shipping provider for molecule.dev.",
+  "description": "EasyPost shipping provider — multi-carrier rate quotes, label purchase and void/refund, and tracking via the EasyPost REST API.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

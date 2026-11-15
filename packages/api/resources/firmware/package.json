@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-firmware",
   "version": "1.0.7",
-  "description": "Owner-scoped firmware versions + OTA rollouts: draft/publish/deprecate, per-device update tasks, realtime command dispatch, device-token-authenticated status reporting. Extracted from iot-device-manager flagship.",
+  "description": "Firmware versions + OTA rollouts",
   "homepage": "https://www.molecule.dev/packages/api-resource-firmware",
   "type": "module",
   "main": "dist/index.js",

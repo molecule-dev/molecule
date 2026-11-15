@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-medication",
   "version": "1.0.5",
-  "description": "Medication tracking + dosing schedule + adherence log",
+  "description": "Medications + dosing + adherence tracking",
   "homepage": "https://www.molecule.dev/packages/api-resource-medication",
   "type": "module",
   "main": "dist/index.js",

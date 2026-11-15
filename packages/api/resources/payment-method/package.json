@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-payment-method",
   "version": "1.0.6",
-  "description": "Saved payment-method resource for Stripe SetupIntent flow (saved cards, default card, detach).",
+  "description": "Saved Stripe PaymentMethods with metadata + default flag.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

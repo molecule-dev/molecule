@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-template",
   "version": "1.0.9",
-  "description": "Generic template registry — store reusable resource snapshots keyed by (resourceType, slug) and instantiate them with variable substitution.",
+  "description": "Generic templates table keyed by (resource_type, snapshot).",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

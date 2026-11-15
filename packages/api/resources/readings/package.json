@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-readings",
   "version": "1.0.6",
-  "description": "Generic time-series sensor readings with on-the-fly aggregation (raw/5min/hour/day rollups)",
+  "description": "Generic time-series with on-the-fly aggregation",
   "homepage": "https://www.molecule.dev/packages/api-resource-readings",
   "type": "module",
   "main": "dist/index.js",

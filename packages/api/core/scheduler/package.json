@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-scheduler",
   "version": "1.1.1",
-  "description": "Task scheduler interface for molecule.dev",
+  "description": "Task scheduling and cron jobs",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

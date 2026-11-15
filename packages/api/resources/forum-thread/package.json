@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-forum-thread",
   "version": "1.0.6",
-  "description": "Forum threads + nested replies + voting + author/moderator authorization",
+  "description": "Forum threads + nested replies + voting",
   "homepage": "https://www.molecule.dev/packages/api-resource-forum-thread",
   "type": "module",
   "main": "dist/index.js",
