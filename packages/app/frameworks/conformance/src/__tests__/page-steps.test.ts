@@ -13,6 +13,7 @@ import '../ui/setup.js'
 import { describe, expect, it } from 'vitest'
 
 import { CallRecorder, type MountedCase, runSteps, settle, type UICase } from '../ui/index.js'
+import { pinCaseTimeZone } from '../ui/page.js'
 
 /**
  * Mounts a DOM tree built by `build`, which may add listeners; `teardown` removes them.
@@ -60,6 +61,31 @@ const paragraph = (container: HTMLElement): HTMLParagraphElement => {
   container.appendChild(p)
   return p
 }
+
+describe('time zone', () => {
+  const noonUtc = new Date(Date.UTC(2026, 4, 13, 12))
+  const time = (): string =>
+    new Intl.DateTimeFormat('en-US', { timeStyle: 'short' }).format(noonUtc)
+
+  it('is UTC from the moment the kit loads', () => {
+    expect(process.env.TZ).toBe('UTC')
+    expect(time()).toBe('12:00 PM')
+  })
+
+  it('formats a case in UTC even when the zone moved before it', async () => {
+    try {
+      process.env.TZ = 'Europe/Tallinn'
+      expect(time()).toBe('3:00 PM')
+      const { readable } = await run({ name: 'a formatted time' }, (container) => {
+        paragraph(container).textContent = time()
+        return () => undefined
+      })
+      expect(JSON.stringify(readable[0])).toContain('12:00 PM')
+    } finally {
+      pinCaseTimeZone()
+    }
+  })
+})
 
 describe('localStorage', () => {
   it('seeds every case from its window context and records what is left when it ends', async () => {

@@ -1,13 +1,38 @@
 /**
  * Page state jsdom lacks or computes differently from a browser, installed the
- * same way for every framework: an in-memory `localStorage`, a recording
- * `AudioContext`, layout geometry for chosen elements, clipboard and drag data,
- * and pointer capture.
+ * same way for every framework: the UTC time zone, an in-memory `localStorage`, a
+ * recording `AudioContext`, layout geometry for chosen elements, clipboard and drag
+ * data, and pointer capture.
  *
  * @module
  */
 
 import type { LayoutStub, TransferFile } from './spec.js'
+
+/** The time zone every case runs in. */
+export const CASE_TIME_ZONE = 'UTC'
+
+/**
+ * Puts the process in the UTC time zone, so a date a component formats
+ * (`Intl.DateTimeFormat`, `toLocaleString`) reads the same on this machine, a
+ * developer's and CI. Node applies a `TZ` assignment at once to every `Date` and
+ * every formatter created after it. It runs when the kit loads, before a test file's
+ * own imports (a formatter a module creates as it loads keeps the zone it was
+ * created in), and again before each case.
+ *
+ * @throws {Error} When a new formatter still resolves another zone (a runtime that ignores
+ *   `TZ`): its goldens could not match another machine's.
+ */
+export function pinCaseTimeZone(): void {
+  if (process.env.TZ !== CASE_TIME_ZONE) process.env.TZ = CASE_TIME_ZONE
+  const zone = new Intl.DateTimeFormat('en-US').resolvedOptions().timeZone
+  if (zone !== CASE_TIME_ZONE)
+    throw new Error(
+      `conformance: dates format in the ${zone} time zone although TZ is ${CASE_TIME_ZONE}; run the tests with TZ=${CASE_TIME_ZONE}`,
+    )
+}
+
+pinCaseTimeZone()
 
 /** Records one call into the running case (`name`, `args`). */
 export type PageRecord = (name: string, args: unknown[]) => void

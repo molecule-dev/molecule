@@ -212,9 +212,11 @@ export type HookStep =
    * dispatch the `storage` event that write fires on this page, as the UI
    * interaction of the same name does. For a hook that reads `localStorage` itself;
    * `storage` writes the storage provider instead. The case's `context.window.localStorage`
-   * is what the page holds at mount.
+   * is what the page holds at mount. With `sameTab`, the write is this page's own code's,
+   * which fires no `storage` event: a hook learns of it only from the notice the page
+   * sends next (an `event` step).
    */
-  | { type: 'localStorage'; key: string; value: string | null }
+  | { type: 'localStorage'; key: string; value: string | null; sameTab?: boolean }
   /** Dispatch a plain event by name on `window` or `document` (a same-tab change notice). */
   | { type: 'event'; selector: 'window' | 'document'; event: string }
   /** Unmount the host (later snapshots show only calls; cleanup is observable through them). */

@@ -14,7 +14,13 @@ import type { ThemeProvider } from '@molecule/app-theme'
 import { freshContainer, performDomInteraction, setCaseTranslations } from './environment.js'
 import { createFakeAuthClient, createFakeThemeProvider } from './fakes.js'
 import { normalizeArg, normalizeDom } from './normalize.js'
-import { applyLayout, installAudio, installLocalStorage, layoutNote } from './page.js'
+import {
+  applyLayout,
+  installAudio,
+  installLocalStorage,
+  layoutNote,
+  pinCaseTimeZone,
+} from './page.js'
 import { capturePage, pixelCaptureDir } from './pixel-capture.js'
 import type {
   AppComposition,
@@ -447,8 +453,8 @@ export async function runSteps(
 }
 
 /**
- * Installs a case's clock before mount: fake timers (`fakeTimers`, for `advance` steps)
- * and a pinned `Date.now()` (`now`). With `now` alone only `Date` is faked, so a
+ * Installs a case's clock before mount: the UTC time zone, fake timers (`fakeTimers`,
+ * for `advance` steps) and a pinned `Date.now()` (`now`). With `now` alone only `Date` is faked, so a
  * component's real timers still run. Undone with `vi.useRealTimers()`.
  *
  * @param testCase - The case (UI or hook).
@@ -456,6 +462,7 @@ export async function runSteps(
  * @param testCase.now - The epoch milliseconds `Date.now()` starts at.
  */
 export function installCaseClock(testCase: { fakeTimers?: boolean; now?: number }): void {
+  pinCaseTimeZone()
   const now = testCase.now === undefined ? {} : { now: testCase.now }
   if (testCase.fakeTimers)
     vi.useFakeTimers({

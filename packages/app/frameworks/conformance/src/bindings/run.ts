@@ -141,7 +141,7 @@ const HOOK_STEP_FIELDS: StepFields<HookStep> = {
     target: 'optional',
   },
   media: { query: 'required', matches: 'required' },
-  localStorage: { key: 'required', value: 'required' },
+  localStorage: { key: 'required', value: 'required', sameTab: 'optional' },
   event: { selector: 'required', event: 'required' },
   unmount: {},
   remount: { args: 'optional' },
@@ -463,7 +463,11 @@ export async function runHookCase(
             await run(() => media?.set(step.query, step.matches))
             break
           case 'localStorage':
-            await run(() => writeLocalStorageFromOtherTab(step.key, step.value))
+            await run(() => {
+              if (!step.sameTab) writeLocalStorageFromOtherTab(step.key, step.value)
+              else if (step.value === null) localStorage.removeItem(step.key)
+              else localStorage.setItem(step.key, step.value)
+            })
             break
           case 'event':
             await run(() => {

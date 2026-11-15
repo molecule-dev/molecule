@@ -196,6 +196,18 @@ describe('localStorage and event steps', () => {
     })
     expect(results(result.snapshots)).toEqual([false, false, false, true])
   })
+
+  it('a same-tab write fires no storage event: only the notice after it reaches the hook', async () => {
+    const result = await run('useStoredFlag', {
+      args: ['flag', 'flag-changed'],
+      steps: [
+        { type: 'localStorage', key: 'flag', value: 'true', sameTab: true },
+        { type: 'localStorage', key: 'other', value: 'true' },
+        { type: 'event', selector: 'window', event: 'flag-changed' },
+      ],
+    })
+    expect(results(result.snapshots)).toEqual([false, false, false, true])
+  })
 })
 
 describe('case clock', () => {
