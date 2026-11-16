@@ -52,7 +52,7 @@ describe('extendClassMap — object overrides', () => {
     const out = extendClassMap(base, {
       button: (() => 'wholly-new-button') as UIClassMap['button'],
     } as Partial<UIClassMap>)
-    expect(out.button({ variant: 'primary' })).toBe('wholly-new-button')
+    expect(out.button({ variant: 'solid' })).toBe('wholly-new-button')
   })
 
   it('empty overrides ({}) returns shallow copy of base', () => {
@@ -79,7 +79,7 @@ describe('extendClassMap — function overrides', () => {
     const out = extendClassMap(base, (b) => ({
       button: (opts) => `${(b.button as (o: typeof opts) => string)(opts)} extra-class`,
     }))
-    expect(out.button({ variant: 'primary' })).toBe('base-button-primary extra-class')
+    expect(out.button({ variant: 'solid' })).toBe('base-button-solid extra-class')
   })
 
   it('function override can replace static tokens', () => {
@@ -101,7 +101,7 @@ describe('extendClassMap — function overrides', () => {
       button: (opts) => `${(b.button as (o: typeof opts) => string)(opts)} mixed`,
     }))
     expect((out as unknown as { page: string }).page).toBe('mixed-page')
-    expect(out.button({ variant: 'x' })).toBe('base-button-x mixed')
+    expect(out.button({ variant: 'outline' })).toBe('base-button-outline mixed')
   })
 
   it('successive extendClassMap calls compose left-to-right', () => {

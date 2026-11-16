@@ -655,7 +655,7 @@ describe('@molecule/app-ui', () => {
           { value: 'b', label: 'Option B' },
         ],
         value: 'a',
-        onChange: (val) => {
+        onValueChange: (val) => {
           const _check: string = val
           expect(typeof _check).toBe('string')
         },
@@ -670,7 +670,7 @@ describe('@molecule/app-ui', () => {
           { value: 2, label: 'Two' },
         ],
         value: 1,
-        onChange: (val) => {
+        onValueChange: (val) => {
           const _check: number = val
           expect(typeof _check).toBe('number')
         },
@@ -819,15 +819,12 @@ describe('@molecule/app-ui', () => {
       expect(props.size).toBe(64)
     })
 
-    it('should compile with fallback and onError', () => {
-      const onError = vi.fn()
+    it('should compile with a fallback for an image that fails to load', () => {
       const props: AvatarProps = {
         src: 'https://example.com/broken.jpg',
         fallback: 'FB',
-        onError,
       }
       expect(props.fallback).toBe('FB')
-      expect(props.onError).toBe(onError)
     })
   })
 
@@ -1324,13 +1321,13 @@ describe('@molecule/app-ui', () => {
     it('should inherit FormHTMLAttributes', () => {
       const props: FormProps = {
         action: '/api/submit',
-        method: 'POST',
+        method: 'post',
         encType: 'multipart/form-data',
         autoComplete: 'off',
         noValidate: true,
       }
       expect(props.action).toBe('/api/submit')
-      expect(props.method).toBe('POST')
+      expect(props.method).toBe('post')
     })
   })
 
