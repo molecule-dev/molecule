@@ -31,10 +31,11 @@
  * fields are joined with literal middle-dot separators; there is no prop to
  * change or localise those separators.
  *
- * `onClick` makes the whole row clickable but the root is a plain `<div>`
- * with no `role`, `tabIndex`, or keyboard handler — keyboard users can only
- * reach whatever you pass in `actions`. Put a real link or button in
- * `actions` when the row is the primary navigation affordance.
+ * `onClick` makes the whole row clickable through a transparent native button
+ * over it — the row is named by the title (the `<h3>` itself takes the id the
+ * button points at with `aria-labelledby`), and the inner controls sit above
+ * it and keep their own clicks. Put a real link or button in `actions` for the
+ * other row actions.
  *
  * @module
  */

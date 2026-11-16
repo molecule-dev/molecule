@@ -43,13 +43,25 @@ afterEach(() => {
 })
 
 /** Render with Solid's browser renderer and return the markup. */
-const mount = (view: () => Parameters<typeof render>[0]): string => {
+const mount = (view: Parameters<typeof render>[0]): string => {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(view, container))
   const markup = container.innerHTML
   return markup
 }
+
+/** Renders and returns the container element (for events). */
+const mountHost = (view: Parameters<typeof render>[0]): HTMLElement => {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  disposers.push(render(view, container))
+  return container
+}
+
+/** The row's open button: the transparent native button over the whole row. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('button[data-mol-id="job-listing-row-open"]')!
 
 describe('JobListingRow', () => {
   it('renders the title inside an <h3>', () => {
@@ -98,6 +110,51 @@ describe('JobListingRow', () => {
     expect(clickable).toContain('cursorPointer')
     const plain = mount(() => <JobListingRow title="T" />)
     expect(plain).not.toContain('cursorPointer')
+  })
+
+  it('without onClick there is no open button', () => {
+    const clickable = mount(() => <JobListingRow title="T" onClick={() => {}} />)
+    expect(clickable).toContain('<button type="button"')
+    expect(clickable).toContain('data-mol-id="job-listing-row-open"')
+    const plain = mount(() => <JobListingRow title="T" />)
+    expect(plain).not.toContain('<button')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const host = mountHost(() => <JobListingRow title="Senior Engineer" onClick={onClick} />)
+    openButton(host).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = mountHost(() => (
+      <JobListingRow
+        title="T"
+        tags={<span data-tag="">Remote</span>}
+        actions={
+          <button type="button" data-actions="">
+            Apply
+          </button>
+        }
+        onClick={onClick}
+      />
+    ))
+    host.querySelector<HTMLElement>('[data-actions]')!.click()
+    host.querySelector<HTMLElement>('[data-tag]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const host = mountHost(() => (
+      <JobListingRow title="Senior Frontend Engineer" onClick={() => {}} />
+    ))
+    const labelId = openButton(host).getAttribute('aria-labelledby') ?? ''
+    expect(labelId).not.toBe('')
+    const heading = document.getElementById(labelId)
+    expect(heading?.tagName.toLowerCase()).toBe('h3')
+    expect(heading?.textContent?.trim()).toBe('Senior Frontend Engineer')
   })
 
   it('forwards className', () => {

@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
@@ -112,6 +113,10 @@ const render = async (props: Record<string, unknown> = {}): Promise<Mounted> => 
   return m
 }
 
+/** The row's open button: the transparent native button over the whole row. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('button[data-mol-id="job-listing-row-open"]')!
+
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
 })
@@ -162,13 +167,46 @@ describe('JobListingRow', () => {
 
   it('marks the row clickable only when onClick is supplied', async () => {
     const clickable = await render({ title: 'T', onClick: () => {} })
-    expect(
-      clickable.host.querySelector('div[mol-job-listing-row]')?.getAttribute('class'),
-    ).toContain('cursorPointer')
+    expect(clickable.host.innerHTML).toContain('cursorPointer')
     const plain = await render({ title: 'T' })
-    expect(
-      plain.host.querySelector('div[mol-job-listing-row]')?.getAttribute('class'),
-    ).not.toContain('cursorPointer')
+    expect(plain.host.innerHTML).not.toContain('cursorPointer')
+  })
+
+  it('without onClick there is no open button', async () => {
+    const clickable = await render({ title: 'T', onClick: () => {} })
+    expect(clickable.host.innerHTML).toContain('<button type="button"')
+    expect(clickable.host.innerHTML).toContain('data-mol-id="job-listing-row-open"')
+    const plain = await render({ title: 'T' })
+    expect(plain.host.innerHTML).not.toContain('<button')
+  })
+
+  it('clicking the open button calls onClick', async () => {
+    const onClick = vi.fn()
+    const m = await render({ title: 'Senior Engineer', onClick })
+    openButton(m.host).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', async () => {
+    const onClick = vi.fn()
+    const m = await mount(
+      `<div mol-job-listing-row [title]="p['title']" [onClick]="p['onClick']"><span slot="tags" data-tag>Remote</span><button type="button" slot="actions" data-actions>Apply</button></div>`,
+      JobListingRow as Type<unknown>,
+      { title: 'T', onClick },
+    )
+    mounted.push(m)
+    m.host.querySelector<HTMLElement>('[data-actions]')!.click()
+    m.host.querySelector<HTMLElement>('[data-tag]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', async () => {
+    const m = await render({ title: 'Senior Frontend Engineer', onClick: () => {} })
+    const labelId = openButton(m.host).getAttribute('aria-labelledby') ?? ''
+    expect(labelId).not.toBe('')
+    const heading = document.getElementById(labelId)
+    expect(heading?.tagName.toLowerCase()).toBe('h3')
+    expect(heading?.textContent?.trim()).toBe('Senior Frontend Engineer')
   })
 
   it('forwards className', async () => {

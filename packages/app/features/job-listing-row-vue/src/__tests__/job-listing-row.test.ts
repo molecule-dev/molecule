@@ -56,6 +56,22 @@ const render = (
   return markup
 }
 
+/** Mounts a {@link JobListingRow} and returns its host element (for events). */
+const mountHost = (
+  props: Record<string, unknown>,
+  slots?: Record<string, () => VNodeChild[]>,
+): HTMLElement => {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const app = createApp(defineComponent({ render: () => h(JobListingRow, props, slots) }))
+  app.mount(host)
+  return host
+}
+
+/** The row's open button: the transparent native button over the whole row. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('button[data-mol-id="job-listing-row-open"]')!
+
 describe('JobListingRow', () => {
   it('renders the title inside an <h3>', () => {
     const markup = render({ title: 'Senior Engineer' })
@@ -101,6 +117,44 @@ describe('JobListingRow', () => {
     expect(clickable).toContain('cursorPointer')
     const plain = render({ title: 'T' })
     expect(plain).not.toContain('cursorPointer')
+  })
+
+  it('without onClick there is no open button', () => {
+    const clickable = render({ title: 'T', onClick: () => {} })
+    expect(clickable).toContain('<button type="button"')
+    expect(clickable).toContain('data-mol-id="job-listing-row-open"')
+    const plain = render({ title: 'T' })
+    expect(plain).not.toContain('<button')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const host = mountHost({ title: 'Senior Engineer', onClick })
+    openButton(host).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = mountHost(
+      { title: 'T', onClick },
+      {
+        tags: () => [h('span', { 'data-tag': '' }, 'Remote')],
+        actions: () => [h('button', { type: 'button', 'data-actions': '' }, 'Apply')],
+      },
+    )
+    host.querySelector<HTMLElement>('[data-actions]')!.click()
+    host.querySelector<HTMLElement>('[data-tag]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const host = mountHost({ title: 'Senior Frontend Engineer', onClick: () => {} })
+    const labelId = openButton(host).getAttribute('aria-labelledby') ?? ''
+    expect(labelId).not.toBe('')
+    const heading = document.getElementById(labelId)
+    expect(heading?.tagName.toLowerCase()).toBe('h3')
+    expect(heading?.textContent).toBe('Senior Frontend Engineer')
   })
 
   it('forwards className', () => {

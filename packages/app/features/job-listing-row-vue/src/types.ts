@@ -26,7 +26,14 @@ export interface JobListingRowProps {
   actions?: VNodeChild
   /** Tags / chips (Remote, React, Hybrid). */
   tags?: VNodeChild
-  /** Click handler on the row. */
+  /**
+   * Activates the row: while it is set, an empty, transparent native button
+   * covers the whole row and calls this on click — the whole row is the click
+   * target, and Enter / Space activate the button natively. The row is named
+   * by the title (the `<h3>` itself takes the id the button points at with
+   * `aria-labelledby`); the `actions` and `tags` slots sit above the button
+   * and keep their own clicks.
+   */
   onClick?: () => void
   /** Extra classes. */
   className?: string

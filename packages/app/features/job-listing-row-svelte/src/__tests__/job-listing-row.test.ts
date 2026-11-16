@@ -56,6 +56,19 @@ const render = (props: JobListingRowProps): string => {
   return target.innerHTML
 }
 
+/** Renders a {@link JobListingRow} and returns its target element (for events). */
+const renderHost = (props: JobListingRowProps): HTMLElement => {
+  const target = document.createElement('div')
+  document.body.appendChild(target)
+  instances.push(mount(JobListingRow, { target, props }))
+  flushSync()
+  return target
+}
+
+/** The row's open button: the transparent native button over the whole row. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('button[data-mol-id="job-listing-row-open"]')!
+
 describe('JobListingRow', () => {
   it('renders the title inside an <h3>', () => {
     const markup = render({ title: 'Senior Engineer' })
@@ -99,6 +112,43 @@ describe('JobListingRow', () => {
     expect(clickable).toContain('cursorPointer')
     const plain = render({ title: 'T' })
     expect(plain).not.toContain('cursorPointer')
+  })
+
+  it('without onClick there is no open button', () => {
+    const clickable = render({ title: 'T', onClick: () => {} })
+    expect(clickable).toContain('<button type="button"')
+    expect(clickable).toContain('data-mol-id="job-listing-row-open"')
+    const plain = render({ title: 'T' })
+    expect(plain).not.toContain('<button')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const host = renderHost({ title: 'Senior Engineer', onClick })
+    openButton(host).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = renderHost({
+      title: 'T',
+      tags: raw('<span data-tag="">Remote</span>'),
+      actions: raw('<button type="button" data-actions="">Apply</button>'),
+      onClick,
+    })
+    host.querySelector<HTMLElement>('[data-actions]')!.click()
+    host.querySelector<HTMLElement>('[data-tag]')!.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const host = renderHost({ title: 'Senior Frontend Engineer', onClick: () => {} })
+    const labelId = openButton(host).getAttribute('aria-labelledby') ?? ''
+    expect(labelId).not.toBe('')
+    const heading = document.getElementById(labelId)
+    expect(heading?.tagName.toLowerCase()).toBe('h3')
+    expect(heading?.textContent?.trim()).toBe('Senior Frontend Engineer')
   })
 
   it('forwards className', () => {

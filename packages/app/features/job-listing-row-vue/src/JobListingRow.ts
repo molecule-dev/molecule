@@ -8,7 +8,7 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
+import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -37,10 +37,11 @@ const slotOrTruthy = (
  *
  * The location value is prefixed with the same hardcoded 📍 glyph React
  * renders, and the meta fields carry the same literal middle-dot separators
- * (there is no prop to change or localise them). `onClick` makes the whole
- * row clickable but renders no button semantics — supply your own
- * focus/keyboard affordance (or wrap the row in a button/link) when
- * click-to-open matters for a11y.
+ * (there is no prop to change or localise them). `onClick` covers the whole
+ * row with an empty, transparent native button that activates it — the whole
+ * row is the click target, named by the title (the `<h3>` itself takes the id
+ * the button points at with `aria-labelledby`), with the inner controls above
+ * it keeping their own clicks.
  *
  * @param props - Component props (see {@link JobListingRowProps}).
  * @returns The job listing row component.
@@ -62,6 +63,9 @@ export const JobListingRow = defineComponent({
   },
   setup(props, { slots }) {
     const cm = getClassMap()
+    // The row's accessible name lives on the title, the way React's useId()
+    // names it: the open button points at the `<h3>` with aria-labelledby.
+    const nameId = useId()
 
     return (): VNode => {
       const title = slotOrTruthy(slots.title, props.title)
@@ -76,18 +80,36 @@ export const JobListingRow = defineComponent({
       return h(
         'div',
         {
-          onClick: props.onClick,
           class: cm.cn(
             cm.flex({ align: 'start', gap: 'md' }),
             cm.sp('p', 3),
-            props.onClick ? cm.cursorPointer : undefined,
+            props.onClick ? cm.position('relative') : undefined,
             props.className,
           ),
         },
         [
+          // The row's open control: an empty, transparent native button over
+          // the whole row (Enter / Space activate it natively), a SIBLING of
+          // the slot wrappers rather than their parent. mol-bespoke-button:
+          // the whole row is the hit area, not a CTA; the inline background/
+          // border/padding are native resets.
+          props.onClick
+            ? h('button', {
+                type: 'button',
+                'aria-labelledby': nameId,
+                'data-mol-id': 'job-listing-row-open',
+                onClick: () => props.onClick?.(),
+                class: cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer),
+                style: { background: 'transparent', border: 'none', padding: 0 },
+              })
+            : null,
           leading.length > 0 ? h('div', { class: cm.shrink0 }, leading) : null,
           h('div', { class: cm.cn(cm.flex1, cm.stack(1)) }, [
-            h('h3', { class: cm.cn(cm.textSize('base'), cm.fontWeight('semibold')) }, title),
+            h(
+              'h3',
+              { id: nameId, class: cm.cn(cm.textSize('base'), cm.fontWeight('semibold')) },
+              title,
+            ),
             company.length > 0 ? h('span', { class: cm.textSize('sm') }, company) : null,
             h('div', { class: cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' }) }, [
               location.length > 0
@@ -105,13 +127,28 @@ export const JobListingRow = defineComponent({
                 : null,
             ]),
             tags.length > 0
-              ? h('div', { class: cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }) }, tags)
+              ? h(
+                  'div',
+                  {
+                    class: cm.cn(
+                      cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
+                      cm.position('relative'),
+                    ),
+                  },
+                  tags,
+                )
               : null,
           ]),
           actions.length > 0
             ? h(
                 'div',
-                { class: cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.shrink0) },
+                {
+                  class: cm.cn(
+                    cm.flex({ align: 'center', gap: 'sm' }),
+                    cm.shrink0,
+                    cm.position('relative'),
+                  ),
+                },
                 actions,
               )
             : null,

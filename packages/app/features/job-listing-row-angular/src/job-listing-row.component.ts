@@ -31,9 +31,11 @@ import { hasProjectedSlot, SlotGuard } from './slot-dom.js'
  * renders, and the meta fields carry the same literal middle-dot separators
  * (there is no prop to change or localise them).
  *
- * `onClick` makes the whole row clickable but renders no button semantics —
- * supply your own focus/keyboard affordance (or wrap the row in a
- * button/link) when click-to-open matters for a11y.
+ * `onClick` covers the whole row with an empty, transparent native button
+ * that activates it — the whole row is the click target, named by the title
+ * (the `<h3>` itself takes the id the button points at with
+ * `aria-labelledby`), with the inner controls above it keeping their own
+ * clicks.
  *
  * The node props are projected slots: `leading`, `company`, `location`,
  * `type`, `salary`, `postedAt`, `tags` and `actions` each render inside the
@@ -60,14 +62,29 @@ import { hasProjectedSlot, SlotGuard } from './slot-dom.js'
   ],
   host: {
     '[class]': 'classes()',
-    '(click)': 'handleClick($event)',
   },
-  template: `<div #leadingWrap [class]="leadingClasses()">
+  template: `@if (hasOnClick()) {
+      <!-- mol-bespoke-button: the whole row is the hit area, not a CTA — an
+         empty, transparent button over the row; the inline background/border/
+         padding are native resets. The style values carry the form React's
+         attribute shows after CSSOM (Angular writes the attribute raw): the
+         border is its initial "none" style at "medium" width, padding the
+         pixel form of 0 — visually identical, textually equal to React. -->
+      <button
+        type="button"
+        [attr.aria-labelledby]="nameId"
+        data-mol-id="job-listing-row-open"
+        (click)="handleClick()"
+        [class]="openClasses()"
+        style="background: transparent; border: medium; padding: 0px;"
+      ></button>
+    }
+    <div #leadingWrap [class]="leadingClasses()">
       {{ leadingText() }}
       <ng-content select="[slot=leading]"></ng-content>
     </div>
     <div [class]="stackClasses()">
-      <h3 [class]="titleClasses()">
+      <h3 [attr.id]="nameId" [class]="titleClasses()">
         {{ titleText() }}
         <ng-content select="[slot=title]"></ng-content>
       </h3>
@@ -122,10 +139,23 @@ export class JobListingRow implements AfterViewInit, DoCheck {
   actions?: unknown
   /** Tags / chips (string as text; nodes are `[slot=tags]` content). */
   tags?: unknown
-  /** Click handler; receives the DOM click event (React's `onClick`). */
-  onClick?: (event: Event) => void
+  /**
+   * Activates the row: while it is set, an empty, transparent native button
+   * covers the whole row and calls this on click — the whole row is the click
+   * target, and Enter / Space activate the button natively. The row is named
+   * by the title (the `<h3>` itself takes the id the button points at with
+   * `aria-labelledby`); the `actions` and `tags` slots sit above the button
+   * and keep their own clicks.
+   */
+  onClick?: () => void
   /** Extra classes. */
   className?: string
+
+  /** Source of the per-instance title ids (the `aria-labelledby` targets). */
+  private static nextNameId = 0
+
+  /** The title `<h3>`'s id — the open button's `aria-labelledby` target. */
+  protected readonly nameId = `mol-job-listing-row-title-${JobListingRow.nextNameId++}`
 
   /** The leading wrapper `<div>` (detached when no leading input and the slot is empty). */
   @ViewChild('leadingWrap') leadingWrap?: ElementRef<HTMLElement>
@@ -144,7 +174,9 @@ export class JobListingRow implements AfterViewInit, DoCheck {
   /** The actions wrapper `<div>` (detached when no actions input and the slot is empty). */
   @ViewChild('actionsWrap') actionsWrap?: ElementRef<HTMLElement>
 
-  private readonly guard = new SlotGuard(inject(ElementRef), inject(Renderer2))
+  private readonly renderer = inject(Renderer2)
+
+  private readonly guard = new SlotGuard(inject(ElementRef), this.renderer)
 
   /**
    * The current class map.
@@ -156,17 +188,33 @@ export class JobListingRow implements AfterViewInit, DoCheck {
 
   /**
    * Computes the row's class list (`cm.flex({ align: 'start', gap: 'md' })` +
-   * `cm.sp('p', 3)` + `cm.cursorPointer` only with an `onClick` +
-   * `className`).
+   * `cm.sp('p', 3)` + the click overlay's positioning context + `className`).
    * @returns The class string.
    */
   classes(): string {
     return this.cm().cn(
       this.cm().flex({ align: 'start', gap: 'md' }),
       this.cm().sp('p', 3),
-      this.onClick ? this.cm().cursorPointer : undefined,
+      this.hasOnClick() ? this.cm().position('relative') : undefined,
       this.className,
     )
+  }
+
+  /**
+   * Whether React renders the row's open control: an `onClick` is set.
+   * @returns True when the row is clickable.
+   */
+  hasOnClick(): boolean {
+    return Boolean(this.onClick)
+  }
+
+  /**
+   * Computes the open button's class
+   * (`cm.position('absolute')` + `cm.inset0` + `cm.cursorPointer`).
+   * @returns The class string.
+   */
+  openClasses(): string {
+    return this.cm().cn(this.cm().position('absolute'), this.cm().inset0, this.cm().cursorPointer)
   }
 
   /**
@@ -246,20 +294,29 @@ export class JobListingRow implements AfterViewInit, DoCheck {
 
   /**
    * Computes the tags row's class
-   * (`cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' })`).
+   * (`cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' })` +
+   * `cm.position('relative')`, raised above the open button).
    * @returns The class string.
    */
   tagsClasses(): string {
-    return this.cm().flex({ align: 'center', gap: 'xs', wrap: 'wrap' })
+    return this.cm().cn(
+      this.cm().flex({ align: 'center', gap: 'xs', wrap: 'wrap' }),
+      this.cm().position('relative'),
+    )
   }
 
   /**
    * Computes the actions row's class
-   * (`cm.flex({ align: 'center', gap: 'sm' })` + `cm.shrink0`).
+   * (`cm.flex({ align: 'center', gap: 'sm' })` + `cm.shrink0` +
+   * `cm.position('relative')`, raised above the open button).
    * @returns The class string.
    */
   actionsClasses(): string {
-    return this.cm().cn(this.cm().flex({ align: 'center', gap: 'sm' }), this.cm().shrink0)
+    return this.cm().cn(
+      this.cm().flex({ align: 'center', gap: 'sm' }),
+      this.cm().shrink0,
+      this.cm().position('relative'),
+    )
   }
 
   /**
@@ -344,9 +401,9 @@ export class JobListingRow implements AfterViewInit, DoCheck {
     return this.textOf(this.tags)
   }
 
-  /** Runs the click handler the way React forwards the DOM event. */
-  handleClick(event: Event): void {
-    this.onClick?.(event)
+  /** Runs the click handler (the open button forwards no event, like React's `() => onClick()`). */
+  handleClick(): void {
+    this.onClick?.()
   }
 
   /**
@@ -368,8 +425,9 @@ export class JobListingRow implements AfterViewInit, DoCheck {
    * Applies React's conditions: each node prop's wrapper renders when the
    * string input is non-empty or the slot holds projected content (the title
    * `<h3>`, the stack `<div>` and the meta row `<div>` are always rendered,
-   * exactly as React renders them). Re-read every pass, so a props step that
-   * empties a previously set input drops the wrapper.
+   * exactly as React renders them; the open button is Angular's own `@if` on
+   * {@link hasOnClick}). Re-read every pass, so a props step that empties a
+   * previously set input drops the wrapper.
    */
   private reconcile(): void {
     const leading = this.leadingWrap?.nativeElement

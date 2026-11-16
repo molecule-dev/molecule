@@ -83,7 +83,17 @@ export const jobListingRowFeature: FeatureCases = {
           name: 'click calls onClick',
           props: { title: 'T' },
           callbacks: ['onClick'],
-          interactions: [{ type: 'click', selector: 'h3' }],
+          interactions: [{ type: 'click', selector: '[data-mol-id="job-listing-row-open"]' }],
+        },
+        {
+          name: 'clicking an inner control does not call onClick',
+          props: { title: 'T' },
+          slots: { actions, tags },
+          callbacks: ['onClick'],
+          interactions: [
+            { type: 'click', selector: '[data-actions]' },
+            { type: 'click', selector: '[data-tag]' },
+          ],
         },
         {
           name: 'clickable row forwards className',
