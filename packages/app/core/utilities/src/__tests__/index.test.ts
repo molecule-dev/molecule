@@ -1139,29 +1139,59 @@ describe('@molecule/app-utilities', () => {
         expect(writeTextMock).toHaveBeenCalledWith('test text')
       })
 
-      it('should handle case when clipboard API unavailable', async () => {
+      /**
+       * Gives the document a copy command that records the selected field's text.
+       *
+       * @param result - What the command reports.
+       * @returns The texts it copied.
+       */
+      const stubCopyCommand = (result: boolean): string[] => {
+        const copied: string[] = []
+        Object.defineProperty(document, 'execCommand', {
+          configurable: true,
+          value: vi.fn((command: string) => {
+            const field = document.body.querySelector('textarea')
+            if (command === 'copy' && field && result) copied.push(field.value)
+            return result
+          }),
+        })
+        return copied
+      }
+
+      it('copies with the copy command where the Clipboard API is missing', async () => {
         Object.defineProperty(navigator, 'clipboard', {
           value: undefined,
           configurable: true,
         })
+        const copied = stubCopyCommand(true)
 
-        // happy-dom doesn't support execCommand, so fallback returns false
-        // The function should not throw
-        const result = await copyToClipboard('test text')
-
-        // Result depends on whether fallback works in the test environment
-        expect(typeof result).toBe('boolean')
+        await expect(copyToClipboard('test text')).resolves.toBe(true)
+        expect(copied).toEqual(['test text'])
+        expect(document.body.querySelector('textarea')).toBeNull()
       })
 
-      it('should return false on error', async () => {
+      it('copies with the copy command where the Clipboard API refuses', async () => {
+        // An iframe without the clipboard-write permission rejects the write; the copy
+        // used to end there with false.
         Object.defineProperty(navigator, 'clipboard', {
           value: { writeText: vi.fn().mockRejectedValue(new Error('Permission denied')) },
           configurable: true,
         })
+        const copied = stubCopyCommand(true)
 
-        const result = await copyToClipboard('test text')
+        await expect(copyToClipboard('test text')).resolves.toBe(true)
+        expect(copied).toEqual(['test text'])
+      })
 
-        expect(result).toBe(false)
+      it('returns false when neither the Clipboard API nor the copy command copies', async () => {
+        Object.defineProperty(navigator, 'clipboard', {
+          value: { writeText: vi.fn().mockRejectedValue(new Error('Permission denied')) },
+          configurable: true,
+        })
+        stubCopyCommand(false)
+
+        await expect(copyToClipboard('test text')).resolves.toBe(false)
+        expect(document.body.querySelector('textarea')).toBeNull()
       })
     })
 
