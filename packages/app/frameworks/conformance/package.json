@@ -114,7 +114,7 @@
     "@molecule/app-flashcard-card-react": "4.0.0",
     "@molecule/app-floating-action-button-react": "4.0.0",
     "@molecule/app-footer-react": "4.0.0",
-    "@molecule/app-forms": "2.3.1",
+    "@molecule/app-forms": "2.3.2",
     "@molecule/app-forum-thread-row-react": "4.0.0",
     "@molecule/app-habit-streak-card-react": "4.0.0",
     "@molecule/app-header-react": "4.0.0",

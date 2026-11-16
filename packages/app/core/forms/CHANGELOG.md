@@ -1,5 +1,11 @@
 # @molecule/app-forms
 
+## 2.3.2
+
+### Patch Changes
+
+- Preserve edited nested fields while hydrating untouched form values.
+
 ## 2.3.1
 
 ### Patch Changes
