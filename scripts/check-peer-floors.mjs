@@ -28,6 +28,17 @@
  *   names added since. Without this, a new import under `^<current>` passed every
  *   check until the release's version commit moved the peer on, and only then
  *   failed, forcing a second pass.
+ * - A ClassMap member is a name too: each `cm.<member>` a shipped file reads (also
+ *   `cm().<member>` and `cm.value.<member>`), where `cm` is bound to `getClassMap()`
+ *   directly or through a reactive wrapper (`$derived(getClassMap())`), typed
+ *   `UIClassMap`, or a method returning one (an Angular `cm(): UIClassMap`), in script,
+ *   JSX, a Svelte component's markup or an Angular template, counts as
+ *   `UIClassMap.<member>` from the peer that file imports `getClassMap`/`UIClassMap`
+ *   from, when the workspace's own `UIClassMap` has that member. The floor's
+ *   `UIClassMap` must declare it: an install that resolves an older `@molecule/app-ui`
+ *   reads `undefined` for a class, or throws calling a member function (2026-11-15: 72
+ *   published packages read members such as `touchTargetCompact`, `iconGlyphFont` and
+ *   `accentCard` under `^1.0.1`, whose 1.0.1 has none of them).
  * - The floor's published type declarations must export every imported name.
  *   Each peer's version list is read from the registry on every run (new versions
  *   appear); a published version never changes, so its tarball is downloaded once
@@ -77,7 +88,10 @@ const CACHE =
   process.env.MOL_PEER_FLOORS_CACHE ??
   join(process.env.XDG_CACHE_HOME ?? join(homedir(), '.cache'), 'molecule-check-peer-floors')
 // Bump when the way export names are read changes, so stored lists are recomputed.
-const EXPORTS_FILE = 'exports-v1.json'
+// v2: the members of an exported `UIClassMap` are names too (`UIClassMap.<member>`).
+const EXPORTS_FILE = 'exports-v2.json'
+/** The ClassMap interface whose members count as names (see {@link classMapReads}). */
+const CLASS_MAP = 'UIClassMap'
 /**
  * The npm registry base URL, read on each request.
  *
@@ -180,19 +194,37 @@ export function findFloorGaps(pkg, imports, workspaceVersions, exportsAt, publis
     if (!floor || semver.gt(floor, current)) continue
     const missing = [...names.keys()].filter((name) => !exportsAt(peer, floor).has(name)).sort()
     if (missing.length === 0) continue
-    // The names are in the workspace source. A workspace version npm does not serve
-    // yet releases them as it is; one npm serves without them ships them in the next
-    // version, a minor for added exports.
-    const servedWithAll =
-      !semver.eq(floor, current) &&
-      published.includes(current) &&
-      missing.every((name) => exportsAt(peer, current).has(name))
-    const releasesAsIs = !published.includes(current) || servedWithAll
+    // The smallest upgrade that has every name: the lowest version npm serves above the
+    // floor, in the workspace version's major and not above it, that exports every
+    // imported name (2026-11-16: app-ui 1.3.11 already had the ClassMap members 81
+    // packages read, but the fix named the unpublished 1.4.0 and pushed each user one
+    // minor further than needed). Every candidate is read, so one pass of scanFleet
+    // fetches them together. When none has them all, a workspace version npm does not
+    // serve yet releases them as it is; one npm serves without them ships them in the
+    // next version, a minor for added exports.
+    const all = [...names.keys()]
+    const candidates = published
+      .filter(
+        (version) =>
+          !semver.prerelease(version) &&
+          semver.gt(version, floor) &&
+          semver.lte(version, current) &&
+          semver.major(version) === semver.major(current),
+      )
+      .sort(semver.compare)
+    const candidateExports = candidates.map((version) => exportsAt(peer, version))
+    const lowest = candidates.find((_version, i) =>
+      all.every((name) => candidateExports[i].has(name)),
+    )
     gaps.push({
       peer,
       range,
       floor,
-      fix: releasesAsIs ? `^${current}` : `^${semver.inc(current, 'minor')}`,
+      fix: lowest
+        ? `^${lowest}`
+        : published.includes(current)
+          ? `^${semver.inc(current, 'minor')}`
+          : `^${current}`,
       missing: missing.map((name) => ({ name, files: [...names.get(name)].sort() })),
     })
   }
@@ -231,9 +263,39 @@ export async function fetchPublishedVersions(names, concurrency = 16) {
 }
 
 /**
- * Every name a module's type declarations export, following `export *` chains.
+ * The ClassMap members a source file reads, through every name the file binds to the
+ * ClassMap: `cm = getClassMap()`, also through a reactive wrapper (Svelte's
+ * `$derived(getClassMap())`, Vue's `computed(() => getClassMap())`) or an arrow; a
+ * variable, parameter or field typed `UIClassMap`; and a method or getter returning one
+ * (an Angular component's `cm(): UIClassMap`). Each is read as `<name>.<member>`,
+ * `<name>().<member>` and `<name>.value.<member>`, with or without `this.`, and so is
+ * `getClassMap().<member>`. The whole text is read, so a Svelte component's markup and
+ * an Angular template count. A name never bound that way (CodeMirror's `cm`) reads
+ * nothing.
  *
- * @param typesFile - The entry `.d.ts`.
+ * @param text - The file's full text.
+ * @returns The member names read.
+ */
+export function classMapReads(text) {
+  const bound = new Set()
+  const call = String.raw`(?:[\w$.]+\(\s*)?(?:\(\s*\)\s*(?::\s*UIClassMap\s*)?=>\s*)?getClassMap\(\)`
+  const assigned = new RegExp(String.raw`\b(\w+)\s*(?::\s*UIClassMap\b[^=,);]*)?=\s*${call}`, 'g')
+  for (const m of text.matchAll(assigned)) bound.add(m[1])
+  for (const m of text.matchAll(/\b(\w+)\??\s*(?:\(\s*\))?\s*:\s*UIClassMap\b/g)) bound.add(m[1])
+  const reads = new Set()
+  for (const name of bound) {
+    const read = new RegExp(String.raw`(?<![\w$.])(?:this\.)?${name}(?:\(\)|\.value)?\.(\w+)`, 'g')
+    for (const m of text.matchAll(read)) reads.add(m[1])
+  }
+  for (const m of text.matchAll(/getClassMap\(\)\.(\w+)/g)) reads.add(m[1])
+  return reads
+}
+
+/**
+ * Every name a module's type declarations export, following `export *` chains, and
+ * `UIClassMap.<member>` for each member of an exported `UIClassMap` interface.
+ *
+ * @param typesFile - The entry `.d.ts` (or a package's `src/index.ts`).
  * @returns The exported names.
  */
 export function declaredExports(typesFile) {
@@ -251,7 +313,15 @@ export function declaredExports(typesFile) {
   const sf = program.getSourceFile(typesFile)
   const symbol = sf && checker.getSymbolAtLocation(sf)
   if (!symbol) throw new Error(`${typesFile}: not a module`)
-  return new Set(checker.getExportsOfModule(symbol).map((s) => s.getName()))
+  const exported = checker.getExportsOfModule(symbol)
+  const names = new Set(exported.map((s) => s.getName()))
+  let classMap = exported.find((s) => s.getName() === CLASS_MAP)
+  if (classMap && classMap.flags & ts.SymbolFlags.Alias)
+    classMap = checker.getAliasedSymbol(classMap)
+  if (classMap && classMap.flags & ts.SymbolFlags.Interface)
+    for (const member of checker.getDeclaredTypeOfSymbol(classMap).getProperties())
+      names.add(`${CLASS_MAP}.${member.getName()}`)
+  return names
 }
 
 const exportCache = new Map()
@@ -400,6 +470,19 @@ function readFleet(root) {
     pkg: JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')),
   }))
   const workspaceVersions = new Map(manifests.map(({ pkg }) => [pkg.name, pkg.version]))
+  const dirOf = new Map(manifests.map(({ dir, pkg }) => [pkg.name, dir]))
+  // The ClassMap members each workspace package's own source declares, read once.
+  const localMembers = new Map()
+  const classMapMembersOf = (name) => {
+    if (!localMembers.has(name)) {
+      const entry = dirOf.has(name) ? join(dirOf.get(name), 'src', 'index.ts') : ''
+      const members = existsSync(entry)
+        ? [...declaredExports(entry)].filter((n) => n.startsWith(`${CLASS_MAP}.`))
+        : []
+      localMembers.set(name, new Set(members))
+    }
+    return localMembers.get(name)
+  }
   const packages = []
   for (const { dir, pkg } of manifests) {
     if (pkg.private) continue
@@ -407,18 +490,25 @@ function readFleet(root) {
     if (peers.length === 0) continue
     const srcRoot = join(dir, 'src')
     const imports = new Map()
+    const use = (specifier, name, rel) => {
+      const byName = imports.get(specifier) ?? new Map()
+      byName.set(name, (byName.get(name) ?? new Set()).add(rel))
+      imports.set(specifier, byName)
+    }
     for (const file of collectSources(srcRoot, srcRoot)) {
       const rel = relative(root, file)
-      for (const [specifier, names] of namedImports(
-        scriptText(readFileSync(file, 'utf8'), file),
-        file,
-      )) {
+      const text = readFileSync(file, 'utf8')
+      let classMapPeer
+      for (const [specifier, names] of namedImports(scriptText(text, file), file)) {
         // Subpath imports name a module of their own; only the root entry is checked.
         if (specifier !== packageNameOf(specifier) || !peers.includes(specifier)) continue
-        const byName = imports.get(specifier) ?? new Map()
-        for (const name of names) byName.set(name, (byName.get(name) ?? new Set()).add(rel))
-        imports.set(specifier, byName)
+        for (const name of names) use(specifier, name, rel)
+        if (names.has('getClassMap') || names.has(CLASS_MAP)) classMapPeer = specifier
       }
+      if (!classMapPeer) continue
+      const members = classMapMembersOf(classMapPeer)
+      for (const member of classMapReads(text))
+        if (members.has(`${CLASS_MAP}.${member}`)) use(classMapPeer, `${CLASS_MAP}.${member}`, rel)
     }
     packages.push({ dir, pkg, imports })
   }
@@ -486,8 +576,8 @@ if (isMain) {
         const names = gap.missing.map((m) => m.name).join(', ')
         const files = [...new Set(gap.missing.flatMap((m) => m.files))].join(', ')
         console.error(
-          `✗ ${row.package} imports ${names} from ${gap.peer}, which ${gap.peer}@${gap.floor} ` +
-            `(the floor of "${gap.range}") does not export — raise it to "${gap.fix}" in ` +
+          `✗ ${row.package} uses ${names} from ${gap.peer}, which ${gap.peer}@${gap.floor} ` +
+            `(the floor of "${gap.range}") does not declare — raise it to "${gap.fix}" in ` +
             `${row.dir}/package.json peerDependencies (${files})`,
         )
       }

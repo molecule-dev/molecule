@@ -21,6 +21,7 @@ const cache = vi.hoisted(() => {
 })
 
 import {
+  classMapReads,
   declaredExports,
   fetchPublishedVersions,
   findFloorGaps,
@@ -214,6 +215,42 @@ describe('findFloorGaps', () => {
     expect(gap(['old'])).toEqual(['^1.5.0'])
   })
 
+  it('names the lowest served version that exports every imported name', () => {
+    // 2026-11-16: app-ui 1.3.11 already had the members 81 packages read, while the
+    // workspace was at the unpublished 1.4.0; naming ^1.4.0 asked for more than needed.
+    const read = vi.fn(
+      exportsOf({
+        '1.0.0': ['old'],
+        '1.2.0': ['added'],
+        '1.3.0': ['old', 'added'],
+        '1.3.5': ['old', 'added'],
+      }),
+    )
+    expect(
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.0.0' } },
+        importsOf('@molecule/core', ['old', 'added']),
+        versions,
+        read,
+        publishing('1.0.0', '1.2.0', '1.2.5-beta.1', '1.3.0', '1.3.5'),
+      ).map(({ fix }) => fix),
+    ).toEqual(['^1.3.0'])
+    // A prerelease is never a candidate.
+    expect(read).not.toHaveBeenCalledWith('@molecule/core', '1.2.5-beta.1')
+  })
+
+  it('never names a served version in another major than the workspace version', () => {
+    expect(
+      findFloorGaps(
+        { peerDependencies: { '@molecule/core': '^1.0.0' } },
+        importsOf('@molecule/core', ['old', 'added']),
+        new Map([['@molecule/core', '2.0.0']]),
+        exportsOf({ '1.0.0': ['old'], '1.3.0': ['old', 'added'] }),
+        publishing('1.0.0', '1.3.0'),
+      ).map(({ fix }) => fix),
+    ).toEqual(['^2.0.0'])
+  })
+
   it('skips a range no published version satisfies and a floor above the workspace version', () => {
     const imports = importsOf('@molecule/core', ['added'])
     const read = vi.fn(exportsAt)
@@ -261,7 +298,78 @@ describe('findFloorGaps', () => {
   })
 })
 
+describe('classMapReads', () => {
+  it('reads the members of every name bound to getClassMap() or typed UIClassMap', () => {
+    const tsx = [
+      "import { getClassMap, type UIClassMap } from '@molecule/app-ui'",
+      'const cm = getClassMap()',
+      'const label = (map: UIClassMap) => map.textTone("success")',
+      'export const A = () => <div className={cm.cn(cm.flex({ gap: "sm" }), getClassMap().srOnly)} />',
+    ].join('\n')
+    expect([...classMapReads(tsx)].sort()).toEqual(['cn', 'flex', 'srOnly', 'textTone'])
+  })
+
+  it('reads an Angular template and a Svelte component markup', () => {
+    const angular = [
+      '@Component({ template: `<span [class]="cm.textTone(\'error\')"></span>` })',
+      'export class C { readonly cm: UIClassMap = getClassMap() }',
+    ].join('\n')
+    expect([...classMapReads(angular)].sort()).toEqual(['textTone'])
+    const svelte = [
+      '<script lang="ts">',
+      "  import { getClassMap } from '@molecule/app-ui'",
+      '  const cm = getClassMap()',
+      '</script>',
+      '<div class={cm.bgScrim}></div>',
+    ].join('\n')
+    expect([...classMapReads(svelte)]).toEqual(['bgScrim'])
+  })
+
+  it('reads through a reactive wrapper and a method that returns the ClassMap', () => {
+    // 2026-11-15: 43 Svelte and Angular ports bind the ClassMap these ways, and the
+    // first version of this reader saw none of their reads.
+    const svelte = 'const cm = $derived(getClassMap())\n<span class={cm.iconGlyphFont}></span>'
+    expect([...classMapReads(svelte)]).toEqual(['iconGlyphFont'])
+    const vue = 'const cm = computed(() => getClassMap())\nconst a = cm.value.minW'
+    expect([...classMapReads(vue)]).toEqual(['minW'])
+    const angular = [
+      '@Component({ template: `<button [class]="cm().touchTargetCompact"></button>` })',
+      'export class C {',
+      '  cm(): UIClassMap {',
+      '    return getClassMap()',
+      '  }',
+      '  get map(): UIClassMap { return getClassMap() }',
+      '  label() { return this.cm().textTone("ok") + this.map.srOnly }',
+      '}',
+    ].join('\n')
+    expect([...classMapReads(angular)].sort()).toEqual(['srOnly', 'textTone', 'touchTargetCompact'])
+  })
+
+  it('reads nothing from a name the file never binds to the ClassMap', () => {
+    // CodeMirror's editor is conventionally `cm` too.
+    expect([...classMapReads('const cm = new EditorView(); cm.dispatch(tr)')]).toEqual([])
+  })
+})
+
 describe('declaredExports', () => {
+  it('names each member of an exported UIClassMap interface', () => {
+    const root = tree({
+      'index.d.ts': "export * from './types.js'\nexport declare function getClassMap(): UIClassMap",
+      'types.d.ts':
+        'export interface UIClassMap {\n  flex: string\n  textTone(tone: string): string\n}',
+    })
+    try {
+      expect([...declaredExports(join(root, 'index.d.ts'))].sort()).toEqual([
+        'UIClassMap',
+        'UIClassMap.flex',
+        'UIClassMap.textTone',
+        'getClassMap',
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
   it('follows export * chains and reads every exported value and type', () => {
     const root = tree({
       'index.d.ts': [
@@ -358,8 +466,12 @@ describe('scanFleet', () => {
           throw new Error(`read ${name}@${version} before prefetching it`)
         },
       })
-      // The floor downloads first; the workspace version (1.2.0, not on npm) needs no read.
-      expect(prefetch.mock.calls).toEqual([[['@molecule/app-routing@1.0.1']]])
+      // The floor downloads first, then the served versions above it that could fix the gap
+      // (1.0.5); the workspace version (1.2.0, not on npm) needs no read.
+      expect(prefetch.mock.calls).toEqual([
+        [['@molecule/app-routing@1.0.1']],
+        [['@molecule/app-routing@1.0.5']],
+      ])
       expect(rows).toEqual([
         {
           package: '@molecule/app-routing-x',
@@ -378,6 +490,68 @@ describe('scanFleet', () => {
                 {
                   name: 'resolveListRoute',
                   files: ['packages/app/bonds/routing/x/src/Link.svelte'],
+                },
+              ],
+            },
+          ],
+        },
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('reports a ClassMap member the floor of the getClassMap peer does not declare', async () => {
+    // 2026-11-15: 137 packages read members such as touchTargetCompact under
+    // "@molecule/app-ui": "^1.0.1", whose 1.0.1 declares none of them.
+    const root = tree({
+      'packages/app/core/ui/package.json': JSON.stringify({
+        name: '@molecule/app-ui',
+        version: '1.3.0',
+      }),
+      'packages/app/core/ui/src/index.ts': [
+        'export interface UIClassMap {',
+        '  flex: string',
+        '  textTone(tone: string): string',
+        '}',
+        'export declare function getClassMap(): UIClassMap',
+      ].join('\n'),
+      'packages/app/features/chip/package.json': JSON.stringify({
+        name: '@molecule/app-chip-react',
+        version: '1.0.0',
+        peerDependencies: { '@molecule/app-ui': '^1.0.1' },
+      }),
+      'packages/app/features/chip/src/Chip.tsx': [
+        "import { getClassMap } from '@molecule/app-ui'",
+        'const cm = getClassMap()',
+        // `notAMember` is not in the workspace's UIClassMap: a text match, not a read.
+        'export const Chip = () => <span className={cm.cn(cm.flex, cm.textTone("ok"), cm.notAMember)} />',
+      ].join('\n'),
+    })
+    try {
+      const rows = await scanFleet(root, {
+        versionsOf: async () => new Map([['@molecule/app-ui', ['1.0.1', '1.3.0']]]),
+        prefetch: async () => undefined,
+        exportsAt: (name: string, version: string) => {
+          if (version === '1.0.1') return new Set(['getClassMap', 'UIClassMap', 'UIClassMap.flex'])
+          // npm serves the workspace version 1.3.0 with the member, so it fixes the gap.
+          return new Set(['getClassMap', 'UIClassMap', 'UIClassMap.flex', 'UIClassMap.textTone'])
+        },
+      })
+      expect(rows).toEqual([
+        {
+          package: '@molecule/app-chip-react',
+          dir: 'packages/app/features/chip',
+          gaps: [
+            {
+              peer: '@molecule/app-ui',
+              range: '^1.0.1',
+              floor: '1.0.1',
+              fix: '^1.3.0',
+              missing: [
+                {
+                  name: 'UIClassMap.textTone',
+                  files: ['packages/app/features/chip/src/Chip.tsx'],
                 },
               ],
             },
