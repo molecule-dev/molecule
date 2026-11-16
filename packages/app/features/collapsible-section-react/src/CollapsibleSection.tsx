@@ -58,10 +58,11 @@ export function CollapsibleSection({
   return (
     <section className={cm.cn(cm.stack(2), className)}>
       <Heading>
-        <button
-          type="button"
-          onClick={toggle}
-          aria-expanded={isOpen}
+        {/* The header row is a container, not a button: a button may not
+            contain other controls, and `actions` typically holds them. The
+            toggle wraps the label; `actions` sits beside it, so a click there
+            never reaches the toggle (no stopPropagation needed). */}
+        <span
           className={cm.cn(
             cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
             cm.w('full'),
@@ -70,13 +71,18 @@ export function CollapsibleSection({
             cm.fontWeight('semibold'),
           )}
         >
-          <span className={cm.flex({ align: 'center', gap: 'sm' })}>
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={isOpen}
+            className={cm.flex({ align: 'center', gap: 'sm' })}
+          >
             <span aria-hidden>{isOpen ? '▾' : '▸'}</span>
             <span>{title}</span>
             {badge}
-          </span>
-          {actions && <span onClick={(e) => e.stopPropagation()}>{actions}</span>}
-        </button>
+          </button>
+          {actions && <span>{actions}</span>}
+        </span>
       </Heading>
       {isOpen && <div>{children}</div>}
     </section>

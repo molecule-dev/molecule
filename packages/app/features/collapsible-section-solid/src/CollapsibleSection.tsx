@@ -34,9 +34,10 @@ const nodeList = (children: JSX.Element): JSX.Element[] => {
  * `<Accordion>` — renders a single toggle, not a group of panels.
  *
  * Expansion is uncontrolled by default (`defaultExpanded`); pass `expanded` to
- * control it — then update it from `onExpandedChange`. The header renders as a
- * single `<button>`, so anything passed to `actions` must NOT contain
- * buttons/links (nested interactive elements are invalid HTML).
+ * control it — then update it from `onExpandedChange`. The header renders a
+ * toggle `<button>` around the label with `actions` beside it as a sibling
+ * (a button may not contain other controls), so `actions` MAY contain
+ * buttons/links — a click there never reaches the toggle.
  *
  * @param props - Component props (see {@link CollapsibleSectionProps}).
  * @returns The rendered collapsible section.
@@ -60,10 +61,11 @@ export const CollapsibleSection: Component<CollapsibleSectionProps> = (props) =>
   return (
     <section class={cm.cn(cm.stack(2), props.className)}>
       <Dynamic component={heading()}>
-        <button
-          type="button"
-          onClick={toggle}
-          aria-expanded={isOpen() ? 'true' : 'false'}
+        {/* The header row is a container, not a button: a button may not
+            contain other controls, and `actions` typically holds them. The
+            toggle wraps the label; `actions` sits beside it, so a click there
+            never reaches the toggle (no stopPropagation needed). */}
+        <span
           class={cm.cn(
             cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
             cm.w('full'),
@@ -72,15 +74,20 @@ export const CollapsibleSection: Component<CollapsibleSectionProps> = (props) =>
             cm.fontWeight('semibold'),
           )}
         >
-          <span class={cm.flex({ align: 'center', gap: 'sm' })}>
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={isOpen() ? 'true' : 'false'}
+            class={cm.flex({ align: 'center', gap: 'sm' })}
+          >
             <span aria-hidden="true">{isOpen() ? '▾' : '▸'}</span>
             <span>{props.title}</span>
             {props.badge}
-          </span>
+          </button>
           <Show when={props.actions}>
-            <span onClick={(event) => event.stopPropagation()}>{props.actions}</span>
+            <span>{props.actions}</span>
           </Show>
-        </button>
+        </span>
       </Dynamic>
       <Show when={isOpen()}>
         <div>{props.children}</div>

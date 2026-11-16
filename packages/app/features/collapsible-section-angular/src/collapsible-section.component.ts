@@ -73,13 +73,17 @@ import { type AttachedState, hasNodes, isTemplate, setAttached, textOf } from '.
     }
     <div #bodyWrap><ng-content></ng-content></div>
     <ng-template #headingBody>
-      <button
-        type="button"
-        (click)="toggle()"
-        [attr.aria-expanded]="isOpen() ? 'true' : 'false'"
-        [class]="buttonClasses()"
-      >
-        <span [class]="innerClasses()">
+      <!-- The header row is a container, not a button: a button may not
+           contain other controls, and "actions" typically holds them. The
+           toggle wraps the label; "actions" sits beside it, so a click there
+           never reaches the toggle (no stopPropagation needed). -->
+      <span [class]="headerClasses()">
+        <button
+          type="button"
+          (click)="toggle()"
+          [attr.aria-expanded]="isOpen() ? 'true' : 'false'"
+          [class]="buttonClasses()"
+        >
           <span aria-hidden="true">{{ isOpen() ? '▾' : '▸' }}</span>
           <span
             ><ng-content select="[slot=title]"></ng-content>
@@ -95,8 +99,8 @@ import { type AttachedState, hasNodes, isTemplate, setAttached, textOf } from '.
           } @else if (badgeText()) {
             {{ badge }}
           }
-        </span>
-        <span #actionsWrap (click)="$event.stopPropagation()"
+        </button>
+        <span #actionsWrap
           ><ng-content select="[slot=actions]"></ng-content>
           @if (actionTemplate(); as actionTpl) {
             <ng-container [ngTemplateOutlet]="actionTpl" />
@@ -104,7 +108,7 @@ import { type AttachedState, hasNodes, isTemplate, setAttached, textOf } from '.
             {{ actions }}
           }
         </span>
-      </button>
+      </span>
     </ng-template>`,
 })
 export class CollapsibleSection implements OnInit, AfterViewInit, AfterViewChecked {
@@ -163,10 +167,11 @@ export class CollapsibleSection implements OnInit, AfterViewInit, AfterViewCheck
   }
 
   /**
-   * Computes the toggle button's class list.
+   * Computes the header row's class list — the container `<span>` that holds
+   * the toggle button and the actions (React's old button class list).
    * @returns The class string.
    */
-  buttonClasses(): string {
+  headerClasses(): string {
     return this.cm().cn(
       this.cm().flex({ align: 'center', justify: 'between', gap: 'sm' }),
       this.cm().w('full'),
@@ -177,10 +182,10 @@ export class CollapsibleSection implements OnInit, AfterViewInit, AfterViewCheck
   }
 
   /**
-   * Computes the heading's inner row class (React's `cm.flex({ align: 'center', gap: 'sm' })`).
+   * Computes the toggle button's class list (React's `cm.flex({ align: 'center', gap: 'sm' })`).
    * @returns The class string.
    */
-  innerClasses(): string {
+  buttonClasses(): string {
     return this.cm().flex({ align: 'center', gap: 'sm' })
   }
 

@@ -8,26 +8,26 @@
   "CollapsibleSection": {
    "collapsed by default": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
    },
    "defaultExpanded shows the body": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /"
     ],
     "calls": []
    },
    "controlled expanded true": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /"
     ],
     "calls": []
    },
    "a controlled section stays collapsed but calls onExpandedChange": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": [
      {
@@ -40,9 +40,9 @@
    },
    "expanding and collapsing calls onExpandedChange": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": [
      {
@@ -61,92 +61,92 @@
    },
    "a controlled section follows the expanded prop": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
    },
    "level 2 heading": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h2>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h2>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h2>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h2>\n</section>\n@route /"
     ],
     "calls": []
    },
    "level 4 heading": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h4>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h4>\n</section>\n@route /"
     ],
     "calls": []
    },
    "level 5 heading": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h5>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h5>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h5>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h5>\n</section>\n@route /"
     ],
     "calls": []
    },
    "level 6 heading": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h6>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h6>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h6>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h6>\n</section>\n@route /"
     ],
     "calls": []
    },
    "a node title and node children": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n</span>\n</button>\n</h3>\n<div>\n<em>\nBody\n</em>\n</div>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n</button>\n</span>\n</h3>\n<div>\n<em>\nBody\n</em>\n</div>\n</section>\n@route /"
     ],
     "calls": []
    },
    "badge and actions slots": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</span>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
    },
    "a badge prop and an actions prop": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</span>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
    },
    "clicking inside the actions does not toggle": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
    },
    "className passthrough": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
    },
    "an empty title": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
    },
    "everything at once": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n<span data-badge>\n3\n</span>\n</span>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</button>\n</h4>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h4>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"true\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▾\n</span>\n<span>\n<strong>\nBold title\n</strong>\n</span>\n<span data-badge>\n3\n</span>\n</button>\n<span>\n<span data-action>\n⋯\n</span>\n</span>\n</span>\n</h4>\n<div>\n<p data-body>\nhidden body\n</p>\n</div>\n</section>\n@route /"
     ],
     "calls": []
    },
    "prop changes": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h5>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h5>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h5>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</span>\n</button>\n</h5>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h5>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h5>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<h5>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nT\n</span>\n</button>\n</span>\n</h5>\n</section>\n@route /"
     ],
     "calls": []
    },
    "collapsed by default, then a locale switch": {
     "snapshots": [
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /",
-     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</span>\n</button>\n</h3>\n</section>\n@route /"
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h3>\n<span class=\"c1e8176ab c42740ba6 c445db9b9 c7f74399a c937ba156 c9566e21c caa6eb57d cbf033fe8 ccae02ff2 cd9b20003\">\n<button aria-expanded=\"false\" class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" type=\"button\">\n<span aria-hidden=\"true\">\n▸\n</span>\n<span>\nKey concepts\n</span>\n</button>\n</span>\n</h3>\n</section>\n@route /"
     ],
     "calls": []
    }

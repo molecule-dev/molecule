@@ -49,9 +49,10 @@ const shows = (prop: VNodeChild, slot: unknown): boolean =>
  * `<Accordion>` — renders a single toggle, not a group of panels.
  *
  * Expansion is uncontrolled by default (`defaultExpanded`); pass `expanded` to
- * control it — then update it from `onExpandedChange`. The header renders as a
- * single `<button>`, so anything passed to `actions` must NOT contain
- * buttons/links (nested interactive elements are invalid HTML).
+ * control it — then update it from `onExpandedChange`. The header renders a
+ * toggle `<button>` around the label with `actions` beside it as a sibling
+ * (a button may not contain other controls), so `actions` MAY contain
+ * buttons/links — a click there never reaches the toggle.
  *
  * @param props - Component props (see {@link CollapsibleSectionProps}).
  * @returns The collapsible section component.
@@ -88,12 +89,13 @@ export const CollapsibleSection = defineComponent({
     return (): VNode =>
       h('section', { class: cm.cn(cm.stack(2), props.className) }, [
         h(heading.value, [
+          // The header row is a container, not a button: a button may not
+          // contain other controls, and `actions` typically holds them. The
+          // toggle wraps the label; `actions` sits beside it, so a click there
+          // never reaches the toggle (no stopPropagation needed).
           h(
-            'button',
+            'span',
             {
-              type: 'button',
-              onClick: toggle,
-              'aria-expanded': isOpen.value ? 'true' : 'false',
               class: cm.cn(
                 cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
                 cm.w('full'),
@@ -103,17 +105,22 @@ export const CollapsibleSection = defineComponent({
               ),
             },
             [
-              h('span', { class: cm.flex({ align: 'center', gap: 'sm' }) }, [
-                h('span', { 'aria-hidden': 'true' }, isOpen.value ? '▾' : '▸'),
-                h('span', nodeValue(props.title, slots.title)),
-                ...nodeValue(props.badge, slots.badge),
-              ]),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  onClick: toggle,
+                  'aria-expanded': isOpen.value ? 'true' : 'false',
+                  class: cm.flex({ align: 'center', gap: 'sm' }),
+                },
+                [
+                  h('span', { 'aria-hidden': 'true' }, isOpen.value ? '▾' : '▸'),
+                  h('span', nodeValue(props.title, slots.title)),
+                  ...nodeValue(props.badge, slots.badge),
+                ],
+              ),
               shows(props.actions, slots.actions)
-                ? h(
-                    'span',
-                    { onClick: (event: MouseEvent) => event.stopPropagation() },
-                    nodeValue(props.actions, slots.actions),
-                  )
+                ? h('span', nodeValue(props.actions, slots.actions))
                 : null,
             ],
           ),

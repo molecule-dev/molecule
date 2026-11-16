@@ -12,7 +12,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes an empty title. */
+const EMPTY_TITLE: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes an empty title',
+}
 
 /** Body content marking an expanded section. */
 const body = [{ tag: 'p', attrs: { 'data-body': '' }, children: ['hidden body'] }]
@@ -121,6 +128,7 @@ export const collapsibleSectionFeature: FeatureCases = {
         },
         {
           name: 'an empty title',
+          a11y: EMPTY_TITLE,
           props: { title: '' },
           children: [],
         },

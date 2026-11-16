@@ -42,10 +42,7 @@
 
 <section class={cm.cn(cm.stack(2), className)}>
   <svelte:element this={heading}
-    ><button
-      type="button"
-      onclick={toggle}
-      aria-expanded={isOpen ? 'true' : 'false'}
+    ><span
       class={cm.cn(
         cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
         cm.w('full'),
@@ -53,14 +50,17 @@
         cm.textSize('sm'),
         cm.fontWeight('semibold'),
       )}
-      ><span class={cm.flex({ align: 'center', gap: 'sm' })}
+      ><button
+        type="button"
+        onclick={toggle}
+        aria-expanded={isOpen ? 'true' : 'false'}
+        class={cm.flex({ align: 'center', gap: 'sm' })}
         ><span aria-hidden="true">{isOpen ? '▾' : '▸'}</span><span
           >{#if typeof title === 'function'}{@render title()}{:else if title !== undefined}{title}{/if}</span
-        >{#if badge}{#if typeof badge === 'function'}{@render badge()}{:else}{badge}{/if}{/if}</span
-      >{#if actions}<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions --><span
-          onclick={(event: MouseEvent) => event.stopPropagation()}
+        >{#if badge}{#if typeof badge === 'function'}{@render badge()}{:else}{badge}{/if}{/if}</button
+      >{#if actions}<span
           >{#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}</span
-        >{/if}</button
+        >{/if}</span
     ></svelte:element
   >
   {#if isOpen}<div>
