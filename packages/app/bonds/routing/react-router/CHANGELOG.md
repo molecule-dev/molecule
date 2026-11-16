@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.4.1
+
+### Patch Changes
+
+- Verify that sibling list-view links retain their declared destinations as the active view changes.
+
 ## 1.4.0
 
 ### Minor Changes
