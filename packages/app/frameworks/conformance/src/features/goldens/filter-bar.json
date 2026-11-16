@@ -1,0 +1,276 @@
+{
+ "exports": [
+  "FilterBar"
+ ],
+ "values": {},
+ "cases": {
+  "FilterBar": {
+   "text field falls back to its label as the placeholder": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text field with a value and a custom placeholder": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Type here\" type=\"text\" value=\"needle\" {value=\"needle\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "select field with no selection": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id0\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "select field with a selection": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id0\" {value=\"closed\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "multi field is empty": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Tags\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "multi field joins its values with commas": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Tags\" type=\"text\" value=\"a, b\" {value=\"a, b\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "multi field with a custom placeholder": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Add tags\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "date-range field is empty": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id1\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "date-range field with both bounds": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"date\" value=\"2024-01-01\" {value=\"2024-01-01\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id1\" type=\"date\" value=\"2024-02-01\" {value=\"2024-02-01\"}>\n</input>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "date-range field with only a from bound": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"date\" value=\"2024-01-01\" {value=\"2024-01-01\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id1\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "showLabels wraps each field in a labeled column": {
+    "snapshots": [
+     "<div class=\"c5f14bce3 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<label class=\"c2cbb8333 c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSearch\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</label>\n<label class=\"c2cbb8333 c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nStatus\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id1\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</label>\n<label class=\"c2cbb8333 c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nTags\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id2\" placeholder=\"Tags\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</label>\n<label class=\"c2cbb8333 c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nCreated\n</span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id3\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id4\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</span>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "showLabels with values": {
+    "snapshots": [
+     "<div class=\"c5f14bce3 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<label class=\"c2cbb8333 c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSearch\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value=\"needle\" {value=\"needle\"}>\n</input>\n</div>\n</div>\n</label>\n<label class=\"c2cbb8333 c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nStatus\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id1\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</label>\n<label class=\"c2cbb8333 c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nTags\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id2\" placeholder=\"Tags\" type=\"text\" value=\"a\" {value=\"a\"}>\n</input>\n</div>\n</div>\n</label>\n<label class=\"c2cbb8333 c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nCreated\n</span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id3\" type=\"date\" value=\"2024-01-01\" {value=\"2024-01-01\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id4\" type=\"date\" value=\"2024-02-01\" {value=\"2024-02-01\"}>\n</input>\n</div>\n</div>\n</span>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "every field type in one unlabeled row": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id1\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id2\" placeholder=\"Tags\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id3\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id4\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a clear button renders when onClear is supplied": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nClear filters\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no clear button without onClear": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nClear filters\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the actions slot renders after the fields": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<button type=\"button\">\nSave view\n</button>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "actions beside the clear button": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nClear filters\n</button>\n<span>\nSaved\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className lands on the row": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no fields renders an empty row": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "typing in a text field emits the whole values map": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id1\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id1\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "q": "needle",
+        "status": "open"
+       }
+      ]
+     }
+    ]
+   },
+   "a multi field splits on commas": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Tags\" type=\"text\" value=\"a\" {value=\"a\"}>\n</input>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Tags\" type=\"text\" value=\"a\" {value=\"a\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "tags": [
+         "a",
+         "b",
+         "c"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "a multi field clears to an empty list": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Tags\" type=\"text\" value=\"a, b\" {value=\"a, b\"}>\n</input>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Tags\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Tags\" type=\"text\" value=\"a, b\" {value=\"a, b\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "tags": []
+       }
+      ]
+     }
+    ]
+   },
+   "choosing a select option emits its value": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id0\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id0\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "status": "closed"
+       }
+      ]
+     }
+    ]
+   },
+   "changing a date-range bound keeps the other one": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"date\" value=\"2024-01-01\" {value=\"2024-01-01\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id1\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"date\" value=\"2024-01-01\" {value=\"2024-01-01\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id1\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "created": {
+         "from": "2024-01-01",
+         "to": "2024-03-04"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   "changing the from bound of a date range": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id1\" type=\"date\" value=\"2024-02-02\" {value=\"2024-02-02\"}>\n</input>\n</div>\n</div>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created from\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" type=\"date\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<span>\n–\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Created to\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id1\" type=\"date\" value=\"2024-02-02\" {value=\"2024-02-02\"}>\n</input>\n</div>\n</div>\n</span>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onChange",
+      "args": [
+       {
+        "created": {
+         "from": "2024-01-01",
+         "to": "2024-02-02"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   "the clear button calls onClear": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value=\"needle\" {value=\"needle\"}>\n</input>\n</div>\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nClear filters\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value=\"needle\" {value=\"needle\"}>\n</input>\n</div>\n</div>\n<button aria-busy=\"false\" class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c9773cd2b c9866e6d5 ca3834f73 cc06b624c cca4f1386 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" type=\"button\">\nClear filters\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClear",
+      "args": [
+       {
+        "event": "click",
+        "target": "button"
+       }
+      ]
+     }
+    ]
+   },
+   "values change re-renders the controls": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id1\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value=\"typed\" {value=\"typed\"}>\n</input>\n</div>\n</div>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id1\" {value=\"closed\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "showLabels can be turned on after mount": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c5f14bce3 c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<label class=\"c2cbb8333 c42740ba6 c9866e6d5 cbaac6b89 cc2d72006 ccae02ff2\">\n<span class=\"c0d99ed10 c267fcecb c4647f690 cdf83deeb ce823b5bf\">\nSearch\n</span>\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</label>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a field can change type": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<select aria-invalid=\"false\" aria-label=\"Status\" class=\"c04c34dac c1024996b c107b4ecd c1c0e3090 c1f523237 c2e95a721 c38dd3446 c42800972 c4e17296e c5f36903e c6e9c99d4 c8771eca4 c8b197f7c c8d5ed0df ca186c271 cbeb3edfc cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d cee061da5 ceed970d7 cf0915c40\" id=\"#id0\" {value=\"open\"}>\n<option value=\"open\">\nOpen\n</option>\n<option value=\"closed\">\nClosed\n</option>\n</select>\n<div class=\"c0dd268bc c1e8176ab c580d84ed ca3a46af7 ccae02ff2 cf48f3038\" style=\"pointer-events: none\">\n<svg aria-hidden=\"true\" class=\"cc3672a4e cd14f11ef ce823b5bf\" fill=\"currentColor\" focusable=\"false\" viewbox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text field falls back to its label as the placeholder, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9566e21c cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<div class=\"cbf033fe8\">\n<div class=\"cfc82911d\">\n<input aria-invalid=\"false\" aria-label=\"Search\" class=\"c04c34dac c1024996b c107b4ecd c16e96f28 c1c0e3090 c1f523237 c2e95a721 c33d4bf17 c38dd3446 c42800972 c456706e8 c4e17296e c5f36903e c62c44ece c646b9b50 c6e9c99d4 c8771eca4 c892012e1 c89408c67 c8b197f7c c8d5ed0df ca186c271 cad188620 cbf033fe8 cc26cbf54 ccae02ff2 cd6fe318b cdccefb20 ce793076d ce9cbe75e cee061da5 cf0915c40\" id=\"#id0\" placeholder=\"Search\" type=\"text\" value {value=\"\"}>\n</input>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

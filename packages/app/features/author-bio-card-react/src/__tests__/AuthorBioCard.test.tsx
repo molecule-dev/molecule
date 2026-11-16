@@ -10,7 +10,12 @@
 
 import { fireEvent, render } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+/** A per-test `t` replacement; `null` restores the interpolating default below. */
+const { tOverride } = vi.hoisted(() => ({
+  tOverride: { current: null as null | ((key: string) => string) },
+}))
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => buildStubClassMap(),
@@ -19,6 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+      if (tOverride.current) return tOverride.current(key)
       let s = opts?.defaultValue ?? key
       if (values) {
         for (const [k, v] of Object.entries(values)) {
@@ -29,6 +35,10 @@ vi.mock('@molecule/app-react', () => ({
     },
   }),
 }))
+
+afterEach(() => {
+  tOverride.current = null
+})
 
 vi.mock('@molecule/app-ui-react', () => ({
   Avatar: ({ src, name, size }: { src?: string; name?: string; size?: string }) => (
@@ -205,9 +215,32 @@ describe('<AuthorBioCard>', () => {
         <AuthorBioCard author={{ ...baseAuthor, socials: { twitter: 'alice' } }} />,
       )
       const link = container.querySelector('[data-mol-id="author-bio-card-social-twitter"]')
-      expect(link?.getAttribute('aria-label')).toBe('Alice Example on twitter')
+      expect(link?.getAttribute('aria-label')).toBe('Alice Example on Twitter')
       expect(link?.getAttribute('rel')).toBe('noopener noreferrer')
       expect(link?.getAttribute('target')).toBe('_blank')
+    })
+
+    it('routes every social label and aria-label through its literal translation key', () => {
+      tOverride.current = (key) => `@@${key}@@`
+      const { container } = render(
+        <AuthorBioCard
+          author={{
+            ...baseAuthor,
+            socials: {
+              twitter: 'alice',
+              github: 'alice-gh',
+              linkedin: 'alice',
+              mastodon: '@alice@hachyderm.io',
+              website: 'alice.example',
+            },
+          }}
+        />,
+      )
+      for (const key of ['twitter', 'github', 'linkedin', 'mastodon', 'website']) {
+        const link = container.querySelector(`[data-mol-id="author-bio-card-social-${key}"]`)
+        expect(link?.textContent).toBe(`@@authorBioCard.social.${key}.label@@`)
+        expect(link?.getAttribute('aria-label')).toBe(`@@authorBioCard.social.${key}@@`)
+      }
     })
 
     it('honors a custom dataMolId for the wrapping card and child selectors', () => {

@@ -7,6 +7,7 @@ export const bn: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'মোটামুটি',
   'passwordStrengthMeter.label.3': 'ভালো',
   'passwordStrengthMeter.label.4': 'শক্তিশালী',
+  'passwordStrengthMeter.barLabel': 'পাসওয়ার্ডের শক্তি',
   'passwordStrengthMeter.ariaValueText': 'পাসওয়ার্ডের শক্তি: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'কমপক্ষে ১২টি অক্ষর',
   'passwordStrengthMeter.rule.upper': 'একটি বড় হাতের অক্ষর আছে',

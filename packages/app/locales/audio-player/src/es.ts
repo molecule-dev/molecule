@@ -7,4 +7,5 @@ export const es: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pausa',
   'audio.mute': 'Silenciar',
   'audio.unmute': 'Silenciar',
+  'audio.captions': 'Subtítulos',
 }

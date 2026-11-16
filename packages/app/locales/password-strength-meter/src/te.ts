@@ -7,6 +7,7 @@ export const te: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'ఓ మోస్తరు',
   'passwordStrengthMeter.label.3': 'మంచిది',
   'passwordStrengthMeter.label.4': 'బలమైనది',
+  'passwordStrengthMeter.barLabel': 'పాస్‌వర్డ్ బలం',
   'passwordStrengthMeter.ariaValueText': 'పాస్‌వర్డ్ బలం: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'కనీసం 12 అక్షరాలు',
   'passwordStrengthMeter.rule.upper': 'పెద్ద అక్షరం ఉంది',

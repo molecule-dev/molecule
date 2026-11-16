@@ -7,4 +7,5 @@ export const is: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Gera hlé',
   'audio.mute': 'Þagga',
   'audio.unmute': 'Hljóðnemi af',
+  'audio.captions': 'Skjátextar',
 }

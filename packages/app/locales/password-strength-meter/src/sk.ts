@@ -7,6 +7,7 @@ export const sk: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Priemerné',
   'passwordStrengthMeter.label.3': 'Dobré',
   'passwordStrengthMeter.label.4': 'Silné',
+  'passwordStrengthMeter.barLabel': 'Sila hesla',
   'passwordStrengthMeter.ariaValueText': 'Sila hesla: {{label}} ({{score}} zo 4)',
   'passwordStrengthMeter.rule.length': 'Aspoň 12 znakov',
   'passwordStrengthMeter.rule.upper': 'Obsahuje veľké písmeno',

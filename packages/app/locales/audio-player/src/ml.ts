@@ -7,4 +7,5 @@ export const ml: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'താൽക്കാലികമായി നിർത്തുക',
   'audio.mute': 'നിശബ്ദമാക്കുക',
   'audio.unmute': 'അൺമ്യൂട്ട് ചെയ്യുക',
+  'audio.captions': 'ക്യാപ്ഷനുകൾ',
 }

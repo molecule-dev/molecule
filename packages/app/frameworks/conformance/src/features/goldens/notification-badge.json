@@ -1,0 +1,344 @@
+{
+ "exports": [
+  "NotificationBadge",
+  "NotificationDot",
+  "NotificationWrapper"
+ ],
+ "values": {},
+ "cases": {
+  "NotificationBadge": {
+   "renders the count": {
+    "snapshots": [
+     "<span aria-label=\"5\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n5\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders nothing when count is 0": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "renders nothing for a negative count": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "renders a 0 badge when hideOnZero is false": {
+    "snapshots": [
+     "<span aria-label=\"0\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n0\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders a negative count when hideOnZero is false": {
+    "snapshots": [
+     "<span aria-label=\"-3\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n-3\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "clamps to 99+ by default": {
+    "snapshots": [
+     "<span aria-label=\"250\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n99+\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "honours a custom max": {
+    "snapshots": [
+     "<span aria-label=\"12\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n9+\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "shows the raw count at the max": {
+    "snapshots": [
+     "<span aria-label=\"99\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n99\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "error variant by default": {
+    "snapshots": [
+     "<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "error variant": {
+    "snapshots": [
+     "<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "warning variant": {
+    "snapshots": [
+     "<span aria-label=\"1\" class=\"c04255343 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "info variant": {
+    "snapshots": [
+     "<span aria-label=\"1\" class=\"c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b cc9516029 ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "success variant": {
+    "snapshots": [
+     "<span aria-label=\"1\" class=\"c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003 cef6f5494\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "neutral variant": {
+    "snapshots": [
+     "<span aria-label=\"1\" class=\"c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003 cf74bfc1b\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards className": {
+    "snapshots": [
+     "<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c0f8b0051 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "count changes": {
+    "snapshots": [
+     "<span aria-label=\"5\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n5\n</span>\n@route /",
+     "<span aria-label=\"120\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n99+\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "variant changes": {
+    "snapshots": [
+     "<span aria-label=\"2\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n2\n</span>\n@route /",
+     "<span aria-label=\"2\" class=\"c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003 cef6f5494\" style=\"height: 20px; min-width: 20px\">\n2\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "hides on a count of 0 and shows again": {
+    "snapshots": [
+     "<span aria-label=\"4\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n4\n</span>\n@route /",
+     "\n@route /",
+     "<span aria-label=\"7\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n7\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "hideOnZero toggles": {
+    "snapshots": [
+     "\n@route /",
+     "<span aria-label=\"0\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n0\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders the count, then a locale switch": {
+    "snapshots": [
+     "<span aria-label=\"5\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n5\n</span>\n@route /",
+     "<span aria-label=\"5\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n5\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "NotificationDot": {
+   "renders by default": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders nothing when visible is false": {
+    "snapshots": [
+     "\n@route /"
+    ],
+    "calls": []
+   },
+   "error variant by default": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "error variant": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "warning variant": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c04255343 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "info variant": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c9052b18c cc9516029\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "success variant": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c9052b18c cef6f5494\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "neutral variant": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c9052b18c cf74bfc1b\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "honours a custom size": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 14px; width: 14px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "explicit inline position": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "corner position": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"height: 8px; position: absolute; right: 2px; top: 2px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "corner position with a custom size": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"height: 12px; position: absolute; right: 2px; top: 2px; width: 12px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards className": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c ce60fe679\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "size changes": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /",
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 20px; width: 20px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "position changes to corner": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 10px; width: 10px\">\n</span>\n@route /",
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"height: 10px; position: absolute; right: 2px; top: 2px; width: 10px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "visibility toggles": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /",
+     "\n@route /",
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders by default, then a locale switch": {
+    "snapshots": [
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /",
+     "<span aria-hidden=\"true\" class=\"c0d4608b5 c9052b18c\" style=\"display: inline-block; height: 8px; width: 8px\">\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "NotificationWrapper": {
+   "renders its child": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<button data-child>\ninbox\n</button>\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"3\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n3\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders the badge alongside the child": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"3\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n3\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "hides the badge at a count of 0 but keeps the child": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nchild-text\n<span style=\"position: absolute; right: -4px; top: -4px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "shows a 0 badge when hideOnZero is false": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"0\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n0\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "positions top-right by default": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "positions top-left": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"left: -4px; position: absolute; top: -4px\">\n<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "positions bottom-right": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"bottom: -4px; position: absolute; right: -4px\">\n<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "positions bottom-left": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"bottom: -4px; left: -4px; position: absolute\">\n<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards the variant to the badge": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"1\" class=\"c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b cc9516029 ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "forwards className onto the wrapper": {
+    "snapshots": [
+     "<span class=\"c0ecd298c cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "element children": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<strong>\nInbox\n</strong>\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"2\" class=\"c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003 cef6f5494\" style=\"height: 20px; min-width: 20px\">\n2\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "placement changes": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n</span>\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"bottom: -4px; left: -4px; position: absolute\">\n<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "count and variant change": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"1\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n1\n</span>\n</span>\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"150\" class=\"c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003 cf74bfc1b\" style=\"height: 20px; min-width: 20px\">\n99+\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "badge appears and disappears": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n</span>\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"4\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n4\n</span>\n</span>\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\nx\n<span style=\"position: absolute; right: -4px; top: -4px\">\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   },
+   "renders its child, then a locale switch": {
+    "snapshots": [
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<button data-child>\ninbox\n</button>\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"3\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n3\n</span>\n</span>\n</span>\n@route /",
+     "<span class=\"cfc82911d\" style=\"display: inline-block\">\n<button data-child>\ninbox\n</button>\n<span style=\"position: absolute; right: -4px; top: -4px\">\n<span aria-label=\"3\" class=\"c0d4608b5 c0d99ed10 c1e8176ab c42740ba6 c4647f690 c8c3cd17b c9052b18c c9773cd2b ccae02ff2 cd9b20003\" style=\"height: 20px; min-width: 20px\">\n3\n</span>\n</span>\n</span>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

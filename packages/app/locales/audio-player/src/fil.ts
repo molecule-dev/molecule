@@ -7,4 +7,5 @@ export const fil: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Ihinto',
   'audio.mute': 'I-mute',
   'audio.unmute': 'I-unmute',
+  'audio.captions': 'Mga Caption',
 }

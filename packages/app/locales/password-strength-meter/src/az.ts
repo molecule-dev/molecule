@@ -7,6 +7,7 @@ export const az: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Orta',
   'passwordStrengthMeter.label.3': 'Yaxşı',
   'passwordStrengthMeter.label.4': 'Güclü',
+  'passwordStrengthMeter.barLabel': 'Parol gücü',
   'passwordStrengthMeter.ariaValueText': 'Parol gücü: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'Ən azı 12 simvol',
   'passwordStrengthMeter.rule.upper': 'Böyük hərf var',

@@ -7,6 +7,7 @@ export const mt: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Moderata',
   'passwordStrengthMeter.label.3': 'Tajba',
   'passwordStrengthMeter.label.4': 'Qawwija',
+  'passwordStrengthMeter.barLabel': 'Saħħa tal-password',
   'passwordStrengthMeter.ariaValueText': 'Saħħa tal-password: {{label}} ({{score}} minn 4)',
   'passwordStrengthMeter.rule.length': 'Mill-inqas 12-il karattru',
   'passwordStrengthMeter.rule.upper': 'Fiha ittra kbira',

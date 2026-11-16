@@ -7,6 +7,7 @@ export const kn: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'ಸಾಧಾರಣ',
   'passwordStrengthMeter.label.3': 'ಉತ್ತಮ',
   'passwordStrengthMeter.label.4': 'ಪ್ರಬಲ',
+  'passwordStrengthMeter.barLabel': 'ಪಾಸ್‌ವರ್ಡ್ ಬಲ',
   'passwordStrengthMeter.ariaValueText': 'ಪಾಸ್‌ವರ್ಡ್ ಬಲ: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'ಕನಿಷ್ಠ 12 ಅಕ್ಷರಗಳು',
   'passwordStrengthMeter.rule.upper': 'ದೊಡ್ಡಕ್ಷರವಿದೆ',

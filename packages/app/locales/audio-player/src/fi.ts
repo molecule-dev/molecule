@@ -7,4 +7,5 @@ export const fi: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Tauko',
   'audio.mute': 'Mykistä',
   'audio.unmute': 'Poista mykistys',
+  'audio.captions': 'Tekstitys',
 }

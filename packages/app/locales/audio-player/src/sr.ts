@@ -7,4 +7,5 @@ export const sr: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Пауза',
   'audio.mute': 'Искључи звук',
   'audio.unmute': 'Укључи звук',
+  'audio.captions': 'Титлови',
 }

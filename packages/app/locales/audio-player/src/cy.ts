@@ -7,4 +7,5 @@ export const cy: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Oedi',
   'audio.mute': 'Mud',
   'audio.unmute': 'Dadfud',
+  'audio.captions': 'Capsiynau',
 }

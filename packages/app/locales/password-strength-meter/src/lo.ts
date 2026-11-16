@@ -7,6 +7,7 @@ export const lo: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'ປານກາງ',
   'passwordStrengthMeter.label.3': 'ດີ',
   'passwordStrengthMeter.label.4': 'ແຂງແຮງ',
+  'passwordStrengthMeter.barLabel': 'ຄວາມແຂງແຮງລະຫັດຜ່ານ',
   'passwordStrengthMeter.ariaValueText': 'ຄວາມແຂງແຮງລະຫັດຜ່ານ: {{label}} ({{score}} ໃນ 4)',
   'passwordStrengthMeter.rule.length': 'ຢ່າງໜ້ອຍ 12 ຕົວອັກສອນ',
   'passwordStrengthMeter.rule.upper': 'ມີຕົວອັກສອນໃຫຍ່',

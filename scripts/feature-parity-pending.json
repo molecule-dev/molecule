@@ -1,10 +1,4 @@
 {
-  "@molecule/app-action-menu-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-activity-timeline-react": [
     "vue",
     "solid",
@@ -18,24 +12,6 @@
     "angular"
   ],
   "@molecule/app-admin-table-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-amount-input-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-annotation-pin-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-audio-player-react": [
     "vue",
     "solid",
     "svelte",
@@ -60,18 +36,6 @@
     "angular"
   ],
   "@molecule/app-auth-shell-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-author-bio-card-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-bias-indicator-react": [
     "vue",
     "solid",
     "svelte",
@@ -179,12 +143,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-feature-barcode-scanner-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-feature-canvas-react": [
     "vue",
     "solid",
@@ -215,12 +173,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-feature-track-lane-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-feature-video-scrubber-react": [
     "vue",
     "solid",
@@ -239,19 +191,7 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-filter-bar-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-flow-canvas-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-gradebook-react": [
     "vue",
     "solid",
     "svelte",
@@ -288,18 +228,6 @@
     "angular"
   ],
   "@molecule/app-inbox-row-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-join-code-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-kanban-board-react": [
     "vue",
     "solid",
     "svelte",
@@ -383,12 +311,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-notification-badge-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-notification-center-react": [
     "vue",
     "solid",
@@ -408,12 +330,6 @@
     "angular"
   ],
   "@molecule/app-password-generator-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-password-strength-meter-react": [
     "vue",
     "solid",
     "svelte",

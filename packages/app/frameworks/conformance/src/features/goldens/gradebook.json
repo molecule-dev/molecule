@@ -1,0 +1,354 @@
+{
+ "exports": [
+  "GpaCard",
+  "Gradebook",
+  "computePercentage",
+  "defaultGpaMax",
+  "formatGpa"
+ ],
+ "values": {
+  "computePercentage": [
+   80,
+   90,
+   73,
+   50,
+   100,
+   0,
+   0
+  ],
+  "formatGpa": [
+   "3.72",
+   "4.50",
+   "87%",
+   "0.00",
+   "0.00",
+   "0%"
+  ],
+  "defaultGpaMax": [
+   4,
+   5,
+   100
+  ]
+ },
+ "cases": {
+  "GpaCard": {
+   "a 4.0 GPA with the scale default ceiling": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.72\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a 5.0 GPA with the scale default ceiling": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n4.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 5.00\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a percentage GPA": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n87%\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 100%\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an explicit max": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n4.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 5.00\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a zero max falls back to the scale default": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.00\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a negative max falls back to the scale default": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.00\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an upward trend": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"gpa-card-trend\" data-trend=\"up\">\n<span aria-hidden=\"true\">\n↑\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-text\">\nTrending up\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a downward trend": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.10\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"gpa-card-trend\" data-trend=\"down\">\n<span aria-hidden=\"true\">\n↓\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-text\">\nTrending down\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a flat trend": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"gpa-card-trend\" data-trend=\"flat\">\n<span aria-hidden=\"true\">\n→\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-text\">\nSteady\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a trend label beside the trend chip": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"gpa-card-trend\" data-trend=\"flat\">\n<span aria-hidden=\"true\">\n→\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-text\">\nSteady\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-label\">\nvs last semester\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a trend label as a node": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"gpa-card-trend\" data-trend=\"up\">\n<span aria-hidden=\"true\">\n↑\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-text\">\nTrending up\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-label\">\n<em data-node=\"trend-label\">\nvs last\n</em>\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a trend label without a trend renders no chip": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.72\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the GPA and the scale change": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.72\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n4.60\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 5.00\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n91%\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 100%\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the trend is added, changed and removed": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"gpa-card-trend\" data-trend=\"up\">\n<span aria-hidden=\"true\">\n↑\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-text\">\nTrending up\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\" data-mol-id=\"gpa-card-trend\" data-trend=\"down\">\n<span aria-hidden=\"true\">\n↓\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-text\">\nTrending down\n</span>\n<span class=\"c4647f690\" data-mol-id=\"gpa-card-trend-label\">\nvs last month\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.50\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a 4.0 GPA with the scale default ceiling, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"GPA\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\nGPA\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.72\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\nout of 4.00\n</span>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div aria-label=\"⟦GPA⟧\" class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\" data-mol-id=\"gpa-card\" role=\"region\">\n<span class=\"c4647f690 c7f74399a\" data-mol-id=\"gpa-card-title\">\n⟦GPA⟧\n</span>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c91a3f70a\" data-mol-id=\"gpa-card-value\">\n3.72\n</span>\n<span class=\"c445db9b9\" data-mol-id=\"gpa-card-out-of\">\n⟦out of 4.00⟧\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "Gradebook": {
+   "two rows with every field": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no grades yet": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" class=\"c99d61f16\" data-mol-id=\"gradebook-empty\" role=\"region\">\n<span class=\"c445db9b9\">\nNo grades yet.\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no grades yet with classes": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" class=\"c99d61f16 cd75bbd18\" data-mol-id=\"gradebook-empty\" role=\"region\">\n<span class=\"c445db9b9\">\nNo grades yet.\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the percentage scale": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore (%)\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n1%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n82%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n1%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the 5.0 scale": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a row without optional fields renders em dashes": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g3\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nQuiz\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n—\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a zero maxPoints renders the bare score": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g4\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nLab\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n17\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n—\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a zero weight and a zero contribution render as numbers": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g5\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nReading\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n5\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n0%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.00\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n—\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a node title and posted cell pass through": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g6\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\n<strong data-node=\"title\">\nCalculus I\n</strong>\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n88\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n<time data-node=\"posted\">\n2026-04-01\n</time>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" class=\"cd75bbd18\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a cell click calls onCellClick with the row and column": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onCellClick",
+      "args": [
+       {
+        "contribution": 0.93,
+        "id": "g1",
+        "letter": "A-",
+        "maxPoints": 100,
+        "postedAt": "2026-04-01",
+        "score": 92,
+        "title": "Calculus I",
+        "weight": 0.25
+       },
+       "title"
+      ]
+     },
+     {
+      "name": "onCellClick",
+      "args": [
+       {
+        "contribution": 0.93,
+        "id": "g1",
+        "letter": "A-",
+        "maxPoints": 100,
+        "postedAt": "2026-04-01",
+        "score": 92,
+        "title": "Calculus I",
+        "weight": 0.25
+       },
+       "numeric"
+      ]
+     }
+    ]
+   },
+   "every column reports its own id": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onCellClick",
+      "args": [
+       {
+        "contribution": 0.93,
+        "id": "g1",
+        "letter": "A-",
+        "maxPoints": 100,
+        "postedAt": "2026-04-01",
+        "score": 92,
+        "title": "Calculus I",
+        "weight": 0.25
+       },
+       "letter"
+      ]
+     },
+     {
+      "name": "onCellClick",
+      "args": [
+       {
+        "contribution": 0.93,
+        "id": "g1",
+        "letter": "A-",
+        "maxPoints": 100,
+        "postedAt": "2026-04-01",
+        "score": 92,
+        "title": "Calculus I",
+        "weight": 0.25
+       },
+       "weight"
+      ]
+     },
+     {
+      "name": "onCellClick",
+      "args": [
+       {
+        "contribution": 0.93,
+        "id": "g1",
+        "letter": "A-",
+        "maxPoints": 100,
+        "postedAt": "2026-04-01",
+        "score": 92,
+        "title": "Calculus I",
+        "weight": 0.25
+       },
+       "contribution"
+      ]
+     },
+     {
+      "name": "onCellClick",
+      "args": [
+       {
+        "contribution": 0.93,
+        "id": "g1",
+        "letter": "A-",
+        "maxPoints": 100,
+        "postedAt": "2026-04-01",
+        "score": 92,
+        "title": "Calculus I",
+        "weight": 0.25
+       },
+       "posted"
+      ]
+     }
+    ]
+   },
+   "without onCellClick a cell click calls nothing": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the rows change": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g3\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nQuiz\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n—\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n—\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" class=\"c99d61f16\" data-mol-id=\"gradebook-empty\" role=\"region\">\n<span class=\"c445db9b9\">\nNo grades yet.\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the scale changes": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore (%)\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n1%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n82%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n1%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the className changes": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" class=\"cd75bbd18\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"Gradebook\" class=\"ccaded727\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "two rows with every field, then a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"Gradebook\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\nCourse\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\nLetter\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\nScore\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\nWeight\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\nGPA contribution\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\nPosted\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /",
+     "<div aria-label=\"⟦Gradebook⟧\" data-mol-id=\"gradebook\" role=\"region\">\n<table class=\"cbf033fe8\" data-mol-id=\"gradebook-table\">\n<thead>\n<tr data-mol-id=\"gradebook-header-row\">\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-title\" scope=\"col\">\n⟦Course⟧\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-letter\" scope=\"col\">\n⟦Letter⟧\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-numeric\" scope=\"col\">\n⟦Score⟧\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-weight\" scope=\"col\">\n⟦Weight⟧\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-contribution\" scope=\"col\">\n⟦GPA contribution⟧\n</th>\n<th class=\"c4647f690 c7f74399a\" data-mol-id=\"gradebook-h-posted\" scope=\"col\">\n⟦Posted⟧\n</th>\n</tr>\n</thead>\n<tbody>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g1\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nCalculus I\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nA-\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n92 / 100\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.93\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-01\n</td>\n</tr>\n<tr data-mol-id=\"gradebook-row\" data-row-id=\"g2\">\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-title\">\nPhysics II\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-letter\">\nB+\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-numeric\">\n41 / 50\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-weight\">\n25%\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-contribution\">\n0.83\n</td>\n<td class=\"c445db9b9\" data-mol-id=\"gradebook-cell-posted\">\n2026-04-02\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

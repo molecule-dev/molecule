@@ -7,4 +7,5 @@ export const af: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pouseer',
   'audio.mute': 'Demp',
   'audio.unmute': 'Ontdemp',
+  'audio.captions': 'Onderskrifte',
 }

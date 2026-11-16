@@ -7,4 +7,5 @@ export const mt: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pawża',
   'audio.mute': 'Mut',
   'audio.unmute': 'Neħħi l-mute',
+  'audio.captions': 'Sottotitoli',
 }

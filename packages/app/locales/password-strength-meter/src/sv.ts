@@ -8,6 +8,7 @@ export const sv: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Rättvis',
   'passwordStrengthMeter.label.3': 'Bra',
   'passwordStrengthMeter.label.4': 'Stark',
+  'passwordStrengthMeter.barLabel': 'Lösenordsstyrka',
   'passwordStrengthMeter.ariaValueText': 'Lösenordsstyrka: {{label}} ( {{score}} av 4)',
   'passwordStrengthMeter.rule.upper': 'Innehåller en stor bokstav',
   'passwordStrengthMeter.rule.lower': 'Innehåller en liten bokstav',

@@ -7,6 +7,7 @@ export const ur: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'ٹھیک ٹھاک',
   'passwordStrengthMeter.label.3': 'اچھا',
   'passwordStrengthMeter.label.4': 'مضبوط',
+  'passwordStrengthMeter.barLabel': 'پاس ورڈ کی مضبوطی',
   'passwordStrengthMeter.ariaValueText': 'پاس ورڈ کی مضبوطی: {{label}} ({{score}} میں سے 4)',
   'passwordStrengthMeter.rule.length': 'کم از کم 12 حروف',
   'passwordStrengthMeter.rule.upper': 'بڑا حرف موجود ہے',

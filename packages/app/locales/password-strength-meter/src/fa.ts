@@ -7,6 +7,7 @@ export const fa: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'متوسط',
   'passwordStrengthMeter.label.3': 'خوب',
   'passwordStrengthMeter.label.4': 'قوی',
+  'passwordStrengthMeter.barLabel': 'قدرت گذرواژه',
   'passwordStrengthMeter.ariaValueText': 'قدرت گذرواژه: {{label}} ({{score}} از 4)',
   'passwordStrengthMeter.rule.length': 'حداقل ۱۲ نویسه',
   'passwordStrengthMeter.rule.upper': 'شامل حرف بزرگ',

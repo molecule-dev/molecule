@@ -7,6 +7,7 @@ export const eu: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Onargarria',
   'passwordStrengthMeter.label.3': 'Ona',
   'passwordStrengthMeter.label.4': 'Sendoa',
+  'passwordStrengthMeter.barLabel': 'Pasahitzaren sendotasuna',
   'passwordStrengthMeter.ariaValueText': 'Pasahitzaren sendotasuna: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'Gutxienez 12 karaktere',
   'passwordStrengthMeter.rule.upper': 'Maiuskula bat du',

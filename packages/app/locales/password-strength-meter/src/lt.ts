@@ -7,6 +7,7 @@ export const lt: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Vidutinis',
   'passwordStrengthMeter.label.3': 'Geras',
   'passwordStrengthMeter.label.4': 'Stiprus',
+  'passwordStrengthMeter.barLabel': 'Slaptažodžio stiprumas',
   'passwordStrengthMeter.ariaValueText': 'Slaptažodžio stiprumas: {{label}} ({{score}} iš 4)',
   'passwordStrengthMeter.rule.length': 'Bent 12 simbolių',
   'passwordStrengthMeter.rule.upper': 'Yra didžioji raidė',

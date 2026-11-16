@@ -7,4 +7,5 @@ export const be: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Паўза',
   'audio.mute': 'Адключыць гук',
   'audio.unmute': 'Уключыць гук',
+  'audio.captions': 'Субтытры',
 }

@@ -7,6 +7,7 @@ export const yo: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Níwọ̀ntúnwọ̀nsì',
   'passwordStrengthMeter.label.3': 'Dáa',
   'passwordStrengthMeter.label.4': 'Lágbára',
+  'passwordStrengthMeter.barLabel': 'Agbára ọ̀rọ̀ aṣínà',
   'passwordStrengthMeter.ariaValueText': 'Agbára ọ̀rọ̀ aṣínà: {{label}} ({{score}} nínú 4)',
   'passwordStrengthMeter.rule.length': 'Ó kéré tán lẹ́tà 12',
   'passwordStrengthMeter.rule.upper': 'Ní lẹ́tà ńlá',

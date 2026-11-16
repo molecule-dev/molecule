@@ -7,4 +7,5 @@ export const ha: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Dakatar da',
   'audio.mute': 'shiru',
   'audio.unmute': 'Cire shiru',
+  'audio.captions': 'Fassara',
 }

@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
@@ -40,7 +41,10 @@ export interface ActionMenuProps {
   trigger?: ReactNode
   /** Menu alignment relative to the trigger. Defaults to `'right'`. */
   align?: 'left' | 'right'
-  /** Accessible label for the trigger button. */
+  /**
+   * Accessible label for the trigger button. Overrides the translated /
+   * `defaultValue` `'Actions'` (prop > `t()` > default).
+   */
   triggerAriaLabel?: string
   /** Extra classes on the outer wrapper. */
   className?: string
@@ -58,9 +62,10 @@ export function ActionMenu({
   items,
   trigger,
   align = 'right',
-  triggerAriaLabel = 'Actions',
+  triggerAriaLabel,
   className,
 }: ActionMenuProps): ReactElement {
+  const { t } = useTranslation()
   const cm = getClassMap()
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLSpanElement>(null)
@@ -98,7 +103,9 @@ export function ActionMenu({
         variant="ghost"
         size="sm"
         onClick={() => setOpen((x) => !x)}
-        aria-label={triggerAriaLabel}
+        aria-label={
+          triggerAriaLabel ?? t('actionMenu.aria.trigger', undefined, { defaultValue: 'Actions' })
+        }
         aria-haspopup="menu"
         aria-expanded={open}
         data-mol-id="action-menu-trigger"

@@ -7,6 +7,7 @@ export const hy: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Միջին',
   'passwordStrengthMeter.label.3': 'Լավ',
   'passwordStrengthMeter.label.4': 'Ուժեղ',
+  'passwordStrengthMeter.barLabel': 'Գաղտնաբառի հզորությունը',
   'passwordStrengthMeter.ariaValueText': 'Գաղտնաբառի հզորությունը՝ {{label}} ({{score}} 4-ից)',
   'passwordStrengthMeter.rule.length': 'Առնվազն 12 նիշ',
   'passwordStrengthMeter.rule.upper': 'Պարունակում է մեծատառ',

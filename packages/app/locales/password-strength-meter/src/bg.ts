@@ -7,6 +7,7 @@ export const bg: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Средна',
   'passwordStrengthMeter.label.3': 'Добра',
   'passwordStrengthMeter.label.4': 'Силна',
+  'passwordStrengthMeter.barLabel': 'Сила на паролата',
   'passwordStrengthMeter.ariaValueText': 'Сила на паролата: {{label}} ({{score}} от 4)',
   'passwordStrengthMeter.rule.length': 'Поне 12 знака',
   'passwordStrengthMeter.rule.upper': 'Съдържа главна буква',

@@ -119,6 +119,16 @@ describe('<PasswordStrengthMeter>', () => {
     expect(segments.length).toBe(5)
   })
 
+  it('names the progressbar with the translated "Password strength" aria-label', () => {
+    const { container } = render(
+      <Wrap>
+        <PasswordStrengthMeter password="" />
+      </Wrap>,
+    )
+    const bar = container.querySelector('[data-mol-id="password-strength-meter-bar"]')
+    expect(bar?.getAttribute('aria-label')).toBe('Password strength')
+  })
+
   it('reports zero score and unfilled segments for an empty password', () => {
     const { container } = render(
       <Wrap>

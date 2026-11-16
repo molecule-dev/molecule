@@ -1,0 +1,412 @@
+{
+ "exports": [
+  "KanbanBoard",
+  "KanbanCard",
+  "KanbanColumn",
+  "KanbanColumnHeader"
+ ],
+ "values": {},
+ "cases": {
+  "KanbanBoard": {
+   "columns with cards and an empty column": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-done\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "no columns": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a column accent is cosmetic": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-done\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough and change": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd75bbd18 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-done\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccaded727 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-done\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-done\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "header actions and footers per column": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n<button data-hdr=\"todo\">\n+\n</button>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n<div data-foot=\"todo\">\nAdd\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n<button data-hdr=\"doing\">\n+\n</button>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n<div data-foot=\"doing\">\nAdd\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-done\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n<button data-hdr=\"done\">\n+\n</button>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n<div data-foot=\"done\">\nAdd\n</div>\n</section>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "clicking a card calls onCardClick": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onCardClick",
+      "args": [
+       {
+        "id": "a",
+        "title": "title-a"
+       },
+       {
+        "cards": [
+         {
+          "id": "a",
+          "title": "title-a"
+         }
+        ],
+        "id": "todo",
+        "title": "col-todo"
+       }
+      ]
+     }
+    ]
+   },
+   "moving a card to another column calls onCardMove": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@dragstart default kept dropEffect=none",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@dragover default prevented dropEffect=none",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onCardMove",
+      "args": [
+       "a",
+       "todo",
+       "doing"
+      ]
+     }
+    ]
+   },
+   "a drop on the source column does nothing": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@dragstart default kept dropEffect=none",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@dragover default prevented dropEffect=none",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": []
+   },
+   "a drop payload from another column moves the card": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onCardMove",
+      "args": [
+       "b",
+       "doing",
+       "todo"
+      ]
+     }
+    ]
+   },
+   "a malformed payload is ignored": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": []
+   },
+   "a drop with no payload is ignored": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": []
+   },
+   "without onCardMove a drop is ignored": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@dragstart default kept dropEffect=none",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@dragover default kept dropEffect=none",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@drop default kept dropEffect=none"
+    ],
+    "calls": []
+   },
+   "a dragover is prevented when a move can happen": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n</div>\n@route /\n@dragover default prevented dropEffect=none"
+    ],
+    "calls": []
+   },
+   "the columns change": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-done\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-later\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-x\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-blocked\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "columns with cards and an empty column, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-done\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c9366def6 cc2d72006 ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-todo\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"todo\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-doing\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\n<span data-col=\"doing\">\n</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n</section>\n</div>\n<div class=\"cb5823274\">\n<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-done\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "KanbanCard": {
+   "title only": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "body and footer": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\nBody copy\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span data-foot>\nAva\n</span>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title as a node": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\n<strong data-title>\nBold\n</strong>\n</h4>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a drag start wraps the card in a draggable div": {
+    "snapshots": [
+     "<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n@route /",
+     "<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n@route /\n@dragstart default kept dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onDragStart",
+      "args": [
+       {
+        "id": "a",
+        "title": "title-a"
+       },
+       {
+        "event": "dragstart",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "a click calls the card handler": {
+    "snapshots": [
+     "<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n@route /",
+     "<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onClick",
+      "args": [
+       {
+        "id": "a",
+        "title": "title-a"
+       }
+      ]
+     }
+    ]
+   },
+   "the card content changes": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n<div class=\"c445db9b9\">\nFirst\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\nSecond\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\nThird\n</h4>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "KanbanColumn": {
+   "an empty column": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "cards in the column": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(2)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n<div class=\"c445db9b9\">\nBody b\n</div>\n</div>\n</div>\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "header actions and footer slots": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n<button data-act>\n+\n</button>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n<div data-foot>\nAdd card\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "a click on a card reports the card and column": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onCardClick",
+      "args": [
+       {
+        "id": "a",
+        "title": "title-a"
+       },
+       {
+        "cards": [
+         {
+          "id": "a",
+          "title": "title-a"
+         }
+        ],
+        "id": "x",
+        "title": "col-x"
+       }
+      ]
+     }
+    ]
+   },
+   "a card drag start reports the card and column": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div draggable=\"true\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</div>\n</section>\n@route /\n@dragstart default kept dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onCardDragStart",
+      "args": [
+       {
+        "id": "a",
+        "title": "title-a"
+       },
+       {
+        "cards": [
+         {
+          "id": "a",
+          "title": "title-a"
+         }
+        ],
+        "id": "x",
+        "title": "col-x"
+       },
+       {
+        "event": "dragstart",
+        "target": "div"
+       }
+      ]
+     }
+    ]
+   },
+   "a drop reports the column": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</section>\n@route /\n@dragover default prevented dropEffect=none",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</section>\n@route /\n@drop default kept dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onDrop",
+      "args": [
+       {
+        "cards": [
+         {
+          "id": "a",
+          "title": "title-a"
+         }
+        ],
+        "id": "x",
+        "title": "col-x"
+       },
+       {
+        "event": "drop",
+        "target": "section"
+       }
+      ]
+     }
+    ]
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2 cd75bbd18\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "the cards change": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(1)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-a\n</h4>\n</div>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(3)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-b\n</h4>\n</div>\n</div>\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-c\n</h4>\n</div>\n</div>\n<div class=\"c13d4ff0f c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<h4 class=\"c445db9b9 c7f74399a\">\ntitle-d\n</h4>\n</div>\n</div>\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty column, then a locale switch": {
+    "snapshots": [
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n@route /",
+     "<section class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\ncol-x\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n<div class=\"c2cbb8333 c9566e21c cbaac6b89 ccae02ff2\">\n</div>\n</section>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "KanbanColumnHeader": {
+   "title only": {
+    "snapshots": [
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\nTo do\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "a title and a count": {
+    "snapshots": [
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\nTo do\n</span>\n<span class=\"c4647f690\">\n(2)\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "a zero count is shown": {
+    "snapshots": [
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\nTo do\n</span>\n<span class=\"c4647f690\">\n(0)\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "actions slot": {
+    "snapshots": [
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\nTo do\n</span>\n</div>\n<button data-act>\n+\n</button>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "title as a node": {
+    "snapshots": [
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\n<strong data-title>\nBold\n</strong>\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough and change": {
+    "snapshots": [
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd75bbd18 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\nT\n</span>\n</div>\n</header>\n@route /",
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccaded727 ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\nT\n</span>\n</div>\n</header>\n@route /",
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\nT\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   },
+   "title only, then a locale switch": {
+    "snapshots": [
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\nTo do\n</span>\n</div>\n</header>\n@route /",
+     "<header class=\"c1e8176ab c42740ba6 c937ba156 c9566e21c ccae02ff2 cd4396714 cd9b20003\">\n<div class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c445db9b9 c7f74399a\">\nTo do\n</span>\n</div>\n</header>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

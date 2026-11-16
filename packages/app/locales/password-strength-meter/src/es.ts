@@ -8,6 +8,7 @@ export const es: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Justo',
   'passwordStrengthMeter.label.3': 'Bien',
   'passwordStrengthMeter.label.4': 'Fuerte',
+  'passwordStrengthMeter.barLabel': 'Seguridad de la contraseña',
   'passwordStrengthMeter.ariaValueText': 'Seguridad de la contraseña: {{label}} ( {{score}} de 4)',
   'passwordStrengthMeter.rule.upper': 'Contiene una letra mayúscula',
   'passwordStrengthMeter.rule.lower': 'Contiene una letra minúscula',

@@ -7,4 +7,5 @@ export const yo: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Dúró díẹ̀',
   'audio.mute': 'Mu odi',
   'audio.unmute': 'Yọ ohùn kúrò',
+  'audio.captions': 'Àwọn àkọlé',
 }

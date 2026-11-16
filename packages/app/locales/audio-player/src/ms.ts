@@ -7,4 +7,5 @@ export const ms: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Jeda',
   'audio.mute': 'Bisu',
   'audio.unmute': 'Nyahbisukan',
+  'audio.captions': 'Sari kata',
 }

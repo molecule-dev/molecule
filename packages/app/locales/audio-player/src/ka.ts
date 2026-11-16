@@ -7,4 +7,5 @@ export const ka: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'პაუზა',
   'audio.mute': 'დადუმება',
   'audio.unmute': 'ხმის მოხსნა',
+  'audio.captions': 'სუბტიტრები',
 }

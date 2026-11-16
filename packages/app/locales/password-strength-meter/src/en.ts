@@ -7,6 +7,7 @@ export const en: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Fair',
   'passwordStrengthMeter.label.3': 'Good',
   'passwordStrengthMeter.label.4': 'Strong',
+  'passwordStrengthMeter.barLabel': 'Password strength',
   'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
   'passwordStrengthMeter.rule.length': 'At least 12 characters',
   'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',

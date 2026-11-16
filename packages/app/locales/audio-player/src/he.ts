@@ -7,4 +7,5 @@ export const he: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'הַפסָקָה',
   'audio.mute': 'לְהַשְׁתִיק',
   'audio.unmute': 'בטל השתקה',
+  'audio.captions': 'כתוביות',
 }

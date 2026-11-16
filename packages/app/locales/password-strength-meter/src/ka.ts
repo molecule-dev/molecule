@@ -7,6 +7,7 @@ export const ka: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'საშუალო',
   'passwordStrengthMeter.label.3': 'კარგი',
   'passwordStrengthMeter.label.4': 'ძლიერი',
+  'passwordStrengthMeter.barLabel': 'პაროლის სიძლიერე',
   'passwordStrengthMeter.ariaValueText': 'პაროლის სიძლიერე: {{label}} ({{score}} 4-დან)',
   'passwordStrengthMeter.rule.length': 'მინიმუმ 12 სიმბოლო',
   'passwordStrengthMeter.rule.upper': 'შეიცავს დიდ ასოს',

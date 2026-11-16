@@ -7,6 +7,7 @@ export const gl: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Aceptable',
   'passwordStrengthMeter.label.3': 'Boa',
   'passwordStrengthMeter.label.4': 'Forte',
+  'passwordStrengthMeter.barLabel': 'Seguranza do contrasinal',
   'passwordStrengthMeter.ariaValueText': 'Seguranza do contrasinal: {{label}} ({{score}} de 4)',
   'passwordStrengthMeter.rule.length': 'Polo menos 12 caracteres',
   'passwordStrengthMeter.rule.upper': 'Contén unha maiúscula',

@@ -7,6 +7,7 @@ export const uz: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Orta',
   'passwordStrengthMeter.label.3': 'Yaxshi',
   'passwordStrengthMeter.label.4': 'Kuchli',
+  'passwordStrengthMeter.barLabel': 'Parol kuchi',
   'passwordStrengthMeter.ariaValueText': 'Parol kuchi: {{label}} ({{score}} dan 4)',
   'passwordStrengthMeter.rule.length': 'Kamida 12 ta belgi',
   'passwordStrengthMeter.rule.upper': 'Bosh harf bor',

@@ -7,4 +7,5 @@ export const zh: Partial<AudioPlayerTranslations> = {
   'audio.pause': '暂停',
   'audio.mute': '沉默的',
   'audio.unmute': '取消静音',
+  'audio.captions': '字幕',
 }

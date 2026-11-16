@@ -7,6 +7,7 @@ export const kk: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Орташа',
   'passwordStrengthMeter.label.3': 'Жақсы',
   'passwordStrengthMeter.label.4': 'Күшті',
+  'passwordStrengthMeter.barLabel': 'Құпия сөз күші',
   'passwordStrengthMeter.ariaValueText': 'Құпия сөз күші: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'Кемінде 12 таңба',
   'passwordStrengthMeter.rule.upper': 'Бас әріп бар',

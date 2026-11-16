@@ -7,4 +7,5 @@ export const sv: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Paus',
   'audio.mute': 'Stum',
   'audio.unmute': 'Slå på ljudet',
+  'audio.captions': 'Undertexter',
 }

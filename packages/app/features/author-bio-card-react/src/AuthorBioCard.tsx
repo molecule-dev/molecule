@@ -129,6 +129,59 @@ export function AuthorBioCard({
     return value ? [[key, value] as [SocialKey, string]] : []
   })
 
+  /**
+   * The translated accessible label of a social link. Every platform is a
+   * literal key (the locale bond owns `authorBioCard.social.<platform>`).
+   *
+   * @param key - The social-network key.
+   * @param name - The author's display name.
+   * @returns The link's `aria-label`.
+   */
+  const socialAriaLabel = (key: SocialKey, name: string): string => {
+    switch (key) {
+      case 'twitter':
+        return t('authorBioCard.social.twitter', { name }, { defaultValue: '{{name}} on Twitter' })
+      case 'github':
+        return t('authorBioCard.social.github', { name }, { defaultValue: '{{name}} on GitHub' })
+      case 'linkedin':
+        return t(
+          'authorBioCard.social.linkedin',
+          { name },
+          { defaultValue: '{{name}} on LinkedIn' },
+        )
+      case 'mastodon':
+        return t(
+          'authorBioCard.social.mastodon',
+          { name },
+          { defaultValue: '{{name}} on Mastodon' },
+        )
+      case 'website':
+        return t('authorBioCard.social.website', { name }, { defaultValue: "{{name}}'s website" })
+    }
+  }
+
+  /**
+   * The translated visible label of a social link. Every platform is a
+   * literal key (the locale bond owns `authorBioCard.social.<platform>.label`).
+   *
+   * @param key - The social-network key.
+   * @returns The link's text.
+   */
+  const socialLabel = (key: SocialKey): string => {
+    switch (key) {
+      case 'twitter':
+        return t('authorBioCard.social.twitter.label', {}, { defaultValue: 'Twitter' })
+      case 'github':
+        return t('authorBioCard.social.github.label', {}, { defaultValue: 'GitHub' })
+      case 'linkedin':
+        return t('authorBioCard.social.linkedin.label', {}, { defaultValue: 'LinkedIn' })
+      case 'mastodon':
+        return t('authorBioCard.social.mastodon.label', {}, { defaultValue: 'Mastodon' })
+      case 'website':
+        return t('authorBioCard.social.website.label', {}, { defaultValue: 'Website' })
+    }
+  }
+
   const followLabel = following
     ? t('authorBioCard.following', {}, { defaultValue: 'Following' })
     : t('authorBioCard.follow', {}, { defaultValue: 'Follow' })
@@ -161,20 +214,12 @@ export function AuthorBioCard({
             key={key}
             href={resolveSocialHref(key, value)}
             data-mol-id={`${dataMolId}-social-${key}`}
-            aria-label={t(
-              `authorBioCard.social.${key}` as const,
-              { name: author.name },
-              { defaultValue: `${author.name} on ${key}` },
-            )}
+            aria-label={socialAriaLabel(key, author.name)}
             rel="noopener noreferrer"
             target="_blank"
             className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}
           >
-            {t(
-              `authorBioCard.social.${key}.label` as const,
-              {},
-              { defaultValue: socialLabel(key) },
-            )}
+            {socialLabel(key)}
           </a>
         ))}
       </div>
@@ -242,26 +287,4 @@ export function AuthorBioCard({
       </div>
     </Card>
   )
-}
-
-/**
- * Map a social-network key to its human-readable English label, used as
- * the inline default for the i18n key. Translation bonds may override.
- *
- * @param key - The social-network key.
- * @returns The English label for that key.
- */
-function socialLabel(key: SocialKey): string {
-  switch (key) {
-    case 'twitter':
-      return 'Twitter'
-    case 'github':
-      return 'GitHub'
-    case 'linkedin':
-      return 'LinkedIn'
-    case 'mastodon':
-      return 'Mastodon'
-    case 'website':
-      return 'Website'
-  }
 }

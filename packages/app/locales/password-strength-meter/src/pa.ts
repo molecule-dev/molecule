@@ -7,6 +7,7 @@ export const pa: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'ਠੀਕ-ਠਾਕ',
   'passwordStrengthMeter.label.3': 'ਚੰਗਾ',
   'passwordStrengthMeter.label.4': 'ਮਜ਼ਬੂਤ',
+  'passwordStrengthMeter.barLabel': 'ਪਾਸਵਰਡ ਮਜ਼ਬੂਤੀ',
   'passwordStrengthMeter.ariaValueText': 'ਪਾਸਵਰਡ ਮਜ਼ਬੂਤੀ: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'ਘੱਟੋ-ਘੱਟ 12 ਅੱਖਰ',
   'passwordStrengthMeter.rule.upper': 'ਵੱਡਾ ਅੱਖਰ ਹੈ',

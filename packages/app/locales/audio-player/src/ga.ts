@@ -7,4 +7,5 @@ export const ga: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Sos',
   'audio.mute': 'Balbhaigh',
   'audio.unmute': 'Díbholadh',
+  'audio.captions': 'Fotheidil',
 }

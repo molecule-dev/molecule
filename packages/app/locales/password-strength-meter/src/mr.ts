@@ -7,6 +7,7 @@ export const mr: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'ठीक',
   'passwordStrengthMeter.label.3': 'चांगला',
   'passwordStrengthMeter.label.4': 'मजबूत',
+  'passwordStrengthMeter.barLabel': 'पासवर्ड ताकद',
   'passwordStrengthMeter.ariaValueText': 'पासवर्ड ताकद: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'किमान 12 वर्ण',
   'passwordStrengthMeter.rule.upper': 'मोठे अक्षर आहे',

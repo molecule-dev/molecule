@@ -7,4 +7,5 @@ export const de: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pause',
   'audio.mute': 'Stumm',
   'audio.unmute': 'Stummschaltung aufheben',
+  'audio.captions': 'Untertitel',
 }

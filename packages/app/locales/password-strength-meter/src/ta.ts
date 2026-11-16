@@ -7,6 +7,7 @@ export const ta: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'சுமார்',
   'passwordStrengthMeter.label.3': 'நல்லது',
   'passwordStrengthMeter.label.4': 'வலிமையானது',
+  'passwordStrengthMeter.barLabel': 'கடவுச்சொல் வலிமை',
   'passwordStrengthMeter.ariaValueText': 'கடவுச்சொல் வலிமை: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'குறைந்தது 12 எழுத்துகள்',
   'passwordStrengthMeter.rule.upper': 'பெரிய எழுத்து உள்ளது',

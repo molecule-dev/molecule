@@ -7,6 +7,7 @@ export const be: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Сярэдні',
   'passwordStrengthMeter.label.3': 'Добры',
   'passwordStrengthMeter.label.4': 'Моцны',
+  'passwordStrengthMeter.barLabel': 'Надзейнасць пароля',
   'passwordStrengthMeter.ariaValueText': 'Надзейнасць пароля: {{label}} ({{score}} з 4)',
   'passwordStrengthMeter.rule.length': 'Не менш за 12 сімвалаў',
   'passwordStrengthMeter.rule.upper': 'Змяшчае вялікую літару',

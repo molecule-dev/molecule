@@ -7,4 +7,5 @@ export const hu: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Szünet',
   'audio.mute': 'Néma',
   'audio.unmute': 'Némítás feloldása',
+  'audio.captions': 'Feliratok',
 }

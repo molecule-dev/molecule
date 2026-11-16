@@ -7,4 +7,5 @@ export const en: AudioPlayerTranslations = {
   'audio.pause': 'Pause',
   'audio.mute': 'Mute',
   'audio.unmute': 'Unmute',
+  'audio.captions': 'Captions',
 }

@@ -7,4 +7,5 @@ export const hy: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Դադար',
   'audio.mute': 'Անջատել',
   'audio.unmute': 'Միացնել ձայնը',
+  'audio.captions': 'Ենթավերնագրեր',
 }

@@ -7,6 +7,7 @@ export const ca: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Acceptable',
   'passwordStrengthMeter.label.3': 'Bona',
   'passwordStrengthMeter.label.4': 'Forta',
+  'passwordStrengthMeter.barLabel': 'Seguretat de la contrasenya',
   'passwordStrengthMeter.ariaValueText': 'Seguretat de la contrasenya: {{label}} ({{score}} de 4)',
   'passwordStrengthMeter.rule.length': 'Com a mínim 12 caràcters',
   'passwordStrengthMeter.rule.upper': 'Conté una majúscula',

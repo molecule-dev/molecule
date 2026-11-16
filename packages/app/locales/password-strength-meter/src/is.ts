@@ -7,6 +7,7 @@ export const is: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Sæmilegt',
   'passwordStrengthMeter.label.3': 'Gott',
   'passwordStrengthMeter.label.4': 'Sterkt',
+  'passwordStrengthMeter.barLabel': 'Styrkur lykilorðs',
   'passwordStrengthMeter.ariaValueText': 'Styrkur lykilorðs: {{label}} ({{score}} af 4)',
   'passwordStrengthMeter.rule.length': 'Að minnsta kosti 12 stafir',
   'passwordStrengthMeter.rule.upper': 'Inniheldur hástaf',

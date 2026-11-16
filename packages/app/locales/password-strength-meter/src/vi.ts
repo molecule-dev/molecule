@@ -8,6 +8,7 @@ export const vi: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Hội chợ',
   'passwordStrengthMeter.label.3': 'Tốt',
   'passwordStrengthMeter.label.4': 'Mạnh',
+  'passwordStrengthMeter.barLabel': 'Độ mạnh của mật khẩu',
   'passwordStrengthMeter.ariaValueText': 'Độ mạnh của mật khẩu: {{label}} ( {{score}} của 4)',
   'passwordStrengthMeter.rule.upper': 'Chứa một chữ cái viết hoa',
   'passwordStrengthMeter.rule.lower': 'Chứa một chữ cái viết thường',

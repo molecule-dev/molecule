@@ -7,4 +7,5 @@ export const et: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Paus',
   'audio.mute': 'Vaigista',
   'audio.unmute': 'Tühista heli',
+  'audio.captions': 'Subtiitrid',
 }

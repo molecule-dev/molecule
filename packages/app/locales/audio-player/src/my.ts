@@ -7,4 +7,5 @@ export const my: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'ခေတ္တရပ်ပါ',
   'audio.mute': 'အသံတိတ်ပါ',
   'audio.unmute': 'အသံဖွင့်ရန်',
+  'audio.captions': 'စာတွဲ',
 }

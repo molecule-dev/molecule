@@ -7,4 +7,5 @@ export const am: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'ለአፍታ አቁም',
   'audio.mute': 'ድምጸ-ከል አድርግ',
   'audio.unmute': 'ድምጸ-ከል አንሳ',
+  'audio.captions': 'ንዑስ ጽሑፎች',
 }

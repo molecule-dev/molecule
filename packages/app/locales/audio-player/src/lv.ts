@@ -7,4 +7,5 @@ export const lv: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pauze',
   'audio.mute': 'Izslēgt skaņu',
   'audio.unmute': 'Ieslēgt skaņu',
+  'audio.captions': 'Subtitri',
 }

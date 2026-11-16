@@ -1,0 +1,48 @@
+/**
+ * Types for the Svelte political-bias / source-credibility indicator.
+ *
+ * @module
+ */
+
+import type { Snippet } from 'svelte'
+
+/**
+ * Reliability tier — drives the colour + label of the optional dot/chip.
+ * Mapped from a 0..1 reliability score by `reliabilityToTier`.
+ */
+export type ReliabilityTier = 'high' | 'medium' | 'low' | 'disputed'
+
+/**
+ * Bias bucket — drives the bias-marker hue and the screen-reader label.
+ * Derived from a -1..1 bias scalar by `biasToBucket`.
+ */
+export type BiasBucket = 'far-left' | 'left' | 'center' | 'right' | 'far-right'
+
+/** Props accepted by the `BiasIndicator` component. */
+export interface BiasIndicatorProps {
+  /**
+   * Bias scalar from `-1` (far left) through `0` (center) to `+1`
+   * (far right). Values are clamped before rendering.
+   */
+  bias: number
+  /**
+   * Optional source-credibility / reliability score from `0` (lowest /
+   * disputed) to `1` (highest). When omitted, no reliability indicator
+   * is rendered.
+   */
+  reliability?: number
+  /**
+   * Compact variant collapses the scale to a single coloured dot —
+   * useful for dense lists. Defaults to `false`.
+   */
+  compact?: boolean
+  /**
+   * Optional source name (e.g. `'Reuters'`). Renders as a small caption,
+   * as a snippet or plain text.
+   */
+  sourceLabel?: Snippet | string | number
+  /** Extra classes to merge onto the root element. */
+  className?: string
+  /** `data-mol-id` for AI-agent / E2E selectors. */
+  dataMolId?: string
+}

@@ -8,6 +8,7 @@ export const ro: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Târg',
   'passwordStrengthMeter.label.3': 'Bun',
   'passwordStrengthMeter.label.4': 'Puternic',
+  'passwordStrengthMeter.barLabel': 'Puterea parolei',
   'passwordStrengthMeter.ariaValueText': 'Puterea parolei: {{label}} ( {{score}} din 4)',
   'passwordStrengthMeter.rule.upper': 'Conține o literă mare',
   'passwordStrengthMeter.rule.lower': 'Conține o literă mică',

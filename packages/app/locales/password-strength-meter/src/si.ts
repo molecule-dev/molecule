@@ -7,6 +7,7 @@ export const si: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'සාධාරණයි',
   'passwordStrengthMeter.label.3': 'හොඳයි',
   'passwordStrengthMeter.label.4': 'ශක්තිමත්',
+  'passwordStrengthMeter.barLabel': 'මුරපද ශක්තිය',
   'passwordStrengthMeter.ariaValueText': 'මුරපද ශක්තිය: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'අවම වශයෙන් අක්ෂර 12ක්',
   'passwordStrengthMeter.rule.upper': 'ලොකු අකුරක් ඇත',

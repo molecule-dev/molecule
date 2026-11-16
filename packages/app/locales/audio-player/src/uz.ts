@@ -7,4 +7,5 @@ export const uz: Partial<AudioPlayerTranslations> = {
   'audio.pause': "To'xtatib turish",
   'audio.mute': 'Ovozsiz',
   'audio.unmute': 'Ovozsiz rejimni yoqish',
+  'audio.captions': 'Subtitrlar',
 }

@@ -7,4 +7,5 @@ export const ro: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pauză',
   'audio.mute': 'Mut',
   'audio.unmute': 'Activează sunetul',
+  'audio.captions': 'Subtitrări',
 }

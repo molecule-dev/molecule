@@ -8,6 +8,7 @@ export const zh: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': '公平的',
   'passwordStrengthMeter.label.3': '好的',
   'passwordStrengthMeter.label.4': '强的',
+  'passwordStrengthMeter.barLabel': '密码强度',
   'passwordStrengthMeter.ariaValueText': '密码强度： {{label}} （ {{score}} 4）',
   'passwordStrengthMeter.rule.upper': '包含大写字母',
   'passwordStrengthMeter.rule.lower': '包含小写字母',

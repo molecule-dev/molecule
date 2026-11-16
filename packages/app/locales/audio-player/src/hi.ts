@@ -7,4 +7,5 @@ export const hi: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'विराम',
   'audio.mute': 'आवाज़ बंद करना',
   'audio.unmute': 'अनम्यूट',
+  'audio.captions': 'कैप्शन',
 }

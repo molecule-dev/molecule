@@ -8,6 +8,7 @@ export const tr: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Adil',
   'passwordStrengthMeter.label.3': 'İyi',
   'passwordStrengthMeter.label.4': 'Güçlü',
+  'passwordStrengthMeter.barLabel': 'Parola gücü',
   'passwordStrengthMeter.ariaValueText': 'Parola gücü: {{label}} ( {{score}} 4)',
   'passwordStrengthMeter.rule.upper': 'Büyük harf içerir',
   'passwordStrengthMeter.rule.lower': 'Küçük harf içerir',

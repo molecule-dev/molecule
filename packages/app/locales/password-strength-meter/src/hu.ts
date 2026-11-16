@@ -8,6 +8,7 @@ export const hu: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Igazságos',
   'passwordStrengthMeter.label.3': 'Jó',
   'passwordStrengthMeter.label.4': 'Erős',
+  'passwordStrengthMeter.barLabel': 'Jelszó erőssége',
   'passwordStrengthMeter.ariaValueText': 'Jelszó erőssége: {{label}} ( {{score}} 4-ből)',
   'passwordStrengthMeter.rule.upper': 'Nagybetűt tartalmaz',
   'passwordStrengthMeter.rule.lower': 'Kisbetűt tartalmaz',

@@ -7,6 +7,7 @@ export const km: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'មធ្យម',
   'passwordStrengthMeter.label.3': 'ល្អ',
   'passwordStrengthMeter.label.4': 'ខ្លាំង',
+  'passwordStrengthMeter.barLabel': 'កម្លាំងពាក្យសម្ងាត់',
   'passwordStrengthMeter.ariaValueText': 'កម្លាំងពាក្យសម្ងាត់៖ {{label}} ({{score}} ក្នុងចំណោម 4)',
   'passwordStrengthMeter.rule.length': 'យ៉ាងហោចណាស់ 12 តួអក្សរ',
   'passwordStrengthMeter.rule.upper': 'មានអក្សរធំ',

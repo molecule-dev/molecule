@@ -7,4 +7,5 @@ export const kn: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'ವಿರಾಮಗೊಳಿಸಿ',
   'audio.mute': 'ಮ್ಯೂಟ್ ಮಾಡಿ',
   'audio.unmute': 'ಅನ್‌ಮ್ಯೂಟ್ ಮಾಡಿ',
+  'audio.captions': 'ಶೀರ್ಷಿಕೆಗಳು',
 }

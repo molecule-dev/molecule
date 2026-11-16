@@ -7,6 +7,7 @@ export const zu: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Okulinganiselayo',
   'passwordStrengthMeter.label.3': 'Kuhle',
   'passwordStrengthMeter.label.4': 'Kuqinile',
+  'passwordStrengthMeter.barLabel': 'Amandla ephasiwedi',
   'passwordStrengthMeter.ariaValueText': 'Amandla ephasiwedi: {{label}} ({{score}} kokungu-4)',
   'passwordStrengthMeter.rule.length': 'Okungenani izinhlamvu ezingu-12',
   'passwordStrengthMeter.rule.upper': 'Iqukethe usonhlamvukazi',

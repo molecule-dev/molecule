@@ -7,4 +7,5 @@ export const ja: Partial<AudioPlayerTranslations> = {
   'audio.pause': '一時停止',
   'audio.mute': 'ミュート',
   'audio.unmute': 'ミュートを解除',
+  'audio.captions': '字幕',
 }

@@ -7,4 +7,5 @@ export const bg: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Пауза',
   'audio.mute': 'Без звук',
   'audio.unmute': 'Включване на звука',
+  'audio.captions': 'Субтитри',
 }

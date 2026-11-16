@@ -1,0 +1,289 @@
+{
+ "exports": [
+  "BarcodeScanner",
+  "DEFAULT_FORMATS",
+  "buildZxingHints"
+ ],
+ "values": {
+  "DEFAULT_FORMATS": [
+   "ean_13",
+   "upc_a",
+   "code_128",
+   "qr_code"
+  ],
+  "buildZxingHints": [
+   {},
+   {},
+   {},
+   null,
+   null
+  ]
+ },
+ "cases": {
+  "BarcodeScanner": {
+   "the scanner reports a browser without camera support": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "without onError the failure stays on the overlay": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passes through to the region root": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" class=\"cd8f70cea\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Barcode scanner camera view\" class=\"ccaded727\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "width and height set the frame geometry": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 1280 / 720; background: currentcolor; max-width: 1280px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 320 / 240; background: currentcolor; max-width: 320px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     },
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "a changed format list restarts the acquisition": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     },
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     },
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "an equal format list keeps the camera as it is": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "a cadence change restarts the scan loop": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     },
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "a dedupe change does not restart the camera": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "an injected-detector change restarts the acquisition": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     },
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "a forced-off fallback loader keeps the overlay": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "leaving the page tears the camera down": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     }
+    ]
+   },
+   "the scanner reports a browser without camera support, then a locale switch": {
+    "snapshots": [
+     "<div aria-label=\"Barcode scanner camera view\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\nCamera not supported in this browser\n</span>\n</div>\n</div>\n@route /",
+     "<div aria-label=\"⟦Barcode scanner camera view⟧\" data-mol-id=\"barcode-scanner\" data-status=\"error\" role=\"region\" style=\"aspect-ratio: 640 / 480; background: currentcolor; max-width: 640px; overflow: hidden; position: relative; width: 100%\">\n<video data-mol-id=\"barcode-scanner-video\" playsinline style=\"display: block; height: 100%; object-fit: cover; width: 100%\">\n</video>\n<div aria-live=\"polite\" data-mol-id=\"barcode-scanner-status\" role=\"status\" style=\"bottom: 0px; left: 0px; padding: 8px; pointer-events: none; position: absolute; right: 0px; text-align: center\">\n<span class=\"c445db9b9 c80b1c428\">\n⟦Camera not supported in this browser⟧\n</span>\n</div>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "Camera not supported in this browser"
+       }
+      ]
+     },
+     {
+      "name": "onError",
+      "args": [
+       {
+        "cause": null,
+        "code": "unsupported",
+        "message": "⟦Camera not supported in this browser⟧"
+       }
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

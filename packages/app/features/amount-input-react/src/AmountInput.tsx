@@ -40,14 +40,6 @@ export interface AmountInputProps {
   className?: string
 }
 
-/** English fallback labels for each amount type — keyed to `amountInput.type.*`. */
-const TYPE_LABEL: Record<AmountType, string> = {
-  income: 'Income',
-  expense: 'Expense',
-  transfer: 'Transfer',
-  other: 'Other',
-}
-
 /**
  * Large transaction-style amount input with optional type toggle +
  * currency symbol. Common in budgeting, expense-reporting, and
@@ -69,6 +61,25 @@ export function AmountInput({
   const { t } = useTranslation()
   const cm = getClassMap()
   const amountLabel = ariaLabel ?? t('amountInput.ariaLabel', undefined, { defaultValue: 'Amount' })
+  /**
+   * One toggle button's label (prop > `t()` > English default). Each amount
+   * type goes to its own literal key — `amountInput.type.<value>` — so the
+   * i18n parity gate can see every key this component can request.
+   * @param option - The amount type.
+   * @returns The label text.
+   */
+  function typeLabel(option: AmountType): string {
+    switch (option) {
+      case 'income':
+        return t('amountInput.type.income', undefined, { defaultValue: 'Income' })
+      case 'expense':
+        return t('amountInput.type.expense', undefined, { defaultValue: 'Expense' })
+      case 'transfer':
+        return t('amountInput.type.transfer', undefined, { defaultValue: 'Transfer' })
+      case 'other':
+        return t('amountInput.type.other', undefined, { defaultValue: 'Other' })
+    }
+  }
   /**
    * Parses the raw input value and fires onAmountChange with a number or empty string.
    * @param e
@@ -97,8 +108,7 @@ export function AmountInput({
               size="sm"
               onClick={() => onTypeChange(opt)}
             >
-              {typeLabels?.[opt] ??
-                t(`amountInput.type.${opt}`, undefined, { defaultValue: TYPE_LABEL[opt] })}
+              {typeLabels?.[opt] ?? typeLabel(opt)}
             </Button>
           ))}
         </div>

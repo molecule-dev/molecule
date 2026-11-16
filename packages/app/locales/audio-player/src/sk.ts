@@ -7,4 +7,5 @@ export const sk: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pozastaviť',
   'audio.mute': 'Stlmiť',
   'audio.unmute': 'Zrušiť stlmenie',
+  'audio.captions': 'Titulky',
 }

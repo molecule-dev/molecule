@@ -7,4 +7,5 @@ export const kk: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Кідірту',
   'audio.mute': 'Дыбысты өшіру',
   'audio.unmute': 'Дыбысты қосу',
+  'audio.captions': 'Субтитрлер',
 }

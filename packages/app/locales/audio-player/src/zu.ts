@@ -7,4 +7,5 @@ export const zu: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Misa isikhashana',
   'audio.mute': 'Thulisa',
   'audio.unmute': 'Susa ukuthula',
+  'audio.captions': 'Izihloko',
 }

@@ -7,4 +7,5 @@ export const sq: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pauzë',
   'audio.mute': 'Hesht',
   'audio.unmute': 'Aktivizo zërin',
+  'audio.captions': 'Titra',
 }

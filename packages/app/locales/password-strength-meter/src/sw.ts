@@ -7,6 +7,7 @@ export const sw: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Wastani',
   'passwordStrengthMeter.label.3': 'Nzuri',
   'passwordStrengthMeter.label.4': 'Imara',
+  'passwordStrengthMeter.barLabel': 'Nguvu ya nenosiri',
   'passwordStrengthMeter.ariaValueText': 'Nguvu ya nenosiri: {{label}} ({{score}} kati ya 4)',
   'passwordStrengthMeter.rule.length': 'Angalau herufi 12',
   'passwordStrengthMeter.rule.upper': 'Ina herufi kubwa',

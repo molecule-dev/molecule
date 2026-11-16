@@ -7,4 +7,5 @@ export const tr: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Duraklat',
   'audio.mute': 'Sesini kapatmak',
   'audio.unmute': 'Sesini açmak',
+  'audio.captions': 'Altyazılar',
 }

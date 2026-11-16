@@ -119,4 +119,33 @@ describe('AudioPlayer', () => {
     const markup = html(createElement(AudioPlayer, { src: 's', className: 'ap-cls' }))
     expect(markup).toContain('ap-cls')
   })
+
+  it('renders a captions track on the audio element', () => {
+    const markup = html(
+      createElement(AudioPlayer, {
+        src: 's',
+        captions: 'captions.vtt',
+        captionsLang: 'en',
+        captionsLabel: 'English',
+      }),
+    )
+    expect(markup).toContain('<track')
+    expect(markup).toContain('kind="captions"')
+    expect(markup).toContain('src="captions.vtt"')
+    expect(markup).toContain('srcLang="en"')
+    expect(markup).toContain('label="English"')
+  })
+
+  it('labels the captions track through i18n when captionsLabel is absent', () => {
+    const markup = html(createElement(AudioPlayer, { src: 's' }))
+    expect(markup).toContain('kind="captions"')
+    expect(markup).toContain('label="Captions"')
+  })
+
+  it('shows a polite caption line only when a captions file is given', () => {
+    const withCaptions = html(createElement(AudioPlayer, { src: 's', captions: 'c.vtt' }))
+    expect(withCaptions).toMatch(/<p aria-live="polite" data-mol-id="audio-player-captions"/)
+    const without = html(createElement(AudioPlayer, { src: 's' }))
+    expect(without).not.toContain('audio-player-captions')
+  })
 })

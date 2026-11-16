@@ -8,6 +8,7 @@ export const uk: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Справедливий',
   'passwordStrengthMeter.label.3': 'Добре',
   'passwordStrengthMeter.label.4': 'Сильний',
+  'passwordStrengthMeter.barLabel': 'Надійність пароля',
   'passwordStrengthMeter.ariaValueText': 'Надійність пароля: {{label}} ( {{score}} з 4)',
   'passwordStrengthMeter.rule.upper': 'Містить велику літеру',
   'passwordStrengthMeter.rule.lower': 'Містить малу літеру',

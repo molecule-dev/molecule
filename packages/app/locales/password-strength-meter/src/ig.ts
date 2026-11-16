@@ -7,6 +7,7 @@ export const ig: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Ọ dị mma',
   'passwordStrengthMeter.label.3': 'Ọ dị mma',
   'passwordStrengthMeter.label.4': 'Siri ike',
+  'passwordStrengthMeter.barLabel': 'Ike okwuntughe',
   'passwordStrengthMeter.ariaValueText': 'Ike okwuntughe: {{label}} ({{score}} n ime 4)',
   'passwordStrengthMeter.rule.length': 'Opekata mpe mkpụrụedemede 12',
   'passwordStrengthMeter.rule.upper': 'Nwere mkpụrụedemede ukwu',

@@ -7,4 +7,5 @@ export const gu: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'થોભો',
   'audio.mute': 'મ્યૂટ કરો',
   'audio.unmute': 'અનમ્યૂટ કરો',
+  'audio.captions': 'કૅપ્શન',
 }

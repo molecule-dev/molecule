@@ -7,6 +7,7 @@ export const th: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'พอใช้',
   'passwordStrengthMeter.label.3': 'ดี',
   'passwordStrengthMeter.label.4': 'แข็งแกร่ง',
+  'passwordStrengthMeter.barLabel': 'ความแข็งแกร่งของรหัสผ่าน',
   'passwordStrengthMeter.ariaValueText': 'ความแข็งแกร่งของรหัสผ่าน: {{label}} ({{score}} จาก 4)',
   'passwordStrengthMeter.rule.length': 'อย่างน้อย 12 อักขระ',
   'passwordStrengthMeter.rule.upper': 'มีตัวพิมพ์ใหญ่',

@@ -7,4 +7,5 @@ export const km: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'ផ្អាក',
   'audio.mute': 'បិទសំឡេង',
   'audio.unmute': 'បើកសំឡេង',
+  'audio.captions': 'ចំណងជើងរង',
 }

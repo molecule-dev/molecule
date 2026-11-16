@@ -104,38 +104,63 @@ export interface BarcodeScannerProps {
   height?: number
   /** Extra classes merged onto the root element. */
   className?: string
+  /**
+   * The `BarcodeDetector` constructor used for native detection. Omit to
+   * read the browser's `globalThis.BarcodeDetector` (the W3C Shape
+   * Detection API, Chromium / WebView). Pass `null` to force the
+   * `@zxing/library` fallback even when the native API is present. Tests
+   * pass a stub here to drive the native path deterministically, instead
+   * of monkey-patching globals.
+   */
+  barcodeDetector?: BarcodeDetectorConstructor | null
+  /**
+   * Loader for the `@zxing/library` fallback reader used when no native
+   * `BarcodeDetector` is available. Omit to use the real dynamic
+   * `import('@zxing/library')`. Pass `null` to make the fallback fail
+   * immediately (as when the bundle is offline or blocked). Tests pass a
+   * stub here to drive the fallback path deterministically.
+   */
+  loadZxing?: ZxingLoader | null
 }
 
 /** Default formats accepted when the caller doesn't pass `formats`. */
 export const DEFAULT_FORMATS: BarcodeFormat[] = ['ean_13', 'upc_a', 'code_128', 'qr_code']
 
-/** Subset of the W3C `BarcodeDetector` interface we actually use. */
-interface BarcodeDetectorLike {
+/**
+ * Subset of the W3C `BarcodeDetector` interface we actually use.
+ * Exported so consumers can type an injected
+ * {@link BarcodeScannerProps.barcodeDetector} value.
+ */
+export interface BarcodeDetectorLike {
+  /**
+   * Detect barcodes in one frame.
+   *
+   * @param source - The frame source to scan (the live `<video>`).
+   * @returns The detected barcodes with their raw values and formats.
+   */
   detect(source: CanvasImageSource): Promise<Array<{ rawValue: string; format: string }>>
 }
 
-/** Constructor signature for the W3C `BarcodeDetector`. */
-interface BarcodeDetectorConstructor {
+/**
+ * Constructor signature for the W3C `BarcodeDetector`. Exported so
+ * consumers can type the constructor passed to the
+ * {@link BarcodeScannerProps.barcodeDetector} prop.
+ */
+export interface BarcodeDetectorConstructor {
+  /**
+   * Construct a detector constrained to the requested symbologies.
+   *
+   * @param init - The requested `formats` list.
+   */
   new (init?: { formats?: string[] }): BarcodeDetectorLike
 }
-
-/**
- * Module-level injection points. Tests overwrite these via the exported
- * setters; production code picks the real browser globals + the real
- * `@zxing/library` import.
- *
- * Keeping them as `let` variables (instead of reading `window` inside
- * the component) makes the component deterministically testable in
- * jsdom without monkey-patching globals from outside.
- */
-let detectorCtorOverride: BarcodeDetectorConstructor | null | undefined = undefined
-let zxingLoaderOverride: ZxingLoader | null | undefined = undefined
 
 /**
  * Loader function returning a `@zxing/library`-compatible reader,
  * constrained to the requested `formats`. Indirection lets us pin to a
  * small subset of the surface area we actually depend on and lets tests
- * stub the fallback path.
+ * stub the fallback path (via the {@link BarcodeScannerProps.loadZxing}
+ * prop).
  *
  * @param formats - The symbologies the reader should be constrained to,
  *   mapped onto zxing's `POSSIBLE_FORMATS` hint by the real loader.
@@ -156,48 +181,28 @@ export interface ZxingReader {
 }
 
 /**
- * Override the `BarcodeDetector` constructor used by the next mounted
- * scanner. Pass `null` to force the fallback path even when the
- * native API is present. Pass `undefined` to revert to the browser
- * default.
+ * Resolve the active `BarcodeDetector` constructor: the injected
+ * `barcodeDetector` prop takes precedence, then the browser's
+ * `globalThis.BarcodeDetector` (the W3C Shape Detection API, present
+ * only in Chromium / WebView). Returns `null` when neither is
+ * available — the caller runs the `@zxing/library` fallback.
  *
- * @param ctor - Constructor stub or `null`/`undefined`.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export function __setBarcodeDetectorOverride(
-  ctor: BarcodeDetectorConstructor | null | undefined,
-): void {
-  detectorCtorOverride = ctor
-}
-
-/**
- * Override the `@zxing/library` loader used by the next mounted
- * scanner. Pass `null` to force the loader to fail (simulating an
- * offline bundle). Pass `undefined` to revert to the real dynamic
- * import.
- *
- * @param loader - Loader stub or `null`/`undefined`.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export function __setZxingLoaderOverride(loader: ZxingLoader | null | undefined): void {
-  zxingLoaderOverride = loader
-}
-
-/**
- * Resolve the active `BarcodeDetector` constructor: the test override
- * takes precedence over `window.BarcodeDetector`. Returns `null` if no
- * native detector is available.
- *
+ * @param injected - The `barcodeDetector` prop: a constructor, `null`
+ *   to force the fallback, or `undefined` for the browser default.
  * @returns The detector constructor or `null`.
  */
-function resolveDetectorCtor(): BarcodeDetectorConstructor | null {
-  if (detectorCtorOverride === null) return null
-  if (detectorCtorOverride !== undefined) return detectorCtorOverride
-  if (typeof globalThis !== 'undefined') {
-    const w = globalThis as unknown as { BarcodeDetector?: BarcodeDetectorConstructor }
-    if (w.BarcodeDetector !== undefined) return w.BarcodeDetector
-  }
-  return null
+function resolveDetectorCtor(
+  injected: BarcodeDetectorConstructor | null | undefined,
+): BarcodeDetectorConstructor | null {
+  if (injected === null) return null
+  if (injected !== undefined) return injected
+  // The platform API is read through the `'BarcodeDetector' in host`
+  // narrowing (never an `as unknown as` chain), and the value itself is
+  // duck-typed before the single, guarded cast.
+  const host = globalThis
+  if (!('BarcodeDetector' in host)) return null
+  const ctor: unknown = host.BarcodeDetector
+  return typeof ctor === 'function' ? (ctor as BarcodeDetectorConstructor) : null
 }
 
 /**
@@ -253,16 +258,19 @@ export function buildZxingHints(
 }
 
 /**
- * Resolve the active fallback loader. Tests inject a stub via
- * `__setZxingLoaderOverride`; production callers get a real dynamic
- * import of `@zxing/library`'s `BrowserMultiFormatReader`, constructed
- * with a `POSSIBLE_FORMATS` hint derived from the requested `formats`.
+ * Resolve the active fallback loader: the injected `loadZxing` prop
+ * takes precedence; otherwise callers get a real dynamic import of
+ * `@zxing/library`'s `BrowserMultiFormatReader`, constructed with a
+ * `POSSIBLE_FORMATS` hint derived from the requested `formats`.
  *
+ * @param injected - The `loadZxing` prop: a loader, `null` to make the
+ *   fallback fail (as offline), or `undefined` for the real dynamic
+ *   import.
  * @returns A loader function or `null` when forced unavailable.
  */
-function resolveZxingLoader(): ZxingLoader | null {
-  if (zxingLoaderOverride === null) return null
-  if (zxingLoaderOverride !== undefined) return zxingLoaderOverride
+function resolveZxingLoader(injected: ZxingLoader | null | undefined): ZxingLoader | null {
+  if (injected === null) return null
+  if (injected !== undefined) return injected
   return async (formats: BarcodeFormat[]) => {
     const mod = (await import('@zxing/library')) as unknown as {
       BrowserMultiFormatReader: new (hints?: Map<number, number[]>) => {
@@ -308,6 +316,54 @@ function mapMediaErrorCode(error: unknown): BarcodeScannerErrorCode {
   return 'detector_failure'
 }
 
+/** The `t` function shape `useTranslation()` hands this component. */
+type Translate = ReturnType<typeof useTranslation>['t']
+
+/**
+ * Localize a `BarcodeScannerErrorCode` under its LITERAL key — one
+ * `t()` call per code — so the i18n gate can verify every key this
+ * component can ask for against the locale bond, and the inline
+ * `defaultValue` matches the bond's English text exactly.
+ *
+ * @param t - The translation function from `useTranslation()`.
+ * @param code - The error code to localize.
+ * @returns The localized message.
+ */
+function localizedErrorMessage(t: Translate, code: BarcodeScannerErrorCode): string {
+  switch (code) {
+    case 'permission_denied':
+      return t(
+        'barcodeScanner.error.permission_denied',
+        {},
+        {
+          defaultValue: 'Camera permission denied',
+        },
+      )
+    case 'no_camera':
+      return t('barcodeScanner.error.no_camera', {}, { defaultValue: 'No camera found' })
+    case 'unsupported':
+      return t(
+        'barcodeScanner.error.unsupported',
+        {},
+        {
+          defaultValue: 'Camera not supported in this browser',
+        },
+      )
+    case 'detector_failure':
+      return t(
+        'barcodeScanner.error.detector_failure',
+        {},
+        { defaultValue: 'Barcode detector failed' },
+      )
+    case 'fallback_unavailable':
+      return t(
+        'barcodeScanner.error.fallback_unavailable',
+        {},
+        { defaultValue: 'Barcode scanner library could not be loaded' },
+      )
+  }
+}
+
 /**
  * Browser-side barcode scanner. Acquires a rear-facing camera via
  * `navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })`,
@@ -335,6 +391,8 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
     width = 640,
     height = 480,
     className,
+    barcodeDetector,
+    loadZxing,
   } = props
 
   const cm = getClassMap()
@@ -391,11 +449,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
      * @param cause - Original underlying error.
      */
     const dispatchError = (code: BarcodeScannerErrorCode, cause?: unknown): void => {
-      const message = t(
-        `barcodeScanner.error.${code}`,
-        {},
-        { defaultValue: defaultErrorMessage(code) },
-      )
+      const message = localizedErrorMessage(t, code)
       setStatus('error')
       setErrorCode(code)
       onErrorRef.current?.({ code, message, cause })
@@ -516,7 +570,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
         return
       }
 
-      const ctor = resolveDetectorCtor()
+      const ctor = resolveDetectorCtor(barcodeDetector)
       if (ctor !== null) {
         await runNativeDetectorLoop(ctor)
       } else {
@@ -572,7 +626,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
      * on misses — both are normal and drive the next tick.
      */
     const runFallbackLoop = async (): Promise<void> => {
-      const loader = resolveZxingLoader()
+      const loader = resolveZxingLoader(loadZxing)
       if (loader === null) {
         dispatchError('fallback_unavailable')
         return
@@ -615,33 +669,10 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
       stopScanning()
     }
     // The format list is intentionally collapsed to a stable string so
-    // the effect restarts only when its length or contents change.
-  }, [continuous, scanIntervalMs, width, height, formatsKey, t])
-
-  /**
-   * Resolve the English fallback message for an error code. Centralized
-   * so both inline `defaultValue`s and snapshot tests see the same
-   * canonical strings.
-   *
-   * @param code - The error code.
-   * @returns The fallback English message.
-   */
-  function defaultErrorMessage(code: BarcodeScannerErrorCode): string {
-    switch (code) {
-      case 'permission_denied':
-        return 'Camera permission denied'
-      case 'no_camera':
-        return 'No camera found'
-      case 'unsupported':
-        return 'Camera not supported in this browser'
-      case 'detector_failure':
-        return 'Barcode detector failed'
-      case 'fallback_unavailable':
-        return 'Barcode scanner library could not be loaded'
-      default:
-        return 'Barcode scanner error'
-    }
-  }
+    // the effect restarts only when its length or contents change. The
+    // injected `barcodeDetector` / `loadZxing` values restart it too:
+    // swapping either must re-resolve the active detection path.
+  }, [continuous, scanIntervalMs, width, height, formatsKey, t, barcodeDetector, loadZxing])
 
   const rootStyle: CSSProperties = {
     position: 'relative',
@@ -674,12 +705,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
       return t('barcodeScanner.status.scanning', {}, { defaultValue: 'Scanning…' })
     if (status === 'stopped')
       return t('barcodeScanner.status.stopped', {}, { defaultValue: 'Scan complete' })
-    if (status === 'error' && errorCode !== null)
-      return t(
-        `barcodeScanner.error.${errorCode}`,
-        {},
-        { defaultValue: defaultErrorMessage(errorCode) },
-      )
+    if (status === 'error' && errorCode !== null) return localizedErrorMessage(t, errorCode)
     return ''
   })()
 

@@ -7,6 +7,7 @@ export const zhTW: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': '普通',
   'passwordStrengthMeter.label.3': '良好',
   'passwordStrengthMeter.label.4': '強',
+  'passwordStrengthMeter.barLabel': '密碼強度',
   'passwordStrengthMeter.ariaValueText': '密碼強度：{{label}}（4 分中的 {{score}} 分）',
   'passwordStrengthMeter.rule.length': '至少 12 個字元',
   'passwordStrengthMeter.rule.upper': '包含大寫字母',

@@ -7,4 +7,5 @@ export const nl: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pauze',
   'audio.mute': 'Stom',
   'audio.unmute': 'Dempen inschakelen',
+  'audio.captions': 'Ondertitels',
 }

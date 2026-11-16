@@ -7,4 +7,5 @@ export const el: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Παύση',
   'audio.mute': 'Βουβός',
   'audio.unmute': 'Ενεργοποίηση σίγασης',
+  'audio.captions': 'Υπότιτλοι',
 }

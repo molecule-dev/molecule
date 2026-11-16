@@ -120,4 +120,29 @@ describe('AmountInput i18n', () => {
     expect(markup).not.toContain('Ingreso')
     expect(markup).toContain('aria-label="Transaction amount"')
   })
+
+  it('passes every type option its literal key through t (marker provider)', () => {
+    // A provider whose `t` returns the key it was asked for: the toggle must
+    // ask `t` for each option's LITERAL key — `amountInput.type.<value>` — so
+    // a locale bond can override the label; a label rendered from an inline
+    // English string (or a key the bond cannot name) would never show up here.
+    setProvider({ ...createSimpleI18nProvider('en'), t: (key: string) => `[${key}]` })
+    const markup = html(
+      createElement(AmountInput, {
+        amount: 0,
+        onAmountChange: noop,
+        type: 'income',
+        onTypeChange: noop,
+        typeOptions: ['income', 'expense', 'transfer', 'other'],
+      }),
+    )
+    expect(markup).toContain('[amountInput.type.income]')
+    expect(markup).toContain('[amountInput.type.expense]')
+    expect(markup).toContain('[amountInput.type.transfer]')
+    expect(markup).toContain('[amountInput.type.other]')
+    expect(markup).toContain('aria-label="[amountInput.ariaLabel]"')
+    // The marker provider carries no translations: no English fallback may leak.
+    expect(markup).not.toContain('Income')
+    expect(markup).not.toContain('Amount')
+  })
 })

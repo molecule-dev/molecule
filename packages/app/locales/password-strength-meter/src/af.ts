@@ -7,6 +7,7 @@ export const af: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Redelik',
   'passwordStrengthMeter.label.3': 'Goed',
   'passwordStrengthMeter.label.4': 'Sterk',
+  'passwordStrengthMeter.barLabel': 'Wagwoordsterkte',
   'passwordStrengthMeter.ariaValueText': 'Wagwoordsterkte: {{label}} ({{score}} van 4)',
   'passwordStrengthMeter.rule.length': 'Minstens 12 karakters',
   'passwordStrengthMeter.rule.upper': 'Bevat hoofletter',

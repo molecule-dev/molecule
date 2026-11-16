@@ -7,4 +7,5 @@ export const th: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'หยุดชั่วคราว',
   'audio.mute': 'ปิดเสียง',
   'audio.unmute': 'เปิดเสียง',
+  'audio.captions': 'คำบรรยาย',
 }

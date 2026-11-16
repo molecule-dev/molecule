@@ -14,6 +14,20 @@ export interface AudioPlayerProps {
   subtitle?: ReactNode
   /** Optional waveform / visualizer slot rendered above the controls. */
   visualizer?: ReactNode
+  /**
+   * WebVTT captions file URL. When set, the player loads it on the media
+   * element's captions `<track>` and shows the current caption under the
+   * controls, in a polite live region that screen readers announce. Without
+   * it the track is empty and no caption line is shown.
+   */
+  captions?: string
+  /** BCP 47 language of the captions (the track's `srclang`). */
+  captionsLang?: string
+  /**
+   * Human-readable name of the captions track. Defaults through i18n
+   * (`audio.captions`, English "Captions").
+   */
+  captionsLabel?: string
   /** Initial muted state. */
   defaultMuted?: boolean
   /** Autoplay (browser may block). */
@@ -48,6 +62,9 @@ export function AudioPlayer({
   title,
   subtitle,
   visualizer,
+  captions,
+  captionsLang,
+  captionsLabel,
   defaultMuted,
   autoPlay,
   onPlay,
@@ -62,6 +79,26 @@ export function AudioPlayer({
   const [muted, setMuted] = useState(!!defaultMuted)
   const [duration, setDuration] = useState(0)
   const [current, setCurrent] = useState(0)
+  const trackRef = useRef<HTMLTrackElement>(null)
+  const [caption, setCaption] = useState('')
+
+  // The <audio> element is hidden behind the custom controls, so the browser
+  // paints no captions: the track is set to `hidden` (it still fires
+  // `cuechange`) and the player shows the active cue text itself.
+  useEffect(() => {
+    const track = trackRef.current?.track
+    if (!captions || !track) return
+    track.mode = 'hidden'
+    const onCue = (): void => {
+      const cues = track.activeCues ? Array.from(track.activeCues) : []
+      setCaption(cues.map((cue) => ('text' in cue ? String(cue.text) : '')).join('\n'))
+    }
+    track.addEventListener('cuechange', onCue)
+    return () => {
+      track.removeEventListener('cuechange', onCue)
+      setCaption('')
+    }
+  }, [captions])
 
   useEffect(() => {
     const a = ref.current
@@ -130,7 +167,15 @@ export function AudioPlayer({
         muted={muted}
         preload="metadata"
         style={{ display: 'none' }}
-      />
+      >
+        <track
+          ref={trackRef}
+          kind="captions"
+          src={captions}
+          srcLang={captionsLang}
+          label={captionsLabel ?? t('audio.captions', {}, { defaultValue: 'Captions' })}
+        />
+      </audio>
       {(title || subtitle) && (
         <header className={cm.stack(0 as const)}>
           {title && (
@@ -182,6 +227,16 @@ export function AudioPlayer({
           <span aria-hidden>{muted ? '🔇' : '🔊'}</span>
         </Button>
       </div>
+      {captions && (
+        <p
+          aria-live="polite"
+          data-mol-id="audio-player-captions"
+          className={cm.textSize('sm')}
+          style={{ minHeight: '1.5em', whiteSpace: 'pre-line' }}
+        >
+          {caption}
+        </p>
+      )}
     </div>
   )
 }

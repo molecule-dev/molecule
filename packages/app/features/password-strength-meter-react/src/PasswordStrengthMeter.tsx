@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { useEffect, useMemo } from 'react'
 
+import type { I18nProvider } from '@molecule/app-i18n'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -53,66 +54,85 @@ function colorForScore(score: PasswordScore): string {
 }
 
 /**
- * Translation key for the textual label corresponding to `score`.
- *
- * @param score - The score whose label key is needed.
- * @returns The `passwordStrengthMeter.label.*` translation key.
+ * The `t` function {@link PasswordStrengthMeter} reads from `useTranslation()` —
+ * the provider signature from `@molecule/app-i18n`.
  */
-function labelKeyForScore(score: PasswordScore): string {
-  return `passwordStrengthMeter.label.${score}`
+type TranslateFn = I18nProvider['t']
+
+/**
+ * Localized textual label for a score bucket.
+ *
+ * One literal `t()` call per score: a key assembled at runtime
+ * (`` `passwordStrengthMeter.label.${score}` ``) is invisible to the i18n
+ * parity gate, so a missing key would leave every non-English locale on
+ * English with nothing reporting it.
+ *
+ * @param score - The score whose label is needed.
+ * @param t - The translation function from `useTranslation()`.
+ * @returns The translated label text (e.g. "Strong").
+ */
+function labelTextForScore(score: PasswordScore, t: TranslateFn): string {
+  switch (score) {
+    case 0:
+      return t('passwordStrengthMeter.label.0', undefined, { defaultValue: 'Very weak' })
+    case 1:
+      return t('passwordStrengthMeter.label.1', undefined, { defaultValue: 'Weak' })
+    case 2:
+      return t('passwordStrengthMeter.label.2', undefined, { defaultValue: 'Fair' })
+    case 3:
+      return t('passwordStrengthMeter.label.3', undefined, { defaultValue: 'Good' })
+    case 4:
+      return t('passwordStrengthMeter.label.4', undefined, { defaultValue: 'Strong' })
+  }
 }
 
-/** English fallback labels — matching `passwordStrengthMeter.label.*` keys. */
-const LABEL_FALLBACKS: Record<PasswordScore, string> = {
-  0: 'Very weak',
-  1: 'Weak',
-  2: 'Fair',
-  3: 'Good',
-  4: 'Strong',
+/**
+ * Localized label for one checklist rule.
+ *
+ * One literal `t()` call per rule — keys are never assembled at runtime, for
+ * the same parity-gate reason as {@link labelTextForScore}.
+ *
+ * @param field - The checklist rule whose label is needed.
+ * @param t - The translation function from `useTranslation()`.
+ * @returns The translated rule label.
+ */
+function ruleLabelForField(field: keyof PasswordChecklist, t: TranslateFn): string {
+  switch (field) {
+    case 'length':
+      return t('passwordStrengthMeter.rule.length', undefined, {
+        defaultValue: 'At least 12 characters',
+      })
+    case 'upper':
+      return t('passwordStrengthMeter.rule.upper', undefined, {
+        defaultValue: 'Contains an uppercase letter',
+      })
+    case 'lower':
+      return t('passwordStrengthMeter.rule.lower', undefined, {
+        defaultValue: 'Contains a lowercase letter',
+      })
+    case 'digit':
+      return t('passwordStrengthMeter.rule.digit', undefined, {
+        defaultValue: 'Contains a digit',
+      })
+    case 'symbol':
+      return t('passwordStrengthMeter.rule.symbol', undefined, {
+        defaultValue: 'Contains a symbol',
+      })
+    case 'noCommon':
+      return t('passwordStrengthMeter.rule.noCommon', undefined, {
+        defaultValue: 'Not a common password',
+      })
+  }
 }
 
-/** Checklist row spec — translation key + checklist field name. */
-interface ChecklistRow {
-  /** Field on {@link PasswordChecklist} this row reflects. */
-  field: keyof PasswordChecklist
-  /** Translation key for the row's label. */
-  key: string
-  /** English fallback text. */
-  fallback: string
-}
-
-/** Ordered checklist rows shown when `showChecklist` is enabled. */
-const CHECKLIST_ROWS: readonly ChecklistRow[] = [
-  {
-    field: 'length',
-    key: 'passwordStrengthMeter.rule.length',
-    fallback: 'At least 12 characters',
-  },
-  {
-    field: 'upper',
-    key: 'passwordStrengthMeter.rule.upper',
-    fallback: 'Contains an uppercase letter',
-  },
-  {
-    field: 'lower',
-    key: 'passwordStrengthMeter.rule.lower',
-    fallback: 'Contains a lowercase letter',
-  },
-  {
-    field: 'digit',
-    key: 'passwordStrengthMeter.rule.digit',
-    fallback: 'Contains a digit',
-  },
-  {
-    field: 'symbol',
-    key: 'passwordStrengthMeter.rule.symbol',
-    fallback: 'Contains a symbol',
-  },
-  {
-    field: 'noCommon',
-    key: 'passwordStrengthMeter.rule.noCommon',
-    fallback: 'Not a common password',
-  },
+/** Ordered checklist rules shown when `showChecklist` is enabled. */
+const CHECKLIST_FIELDS: ReadonlyArray<keyof PasswordChecklist> = [
+  'length',
+  'upper',
+  'lower',
+  'digit',
+  'symbol',
+  'noCommon',
 ]
 
 /**
@@ -147,9 +167,7 @@ export function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactE
     onScore?.(score)
   }, [score, onScore])
 
-  const labelText = t(labelKeyForScore(score), undefined, {
-    defaultValue: LABEL_FALLBACKS[score],
-  })
+  const labelText = labelTextForScore(score, t)
 
   const meetsMin = score >= minScore
   const ariaValueText = t(
@@ -163,6 +181,9 @@ export function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactE
       <div
         className={cm.flex({ gap: 'xs' })}
         role="progressbar"
+        aria-label={t('passwordStrengthMeter.barLabel', undefined, {
+          defaultValue: 'Password strength',
+        })}
         aria-valuemin={0}
         aria-valuemax={4}
         aria-valuenow={score}
@@ -206,14 +227,14 @@ export function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactE
           data-mol-id="password-strength-meter-checklist"
           style={{ listStyle: 'none', padding: 0, margin: 0 }}
         >
-          {CHECKLIST_ROWS.map((row) => {
-            const ok = checklist[row.field]
-            const labelTextRow = t(row.key, undefined, { defaultValue: row.fallback })
+          {CHECKLIST_FIELDS.map((field) => {
+            const ok = checklist[field]
+            const ruleText = ruleLabelForField(field, t)
             return (
               <li
-                key={row.field}
+                key={field}
                 className={cm.cn(cm.flex({ gap: 'xs', align: 'center' }), cm.textSize('sm'))}
-                data-mol-id={`password-strength-meter-rule-${row.field}`}
+                data-mol-id={`password-strength-meter-rule-${field}`}
                 data-ok={ok ? 'true' : 'false'}
               >
                 <span
@@ -229,7 +250,7 @@ export function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactE
                 >
                   {ok ? '✓' : '✗'}
                 </span>
-                <span>{labelTextRow}</span>
+                <span>{ruleText}</span>
               </li>
             )
           })}

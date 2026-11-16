@@ -7,6 +7,7 @@ export const ru: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Средний',
   'passwordStrengthMeter.label.3': 'Хороший',
   'passwordStrengthMeter.label.4': 'Надёжный',
+  'passwordStrengthMeter.barLabel': 'Надёжность пароля',
   'passwordStrengthMeter.ariaValueText': 'Надёжность пароля: {{label}} ({{score}} из 4)',
   'passwordStrengthMeter.rule.length': 'Не менее 12 символов',
   'passwordStrengthMeter.rule.upper': 'Содержит заглавную букву',

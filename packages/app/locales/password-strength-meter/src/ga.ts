@@ -7,6 +7,7 @@ export const ga: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Measartha',
   'passwordStrengthMeter.label.3': 'Maith',
   'passwordStrengthMeter.label.4': 'Láidir',
+  'passwordStrengthMeter.barLabel': 'Neart an phasfhocail',
   'passwordStrengthMeter.ariaValueText': 'Neart an phasfhocail: {{label}} ({{score}} as 4)',
   'passwordStrengthMeter.rule.length': '12 charachtar ar a laghad',
   'passwordStrengthMeter.rule.upper': 'Ceannlitir ann',

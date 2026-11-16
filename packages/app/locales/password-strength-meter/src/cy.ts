@@ -7,6 +7,7 @@ export const cy: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Gweddol',
   'passwordStrengthMeter.label.3': 'Da',
   'passwordStrengthMeter.label.4': 'Cryf',
+  'passwordStrengthMeter.barLabel': 'Cryfder cyfrinair',
   'passwordStrengthMeter.ariaValueText': 'Cryfder cyfrinair: {{label}} ({{score}} o 4)',
   'passwordStrengthMeter.rule.length': 'O leiaf 12 nod',
   'passwordStrengthMeter.rule.upper': 'Yn cynnwys priflythyren',

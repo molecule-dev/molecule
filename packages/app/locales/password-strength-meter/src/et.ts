@@ -7,6 +7,7 @@ export const et: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Keskmine',
   'passwordStrengthMeter.label.3': 'Hea',
   'passwordStrengthMeter.label.4': 'Tugev',
+  'passwordStrengthMeter.barLabel': 'Parooli tugevus',
   'passwordStrengthMeter.ariaValueText': 'Parooli tugevus: {{label}} ({{score}} 4-st)',
   'passwordStrengthMeter.rule.length': 'Vähemalt 12 märki',
   'passwordStrengthMeter.rule.upper': 'Sisaldab suurtähte',

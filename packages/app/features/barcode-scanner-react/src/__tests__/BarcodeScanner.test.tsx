@@ -10,10 +10,11 @@ import { I18nProvider } from '@molecule/app-react'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import {
-  __setBarcodeDetectorOverride,
-  __setZxingLoaderOverride,
+  type BarcodeFormat,
   BarcodeScanner,
   type BarcodeScannerError,
+  type BarcodeScannerErrorCode,
+  type BarcodeScannerProps,
   type BarcodeScanResult,
   buildZxingHints,
   DEFAULT_FORMATS,
@@ -26,8 +27,8 @@ import {
  * imports), so the mock can reference these.
  */
 const zxingMock = vi.hoisted(() => {
-  const ctorSpy = vi.fn<[Map<number, number[]> | undefined], void>()
-  const decodeSpy = vi.fn<[], Promise<{ getText(): string }>>()
+  const ctorSpy = vi.fn<(hints: Map<number, number[]> | undefined) => void>()
+  const decodeSpy = vi.fn<() => Promise<{ getText(): string }>>()
   return { ctorSpy, decodeSpy }
 })
 
@@ -122,6 +123,24 @@ function Wrap({ children }: { children: ReactNode }): React.ReactElement {
 }
 
 /**
+ * Wrap children in an `I18nProvider` whose `t` returns a marker —
+ * `[<key>]` — instead of real translations, so a test can assert the
+ * exact LITERAL key each render path asks `t` for. With no translations
+ * registered, no English fallback text can leak into the assertion.
+ *
+ * @param props - Wrapper props.
+ * @param props.children - Children to wrap.
+ * @returns The wrapped element tree.
+ */
+function MarkerWrap({ children }: { children: ReactNode }): React.ReactElement {
+  const provider = {
+    ...createSimpleI18nProvider('en'),
+    t: (key: string): string => `[${key}]`,
+  }
+  return <I18nProvider provider={provider}>{children}</I18nProvider>
+}
+
+/**
  * Build a fake `MediaStream` with one stoppable track. `getTracks()`
  * + `getVideoTracks()` both return the same array so the production
  * cleanup path can `track.stop()` without throwing.
@@ -174,8 +193,6 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  __setBarcodeDetectorOverride(undefined)
-  __setZxingLoaderOverride(undefined)
   // Drop the fake mediaDevices definition so the next test installs cleanly.
   // jsdom doesn't define it by default, so deleting is fine.
   delete (navigator as unknown as { mediaDevices?: unknown }).mediaDevices
@@ -227,12 +244,10 @@ describe('buildZxingHints', () => {
 describe('<BarcodeScanner> — render', () => {
   it('renders a region with the localized aria-label', async () => {
     installGetUserMedia(() => Promise.reject(new DOMException('denied', 'NotAllowedError')))
-    __setBarcodeDetectorOverride(null)
-    __setZxingLoaderOverride(null)
 
     const { container } = render(
       <Wrap>
-        <BarcodeScanner onScan={vi.fn()} />
+        <BarcodeScanner onScan={vi.fn()} barcodeDetector={null} loadZxing={null} />
       </Wrap>,
     )
     const root = container.querySelector('[data-mol-id="barcode-scanner"]')
@@ -247,21 +262,22 @@ describe('<BarcodeScanner> — getUserMedia', () => {
   it('calls getUserMedia with facingMode environment', async () => {
     const { stream } = createFakeStream()
     const fn = installGetUserMedia(() => Promise.resolve(stream))
-    // Native detector that never finds anything keeps the loop quiet.
-    __setBarcodeDetectorOverride(
-      class FakeDetector {
-        /**
-         * Fake detect that always returns no barcodes.
-         */
-        async detect(): Promise<[]> {
-          return []
-        }
-      } as unknown as never,
-    )
+
+    /**
+     * Fake BarcodeDetector that always returns no barcodes, keeping the scan loop quiet.
+     */
+    class QuietDetector {
+      /**
+       * Fake detect that always returns no barcodes.
+       */
+      async detect(): Promise<[]> {
+        return []
+      }
+    }
 
     render(
       <Wrap>
-        <BarcodeScanner onScan={vi.fn()} />
+        <BarcodeScanner onScan={vi.fn()} barcodeDetector={QuietDetector} />
       </Wrap>,
     )
     await waitFor(() => expect(fn).toHaveBeenCalled())
@@ -273,13 +289,16 @@ describe('<BarcodeScanner> — getUserMedia', () => {
 
   it('dispatches permission_denied on NotAllowedError', async () => {
     installGetUserMedia(() => Promise.reject(new DOMException('nope', 'NotAllowedError')))
-    __setBarcodeDetectorOverride(null)
-    __setZxingLoaderOverride(null)
 
-    const onError = vi.fn<[BarcodeScannerError], void>()
+    const onError = vi.fn<(error: BarcodeScannerError) => void>()
     const { container } = render(
       <Wrap>
-        <BarcodeScanner onScan={vi.fn()} onError={onError} />
+        <BarcodeScanner
+          onScan={vi.fn()}
+          onError={onError}
+          barcodeDetector={null}
+          loadZxing={null}
+        />
       </Wrap>,
     )
     await waitFor(() => expect(onError).toHaveBeenCalled())
@@ -292,13 +311,16 @@ describe('<BarcodeScanner> — getUserMedia', () => {
 
   it('dispatches no_camera on NotFoundError', async () => {
     installGetUserMedia(() => Promise.reject(new DOMException('none', 'NotFoundError')))
-    __setBarcodeDetectorOverride(null)
-    __setZxingLoaderOverride(null)
 
-    const onError = vi.fn<[BarcodeScannerError], void>()
+    const onError = vi.fn<(error: BarcodeScannerError) => void>()
     render(
       <Wrap>
-        <BarcodeScanner onScan={vi.fn()} onError={onError} />
+        <BarcodeScanner
+          onScan={vi.fn()}
+          onError={onError}
+          barcodeDetector={null}
+          loadZxing={null}
+        />
       </Wrap>,
     )
     await waitFor(() => expect(onError).toHaveBeenCalled())
@@ -307,12 +329,15 @@ describe('<BarcodeScanner> — getUserMedia', () => {
 
   it('dispatches unsupported when navigator.mediaDevices is missing', async () => {
     // Don't install — leave navigator.mediaDevices undefined.
-    __setBarcodeDetectorOverride(null)
-    __setZxingLoaderOverride(null)
-    const onError = vi.fn<[BarcodeScannerError], void>()
+    const onError = vi.fn<(error: BarcodeScannerError) => void>()
     render(
       <Wrap>
-        <BarcodeScanner onScan={vi.fn()} onError={onError} />
+        <BarcodeScanner
+          onScan={vi.fn()}
+          onError={onError}
+          barcodeDetector={null}
+          loadZxing={null}
+        />
       </Wrap>,
     )
     await waitFor(() => expect(onError).toHaveBeenCalled())
@@ -326,7 +351,7 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
     installGetUserMedia(() => Promise.resolve(stream))
 
     const detectMock = vi
-      .fn<[unknown], Promise<Array<{ rawValue: string; format: string }>>>()
+      .fn<(source: CanvasImageSource) => Promise<Array<{ rawValue: string; format: string }>>>()
       .mockResolvedValueOnce([{ rawValue: '012345678905', format: 'upc_a' }])
       .mockResolvedValue([])
 
@@ -340,12 +365,15 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
       }
       detect = detectMock
     }
-    __setBarcodeDetectorOverride(FakeDetector as unknown as never)
 
-    const onScan = vi.fn<[BarcodeScanResult], void>()
+    const onScan = vi.fn<(result: BarcodeScanResult) => void>()
     render(
       <Wrap>
-        <BarcodeScanner onScan={onScan} formats={['upc_a', 'ean_13']} />
+        <BarcodeScanner
+          onScan={onScan}
+          formats={['upc_a', 'ean_13']}
+          barcodeDetector={FakeDetector}
+        />
       </Wrap>,
     )
 
@@ -359,7 +387,7 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
     installGetUserMedia(() => Promise.resolve(stream))
 
     const detectMock = vi
-      .fn<[unknown], Promise<Array<{ rawValue: string; format: string }>>>()
+      .fn<(source: CanvasImageSource) => Promise<Array<{ rawValue: string; format: string }>>>()
       .mockResolvedValueOnce([{ rawValue: '4006381333931', format: 'ean_13' }])
       .mockResolvedValue([])
 
@@ -369,12 +397,16 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
     class FakeDetector {
       detect = detectMock
     }
-    __setBarcodeDetectorOverride(FakeDetector as unknown as never)
 
-    const onScan = vi.fn<[BarcodeScanResult], void>()
+    const onScan = vi.fn<(result: BarcodeScanResult) => void>()
     const { container } = render(
       <Wrap>
-        <BarcodeScanner onScan={onScan} continuous={false} scanIntervalMs={5} />
+        <BarcodeScanner
+          onScan={onScan}
+          continuous={false}
+          scanIntervalMs={5}
+          barcodeDetector={FakeDetector}
+        />
       </Wrap>,
     )
     await waitFor(() => expect(onScan).toHaveBeenCalled())
@@ -391,7 +423,7 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
     installGetUserMedia(() => Promise.resolve(stream))
 
     const detectMock = vi
-      .fn<[unknown], Promise<Array<{ rawValue: string; format: string }>>>()
+      .fn<(source: CanvasImageSource) => Promise<Array<{ rawValue: string; format: string }>>>()
       .mockResolvedValueOnce([{ rawValue: 'X', format: 'qr_code' }])
       .mockResolvedValueOnce([{ rawValue: 'X', format: 'qr_code' }])
       .mockResolvedValueOnce([{ rawValue: 'Y', format: 'qr_code' }])
@@ -403,12 +435,16 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
     class FakeDetector {
       detect = detectMock
     }
-    __setBarcodeDetectorOverride(FakeDetector as unknown as never)
 
-    const onScan = vi.fn<[BarcodeScanResult], void>()
+    const onScan = vi.fn<(result: BarcodeScanResult) => void>()
     render(
       <Wrap>
-        <BarcodeScanner onScan={onScan} continuous scanIntervalMs={1} />
+        <BarcodeScanner
+          onScan={onScan}
+          continuous
+          scanIntervalMs={1}
+          barcodeDetector={FakeDetector}
+        />
       </Wrap>,
     )
     await waitFor(() => expect(onScan).toHaveBeenCalledTimes(2))
@@ -431,12 +467,11 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
         throw new Error('boom')
       }
     }
-    __setBarcodeDetectorOverride(FakeDetector as unknown as never)
 
-    const onError = vi.fn<[BarcodeScannerError], void>()
+    const onError = vi.fn<(error: BarcodeScannerError) => void>()
     render(
       <Wrap>
-        <BarcodeScanner onScan={vi.fn()} onError={onError} />
+        <BarcodeScanner onScan={vi.fn()} onError={onError} barcodeDetector={FakeDetector} />
       </Wrap>,
     )
     await waitFor(() => expect(onError).toHaveBeenCalled())
@@ -448,7 +483,6 @@ describe('<BarcodeScanner> — fallback path', () => {
   it('uses the @zxing/library loader when BarcodeDetector is absent', async () => {
     const { stream } = createFakeStream()
     installGetUserMedia(() => Promise.resolve(stream))
-    __setBarcodeDetectorOverride(null)
 
     const decode = vi
       .fn()
@@ -459,12 +493,19 @@ describe('<BarcodeScanner> — fallback path', () => {
       decodeOnceFromVideoElement: decode,
       reset,
     }
-    __setZxingLoaderOverride(() => Promise.resolve(reader))
+    const loadZxing = vi.fn<(formats: BarcodeFormat[]) => Promise<ZxingReader>>(() =>
+      Promise.resolve(reader),
+    )
 
-    const onScan = vi.fn<[BarcodeScanResult], void>()
+    const onScan = vi.fn<(result: BarcodeScanResult) => void>()
     render(
       <Wrap>
-        <BarcodeScanner onScan={onScan} scanIntervalMs={1} />
+        <BarcodeScanner
+          onScan={onScan}
+          scanIntervalMs={1}
+          barcodeDetector={null}
+          loadZxing={loadZxing}
+        />
       </Wrap>,
     )
     await waitFor(() => expect(onScan).toHaveBeenCalled())
@@ -474,13 +515,16 @@ describe('<BarcodeScanner> — fallback path', () => {
   it('dispatches fallback_unavailable when the loader is forced off', async () => {
     const { stream } = createFakeStream()
     installGetUserMedia(() => Promise.resolve(stream))
-    __setBarcodeDetectorOverride(null)
-    __setZxingLoaderOverride(null)
 
-    const onError = vi.fn<[BarcodeScannerError], void>()
+    const onError = vi.fn<(error: BarcodeScannerError) => void>()
     render(
       <Wrap>
-        <BarcodeScanner onScan={vi.fn()} onError={onError} />
+        <BarcodeScanner
+          onScan={vi.fn()}
+          onError={onError}
+          barcodeDetector={null}
+          loadZxing={null}
+        />
       </Wrap>,
     )
     await waitFor(() => expect(onError).toHaveBeenCalled())
@@ -490,13 +534,17 @@ describe('<BarcodeScanner> — fallback path', () => {
   it('passes the requested formats to zxing as POSSIBLE_FORMATS hints', async () => {
     const { stream } = createFakeStream()
     installGetUserMedia(() => Promise.resolve(stream))
-    __setBarcodeDetectorOverride(null) // force the fallback path
-    __setZxingLoaderOverride(undefined) // use the REAL loader → mocked @zxing/library
-
-    const onScan = vi.fn<[BarcodeScanResult], void>()
+    // barcodeDetector={null} forces the fallback path; `loadZxing` stays
+    // omitted so the REAL loader runs — against the mocked @zxing/library.
+    const onScan = vi.fn<(result: BarcodeScanResult) => void>()
     render(
       <Wrap>
-        <BarcodeScanner onScan={onScan} formats={['upc_a', 'ean_13']} scanIntervalMs={1} />
+        <BarcodeScanner
+          onScan={onScan}
+          formats={['upc_a', 'ean_13']}
+          scanIntervalMs={1}
+          barcodeDetector={null}
+        />
       </Wrap>,
     )
 
@@ -516,7 +564,7 @@ describe('<BarcodeScanner> — time-bounded dedupe', () => {
 
     // Detector always finds the same code, frame after frame.
     const detectMock = vi
-      .fn<[unknown], Promise<Array<{ rawValue: string; format: string }>>>()
+      .fn<(source: CanvasImageSource) => Promise<Array<{ rawValue: string; format: string }>>>()
       .mockResolvedValue([{ rawValue: 'SAME', format: 'qr_code' }])
 
     /**
@@ -525,13 +573,18 @@ describe('<BarcodeScanner> — time-bounded dedupe', () => {
     class FakeDetector {
       detect = detectMock
     }
-    __setBarcodeDetectorOverride(FakeDetector as unknown as never)
 
-    const onScan = vi.fn<[BarcodeScanResult], void>()
+    const onScan = vi.fn<(result: BarcodeScanResult) => void>()
     render(
       <Wrap>
         {/* Tiny window so a repeat re-emits quickly; 1ms poll keeps ticking. */}
-        <BarcodeScanner onScan={onScan} continuous scanIntervalMs={1} dedupeMs={20} />
+        <BarcodeScanner
+          onScan={onScan}
+          continuous
+          scanIntervalMs={1}
+          dedupeMs={20}
+          barcodeDetector={FakeDetector}
+        />
       </Wrap>,
     )
 
@@ -550,7 +603,7 @@ describe('<BarcodeScanner> — time-bounded dedupe', () => {
     installGetUserMedia(() => Promise.resolve(stream))
 
     const detectMock = vi
-      .fn<[unknown], Promise<Array<{ rawValue: string; format: string }>>>()
+      .fn<(source: CanvasImageSource) => Promise<Array<{ rawValue: string; format: string }>>>()
       .mockResolvedValueOnce([{ rawValue: 'A', format: 'qr_code' }])
       .mockResolvedValueOnce([{ rawValue: 'A', format: 'qr_code' }]) // suppressed (within window)
       .mockResolvedValueOnce([{ rawValue: 'B', format: 'qr_code' }]) // different → immediate
@@ -562,13 +615,18 @@ describe('<BarcodeScanner> — time-bounded dedupe', () => {
     class FakeDetector {
       detect = detectMock
     }
-    __setBarcodeDetectorOverride(FakeDetector as unknown as never)
 
-    const onScan = vi.fn<[BarcodeScanResult], void>()
+    const onScan = vi.fn<(result: BarcodeScanResult) => void>()
     render(
       <Wrap>
         {/* Huge window so the repeat A is definitely still suppressed. */}
-        <BarcodeScanner onScan={onScan} continuous scanIntervalMs={1} dedupeMs={100000} />
+        <BarcodeScanner
+          onScan={onScan}
+          continuous
+          scanIntervalMs={1}
+          dedupeMs={100000}
+          barcodeDetector={FakeDetector}
+        />
       </Wrap>,
     )
 
@@ -592,11 +650,10 @@ describe('<BarcodeScanner> — cleanup', () => {
         return []
       }
     }
-    __setBarcodeDetectorOverride(FakeDetector as unknown as never)
 
     const { unmount, container } = render(
       <Wrap>
-        <BarcodeScanner onScan={vi.fn()} scanIntervalMs={1} />
+        <BarcodeScanner onScan={vi.fn()} scanIntervalMs={1} barcodeDetector={FakeDetector} />
       </Wrap>,
     )
     await waitFor(() =>
@@ -610,5 +667,150 @@ describe('<BarcodeScanner> — cleanup', () => {
     // Cleanup runs synchronously inside the effect's return; the
     // mock-stream track.stop must have been called at least once.
     expect(stop).toHaveBeenCalled()
+  })
+})
+
+describe('<BarcodeScanner> — literal t() error keys', () => {
+  /**
+   * One case per `BarcodeScannerErrorCode`: how to force that failure
+   * with jsdom, the LITERAL key the status overlay must ask `t` for,
+   * and any injected-detector props the path needs. The markers are
+   * written out literally so a runtime-built key cannot sneak past.
+   */
+  const cases: Array<{
+    code: BarcodeScannerErrorCode
+    marker: string
+    setup: () => void
+    props?: Pick<BarcodeScannerProps, 'barcodeDetector' | 'loadZxing'>
+  }> = [
+    {
+      code: 'permission_denied',
+      marker: '[barcodeScanner.error.permission_denied]',
+      setup: () => {
+        installGetUserMedia(() => Promise.reject(new DOMException('denied', 'NotAllowedError')))
+      },
+    },
+    {
+      code: 'no_camera',
+      marker: '[barcodeScanner.error.no_camera]',
+      setup: () => {
+        installGetUserMedia(() => Promise.reject(new DOMException('none', 'NotFoundError')))
+      },
+    },
+    {
+      code: 'unsupported',
+      marker: '[barcodeScanner.error.unsupported]',
+      setup: () => {
+        // Leave navigator.mediaDevices undefined (afterEach deletes it).
+      },
+    },
+    {
+      code: 'detector_failure',
+      marker: '[barcodeScanner.error.detector_failure]',
+      setup: () => {
+        installGetUserMedia(() => Promise.resolve(createFakeStream().stream))
+        // Autoplay-policy rejection is reported as detector_failure.
+        Object.defineProperty(HTMLMediaElement.prototype, 'play', {
+          configurable: true,
+          value: vi.fn().mockRejectedValue(new Error('autoplay blocked')),
+        })
+      },
+    },
+    {
+      code: 'fallback_unavailable',
+      marker: '[barcodeScanner.error.fallback_unavailable]',
+      setup: () => {
+        installGetUserMedia(() => Promise.resolve(createFakeStream().stream))
+      },
+      props: { barcodeDetector: null, loadZxing: null },
+    },
+  ]
+
+  for (const c of cases) {
+    it(`asks t for the literal ${c.code} key`, async () => {
+      c.setup()
+      const { container } = render(
+        <MarkerWrap>
+          <BarcodeScanner onScan={vi.fn()} {...c.props} />
+        </MarkerWrap>,
+      )
+      const status = await waitFor(() => {
+        const el = container.querySelector('[data-mol-id="barcode-scanner-status"]')
+        expect(el).not.toBeNull()
+        return el as HTMLElement
+      })
+      // The overlay text is exactly what the marker provider's `t`
+      // returned for the LITERAL key — a locale bond can therefore
+      // translate every error state.
+      expect(status.textContent).toBe(c.marker)
+    })
+  }
+
+  it('asks t for the literal aria + starting-status keys', async () => {
+    // A getUserMedia that never resolves pins the scanner in `starting`
+    // state — the deterministic way to observe that status's marker.
+    installGetUserMedia(() => new Promise<MediaStream>(() => {}))
+    const { container } = render(
+      <MarkerWrap>
+        <BarcodeScanner onScan={vi.fn()} barcodeDetector={null} loadZxing={null} />
+      </MarkerWrap>,
+    )
+    const root = container.querySelector('[data-mol-id="barcode-scanner"]')
+    expect(root?.getAttribute('aria-label')).toBe('[barcodeScanner.aria.region]')
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="barcode-scanner-status"]')?.textContent).toBe(
+        '[barcodeScanner.status.starting]',
+      ),
+    )
+    // No English fallback text may leak past the marker provider.
+    expect(container.textContent).not.toContain('Starting camera')
+  })
+
+  it('asks t for the literal scanning-status key', async () => {
+    installGetUserMedia(() => Promise.resolve(createFakeStream().stream))
+    // A reader that never resolves pins the scanner in `scanning` state.
+    // The loader is hoisted to a stable identity: an inline arrow would
+    // change every render and restart the scan effect.
+    const reader: ZxingReader = {
+      decodeOnceFromVideoElement: () => new Promise<{ text: string }>(() => {}),
+      reset: () => {},
+    }
+    const loadZxing = (): Promise<ZxingReader> => Promise.resolve(reader)
+    const { container } = render(
+      <MarkerWrap>
+        <BarcodeScanner onScan={vi.fn()} barcodeDetector={null} loadZxing={loadZxing} />
+      </MarkerWrap>,
+    )
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="barcode-scanner-status"]')?.textContent).toBe(
+        '[barcodeScanner.status.scanning]',
+      ),
+    )
+    expect(container.textContent).not.toContain('Scanning')
+  })
+
+  it('asks t for the literal stopped-status key', async () => {
+    installGetUserMedia(() => Promise.resolve(createFakeStream().stream))
+    // One hit, then misses: continuous=false stops the loop on the hit.
+    const decode = vi
+      .fn()
+      .mockResolvedValueOnce({ text: 'ABC-123' })
+      .mockRejectedValue(new Error('NotFoundException'))
+    const reader: ZxingReader = {
+      decodeOnceFromVideoElement: decode,
+      reset: () => {},
+    }
+    const loadZxing = (): Promise<ZxingReader> => Promise.resolve(reader)
+    const { container } = render(
+      <MarkerWrap>
+        <BarcodeScanner onScan={vi.fn()} barcodeDetector={null} loadZxing={loadZxing} />
+      </MarkerWrap>,
+    )
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="barcode-scanner-status"]')?.textContent).toBe(
+        '[barcodeScanner.status.stopped]',
+      ),
+    )
+    expect(container.textContent).not.toContain('Scan complete')
   })
 })

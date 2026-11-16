@@ -8,6 +8,7 @@ export const fil: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Makatarungan',
   'passwordStrengthMeter.label.3': 'Mabuti',
   'passwordStrengthMeter.label.4': 'Malakas',
+  'passwordStrengthMeter.barLabel': 'Lakas ng password',
   'passwordStrengthMeter.ariaValueText': 'Lakas ng password: {{label}} ( {{score}} ng 4)',
   'passwordStrengthMeter.rule.upper': 'Naglalaman ng malaking titik',
   'passwordStrengthMeter.rule.lower': 'Naglalaman ng maliit na titik',

@@ -7,4 +7,5 @@ export const ar: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'يوقف',
   'audio.mute': 'صامت',
   'audio.unmute': 'إلغاء كتم الصوت',
+  'audio.captions': 'الترجمة',
 }

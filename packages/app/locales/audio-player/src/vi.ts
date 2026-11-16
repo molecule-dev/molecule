@@ -7,4 +7,5 @@ export const vi: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Tạm dừng',
   'audio.mute': 'Tắt tiếng',
   'audio.unmute': 'Bỏ tắt tiếng',
+  'audio.captions': 'Phụ đề',
 }

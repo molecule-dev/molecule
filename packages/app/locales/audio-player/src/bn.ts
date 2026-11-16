@@ -7,4 +7,5 @@ export const bn: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'বিরতি',
   'audio.mute': 'মূক',
   'audio.unmute': 'আনমিউট করুন',
+  'audio.captions': 'সাবটাইটেল',
 }

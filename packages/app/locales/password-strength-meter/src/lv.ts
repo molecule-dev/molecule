@@ -7,6 +7,7 @@ export const lv: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Viduvēja',
   'passwordStrengthMeter.label.3': 'Laba',
   'passwordStrengthMeter.label.4': 'Spēcīga',
+  'passwordStrengthMeter.barLabel': 'Paroles stiprums',
   'passwordStrengthMeter.ariaValueText': 'Paroles stiprums: {{label}} ({{score}} no 4)',
   'passwordStrengthMeter.rule.length': 'Vismaz 12 rakstzīmes',
   'passwordStrengthMeter.rule.upper': 'Satur lielo burtu',

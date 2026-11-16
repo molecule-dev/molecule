@@ -8,10 +8,9 @@
  * management, and grocery-delivery flagship apps.
  *
  * Exports `<BarcodeScanner>`, the `BarcodeFormat` / `BarcodeScanResult`
- * / `BarcodeScannerError` shapes, the `DEFAULT_FORMATS` constant, the
- * `buildZxingHints` helper (W3C formats → zxing `POSSIBLE_FORMATS`
- * hint), and the `__setBarcodeDetectorOverride` /
- * `__setZxingLoaderOverride` test injection points.
+ * / `BarcodeScannerError` shapes, the `DEFAULT_FORMATS` constant, and
+ * the `buildZxingHints` helper (W3C formats → zxing `POSSIBLE_FORMATS`
+ * hint).
  *
  * @example
  * ```tsx
@@ -48,6 +47,11 @@
  * re-scanned and re-emitted once the window elapses (e.g. adding two of
  * the same item on purpose), and a DIFFERENT code always emits
  * immediately. Set `dedupeMs` to tune the window.
+ *
+ * Tests and constrained environments inject the platform APIs as props
+ * instead of monkey-patching globals: `barcodeDetector` swaps (or with
+ * `null` removes) the native `BarcodeDetector` constructor, and
+ * `loadZxing` swaps (or with `null` fails) the `@zxing/library` loader.
  *
  * All user-visible text routes through the companion locale bond
  * `@molecule/app-locales-feature-barcode-scanner`. Styling

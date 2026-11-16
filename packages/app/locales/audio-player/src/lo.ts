@@ -7,4 +7,5 @@ export const lo: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'ຢຸດຊົ່ວຄາວ',
   'audio.mute': 'ປິດສຽງ',
   'audio.unmute': 'ເປີດສຽງ',
+  'audio.captions': 'ຄຳບັນຍາຍ',
 }

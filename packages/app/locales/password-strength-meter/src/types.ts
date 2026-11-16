@@ -10,6 +10,7 @@ export type PasswordStrengthMeterTranslationKey =
   | 'passwordStrengthMeter.label.2'
   | 'passwordStrengthMeter.label.3'
   | 'passwordStrengthMeter.label.4'
+  | 'passwordStrengthMeter.barLabel'
   | 'passwordStrengthMeter.ariaValueText'
   | 'passwordStrengthMeter.rule.length'
   | 'passwordStrengthMeter.rule.upper'

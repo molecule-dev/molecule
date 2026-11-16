@@ -7,4 +7,5 @@ export const ta: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'இடைநிறுத்தம்',
   'audio.mute': 'ஊமை',
   'audio.unmute': 'ஒலியை இயக்கு',
+  'audio.captions': 'வசனங்கள்',
 }

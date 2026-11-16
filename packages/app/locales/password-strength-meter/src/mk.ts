@@ -7,6 +7,7 @@ export const mk: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Просечна',
   'passwordStrengthMeter.label.3': 'Добра',
   'passwordStrengthMeter.label.4': 'Силна',
+  'passwordStrengthMeter.barLabel': 'Јачина на лозинката',
   'passwordStrengthMeter.ariaValueText': 'Јачина на лозинката: {{label}} ({{score}} од 4)',
   'passwordStrengthMeter.rule.length': 'Најмалку 12 знаци',
   'passwordStrengthMeter.rule.upper': 'Содржи голема буква',

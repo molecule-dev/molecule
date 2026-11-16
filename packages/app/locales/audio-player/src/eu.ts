@@ -7,4 +7,5 @@ export const eu: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pausatu',
   'audio.mute': 'Isilarazi',
   'audio.unmute': 'Ikutzi',
+  'audio.captions': 'Azpitituluak',
 }

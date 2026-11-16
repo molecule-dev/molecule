@@ -7,6 +7,7 @@ export const am: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'መካከለኛ',
   'passwordStrengthMeter.label.3': 'ጥሩ',
   'passwordStrengthMeter.label.4': 'ጠንካራ',
+  'passwordStrengthMeter.barLabel': 'የይለፍ ቃል ጥንካሬ',
   'passwordStrengthMeter.ariaValueText': 'የይለፍ ቃል ጥንካሬ: {{label}} ({{score}} ከ4)',
   'passwordStrengthMeter.rule.length': 'ቢያንስ 12 ቁምፊዎች',
   'passwordStrengthMeter.rule.upper': 'ትልቅ ሆሄ ይዟል',

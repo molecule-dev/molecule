@@ -7,6 +7,7 @@ export const ha: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Matsakaici',
   'passwordStrengthMeter.label.3': 'Mai kyau',
   'passwordStrengthMeter.label.4': 'Mai ƙarfi',
+  'passwordStrengthMeter.barLabel': 'Ƙarfin kalmar sirri',
   'passwordStrengthMeter.ariaValueText': 'Ƙarfin kalmar sirri: {{label}} ({{score}} cikin 4)',
   'passwordStrengthMeter.rule.length': 'Aƙalla haruffa 12',
   'passwordStrengthMeter.rule.upper': 'Yana da babban harafi',

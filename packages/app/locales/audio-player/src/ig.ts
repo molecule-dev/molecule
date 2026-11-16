@@ -7,4 +7,5 @@ export const ig: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Kwụsịtụ',
   'audio.mute': 'Ogbi',
   'audio.unmute': 'Kwụpụ ogbi',
+  'audio.captions': 'Okwu ederede',
 }

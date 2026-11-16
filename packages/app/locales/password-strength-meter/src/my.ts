@@ -7,6 +7,7 @@ export const my: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'အသင့်အတင့်',
   'passwordStrengthMeter.label.3': 'ကောင်း',
   'passwordStrengthMeter.label.4': 'အားကောင်း',
+  'passwordStrengthMeter.barLabel': 'စကားဝှက်အားသတ္တိ',
   'passwordStrengthMeter.ariaValueText': 'စကားဝှက်အားသတ္တိ: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'အနည်းဆုံး စာလုံး 12 လုံး',
   'passwordStrengthMeter.rule.upper': 'စာလုံးကြီး ပါဝင်',

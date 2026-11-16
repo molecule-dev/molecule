@@ -7,6 +7,7 @@ export const ne: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'ठिकै',
   'passwordStrengthMeter.label.3': 'राम्रो',
   'passwordStrengthMeter.label.4': 'बलियो',
+  'passwordStrengthMeter.barLabel': 'पासवर्ड बल',
   'passwordStrengthMeter.ariaValueText': 'पासवर्ड बल: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'कम्तीमा 12 वर्ण',
   'passwordStrengthMeter.rule.upper': 'ठूलो अक्षर छ',

@@ -7,4 +7,5 @@ export const fa: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'مکث',
   'audio.mute': 'بی‌صدا کردن',
   'audio.unmute': 'بی‌صدا کردن',
+  'audio.captions': 'زیرنویس',
 }

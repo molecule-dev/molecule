@@ -7,4 +7,5 @@ export const gl: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Pausa',
   'audio.mute': 'Silenciar',
   'audio.unmute': 'Activar son',
+  'audio.captions': 'Subtítulos',
 }

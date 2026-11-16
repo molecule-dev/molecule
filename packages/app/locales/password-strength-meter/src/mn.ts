@@ -7,6 +7,7 @@ export const mn: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'Дунд зэрэг',
   'passwordStrengthMeter.label.3': 'Сайн',
   'passwordStrengthMeter.label.4': 'Хүчтэй',
+  'passwordStrengthMeter.barLabel': 'Нууц үгийн хүч',
   'passwordStrengthMeter.ariaValueText': 'Нууц үгийн хүч: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'Дор хаяж 12 тэмдэгт',
   'passwordStrengthMeter.rule.upper': 'Том үсэг агуулна',

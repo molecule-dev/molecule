@@ -7,6 +7,7 @@ export const gu: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.2': 'ઠીક',
   'passwordStrengthMeter.label.3': 'સારો',
   'passwordStrengthMeter.label.4': 'મજબૂત',
+  'passwordStrengthMeter.barLabel': 'પાસવર્ડ મજબૂતી',
   'passwordStrengthMeter.ariaValueText': 'પાસવર્ડ મજબૂતી: {{label}} ({{score}}/4)',
   'passwordStrengthMeter.rule.length': 'ઓછામાં ઓછા 12 અક્ષરો',
   'passwordStrengthMeter.rule.upper': 'મોટો અક્ષર છે',

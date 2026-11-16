@@ -7,4 +7,5 @@ export const sw: Partial<AudioPlayerTranslations> = {
   'audio.pause': 'Sitisha',
   'audio.mute': 'Zima sauti',
   'audio.unmute': 'Rejesha sauti',
+  'audio.captions': 'Manukuu',
 }

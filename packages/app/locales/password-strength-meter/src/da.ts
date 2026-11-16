@@ -8,6 +8,7 @@ export const da: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Retfærdig',
   'passwordStrengthMeter.label.3': 'God',
   'passwordStrengthMeter.label.4': 'Stærk',
+  'passwordStrengthMeter.barLabel': 'Adgangskodestyrke',
   'passwordStrengthMeter.ariaValueText': 'Adgangskodestyrke: {{label}} ( {{score}} af 4)',
   'passwordStrengthMeter.rule.upper': 'Indeholder et stort bogstav',
   'passwordStrengthMeter.rule.lower': 'Indeholder et lille bogstav',
