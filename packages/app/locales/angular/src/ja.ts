@@ -8,4 +8,20 @@ export const ja: AngularTranslations = {
   'angular.error.unsupportedMethod': 'サポートされていないメソッド: {{method}}',
   'angular.error.useStoreOutsideProvider':
     'useStateProviderはStateProvider内で使用する必要があります。',
+
+  'angular.error.useEditorOutsideProvider':
+    'useEditorProviderはEditorProvider内で使用する必要があります',
+  'angular.error.useHttpOutsideProvider': 'useHttpClientはHttpProvider内で使用する必要があります',
+  'angular.error.useLoggerOutsideProvider':
+    'useLoggerProviderはLoggerProvider内で使用する必要があります',
+  'angular.error.usePreviewOutsideProvider':
+    'usePreviewProviderはPreviewProvider内で使用する必要があります',
+  'angular.error.useRouterOutsideProvider':
+    'useRouterInstanceはRouterProvider内で使用する必要があります',
+  'angular.error.useStorageOutsideProvider':
+    'useStorageProviderはStorageProvider内で使用する必要があります',
+  'angular.error.useThemeOutsideProvider':
+    'useThemeProviderはThemeProvider内で使用する必要があります',
+  'angular.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProviderはWorkspaceProvider内で使用する必要があります',
 }

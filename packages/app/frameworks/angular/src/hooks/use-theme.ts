@@ -21,11 +21,7 @@ import { THEME_PROVIDER } from '../tokens.js'
  * @throws {Error} When no theme provider is registered.
  */
 export function useThemeProvider(): ThemeProvider {
-  return injectProvider(
-    THEME_PROVIDER,
-    'useThemeOutsideProvider',
-    'useThemeProvider must be used within a ThemeProvider',
-  )
+  return injectProvider(THEME_PROVIDER, 'useThemeOutsideProvider')
 }
 
 /**

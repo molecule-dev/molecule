@@ -10,4 +10,21 @@ export const el: AngularTranslations = {
   'angular.error.unsupportedMethod': 'Μη υποστηριζόμενη μέθοδος: {{method}}',
   'angular.error.useStoreOutsideProvider':
     'Το useStateProvider πρέπει να χρησιμοποιηθεί εντός ενός StateProvider',
+
+  'angular.error.useEditorOutsideProvider':
+    'Το useEditorProvider πρέπει να χρησιμοποιείται εντός ενός EditorProvider',
+  'angular.error.useHttpOutsideProvider':
+    'Το useHttpClient πρέπει να χρησιμοποιείται εντός ενός HttpProvider',
+  'angular.error.useLoggerOutsideProvider':
+    'Το useLoggerProvider πρέπει να χρησιμοποιείται εντός ενός LoggerProvider',
+  'angular.error.usePreviewOutsideProvider':
+    'Το usePreviewProvider πρέπει να χρησιμοποιείται εντός ενός PreviewProvider',
+  'angular.error.useRouterOutsideProvider':
+    'Το useRouterInstance πρέπει να χρησιμοποιείται εντός ενός RouterProvider',
+  'angular.error.useStorageOutsideProvider':
+    'Το useStorageProvider πρέπει να χρησιμοποιείται εντός ενός StorageProvider',
+  'angular.error.useThemeOutsideProvider':
+    'Το useThemeProvider πρέπει να χρησιμοποιείται εντός ενός ThemeProvider',
+  'angular.error.useWorkspaceOutsideProvider':
+    'Το useWorkspaceProvider πρέπει να χρησιμοποιείται εντός ενός WorkspaceProvider',
 }

@@ -8,4 +8,16 @@ export const is: AngularTranslations = {
   'angular.error.unsupportedMethod': 'Óstudd aðferð: {{method}}',
   'angular.error.useStoreOutsideProvider':
     'useStateProvider verður að vera notaður innan StateProvider',
+
+  'angular.error.useEditorOutsideProvider': 'useEditorProvider verður að nota innan EditorProvider',
+  'angular.error.useHttpOutsideProvider': 'useHttpClient verður að nota innan HttpProvider',
+  'angular.error.useLoggerOutsideProvider': 'useLoggerProvider verður að nota innan LoggerProvider',
+  'angular.error.usePreviewOutsideProvider':
+    'usePreviewProvider verður að nota innan PreviewProvider',
+  'angular.error.useRouterOutsideProvider': 'useRouterInstance verður að nota innan RouterProvider',
+  'angular.error.useStorageOutsideProvider':
+    'useStorageProvider verður að nota innan StorageProvider',
+  'angular.error.useThemeOutsideProvider': 'useThemeProvider verður að nota innan ThemeProvider',
+  'angular.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider verður að nota innan WorkspaceProvider',
 }

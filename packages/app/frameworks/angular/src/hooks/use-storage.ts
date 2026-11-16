@@ -22,11 +22,7 @@ import { STORAGE_PROVIDER } from '../tokens.js'
  * @throws {Error} When no storage provider is registered.
  */
 export function useStorageProvider(): StorageProvider {
-  return injectProvider(
-    STORAGE_PROVIDER,
-    'useStorageOutsideProvider',
-    'useStorageProvider must be used within a StorageProvider',
-  )
+  return injectProvider(STORAGE_PROVIDER, 'useStorageOutsideProvider')
 }
 
 /**

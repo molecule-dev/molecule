@@ -8,4 +8,20 @@ export const bs: AngularTranslations = {
   'angular.error.unsupportedMethod': 'Nepodržana metoda: {{method}}',
   'angular.error.useStoreOutsideProvider':
     'useStateProvider se mora koristiti unutar StateProvider-a',
+
+  'angular.error.useEditorOutsideProvider':
+    'useEditorProvider se mora koristiti unutar EditorProvider-a',
+  'angular.error.useHttpOutsideProvider': 'useHttpClient se mora koristiti unutar HttpProvider-a',
+  'angular.error.useLoggerOutsideProvider':
+    'useLoggerProvider se mora koristiti unutar LoggerProvider-a',
+  'angular.error.usePreviewOutsideProvider':
+    'usePreviewProvider se mora koristiti unutar PreviewProvider-a',
+  'angular.error.useRouterOutsideProvider':
+    'useRouterInstance se mora koristiti unutar RouterProvider-a',
+  'angular.error.useStorageOutsideProvider':
+    'useStorageProvider se mora koristiti unutar StorageProvider-a',
+  'angular.error.useThemeOutsideProvider':
+    'useThemeProvider se mora koristiti unutar ThemeProvider-a',
+  'angular.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider se mora koristiti unutar WorkspaceProvider-a',
 }

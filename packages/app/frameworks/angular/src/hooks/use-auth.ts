@@ -33,11 +33,7 @@ export function useAuthClient<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): AuthClient<T, TRegister> {
-  return injectProvider(
-    AUTH_CLIENT,
-    'useAuthOutsideProvider',
-    'useAuthClient must be used within an AuthProvider',
-  ) as AuthClient<T, TRegister>
+  return injectProvider(AUTH_CLIENT, 'useAuthOutsideProvider') as AuthClient<T, TRegister>
 }
 
 /** Options for {@link useAuth}. */

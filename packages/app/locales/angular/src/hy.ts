@@ -10,4 +10,21 @@ export const hy: AngularTranslations = {
   'angular.error.unsupportedMethod': 'Չաջակցվող մեթոդ՝ {{method}}',
   'angular.error.useStoreOutsideProvider':
     'useStateProvider-ը պետք է օգտագործվի StateProvider-ի ներսում',
+
+  'angular.error.useEditorOutsideProvider':
+    'useEditorProvider-ը պետք է օգտագործվի EditorProvider-ի ներսում',
+  'angular.error.useHttpOutsideProvider':
+    'useHttpClient-ը պետք է օգտագործվի HttpProvider-ի ներսում',
+  'angular.error.useLoggerOutsideProvider':
+    'useLoggerProvider-ը պետք է օգտագործվի LoggerProvider-ի ներսում',
+  'angular.error.usePreviewOutsideProvider':
+    'usePreviewProvider-ը պետք է օգտագործվի PreviewProvider-ի ներսում',
+  'angular.error.useRouterOutsideProvider':
+    'useRouterInstance-ը պետք է օգտագործվի RouterProvider-ի ներսում',
+  'angular.error.useStorageOutsideProvider':
+    'useStorageProvider-ը պետք է օգտագործվի StorageProvider-ի ներսում',
+  'angular.error.useThemeOutsideProvider':
+    'useThemeProvider-ը պետք է օգտագործվի ThemeProvider-ի ներսում',
+  'angular.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider-ը պետք է օգտագործվի WorkspaceProvider-ի ներսում',
 }

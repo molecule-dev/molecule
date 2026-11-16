@@ -9,4 +9,21 @@ export const uk: AngularTranslations = {
   'angular.error.unsupportedMethod': 'Непідтримуваний метод: {{method}}',
   'angular.error.useStoreOutsideProvider':
     'useStateProvider має використовуватися всередині StateProvider',
+
+  'angular.error.useEditorOutsideProvider':
+    'useEditorProvider повинен використовуватися всередині EditorProvider',
+  'angular.error.useHttpOutsideProvider':
+    'useHttpClient повинен використовуватися всередині HttpProvider',
+  'angular.error.useLoggerOutsideProvider':
+    'useLoggerProvider повинен використовуватися всередині LoggerProvider',
+  'angular.error.usePreviewOutsideProvider':
+    'usePreviewProvider повинен використовуватися всередині PreviewProvider',
+  'angular.error.useRouterOutsideProvider':
+    'useRouterInstance повинен використовуватися всередині RouterProvider',
+  'angular.error.useStorageOutsideProvider':
+    'useStorageProvider повинен використовуватися всередині StorageProvider',
+  'angular.error.useThemeOutsideProvider':
+    'useThemeProvider повинен використовуватися всередині ThemeProvider',
+  'angular.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider повинен використовуватися всередині WorkspaceProvider',
 }

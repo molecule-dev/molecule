@@ -10,4 +10,21 @@ export const fi: AngularTranslations = {
   'angular.error.unsupportedMethod': 'Ei-tuettu menetelmä: {{method}}',
   'angular.error.useStoreOutsideProvider':
     'useStateProvider-arvoa on käytettävä StateProvider-arvoa noudattaen.',
+
+  'angular.error.useEditorOutsideProvider':
+    'useEditorProvider on käytettävä EditorProvider-komponentin sisällä',
+  'angular.error.useHttpOutsideProvider':
+    'useHttpClient on käytettävä HttpProvider-komponentin sisällä',
+  'angular.error.useLoggerOutsideProvider':
+    'useLoggerProvider on käytettävä LoggerProvider-komponentin sisällä',
+  'angular.error.usePreviewOutsideProvider':
+    'usePreviewProvider on käytettävä PreviewProvider-komponentin sisällä',
+  'angular.error.useRouterOutsideProvider':
+    'useRouterInstance on käytettävä RouterProvider-komponentin sisällä',
+  'angular.error.useStorageOutsideProvider':
+    'useStorageProvider on käytettävä StorageProvider-komponentin sisällä',
+  'angular.error.useThemeOutsideProvider':
+    'useThemeProvider on käytettävä ThemeProvider-komponentin sisällä',
+  'angular.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider on käytettävä WorkspaceProvider-komponentin sisällä',
 }

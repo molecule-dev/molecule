@@ -30,11 +30,7 @@ import { useExternalStore } from './external-store.js'
  * @throws {Error} When no workspace provider is registered.
  */
 export function useWorkspaceProvider(): WorkspaceProvider {
-  return injectProvider(
-    WORKSPACE_PROVIDER,
-    'useWorkspaceOutsideProvider',
-    'useWorkspaceProvider must be used within a WorkspaceProvider',
-  )
+  return injectProvider(WORKSPACE_PROVIDER, 'useWorkspaceOutsideProvider')
 }
 
 /**
@@ -131,11 +127,7 @@ export function useWorkspace(): {
  * @throws {Error} When no editor provider is registered.
  */
 export function useEditorProvider(): EditorProvider {
-  return injectProvider(
-    EDITOR_PROVIDER,
-    'useEditorOutsideProvider',
-    'useEditorProvider must be used within an EditorProvider',
-  )
+  return injectProvider(EDITOR_PROVIDER, 'useEditorOutsideProvider')
 }
 
 /**
@@ -325,11 +317,7 @@ export function useEditor(): UseEditorResult {
  * @throws {Error} When no preview provider is registered.
  */
 export function usePreviewProvider(): PreviewProvider {
-  return injectProvider(
-    PREVIEW_PROVIDER,
-    'usePreviewOutsideProvider',
-    'usePreviewProvider must be used within a PreviewProvider',
-  )
+  return injectProvider(PREVIEW_PROVIDER, 'usePreviewOutsideProvider')
 }
 
 /**

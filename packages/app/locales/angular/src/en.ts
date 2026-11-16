@@ -4,6 +4,20 @@ import type { AngularTranslations } from './types.js'
 export const en: AngularTranslations = {
   'angular.error.useChatOutsideProvider': 'useChatProvider must be used within a ChatProvider',
   'angular.error.useAuthOutsideProvider': 'useAuthClient must be used within an AuthProvider',
+  'angular.error.useEditorOutsideProvider':
+    'useEditorProvider must be used within an EditorProvider',
+  'angular.error.useHttpOutsideProvider': 'useHttpClient must be used within an HttpProvider',
+  'angular.error.useLoggerOutsideProvider':
+    'useLoggerProvider must be used within a LoggerProvider',
+  'angular.error.usePreviewOutsideProvider':
+    'usePreviewProvider must be used within a PreviewProvider',
+  'angular.error.useRouterOutsideProvider':
+    'useRouterInstance must be used within a RouterProvider',
+  'angular.error.useStorageOutsideProvider':
+    'useStorageProvider must be used within a StorageProvider',
+  'angular.error.useThemeOutsideProvider': 'useThemeProvider must be used within a ThemeProvider',
+  'angular.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider must be used within a WorkspaceProvider',
   'angular.error.oauthFailed': 'OAuth login failed',
   'angular.error.unsupportedMethod': 'Unsupported method: {{method}}',
   'angular.error.useStoreOutsideProvider': 'useStateProvider must be used within a StateProvider',

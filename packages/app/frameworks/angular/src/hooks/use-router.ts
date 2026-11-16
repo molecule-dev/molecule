@@ -45,11 +45,7 @@ import { ROUTER } from '../tokens.js'
  * @throws {Error} When no router is registered.
  */
 export function useRouterInstance(): Router {
-  return injectProvider(
-    ROUTER,
-    'useRouterOutsideProvider',
-    'useRouterInstance must be used within a RouterProvider',
-  )
+  return injectProvider(ROUTER, 'useRouterOutsideProvider')
 }
 
 /** One subscription over the router, shared by every field of one hook call. */

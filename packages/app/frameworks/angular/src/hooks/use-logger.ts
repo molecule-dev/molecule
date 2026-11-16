@@ -18,11 +18,7 @@ import { LOGGER_PROVIDER } from '../tokens.js'
  * @throws {Error} When no logger provider is registered.
  */
 export function useLoggerProvider(): LoggerProvider {
-  return injectProvider(
-    LOGGER_PROVIDER,
-    'useLoggerOutsideProvider',
-    'useLoggerProvider must be used within a LoggerProvider',
-  )
+  return injectProvider(LOGGER_PROVIDER, 'useLoggerOutsideProvider')
 }
 
 /**

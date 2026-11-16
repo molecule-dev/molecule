@@ -8,4 +8,20 @@ export const ky: AngularTranslations = {
   'angular.error.unsupportedMethod': 'Колдоого алынбаган ыкма: {{method}}',
   'angular.error.useStoreOutsideProvider':
     'useStateProvider StateProvider ичинде колдонулушу керек',
+
+  'angular.error.useEditorOutsideProvider':
+    'useEditorProvider EditorProvider ичинде колдонулушу керек',
+  'angular.error.useHttpOutsideProvider': 'useHttpClient HttpProvider ичинде колдонулушу керек',
+  'angular.error.useLoggerOutsideProvider':
+    'useLoggerProvider LoggerProvider ичинде колдонулушу керек',
+  'angular.error.usePreviewOutsideProvider':
+    'usePreviewProvider PreviewProvider ичинде колдонулушу керек',
+  'angular.error.useRouterOutsideProvider':
+    'useRouterInstance RouterProvider ичинде колдонулушу керек',
+  'angular.error.useStorageOutsideProvider':
+    'useStorageProvider StorageProvider ичинде колдонулушу керек',
+  'angular.error.useThemeOutsideProvider':
+    'useThemeProvider ThemeProvider ичинде колдонулушу керек',
+  'angular.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider WorkspaceProvider ичинде колдонулушу керек',
 }

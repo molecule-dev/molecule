@@ -23,11 +23,7 @@ import { HTTP_CLIENT } from '../tokens.js'
  * @throws {Error} When no HTTP client is registered.
  */
 export function useHttpClient(): HttpClient {
-  return injectProvider(
-    HTTP_CLIENT,
-    'useHttpOutsideProvider',
-    'useHttpClient must be used within an HttpProvider',
-  )
+  return injectProvider(HTTP_CLIENT, 'useHttpOutsideProvider')
 }
 
 /**

@@ -10,4 +10,20 @@ export const mk: AngularTranslations = {
   'angular.error.unsupportedMethod': 'Неподдржан метод: {{method}}',
   'angular.error.useStoreOutsideProvider':
     'useStateProvider мора да се користи во рамките на StateProvider',
+
+  'angular.error.useEditorOutsideProvider':
+    'useEditorProvider мора да се користи внатре во EditorProvider',
+  'angular.error.useHttpOutsideProvider': 'useHttpClient мора да се користи внатре во HttpProvider',
+  'angular.error.useLoggerOutsideProvider':
+    'useLoggerProvider мора да се користи внатре во LoggerProvider',
+  'angular.error.usePreviewOutsideProvider':
+    'usePreviewProvider мора да се користи внатре во PreviewProvider',
+  'angular.error.useRouterOutsideProvider':
+    'useRouterInstance мора да се користи внатре во RouterProvider',
+  'angular.error.useStorageOutsideProvider':
+    'useStorageProvider мора да се користи внатре во StorageProvider',
+  'angular.error.useThemeOutsideProvider':
+    'useThemeProvider мора да се користи внатре во ThemeProvider',
+  'angular.error.useWorkspaceOutsideProvider':
+    'useWorkspaceProvider мора да се користи внатре во WorkspaceProvider',
 }
