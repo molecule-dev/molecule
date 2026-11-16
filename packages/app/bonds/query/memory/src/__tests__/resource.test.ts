@@ -140,6 +140,39 @@ describe('a ticket resource on the shared cache', () => {
     expect(api.calls.filter((call) => call.startsWith('GET /tickets {"page":1}'))).toHaveLength(2)
   })
 
+  it('uses URL identity for row uniqueness without dropping missing identities or equal labels', async () => {
+    type Row = { code?: string | number; label: string }
+    const rows: Row[] = [
+      { code: 7, label: 'saved' },
+      { code: '7', label: 'older' },
+      { code: 8, label: 'saved' },
+      { label: 'anonymous' },
+      { label: 'anonymous' },
+    ]
+    const http = { ...api.http, get: async () => ({ data: rows }) }
+    const items = createQueryResource<Row>({
+      name: 'equipment',
+      path: '/equipment',
+      id: 'code',
+      http: () => http,
+    })
+    const options = items.list('agent-1')
+    expect(await getQueryClient().fetch(options)).toEqual([rows[0], rows[2], rows[3], rows[4]])
+    const changed = { code: 7, label: 'newest' }
+    getQueryClient().set(options.key, [changed, ...rows])
+    expect(getQueryClient().get(options.key)).toEqual([changed, rows[2], rows[3], rows[4]])
+    expect(rows).toHaveLength(5)
+  })
+
+  it('leaves opaque whole-page projections to the application', async () => {
+    const tickets = resource()
+    const rows = [{ id: 'occurrence' }, { id: 'occurrence' }]
+    const options = tickets.listPage('agent-1', {}, () => ({ slots: rows, total: 2 }))
+    expect(await getQueryClient().fetch(options)).toEqual({ slots: rows, total: 2 })
+    getQueryClient().set(options.key, { slots: rows, total: 2 })
+    expect(getQueryClient().get(options.key)).toEqual({ slots: rows, total: 2 })
+  })
+
   it('refreshes after a pre-mutation list request already in flight settles', async () => {
     const tickets = resource()
     const get = api.http.get

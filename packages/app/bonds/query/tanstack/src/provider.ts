@@ -28,6 +28,8 @@ class TanstackClient implements QueryClient {
   private readonly qc: TanstackQueryClient
   private readonly staleMs: number
   private readonly gcMs: number
+  // Weak keys follow query-core's own cache lifetime rather than retaining collected entries.
+  private readonly normalizers = new WeakMap<object, (data: unknown) => unknown>()
 
   /**
    * Wraps a TanStack client.
@@ -54,9 +56,24 @@ class TanstackClient implements QueryClient {
     gcTime: number
     retry: false
   } {
+    const query = this.qc.getQueryCache().build<T>(this.qc, { queryKey: options.key })
+    if (options.normalizeData) {
+      const normalize = options.normalizeData
+      this.normalizers.set(query, (data) => normalize(data as T))
+      if (query.state.data !== undefined) {
+        const data = normalize(query.state.data)
+        // Projection is not a new server answer: retain timestamps, invalidation,
+        // errors and any request already in flight when normalizing an existing seed.
+        if (data !== query.state.data) query.setState({ data })
+      }
+    }
     return {
       queryKey: options.key as TanstackKey,
-      queryFn: ({ signal }: { signal: AbortSignal }) => options.fetch(signal),
+      queryFn: async ({ signal }: { signal: AbortSignal }) => {
+        const data = await options.fetch(signal)
+        const normalize = this.normalizers.get(query)
+        return normalize ? (normalize(data) as T) : data
+      },
       staleTime: options.staleMs ?? this.staleMs,
       gcTime: options.gcMs ?? this.gcMs,
       retry: false as const,
@@ -130,6 +147,9 @@ class TanstackClient implements QueryClient {
    */
   set<T>(key: QueryKey, data: T): void {
     const queryKey = key as TanstackKey
+    const query = this.qc.getQueryCache().find({ queryKey, exact: true })
+    const normalize = query && this.normalizers.get(query)
+    data = normalize ? (normalize(data) as T) : data
     // query-core restores the pre-fetch state synchronously, BEFORE the write below. Its
     // asynchronous cancellation handler then returns the current data instead of publishing
     // a CancelledError over the successful save. With revert:false that late error replaced

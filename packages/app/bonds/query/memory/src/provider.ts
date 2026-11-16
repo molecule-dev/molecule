@@ -26,6 +26,7 @@ interface Entry<T> {
   stale: boolean
   gcMs: number
   gcTimer: ReturnType<typeof setTimeout> | null
+  normalizeData?: (data: T) => T
   inflight: {
     promise: Promise<T>
     controller: AbortController
@@ -96,6 +97,26 @@ class MemoryQueryClient implements QueryClient {
   }
 
   /**
+   * Registers the key's data contract, including a document seeded before its first read.
+   * @param options - The key and its data projection.
+   * @returns The configured entry.
+   */
+  private configure<T>(options: QueryOptions<T>): Entry<T> {
+    const entry = this.entry<T>(options.key, options.gcMs)
+    if (options.normalizeData) {
+      entry.normalizeData = options.normalizeData
+      if (entry.state.data !== undefined) {
+        const data = entry.normalizeData(entry.state.data)
+        if (data !== entry.state.data) {
+          entry.state = { ...entry.state, data }
+          this.emit(entry)
+        }
+      }
+    }
+    return entry
+  }
+
+  /**
    * Whether an entry holds data younger than `staleMs` and not invalidated.
    *
    * @param entry - The entry.
@@ -146,7 +167,8 @@ class MemoryQueryClient implements QueryClient {
     const owns = (): boolean => entry.inflight?.controller === controller
     const promise = options
       .fetch(controller.signal)
-      .then((data) => {
+      .then((value) => {
+        const data = entry.normalizeData ? entry.normalizeData(value) : value
         if (!owns()) return data
         entry.inflight = null
         entry.stale = false
@@ -233,7 +255,7 @@ class MemoryQueryClient implements QueryClient {
    * @returns The document.
    */
   fetch<T>(options: QueryOptions<T>): Promise<T> {
-    const entry = this.entry<T>(options.key, options.gcMs)
+    const entry = this.configure(options)
     if (this.isFresh(entry, options.staleMs ?? this.staleMs))
       return Promise.resolve(entry.state.data as T)
     // A direct caller keeps this particular fetch alive after the last observer leaves. Demand
@@ -252,7 +274,7 @@ class MemoryQueryClient implements QueryClient {
    * @param options - Key, fetch, freshness.
    */
   prefetch<T>(options: QueryOptions<T>): void {
-    const entry = this.entry<T>(options.key, options.gcMs)
+    const entry = this.configure(options)
     if (entry.inflight || this.isFresh(entry, options.staleMs ?? this.staleMs)) return
     this.start(entry, options).catch((_error) => {
       // Speculative: the real navigation reports a document that will not load.
@@ -267,6 +289,7 @@ class MemoryQueryClient implements QueryClient {
    */
   set<T>(key: QueryKey, data: T): void {
     const entry = this.entry<T>(key)
+    data = entry.normalizeData ? entry.normalizeData(data) : data
     const inflight = entry.inflight
     // This write is newer than any request already in flight. Detach it before publishing the
     // value so neither its resolution nor its rejection can change the entry again. A direct
@@ -312,7 +335,7 @@ class MemoryQueryClient implements QueryClient {
    * @returns Stops observing.
    */
   subscribe<T>(options: QueryOptions<T>, listener: (state: QueryState<T>) => void): () => void {
-    const entry = this.entry<T>(options.key, options.gcMs)
+    const entry = this.configure(options)
     entry.listeners.add(listener)
     if (entry.gcTimer) {
       clearTimeout(entry.gcTimer)

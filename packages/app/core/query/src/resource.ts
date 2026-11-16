@@ -9,7 +9,7 @@
 
 import { hashQueryKey } from './keys.js'
 import { getQueryClient } from './provider.js'
-import type { QueryKey, QueryOptions } from './types.js'
+import type { QueryClient, QueryKey, QueryOptions } from './types.js'
 
 /** The part of an HTTP response a resource reads. */
 export interface ResourceResponse {
@@ -60,6 +60,8 @@ export interface QueryResource<T, Create = Partial<T>, Update = Partial<T>> {
   /**
    * `useQuery` options for the collection. `viewer` is who the answer is for (the signed-in id,
    * or `'anonymous'`); a page or filter change keeps the rows on screen until the next answer.
+   * One record per URL identity, retaining the first occurrence. Equal values without an
+   * addressable id remain separate. Writes already refresh the collection.
    */
   list(viewer: string, params?: Record<string, unknown>): QueryOptions<T[]>
   /**
@@ -146,7 +148,8 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
     string,
     {
       viewer: string
-      options: QueryOptions<unknown>
+      key: QueryKey
+      fetch: (client: QueryClient) => Promise<unknown>
       remove?: (page: unknown, id: string) => unknown
     }
   >()
@@ -159,6 +162,18 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
   const withoutRemoved = (viewer: string, rows: T[]): T[] => {
     const ids = removed.get(viewer)
     return ids?.size ? rows.filter((record) => !ids.has(recordId(record) ?? '')) : rows
+  }
+  const normalizeRows = (viewer: string, rows: T[]): T[] => {
+    const seen = new Set<string>()
+    const kept = rows.filter((record) => {
+      const id = recordId(record)
+      if (id === undefined) return true
+      if (seen.has(id) || removals(viewer).has(id)) return false
+      seen.add(id)
+      return true
+    })
+    // Preserve referential equality when the list already satisfies its contract.
+    return kept.length === rows.length ? rows : kept
   }
   const projectPage = <Page>(
     viewer: string,
@@ -179,7 +194,8 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
     recent.delete(hash)
     recent.set(hash, {
       viewer,
-      options,
+      key: options.key,
+      fetch: (client) => client.fetch(options),
       ...(remove ? { remove: (page, id) => remove(page as Page, id) } : {}),
     })
     for (const stale of [...recent.keys()].slice(0, -REFRESHED_LISTS)) recent.delete(stale)
@@ -191,8 +207,9 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
       key: [config.name, viewer, 'list', params],
       principal: viewer,
       keepPreviousData: true,
+      normalizeData: (rows) => normalizeRows(viewer, rows),
       fetch: async (signal) =>
-        withoutRemoved(viewer, readList(await config.http().get(base, { signal, params }))),
+        normalizeRows(viewer, readList(await config.http().get(base, { signal, params }))),
     }
     return track(viewer, options, (rows) => withoutRemoved(viewer, rows))
   }
@@ -206,14 +223,14 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
         .map(async (entry) => {
           // fetch() deduplicates an existing request. It may have read before this write,
           // so joining it alone cannot refresh the list after the mutation.
-          const pending = client.getState(entry.options.key).isFetching
+          const pending = client.getState(entry.key).isFetching
           const fetch = (): Promise<unknown> =>
-            client.fetch(entry.options).catch((_error) => {
+            entry.fetch(client).catch((_error) => {
               // The mounted query presents its own failure; the mutation already succeeded.
             })
           await fetch()
           if (pending) {
-            client.invalidate(entry.options.key)
+            client.invalidate(entry.key)
             await fetch()
           }
         }),
@@ -280,8 +297,8 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
       client.set<T | null>(detailKey(viewer, id), null)
       for (const entry of recent.values()) {
         if (entry.viewer !== viewer || !entry.remove) continue
-        const page = client.getState(entry.options.key).data
-        if (page !== undefined) client.set(entry.options.key, entry.remove(page, id))
+        const page = client.getState(entry.key).data
+        if (page !== undefined) client.set(entry.key, entry.remove(page, id))
       }
       await refresh(viewer)
     },

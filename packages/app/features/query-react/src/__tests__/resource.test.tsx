@@ -125,6 +125,64 @@ describe.each([
     expect(api.calls.filter((call) => call.startsWith('GET /tickets {"page":1}'))).toHaveLength(2)
   })
 
+  it('renders a created row once when a caller prepends the already-refreshed response', async () => {
+    const tickets = resource()
+    let query!: ReturnType<typeof useQuery<Ticket[]>>
+    const container = document.createElement('div')
+    function Inventory() {
+      query = useQuery(tickets.list('agent-1'))
+      return createElement(
+        'section',
+        null,
+        query.data?.map((row) =>
+          createElement('p', { key: row.id, 'data-record': row.id }, row.subject),
+        ),
+      )
+    }
+    const root = createRoot(container)
+    roots.push(root)
+    act(() => root.render(createElement(Inventory)))
+    await settle()
+    let created!: Ticket
+    await act(async () => {
+      created = await tickets.create('agent-1', { subject: 'Projector' })
+    })
+    // This is the exact redundant update made by an app after resource.create(). Assert
+    // before any later refetch can hide the duplicate: the cache and the DOM must agree.
+    act(() => query.setData((current) => [created, ...(current ?? [])]))
+    expect(container.querySelectorAll('[data-record="t2"]')).toHaveLength(1)
+    expect(query.data?.map((row) => row.id)).toEqual(['t2', 't1'])
+    expect(
+      getQueryClient()
+        .get<Ticket[]>(tickets.list('agent-1').key)
+        ?.map((row) => row.id),
+    ).toEqual(['t2', 't1'])
+    expect(api.rows.filter((row) => row.id === 't2')).toHaveLength(1)
+    await act(async () => {
+      await query.refetch()
+    })
+    expect(container.querySelectorAll('[data-record="t2"]')).toHaveLength(1)
+  })
+
+  it('keeps distinct records with identical text and keeps duplicates in an ordinary query', async () => {
+    const tickets = resource()
+    api.rows.push({ id: 't2', subject: 'Printer', escalated: false })
+    const resourcePage = mount(() => useQuery(tickets.list('agent-1')))
+    const occurrences = [
+      { id: 'same', subject: 'Printer' },
+      { id: 'same', subject: 'Printer' },
+    ]
+    let query!: ReturnType<typeof useQuery<typeof occurrences>>
+    mount(
+      () => (query = useQuery({ key: ['inventory-occurrences'], fetch: async () => occurrences })),
+    )
+    await settle()
+    expect(resourcePage.value().data).toHaveLength(2)
+    expect(query.data).toHaveLength(2)
+    act(() => query.setData((current) => [...(current ?? []), occurrences[0]]))
+    expect(query.data).toHaveLength(3)
+  })
+
   it('refreshes after a pre-mutation list request already in flight settles', async () => {
     const tickets = resource()
     const get = api.http.get

@@ -32,6 +32,13 @@
  * ```
  *
  * @remarks
+ * - `createQueryResource().list()` owns a collection of records addressed by their URL id.
+ *   It keeps the first occurrence of each identity on fetched and explicitly set lists;
+ *   equal labels on different records and rows without an id remain intact. Resource writes
+ *   already refresh these lists: render the query directly after awaiting `create`, without
+ *   appending its return value again. Ordinary queries and opaque `listPage()` envelopes
+ *   preserve application-owned occurrence semantics. Query bonds apply `normalizeData`
+ *   before publishing any fetched or explicitly set document.
  * - **Page data goes through a query, not a hand-written `useEffect` + `fetch`.** In React, use
  *   `useQuery` from `@molecule/app-query-react`: it keeps one request per key, stable across
  *   re-renders, and aborts it only when the key changes or the page unmounts. An effect that

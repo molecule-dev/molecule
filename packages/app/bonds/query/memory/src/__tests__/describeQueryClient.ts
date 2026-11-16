@@ -20,6 +20,125 @@ export function describeQueryClient(
   createClient: (config?: QueryClientConfig) => QueryClient,
 ): void {
   describe(`${name} query client`, () => {
+    it('normalizes fetched and explicitly set documents before observers receive them', async () => {
+      const c = createClient()
+      const key = ['normalized', { page: 1 }]
+      const normalizeData = (rows: string[]) => [...new Set(rows)]
+      const options = { key, fetch: async () => ['a', 'a', 'b'], normalizeData }
+      const seen: string[][] = []
+      const off = c.subscribe(options, (state) => {
+        if (state.data) seen.push(state.data)
+      })
+      await c.fetch(options)
+      c.set(key, ['b', 'b', 'c'])
+      await tick()
+      expect(c.get(key)).toEqual(['b', 'c'])
+      expect(c.getState(key).data).toEqual(['b', 'c'])
+      expect(seen.length).toBeGreaterThan(0)
+      expect(seen.every((rows) => rows.length === new Set(rows).size)).toBe(true)
+      off()
+      c.clear()
+    })
+
+    it('normalizes a fresh document seeded before the first configured fetch', async () => {
+      const c = createClient()
+      const key = ['seeded']
+      c.set(key, ['a', 'a'])
+      const fetch = vi.fn(async () => ['server'])
+      expect(await c.fetch({ key, fetch, normalizeData: (rows) => [...new Set(rows)] })).toEqual([
+        'a',
+      ])
+      expect(c.get(key)).toEqual(['a'])
+      expect(fetch).not.toHaveBeenCalled()
+      c.clear()
+    })
+
+    it('normalizes a fresh seed before the initial subscription callback', () => {
+      const c = createClient()
+      const key = ['seeded-observer']
+      c.set(key, ['a', 'a'])
+      const seen: unknown[] = []
+      const off = c.subscribe(
+        { key, fetch: async () => [], normalizeData: (rows) => [...new Set(rows)] },
+        (state) => seen.push(state.data),
+      )
+      expect(seen[0]).toEqual(['a'])
+      off()
+      c.clear()
+    })
+
+    it('does not freshen or clear invalidation when normalizing an existing seed', async () => {
+      const c = createClient()
+      const key = ['invalidated-seed']
+      c.set(key, ['stale', 'stale'])
+      const before = c.getState(key).updatedAt
+      c.invalidate(key)
+      const fetch = vi.fn(async () => ['server', 'server'])
+      expect(await c.fetch({ key, fetch, normalizeData: (rows) => [...new Set(rows)] })).toEqual([
+        'server',
+      ])
+      expect(fetch).toHaveBeenCalledTimes(1)
+      expect(c.getState(key).updatedAt).toBeGreaterThanOrEqual(before!)
+      c.clear()
+    })
+
+    it('registers normalization during prefetch and applies it to subsequent writes', async () => {
+      const c = createClient()
+      const options = {
+        key: ['prefetched-normalized'],
+        fetch: async () => ['a', 'a'],
+        normalizeData: (rows: string[]) => [...new Set(rows)],
+      }
+      c.prefetch(options)
+      await tick()
+      expect(c.get(options.key)).toEqual(['a'])
+      c.set(options.key, ['b', 'b'])
+      expect(c.get(options.key)).toEqual(['b'])
+      c.clear()
+    })
+
+    it('preserves repeated values in ordinary queries and drops projections on clear', async () => {
+      const c = createClient()
+      const key = ['ordinary-occurrences']
+      const rows = [{ id: 'same' }, { id: 'same' }]
+      expect(await c.fetch({ key, fetch: async () => rows })).toEqual(rows)
+      c.set(key, rows)
+      expect(c.get(key)).toEqual(rows)
+      await c.fetch({
+        key: ['formerly-normalized'],
+        fetch: async () => ['a'],
+        normalizeData: (values) => [...new Set(values)],
+      })
+      c.clear()
+      c.set(['formerly-normalized'], ['a', 'a'])
+      expect(c.get(['formerly-normalized'])).toEqual(['a', 'a'])
+      c.clear()
+    })
+
+    it('does not cancel a pending read when a normalization rejects an explicit write', async () => {
+      const c = createClient()
+      const key = ['rejected-projection']
+      let finish!: (value: number) => void
+      const pending = c.fetch({
+        key,
+        fetch: () =>
+          new Promise<number>((resolve) => {
+            finish = resolve
+          }),
+        normalizeData: (value) => {
+          if (value < 0) throw new Error('negative')
+          return value
+        },
+      })
+      await tick()
+      expect(() => c.set(key, -1)).toThrow('negative')
+      expect(c.getState(key).isFetching).toBe(true)
+      finish(2)
+      expect(await pending).toBe(2)
+      expect(c.get(key)).toBe(2)
+      c.clear()
+    })
+
     it('reports idle for an unknown key and returns nothing synchronously', () => {
       const c = createClient()
       expect(c.get(['nope'])).toBeUndefined()

@@ -31,6 +31,16 @@ export type QueryOptions<T> = {
    */
   fetch: (signal: AbortSignal) => Promise<T>
 
+  /**
+   * Pure, idempotent projection applied to fetched and explicitly set documents before
+   * observers receive them. A key has one data contract: use the same projection for
+   * every observer of that key. The bond remembers it until the cache entry is collected.
+   * Resource row lists use this to keep one record per URL identity, including when a
+   * caller inserts a mutation response which the resource has already refreshed.
+   * Ordinary queries without a projection preserve their data, including duplicates.
+   */
+  normalizeData?: (data: T) => T
+
   /** How long a cached document is fresh (no refetch). Defaults to the client's, then 5 minutes. */
   staleMs?: number
 
