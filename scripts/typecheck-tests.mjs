@@ -80,12 +80,18 @@ const LAYOUT_OPTIONS = [
 ]
 
 /**
- * Parses `--name=value` flags and positional arguments.
+ * Parses `--name=value` flags and positional arguments. Any other `--` argument is refused:
+ * `--jobs 4` would otherwise read `4` as a package directory and check nothing.
  *
  * @param argv - The command-line arguments.
  * @returns The run's settings.
  */
 function parseArgs(argv) {
+  for (const a of argv)
+    if (a.startsWith('--') && !/^--(jobs|chunk|tsc)=./.test(a))
+      throw new Error(
+        `unknown option ${a}: the options are --jobs=<n>, --chunk=<n> and --tsc=<path>`,
+      )
   const flag = (name) => argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3)
   const number = (name, fallback) => {
     const value = flag(name)
@@ -245,8 +251,15 @@ function runTsc(tsc, config) {
 
 const settings = parseArgs(process.argv.slice(2))
 const started = Date.now()
+// A named directory that is not a package is a mistake in the call, never a package with nothing
+// to check: skipping it would report "No type errors." for a run that checked nothing.
+const notPackages = settings.dirs.filter((d) => !existsSync(join(resolve(ROOT, d), 'package.json')))
+if (notPackages.length) {
+  console.error(`not a package directory (no package.json): ${notPackages.join(', ')}`)
+  process.exit(2)
+}
 const candidates = settings.dirs.length
-  ? settings.dirs.map((d) => resolve(ROOT, d)).filter((d) => existsSync(join(d, 'package.json')))
+  ? settings.dirs.map((d) => resolve(ROOT, d))
   : workspacePackages()
 
 const skipped = { ownScript: 0, noTests: 0, noTsconfig: 0 }

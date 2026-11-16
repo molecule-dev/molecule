@@ -147,7 +147,7 @@ describe('typecheck-tests', () => {
   )
 
   it(
-    'skips packages with their own typecheck:tests script, without tests, or that are not packages',
+    'skips packages with their own typecheck:tests script or without tests',
     {
       timeout: 180_000,
     },
@@ -158,12 +158,26 @@ describe('typecheck-tests', () => {
         { scripts: { 'typecheck:tests': 'tsc -p tsconfig.tests.json' } },
       )
       const noTests = pkg('no-tests', source)
-      const notAPackage = path.join(base, 'not-a-package')
-      fs.mkdirSync(notAPackage, { recursive: true })
-      const { status, out } = gate(own, noTests, notAPackage)
+      const { status, out } = gate(own, noTests)
       expect(status, out).toBe(0)
       expect(out).toContain('0 package(s) in 0 program(s)')
       expect(out).toContain('skipped: 1 with their own typecheck:tests, 1 without tests')
     },
   )
+
+  it('refuses a named directory that is not a package, and an option without =', () => {
+    const notAPackage = path.join(base, 'not-a-package')
+    fs.mkdirSync(notAPackage, { recursive: true })
+    const { status, out } = gate(good, notAPackage)
+    expect(status, out).toBe(2)
+    expect(out).toContain(`not a package directory (no package.json): ${notAPackage}`)
+    expect(out).not.toContain('No type errors.')
+    // `--jobs 2` would read `2` as a directory and check nothing.
+    const r = spawnSync(process.execPath, ['scripts/typecheck-tests.mjs', '--jobs', '2', good], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    })
+    expect(r.status, r.stderr).not.toBe(0)
+    expect(r.stderr).toContain('unknown option --jobs')
+  })
 })
