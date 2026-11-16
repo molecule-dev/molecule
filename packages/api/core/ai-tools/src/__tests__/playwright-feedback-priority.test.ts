@@ -49,15 +49,15 @@ const alive = async (pid: number): Promise<boolean> => {
 }
 afterEach(async () => {
   await Promise.all(controllers.splice(0).map((c) => c.close()))
-  // Independent explicit processes are bounded native test runs; collect their exits.
+  // Stand-in processes run until their test ends: a fixed one-second lifetime could end before a
+  // busy host started the run that had to see them. Stop any still running, then collect exits.
   await Promise.all(
-    children
-      .splice(0)
-      .map((c) =>
-        c.exitCode !== null
-          ? undefined
-          : new Promise<void>((done) => c.once('close', () => done())),
-      ),
+    children.splice(0).map((c) => {
+      if (c.exitCode !== null || c.signalCode !== null) return undefined
+      const closed = new Promise<void>((done) => c.once('close', () => done()))
+      c.kill('SIGKILL')
+      return closed
+    }),
   )
   await Promise.all(roots.splice(0).map((r) => rm(r, { recursive: true, force: true })))
 }, 20_000)
@@ -133,6 +133,12 @@ setTimeout(()=>{},6000);`,
   )
   return `${shellQuote(process.execPath)} ${shellQuote(program)}`
 }
+/**
+ * How long a run may take to start. These runs take the idle CPU class, so on a host whose CPUs
+ * are all busy they start only when a CPU frees up: 3 s was too short at load 70 on 14 CPUs
+ * (2026-11-16). What the tests time is the run's exit after a cancel, never its start.
+ */
+const START_WAIT_MS = 30_000
 async function started(root: string): Promise<{
   pid: number
   child: number
@@ -154,136 +160,148 @@ async function started(root: string): Promise<{
       value = JSON.parse(await readFile(join(root, 'started.json'), 'utf8'))
       expect(value.pid).toBeGreaterThan(0)
     },
-    { timeout: 3000 },
+    { timeout: START_WAIT_MS },
   )
   return value
 }
 
-it('aborts the real native process group, removes its private reports, and returns without the test timeout', async () => {
-  const f = await fixture(),
-    abort = new AbortController()
-  const command = await loop(f.root)
-  const run = runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
-    command: () => command,
-    signal: abort.signal,
-    scratchRoot: join(f.root, 'scratch'),
-  })
-  const owned = await started(f.root)
-  const time = performance.now()
-  abort.abort()
-  expect((await run).status).toBe('cancelled')
-  // Well before the loop's own 6 s, including the time its killed processes take to exit.
-  expect(performance.now() - time).toBeLessThan(2500)
-  // The run returns only once its processes are gone: no waiting here.
-  expect(await alive(owned.pid)).toBe(false)
-  expect(await alive(owned.child)).toBe(false)
-  expect(owned.nice).toBe(19)
-  expect(owned.internal).toBe('1')
-  expect(owned.idle).toBe(true)
-  expect(owned.io).toBe('idle')
-}, 10_000)
+it(
+  'aborts the real native process group, removes its private reports, and returns without the test timeout',
+  async () => {
+    const f = await fixture(),
+      abort = new AbortController()
+    const command = await loop(f.root)
+    const run = runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
+      command: () => command,
+      signal: abort.signal,
+      scratchRoot: join(f.root, 'scratch'),
+    })
+    const owned = await started(f.root)
+    const time = performance.now()
+    abort.abort()
+    expect((await run).status).toBe('cancelled')
+    // Well before the loop's own 6 s, including the time its killed processes take to exit.
+    expect(performance.now() - time).toBeLessThan(2500)
+    // The run returns only once its processes are gone: no waiting here.
+    expect(await alive(owned.pid)).toBe(false)
+    expect(await alive(owned.child)).toBe(false)
+    expect(owned.nice).toBe(19)
+    expect(owned.internal).toBe('1')
+    expect(owned.idle).toBe(true)
+    expect(owned.io).toBe('idle')
+  },
+  START_WAIT_MS + 10_000,
+)
 
-it('returns only after its killed processes exit, even on a CPU that normal work saturates', async () => {
-  const f = await fixture(),
-    abort = new AbortController()
-  // One CPU this test may use, for the run and for a loop that saturates it.
-  const cpu = /Cpus_allowed_list:\s*(\d+)/.exec(await readFile('/proc/self/status', 'utf8'))?.[1]
-  if (!cpu) throw new Error('no allowed CPU in /proc/self/status')
-  // A browser run is busy, not asleep: a sleeping process is woken by the kill and can exit at
-  // once, so the run's processes compute until they are killed. One process can still happen to
-  // be scheduled at once; five together make every one of them dying quickly vanishingly rare
-  // (all five were gone within 150 ms in none of 12 measured trials, and within 0.75 s in all).
-  const program = join(f.root, 'spin.cjs')
-  await writeFile(
-    program,
-    `const fs=require('node:fs'),cp=require('node:child_process');
+it(
+  'returns only after its killed processes exit, even on a CPU that normal work saturates',
+  async () => {
+    const f = await fixture(),
+      abort = new AbortController()
+    // One CPU this test may use, for the run and for a loop that saturates it.
+    const cpu = /Cpus_allowed_list:\s*(\d+)/.exec(await readFile('/proc/self/status', 'utf8'))?.[1]
+    if (!cpu) throw new Error('no allowed CPU in /proc/self/status')
+    // A browser run is busy, not asleep: a sleeping process is woken by the kill and can exit at
+    // once, so the run's processes compute until they are killed. One process can still happen to
+    // be scheduled at once; five together make every one of them dying quickly vanishingly rare
+    // (all five were gone within 150 ms in none of 12 measured trials, and within 0.75 s in all).
+    const program = join(f.root, 'spin.cjs')
+    await writeFile(
+      program,
+      `const fs=require('node:fs'),cp=require('node:child_process');
 const children=[1,2,3,4].map(()=>cp.spawn(process.execPath,['-e','for(;;){}'],{stdio:'ignore'}).pid);
 fs.writeFileSync('started.json',JSON.stringify({pid:process.pid,child:children[0],children}));
 for(;;){}`,
-  )
-  // Its output goes elsewhere, as a browser's does (Playwright pipes Chromium's): a process holding
-  // the supervisor's inherited stdio would keep the host's wait open by itself.
-  const command = `taskset -c ${cpu} ${shellQuote(process.execPath)} ${shellQuote(program)} </dev/null >/dev/null 2>&1`
-  const run = runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
-    command: () => command,
-    signal: abort.signal,
-    scratchRoot: join(f.root, 'scratch'),
-  })
-  const owned = await started(f.root)
-  const children: number[] = JSON.parse(
-    await readFile(join(f.root, 'started.json'), 'utf8'),
-  ).children
-  // The run's processes are on the idle CPU class. Beside a normal-priority loop on their CPU they
-  // get almost no time, so a SIGKILLed one stays runnable for hundreds of milliseconds before it
-  // can exit (measured 0.7 s with one loop, 4.6 s with four). A supervisor that exited at once
-  // told the host the run was gone while it still held its port and memory.
-  const busy = spawn('taskset', ['-c', cpu, process.execPath, '-e', 'for(;;){}'], {
-    stdio: 'ignore',
-  })
-  try {
-    await new Promise((done) => setTimeout(done, 300))
-    abort.abort()
-    // A supervisor that does not wait returns within ~100 ms, while the loop still starves its
-    // killed processes. Ending the loop a second later bounds how long a waiting one takes.
-    const release = setTimeout(() => busy.kill('SIGKILL'), 1000)
+    )
+    // Its output goes elsewhere, as a browser's does (Playwright pipes Chromium's): a process holding
+    // the supervisor's inherited stdio would keep the host's wait open by itself.
+    const command = `taskset -c ${cpu} ${shellQuote(process.execPath)} ${shellQuote(program)} </dev/null >/dev/null 2>&1`
+    const run = runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
+      command: () => command,
+      signal: abort.signal,
+      scratchRoot: join(f.root, 'scratch'),
+    })
+    const owned = await started(f.root)
+    const children: number[] = JSON.parse(
+      await readFile(join(f.root, 'started.json'), 'utf8'),
+    ).children
+    // The run's processes are on the idle CPU class. Beside a normal-priority loop on their CPU they
+    // get almost no time, so a SIGKILLed one stays runnable for hundreds of milliseconds before it
+    // can exit (measured 0.7 s with one loop, 4.6 s with four). A supervisor that exited at once
+    // told the host the run was gone while it still held its port and memory.
+    const busy = spawn('taskset', ['-c', cpu, process.execPath, '-e', 'for(;;){}'], {
+      stdio: 'ignore',
+    })
+    try {
+      await new Promise((done) => setTimeout(done, 300))
+      abort.abort()
+      // A supervisor that does not wait returns within ~100 ms, while the loop still starves its
+      // killed processes. Ending the loop a second later bounds how long a waiting one takes.
+      const release = setTimeout(() => busy.kill('SIGKILL'), 1000)
+      try {
+        expect((await run).status).toBe('cancelled')
+      } finally {
+        clearTimeout(release)
+      }
+      expect(await Promise.all([owned.pid, ...children].map(alive))).not.toContain(true)
+    } finally {
+      busy.kill('SIGKILL')
+    }
+  },
+  START_WAIT_MS + 20_000,
+)
+
+it(
+  'yields to an independent native Playwright command without stopping or refusing that explicit run',
+  async () => {
+    const f = await fixture(),
+      abort = new AbortController()
+    const command = await loop(f.root)
+    const run = runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
+      command: () => command,
+      signal: abort.signal,
+      scratchRoot: join(f.root, 'scratch'),
+    })
+    const owned = await started(f.root)
+    const cli = createRequire(import.meta.url).resolve('@playwright/test/cli')
+    await symlink(dirname(dirname(dirname(cli))), join(f.root, 'node_modules'), 'dir')
+    await writeFile(join(f.root, 'package.json'), '{"type":"module"}')
+    await writeFile(
+      join(f.root, 'playwright.config.mjs'),
+      `export default {testDir:'.',workers:1,timeout:5000}`,
+    )
+    await writeFile(
+      f.spec.path,
+      `import {test,expect} from '@playwright/test';test('explicit catalog',async()=>{await new Promise(r=>setTimeout(r,300));expect(2+2).toBe(4)})`,
+    )
+    const explicit = spawn(process.execPath, [cli, 'test', '--config', 'playwright.config.mjs'], {
+      cwd: f.root,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    children.push(explicit)
+    let output = ''
+    explicit.stdout?.on('data', (text) => {
+      output += text
+    })
+    explicit.stderr?.on('data', (text) => {
+      output += text
+    })
+    const finished = new Promise<number | null>((done) => explicit.once('close', done))
+    const time = performance.now()
     try {
       expect((await run).status).toBe('cancelled')
+      expect(performance.now() - time).toBeLessThan(2500)
+      expect(await alive(owned.pid)).toBe(false)
+      expect(await alive(owned.child)).toBe(false)
+      expect(await finished).toBe(0)
+      expect(output).toContain('1 passed')
     } finally {
-      clearTimeout(release)
+      abort.abort()
+      await run
     }
-    expect(await Promise.all([owned.pid, ...children].map(alive))).not.toContain(true)
-  } finally {
-    busy.kill('SIGKILL')
-  }
-}, 20_000)
-
-it('yields to an independent native Playwright command without stopping or refusing that explicit run', async () => {
-  const f = await fixture(),
-    abort = new AbortController()
-  const command = await loop(f.root)
-  const run = runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
-    command: () => command,
-    signal: abort.signal,
-    scratchRoot: join(f.root, 'scratch'),
-  })
-  const owned = await started(f.root)
-  const cli = createRequire(import.meta.url).resolve('@playwright/test/cli')
-  await symlink(dirname(dirname(dirname(cli))), join(f.root, 'node_modules'), 'dir')
-  await writeFile(join(f.root, 'package.json'), '{"type":"module"}')
-  await writeFile(
-    join(f.root, 'playwright.config.mjs'),
-    `export default {testDir:'.',workers:1,timeout:5000}`,
-  )
-  await writeFile(
-    f.spec.path,
-    `import {test,expect} from '@playwright/test';test('explicit catalog',async()=>{await new Promise(r=>setTimeout(r,300));expect(2+2).toBe(4)})`,
-  )
-  const explicit = spawn(process.execPath, [cli, 'test', '--config', 'playwright.config.mjs'], {
-    cwd: f.root,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  })
-  children.push(explicit)
-  let output = ''
-  explicit.stdout?.on('data', (text) => {
-    output += text
-  })
-  explicit.stderr?.on('data', (text) => {
-    output += text
-  })
-  const finished = new Promise<number | null>((done) => explicit.once('close', done))
-  const time = performance.now()
-  try {
-    expect((await run).status).toBe('cancelled')
-    expect(performance.now() - time).toBeLessThan(2500)
-    expect(await alive(owned.pid)).toBe(false)
-    expect(await alive(owned.child)).toBe(false)
-    expect(await finished).toBe(0)
-    expect(output).toContain('1 passed')
-  } finally {
-    abort.abort()
-    await run
-  }
-}, 15_000)
+  },
+  START_WAIT_MS + 15_000,
+)
 
 it.each([
   ['playwright/cli.js', 'test'],
@@ -295,7 +313,7 @@ it.each([
     const f = await fixture()
     await mkdir(dirname(join(f.root, entry)), { recursive: true })
     const cli = join(f.root, entry)
-    await writeFile(cli, 'setTimeout(()=>{},1000)')
+    await writeFile(cli, 'setInterval(()=>{},1000)')
     const explicit = spawn(process.execPath, [cli, action], { cwd: f.root, stdio: 'ignore' })
     children.push(explicit)
     const command = await loop(f.root)
@@ -358,7 +376,7 @@ it('recognizes npm process titles before the package script launches its native 
   const script = join(f.root, 'package-manager.cjs')
   await writeFile(
     script,
-    `process.title='npm run build';require('node:fs').writeFileSync('explicit-ready','yes');setTimeout(()=>{},1000)`,
+    `process.title='npm run build';require('node:fs').writeFileSync('explicit-ready','yes');setInterval(()=>{},1000)`,
   )
   children.push(spawn(process.execPath, [script], { cwd: f.root, stdio: 'ignore' }))
   await vi.waitFor(async () =>
@@ -377,7 +395,7 @@ it('ignores a native run in a different project and leaves a passing diagnosis s
     other = await fixture()
   await mkdir(join(other.root, 'playwright'))
   const cli = join(other.root, 'playwright/cli.js')
-  await writeFile(cli, 'setTimeout(()=>{},1000)')
+  await writeFile(cli, 'setInterval(()=>{},1000)')
   children.push(spawn(process.execPath, [cli, 'test'], { cwd: other.root, stdio: 'ignore' }))
   const command = `${shellQuote(process.execPath)} -e ${shellQuote(`require('node:fs').writeFileSync(process.env.PLAYWRIGHT_JSON_OUTPUT_FILE,JSON.stringify({suites:[],stats:{expected:1,unexpected:0,flaky:0,skipped:0,duration:1}}))`)}`
   const result = await runPlaywrightFeedback(createLocalBackend(f.root), f.spec, [], 1, {
@@ -395,7 +413,7 @@ it.each(['hurl', 'curl'])(
     const entry = join(f.root, client + '.cjs')
     await writeFile(
       entry,
-      `process.title=${JSON.stringify(client)};require('node:fs').writeFileSync('client-ready','yes');setTimeout(()=>{},1500)`,
+      `process.title=${JSON.stringify(client)};require('node:fs').writeFileSync('client-ready','yes');setInterval(()=>{},1000)`,
     )
     children.push(spawn(process.execPath, [entry], { cwd: f.root, stdio: 'ignore' }))
     await vi.waitFor(async () =>
