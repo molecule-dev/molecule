@@ -1,5 +1,11 @@
 # @molecule/app-tag-input-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Display saved tags in a read-only list with optional app-owned presentation.
+
 ## 4.0.1
 
 ### Patch Changes

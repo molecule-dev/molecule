@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-tag-input-react",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "React tags/labels/keywords input — a tag-token (chip) input, a markup-free useTagInput hook for app-owned markup, and tag-chip display",
   "homepage": "https://www.molecule.dev/packages/app-tag-input-react",
   "type": "module",

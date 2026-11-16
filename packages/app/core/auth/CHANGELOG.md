@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.5.0
+
+### Minor Changes
+
+- Configure one request envelope for login, registration, and profile updates.
+
 ## 3.4.2
 
 ### Patch Changes

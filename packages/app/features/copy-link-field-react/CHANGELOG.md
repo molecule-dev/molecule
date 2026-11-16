@@ -1,5 +1,11 @@
 # @molecule/app-copy-link-field-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Copy through `@molecule/app-clipboard`, now a peer dependency, so copying works where the Clipboard API is missing or refuses, and the copied state shows only after a successful copy.
+
 ## 4.0.0
 
 ### Patch Changes

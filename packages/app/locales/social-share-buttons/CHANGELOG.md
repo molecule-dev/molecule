@@ -1,5 +1,11 @@
 # @molecule/app-locales-social-share-buttons
 
+## 1.0.4
+
+### Patch Changes
+
+- Add the share button platform name translations in every language.
+
 ## 1.0.3
 
 ### Patch Changes

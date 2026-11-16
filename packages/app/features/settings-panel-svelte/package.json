@@ -59,7 +59,7 @@
     "svelte": "^5.0.0"
   },
   "devDependencies": {
-    "@molecule/app-auth": "3.4.2",
+    "@molecule/app-auth": "3.5.0",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-http": "1.8.0",
     "@molecule/app-i18n": "1.2.2",

@@ -1,5 +1,11 @@
 # @molecule/app-code-block-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Copy through `@molecule/app-clipboard`, now a peer dependency, so the copy button works where the Clipboard API is missing or refuses, and shows Copied only after a successful copy.
+
 ## 4.0.0
 
 ### Patch Changes

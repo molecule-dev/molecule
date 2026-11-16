@@ -139,7 +139,7 @@
     }
   },
   "devDependencies": {
-    "@molecule/app-auth": "3.4.2",
+    "@molecule/app-auth": "3.5.0",
     "@molecule/app-charts-chartjs": "1.0.3",
     "@molecule/app-client-search": "1.0.4",
     "@molecule/app-client-search-minisearch": "1.0.4",
