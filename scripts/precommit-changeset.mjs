@@ -92,4 +92,41 @@ for (const name of missing) {
     `  Fix: run \`npx changeset\`, select ${name}, then stage the new .changeset/*.md file.`,
   )
 }
-if (missing.length) process.exit(1)
+
+// A staged changeset may not name a private package. npm never gets it, so its version
+// carries no meaning, and `changeset version` would still bump it and rewrite every
+// manifest that pins it (2026-11-16: one `@molecule/app-framework-conformance: patch`
+// line would have rewritten the devDependency of six packages held out of that release).
+const privateNamed = []
+for (const file of changed.filter((path) => /^\.changeset\/[^/]+\.md$/.test(path))) {
+  const frontmatter = (blob('', file) ?? '').match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? ''
+  for (const line of frontmatter.split(/\r?\n/)) {
+    const name = line.match(/^\s*['"]?(@molecule\/[^'":\s]+)['"]?\s*:/)?.[1]
+    if (!name) continue
+    const owners = (
+      git(
+        [
+          'grep',
+          '--cached',
+          '-l',
+          '-E',
+          `"name"[[:space:]]*:[[:space:]]*"${name.replace(/[.]/g, '\\.')}"`,
+          '--',
+          ':(glob)**/package.json',
+        ],
+        true,
+      ) ?? ''
+    )
+      .split('\n')
+      .filter(Boolean)
+    for (const owner of owners) {
+      const pkg = JSON.parse(blob('', owner) ?? '{}')
+      if (pkg.name === name && pkg.private) privateNamed.push({ file, name })
+    }
+  }
+}
+for (const { file, name } of privateNamed) {
+  console.error(`✗ ${file} names ${name}, which is private and never published.`)
+  console.error(`  Fix: delete the \`'${name}': …\` line from ${file}.`)
+}
+if (missing.length || privateNamed.length) process.exit(1)

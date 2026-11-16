@@ -99,6 +99,38 @@ describe('published-file changeset pre-commit gate', () => {
     expect(run(root).status).toBe(0)
   })
 
+  it('refuses a staged changeset that names a private package, and names the line to delete', () => {
+    const root = fixture()
+    stage(root, 'packages/kit/package.json', {
+      name: '@molecule/kit',
+      version: '0.0.0',
+      private: true,
+    })
+    stage(root, 'packages/a/src/index.ts', 'export const a = 2\n')
+    stage(
+      root,
+      '.changeset/calm-pandas.md',
+      "---\n'@molecule/a': patch\n'@molecule/kit': patch\n---\n\nFix a.\n",
+    )
+    const result = run(root)
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('.changeset/calm-pandas.md names @molecule/kit')
+    expect(result.stderr).toContain("delete the `'@molecule/kit': …` line")
+    expect(result.stderr).not.toContain('@molecule/a')
+  })
+
+  it('accepts the same changeset once it names only published packages', () => {
+    const root = fixture()
+    stage(root, 'packages/kit/package.json', {
+      name: '@molecule/kit',
+      version: '0.0.0',
+      private: true,
+    })
+    stage(root, 'packages/a/src/index.ts', 'export const a = 2\n')
+    stage(root, '.changeset/calm-pandas.md', "---\n'@molecule/a': patch\n---\n\nFix a.\n")
+    expect(run(root).status).toBe(0)
+  })
+
   it('is wired into the real pre-commit hook before its non-deletion early exit', () => {
     const hook = readFileSync(HOOK, 'utf8')
     expect(hook).toContain('node scripts/precommit-changeset.mjs')
