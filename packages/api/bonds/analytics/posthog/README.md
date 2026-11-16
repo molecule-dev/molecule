@@ -254,6 +254,8 @@ function shutdown(): Promise<void>
 
 #### `createClient(apiKey, host)` _(deprecated)_
 
+> **Deprecated:** Use `createProvider()` instead for the standard analytics interface.
+
 Creates a raw PostHog client instance for direct SDK access.
 
 ```typescript

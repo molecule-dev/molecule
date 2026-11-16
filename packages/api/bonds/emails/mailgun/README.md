@@ -176,6 +176,8 @@ const provider: EmailTransport
 
 #### `transport` _(deprecated)_
 
+> **Deprecated:** Use `sendMail()` or `provider` instead.
+
 Raw nodemailer transport for direct access.
 
 ```typescript
@@ -185,6 +187,8 @@ const transport: {
 ```
 
 #### `email` _(deprecated)_
+
+> **Deprecated:** Use `sendMail()` or `provider` instead.
 
 Raw nodemailer transport alias.
 

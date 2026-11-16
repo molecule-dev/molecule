@@ -248,6 +248,8 @@ interface NormalizedPurchase {
 
 #### `SubscriptionVerifier` _(deprecated)_
 
+> **Deprecated:** Not implemented by any shipped bond — the fleet's actual verification contract is {@link PaymentProviderInterface.verifySubscription}. Having two same-named-but-different-signature `verifySubscription` methods in one package is a standing confusion hazard: do not call this signature (`verifySubscription(productId, token)`) on a value obtained from `bond('payments', name)` / `get('payments', name)` — the extra argument is silently ignored and the lookup fails. Kept for callers who adopt it as a genuinely separate app-level abstraction; do not add new usages that assume a bond implements it.
+
 Interface for subscription verification.
 
 ```typescript
@@ -260,6 +262,8 @@ interface SubscriptionVerifier {
 ```
 
 #### `PurchaseVerifier` _(deprecated)_
+
+> **Deprecated:** Not implemented by any shipped bond — the fleet's actual verification contract is {@link PaymentProviderInterface.verifyPurchase}. Kept for callers who adopt it as a genuinely separate app-level abstraction; do not add new usages that assume a bond implements it.
 
 Interface for purchase verification (one-time purchases).
 

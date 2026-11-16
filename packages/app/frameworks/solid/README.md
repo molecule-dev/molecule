@@ -4589,6 +4589,8 @@ function createThemeColors(theme: Accessor<Theme>): Accessor<ThemeColors>
 
 #### `applyThemeToDocument()` _(deprecated)_
 
+> **Deprecated:** The theme bond (e.g. `@molecule/app-theme-css-variables`) owns document styling; this duplicates it. React's bindings never touch the document — drive the theme provider (`useTheme`) and let the bond style.
+
 Apply theme CSS variables to document.
 
 ```typescript

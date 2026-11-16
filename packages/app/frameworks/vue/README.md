@@ -2108,6 +2108,8 @@ type AsyncExtendState<T> = (
 
 #### `UseAsyncStateReturn` _(deprecated)_
 
+> **Deprecated:** `useAsyncState` now returns `@molecule/app-react`'s tuple shape `[state, setState, extendState]`; this alias names that tuple for callers that import the old type name.
+
 The tuple {@link useAsyncState} returns.
 
 ```typescript
@@ -2150,6 +2152,8 @@ type UseOAuthConfig = UseOAuthOptions
 ```
 
 #### `UsePromiseReturn` _(deprecated)_
+
+> **Deprecated:** `usePromise` now returns `@molecule/app-react`'s tuple shape `[state, call]`; this alias names that tuple for callers that import the old type name.
 
 The tuple {@link usePromise} returns.
 
@@ -3130,6 +3134,8 @@ function useStoreAction<T, Args extends unknown[], R>(
 **Returns:** A bound action function
 
 #### `useStoreComputed(store, selector)` _(deprecated)_
+
+> **Deprecated:** Compose {@link useStore}'s `selector` option instead — one subscription instead of two.
 
 Composable to create a computed store value.
 

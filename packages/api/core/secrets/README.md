@@ -567,6 +567,8 @@ function configNotConfiguredError(
 
 #### `COMMON_SECRETS` _(deprecated)_
 
+> **Deprecated:** Use `registerSecret()` / `getSecretDefinition()` instead. This object is retained for backward compatibility but only contains generic app-level secrets. Provider-specific secrets have been moved to their respective bond packages.
+
 Common secret definitions — only generic application-level secrets.
 
 Vendor-specific secrets (SendGrid, Stripe, AWS, etc.) are registered

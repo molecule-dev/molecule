@@ -199,6 +199,8 @@ const nodemailerTransport: Mail<SendmailSentMessageInfo, SendmailTransportOption
 
 #### `transport` _(deprecated)_
 
+> **Deprecated:** Use sendMail() or provider instead.
+
 Legacy export - the raw nodemailer transport.
 
 ```typescript
@@ -206,6 +208,8 @@ const transport: Mail<SendmailSentMessageInfo, SendmailTransportOptions>
 ```
 
 #### `email` _(deprecated)_
+
+> **Deprecated:** Use sendMail() or provider instead.
 
 Legacy export - the raw nodemailer transport.
 

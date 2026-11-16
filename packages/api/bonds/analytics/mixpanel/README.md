@@ -245,6 +245,8 @@ function createProvider(options?: MixpanelOptions): AnalyticsProvider
 
 #### `mixpanel` _(deprecated)_
 
+> **Deprecated:** Use provider or createProvider() instead.
+
 Legacy export - the raw Mixpanel instance (lazy-initialized via Proxy on
 first property access; throws an actionable `config.notConfigured` error if
 MIXPANEL_TOKEN is unset at that point).

@@ -2441,6 +2441,8 @@ function getChatTimestampsVisible(): boolean
 
 #### `resolveChatLocale(getLocale)` _(deprecated)_
 
+> **Deprecated:** A component that formats with this keeps the old language after a locale switch, because nothing re-renders it. Read the locale through the framework binding instead (`useLocale()` in React), which re-renders on a switch. `getLocale()` from `@molecule/app-i18n` does not throw: with no provider bonded it bonds a default one.
+
 The active i18n locale, or the browser's when reading it throws.
 
 ```typescript

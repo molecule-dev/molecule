@@ -5827,6 +5827,8 @@ const UserMenuPopoverTrigger: LegacyComponentType
 
 #### `accordionChevronClass` _(deprecated)_
 
+> **Deprecated:** Use getAccordionChevronClass() instead.
+
 Accordion chevron class constant.
 
 ```typescript
@@ -5834,6 +5836,8 @@ const accordionChevronClass: string
 ```
 
 #### `alertDismissClass` _(deprecated)_
+
+> **Deprecated:** Use getAlertDismissClass() instead.
 
 Alert dismiss class constant.
 
@@ -5850,6 +5854,8 @@ const alertIconClass: string
 ```
 
 #### `alertContentClass` _(deprecated)_
+
+> **Deprecated:** Use getAlertContentClass() instead.
 
 Alert content class constant.
 
@@ -5870,6 +5876,8 @@ const alertStatusVariantMap: Record<
 
 #### `avatarInitialsClass` _(deprecated)_
 
+> **Deprecated:** Use getAvatarInitialsClass() instead.
+
 Avatar initials class constant.
 
 ```typescript
@@ -5885,6 +5893,8 @@ const cardPaddingMap: Record<Size | 'none', string>
 ```
 
 #### `checkboxLabelWrapperClass` _(deprecated)_
+
+> **Deprecated:** Use getCheckboxLabelWrapperClass() instead.
 
 Checkbox label wrapper class constant.
 
@@ -5910,6 +5920,8 @@ const dropdownTriggerClass: string
 
 #### `dropdownItemIconClass` _(deprecated)_
 
+> **Deprecated:** Use getDropdownItemIconClass() instead.
+
 Dropdown item icon class constant.
 
 ```typescript
@@ -5917,6 +5929,8 @@ const dropdownItemIconClass: string
 ```
 
 #### `dropdownItemLabelClass` _(deprecated)_
+
+> **Deprecated:** Use getDropdownItemLabelClass() instead.
 
 Dropdown item label class constant.
 
@@ -5934,6 +5948,8 @@ const dropdownItemShortcutClass: string
 
 #### `formFieldsetClass` _(deprecated)_
 
+> **Deprecated:** Use getFormFieldsetClass() instead.
+
 Form fieldset class constant.
 
 ```typescript
@@ -5950,6 +5966,8 @@ const inputWrapperClass: string
 
 #### `inputRelativeClass` _(deprecated)_
 
+> **Deprecated:** Use getInputInnerClass() instead.
+
 Input relative class constant.
 
 ```typescript
@@ -5957,6 +5975,8 @@ const inputRelativeClass: string
 ```
 
 #### `inputLeftElementClass` _(deprecated)_
+
+> **Deprecated:** Use getInputLeftElementClass() instead.
 
 Input left element class constant.
 
@@ -5966,6 +5986,8 @@ const inputLeftElementClass: string
 
 #### `inputRightElementClass` _(deprecated)_
 
+> **Deprecated:** Use getInputRightElementClass() instead.
+
 Input right element class constant.
 
 ```typescript
@@ -5973,6 +5995,8 @@ const inputRightElementClass: string
 ```
 
 #### `inputClearButtonClass` _(deprecated)_
+
+> **Deprecated:** Use getInputClearButtonClass() instead.
 
 Input clear button class constant.
 
@@ -5982,6 +6006,8 @@ const inputClearButtonClass: string
 
 #### `modalBodyClass` _(deprecated)_
 
+> **Deprecated:** Use getModalBodyClass() instead.
+
 Modal body class.
 
 ```typescript
@@ -5989,6 +6015,8 @@ const modalBodyClass: string
 ```
 
 #### `progressWrapperClass` _(deprecated)_
+
+> **Deprecated:** Use getProgressWrapperClass() instead.
 
 Progress wrapper class constant.
 
@@ -6006,6 +6034,8 @@ const progressLabelContainerClass: string
 
 #### `progressLabelClass` _(deprecated)_
 
+> **Deprecated:** Use getProgressLabelTextClass() instead.
+
 Progress label class constant.
 
 ```typescript
@@ -6013,6 +6043,8 @@ const progressLabelClass: string
 ```
 
 #### `progressSizeHeightMap` _(deprecated)_
+
+> **Deprecated:** Use cm.progressHeight(size) instead.
 
 Progress size height map constant.
 
@@ -6022,6 +6054,8 @@ const progressSizeHeightMap: Record<Size, string>
 
 #### `progressColorMap` _(deprecated)_
 
+> **Deprecated:** Use cm.progressColor(color) instead.
+
 Progress color map constant.
 
 ```typescript
@@ -6029,6 +6063,8 @@ const progressColorMap: Record<ColorVariant, string>
 ```
 
 #### `radioOptionTextClass` _(deprecated)_
+
+> **Deprecated:** Use getRadioOptionTextClass() instead.
 
 Radio option text class constant.
 
@@ -6047,6 +6083,8 @@ const selectWrapperClass: string
 **Returns:** The result.
 
 #### `selectRelativeClass` _(deprecated)_
+
+> **Deprecated:** Use getSelectInnerClass() instead.
 
 Select relative class constant.
 
@@ -6072,6 +6110,8 @@ const spacerSizeMap: Record<Size, string>
 
 #### `switchLabelTextClass` _(deprecated)_
 
+> **Deprecated:** Use getSwitchLabelTextClass() instead.
+
 Switch label text class constant.
 
 ```typescript
@@ -6079,6 +6119,8 @@ const switchLabelTextClass: string
 ```
 
 #### `tableWrapperClass` _(deprecated)_
+
+> **Deprecated:** Use getTableWrapperClass() instead.
 
 Table wrapper class constant.
 
@@ -6098,6 +6140,8 @@ const tableLoadingOverlayClass: string
 
 #### `tableEmptyCellClass` _(deprecated)_
 
+> **Deprecated:** Use getTableEmptyCellClass() instead.
+
 Table empty cell class constant.
 
 ```typescript
@@ -6105,6 +6149,8 @@ const tableEmptyCellClass: string
 ```
 
 #### `tableSortIndicatorClass` _(deprecated)_
+
+> **Deprecated:** Use getTableSortWrapperClass() instead.
 
 Table sort indicator class constant.
 
@@ -6114,6 +6160,8 @@ const tableSortIndicatorClass: string
 
 #### `tableSortIconClass` _(deprecated)_
 
+> **Deprecated:** Use getTableSortIconClass() instead.
+
 Table sort icon class constant.
 
 ```typescript
@@ -6122,6 +6170,8 @@ const tableSortIconClass: string
 
 #### `textareaWrapperClass` _(deprecated)_
 
+> **Deprecated:** Use getTextareaWrapperClass() instead.
+
 Textarea wrapper class constant.
 
 ```typescript
@@ -6129,6 +6179,8 @@ const textareaWrapperClass: string
 ```
 
 #### `toastIconClass` _(deprecated)_
+
+> **Deprecated:** Use getToastIconWrapperClass() instead.
 
 Toast icon class constant.
 
@@ -6166,6 +6218,8 @@ const toastStatusVariantMap: Record<
 ```
 
 #### `tooltipTriggerClass` _(deprecated)_
+
+> **Deprecated:** Use getTooltipTriggerClass() instead.
 
 Tooltip trigger class constant.
 

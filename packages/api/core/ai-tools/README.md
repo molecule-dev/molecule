@@ -1993,6 +1993,8 @@ type PlaywrightReportStatus = 'complete' | 'partial' | 'malformed' | 'missing'
 
 #### `DiscoveredSkill` _(deprecated)_
 
+> **Deprecated:** Use SkillEntry from types.js instead.
+
 Re-export SkillEntry as DiscoveredSkill for backwards compatibility.
 
 ```typescript

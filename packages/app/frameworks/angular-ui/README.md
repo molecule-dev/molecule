@@ -13713,6 +13713,8 @@ function formSubmitErrorMessages(error: unknown, fallback: string): string[]
 
 #### `getIconSvg(name, className)` _(deprecated)_
 
+> **Deprecated:** Used only by the deprecated `Molecule*` spike components.
+
 Generates SVG markup string from an icon name.
 
 ```typescript
