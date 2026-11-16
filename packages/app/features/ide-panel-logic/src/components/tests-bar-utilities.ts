@@ -17,6 +17,9 @@
  * @module
  */
 
+import { DEFAULT_AGENT_NAME } from '@molecule/app-ai-chat'
+import type { TranslateFunction } from '@molecule/app-i18n'
+
 import type { TestItem } from '../types.js'
 import type { TestsRunState } from './tests-card-utilities.js'
 
@@ -189,4 +192,96 @@ export function summariseTestsBar(run: TestsRunState, tests: TestItem[]): TestsB
     currentFile: current?.title ?? current?.file ?? null,
     currentTest,
   }
+}
+
+/**
+ * What the header says while a run is going: who started it, when it was not
+ * this panel.
+ *
+ * @param t - The translation function (a framework binding's `useTranslation().t`, or `t` from `@molecule/app-i18n`).
+ * @param run - The run on show.
+ * @param agentName - The agent's display name.
+ * @returns The translated label.
+ */
+export function runningLabel(t: TranslateFunction, run: TestsRunState, agentName?: string): string {
+  if (!run.external) return t('ide.tests.running', undefined, { defaultValue: 'Running…' })
+  if (run.source === 'agent')
+    return t(
+      'ide.tests.runningAgent',
+      { agent: agentName ?? DEFAULT_AGENT_NAME },
+      { defaultValue: '{{agent}} is running tests…' },
+    )
+  if (run.source === 'platform')
+    return t('ide.tests.runningPlatform', undefined, { defaultValue: 'Checking the deploy…' })
+  return t('ide.tests.runningElsewhere', undefined, { defaultValue: 'Running in another tab…' })
+}
+
+/**
+ * The one-line summary the collapsed bar shows.
+ *
+ * @param t - The translation function (a framework binding's `useTranslation().t`, or `t` from `@molecule/app-i18n`).
+ * @param summary - The derived run summary.
+ * @returns The label.
+ */
+export function testsBarLabel(t: TranslateFunction, summary: TestsBarSummary): string {
+  const { tone, passed, failed, skipped } = summary
+  if (tone === 'running') {
+    return summary.remaining > 0
+      ? t(
+          'ide.testsBar.running',
+          { remaining: summary.remaining },
+          { defaultValue: 'Running tests — {{remaining}} to go' },
+        )
+      : t('ide.testsBar.runningLast', undefined, { defaultValue: 'Running tests' })
+  }
+  if (tone === 'error') {
+    return t('ide.testsBar.error', undefined, { defaultValue: 'Test run failed to finish' })
+  }
+  if (tone === 'stopped') {
+    return t('ide.testsBar.stopped', undefined, { defaultValue: 'Test run stopped' })
+  }
+  if (tone === 'failing') {
+    return t(
+      'ide.testsBar.failing',
+      { failed, passed },
+      { defaultValue: '{{failed}} failing, {{passed}} passing' },
+    )
+  }
+  if (tone === 'passing') {
+    return skipped > 0
+      ? t(
+          'ide.testsBar.passingWithSkips',
+          { passed, skipped },
+          { defaultValue: '{{passed}} passing, {{skipped}} skipped' },
+        )
+      : t('ide.testsBar.passing', { passed }, { defaultValue: 'All {{passed}} passing' })
+  }
+  const count = summary.notRun
+  return t(
+    'ide.testsBar.notRun',
+    { count },
+    {
+      count,
+      defaultValue: '{{count}} tests not run yet',
+      defaultValue_one: '{{count}} test not run yet',
+    },
+  )
+}
+
+/**
+ * The short label the tray chip wears; full details live in the tests browser.
+ *
+ * @param t - The translation function (a framework binding's `useTranslation().t`, or `t` from `@molecule/app-i18n`).
+ * @param summary - The derived run summary.
+ * @returns The label.
+ */
+export function testsChipLabel(t: TranslateFunction, summary: TestsBarSummary): string {
+  const { tone, passed, failed } = summary
+  if (tone === 'running')
+    return t('ide.testsBar.runningLast', undefined, { defaultValue: 'Running tests' })
+  if (tone === 'failing')
+    return `${failed} ${t('ide.testsBar.failedLabel', undefined, { defaultValue: 'failing' })}`
+  if (tone === 'passing')
+    return `${passed} ${t('ide.testsBar.passedLabel', undefined, { defaultValue: 'passing' })}`
+  return testsBarLabel(t, summary)
 }

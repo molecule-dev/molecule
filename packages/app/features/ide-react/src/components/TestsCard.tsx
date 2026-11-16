@@ -57,7 +57,8 @@ import {
   testCaseLabel,
   testRowLabel,
 } from '@molecule/app-ide-panel-logic'
-import { DEFAULT_AGENT_NAME, useTranslation, type UseTranslationResult } from '@molecule/app-react'
+import { runningLabel } from '@molecule/app-ide-panel-logic/panels'
+import { useTranslation, type UseTranslationResult } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -192,32 +193,6 @@ function statusLabel(t: UseTranslationResult['t'], status: TestStatus): string {
   if (status === 'passed') return t('ide.tests.statusPassed', undefined, { defaultValue: 'Passed' })
   if (status === 'failed') return t('ide.tests.statusFailed', undefined, { defaultValue: 'Failed' })
   return t('ide.tests.statusSkipped', undefined, { defaultValue: 'Skipped' })
-}
-
-/**
- * What the header says while a run is going: who started it, when it was not
- * this panel.
- *
- * @param t - The translation function from `useTranslation()`.
- * @param run - The run on show.
- * @param agentName - The agent's display name.
- * @returns The translated label.
- */
-export function runningLabel(
-  t: UseTranslationResult['t'],
-  run: TestsRunState,
-  agentName?: string,
-): string {
-  if (!run.external) return t('ide.tests.running', undefined, { defaultValue: 'Running…' })
-  if (run.source === 'agent')
-    return t(
-      'ide.tests.runningAgent',
-      { agent: agentName ?? DEFAULT_AGENT_NAME },
-      { defaultValue: '{{agent}} is running tests…' },
-    )
-  if (run.source === 'platform')
-    return t('ide.tests.runningPlatform', undefined, { defaultValue: 'Checking the deploy…' })
-  return t('ide.tests.runningElsewhere', undefined, { defaultValue: 'Running in another tab…' })
 }
 
 /**

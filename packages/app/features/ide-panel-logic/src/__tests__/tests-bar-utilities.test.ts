@@ -7,20 +7,22 @@
 import { describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
-import type { TestItem } from '@molecule/app-ide-panel-logic'
-import type { TestsRunState } from '@molecule/app-ide-panel-logic'
-import { EMPTY_RUN_STATE } from '@molecule/app-ide-panel-logic'
+import { en } from '@molecule/app-locales-ide'
+
 import {
   parseTestsBarArg,
   parseTestsBarVisible,
+  runningLabel,
   shouldShowTestsBar,
   summariseTestsBar,
-} from '@molecule/app-ide-panel-logic/panels'
-import { en } from '@molecule/app-locales-ide'
+  testsBarLabel,
+  testsChipLabel,
+} from '../components/tests-bar-utilities.js'
+import type { TestsRunState } from '../components/tests-card-utilities.js'
+import { EMPTY_RUN_STATE } from '../components/tests-card-utilities.js'
+import type { TestItem } from '../types.js'
 
-import { testsBarLabel } from '../components/TestStatusBar.js'
-
-// The label helper takes its translator as a parameter now (the component passes
+// The label helpers take their translator as a parameter (a component passes
 // the one from `useTranslation()`); this test hands it a real provider's `t`
 // bonded with the ide locale bond's own English catalog, so the assertions
 // exercise the actual translation table — plural keys resolve their `key_one`/
@@ -259,5 +261,38 @@ describe('testsBarLabel', () => {
     expect(testsBarLabel(t, summariseTestsBar(runState({}), TESTS.slice(0, 1)))).toBe(
       '1 test not run yet',
     )
+  })
+})
+
+describe('testsChipLabel', () => {
+  const PASSED = { status: 'passed', passed: 1, failed: 0, skipped: 0, output: '' } as const
+  it('shortens a verdict to its count, and falls back to the bar label', () => {
+    const passing = summariseTestsBar(
+      runState({ results: { [TESTS[0].id]: PASSED, [TESTS[1].id]: PASSED } }),
+      TESTS,
+    )
+    expect(testsChipLabel(t, passing)).toBe('2 passing')
+    expect(testsChipLabel(t, summariseTestsBar(runState({ running: true }), TESTS))).toBe(
+      'Running tests',
+    )
+    expect(testsChipLabel(t, summariseTestsBar(runState({}), TESTS))).toBe('2 tests not run yet')
+  })
+})
+
+describe('runningLabel', () => {
+  it('names who started a run this panel did not start', () => {
+    const run = (over: Partial<TestsRunState>): TestsRunState =>
+      runState({ running: true, ...over })
+    expect(runningLabel(t, run({}))).toBe('Running…')
+    expect(runningLabel(t, run({ external: true, source: 'agent' }), 'Synthase')).toBe(
+      'Synthase is running tests…',
+    )
+    expect(runningLabel(t, run({ external: true, source: 'agent' }))).toBe(
+      'the assistant is running tests…',
+    )
+    expect(runningLabel(t, run({ external: true, source: 'platform' }))).toBe(
+      'Checking the deploy…',
+    )
+    expect(runningLabel(t, run({ external: true }))).toBe('Running in another tab…')
   })
 })

@@ -20,65 +20,17 @@ import type { JSX } from 'react'
 
 import type { TestItem } from '@molecule/app-ide-panel-logic'
 import type { TestsRunState } from '@molecule/app-ide-panel-logic'
-import type { TestsBarSummary, TestsBarTone } from '@molecule/app-ide-panel-logic/panels'
-import { summariseTestsBar } from '@molecule/app-ide-panel-logic/panels'
-import { useTranslation, type UseTranslationResult } from '@molecule/app-react'
+import type { TestsBarTone } from '@molecule/app-ide-panel-logic/panels'
+import {
+  runningLabel,
+  summariseTestsBar,
+  testsBarLabel,
+  testsChipLabel,
+} from '@molecule/app-ide-panel-logic/panels'
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { DockStrip, StatusMark, type StatusMarkState } from './DockStrip.js'
-import { runningLabel } from './TestsCard.js'
-
-/**
- * The one-line summary the collapsed bar shows.
- *
- * @param t - The translation function from `useTranslation()`.
- * @param summary - The derived run summary.
- * @returns The label.
- */
-export function testsBarLabel(t: UseTranslationResult['t'], summary: TestsBarSummary): string {
-  const { tone, passed, failed, skipped } = summary
-  if (tone === 'running') {
-    return summary.remaining > 0
-      ? t(
-          'ide.testsBar.running',
-          { remaining: summary.remaining },
-          { defaultValue: 'Running tests — {{remaining}} to go' },
-        )
-      : t('ide.testsBar.runningLast', undefined, { defaultValue: 'Running tests' })
-  }
-  if (tone === 'error') {
-    return t('ide.testsBar.error', undefined, { defaultValue: 'Test run failed to finish' })
-  }
-  if (tone === 'stopped') {
-    return t('ide.testsBar.stopped', undefined, { defaultValue: 'Test run stopped' })
-  }
-  if (tone === 'failing') {
-    return t(
-      'ide.testsBar.failing',
-      { failed, passed },
-      { defaultValue: '{{failed}} failing, {{passed}} passing' },
-    )
-  }
-  if (tone === 'passing') {
-    return skipped > 0
-      ? t(
-          'ide.testsBar.passingWithSkips',
-          { passed, skipped },
-          { defaultValue: '{{passed}} passing, {{skipped}} skipped' },
-        )
-      : t('ide.testsBar.passing', { passed }, { defaultValue: 'All {{passed}} passing' })
-  }
-  const count = summary.notRun
-  return t(
-    'ide.testsBar.notRun',
-    { count },
-    {
-      count,
-      defaultValue: '{{count}} tests not run yet',
-      defaultValue_one: '{{count}} test not run yet',
-    },
-  )
-}
 
 /** The shared status mark each tone wears on the chip. */
 const TONE_MARK: Record<TestsBarTone, StatusMarkState> = {
@@ -88,24 +40,6 @@ const TONE_MARK: Record<TestsBarTone, StatusMarkState> = {
   failing: 'failed',
   stopped: 'stopped',
   error: 'failed',
-}
-
-/**
- * The short label the tray chip wears; full details live in the tests browser.
- *
- * @param t - The translation function from `useTranslation()`.
- * @param summary - The derived run summary.
- * @returns The label.
- */
-export function testsChipLabel(t: UseTranslationResult['t'], summary: TestsBarSummary): string {
-  const { tone, passed, failed } = summary
-  if (tone === 'running')
-    return t('ide.testsBar.runningLast', undefined, { defaultValue: 'Running tests' })
-  if (tone === 'failing')
-    return `${failed} ${t('ide.testsBar.failedLabel', undefined, { defaultValue: 'failing' })}`
-  if (tone === 'passing')
-    return `${passed} ${t('ide.testsBar.passedLabel', undefined, { defaultValue: 'passing' })}`
-  return testsBarLabel(t, summary)
 }
 
 /** What the bar needs from its host. */
