@@ -22,6 +22,7 @@ const cache = vi.hoisted(() => {
 })
 
 import {
+  CLASS_MAP_EVERY_MEMBER,
   classMapReads,
   declaredExports,
   fetchPublishedVersions,
@@ -351,6 +352,33 @@ describe('classMapReads', () => {
     // CodeMirror's editor is conventionally `cm` too.
     expect([...classMapReads('const cm = new EditorView(); cm.dispatch(tr)')]).toEqual([])
   })
+
+  it('reads the members a destructuring takes from the ClassMap', () => {
+    const tsx = [
+      'const cm = getClassMap()',
+      'const { flex, textTone: tone, srOnly = "", ...rest } = cm',
+      'const { bgScrim } = getClassMap()',
+      'const a = rest.minW',
+    ].join('\n')
+    expect([...classMapReads(tsx)].sort()).toEqual([
+      'bgScrim',
+      'flex',
+      'minW',
+      'srOnly',
+      'textTone',
+    ])
+  })
+
+  it('reads every member through a computed key, which names no member it can check', () => {
+    expect([...classMapReads('const cm = getClassMap()\nconst c = cm[variant]')]).toEqual([
+      CLASS_MAP_EVERY_MEMBER,
+    ])
+    expect([...classMapReads('const c = getClassMap()[key]')]).toEqual([CLASS_MAP_EVERY_MEMBER])
+    // An index into a member's result is a read of that member only.
+    expect([...classMapReads('const cm = getClassMap()\nconst c = cm.sizes[size]')]).toEqual([
+      'sizes',
+    ])
+  })
 })
 
 describe('declaredExports', () => {
@@ -559,6 +587,81 @@ describe('scanFleet', () => {
             },
           ],
         },
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('holds a computed ClassMap read to every member, and a destructured one to its own', async () => {
+    const root = tree({
+      'packages/app/core/ui/package.json': JSON.stringify({
+        name: '@molecule/app-ui',
+        version: '1.3.0',
+      }),
+      'packages/app/core/ui/src/index.ts': [
+        'export interface UIClassMap {',
+        '  flex: string',
+        '  srOnly: string',
+        '  textTone(tone: string): string',
+        '}',
+        'export declare function getClassMap(): UIClassMap',
+      ].join('\n'),
+      'packages/app/features/badge/package.json': JSON.stringify({
+        name: '@molecule/app-badge-react',
+        version: '1.0.0',
+        peerDependencies: { '@molecule/app-ui': '^1.0.1' },
+      }),
+      'packages/app/features/badge/src/Badge.tsx': [
+        "import { getClassMap } from '@molecule/app-ui'",
+        'const cm = getClassMap()',
+        'export const Badge = ({ variant }: { variant: "flex" }) => <span className={cm[variant]} />',
+      ].join('\n'),
+      'packages/app/features/pill/package.json': JSON.stringify({
+        name: '@molecule/app-pill-react',
+        version: '1.0.0',
+        peerDependencies: { '@molecule/app-ui': '^1.0.1' },
+      }),
+      'packages/app/features/pill/src/Pill.tsx': [
+        "import { getClassMap } from '@molecule/app-ui'",
+        'const { flex, textTone } = getClassMap()',
+        'export const Pill = () => <span className={flex + textTone("ok")} />',
+      ].join('\n'),
+    })
+    try {
+      const rows = await scanFleet(root, {
+        versionsOf: async () => new Map([['@molecule/app-ui', ['1.0.1', '1.3.0']]]),
+        prefetch: async () => undefined,
+        exportsAt: (name: string, version: string) =>
+          version === '1.0.1'
+            ? new Set(['getClassMap', 'UIClassMap', 'UIClassMap.flex'])
+            : new Set([
+                'getClassMap',
+                'UIClassMap',
+                'UIClassMap.flex',
+                'UIClassMap.srOnly',
+                'UIClassMap.textTone',
+              ]),
+      })
+      const gap = (dir: string, file: string, names: string[]) => ({
+        package: `@molecule/app-${dir}-react`,
+        dir: `packages/app/features/${dir}`,
+        gaps: [
+          {
+            peer: '@molecule/app-ui',
+            range: '^1.0.1',
+            floor: '1.0.1',
+            fix: '^1.3.0',
+            missing: names.map((name) => ({
+              name,
+              files: [`packages/app/features/${dir}/src/${file}`],
+            })),
+          },
+        ],
+      })
+      expect(rows).toEqual([
+        gap('badge', 'Badge.tsx', ['UIClassMap.srOnly', 'UIClassMap.textTone']),
+        gap('pill', 'Pill.tsx', ['UIClassMap.textTone']),
       ])
     } finally {
       rmSync(root, { recursive: true, force: true })

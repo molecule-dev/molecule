@@ -102,6 +102,11 @@ const EXPORTS_FILE = 'exports-v2.json'
 /** The ClassMap interface whose members count as names (see {@link classMapReads}). */
 const CLASS_MAP = 'UIClassMap'
 /**
+ * The member {@link classMapReads} names for a computed key (`cm[variant]`): the read can be
+ * any member, so the floor must declare them all.
+ */
+export const CLASS_MAP_EVERY_MEMBER = '*'
+/**
  * The npm registry base URL, read on each request.
  *
  * @returns `$npm_config_registry` without a trailing slash, else the public registry.
@@ -278,9 +283,12 @@ export async function fetchPublishedVersions(names, concurrency = 16) {
  * variable, parameter or field typed `UIClassMap`; and a method or getter returning one
  * (an Angular component's `cm(): UIClassMap`). Each is read as `<name>.<member>`,
  * `<name>().<member>` and `<name>.value.<member>`, with or without `this.`, and so is
- * `getClassMap().<member>`. The whole text is read, so a Svelte component's markup and
- * an Angular template count. A name never bound that way (CodeMirror's `cm`) reads
- * nothing.
+ * `getClassMap().<member>`, and each key a destructuring takes from one of them
+ * (`const { flex, textTone: tone } = cm`; a `...rest` it binds is read like `cm`). A
+ * computed key (`cm[variant]`) can read any member, so it reads
+ * {@link CLASS_MAP_EVERY_MEMBER}, which holds the floor to every member. The whole text
+ * is read, so a Svelte component's markup and an Angular template count. A name never
+ * bound that way (CodeMirror's `cm`) reads nothing.
  *
  * @param text - The file's full text.
  * @returns The member names read.
@@ -292,11 +300,22 @@ export function classMapReads(text) {
   for (const m of text.matchAll(assigned)) bound.add(m[1])
   for (const m of text.matchAll(/\b(\w+)\??\s*(?:\(\s*\))?\s*:\s*UIClassMap\b/g)) bound.add(m[1])
   const reads = new Set()
-  for (const name of bound) {
-    const read = new RegExp(String.raw`(?<![\w$.])(?:this\.)?${name}(?:\(\)|\.value)?\.(\w+)`, 'g')
-    for (const m of text.matchAll(read)) reads.add(m[1])
+  const sources = (name) => String.raw`(?<![\w$.])(?:this\.)?${name}(?:\(\)|\.value)?`
+  const readThrough = (source) => {
+    for (const m of text.matchAll(new RegExp(String.raw`${source}\.(\w+)`, 'g'))) reads.add(m[1])
+    if (new RegExp(String.raw`${source}\[`).test(text)) reads.add(CLASS_MAP_EVERY_MEMBER)
+    const destructured = new RegExp(String.raw`\{([^{}]*)\}\s*=\s*${source}(?![\w$.(\[])`, 'g')
+    for (const m of text.matchAll(destructured))
+      for (const part of m[1].split(',')) {
+        const rest = part.trim().match(/^\.\.\.\s*(\w+)$/)
+        if (rest) bound.add(rest[1])
+        const key = part.trim().match(/^(\w+)/)
+        if (key && !rest) reads.add(key[1])
+      }
   }
-  for (const m of text.matchAll(/getClassMap\(\)\.(\w+)/g)) reads.add(m[1])
+  // A `...rest` a destructuring binds joins `bound` while this loop runs, so it is read too.
+  for (const name of bound) readThrough(sources(name))
+  readThrough(String.raw`getClassMap\(\)`)
   return reads
 }
 
@@ -537,8 +556,11 @@ function readFleet(root, only = null) {
       }
       if (!classMapPeer) continue
       const members = classMapMembersOf(classMapPeer)
-      for (const member of classMapReads(text))
-        if (members.has(`${CLASS_MAP}.${member}`)) use(classMapPeer, `${CLASS_MAP}.${member}`, rel)
+      for (const member of classMapReads(text)) {
+        if (member === CLASS_MAP_EVERY_MEMBER) for (const m of members) use(classMapPeer, m, rel)
+        else if (members.has(`${CLASS_MAP}.${member}`))
+          use(classMapPeer, `${CLASS_MAP}.${member}`, rel)
+      }
     }
     packages.push({ dir, pkg, imports })
   }
