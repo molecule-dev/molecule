@@ -45,7 +45,7 @@ interface Branch {
   selector: 'mol-query-content',
   standalone: true,
   template: '<ng-container #outlet></ng-container>',
-  inputs: ['query', 'pending', 'missing', 'children', 'error'],
+  inputs: ['query', 'pending', 'missing', 'children', 'error', 'empty'],
   host: {
     'data-parity-unwrap': '',
     style: 'display: contents',
@@ -60,6 +60,8 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
   pending: TemplateRef<unknown> | null = null
   /** Content for a loaded null record. Null is distinct from an unfinished request. */
   missing: TemplateRef<unknown> | null = null
+  /** One empty collection template, exclusive with the loaded children. */
+  empty: QueryContentProps<T>['empty'] = undefined
   /** A failed initial read. Cached data stays visible if its refresh fails. */
   error: TemplateRef<QueryContentErrorContext> | null = null
 
@@ -112,6 +114,8 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
         : { template: this.pending ?? null, context: {} }
     }
     if (query.data === null) return { template: this.missing ?? null, context: {} }
+    if (this.empty?.when(query.data))
+      return { template: this.empty.render, context: { $implicit: query.data, a0: query.data } }
     return { template: this.children, context: { $implicit: query.data, a0: query.data } }
   }
 

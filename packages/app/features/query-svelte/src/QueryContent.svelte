@@ -25,6 +25,7 @@
     pending = null,
     missing = null,
     error = null,
+    empty,
   }: QueryContentProps<T> = $props()
 
   /**
@@ -48,6 +49,8 @@
   {/if}
 {:else if $view.data === null}
   {#if missing}{@render missing()}{/if}
+{:else if empty?.when($view.data)}
+  {@render empty.render($view.data)}
 {:else}
   {@render children($view.data)}
 {/if}

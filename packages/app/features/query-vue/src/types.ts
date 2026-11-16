@@ -42,6 +42,16 @@ export interface UseQueryResult<T> extends QueryState<T> {
  * content.
  */
 export interface QueryContentProps<T> {
+  /**
+   * One optional empty branch, exclusive with children. The pure predicate reads the
+   * loaded document (an array or an application-owned envelope); render selects the
+   * current view's message and recovery action. Omit it to keep empty arrays as data.
+   */
+  empty?: {
+    when: (data: NonNullable<T>) => boolean
+    render: NonNullable<QueryContentProps<T>['children']>
+  }
+
   /** State from useQuery, or any compatible query observer. */
   query: Pick<QueryState<T>, 'data' | 'status' | 'error'>
   /**

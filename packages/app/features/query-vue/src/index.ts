@@ -432,6 +432,13 @@
  * another record's cached data. For a list, map real rows inside the child; never style a status
  * placeholder as a row. QueryContent is headless and owns no translations or styling.
  *
+ * For a collection, `QueryContent` also accepts one `empty` branch:
+ * `{ when: page => page.rows.length === 0, render: page => selectedEmptyState }`.
+ * It is exclusive with loaded children, so a selected view chooses its message and
+ * recovery action once rather than rendering a general empty message beside it.
+ * `when` receives a loaded document; empty arrays remain data when this prop is omitted.
+ * The render value uses this framework's existing children function, snippet or template.
+ *
  * @module
  */
 

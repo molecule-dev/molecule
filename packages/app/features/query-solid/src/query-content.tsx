@@ -29,14 +29,15 @@ export function QueryContent<T>(props: QueryContentProps<T>): JSX.Element {
   // Boxed, so a loaded `false`, `0` or `''` is still a truthy `when` for <Show>.
   const loaded = createMemo(() => {
     const data = props.query.data
-    return data === undefined || data === null ? undefined : { data }
+    return data === undefined || data === null || props.empty?.when(data) ? undefined : { data }
   })
   // Rendered only while nothing is loaded: a failed REFRESH of cached data never calls `error`.
   const fallback = createMemo<JSX.Element>(() => {
     const query = props.query
     const data = query.data
     if (data === null) return props.missing ?? null
-    if (data !== undefined) return null
+    if (data !== undefined)
+      return props.empty?.when(data) ? props.empty.render(() => props.query.data!) : null
     return query.status === 'error' && props.error
       ? props.error(query.error)
       : (props.pending ?? null)

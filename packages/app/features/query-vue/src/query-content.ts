@@ -71,10 +71,11 @@ export const QueryContent = Object.assign(
       return props.pending ?? ctx.slots.pending?.() ?? null
     }
     if (data === null) return props.missing ?? ctx.slots.missing?.() ?? null
+    if (props.empty?.when(data)) return props.empty.render?.(data) ?? null
     if (props.children) return props.children(data)
     return ctx.slots.default?.({ data }) ?? null
   },
   // Declared so Vue extracts these from attrs instead of inheriting them onto
   // whatever the branches render.
-  { props: ['query', 'children', 'pending', 'missing', 'error'] },
+  { props: ['query', 'children', 'pending', 'missing', 'error', 'empty'] },
 )

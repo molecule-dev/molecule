@@ -22,10 +22,12 @@ export function QueryContent<T>({
   pending = null,
   missing = null,
   error,
+  empty,
 }: QueryContentProps<T>): ReactNode {
   if (query.data === undefined) {
     return query.status === 'error' && error ? error(query.error) : pending
   }
   if (query.data === null) return missing
+  if (empty?.when(query.data)) return empty.render(query.data)
   return children(query.data)
 }
