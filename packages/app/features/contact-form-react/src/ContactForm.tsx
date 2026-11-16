@@ -72,7 +72,11 @@ export function ContactForm({
       setEmail('')
       setMessage('')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Submission failed')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('contactForm.error.submissionFailed', {}, { defaultValue: 'Submission failed' }),
+      )
     } finally {
       setSubmitting(false)
     }
@@ -98,7 +102,7 @@ export function ContactForm({
         onChange={(e) => setName((e.target as HTMLInputElement).value)}
         placeholder={t('contactForm.name', {}, { defaultValue: 'Your name' })}
         required
-        aria-label="Name"
+        aria-label={t('contactForm.label.name', {}, { defaultValue: 'Name' })}
       />
       <Input
         type="email"
@@ -106,7 +110,7 @@ export function ContactForm({
         onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
         placeholder={t('contactForm.email', {}, { defaultValue: 'you@example.com' })}
         required
-        aria-label="Email"
+        aria-label={t('contactForm.label.email', {}, { defaultValue: 'Email' })}
       />
       {extraFields}
       <Textarea
@@ -115,7 +119,7 @@ export function ContactForm({
         placeholder={t('contactForm.message', {}, { defaultValue: 'How can we help?' })}
         required
         rows={5}
-        aria-label="Message"
+        aria-label={t('contactForm.label.message', {}, { defaultValue: 'Message' })}
       />
       {error && <p className={cm.textSize('sm')}>{error}</p>}
       <Button type="submit" variant="solid" color="primary" disabled={submitting}>

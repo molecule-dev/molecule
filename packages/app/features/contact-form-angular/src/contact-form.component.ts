@@ -84,7 +84,7 @@ const textOf = (value: unknown): string =>
   // nodes inside inline / flex parents, so the DOM React renders is reproduced
   // by gluing the tags (see the ported unit tests).
   // prettier-ignore
-  template: `@if (submitted() && successContent !== undefined) {<div [class]="className ?? null">@if (successTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (successContent !== null) {<ng-container>{{ textOf(successContent) }}</ng-container>}</div>}@else {<form (submit)="handle($event)" [class]="formClasses()">@if (showHeader()) {<header [class]="headerClasses()">@if (showTitle()) {<h3 #titleEl [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasTitleText()) {<ng-container>{{ textOf(title) }}</ng-container>}<ng-content select="[slot=title]"></ng-content></h3>}@if (showDescription()) {<p #descriptionEl [class]="messageClasses()">@if (descriptionTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasDescriptionText()) {<ng-container>{{ textOf(description) }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p>}</header>}<div mol-input [id]="'contact-form-name'" [type]="'text'" [value]="name()" (change)="onNameChange($event)" [placeholder]="namePlaceholder()" [required]="true" aria-label="Name"></div><div mol-input [id]="'contact-form-email'" [type]="'email'" [value]="email()" (change)="onEmailChange($event)" [placeholder]="emailPlaceholder()" [required]="true" aria-label="Email"></div><ng-content select="[slot=extraFields]"></ng-content><div mol-textarea [id]="'contact-form-message'" [value]="message()" (change)="onMessageChange($event)" [placeholder]="messagePlaceholder()" [required]="true" [rows]="5" aria-label="Message"></div>@if (error()) {<p [class]="messageClasses()">{{ error() }}</p>}<button mol-button [type]="'submit'" [variant]="'solid'" [color]="'primary'" [disabled]="submitting()">@if (submitting()) {<ng-container>{{ sendingText() }}</ng-container>}@else if (submitLabelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasSubmitLabelText()) {<ng-container>{{ textOf(submitLabel) }}</ng-container>}@else {<ng-container>{{ sendText() }}</ng-container>}</button></form>}`,
+  template: `@if (submitted() && successContent !== undefined) {<div [class]="className ?? null">@if (successTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (successContent !== null) {<ng-container>{{ textOf(successContent) }}</ng-container>}</div>}@else {<form (submit)="handle($event)" [class]="formClasses()">@if (showHeader()) {<header [class]="headerClasses()">@if (showTitle()) {<h3 #titleEl [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasTitleText()) {<ng-container>{{ textOf(title) }}</ng-container>}<ng-content select="[slot=title]"></ng-content></h3>}@if (showDescription()) {<p #descriptionEl [class]="messageClasses()">@if (descriptionTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasDescriptionText()) {<ng-container>{{ textOf(description) }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p>}</header>}<div mol-input [attr.aria-label]="nameLabel()" [id]="'contact-form-name'" [type]="'text'" [value]="name()" (change)="onNameChange($event)" [placeholder]="namePlaceholder()" [required]="true"></div><div mol-input [attr.aria-label]="emailLabel()" [id]="'contact-form-email'" [type]="'email'" [value]="email()" (change)="onEmailChange($event)" [placeholder]="emailPlaceholder()" [required]="true"></div><ng-content select="[slot=extraFields]"></ng-content><div mol-textarea [attr.aria-label]="messageLabel()" [id]="'contact-form-message'" [value]="message()" (change)="onMessageChange($event)" [placeholder]="messagePlaceholder()" [required]="true" [rows]="5"></div>@if (error()) {<p [class]="messageClasses()">{{ error() }}</p>}<button mol-button [type]="'submit'" [variant]="'solid'" [color]="'primary'" [disabled]="submitting()">@if (submitting()) {<ng-container>{{ sendingText() }}</ng-container>}@else if (submitLabelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasSubmitLabelText()) {<ng-container>{{ textOf(submitLabel) }}</ng-container>}@else {<ng-container>{{ sendText() }}</ng-container>}</button></form>}`,
 })
 export class ContactForm implements AfterViewInit {
   /** Called with the form values on submit (React's `onSubmit`). */
@@ -328,6 +328,30 @@ export class ContactForm implements AfterViewInit {
   }
 
   /**
+   * The name field's accessible label (React's `contactForm.label.name`).
+   * @returns The label text.
+   */
+  nameLabel(): string {
+    return this.i18n.t('contactForm.label.name', {}, { defaultValue: 'Name' })
+  }
+
+  /**
+   * The email field's accessible label (React's `contactForm.label.email`).
+   * @returns The label text.
+   */
+  emailLabel(): string {
+    return this.i18n.t('contactForm.label.email', {}, { defaultValue: 'Email' })
+  }
+
+  /**
+   * The message field's accessible label (React's `contactForm.label.message`).
+   * @returns The label text.
+   */
+  messageLabel(): string {
+    return this.i18n.t('contactForm.label.message', {}, { defaultValue: 'Message' })
+  }
+
+  /**
    * Adopts the typed name (React's `onChange` on the controlled field).
    *
    * @param event - The native input event.
@@ -376,9 +400,17 @@ export class ContactForm implements AfterViewInit {
       this.email.set('')
       this.message.set('')
     } catch (err: unknown) {
-      // React hardcodes this fallback (no i18n key), so the ports keep the
-      // same string for DOM parity.
-      this.error.set(err instanceof Error ? err.message : 'Submission failed')
+      // React's own fallback string goes through i18n (contactForm.error.submissionFailed),
+      // so the ports call the same key for DOM parity.
+      this.error.set(
+        err instanceof Error
+          ? err.message
+          : this.i18n.t(
+              'contactForm.error.submissionFailed',
+              {},
+              { defaultValue: 'Submission failed' },
+            ),
+      )
     } finally {
       this.submitting.set(false)
     }

@@ -5,6 +5,10 @@ export const lo: Partial<ContactFormTranslations> = {
   'contactForm.name': 'ຊື່ຂອງທ່ານ',
   'contactForm.email': 'you@example.com',
   'contactForm.message': 'ພວກເຮົາສາມາດຊ່ວຍໄດ້ແນວໃດ?',
+  'contactForm.label.name': 'ຊື່',
+  'contactForm.label.email': 'ອີເມວ',
+  'contactForm.label.message': 'ຂໍ້ຄວາມ',
+  'contactForm.error.submissionFailed': 'ການສົ່ງບໍ່ສຳເລັດ',
   'contactForm.sending': 'ກຳລັງສົ່ງ...',
   'contactForm.send': 'ສົ່ງຂໍ້ຄວາມ',
 }

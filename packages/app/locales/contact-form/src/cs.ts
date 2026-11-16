@@ -6,5 +6,9 @@ export const cs: Partial<ContactFormTranslations> = {
   'contactForm.email': 'vy@priklad.cz',
   'contactForm.sending': 'Odesílání…',
   'contactForm.message': 'Jak můžeme pomoci?',
+  'contactForm.label.name': 'Jméno',
+  'contactForm.label.email': 'E-mail',
+  'contactForm.label.message': 'Zpráva',
+  'contactForm.error.submissionFailed': 'Odeslání se nezdařilo',
   'contactForm.send': 'Odeslat zprávu',
 }

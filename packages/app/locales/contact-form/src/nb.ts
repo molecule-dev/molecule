@@ -6,5 +6,9 @@ export const nb: Partial<ContactFormTranslations> = {
   'contactForm.email': 'deg@eksempel.no',
   'contactForm.sending': 'Sender…',
   'contactForm.message': 'Hvordan kan vi hjelpe?',
+  'contactForm.label.name': 'Navn',
+  'contactForm.label.email': 'E-post',
+  'contactForm.label.message': 'Melding',
+  'contactForm.error.submissionFailed': 'Innsendingen mislyktes',
   'contactForm.send': 'Send melding',
 }

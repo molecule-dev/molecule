@@ -12,6 +12,8 @@ import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { ButtonElementProps } from '@molecule/app-ui'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React suite uses.
@@ -46,7 +48,14 @@ vi.mock('@molecule/app-solid', () => ({
 // The UI markers the React suite mocks `@molecule/app-ui-react` with: a
 // `data-button` button, a `data-input` field and a `data-textarea` field.
 vi.mock('@molecule/app-ui-solid', () => ({
-  Button: (props: { children?: JSX.Element; disabled?: boolean; type?: string }) => (
+  Button: (props: {
+    children?: JSX.Element
+    disabled?: boolean
+    // The real `ButtonProps` contract's `type` union — the component calls
+    // with `"submit"`, and a bare `string` would widen it past the native
+    // `<button type>` attribute's allowed values.
+    type?: ButtonElementProps['type']
+  }) => (
     <button data-button="" type={props.type ?? 'button'} disabled={props.disabled}>
       {props.children}
     </button>

@@ -5,6 +5,10 @@ export const my: Partial<ContactFormTranslations> = {
   'contactForm.name': 'သင့်နာမည်',
   'contactForm.email': 'you@example.com',
   'contactForm.message': 'ကျွန်ုပ်တို့ ဘယ်လိုကူညီနိုင်မလဲ။',
+  'contactForm.label.name': 'အမည်',
+  'contactForm.label.email': 'အီးမေးလ်',
+  'contactForm.label.message': 'မက်ဆေ့ချ်',
+  'contactForm.error.submissionFailed': 'ပေးပို့ခြင်း မအောင်မြင်ပါ',
   'contactForm.sending': 'ပို့နေသည်…',
   'contactForm.send': 'မက်ဆေ့ချ်ပို့ပါ',
 }

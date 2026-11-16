@@ -50,7 +50,13 @@ import ContactForm from '../ContactForm.svelte'
 import type { ContactFormProps } from '../types.js'
 
 interface Mounted {
-  component: ReturnType<typeof mount<ContactFormProps, Record<string, never>>>
+  /**
+   * The handle `unmount` takes back. Svelte's wildcard `*.svelte` module
+   * declaration types a component as `LegacyComponentType`, so `mount()`
+   * resolves its export object to the legacy instance shape
+   * (`{ $on?, $set? } & Record<string, any>`), not `Record<string, never>`.
+   */
+  component: ReturnType<typeof mount<ContactFormProps, Record<string, unknown>>>
   target: HTMLElement
 }
 
@@ -66,13 +72,13 @@ afterEach(() => {
 /**
  * Mounts `ContactForm` with the given props.
  *
- * @param props - The component props, beyond the required `onSubmit`.
+ * @param props - The component props; `onSubmit` defaults to a noop when omitted.
  * @returns The mounted instance and its target element.
  */
-function render(props: Omit<Partial<ContactFormProps>, 'onSubmit'> = {}): Mounted {
+function render(props: Partial<ContactFormProps> = {}): Mounted {
   const target = document.createElement('div')
   document.body.appendChild(target)
-  const fullProps: ContactFormProps = { onSubmit: () => {}, ...props }
+  const fullProps: ContactFormProps = { ...props, onSubmit: props.onSubmit ?? (() => {}) }
   const component = mount(ContactForm, { target, props: fullProps })
   const entry = { component, target }
   mounted.push(entry)

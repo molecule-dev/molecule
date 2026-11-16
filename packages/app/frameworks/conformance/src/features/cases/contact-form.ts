@@ -10,7 +10,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes an empty submit label. */
+const EMPTY_SUBMIT: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes an empty submit label',
+}
 
 const title = [{ tag: 'strong', children: ['Get in touch'] }]
 const description = [{ tag: 'em', children: ['We reply within one business day.'] }]
@@ -40,7 +47,7 @@ export const contactFormFeature: FeatureCases = {
         },
         { name: 'custom submit label', props: { submitLabel: 'Get in touch' } },
         { name: 'custom submit label as a node', props: { submitLabel: { $nodes: submitLabel } } },
-        { name: 'empty submit label', props: { submitLabel: '' } },
+        { name: 'empty submit label', a11y: EMPTY_SUBMIT, props: { submitLabel: '' } },
         { name: 'extra fields', slots: { extraFields } },
         {
           name: 'extra fields with title and description',

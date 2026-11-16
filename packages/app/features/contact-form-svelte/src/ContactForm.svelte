@@ -40,6 +40,9 @@
   const messagePlaceholder = $derived(
     t('contactForm.message', {}, { defaultValue: 'How can we help?' }),
   )
+  const nameLabel = $derived(t('contactForm.label.name', {}, { defaultValue: 'Name' }))
+  const emailLabel = $derived(t('contactForm.label.email', {}, { defaultValue: 'Email' }))
+  const messageLabel = $derived(t('contactForm.label.message', {}, { defaultValue: 'Message' }))
   const sendingText = $derived(t('contactForm.sending', {}, { defaultValue: 'Sending…' }))
   const sendText = $derived(t('contactForm.send', {}, { defaultValue: 'Send message' }))
 
@@ -61,9 +64,12 @@
       email = ''
       message = ''
     } catch (err: unknown) {
-      // React hardcodes this fallback (no i18n key), so the ports keep the
-      // same string for DOM parity.
-      error = err instanceof Error ? err.message : 'Submission failed'
+      // React's own fallback string goes through i18n (contactForm.error.submissionFailed),
+      // so the ports call the same key for DOM parity.
+      error =
+        err instanceof Error
+          ? err.message
+          : t('contactForm.error.submissionFailed', {}, { defaultValue: 'Submission failed' })
     } finally {
       submitting = false
     }
@@ -96,7 +102,7 @@
       onChange={(event: Event) => (name = (event.target as HTMLInputElement).value)}
       placeholder={namePlaceholder}
       required
-      aria-label="Name"
+      aria-label={nameLabel}
     />
     <Input
       type="email"
@@ -104,7 +110,7 @@
       onChange={(event: Event) => (email = (event.target as HTMLInputElement).value)}
       placeholder={emailPlaceholder}
       required
-      aria-label="Email"
+      aria-label={emailLabel}
     />
     {#if extraFields}
       {#if typeof extraFields === 'function'}{@render extraFields()}{:else}{extraFields}{/if}
@@ -115,7 +121,7 @@
       placeholder={messagePlaceholder}
       required
       rows={5}
-      aria-label="Message"
+      aria-label={messageLabel}
     />
     {#if error}
       <p class={cm.textSize('sm')}>{error}</p>

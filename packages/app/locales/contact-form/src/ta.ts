@@ -5,6 +5,10 @@ export const ta: Partial<ContactFormTranslations> = {
   'contactForm.name': 'உங்கள் பெயர்',
   'contactForm.email': 'நீங்கள்@example.com',
   'contactForm.message': 'நாங்கள் எப்படி உதவ முடியும்?',
+  'contactForm.label.name': 'பெயர்',
+  'contactForm.label.email': 'மின்னஞ்சல்',
+  'contactForm.label.message': 'செய்தி',
+  'contactForm.error.submissionFailed': 'சமர்ப்பிப்பது தோல்வியுற்றது',
   'contactForm.sending': 'அனுப்புகிறது…',
   'contactForm.send': 'செய்திகளை அனுப்பு',
 }

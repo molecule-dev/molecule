@@ -18,12 +18,21 @@ import { Button, Input, Textarea } from '@molecule/app-ui-solid'
 
 import type { ContactFormProps } from './types.js'
 
-/** The form's text fields, keyed by the aria-label they render. */
-const FIELD_SELECTORS = {
-  name: 'input[aria-label="Name"]',
-  email: 'input[aria-label="Email"]',
-  message: 'textarea[aria-label="Message"]',
-} as const
+/**
+ * The form's fields, located structurally — never by their `aria-label`, which
+ * `t()` now translates: the name field is the form's first `input` (the extra
+ * fields render after the email field), the email field its first
+ * `input[type="email"]`, and the message field the last `textarea` (the extra
+ * fields render above it).
+ */
+const findNameField = (form: HTMLFormElement): HTMLInputElement | null =>
+  form.querySelector<HTMLInputElement>('input')
+const findEmailField = (form: HTMLFormElement): HTMLInputElement | null =>
+  form.querySelector<HTMLInputElement>('input[type="email"]')
+const findMessageField = (form: HTMLFormElement): HTMLTextAreaElement | null => {
+  const textareas = form.querySelectorAll<HTMLTextAreaElement>('textarea')
+  return textareas[textareas.length - 1] ?? null
+}
 
 /**
  * Generic name + email + message contact form with submit handling and
@@ -53,11 +62,10 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
   /**
    * Writes one field's live value property.
    *
-   * @param selector - The field's CSS selector.
+   * @param field - The field element, when present.
    * @param value - The controlled value.
    */
-  const syncField = (selector: string, value: string): void => {
-    const field = formEl?.querySelector<HTMLInputElement | HTMLTextAreaElement>(selector)
+  const syncField = (field: HTMLInputElement | HTMLTextAreaElement | null, value: string): void => {
     if (field && field.value !== value) field.value = value
   }
 
@@ -66,9 +74,11 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
   // attribute; this effect covers the property, so a cleared or rewritten
   // field reads the same (as `@molecule/app-ui-solid`'s own ports do).
   createEffect(() => {
-    syncField(FIELD_SELECTORS.name, name())
-    syncField(FIELD_SELECTORS.email, email())
-    syncField(FIELD_SELECTORS.message, message())
+    const form = formEl
+    if (!form) return
+    syncField(findNameField(form), name())
+    syncField(findEmailField(form), email())
+    syncField(findMessageField(form), message())
   })
 
   /**
@@ -88,9 +98,13 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
       setEmail('')
       setMessage('')
     } catch (err: unknown) {
-      // React hardcodes this fallback (no i18n key), so the ports keep the
-      // same string for DOM parity.
-      setError(err instanceof Error ? err.message : 'Submission failed')
+      // React's own fallback string goes through i18n (contactForm.error.submissionFailed),
+      // so the ports call the same key for DOM parity.
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('contactForm.error.submissionFailed', {}, { defaultValue: 'Submission failed' }),
+      )
     } finally {
       setSubmitting(false)
     }
@@ -122,7 +136,7 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
           onChange={(event: Event) => setName((event.target as HTMLInputElement).value)}
           placeholder={t('contactForm.name', {}, { defaultValue: 'Your name' })}
           required
-          aria-label="Name"
+          aria-label={t('contactForm.label.name', {}, { defaultValue: 'Name' })}
         />
         <Input
           type="email"
@@ -130,7 +144,7 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
           onChange={(event: Event) => setEmail((event.target as HTMLInputElement).value)}
           placeholder={t('contactForm.email', {}, { defaultValue: 'you@example.com' })}
           required
-          aria-label="Email"
+          aria-label={t('contactForm.label.email', {}, { defaultValue: 'Email' })}
         />
         {props.extraFields}
         <Textarea
@@ -139,7 +153,7 @@ export const ContactForm: Component<ContactFormProps> = (props) => {
           placeholder={t('contactForm.message', {}, { defaultValue: 'How can we help?' })}
           required
           rows={5}
-          aria-label="Message"
+          aria-label={t('contactForm.label.message', {}, { defaultValue: 'Message' })}
         />
         {error() && <p class={cm.textSize('sm')}>{error()}</p>}
         <Button type="submit" variant="solid" color="primary" disabled={submitting()}>

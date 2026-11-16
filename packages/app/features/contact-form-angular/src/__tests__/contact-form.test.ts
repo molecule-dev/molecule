@@ -11,6 +11,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -18,7 +19,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
@@ -49,6 +50,7 @@ vi.mock('@molecule/app-angular', () => ({
   useTranslation: () => ({
     t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,
+    locale: () => 'en',
   }),
 }))
 
@@ -57,6 +59,7 @@ vi.mock('@molecule/app-angular', () => ({
 // carrying the `aria-label` the host element was given.
 vi.mock('@molecule/app-ui-angular', async () => {
   const { Component, ElementRef, inject } = await import('@angular/core')
+  const { useTranslation } = await import('@molecule/app-angular')
   return {
     Button: Component({
       selector: 'button[mol-button]',
@@ -106,12 +109,16 @@ vi.mock('@molecule/app-ui-angular', async () => {
         /** Explicit id. */
         id?: string
         private readonly host = inject(ElementRef)
+        private readonly i18n = useTranslation()
 
         /**
-         * The `aria-label` the component under test set on the host element.
+         * The `aria-label` on the host element (the real field components move
+         * host attributes onto the inner control; the marker mirrors that,
+         * including the locale read that re-checks them on a switch).
          * @returns The label, or null.
          */
         label(): string | null {
+          void this.i18n.locale()
           return (this.host.nativeElement as HTMLElement).getAttribute('aria-label')
         }
       },
@@ -142,12 +149,16 @@ vi.mock('@molecule/app-ui-angular', async () => {
         /** Explicit id. */
         id?: string
         private readonly host = inject(ElementRef)
+        private readonly i18n = useTranslation()
 
         /**
-         * The `aria-label` the component under test set on the host element.
+         * The `aria-label` on the host element (the real field components move
+         * host attributes onto the inner control; the marker mirrors that,
+         * including the locale read that re-checks them on a switch).
          * @returns The label, or null.
          */
         label(): string | null {
+          void this.i18n.locale()
           return (this.host.nativeElement as HTMLElement).getAttribute('aria-label')
         }
       },

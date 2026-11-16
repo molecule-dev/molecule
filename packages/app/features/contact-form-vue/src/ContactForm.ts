@@ -91,9 +91,12 @@ export const ContactForm = defineComponent({
         email.value = ''
         message.value = ''
       } catch (err: unknown) {
-        // React hardcodes this fallback (no i18n key), so the ports keep the
-        // same string for DOM parity.
-        error.value = err instanceof Error ? err.message : 'Submission failed'
+        // React's own fallback string goes through i18n (contactForm.error.submissionFailed),
+        // so the ports call the same key for DOM parity.
+        error.value =
+          err instanceof Error
+            ? err.message
+            : t('contactForm.error.submissionFailed', {}, { defaultValue: 'Submission failed' })
       } finally {
         submitting.value = false
       }
@@ -153,7 +156,7 @@ export const ContactForm = defineComponent({
           },
           placeholder: t('contactForm.name', {}, { defaultValue: 'Your name' }),
           required: true,
-          'aria-label': 'Name',
+          'aria-label': t('contactForm.label.name', {}, { defaultValue: 'Name' }),
         }),
         h(Input, {
           type: 'email',
@@ -163,7 +166,7 @@ export const ContactForm = defineComponent({
           },
           placeholder: t('contactForm.email', {}, { defaultValue: 'you@example.com' }),
           required: true,
-          'aria-label': 'Email',
+          'aria-label': t('contactForm.label.email', {}, { defaultValue: 'Email' }),
         }),
         ...extraFields,
         h(Textarea, {
@@ -174,7 +177,7 @@ export const ContactForm = defineComponent({
           placeholder: t('contactForm.message', {}, { defaultValue: 'How can we help?' }),
           required: true,
           rows: 5,
-          'aria-label': 'Message',
+          'aria-label': t('contactForm.label.message', {}, { defaultValue: 'Message' }),
         }),
         ...(error.value ? [h('p', { class: cm.textSize('sm') }, error.value)] : []),
         h(
