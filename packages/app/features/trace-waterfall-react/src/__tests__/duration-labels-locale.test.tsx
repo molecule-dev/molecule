@@ -18,6 +18,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
+import type { TraceWaterfallProps } from '../TraceWaterfall.js'
+import type { Span } from '../types.js'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -70,7 +73,7 @@ afterEach(async () => {
  * @param props - Props over the waterfall.
  * @returns The host element.
  */
-async function mount(props: Record<string, unknown>): Promise<HTMLElement> {
+async function mount(props: TraceWaterfallProps): Promise<HTMLElement> {
   host = document.createElement('div')
   document.body.appendChild(host)
   root = createRoot(host)
@@ -96,7 +99,7 @@ const total = (el: HTMLElement): string =>
 const rowAria = (el: HTMLElement): string =>
   el.querySelector('[data-mol-id="trace-waterfall-row"]')?.getAttribute('aria-label') ?? ''
 
-const spans = [{ id: 's', name: 'lone', startTime: 0, duration: 2.5 }]
+const spans: Span[] = [{ id: 's', name: 'lone', startTime: 0, duration: 2.5 }]
 
 describe('TraceWaterfall duration labels locale', () => {
   it('switching the provider locale reformats the duration labels', async () => {

@@ -17,6 +17,9 @@ import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { TraceWaterfallProps } from '../TraceWaterfall.js'
+import type { Span } from '../types.js'
+
 // Class tokens echo their own name.
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () =>
@@ -58,7 +61,7 @@ afterEach(async () => {
  * @param props - Props over the waterfall.
  * @returns The host element.
  */
-async function mount(props: Record<string, unknown>): Promise<HTMLElement> {
+async function mount(props: TraceWaterfallProps): Promise<HTMLElement> {
   host = document.createElement('div')
   document.body.appendChild(host)
   root = createRoot(host)
@@ -68,7 +71,7 @@ async function mount(props: Record<string, unknown>): Promise<HTMLElement> {
   return host
 }
 
-const spans = [
+const spans: Span[] = [
   { id: 'a', name: 'GET /api', service: 'edge', startTime: 0, duration: 100, status: 'ok' },
 ]
 

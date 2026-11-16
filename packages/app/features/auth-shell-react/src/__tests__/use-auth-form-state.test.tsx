@@ -126,7 +126,7 @@ describe('AuthFormStateProvider / useAuthFormStateContext', () => {
   it('shares one state instance with descendant forms and clears on success', async () => {
     const storage = createMemoryStorageProvider()
     const wrapper = ({ children }: { children: ReactNode }): ReactNode =>
-      createElement(AuthFormStateProvider, { storage, storageKey: 'ctx' }, children)
+      createElement(AuthFormStateProvider, { children, storage, storageKey: 'ctx' })
 
     const { result } = renderHook(() => useAuthFormStateContext(), { wrapper })
     await waitFor(() => expect(result.current.hydrated).toBe(true))
