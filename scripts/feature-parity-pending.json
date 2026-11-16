@@ -191,12 +191,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-feature-chapter-list-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-feature-graph-view-react": [
     "vue",
     "solid",
@@ -222,12 +216,6 @@
     "angular"
   ],
   "@molecule/app-feature-track-lane-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-feature-transport-bar-react": [
     "vue",
     "solid",
     "svelte",
