@@ -5,4 +5,5 @@ export const ha: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'An kwafi!',
   'copyLink.copy': 'Kwafi',
   'shareLink.passwordProtect': 'Kare kalmar sirri',
+  'shareLinkCard.aria.url': 'Paylaşi hanyar',
 }

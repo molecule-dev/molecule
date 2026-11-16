@@ -5,4 +5,5 @@ export const vi: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Đã sao chép!',
   'copyLink.copy': 'Sao chép',
   'shareLink.passwordProtect': 'Bảo vệ bằng mật khẩu',
+  'shareLinkCard.aria.url': 'Chia sẻ liên kết',
 }

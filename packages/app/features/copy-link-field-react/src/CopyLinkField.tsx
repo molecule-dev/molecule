@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { useCallback, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
@@ -38,13 +39,12 @@ export function CopyLinkField({
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const copy = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(value).then(() => {
-        setCopied(true)
-        onCopy?.()
-        setTimeout(() => setCopied(false), feedbackMs)
-      })
-    }
+    void copyTextWithFallback(value).then((copiedOk) => {
+      if (!copiedOk) return
+      setCopied(true)
+      onCopy?.()
+      setTimeout(() => setCopied(false), feedbackMs)
+    })
   }, [value, feedbackMs, onCopy])
   return (
     <div className={cm.cn(cm.stack(1 as const), className)}>

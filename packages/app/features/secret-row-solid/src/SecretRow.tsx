@@ -1,5 +1,6 @@
 import { type Component, createSignal, onCleanup, Show } from 'solid-js'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
@@ -13,8 +14,9 @@ import type { SecretRowProps } from './types.js'
  * zero/positive, and a "Last rotated {value}" note when `lastRotatedAt` is
  * set. The Rotate / Delete buttons render only when their handler is passed.
  *
- * Copying uses `navigator.clipboard`, which exists only in secure contexts —
- * elsewhere the Copy button silently does nothing, exactly like React.
+ * Copying goes through `copyTextWithFallback` (`@molecule/app-clipboard`),
+ * which never throws — the Copy button shows no feedback when the copy was
+ * blocked, exactly like React.
  *
  * This is the Solid counterpart of `@molecule/app-secret-row-react`: the same
  * props (React names), the same ClassMap tokens, and the same DOM for the
@@ -38,12 +40,11 @@ export const SecretRow: Component<SecretRowProps> = (props) => {
 
   /** Copies the value, then shows the "Copied!" feedback for 1.5 s. */
   const copy = (): void => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(props.secret.value).then(() => {
-        setCopied(true)
-        timer = setTimeout(() => setCopied(false), 1500)
-      })
-    }
+    void copyTextWithFallback(props.secret.value).then((didCopy) => {
+      if (!didCopy) return
+      setCopied(true)
+      timer = setTimeout(() => setCopied(false), 1500)
+    })
   }
 
   onCleanup(() => clearTimeout(timer))
@@ -75,13 +76,7 @@ export const SecretRow: Component<SecretRowProps> = (props) => {
         props.secret.version
       )}
       <Show when={expired()}>
-        <span
-          class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
-          // React sets the color through the CSSOM, which serializes `#ef4444`
-          // as `rgb(239, 68, 68)`; Solid's compiler writes a static style
-          // object verbatim, so the same serialized declaration is used here.
-          style={{ color: 'rgb(239, 68, 68)' }}
-        >
+        <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textTone('error'))}>
           {t('secretRow.expired', {}, { defaultValue: 'Expired' })}
         </span>
       </Show>

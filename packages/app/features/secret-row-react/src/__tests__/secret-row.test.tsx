@@ -1,7 +1,9 @@
+// @vitest-environment jsdom
 import type { ReactNode } from 'react'
-import { createElement } from 'react'
+import { act, createElement } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -36,14 +38,58 @@ vi.mock('@molecule/app-react', () => ({
 }))
 
 vi.mock('@molecule/app-ui-react', () => ({
-  Button: ({ children }: { children?: ReactNode }) =>
-    createElement('button', { 'data-button': '' }, children),
+  Button: ({ children, onClick }: { children?: ReactNode; onClick?: () => void }) =>
+    createElement('button', { 'data-button': '', type: 'button', onClick }, children),
 }))
+
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 
 const { SecretRow } = await import('../SecretRow.js')
 import type { SecretRowData } from '../SecretRow.js'
 
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
+
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+
+/** The roots mounted for the interaction tests, unmounted after each test. */
+const mountedRoots: Array<{ root: Root; container: HTMLElement }> = []
+
+/** Mounts a SecretRow in jsdom and returns its container (clickable). */
+const mountRow = async (props: { secret: SecretRowData }): Promise<HTMLElement> => {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  const root = createRoot(container)
+  mountedRoots.push({ root, container })
+  await act(async () => {
+    root.render(createElement(SecretRow, props))
+  })
+  return container
+}
+
+/** The button whose label equals `text`. */
+const buttonWithText = (host: HTMLElement, text: string): HTMLButtonElement => {
+  const match = [...host.querySelectorAll('button')].find(
+    (button) => button.textContent?.trim() === text,
+  )
+  if (!match) throw new Error(`No button labelled "${text}"`)
+  return match
+}
+
+afterEach(async () => {
+  for (const { root } of mountedRoots.splice(0)) {
+    await act(async () => {
+      root.unmount()
+    })
+  }
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
 
 const secret = (over: Partial<SecretRowData> = {}): SecretRowData => ({
   id: '1',
@@ -122,5 +168,26 @@ describe('SecretRow', () => {
   it('forwards className', () => {
     const markup = html(createElement(SecretRow, { secret: secret(), className: 'sr-cls' }))
     expect(markup).toContain('sr-cls')
+  })
+
+  it('copies the value through the clipboard core when Copy is clicked', async () => {
+    const host = await mountRow({ secret: secret() })
+    await act(async () => {
+      buttonWithText(host, 'Copy').click()
+    })
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('sk_live_abcdef123456')
+    expect(buttonWithText(host, 'Copied!').textContent?.trim()).toBe('Copied!')
+  })
+
+  it('shows no copied feedback when the clipboard core reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValueOnce(false)
+    const host = await mountRow({ secret: secret() })
+    await act(async () => {
+      buttonWithText(host, 'Copy').click()
+    })
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('sk_live_abcdef123456')
+    expect(buttonWithText(host, 'Copy').textContent?.trim()).toBe('Copy')
+    expect(host.textContent).not.toContain('Copied!')
   })
 })

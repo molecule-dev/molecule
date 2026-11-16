@@ -5,4 +5,5 @@ export const kn: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'ನಕಲಿಸಲಾಗಿದೆ!',
   'copyLink.copy': 'ನಕಲಿಸಿ',
   'shareLink.passwordProtect': 'ಪಾಸ್‌ವರ್ಡ್ ರಕ್ಷಣೆ',
+  'shareLinkCard.aria.url': 'ಲಿಂಕ್ ಹಂಚಿಕೊಳ್ಳಿ',
 }

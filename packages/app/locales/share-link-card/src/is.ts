@@ -5,4 +5,5 @@ export const is: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Afritað!',
   'copyLink.copy': 'Afrita',
   'shareLink.passwordProtect': 'Lykilorðsvernd',
+  'shareLinkCard.aria.url': 'Deila hlekk',
 }

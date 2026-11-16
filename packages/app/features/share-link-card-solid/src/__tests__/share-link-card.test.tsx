@@ -10,7 +10,7 @@
 
 import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
@@ -56,13 +56,38 @@ vi.mock('@molecule/app-ui-solid', () => ({
       {props.children}
     </div>
   ),
-  Switch: (props: { checked?: boolean }) => (
-    <input type="checkbox" data-switch="" checked={props.checked} readonly />
+  Switch: (props: {
+    checked?: boolean
+    'aria-labelledby'?: string
+    'aria-label'?: string
+    onChange?: (event: Event) => void
+  }) => (
+    <button
+      type="button"
+      role="switch"
+      data-switch=""
+      aria-checked={props.checked ? 'true' : 'false'}
+      aria-labelledby={props['aria-labelledby']}
+      aria-label={props['aria-label']}
+    />
   ),
 }))
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
 const { CopyLinkField } = await import('../CopyLinkField.jsx')
 const { ShareLinkCard } = await import('../ShareLinkCard.jsx')
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
 
 const disposers: Array<() => void> = []
 
@@ -77,6 +102,14 @@ function renderMarkup(view: () => JSX.Element): string {
   document.body.appendChild(container)
   disposers.push(render(view, container))
   return container.innerHTML
+}
+
+/** Renders a component and returns its still-mounted container (for interactions). */
+function renderLive(view: () => JSX.Element): HTMLElement {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  disposers.push(render(view, container))
+  return container
 }
 
 describe('CopyLinkField', () => {
@@ -95,6 +128,31 @@ describe('CopyLinkField', () => {
   it('forwards className', () => {
     const markup = renderMarkup(() => <CopyLinkField value="u" className="clf-cls" />)
     expect(markup).toContain('clf-cls')
+  })
+
+  it('names the url field with an accessible label', () => {
+    const markup = renderMarkup(() => <CopyLinkField value="u" />)
+    expect(markup).toContain('aria-label="Share link"')
+  })
+
+  it('copies the value when the copy button is clicked', async () => {
+    const container = renderLive(() => <CopyLinkField value="https://x.test/abc" />)
+    const button = container.querySelector('button[data-button]') as HTMLButtonElement
+    button.click()
+    await vi.waitFor(() => expect(button.textContent).toBe('Copied!'))
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const container = renderLive(() => <CopyLinkField value="https://x.test/abc" />)
+    const button = container.querySelector('button[data-button]') as HTMLButtonElement
+    button.click()
+    await vi.waitFor(() =>
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc'),
+    )
+    expect(button.textContent).toBe('Copy')
   })
 })
 
@@ -141,6 +199,23 @@ describe('ShareLinkCard', () => {
       />
     ))
     expect(markup).toContain('Require a password')
+  })
+
+  it('names the password switch from its visible label', () => {
+    const markup = renderMarkup(() => (
+      <ShareLinkCard url="u" passwordProtect={{ enabled: false, onChange: () => {} }} />
+    ))
+    const labelId = markup.match(/<span[^>]* id="([^"]+)"[^>]*>Password protect<\/span>/)?.[1]
+    expect(labelId).toBeTruthy()
+    expect(markup).toContain(`aria-labelledby="${labelId}"`)
+  })
+
+  it('falls back to an i18n name for a switch with an empty label', () => {
+    const markup = renderMarkup(() => (
+      <ShareLinkCard url="u" passwordProtect={{ enabled: false, onChange: () => {}, label: '' }} />
+    ))
+    expect(markup).not.toContain('aria-labelledby')
+    expect(markup).toContain('aria-label="Password protect"')
   })
 
   it('sets data-mol-id and forwards className onto the Card', () => {

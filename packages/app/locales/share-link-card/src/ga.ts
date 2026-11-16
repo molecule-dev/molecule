@@ -5,4 +5,5 @@ export const ga: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Cóipeáilte!',
   'copyLink.copy': 'Cóipeáil',
   'shareLink.passwordProtect': 'Cosaint pasfhocail',
+  'shareLinkCard.aria.url': 'Roinn nasc',
 }

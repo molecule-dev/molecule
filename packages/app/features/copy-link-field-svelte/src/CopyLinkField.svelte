@@ -7,6 +7,7 @@
   re-renders it.
 -->
 <script lang="ts">
+  import { copyTextWithFallback } from '@molecule/app-clipboard'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
@@ -45,15 +46,14 @@
 
   /** Copies the value, then shows the "Copied!" feedback for `feedbackMs`. */
   function copy(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(value).then(() => {
-        copied = true
-        onCopy?.()
-        timer = setTimeout(() => {
-          copied = false
-        }, feedbackMs)
-      })
-    }
+    void copyTextWithFallback(value).then((copiedOk) => {
+      if (!copiedOk) return
+      copied = true
+      onCopy?.()
+      timer = setTimeout(() => {
+        copied = false
+      }, feedbackMs)
+    })
   }
 </script>
 

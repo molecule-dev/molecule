@@ -2,10 +2,12 @@
   CopyLinkField: the internal, trimmed copy field `<ShareLinkCard>` renders —
   the Svelte counterpart of the React package's `CopyLinkField` (which is not
   exported from the barrel). Read-only input + copy-to-clipboard button with
-  "Copied!" feedback; the input's value is applied through both the property
-  and the attribute the way React's is (see `value.ts`).
+  "Copied!" feedback; copying goes through `copyTextWithFallback()` from
+  `@molecule/app-clipboard`, and the input's value is applied through both the
+  property and the attribute the way React's is (see `value.ts`).
 -->
 <script lang="ts">
+  import { copyTextWithFallback } from '@molecule/app-clipboard'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
@@ -31,14 +33,13 @@
 
   /** Copies the value, then shows the "Copied!" feedback for 1500ms. */
   function copy(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(value).then(() => {
-        copied = true
-        timer = setTimeout(() => {
-          copied = false
-        }, 1500)
-      })
-    }
+    void copyTextWithFallback(value).then((copiedOk) => {
+      if (!copiedOk) return
+      copied = true
+      timer = setTimeout(() => {
+        copied = false
+      }, 1500)
+    })
   }
 </script>
 
@@ -47,6 +48,7 @@
     readonly
     type="text"
     use:reactInputValue={{ value }}
+    aria-label={t('shareLinkCard.aria.url', {}, { defaultValue: 'Share link' })}
     onfocusin={(e) => (e.target as HTMLInputElement).select()}
     class={cm.cn(cm.input(), cm.flex1)}
   />

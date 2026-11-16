@@ -5,4 +5,5 @@ export const sk: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Skopírované!',
   'copyLink.copy': 'Kopírovať',
   'shareLink.passwordProtect': 'Ochrana heslom',
+  'shareLinkCard.aria.url': 'Zdieľať odkaz',
 }

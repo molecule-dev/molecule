@@ -5,4 +5,5 @@ export const km: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'បានចម្លងហើយ!',
   'copyLink.copy': 'ចម្លង',
   'shareLink.passwordProtect': 'ការពារដោយពាក្យសម្ងាត់',
+  'shareLinkCard.aria.url': 'ចែករំលែកតំណ',
 }

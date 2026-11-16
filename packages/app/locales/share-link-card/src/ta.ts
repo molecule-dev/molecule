@@ -5,4 +5,5 @@ export const ta: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'நகலெடுக்கப்பட்டது!',
   'copyLink.copy': 'நகல்',
   'shareLink.passwordProtect': 'கடவுச்சொல் பாதுகாப்பு',
+  'shareLinkCard.aria.url': 'இணைப்பைப் பகிர்',
 }

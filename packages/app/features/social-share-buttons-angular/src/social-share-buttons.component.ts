@@ -7,6 +7,7 @@
 import { Component, type OnDestroy, signal } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -64,11 +65,13 @@ function shareUrl(platform: SocialPlatform, url: string, title?: string): string
  * exactly. Styling routes through the ClassMap token
  * `cm.flex({ align: 'center', gap: 'xs' })`.
  *
- * Copying uses `navigator.clipboard`, which exists only in secure contexts —
- * elsewhere the button silently does nothing, as in React. Platform labels use
- * `share.<platform>` i18n keys and the copy feedback uses `share.copied`, read
- * through the binding's reactive `useTranslation()`, so a locale switch
- * refreshes the text (React's components re-render through `useTranslation()`).
+ * Copying goes through `@molecule/app-clipboard`'s `copyTextWithFallback()`
+ * (the Clipboard API where available, the legacy copy command otherwise;
+ * `false` where no copy happened and the button then stays unchanged), as
+ * in React. Platform labels each use their literal `share.<platform>` i18n
+ * key and the copy feedback uses `share.copied`, read through the binding's
+ * reactive `useTranslation()`, so a locale switch refreshes the text
+ * (React's components re-render through `useTranslation()`).
  */
 @Component({
   selector: 'div[mol-social-share-buttons]',
@@ -163,12 +166,30 @@ export class SocialShareButtons implements OnDestroy {
   }
 
   /**
-   * The platform's accessible label (React's `t(`share.${p}`, {}, { defaultValue: p })`).
+   * The platform's accessible label, through ONE literal `t()` key per
+   * platform (a runtime-built `` `share.${platform}` `` cannot be checked
+   * against the locale bond). The defaults are the platforms' English names — the
+   * text the bond's `en.ts` holds for these keys.
    * @param platform - The platform.
    * @returns The label text.
    */
   label(platform: SocialPlatform): string {
-    return this.i18n.t(`share.${platform}`, undefined, { defaultValue: platform })
+    switch (platform) {
+      case 'twitter':
+        return this.i18n.t('share.twitter', undefined, { defaultValue: 'Twitter' })
+      case 'x':
+        return this.i18n.t('share.x', undefined, { defaultValue: 'X' })
+      case 'linkedin':
+        return this.i18n.t('share.linkedin', undefined, { defaultValue: 'LinkedIn' })
+      case 'facebook':
+        return this.i18n.t('share.facebook', undefined, { defaultValue: 'Facebook' })
+      case 'reddit':
+        return this.i18n.t('share.reddit', undefined, { defaultValue: 'Reddit' })
+      case 'email':
+        return this.i18n.t('share.email', undefined, { defaultValue: 'Email' })
+      case 'copy':
+        return this.i18n.t('share.copy', undefined, { defaultValue: 'Copy' })
+    }
   }
 
   /**
@@ -195,12 +216,11 @@ export class SocialShareButtons implements OnDestroy {
    * Copies the URL, then shows the "Copied!" feedback for 1.5 s.
    */
   copy(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(this.url ?? '').then(() => {
-        this.copied.set(true)
-        this.timer = setTimeout(() => this.copied.set(false), 1500)
-      })
-    }
+    void copyTextWithFallback(this.url ?? '').then((copiedOk) => {
+      if (!copiedOk) return
+      this.copied.set(true)
+      this.timer = setTimeout(() => this.copied.set(false), 1500)
+    })
   }
 
   /** Detaches the feedback timer with the component. */

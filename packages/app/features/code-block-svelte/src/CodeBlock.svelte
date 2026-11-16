@@ -12,6 +12,7 @@
   block, and inside the `<pre>` that node draws as an extra blank line.
 -->
 <script lang="ts">
+  import { copyTextWithFallback } from '@molecule/app-clipboard'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
@@ -53,14 +54,13 @@
 
   /** Copies the code, then shows the "Copied!" feedback for 1500 ms. */
   function copy(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(code).then(() => {
-        copied = true
-        timer = setTimeout(() => {
-          copied = false
-        }, 1500)
-      })
-    }
+    void copyTextWithFallback(code).then((copiedOk) => {
+      if (!copiedOk) return
+      copied = true
+      timer = setTimeout(() => {
+        copied = false
+      }, 1500)
+    })
   }
 </script>
 

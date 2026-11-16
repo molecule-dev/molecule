@@ -23,8 +23,11 @@
  * HTML parsing, so do not pass pre-highlighted HTML (it will display as
  * literal tags). To highlight, wrap or replace this component with one that
  * renders your highlighter's output; `language` is only a header label. The
- * copy button uses `navigator.clipboard` and silently does nothing on
- * insecure (non-HTTPS) contexts. Copy/Copied labels are translated via the
+ * copy button copies through `@molecule/app-clipboard`
+ * (`copyTextWithFallback` — the bonded clipboard provider first, then a
+ * legacy copy fallback — which resolves `false` instead of throwing), so it
+ * works on insecure (non-HTTPS) contexts too; the copied feedback shows only
+ * when the copy succeeded. Copy/Copied labels are translated via the
  * `codeBlock.*` keys (companion bond: `@molecule/app-locales-code-block`),
  * read through the binding's `useTranslation()` so a locale switch
  * re-renders them.

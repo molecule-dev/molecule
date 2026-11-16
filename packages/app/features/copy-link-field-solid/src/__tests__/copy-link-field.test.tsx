@@ -10,7 +10,13 @@
 
 import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
+import type { CopyLinkFieldProps } from '../types.js'
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
@@ -59,20 +65,49 @@ vi.mock('@molecule/app-ui-solid', () => ({
   ),
 }))
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
 const { CopyLinkField } = await import('../CopyLinkField.jsx')
 
 const disposers: Array<() => void> = []
 
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
+
 afterEach(() => {
   for (const dispose of disposers.splice(0)) dispose()
+  document.body.innerHTML = ''
+  vi.restoreAllMocks()
 })
 
 /** Render with Solid's browser renderer and return the container's markup. */
-function renderField(props: Record<string, unknown>): string {
+function renderField(props: CopyLinkFieldProps): string {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(() => <CopyLinkField {...props} />, container))
   return container.innerHTML
+}
+
+/** Mounts a {@link CopyLinkField} that stays mounted (for the click tests). */
+function mountLive(props: CopyLinkFieldProps): { container: HTMLDivElement } {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  disposers.push(render(() => <CopyLinkField {...props} />, container))
+  return { container }
+}
+
+/** Helper — the copy button inside a mounted container. */
+function copyButton(container: HTMLElement): HTMLButtonElement | null {
+  return container.querySelector('button[data-button]')
+}
+
+/** Flushes the copy promise's microtasks (Solid applies signal writes synchronously). */
+function flush(): Promise<void> {
+  return new Promise<void>((resolve) => setTimeout(resolve))
 }
 
 describe('CopyLinkField', () => {
@@ -102,5 +137,31 @@ describe('CopyLinkField', () => {
   it('forwards className', () => {
     const markup = renderField({ value: 'u', className: 'clf-cls' })
     expect(markup).toContain('clf-cls')
+  })
+
+  it('copies the value when the copy button is clicked', async () => {
+    const onCopy = vi.fn()
+    const { container } = mountLive({ value: 'https://x.test/abc', onCopy })
+    const button = copyButton(container)
+    expect(button).not.toBeNull()
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await flush()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+    expect(copyButton(container)?.textContent).toBe('Copied!')
+    expect(onCopy).toHaveBeenCalledTimes(1)
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const onCopy = vi.fn()
+    const { container } = mountLive({ value: 'https://x.test/abc', onCopy })
+    const button = copyButton(container)
+    expect(button).not.toBeNull()
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await flush()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+    expect(copyButton(container)?.textContent).toBe('Copy')
+    expect(onCopy).not.toHaveBeenCalled()
   })
 })

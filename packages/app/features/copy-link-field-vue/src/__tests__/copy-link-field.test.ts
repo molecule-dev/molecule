@@ -8,7 +8,7 @@
  * @module
  */
 
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
@@ -64,16 +64,31 @@ vi.mock('@molecule/app-ui-vue', async () => {
   }
 })
 
-import { createApp, defineComponent, h } from 'vue'
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { type App, createApp, defineComponent, h } from 'vue'
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 
 import { CopyLinkField } from '../CopyLinkField.js'
+import type { CopyLinkFieldProps } from '../types.js'
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
 
 afterEach(() => {
   document.body.innerHTML = ''
+  vi.restoreAllMocks()
 })
 
 /** Renders a {@link CopyLinkField} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: CopyLinkFieldProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(CopyLinkField, props) }))
@@ -83,6 +98,22 @@ const render = (props: Record<string, unknown>): string => {
   host.remove()
   return markup
 }
+
+/** Mounts a {@link CopyLinkField} that stays mounted (for the click tests). */
+const mountLive = (props: CopyLinkFieldProps): { app: App; host: HTMLDivElement } => {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const app = createApp(defineComponent({ render: () => h(CopyLinkField, props) }))
+  app.mount(host)
+  return { app, host }
+}
+
+/** Helper — the copy button inside a mounted host. */
+const copyButton = (host: HTMLElement): HTMLButtonElement | null =>
+  host.querySelector('button[data-button]')
+
+/** Flushes the copy promise's microtasks and Vue's render scheduler. */
+const flush = (): Promise<void> => new Promise<void>((resolve) => setTimeout(resolve))
 
 describe('CopyLinkField', () => {
   it('renders a read-only input carrying the value', () => {
@@ -111,5 +142,39 @@ describe('CopyLinkField', () => {
   it('forwards className', () => {
     const markup = render({ value: 'u', className: 'clf-cls' })
     expect(markup).toContain('clf-cls')
+  })
+
+  it('copies the value when the copy button is clicked', async () => {
+    const onCopy = vi.fn()
+    const { app, host } = mountLive({ value: 'https://x.test/abc', onCopy })
+    try {
+      const button = copyButton(host)
+      expect(button).not.toBeNull()
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await flush()
+      expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+      expect(copyButton(host)?.textContent).toBe('Copied!')
+      expect(onCopy).toHaveBeenCalledTimes(1)
+    } finally {
+      app.unmount()
+    }
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const onCopy = vi.fn()
+    const { app, host } = mountLive({ value: 'https://x.test/abc', onCopy })
+    try {
+      const button = copyButton(host)
+      expect(button).not.toBeNull()
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await flush()
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+      expect(copyButton(host)?.textContent).toBe('Copy')
+      expect(onCopy).not.toHaveBeenCalled()
+    } finally {
+      app.unmount()
+    }
   })
 })

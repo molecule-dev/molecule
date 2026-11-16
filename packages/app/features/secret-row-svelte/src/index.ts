@@ -33,8 +33,11 @@
  *   "Expired" tag, `daysUntilRotation >= 0` shows a "Rotate in {n}d" countdown,
  *   and `lastRotatedAt` (when set) renders a "Last rotated {value}" note. Omit
  *   a field to hide its chip.
- * - Copy silently does nothing when `navigator.clipboard` is unavailable
- *   (non-HTTPS origins, some webviews) — no error, no fallback.
+ * - Copying goes through `copyTextWithFallback` (`@molecule/app-clipboard`):
+ *   the Clipboard API through the bonded clipboard provider when one is
+ *   wired, the legacy copy command otherwise — so it also works on
+ *   plain-HTTP pages and inside iframes. The function never throws; when the
+ *   copy is blocked the button shows no feedback.
  * - The version chip renders as `v{version}` — pass `version="2"`, not "v2".
  * - Delete fires immediately — add your own confirmation dialog before
  *   calling a destructive API.

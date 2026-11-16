@@ -5,4 +5,5 @@ export const sv: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Kopierat!',
   'copyLink.copy': 'Kopiera',
   'shareLink.passwordProtect': 'Lösenordsskydd',
+  'shareLinkCard.aria.url': 'Dela länk',
 }

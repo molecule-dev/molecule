@@ -5,4 +5,5 @@ export const ms: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Disalin!',
   'copyLink.copy': 'Salin',
   'shareLink.passwordProtect': 'Lindungi kata laluan',
+  'shareLinkCard.aria.url': 'Kongsi pautan',
 }

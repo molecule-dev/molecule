@@ -11,8 +11,9 @@
  * renders the real Vue `Button` over the stubbed map.
  */
 
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 
 // A ClassMap proxy echoing each accessed member back as its token, so tests
@@ -54,14 +55,20 @@ setI18nProvider(
   ]),
 )
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
 const { SecretRow } = await import('../SecretRow.js')
 
-import { createApp, defineComponent, h } from 'vue'
+import { createApp, defineComponent, h, nextTick } from 'vue'
 
-import type { SecretRowData } from '../types.js'
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+import type { SecretRowData, SecretRowProps } from '../types.js'
 
 /** Renders a {@link SecretRow} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: SecretRowProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(SecretRow, props) }))
@@ -79,8 +86,39 @@ const secret = (over: Partial<SecretRowData> = {}): SecretRowData => ({
   ...over,
 })
 
+/** The apps mounted for the copy tests, unmounted after each test. */
+const mountedApps: ReturnType<typeof createApp>[] = []
+
+/** Mounts a SecretRow and returns its host element (clickable). */
+const mountRow = (props: SecretRowProps): HTMLElement => {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const app = createApp(defineComponent({ render: () => h(SecretRow, props) }))
+  app.mount(host)
+  mountedApps.push(app)
+  return host
+}
+
+/** The button whose label equals `text`. */
+const buttonWithText = (host: HTMLElement, text: string): HTMLButtonElement => {
+  const match = [...host.querySelectorAll('button')].find(
+    (button) => button.textContent?.trim() === text,
+  )
+  if (!match) throw new Error(`No button labelled "${text}"`)
+  return match
+}
+
+/** Settles every pending microtask, so the copy promise and its render ran. */
+const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
+
 describe('SecretRow', () => {
+  beforeEach(() => {
+    copyTextWithFallbackMock.mockReset()
+    copyTextWithFallbackMock.mockResolvedValue(true)
+  })
+
   afterEach(() => {
+    for (const app of mountedApps.splice(0)) app.unmount()
     document.body.innerHTML = ''
   })
 
@@ -147,5 +185,26 @@ describe('SecretRow', () => {
   it('forwards className', () => {
     const markup = render({ secret: secret(), className: 'sr-cls' })
     expect(markup).toContain('sr-cls')
+  })
+
+  it('copies the value through the clipboard core when Copy is clicked', async () => {
+    const host = mountRow({ secret: secret() })
+    buttonWithText(host, 'Copy').click()
+    await flush()
+    await nextTick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('sk_live_abcdef123456')
+    expect(buttonWithText(host, 'Copied!').textContent?.trim()).toBe('Copied!')
+  })
+
+  it('shows no copied feedback when the clipboard core reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValueOnce(false)
+    const host = mountRow({ secret: secret() })
+    buttonWithText(host, 'Copy').click()
+    await flush()
+    await nextTick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('sk_live_abcdef123456')
+    expect(buttonWithText(host, 'Copy').textContent?.trim()).toBe('Copy')
+    expect(host.textContent).not.toContain('Copied!')
   })
 })

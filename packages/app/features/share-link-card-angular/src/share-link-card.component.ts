@@ -58,7 +58,7 @@ import type { ShareLinkCardProps } from './types.js'
     <div #qrSlot [class]="qrClasses()"><ng-content select="[slot=qr]"></ng-content></div>
     @if (passwordProtect) {
       <div [class]="passwordRowClasses()">
-        <span [class]="cm().textSize('sm')">
+        <span [class]="cm().textSize('sm')" [attr.id]="hasPasswordLabel() ? passwordLabelId : null">
           @if (nodeLabel()) {
             <ng-container *ngTemplateOutlet="nodeLabel()"></ng-container>
           } @else {
@@ -68,6 +68,8 @@ import type { ShareLinkCardProps } from './types.js'
         <mol-switch
           [checked]="passwordProtect.enabled"
           (change)="onSwitchChange($event)"
+          [attr.aria-labelledby]="hasPasswordLabel() ? passwordLabelId : null"
+          [attr.aria-label]="hasPasswordLabel() ? null : fallbackLabelText()"
         ></mol-switch>
       </div>
     }
@@ -108,6 +110,11 @@ export class ShareLinkCard implements AfterViewInit, DoCheck {
 
   /** Reactive translations, read in the injection context. */
   private readonly i18n = useTranslation()
+
+  /** Per-instance counter backing {@link ShareLinkCard.passwordLabelId} (React numbers `useId()` ids). */
+  private static nextId = 0
+  /** The id the password switch's `aria-labelledby` points at (its visible label). */
+  readonly passwordLabelId = `mol-share-link-card-label-${ShareLinkCard.nextId++}`
 
   /**
    * The current class map.
@@ -203,9 +210,29 @@ export class ShareLinkCard implements AfterViewInit, DoCheck {
    */
   labelText(): string {
     const label = this.passwordProtect?.label
-    return typeof label === 'string'
-      ? label
-      : this.i18n.t('shareLink.passwordProtect', undefined, { defaultValue: 'Password protect' })
+    return typeof label === 'string' ? label : this.fallbackLabelText()
+  }
+
+  /**
+   * The password row's i18n label — the fallback React renders when no `label`
+   * prop is passed, and the switch's accessible name when the label is an
+   * empty string (which draws nothing, so `aria-labelledby` would name it
+   * nothing).
+   * @returns The i18n label text.
+   */
+  fallbackLabelText(): string {
+    return this.i18n.t('shareLink.passwordProtect', undefined, { defaultValue: 'Password protect' })
+  }
+
+  /**
+   * Whether the password label draws any text, so the switch can be named from
+   * it rather than from an i18n `aria-label`.
+   * @returns True unless the label is an empty string.
+   */
+  hasPasswordLabel(): boolean {
+    const label = this.passwordProtect?.label
+    if (typeof label === 'string') return label.trim().length > 0
+    return true
   }
 
   /**

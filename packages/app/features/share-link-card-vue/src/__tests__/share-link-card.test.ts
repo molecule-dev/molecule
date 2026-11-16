@@ -8,7 +8,7 @@
  * @module
  */
 
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
@@ -77,24 +77,39 @@ vi.mock('@molecule/app-ui-vue', async () => {
     }),
     Switch: defineComponent({
       name: 'Switch',
+      inheritAttrs: false,
       props: { checked: Boolean, onChange: { type: Function, default: undefined } },
-      setup(props) {
+      setup(props, { attrs }) {
         return () =>
-          h('input', {
-            type: 'checkbox',
+          h('button', {
+            type: 'button',
+            role: 'switch',
             'data-switch': '',
-            checked: props.checked,
-            readonly: true,
+            'aria-checked': String(!!props.checked),
+            ...attrs,
           })
       },
     }),
   }
 })
 
-import { createApp, defineComponent, h, type VNodeChild } from 'vue'
+import { createApp, defineComponent, h, nextTick, type VNodeChild } from 'vue'
+
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 
 const { CopyLinkField } = await import('../CopyLinkField.js')
 const { ShareLinkCard } = await import('../ShareLinkCard.js')
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -132,6 +147,46 @@ describe('CopyLinkField', () => {
   it('forwards className', () => {
     const markup = render(CopyLinkField, { value: 'u', className: 'clf-cls' })
     expect(markup).toContain('clf-cls')
+  })
+
+  it('names the url field with an accessible label', () => {
+    const markup = render(CopyLinkField, { value: 'u' })
+    expect(markup).toContain('aria-label="Share link"')
+  })
+
+  it('copies the value when the copy button is clicked', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const app = createApp(
+      defineComponent({ render: () => h(CopyLinkField as never, { value: 'https://x.test/abc' }) }),
+    )
+    app.mount(host)
+    const button = host.querySelector('button[data-button]') as HTMLButtonElement
+    button.click()
+    await vi.waitFor(() => expect(button.textContent).toBe('Copied!'))
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+    app.unmount()
+    host.remove()
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const app = createApp(
+      defineComponent({ render: () => h(CopyLinkField as never, { value: 'https://x.test/abc' }) }),
+    )
+    app.mount(host)
+    const button = host.querySelector('button[data-button]') as HTMLButtonElement
+    button.click()
+    await vi.waitFor(() =>
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc'),
+    )
+    await nextTick()
+    expect(button.textContent).toBe('Copy')
+    app.unmount()
+    host.remove()
   })
 })
 
@@ -183,6 +238,25 @@ describe('ShareLinkCard', () => {
       passwordProtect: { enabled: true, onChange: () => {}, label: 'Require a password' },
     })
     expect(markup).toContain('Require a password')
+  })
+
+  it('names the password switch from its visible label', () => {
+    const markup = render(ShareLinkCard, {
+      url: 'u',
+      passwordProtect: { enabled: false, onChange: () => {} },
+    })
+    const labelId = markup.match(/<span[^>]* id="([^"]+)"[^>]*>Password protect<\/span>/)?.[1]
+    expect(labelId).toBeTruthy()
+    expect(markup).toContain(`aria-labelledby="${labelId}"`)
+  })
+
+  it('falls back to an i18n name for a switch with an empty label', () => {
+    const markup = render(ShareLinkCard, {
+      url: 'u',
+      passwordProtect: { enabled: false, onChange: () => {}, label: '' },
+    })
+    expect(markup).not.toContain('aria-labelledby')
+    expect(markup).toContain('aria-label="Password protect"')
   })
 
   it('sets data-mol-id and forwards className onto the Card', () => {

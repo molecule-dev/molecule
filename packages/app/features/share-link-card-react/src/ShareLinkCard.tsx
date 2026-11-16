@@ -1,4 +1,4 @@
-import type { JSX, ReactNode } from 'react'
+import { type JSX, type ReactNode, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -50,6 +50,23 @@ export function ShareLinkCard({
 }: ShareLinkCardProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
+  // The password switch is named from its visible label; `useId()` keeps the
+  // reference unique per instance (each port's own generator does the same,
+  // and the conformance normalizer renumbers them so the DOMs compare equal).
+  const passwordLabelId = useId()
+  const fallbackPasswordLabel = t(
+    'shareLink.passwordProtect',
+    {},
+    {
+      defaultValue: 'Password protect',
+    },
+  )
+  // React's `label ?? default` can still leave an EMPTY string: a label of
+  // `''` draws nothing, and an `aria-labelledby` pointing at an empty element
+  // gives the switch an empty accessible name. That case names the switch from
+  // i18n instead.
+  const passwordLabel = passwordProtect?.label ?? fallbackPasswordLabel
+  const hasPasswordLabel = !(typeof passwordLabel === 'string' && passwordLabel.trim() === '')
   return (
     <Card data-mol-id={dataMolId} className={className}>
       <div className={cm.stack(3)}>
@@ -69,13 +86,14 @@ export function ShareLinkCard({
         )}
         {passwordProtect && (
           <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-            <span className={cm.textSize('sm')}>
-              {passwordProtect.label ??
-                t('shareLink.passwordProtect', {}, { defaultValue: 'Password protect' })}
+            <span id={hasPasswordLabel ? passwordLabelId : undefined} className={cm.textSize('sm')}>
+              {passwordLabel}
             </span>
             <Switch
               checked={passwordProtect.enabled}
               onChange={(e) => passwordProtect.onChange((e.target as HTMLInputElement).checked)}
+              aria-labelledby={hasPasswordLabel ? passwordLabelId : undefined}
+              aria-label={hasPasswordLabel ? undefined : fallbackPasswordLabel}
             />
           </div>
         )}

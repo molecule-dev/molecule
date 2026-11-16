@@ -34,16 +34,18 @@
  * @remarks
  * - Must render inside the app's i18n provider and with a ClassMap bond wired
  *   (`useTranslation()` / `getClassMap()` throw otherwise).
- * - `'copy'` uses `navigator.clipboard`, which exists only in secure contexts
- *   (HTTPS or localhost). On plain HTTP the button silently does nothing —
- *   hide it or serve over HTTPS.
+ * - `'copy'` copies through `@molecule/app-clipboard`'s
+ *   `copyTextWithFallback()` — the Clipboard API where available, then the
+ *   legacy copy command — so it also works on plain HTTP and in iframes
+ *   where `navigator.clipboard` is missing or refuses the write. When no
+ *   copy happens the button stays unchanged.
  * - Sharing uses fixed platform intent URLs opened in a new tab; there is no
  *   Web Share API integration and no per-platform SDKs.
  * - Button icons are plain text glyphs (𝕏, "in", "f", ✉, ⧉), not brand SVG
  *   logos — restyle via `className` if brand marks are required.
- * - Only `share.copied` ships in the companion locale bond today; the
- *   per-platform `share.<platform>` aria-label keys fall back to the raw
- *   platform id in every language.
+ * - Every key ships in the companion locale bond: `share.copied` plus one
+ *   literal `share.<platform>` key per platform, whose English text is the
+ *   platform's name (Twitter, LinkedIn, Email, Copy, …).
  *
  * @module
  */

@@ -8,7 +8,7 @@
  * @module
  */
 
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
@@ -64,16 +64,31 @@ vi.mock('@molecule/app-ui-vue', async () => {
   }
 })
 
-import { createApp, defineComponent, h } from 'vue'
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { type App, createApp, defineComponent, h } from 'vue'
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 
 import { CodeBlock } from '../CodeBlock.js'
+import type { CodeBlockProps } from '../types.js'
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
 
 afterEach(() => {
   document.body.innerHTML = ''
+  vi.restoreAllMocks()
 })
 
 /** Renders a {@link CodeBlock} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: CodeBlockProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(CodeBlock, props) }))
@@ -85,6 +100,22 @@ const render = (props: Record<string, unknown>): string => {
 }
 
 const code = 'const x = 1\nconst y = 2\nconsole.log(x + y)'
+
+/** Mounts a {@link CodeBlock} that stays mounted (for the click tests). */
+const mountLive = (props: CodeBlockProps): { app: App; host: HTMLDivElement } => {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const app = createApp(defineComponent({ render: () => h(CodeBlock, props) }))
+  app.mount(host)
+  return { app, host }
+}
+
+/** Helper — the copy button inside a mounted host. */
+const copyButton = (host: HTMLElement): HTMLButtonElement | null =>
+  host.querySelector('button[data-button]')
+
+/** Flushes the copy promise's microtasks and Vue's render scheduler. */
+const flush = (): Promise<void> => new Promise<void>((resolve) => setTimeout(resolve))
 
 describe('CodeBlock', () => {
   it('renders the source code', () => {
@@ -121,5 +152,35 @@ describe('CodeBlock', () => {
   it('forwards className', () => {
     const markup = render({ code, className: 'cb-cls' })
     expect(markup).toContain('cb-cls')
+  })
+
+  it('copies the displayed code when the copy button is clicked', async () => {
+    const { app, host } = mountLive({ code })
+    try {
+      const button = copyButton(host)
+      expect(button).not.toBeNull()
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await flush()
+      expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith(code)
+      expect(copyButton(host)?.textContent).toBe('Copied!')
+    } finally {
+      app.unmount()
+    }
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const { app, host } = mountLive({ code })
+    try {
+      const button = copyButton(host)
+      expect(button).not.toBeNull()
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await flush()
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith(code)
+      expect(copyButton(host)?.textContent).toBe('Copy')
+    } finally {
+      app.unmount()
+    }
   })
 })

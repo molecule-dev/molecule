@@ -5,4 +5,5 @@ export const zhTW: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': '已複製！',
   'copyLink.copy': '複製',
   'shareLink.passwordProtect': '密碼保護',
+  'shareLinkCard.aria.url': '分享連結',
 }

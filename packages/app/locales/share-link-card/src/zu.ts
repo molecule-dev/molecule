@@ -5,4 +5,5 @@ export const zu: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Kukopishiwe!',
   'copyLink.copy': 'Kopisha',
   'shareLink.passwordProtect': 'Ukuvikela iphasiwedi',
+  'shareLinkCard.aria.url': 'Yabelana ngesixhumanisi',
 }

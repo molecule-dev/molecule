@@ -9,7 +9,7 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
+import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card, Switch } from '@molecule/app-ui-vue'
@@ -86,6 +86,10 @@ export const ShareLinkCard = defineComponent({
   setup(props, { slots }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    // The password switch is named from its visible label; Vue's `useId()`
+    // is the per-instance id React's `useId()` is (the conformance normalizer
+    // renumbers both).
+    const labelId = useId()
 
     return (): VNode => {
       const title = nodeChildren(slots.title, props.title)
@@ -94,6 +98,18 @@ export const ShareLinkCard = defineComponent({
       const hasTitle = nodePresent(props.title, title)
       const hasDescription = nodePresent(props.description, description)
       const passwordProtect = props.passwordProtect
+      const fallbackPasswordLabel = t(
+        'shareLink.passwordProtect',
+        {},
+        {
+          defaultValue: 'Password protect',
+        },
+      )
+      // React's `label ?? default` can still leave an EMPTY string, which
+      // draws nothing: a switch labelled by an empty element has no
+      // accessible name, so that case is named from i18n instead.
+      const passwordLabel = passwordProtect?.label ?? fallbackPasswordLabel
+      const hasPasswordLabel = !(typeof passwordLabel === 'string' && passwordLabel.trim() === '')
 
       return h(Card, { 'data-mol-id': props.dataMolId, className: props.className }, () => [
         h('div', { class: cm.stack(3) }, [
@@ -113,14 +129,20 @@ export const ShareLinkCard = defineComponent({
             ),
           passwordProtect &&
             h('div', { class: cm.flex({ align: 'center', justify: 'between', gap: 'sm' }) }, [
-              h('span', { class: cm.textSize('sm') }, [
-                passwordProtect.label ??
-                  t('shareLink.passwordProtect', {}, { defaultValue: 'Password protect' }),
-              ]),
+              h(
+                'span',
+                {
+                  id: hasPasswordLabel ? labelId : undefined,
+                  class: cm.textSize('sm'),
+                },
+                [passwordLabel],
+              ),
               h(Switch, {
                 checked: passwordProtect.enabled,
                 onChange: (event: Event) =>
                   passwordProtect.onChange((event.target as HTMLInputElement).checked),
+                'aria-labelledby': hasPasswordLabel ? labelId : undefined,
+                'aria-label': hasPasswordLabel ? undefined : fallbackPasswordLabel,
               }),
             ]),
         ]),

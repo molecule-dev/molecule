@@ -5,4 +5,5 @@ export const my: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'ကူးယူပြီးပါပြီ။',
   'copyLink.copy': 'မိတ္တူကူးပါ',
   'shareLink.passwordProtect': 'စကားဝှက်ကာကွယ်မှု',
+  'shareLinkCard.aria.url': 'လင့်ခ်ကို မျှဝေပါ',
 }

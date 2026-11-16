@@ -1,4 +1,4 @@
-import type { Component, JSX } from 'solid-js'
+import { type Component, createUniqueId, type JSX } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
@@ -25,6 +25,20 @@ import type { ShareLinkCardProps } from './types.js'
 export const ShareLinkCard: Component<ShareLinkCardProps> = (props) => {
   const cm = getClassMap()
   const { t } = useTranslation()
+  // The password switch is named from its visible label; `createUniqueId()` is
+  // Solid's per-instance id (React's `useId()`; the conformance normalizer
+  // renumbers both).
+  const labelId = createUniqueId()
+
+  /**
+   * The password row's fallback label text, used when no `label` prop is set —
+   * and as the switch's accessible name when the label is an empty string
+   * (React's `label ?? default` can still leave one, and it draws nothing).
+   *
+   * @returns The i18n label text.
+   */
+  const fallbackPasswordLabel = (): string =>
+    t('shareLink.passwordProtect', {}, { defaultValue: 'Password protect' })
 
   /**
    * The password row's label text or node (React's
@@ -36,7 +50,17 @@ export const ShareLinkCard: Component<ShareLinkCardProps> = (props) => {
   const passwordLabel = (): JSX.Element | string => {
     const label = props.passwordProtect?.label
     if (typeof label === 'function') return label()
-    return label ?? t('shareLink.passwordProtect', {}, { defaultValue: 'Password protect' })
+    return label ?? fallbackPasswordLabel()
+  }
+
+  /**
+   * Whether the label draws any text, so the switch can be named from it.
+   *
+   * @returns True unless the label is an empty string.
+   */
+  const hasPasswordLabel = (): boolean => {
+    const label = passwordLabel()
+    return !(typeof label === 'string' && label.trim() === '')
   }
 
   return (
@@ -58,12 +82,16 @@ export const ShareLinkCard: Component<ShareLinkCardProps> = (props) => {
         )}
         {props.passwordProtect && (
           <div class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-            <span class={cm.textSize('sm')}>{passwordLabel()}</span>
+            <span id={hasPasswordLabel() ? labelId : undefined} class={cm.textSize('sm')}>
+              {passwordLabel()}
+            </span>
             <Switch
               checked={props.passwordProtect.enabled}
               onChange={(event) =>
                 props.passwordProtect?.onChange((event.target as HTMLInputElement).checked)
               }
+              aria-labelledby={hasPasswordLabel() ? labelId : undefined}
+              aria-label={hasPasswordLabel() ? undefined : fallbackPasswordLabel()}
             />
           </div>
         )}

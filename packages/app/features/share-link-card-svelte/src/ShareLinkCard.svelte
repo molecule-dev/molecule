@@ -27,10 +27,19 @@
   const cm = $derived(getClassMap())
   const { t } = useTranslation()
 
+  // The password switch is named from its visible label; `$props.id()` is this
+  // instance's stable id (React's `useId()`).
+  const labelId = $props.id()
+
   // React's `passwordProtect.label ?? t('shareLink.passwordProtect', …)`.
   const passwordLabel = $derived(
     passwordProtect?.label ??
       t('shareLink.passwordProtect', {}, { defaultValue: 'Password protect' }),
+  )
+  // An EMPTY string label draws nothing, and a switch named by an empty
+  // element has no accessible name: that case is named from i18n instead.
+  const hasPasswordLabel = $derived(
+    !(typeof passwordLabel === 'string' && passwordLabel.trim() === ''),
   )
 </script>
 
@@ -56,13 +65,17 @@
     {/if}
     {#if passwordProtect}
       <div class={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-        <span class={cm.textSize('sm')}>
+        <span class={cm.textSize('sm')} id={hasPasswordLabel ? labelId : undefined}>
           {#if typeof passwordLabel === 'string'}{passwordLabel}{:else}{@render passwordLabel()}{/if}
         </span>
         <Switch
           checked={passwordProtect.enabled}
           onChange={(event) =>
             passwordProtect?.onChange((event.target as HTMLInputElement).checked)}
+          aria-labelledby={hasPasswordLabel ? labelId : undefined}
+          aria-label={hasPasswordLabel
+            ? undefined
+            : t('shareLink.passwordProtect', {}, { defaultValue: 'Password protect' })}
         />
       </div>
     {/if}

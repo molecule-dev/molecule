@@ -5,4 +5,5 @@ export const ml: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'പകർത്തി!',
   'copyLink.copy': 'പകർത്തുക',
   'shareLink.passwordProtect': 'പാസ്‌വേഡ് പരിരക്ഷണം',
+  'shareLinkCard.aria.url': 'ലിങ്ക് പങ്കിടുക',
 }

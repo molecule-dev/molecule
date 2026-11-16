@@ -5,4 +5,5 @@ export const ka: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'კოპირებულია!',
   'copyLink.copy': 'კოპირება',
   'shareLink.passwordProtect': 'პაროლით დაცვა',
+  'shareLinkCard.aria.url': 'ბმულის გაზიარება',
 }

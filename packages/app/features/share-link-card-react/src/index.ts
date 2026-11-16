@@ -31,8 +31,10 @@
  * - QR rendering is slot-based: bring your own QR component (e.g.
  *   qrcode.react) and pass BOTH `qr` and `showQR` — `qr` alone renders
  *   nothing.
- * - Copy silently does nothing when `navigator.clipboard` is unavailable
- *   (non-HTTPS origins) — no error, no fallback.
+ * - Copy goes through `copyTextWithFallback()` from `@molecule/app-clipboard`:
+ *   the bonded clipboard provider first, then the legacy copy command. The
+ *   "Copied!" feedback appears only when a copy actually happened — copy never
+ *   throws, so a blocked clipboard leaves the label unchanged.
  * - The card's internal copy field is a trimmed local variant of
  *   `@molecule/app-copy-link-field-react` (which adds `label`, `onCopy`,
  *   `feedbackMs`, `size`); use that package directly when you need a

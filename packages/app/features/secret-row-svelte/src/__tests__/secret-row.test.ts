@@ -10,9 +10,10 @@
  * renders the real Svelte `Button` over the stubbed map.
  */
 
-import { flushSync, mount, unmount } from 'svelte'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushSync, mount, tick, unmount } from 'svelte'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 
 // A ClassMap proxy echoing each accessed member back as its token, so tests
@@ -54,8 +55,14 @@ setI18nProvider(
   ]),
 )
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
 import { SecretRow } from '../components.js'
 import type { SecretRowData, SecretRowProps } from '../types.js'
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
 
 /** The component mounted by the running test, torn down after each. */
 let instance: ReturnType<typeof mount> | null = null
@@ -83,6 +90,32 @@ const secret = (over: Partial<SecretRowData> = {}): SecretRowData => ({
   key: 'STRIPE_API_KEY',
   value: 'sk_live_abcdef123456',
   ...over,
+})
+
+/** Mounts a secret row and returns its container (clickable). */
+const mountRow = (props: SecretRowProps): HTMLElement => {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  instance = mount(SecretRow, { target: container, props })
+  flushSync()
+  return container
+}
+
+/** The button whose label equals `text`. */
+const buttonWithText = (host: HTMLElement, text: string): HTMLButtonElement => {
+  const match = [...host.querySelectorAll('button')].find(
+    (button) => button.textContent?.trim() === text,
+  )
+  if (!match) throw new Error(`No button labelled "${text}"`)
+  return match
+}
+
+/** Settles every pending microtask, so the copy promise and its render ran. */
+const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
 })
 
 describe('SecretRow', () => {
@@ -149,5 +182,26 @@ describe('SecretRow', () => {
   it('forwards className', () => {
     const markup = render({ secret: secret(), className: 'sr-cls' })
     expect(markup).toContain('sr-cls')
+  })
+
+  it('copies the value through the clipboard core when Copy is clicked', async () => {
+    const host = mountRow({ secret: secret() })
+    buttonWithText(host, 'Copy').click()
+    await flush()
+    await tick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('sk_live_abcdef123456')
+    expect(buttonWithText(host, 'Copied!').textContent?.trim()).toBe('Copied!')
+  })
+
+  it('shows no copied feedback when the clipboard core reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValueOnce(false)
+    const host = mountRow({ secret: secret() })
+    buttonWithText(host, 'Copy').click()
+    await flush()
+    await tick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('sk_live_abcdef123456')
+    expect(buttonWithText(host, 'Copy').textContent?.trim()).toBe('Copy')
+    expect(host.textContent).not.toContain('Copied!')
   })
 })

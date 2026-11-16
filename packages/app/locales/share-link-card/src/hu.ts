@@ -5,4 +5,5 @@ export const hu: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Másolva!',
   'copyLink.copy': 'Másolás',
   'shareLink.passwordProtect': 'Jelszóvédelem',
+  'shareLinkCard.aria.url': 'Hivatkozás megosztása',
 }

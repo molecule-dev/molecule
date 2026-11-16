@@ -16,6 +16,7 @@ import {
 } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -29,10 +30,13 @@ import { Button } from '@molecule/app-ui-angular'
  * through ClassMap tokens (`cm.stack(1)`, `cm.flex`, `cm.input()`,
  * `cm.flex1`).
  *
- * Copying uses `navigator.clipboard`, which exists only in secure contexts —
- * elsewhere the button silently does nothing and the `copy` output never
- * fires. The input is read-only and selects its content on focus, so manual
- * Ctrl/Cmd+C still works as the fallback. Labels use `copyLink.*` i18n keys,
+ * The copy button copies through `@molecule/app-clipboard`
+ * (`copyTextWithFallback` — the bonded clipboard provider first, then a
+ * legacy copy fallback — which resolves `false` instead of throwing), so it
+ * works on insecure (non-HTTPS) contexts too; the copied feedback shows and
+ * the `copy` output fires only when the copy succeeded. The input is read-only
+ * and selects its content on focus, so manual Ctrl/Cmd+C still works as the
+ * fallback. Labels use `copyLink.*` i18n keys,
  * read through the binding's reactive `useTranslation()`, so a locale switch
  * refreshes the text (React's components re-render through `useTranslation()`).
  */
@@ -172,16 +176,16 @@ export class CopyLinkField implements DoCheck, OnDestroy {
 
   /**
    * Copies the value, then shows the "Copied!" feedback for `feedbackMs` and
-   * fires the `copy` output — React's `copy` callback.
+   * fires the `copy` output — React's `copy` callback. Nothing happens when
+   * the copy reports failure.
    */
   copyValue(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(this.valueText()).then(() => {
-        this.copied.set(true)
-        this.copy.emit()
-        this.timer = setTimeout(() => this.copied.set(false), this.feedbackMs ?? 1500)
-      })
-    }
+    void copyTextWithFallback(this.valueText()).then((copiedOk) => {
+      if (!copiedOk) return
+      this.copied.set(true)
+      this.copy.emit()
+      this.timer = setTimeout(() => this.copied.set(false), this.feedbackMs ?? 1500)
+    })
   }
 
   /**

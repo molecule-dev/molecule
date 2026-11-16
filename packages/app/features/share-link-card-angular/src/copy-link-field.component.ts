@@ -10,6 +10,7 @@
 import { Component, type DoCheck, ElementRef, inject, type OnDestroy, signal } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -19,9 +20,10 @@ import { Button } from '@molecule/app-ui-angular'
  *
  * Read-only input + copy-to-clipboard button. The host IS the outer `<div>`
  * (`div[mol-share-link-copy-field]`), matching React's root exactly. Copying
- * uses `navigator.clipboard`, which exists only in secure contexts — elsewhere
- * the button silently does nothing. Labels use `copyLink.*` i18n keys, read
- * through the binding's reactive `useTranslation()`.
+ * goes through `copyTextWithFallback()` from `@molecule/app-clipboard` — the
+ * bonded clipboard provider first, then the legacy copy command — so a blocked
+ * clipboard leaves the button unchanged instead of throwing. Labels use
+ * `copyLink.*` i18n keys, read through the binding's reactive `useTranslation()`.
  */
 @Component({
   selector: 'div[mol-share-link-copy-field]',
@@ -35,6 +37,7 @@ import { Button } from '@molecule/app-ui-angular'
       readonly
       type="text"
       [attr.value]="valueText()"
+      [attr.aria-label]="ariaLabel()"
       (focus)="onFieldFocus($event)"
       [class]="inputClasses()"
     />
@@ -94,6 +97,16 @@ export class CopyLinkField implements DoCheck, OnDestroy {
   }
 
   /**
+   * The input's accessible name (React's
+   * `t('shareLinkCard.aria.url', …)`), read through the reactive i18n handle
+   * so it follows a locale switch.
+   * @returns The aria-label text.
+   */
+  ariaLabel(): string {
+    return this.i18n.t('shareLinkCard.aria.url', undefined, { defaultValue: 'Share link' })
+  }
+
+  /**
    * The copy button's text (React's `t('copyLink.copied'|'copyLink.copy', …)`),
    * following the copied state and the locale.
    * @returns The button text.
@@ -114,15 +127,15 @@ export class CopyLinkField implements DoCheck, OnDestroy {
   }
 
   /**
-   * Copies the value, then shows the "Copied!" feedback for 1500ms.
+   * Copies the value through `copyTextWithFallback()`, then shows the "Copied!"
+   * feedback for 1500ms only when a copy happened.
    */
   copyValue(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(this.valueText()).then(() => {
-        this.copied.set(true)
-        this.timer = setTimeout(() => this.copied.set(false), 1500)
-      })
-    }
+    void copyTextWithFallback(this.valueText()).then((copiedOk) => {
+      if (!copiedOk) return
+      this.copied.set(true)
+      this.timer = setTimeout(() => this.copied.set(false), 1500)
+    })
   }
 
   /**

@@ -5,4 +5,5 @@ export const af: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Gekopieer!',
   'copyLink.copy': 'Kopieer',
   'shareLink.passwordProtect': 'Wagwoordbeskerming',
+  'shareLinkCard.aria.url': 'Deelskakel',
 }

@@ -5,4 +5,5 @@ export const sq: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Kopjuar!',
   'copyLink.copy': 'Kopjo',
   'shareLink.passwordProtect': 'Mbrojtje me fjalëkalim',
+  'shareLinkCard.aria.url': 'Ndaj lidhjen',
 }

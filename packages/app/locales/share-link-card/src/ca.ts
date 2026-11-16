@@ -5,4 +5,5 @@ export const ca: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Copiat!',
   'copyLink.copy': 'Còpia',
   'shareLink.passwordProtect': 'Protecció amb contrasenya',
+  'shareLinkCard.aria.url': "Comparteix l'enllaç",
 }

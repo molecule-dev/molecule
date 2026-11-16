@@ -5,4 +5,5 @@ export const sw: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Imenakiliwa!',
   'copyLink.copy': 'Nakili',
   'shareLink.passwordProtect': 'Kinga nenosiri',
+  'shareLinkCard.aria.url': 'Shiriki kiungo',
 }

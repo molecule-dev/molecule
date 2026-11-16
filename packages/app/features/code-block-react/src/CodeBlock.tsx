@@ -1,5 +1,6 @@
 import { type JSX, useCallback, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
@@ -44,12 +45,11 @@ export function CodeBlock({
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const copy = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(code).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1500)
-      })
-    }
+    void copyTextWithFallback(code).then((copiedOk) => {
+      if (!copiedOk) return
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
   }, [code])
   const lines = code.split('\n')
   return (

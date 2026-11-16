@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,8 +20,8 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createApplication } from '@angular/platform-browser'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
 // so tests can assert which cm.* class was applied without a real bond — the
@@ -94,8 +95,21 @@ vi.mock('@molecule/app-ui-angular', async () => {
   }
 })
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
 const { CopyLinkField } = await import('../copy-link-field.component.js')
 const { ShareLinkCard } = await import('../share-link-card.component.js')
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
 
 /** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
@@ -213,6 +227,36 @@ describe('CopyLinkField', () => {
     const m = await renderField({ value: 'u', className: 'clf-cls' })
     expect(m.host.innerHTML).toContain('clf-cls')
   })
+
+  it('names the url field with an accessible label', async () => {
+    const m = await renderField({ value: 'u' })
+    expect(m.host.querySelector('input')?.getAttribute('aria-label')).toBe('Share link')
+  })
+
+  it('copies the value when the copy button is clicked', async () => {
+    const m = await renderField({ value: 'https://x.test/abc' })
+    const button = m.host.querySelector('button[data-button]') as HTMLButtonElement
+    button.click()
+    await vi.waitFor(async () => {
+      await m.setProps({})
+      expect(m.host.innerHTML).toContain('Copied!')
+    })
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const m = await renderField({ value: 'https://x.test/abc' })
+    const button = m.host.querySelector('button[data-button]') as HTMLButtonElement
+    button.click()
+    await vi.waitFor(() =>
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc'),
+    )
+    await m.setProps({})
+    expect(m.host.textContent).toContain('Copy')
+    expect(m.host.textContent).not.toContain('Copied!')
+  })
 })
 
 describe('ShareLinkCard', () => {
@@ -257,6 +301,26 @@ describe('ShareLinkCard', () => {
       passwordProtect: { enabled: true, onChange: () => {}, label: 'Require a password' },
     })
     expect(m.host.textContent).toContain('Require a password')
+  })
+
+  it('names the password switch from its visible label', async () => {
+    const m = await renderCard({
+      url: 'u',
+      passwordProtect: { enabled: false, onChange: () => {} },
+    })
+    const labelId = m.host.querySelector('[data-switch]')?.getAttribute('aria-labelledby')
+    expect(labelId).toBeTruthy()
+    expect(m.host.querySelector(`[id="${labelId}"]`)?.textContent).toContain('Password protect')
+  })
+
+  it('falls back to an i18n name for a switch with an empty label', async () => {
+    const m = await renderCard({
+      url: 'u',
+      passwordProtect: { enabled: false, onChange: () => {}, label: '' },
+    })
+    const toggle = m.host.querySelector('[data-switch]')
+    expect(toggle?.hasAttribute('aria-labelledby')).toBe(false)
+    expect(toggle?.getAttribute('aria-label')).toBe('Password protect')
   })
 
   it('sets data-mol-id and forwards className onto the Card', async () => {

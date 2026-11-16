@@ -11,15 +11,17 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
   provideZonelessChangeDetection,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createApplication } from '@angular/platform-browser'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 
 // ClassMap stub echoing each accessed member back as its token, so tests can
@@ -34,6 +36,7 @@ vi.mock('@molecule/app-ui', () => ({
     sp: (side: string, n: number) => `sp-${side}${n}`,
     textSize: (size: string) => `text-${size}`,
     fontWeight: (weight: string) => `fw-${weight}`,
+    textTone: (tone: string) => `tone-${tone}`,
     flex1: 'cm-flex1',
     stack: (scale: number) => `stack-${scale}`,
     textMuted: 'cm-textMuted',
@@ -58,12 +61,20 @@ setI18nProvider(
   ]),
 )
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
 const { SecretRow } = await import('../secret-row.component.js')
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
 
 /** A mounted spec host: its DOM and a teardown. */
 interface Mounted {
   /** The host element the component rendered into (the root div itself). */
   readonly host: HTMLElement
+  /** Runs one change-detection pass (zoneless CD does not fire on its own). */
+  tick(): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -106,6 +117,7 @@ async function mount(template: string, props: Record<string, unknown> = {}): Pro
   appRef.tick()
   return {
     host,
+    tick: () => appRef.tick(),
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -138,6 +150,23 @@ const secret = (over: Record<string, unknown> = {}): Record<string, unknown> => 
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
   document.body.innerHTML = ''
+})
+
+/** The button whose label equals `text`. */
+const buttonWithText = (host: HTMLElement, text: string): HTMLButtonElement => {
+  const match = [...host.querySelectorAll('button')].find(
+    (button) => button.textContent?.trim() === text,
+  )
+  if (!match) throw new Error(`No button labelled "${text}"`)
+  return match
+}
+
+/** Settles every pending microtask, so the copy promise has resolved. */
+const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
 })
 
 describe('SecretRow', () => {
@@ -204,5 +233,32 @@ describe('SecretRow', () => {
   it('forwards className', async () => {
     const host = await render({ secret: secret(), className: 'sr-cls' })
     expect(markupOf(host)).toContain('sr-cls')
+  })
+
+  it('copies the value through the clipboard core when Copy is clicked', async () => {
+    const m = await mount(`<div mol-secret-row [secret]="p['secret']"></div>`, {
+      secret: secret(),
+    })
+    mounted.push(m)
+    buttonWithText(m.host, 'Copy').click()
+    await flush()
+    m.tick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('sk_live_abcdef123456')
+    expect(buttonWithText(m.host, 'Copied!').textContent?.trim()).toBe('Copied!')
+  })
+
+  it('shows no copied feedback when the clipboard core reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValueOnce(false)
+    const m = await mount(`<div mol-secret-row [secret]="p['secret']"></div>`, {
+      secret: secret(),
+    })
+    mounted.push(m)
+    buttonWithText(m.host, 'Copy').click()
+    await flush()
+    m.tick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('sk_live_abcdef123456')
+    expect(buttonWithText(m.host, 'Copy').textContent?.trim()).toBe('Copy')
+    expect(m.host.textContent).not.toContain('Copied!')
   })
 })

@@ -1,7 +1,9 @@
+// @vitest-environment jsdom
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -31,11 +33,34 @@ vi.mock('@molecule/app-react', () => ({
 }))
 
 vi.mock('@molecule/app-ui-react', () => ({
-  Button: ({ children }: { children?: ReactNode }) =>
-    createElement('button', { 'data-button': '' }, children),
+  Button: ({ children, onClick }: { children?: ReactNode; onClick?: () => void }) =>
+    createElement('button', { 'data-button': '', type: 'button', onClick }, children),
 }))
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
 const { CopyLinkField } = await import('../CopyLinkField.js')
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
+
+afterEach(() => {
+  cleanup()
+  vi.restoreAllMocks()
+})
+
+/** Helper — the copy button. */
+function copyButton(): HTMLButtonElement {
+  return document.querySelector('button[data-button]') as HTMLButtonElement
+}
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
@@ -70,5 +95,28 @@ describe('CopyLinkField', () => {
   it('forwards className', () => {
     const markup = html(createElement(CopyLinkField, { value: 'u', className: 'clf-cls' }))
     expect(markup).toContain('clf-cls')
+  })
+
+  it('copies the value when the copy button is clicked', async () => {
+    const onCopy = vi.fn()
+    render(createElement(CopyLinkField, { value: 'https://x.test/abc', onCopy }))
+    fireEvent.click(copyButton())
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+    await waitFor(() => expect(copyButton().textContent).toBe('Copied!'))
+    expect(onCopy).toHaveBeenCalledTimes(1)
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const onCopy = vi.fn()
+    render(createElement(CopyLinkField, { value: 'https://x.test/abc', onCopy }))
+    fireEvent.click(copyButton())
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+    await act(async () => {
+      await Promise.resolve()
+    })
+    expect(copyButton().textContent).toBe('Copy')
+    expect(onCopy).not.toHaveBeenCalled()
   })
 })

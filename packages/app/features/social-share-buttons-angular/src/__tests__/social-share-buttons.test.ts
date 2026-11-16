@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,8 +20,12 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createApplication } from '@angular/platform-browser'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Flipped on by the literal-key tests: the mock's `t` then answers with the
+// key itself, so the test sees exactly which key the component asked for.
+const marker = vi.hoisted(() => ({ on: false }))
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
@@ -49,8 +54,10 @@ vi.mock('@molecule/app-ui', () => ({
 // resolves to the inline English default.
 vi.mock('@molecule/app-angular', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (key: string, _values: unknown, opts?: { defaultValue?: string }) => {
+      if (marker.on) return `[${key}]`
+      return opts?.defaultValue ?? key
+    },
   }),
 }))
 
@@ -78,7 +85,20 @@ vi.mock('@molecule/app-ui-angular', async () => {
   }
 })
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
 const { SocialShareButtons } = await import('../social-share-buttons.component.js')
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
 
 /** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
@@ -188,11 +208,77 @@ describe('SocialShareButtons', () => {
   it('renders the copy platform as a button with an aria-label', async () => {
     const m = await render({ url: 'https://x.test', platforms: ['copy'] })
     expect(m.host.innerHTML).toContain('<button')
-    expect(m.host.innerHTML).toContain('aria-label="copy"')
+    expect(m.host.innerHTML).toContain('aria-label="Copy"')
   })
 
   it('forwards className', async () => {
     const m = await render({ url: 'https://x.test', className: 'ssb-cls' })
     expect(m.host.innerHTML).toContain('ssb-cls')
+  })
+
+  it('copies the url when the copy button is clicked', async () => {
+    const m = await render({ url: 'https://x.test/click', platforms: ['copy'] })
+    const button = m.host.querySelector('button')
+    if (!button) throw new Error('no copy button rendered')
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    // the copy promise settles, then the copied signal re-renders on a tick
+    await new Promise<void>((resolve) => setTimeout(resolve, 0))
+    await m.setProps({})
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/click')
+    expect(button.textContent).toContain('Copied!')
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const m = await render({ url: 'https://x.test/click', platforms: ['copy'] })
+    const button = m.host.querySelector('button')
+    if (!button) throw new Error('no copy button rendered')
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await new Promise<void>((resolve) => setTimeout(resolve, 0))
+    await m.setProps({})
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/click')
+    expect(button.textContent).not.toContain('Copied!')
+    expect(button.textContent).toContain('⧉')
+  })
+})
+
+describe('SocialShareButtons platform label keys', () => {
+  /** The English name each platform's label falls back to (the bond's en.ts text). */
+  const ENGLISH: Record<string, string> = {
+    twitter: 'Twitter',
+    x: 'X',
+    linkedin: 'LinkedIn',
+    facebook: 'Facebook',
+    reddit: 'Reddit',
+    email: 'Email',
+    copy: 'Copy',
+  }
+
+  /** Every platform the component's union can take, in its order. */
+  const PLATFORMS = ['twitter', 'x', 'linkedin', 'facebook', 'reddit', 'email', 'copy'] as const
+
+  it('resolves every platform label through its literal key', async () => {
+    // One literal `share.<platform>` key per platform: the rendered aria-label
+    // is the key the mock answered with, so a marker here proves the component
+    // asked for that exact literal key (a runtime-built key would miss).
+    marker.on = true
+    try {
+      const m = await render({ url: 'https://x.test', platforms: [...PLATFORMS] })
+      for (const p of PLATFORMS) {
+        expect(m.host.innerHTML).toContain(`aria-label="[share.${p}]"`)
+      }
+    } finally {
+      marker.on = false
+    }
+  })
+
+  it('falls back to the English platform name when no translation is loaded', async () => {
+    const m = await render({ url: 'https://x.test', platforms: [...PLATFORMS] })
+    // the inline English default is the platform's name — the bond's en.ts text
+    for (const p of PLATFORMS) {
+      expect(m.host.innerHTML).toContain(`aria-label="${ENGLISH[p]}"`)
+    }
   })
 })

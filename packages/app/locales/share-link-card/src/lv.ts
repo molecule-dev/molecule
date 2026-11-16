@@ -5,4 +5,5 @@ export const lv: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Nokopēts!',
   'copyLink.copy': 'Kopēt',
   'shareLink.passwordProtect': 'Aizsargāt ar paroli',
+  'shareLinkCard.aria.url': 'Kopīgot saiti',
 }

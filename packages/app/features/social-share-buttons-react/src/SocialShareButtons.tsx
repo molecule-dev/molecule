@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
@@ -35,6 +36,42 @@ const ICON: Record<SocialPlatform, string> = {
   copy: '⧉',
 }
 
+/** The translation function shape we use here — matches `useTranslation().t`. */
+type TFn = (
+  key: string,
+  values?: Record<string, string | number | boolean | Date>,
+  options?: { defaultValue?: string },
+) => string
+
+/**
+ * Resolve a platform's accessible label through ONE literal `t()` key per
+ * platform (a runtime-built `` `share.${platform}` `` cannot be checked
+ * against the locale bond). The defaults are the platforms' English names — the
+ * text the bond's `en.ts` holds for these keys.
+ *
+ * @param platform - The platform.
+ * @param t - The `useTranslation()` `t` function.
+ * @returns The localized platform label.
+ */
+function platformLabel(platform: SocialPlatform, t: TFn): string {
+  switch (platform) {
+    case 'twitter':
+      return t('share.twitter', {}, { defaultValue: 'Twitter' })
+    case 'x':
+      return t('share.x', {}, { defaultValue: 'X' })
+    case 'linkedin':
+      return t('share.linkedin', {}, { defaultValue: 'LinkedIn' })
+    case 'facebook':
+      return t('share.facebook', {}, { defaultValue: 'Facebook' })
+    case 'reddit':
+      return t('share.reddit', {}, { defaultValue: 'Reddit' })
+    case 'email':
+      return t('share.email', {}, { defaultValue: 'Email' })
+    case 'copy':
+      return t('share.copy', {}, { defaultValue: 'Copy' })
+  }
+}
+
 /**
  * Returns the share-sheet URL for a given platform, URL, and optional title.
  * @param platform
@@ -64,7 +101,10 @@ function shareUrl(platform: SocialPlatform, url: string, title?: string): string
 /**
  * Row of share buttons — opens each platform's share sheet in a new
  * tab. `'copy'` copies the URL to the clipboard with "Copied!"
- * feedback. Keep the component itself cosmetic-only; apps override
+ * feedback, through `@molecule/app-clipboard`'s `copyTextWithFallback()`:
+ * the Clipboard API where available, the legacy copy command otherwise,
+ * and `false` where no copy happened (the button then stays unchanged).
+ * Keep the component itself cosmetic-only; apps override
  * icons via `className` on the wrapping element.
  * @param props - Component props (see {@link SocialShareButtonsProps}).
  */
@@ -79,17 +119,16 @@ export function SocialShareButtons({
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const copy = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(url).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1500)
-      })
-    }
+    void copyTextWithFallback(url).then((copiedOk) => {
+      if (!copiedOk) return
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
   }, [url])
   return (
     <div className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}>
       {platforms.map((p) => {
-        const label = t(`share.${p}`, {}, { defaultValue: p })
+        const label = platformLabel(p, t)
         if (p === 'copy') {
           return (
             <Button key={p} variant="outline" size={size} onClick={copy} aria-label={label}>

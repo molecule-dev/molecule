@@ -5,4 +5,5 @@ export const am: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'ተገልብጧል!',
   'copyLink.copy': 'ቅጂ',
   'shareLink.passwordProtect': 'የይለፍ ቃል ጥበቃ',
+  'shareLinkCard.aria.url': 'አገናኝ አጋራ',
 }

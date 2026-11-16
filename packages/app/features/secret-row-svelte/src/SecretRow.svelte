@@ -12,11 +12,11 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
+  import { copyTextWithFallback } from '@molecule/app-clipboard'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
 
-  import { reactStyle } from './style.js'
   import type { SecretRowProps } from './types.js'
 
   let { secret, onRotate, onDelete, maskChar = '•', className }: SecretRowProps = $props()
@@ -50,18 +50,20 @@
   const descriptionClass = $derived(cm.textSize('xs'))
   const codeClass = $derived(cm.cn(cm.sp('px', 2), cm.sp('py', 1), cm.textSize('xs')))
   const chipClass = $derived(cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')))
+  const expiredClass = $derived(
+    cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textTone('error')),
+  )
   const mutedClass = $derived(cm.cn(cm.textSize('xs'), cm.textMuted))
 
   /** Copies the value, then shows the "Copied!" feedback for 1.5 s. */
   function copy(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(secret.value).then(() => {
-        copied = true
-        timer = setTimeout(() => {
-          copied = false
-        }, 1500)
-      })
-    }
+    void copyTextWithFallback(secret.value).then((didCopy) => {
+      if (!didCopy) return
+      copied = true
+      timer = setTimeout(() => {
+        copied = false
+      }, 1500)
+    })
   }
 </script>
 
@@ -78,7 +80,7 @@
   <code class={codeClass}>{revealed ? secret.value : masked}</code>
   {#if secret.version}<span class={chipClass}>v{@render field(secret.version)}</span
     >{:else}{@render field(secret.version ?? '')}{/if}
-  {#if expired}<span class={chipClass} use:reactStyle={{ color: '#ef4444' }}
+  {#if expired}<span class={expiredClass}
       >{t('secretRow.expired', {}, { defaultValue: 'Expired' })}</span
     >{/if}
   {#if showCountdown}<span class={chipClass}

@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js'
 import { createSignal, onCleanup } from 'solid-js'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
@@ -11,10 +12,13 @@ import type { CopyLinkFieldProps } from './types.js'
  * Read-only input + copy-to-clipboard button. Common in share-link
  * panels, API-key cards, webhook URLs.
  *
- * Copying uses `navigator.clipboard`, which exists only in secure contexts —
- * elsewhere the button silently does nothing and `onCopy` never fires. The
- * input is read-only and selects its content on focus, so manual Ctrl/Cmd+C
- * still works as the fallback. Labels use `copyLink.*` i18n keys.
+ * The copy button copies through `@molecule/app-clipboard`
+ * (`copyTextWithFallback` — the bonded clipboard provider first, then a
+ * legacy copy fallback — which resolves `false` instead of throwing), so it
+ * works on insecure (non-HTTPS) contexts too; the copied feedback shows and
+ * `onCopy` fires only when the copy succeeded. The input is read-only and
+ * selects its content on focus, so manual Ctrl/Cmd+C still works as the
+ * fallback. Labels use `copyLink.*` i18n keys.
  *
  * The input's value is written through Solid's `attr:` namespace (`attr:value`)
  * the same way `@molecule/app-ui-solid`'s `Input` does: React carries both the
@@ -36,13 +40,12 @@ export const CopyLinkField: Component<CopyLinkFieldProps> = (props) => {
 
   /** Copies the value, then shows the "Copied!" feedback for `feedbackMs`. */
   const copy = (): void => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(props.value).then(() => {
-        setCopied(true)
-        props.onCopy?.()
-        timer = setTimeout(() => setCopied(false), props.feedbackMs)
-      })
-    }
+    void copyTextWithFallback(props.value).then((copiedOk) => {
+      if (!copiedOk) return
+      setCopied(true)
+      props.onCopy?.()
+      timer = setTimeout(() => setCopied(false), props.feedbackMs)
+    })
   }
 
   onCleanup(() => clearTimeout(timer))

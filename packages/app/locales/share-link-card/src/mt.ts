@@ -5,4 +5,5 @@ export const mt: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Ikkupjat!',
   'copyLink.copy': 'Kopja',
   'shareLink.passwordProtect': 'Protezzjoni bil-password',
+  'shareLinkCard.aria.url': 'Aqsam il-link',
 }

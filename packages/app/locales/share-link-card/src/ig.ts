@@ -5,4 +5,5 @@ export const ig: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'E depụtaghachiri ya!',
   'copyLink.copy': 'Detuo',
   'shareLink.passwordProtect': 'Nchekwa paswọọdụ',
+  'shareLinkCard.aria.url': 'Kesaa njikọ',
 }

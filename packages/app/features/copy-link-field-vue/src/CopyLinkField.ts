@@ -10,6 +10,7 @@
 
 import { defineComponent, h, onUnmounted, type PropType, ref, type VNodeChild } from 'vue'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
@@ -18,10 +19,13 @@ import { useTranslation } from '@molecule/app-vue'
  * Read-only input + copy-to-clipboard button. Common in share-link
  * panels, API-key cards, webhook URLs.
  *
- * Copying uses `navigator.clipboard`, which exists only in secure contexts —
- * elsewhere the button silently does nothing and `onCopy` never fires. The
- * input is read-only and selects its content on focus, so manual Ctrl/Cmd+C
- * still works as the fallback. Labels use `copyLink.*` i18n keys.
+ * The copy button copies through `@molecule/app-clipboard`
+ * (`copyTextWithFallback` — the bonded clipboard provider first, then a
+ * legacy copy fallback — which resolves `false` instead of throwing), so it
+ * works on insecure (non-HTTPS) contexts too; the copied feedback shows and
+ * `onCopy` fires only when the copy succeeded. The input is read-only and
+ * selects its content on focus, so manual Ctrl/Cmd+C still works as the
+ * fallback. Labels use `copyLink.*` i18n keys.
  *
  * @param props - Component props (see {@link CopyLinkFieldProps}).
  * @returns The copy-link field component.
@@ -59,15 +63,14 @@ export const CopyLinkField = defineComponent({
 
     /** Copies the value, then shows the "Copied!" feedback for `feedbackMs`. */
     const copy = (): void => {
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        void navigator.clipboard.writeText(props.value).then(() => {
-          copied.value = true
-          props.onCopy?.()
-          timer = setTimeout(() => {
-            copied.value = false
-          }, props.feedbackMs)
-        })
-      }
+      void copyTextWithFallback(props.value).then((copiedOk) => {
+        if (!copiedOk) return
+        copied.value = true
+        props.onCopy?.()
+        timer = setTimeout(() => {
+          copied.value = false
+        }, props.feedbackMs)
+      })
     }
 
     onUnmounted(() => clearTimeout(timer))

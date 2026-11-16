@@ -17,6 +17,7 @@ import {
   type VNodeChild,
 } from 'vue'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
@@ -30,8 +31,9 @@ import type { SecretRowData } from './types.js'
  * zero/positive, and a "Last rotated {value}" note when `lastRotatedAt` is
  * set. The Rotate / Delete buttons render only when their handler is passed.
  *
- * Copying uses `navigator.clipboard`, which exists only in secure contexts —
- * elsewhere the Copy button silently does nothing, exactly like React.
+ * Copying goes through `copyTextWithFallback` (`@molecule/app-clipboard`),
+ * which never throws — the Copy button shows no feedback when the copy was
+ * blocked, exactly like React.
  *
  * @param props - Component props (see {@link SecretRowProps} in `./types.js`).
  * @returns The secret row component.
@@ -60,14 +62,13 @@ export const SecretRow = defineComponent({
 
     /** Copies the value, then shows the "Copied!" feedback for 1.5 s. */
     const copy = (): void => {
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        void navigator.clipboard.writeText(props.secret.value).then(() => {
-          copied.value = true
-          timer = setTimeout(() => {
-            copied.value = false
-          }, 1500)
-        })
-      }
+      void copyTextWithFallback(props.secret.value).then((didCopy) => {
+        if (!didCopy) return
+        copied.value = true
+        timer = setTimeout(() => {
+          copied.value = false
+        }, 1500)
+      })
     }
 
     onUnmounted(() => clearTimeout(timer))
@@ -107,10 +108,7 @@ export const SecretRow = defineComponent({
         children.push(
           h(
             'span',
-            {
-              class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')),
-              style: { color: '#ef4444' },
-            },
+            { class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textTone('error')) },
             t('secretRow.expired', {}, { defaultValue: 'Expired' }),
           ),
         )

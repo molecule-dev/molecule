@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
@@ -57,12 +58,11 @@ export function SecretRow({
   const [revealed, setRevealed] = useState(false)
   const [copied, setCopied] = useState(false)
   const copy = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(secret.value).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1500)
-      })
-    }
+    void copyTextWithFallback(secret.value).then((didCopy) => {
+      if (!didCopy) return
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
   }, [secret.value])
   const masked = maskChar.repeat(Math.max(8, Math.min(secret.value.length, 24)))
   const expired = secret.daysUntilRotation !== undefined && secret.daysUntilRotation < 0
@@ -81,10 +81,7 @@ export function SecretRow({
         </span>
       )}
       {expired && (
-        <span
-          className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
-          style={{ color: '#ef4444' }}
-        >
+        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textTone('error'))}>
           {t('secretRow.expired', {}, { defaultValue: 'Expired' })}
         </span>
       )}

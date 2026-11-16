@@ -1,5 +1,6 @@
 import { type Component, createSignal, For, onCleanup } from 'solid-js'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
@@ -52,9 +53,11 @@ function shareUrl(platform: SocialPlatform, url: string, title?: string): string
  * Row of share buttons — opens each platform's share sheet in a new tab.
  * `'copy'` copies the URL to the clipboard with "Copied!" feedback.
  *
- * Copying uses `navigator.clipboard`, which exists only in secure contexts —
- * elsewhere the button silently does nothing, as in React. Platform labels use
- * `share.<platform>` i18n keys and the copy feedback uses `share.copied`.
+ * Copying goes through `@molecule/app-clipboard`'s `copyTextWithFallback()`
+ * (the Clipboard API where available, the legacy copy command otherwise;
+ * `false` where no copy happened and the button then stays unchanged), as
+ * in React. Platform labels each use their literal `share.<platform>` i18n
+ * key; the copy feedback uses `share.copied`.
  *
  * This is the Solid counterpart of `@molecule/app-social-share-buttons-react`:
  * the same props (React names), the same ClassMap tokens, and the same DOM for
@@ -71,19 +74,39 @@ export const SocialShareButtons: Component<SocialShareButtonsProps> = (props) =>
 
   /** Copies the URL, then shows the "Copied!" feedback for 1.5 s. */
   const copy = (): void => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(props.url).then(() => {
-        setCopied(true)
-        timer = setTimeout(() => setCopied(false), 1500)
-      })
-    }
+    void copyTextWithFallback(props.url).then((copiedOk) => {
+      if (!copiedOk) return
+      setCopied(true)
+      timer = setTimeout(() => setCopied(false), 1500)
+    })
   }
 
   onCleanup(() => clearTimeout(timer))
 
-  /** The platform's accessible label (`share.<platform>`, falling back to the id). */
-  const label = (platform: SocialPlatform): string =>
-    t(`share.${platform}`, {}, { defaultValue: platform })
+  /**
+   * The platform's accessible label, through ONE literal `t()` key per
+   * platform (a runtime-built `` `share.${platform}` `` cannot be checked
+   * against the locale bond). The defaults are the platforms' English names — the
+   * text the bond's `en.ts` holds for these keys.
+   */
+  const label = (platform: SocialPlatform): string => {
+    switch (platform) {
+      case 'twitter':
+        return t('share.twitter', {}, { defaultValue: 'Twitter' })
+      case 'x':
+        return t('share.x', {}, { defaultValue: 'X' })
+      case 'linkedin':
+        return t('share.linkedin', {}, { defaultValue: 'LinkedIn' })
+      case 'facebook':
+        return t('share.facebook', {}, { defaultValue: 'Facebook' })
+      case 'reddit':
+        return t('share.reddit', {}, { defaultValue: 'Reddit' })
+      case 'email':
+        return t('share.email', {}, { defaultValue: 'Email' })
+      case 'copy':
+        return t('share.copy', {}, { defaultValue: 'Copy' })
+    }
+  }
 
   return (
     <div class={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), props.className)}>

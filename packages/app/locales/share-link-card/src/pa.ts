@@ -5,4 +5,5 @@ export const pa: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'ਕਾਪੀ ਕੀਤਾ ਗਿਆ!',
   'copyLink.copy': 'ਕਾਪੀ ਕਰੋ',
   'shareLink.passwordProtect': 'ਪਾਸਵਰਡ ਸੁਰੱਖਿਆ',
+  'shareLinkCard.aria.url': 'ਲਿੰਕ ਸਾਂਝਾ ਕਰੋ',
 }

@@ -5,4 +5,5 @@ export const mn: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Хуулбарлагдсан!',
   'copyLink.copy': 'Хуулбарлах',
   'shareLink.passwordProtect': 'Нууц үг хамгаалах',
+  'shareLinkCard.aria.url': 'Холбоос хуваалцах',
 }

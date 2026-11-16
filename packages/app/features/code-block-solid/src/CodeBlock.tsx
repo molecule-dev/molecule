@@ -1,5 +1,6 @@
 import { type Component, createSignal, onCleanup } from 'solid-js'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
@@ -31,12 +32,11 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
 
   /** Copies the code, then shows the "Copied!" feedback for 1500 ms. */
   const copy = (): void => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(props.code).then(() => {
-        setCopied(true)
-        timer = setTimeout(() => setCopied(false), 1500)
-      })
-    }
+    void copyTextWithFallback(props.code).then((copiedOk) => {
+      if (!copiedOk) return
+      setCopied(true)
+      timer = setTimeout(() => setCopied(false), 1500)
+    })
   }
 
   onCleanup(() => clearTimeout(timer))

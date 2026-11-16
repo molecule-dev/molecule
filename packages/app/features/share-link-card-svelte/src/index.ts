@@ -35,8 +35,10 @@
  *   `qr` alone renders nothing.
  * - The title, description and password label are snippet slots (the password
  *   label also accepts a plain string).
- * - Copy silently does nothing when `navigator.clipboard` is unavailable
- *   (non-HTTPS origins) — no error, no fallback.
+ * - Copy goes through `copyTextWithFallback()` from `@molecule/app-clipboard`:
+ *   the bonded clipboard provider first, then the legacy copy command. The
+ *   "Copied!" feedback appears only when a copy actually happened — copy never
+ *   throws, so a blocked clipboard leaves the label unchanged.
  * - The password toggle is UI-only: persisting and enforcing the password is
  *   the app/server's job.
  * - Requires a bonded ClassMap (e.g. `@molecule/app-ui-tailwind`) and the

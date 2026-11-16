@@ -5,4 +5,5 @@ export const yo: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Ti daakọ!',
   'copyLink.copy': 'Dáakọ',
   'shareLink.passwordProtect': 'Idaabobo ọrọ igbaniwọle',
+  'shareLinkCard.aria.url': 'Pin ọna asopọ',
 }

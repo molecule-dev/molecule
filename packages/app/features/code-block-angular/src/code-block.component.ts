@@ -7,6 +7,7 @@
 import { Component, type OnDestroy } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -187,14 +188,13 @@ export class CodeBlock implements OnDestroy {
    * Copies the code, then shows the "Copied!" feedback for 1500 ms.
    */
   copyCode(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(this.code ?? '').then(() => {
-        this.copied = true
-        this.timer = setTimeout(() => {
-          this.copied = false
-        }, 1500)
-      })
-    }
+    void copyTextWithFallback(this.code ?? '').then((copiedOk) => {
+      if (!copiedOk) return
+      this.copied = true
+      this.timer = setTimeout(() => {
+        this.copied = false
+      }, 1500)
+    })
   }
 
   /** Detaches the feedback timer with the component. */

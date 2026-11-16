@@ -10,7 +10,11 @@
 
 import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
+import type { CodeBlockProps } from '../types.js'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
@@ -59,16 +63,29 @@ vi.mock('@molecule/app-ui-solid', () => ({
   ),
 }))
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
 const { CodeBlock } = await import('../CodeBlock.jsx')
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
 
 const disposers: Array<() => void> = []
 
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
+
 afterEach(() => {
   for (const dispose of disposers.splice(0)) dispose()
+  document.body.innerHTML = ''
+  vi.restoreAllMocks()
 })
 
 /** Render with Solid's browser renderer and return the container's markup. */
-function renderBlock(props: Record<string, unknown>): string {
+function renderBlock(props: CodeBlockProps): string {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(() => <CodeBlock {...props} />, container))
@@ -76,6 +93,25 @@ function renderBlock(props: Record<string, unknown>): string {
 }
 
 const code = 'const x = 1\nconst y = 2\nconsole.log(x + y)'
+
+/** Mounts a {@link CodeBlock} that stays mounted (for the click tests). */
+function mountLive(props: CodeBlockProps): { container: HTMLDivElement; dispose: () => void } {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  const dispose = render(() => <CodeBlock {...props} />, container)
+  disposers.push(dispose)
+  return { container, dispose }
+}
+
+/** Helper — the copy button inside a mounted container. */
+function copyButton(container: HTMLElement): HTMLButtonElement | null {
+  return container.querySelector('button[data-button]')
+}
+
+/** Flushes the copy promise's microtasks (Solid applies signal writes synchronously). */
+function flush(): Promise<void> {
+  return new Promise<void>((resolve) => setTimeout(resolve))
+}
 
 describe('CodeBlock', () => {
   it('renders the source code', () => {
@@ -112,5 +148,27 @@ describe('CodeBlock', () => {
   it('forwards className', () => {
     const markup = renderBlock({ code, className: 'cb-cls' })
     expect(markup).toContain('cb-cls')
+  })
+
+  it('copies the displayed code when the copy button is clicked', async () => {
+    const { container } = mountLive({ code })
+    const button = copyButton(container)
+    expect(button).not.toBeNull()
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await flush()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith(code)
+    expect(copyButton(container)?.textContent).toBe('Copied!')
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const { container } = mountLive({ code })
+    const button = copyButton(container)
+    expect(button).not.toBeNull()
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await flush()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith(code)
+    expect(copyButton(container)?.textContent).toBe('Copy')
   })
 })

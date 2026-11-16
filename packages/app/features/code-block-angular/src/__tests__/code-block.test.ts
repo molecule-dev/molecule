@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,8 +20,10 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createApplication } from '@angular/platform-browser'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
@@ -78,12 +81,20 @@ vi.mock('@molecule/app-ui-angular', async () => {
   }
 })
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
 const { CodeBlock } = await import('../code-block.component.js')
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
 
 /** A mounted spec host: its DOM, a props setter, and a teardown. */
 interface Mounted {
   /** The host element whose children the component template produced. */
   readonly host: HTMLElement
+  /** Runs change detection on the host app (zoneless: the copied field needs it). */
+  tick(): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -126,6 +137,7 @@ async function mount(
   appRef.tick()
   return {
     host,
+    tick: () => appRef.tick(),
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -152,11 +164,24 @@ const render = async (props: Record<string, unknown> = {}): Promise<Mounted> => 
   return m
 }
 
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
+
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
+  vi.restoreAllMocks()
 })
 
 const code = 'const x = 1\nconst y = 2\nconsole.log(x + y)'
+
+/** Helper — the copy button inside a mounted host. */
+const copyButton = (host: HTMLElement): HTMLButtonElement | null =>
+  host.querySelector('button[data-button]')
+
+/** Flushes the copy promise's microtasks. */
+const flush = (): Promise<void> => new Promise<void>((resolve) => setTimeout(resolve))
 
 describe('CodeBlock', () => {
   it('renders the source code', async () => {
@@ -193,5 +218,30 @@ describe('CodeBlock', () => {
   it('forwards className', async () => {
     const m = await render({ code, className: 'cb-cls' })
     expect(m.host.innerHTML).toContain('cb-cls')
+  })
+
+  it('copies the displayed code when the copy button is clicked', async () => {
+    const m = await render({ code })
+    const button = copyButton(m.host)
+    expect(button).not.toBeNull()
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await flush()
+    m.tick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith(code)
+    // Angular's interpolation keeps the template's surrounding whitespace.
+    expect(copyButton(m.host)?.textContent?.trim()).toBe('Copied!')
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const m = await render({ code })
+    const button = copyButton(m.host)
+    expect(button).not.toBeNull()
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await flush()
+    m.tick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith(code)
+    expect(copyButton(m.host)?.textContent?.trim()).toBe('Copy')
   })
 })

@@ -5,4 +5,5 @@ export const lt: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Nukopijuota!',
   'copyLink.copy': 'Kopijuoti',
   'shareLink.passwordProtect': 'Apsaugoti slaptažodžiu',
+  'shareLinkCard.aria.url': 'Bendrinti nuorodą',
 }

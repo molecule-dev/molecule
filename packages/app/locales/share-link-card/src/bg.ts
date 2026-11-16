@@ -5,4 +5,5 @@ export const bg: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Копирано!',
   'copyLink.copy': 'Копиране',
   'shareLink.passwordProtect': 'Защита с парола',
+  'shareLinkCard.aria.url': 'Споделяне на връзка',
 }

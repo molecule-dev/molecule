@@ -5,4 +5,5 @@ export const th: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'คัดลอกแล้ว!',
   'copyLink.copy': 'สำเนา',
   'shareLink.passwordProtect': 'ป้องกันด้วยรหัสผ่าน',
+  'shareLinkCard.aria.url': 'แชร์ลิงก์',
 }

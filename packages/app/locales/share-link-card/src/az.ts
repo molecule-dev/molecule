@@ -5,4 +5,5 @@ export const az: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Kopyalandı!',
   'copyLink.copy': 'Kopyalayın',
   'shareLink.passwordProtect': 'Şifrə ilə qorunma',
+  'shareLinkCard.aria.url': 'Linki paylaş',
 }

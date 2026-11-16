@@ -5,4 +5,5 @@ export const en: ShareLinkCardTranslations = {
   'copyLink.copied': 'Copied!',
   'copyLink.copy': 'Copy',
   'shareLink.passwordProtect': 'Password protect',
+  'shareLinkCard.aria.url': 'Share link',
 }

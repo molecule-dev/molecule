@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,8 +20,12 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createApplication } from '@angular/platform-browser'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
 // `stack`), so tests can assert which cm.* class was applied without a real
@@ -78,6 +83,10 @@ vi.mock('@molecule/app-ui-angular', async () => {
   }
 })
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
 const { CopyLinkField } = await import('../copy-link-field.component.js')
 
 /** A mounted spec host: its DOM, a props setter, and a teardown. */
@@ -86,6 +95,8 @@ interface Mounted {
   readonly host: HTMLElement
   /** Merges props over the current ones and flushes change detection. */
   setProps(next: Record<string, unknown>): Promise<void>
+  /** Runs change detection (zoneless: a signal write needs an explicit tick). */
+  tick(): void
   /** Destroys the app and removes the host. */
   destroy(): Promise<void>
 }
@@ -114,6 +125,12 @@ async function mount(
     class SpecHost {
       /** The props the template binds. */
       p: Record<string, unknown> = props
+
+      /** Forwards the component's `copy` output to the `onCopy` prop, if given. */
+      fireCopy(): void {
+        const handler = this.p['onCopy']
+        if (typeof handler === 'function') handler()
+      }
     },
   )
   const appRef: ApplicationRef = await createApplication({
@@ -133,6 +150,7 @@ async function mount(
       ref.changeDetectorRef.markForCheck()
       appRef.tick()
     },
+    tick: () => appRef.tick(),
     destroy: async () => {
       appRef.destroy()
       host.remove()
@@ -151,7 +169,7 @@ const mounted: Mounted[] = []
  */
 const render = async (props: Record<string, unknown> = {}): Promise<Mounted> => {
   const m = await mount(
-    `<div mol-copy-link-field [value]="p['value']" [label]="p['label']" [feedbackMs]="p['feedbackMs']" [size]="p['size']" [className]="p['className']"></div>`,
+    `<div mol-copy-link-field [value]="p['value']" [label]="p['label']" [feedbackMs]="p['feedbackMs']" [size]="p['size']" [className]="p['className']" (copy)="fireCopy()"></div>`,
     CopyLinkField as Type<unknown>,
     props,
   )
@@ -161,7 +179,20 @@ const render = async (props: Record<string, unknown> = {}): Promise<Mounted> => 
 
 afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
+  vi.restoreAllMocks()
 })
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
+
+/** Flushes the copy promise's microtasks. */
+const flush = (): Promise<void> => new Promise<void>((resolve) => setTimeout(resolve))
+
+/** Helper — the copy button inside a mounted host. */
+const copyButton = (host: HTMLElement): HTMLButtonElement | null =>
+  host.querySelector('button[data-button]')
 
 describe('CopyLinkField', () => {
   it('renders a read-only input carrying the value', async () => {
@@ -193,5 +224,33 @@ describe('CopyLinkField', () => {
   it('forwards className', async () => {
     const m = await render({ value: 'u', className: 'clf-cls' })
     expect(m.host.innerHTML).toContain('clf-cls')
+  })
+
+  it('copies the value when the copy button is clicked', async () => {
+    const onCopy = vi.fn()
+    const m = await render({ value: 'https://x.test/abc', onCopy })
+    const button = copyButton(m.host)
+    expect(button).not.toBeNull()
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await flush()
+    m.tick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+    expect(copyButton(m.host)?.textContent?.trim()).toBe('Copied!')
+    expect(onCopy).toHaveBeenCalledTimes(1)
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const onCopy = vi.fn()
+    const m = await render({ value: 'https://x.test/abc', onCopy })
+    const button = copyButton(m.host)
+    expect(button).not.toBeNull()
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await flush()
+    m.tick()
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+    expect(copyButton(m.host)?.textContent?.trim()).toBe('Copy')
+    expect(onCopy).not.toHaveBeenCalled()
   })
 })

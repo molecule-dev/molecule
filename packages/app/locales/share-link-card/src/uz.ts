@@ -5,4 +5,5 @@ export const uz: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Nusxalandi!',
   'copyLink.copy': 'Nusxalash',
   'shareLink.passwordProtect': 'Parol bilan himoya qilish',
+  'shareLinkCard.aria.url': 'Havolani ulashish',
 }

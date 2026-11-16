@@ -5,4 +5,5 @@ export const be: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Скапіравана!',
   'copyLink.copy': 'Капіраваць',
   'shareLink.passwordProtect': 'Абарона паролем',
+  'shareLinkCard.aria.url': 'Падзяліцца спасылкай',
 }

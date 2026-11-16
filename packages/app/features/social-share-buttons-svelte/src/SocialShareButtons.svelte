@@ -7,6 +7,7 @@
   "Copied!" feedback.
 -->
 <script lang="ts">
+  import { copyTextWithFallback } from '@molecule/app-clipboard'
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Button } from '@molecule/app-ui-svelte'
@@ -69,32 +70,54 @@
   let copied = $state(false)
   let timer: ReturnType<typeof setTimeout> | undefined
 
+  /**
+   * The platform's accessible label, through ONE literal `t()` key per
+   * platform (a runtime-built `` `share.${platform}` `` cannot be checked
+   * against the locale bond). The defaults are the platforms' English names — the
+   * text the bond's `en.ts` holds for these keys.
+   *
+   * @param platform - The platform.
+   * @returns The localized platform label.
+   */
+  function platformLabel(platform: SocialPlatform): string {
+    switch (platform) {
+      case 'twitter':
+        return t('share.twitter', {}, { defaultValue: 'Twitter' })
+      case 'x':
+        return t('share.x', {}, { defaultValue: 'X' })
+      case 'linkedin':
+        return t('share.linkedin', {}, { defaultValue: 'LinkedIn' })
+      case 'facebook':
+        return t('share.facebook', {}, { defaultValue: 'Facebook' })
+      case 'reddit':
+        return t('share.reddit', {}, { defaultValue: 'Reddit' })
+      case 'email':
+        return t('share.email', {}, { defaultValue: 'Email' })
+      case 'copy':
+        return t('share.copy', {}, { defaultValue: 'Copy' })
+    }
+  }
+
   // Detaches the feedback timer with the component (React leaves it running;
   // the write it would make on a dead component is observable nowhere).
   $effect(() => () => clearTimeout(timer))
 
   /** Copies the URL, then shows the "Copied!" feedback for 1.5 s. */
   function copy(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(url).then(() => {
-        copied = true
-        timer = setTimeout(() => {
-          copied = false
-        }, 1500)
-      })
-    }
+    void copyTextWithFallback(url).then((copiedOk) => {
+      if (!copiedOk) return
+      copied = true
+      timer = setTimeout(() => {
+        copied = false
+      }, 1500)
+    })
   }
 </script>
 
 <div class={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}>
   {#each platforms as platform (platform)}
     {#if platform === 'copy'}
-      <Button
-        variant="outline"
-        {size}
-        onClick={copy}
-        aria-label={t(`share.${platform}`, {}, { defaultValue: platform })}
-      >
+      <Button variant="outline" {size} onClick={copy} aria-label={platformLabel(platform)}>
         {copied ? t('share.copied', {}, { defaultValue: 'Copied!' }) : ICON[platform]}
       </Button>
     {:else}
@@ -102,7 +125,7 @@
         href={shareUrl(platform, url, title)}
         target="_blank"
         rel="noreferrer noopener"
-        aria-label={t(`share.${platform}`, {}, { defaultValue: platform })}
+        aria-label={platformLabel(platform)}
       >
         <Button variant="outline" {size}>{ICON[platform]}</Button>
       </a>

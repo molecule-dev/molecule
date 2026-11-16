@@ -9,6 +9,7 @@
 
 import { defineComponent, h, onUnmounted, ref, type VNode, type VNodeChild } from 'vue'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
@@ -59,14 +60,13 @@ export const CodeBlock = defineComponent({
 
     /** Copies the code, then shows the "Copied!" feedback for 1500 ms. */
     const copy = (): void => {
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        void navigator.clipboard.writeText(props.code).then(() => {
-          copied.value = true
-          timer = setTimeout(() => {
-            copied.value = false
-          }, 1500)
-        })
-      }
+      void copyTextWithFallback(props.code).then((copiedOk) => {
+        if (!copiedOk) return
+        copied.value = true
+        timer = setTimeout(() => {
+          copied.value = false
+        }, 1500)
+      })
     }
 
     onUnmounted(() => clearTimeout(timer))

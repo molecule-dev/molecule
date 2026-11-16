@@ -42,12 +42,14 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@molecule/app-ui": "^1.0.1",
+    "@molecule/app-clipboard": "^1.0.1",
+    "@molecule/app-ui": "^1.4.0",
     "@molecule/app-ui-vue": "^1.1.0",
     "@molecule/app-vue": "^3.5.0",
     "vue": "^3.4.0"
   },
   "devDependencies": {
+    "@molecule/app-clipboard": "1.0.5",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",

@@ -5,4 +5,5 @@ export const cy: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': "Wedi'i gopïo!",
   'copyLink.copy': 'Copïo',
   'shareLink.passwordProtect': 'Diogelu cyfrinair',
+  'shareLinkCard.aria.url': 'Rhannu dolen',
 }

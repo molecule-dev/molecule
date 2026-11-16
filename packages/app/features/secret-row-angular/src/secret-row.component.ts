@@ -8,6 +8,7 @@ import { NgTemplateOutlet } from '@angular/common'
 import { Component, type OnDestroy, TemplateRef } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-angular'
@@ -38,7 +39,7 @@ import type { SecretRowData } from './types.js'
   inputs: ['secret', 'onRotate', 'onDelete', 'maskChar', 'className'],
   host: { '[class]': 'classes()' },
   // prettier-ignore
-  template: `<div [class]="stackClasses()"><span [class]="keyClass()">{{ secret.key }}</span>@if (secret.description) {<span [class]="descriptionClass()">@if (isNode(secret.description)) {<ng-container [ngTemplateOutlet]="secret.description" />}@else {<ng-container>{{ textOf(secret.description) }}</ng-container>}</span>}@else {<ng-container>{{ textOf(secret.description) }}</ng-container>}</div><code [class]="codeClass()">{{ revealed ? secret.value : masked() }}</code>@if (secret.version) {<span [class]="chipClass()">{{ 'v' }}@if (isNode(secret.version)) {<ng-container [ngTemplateOutlet]="secret.version" />}@else {<ng-container>{{ textOf(secret.version) }}</ng-container>}</span>}@else {<ng-container>{{ textOf(secret.version) }}</ng-container>}@if (expired()) {<span [class]="chipClass()" [style.color]="'#ef4444'">{{ expiredText() }}</span>}@if (showCountdown()) {<span [class]="chipClass()">{{ rotateText() }}</span>}@if (showLastRotated()) {<span [class]="mutedClass()">{{ lastRotatedText() + ' ' }}@if (isNode(secret.lastRotatedAt)) {<ng-container [ngTemplateOutlet]="secret.lastRotatedAt" />}@else {<ng-container>{{ textOf(secret.lastRotatedAt) }}</ng-container>}</span>}<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="toggleReveal()">{{ showHideText() }}</button><button mol-button [variant]="'ghost'" [size]="'sm'" (click)="copy()">{{ copyText() }}</button>@if (onRotate) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="rotate()">{{ rotateButtonText() }}</button>}@if (onDelete) {<button mol-button [variant]="'ghost'" [size]="'sm'" [color]="'error'" (click)="remove()">{{ deleteButtonText() }}</button>}`,
+  template: `<div [class]="stackClasses()"><span [class]="keyClass()">{{ secret.key }}</span>@if (secret.description) {<span [class]="descriptionClass()">@if (isNode(secret.description)) {<ng-container [ngTemplateOutlet]="secret.description" />}@else {<ng-container>{{ textOf(secret.description) }}</ng-container>}</span>}@else {<ng-container>{{ textOf(secret.description) }}</ng-container>}</div><code [class]="codeClass()">{{ revealed ? secret.value : masked() }}</code>@if (secret.version) {<span [class]="chipClass()">{{ 'v' }}@if (isNode(secret.version)) {<ng-container [ngTemplateOutlet]="secret.version" />}@else {<ng-container>{{ textOf(secret.version) }}</ng-container>}</span>}@else {<ng-container>{{ textOf(secret.version) }}</ng-container>}@if (expired()) {<span [class]="expiredClass()">{{ expiredText() }}</span>}@if (showCountdown()) {<span [class]="chipClass()">{{ rotateText() }}</span>}@if (showLastRotated()) {<span [class]="mutedClass()">{{ lastRotatedText() + ' ' }}@if (isNode(secret.lastRotatedAt)) {<ng-container [ngTemplateOutlet]="secret.lastRotatedAt" />}@else {<ng-container>{{ textOf(secret.lastRotatedAt) }}</ng-container>}</span>}<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="toggleReveal()">{{ showHideText() }}</button><button mol-button [variant]="'ghost'" [size]="'sm'" (click)="copy()">{{ copyText() }}</button>@if (onRotate) {<button mol-button [variant]="'ghost'" [size]="'sm'" (click)="rotate()">{{ rotateButtonText() }}</button>}@if (onDelete) {<button mol-button [variant]="'ghost'" [size]="'sm'" [color]="'error'" (click)="remove()">{{ deleteButtonText() }}</button>}`,
 })
 export class SecretRow implements OnDestroy {
   /** The secret to display (required, as in React's props). */
@@ -123,6 +124,19 @@ export class SecretRow implements OnDestroy {
    */
   chipClass(): string {
     return this.cm().cn(this.cm().textSize('xs'), this.cm().fontWeight('semibold'))
+  }
+
+  /**
+   * The expired-tag class (`cm.textSize('xs')`, `cm.fontWeight('semibold')`,
+   * `cm.textTone('error')`).
+   * @returns The class string.
+   */
+  expiredClass(): string {
+    return this.cm().cn(
+      this.cm().textSize('xs'),
+      this.cm().fontWeight('semibold'),
+      this.cm().textTone('error'),
+    )
   }
 
   /**
@@ -259,14 +273,13 @@ export class SecretRow implements OnDestroy {
 
   /** Copies the value, then shows the "Copied!" feedback for 1.5 s. */
   copy(): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(this.secret.value).then(() => {
-        this.copied = true
-        this.timer = setTimeout(() => {
-          this.copied = false
-        }, 1500)
-      })
-    }
+    void copyTextWithFallback(this.secret.value).then((didCopy) => {
+      if (!didCopy) return
+      this.copied = true
+      this.timer = setTimeout(() => {
+        this.copied = false
+      }, 1500)
+    })
   }
 
   /** Calls `onRotate` with the secret (React passes the same object). */

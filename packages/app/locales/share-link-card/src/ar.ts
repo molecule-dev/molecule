@@ -5,4 +5,5 @@ export const ar: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'تم النسخ!',
   'copyLink.copy': 'نسخ',
   'shareLink.passwordProtect': 'حماية بكلمة مرور',
+  'shareLinkCard.aria.url': 'مشاركة الرابط',
 }

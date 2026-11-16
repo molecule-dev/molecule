@@ -9,13 +9,15 @@
 
 import { defineComponent, h, onUnmounted, ref, type VNodeChild } from 'vue'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-vue'
 import { useTranslation } from '@molecule/app-vue'
 
 /**
- * Read-only input paired with a copy button that writes the given URL to the
- * clipboard, showing "Copied!" for 1500ms afterwards.
+ * Read-only input paired with a copy button that copies the given URL through
+ * `copyTextWithFallback()` from `@molecule/app-clipboard`, showing "Copied!"
+ * for 1500ms afterwards only when a copy happened.
  *
  * @param props - Component props (see `CopyLinkFieldProps`).
  * @returns The copy-link field component.
@@ -37,14 +39,13 @@ export const CopyLinkField = defineComponent({
 
     /** Copies the value, then shows the "Copied!" feedback for 1500ms. */
     const copy = (): void => {
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        void navigator.clipboard.writeText(props.value).then(() => {
-          copied.value = true
-          timer = setTimeout(() => {
-            copied.value = false
-          }, 1500)
-        })
-      }
+      void copyTextWithFallback(props.value).then((copiedOk) => {
+        if (!copiedOk) return
+        copied.value = true
+        timer = setTimeout(() => {
+          copied.value = false
+        }, 1500)
+      })
     }
 
     onUnmounted(() => clearTimeout(timer))
@@ -60,6 +61,7 @@ export const CopyLinkField = defineComponent({
             type: 'text',
             readonly: true,
             value: props.value,
+            'aria-label': t('shareLinkCard.aria.url', {}, { defaultValue: 'Share link' }),
             onFocus: (event: FocusEvent) => (event.target as HTMLInputElement).select(),
             class: cm.cn(cm.input(), cm.flex1),
           }),

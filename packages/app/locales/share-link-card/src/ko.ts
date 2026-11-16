@@ -5,4 +5,5 @@ export const ko: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': '복사되었습니다!',
   'copyLink.copy': '복사',
   'shareLink.passwordProtect': '비밀번호로 보호',
+  'shareLinkCard.aria.url': '링크 공유',
 }

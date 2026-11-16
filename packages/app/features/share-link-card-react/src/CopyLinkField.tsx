@@ -12,6 +12,7 @@
 
 import { type JSX, useCallback, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
@@ -23,7 +24,8 @@ export interface CopyLinkFieldProps {
 }
 
 /**
- * Renders a read-only text input paired with a copy button that writes the given URL to the clipboard.
+ * Renders a read-only text input paired with a copy button that copies the given URL through
+ * `copyTextWithFallback()` from `@molecule/app-clipboard`, showing "Copied!" only when a copy happened.
  *
  * @param props - Component props (see {@link CopyLinkFieldProps}).
  */
@@ -32,12 +34,11 @@ export function CopyLinkField({ value, className }: CopyLinkFieldProps): JSX.Ele
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const copy = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(value).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1500)
-      })
-    }
+    void copyTextWithFallback(value).then((copiedOk) => {
+      if (!copiedOk) return
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
   }, [value])
   return (
     <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
@@ -45,6 +46,7 @@ export function CopyLinkField({ value, className }: CopyLinkFieldProps): JSX.Ele
         type="text"
         readOnly
         value={value}
+        aria-label={t('shareLinkCard.aria.url', {}, { defaultValue: 'Share link' })}
         onFocus={(e) => (e.target as HTMLInputElement).select()}
         className={cm.cn(cm.input(), cm.flex1)}
       />

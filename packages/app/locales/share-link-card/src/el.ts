@@ -5,4 +5,5 @@ export const el: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Αντιγράφηκε!',
   'copyLink.copy': 'Αντιγραφή',
   'shareLink.passwordProtect': 'Προστασία με κωδικό πρόσβασης',
+  'shareLinkCard.aria.url': 'Κοινή χρήση συνδέσμου',
 }

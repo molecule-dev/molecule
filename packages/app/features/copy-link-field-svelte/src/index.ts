@@ -24,11 +24,13 @@
  * ```
  *
  * @remarks
- * Copying uses `navigator.clipboard`, which exists only in secure contexts
- * (HTTPS / localhost) — elsewhere the button silently does nothing and
- * `onCopy` never fires. The input is read-only and selects its content on
- * focus, so manual Ctrl/Cmd+C still works as the fallback. Labels use
- * `copyLink.*` i18n keys (companion bond:
+ * The copy button copies through `@molecule/app-clipboard`
+ * (`copyTextWithFallback` — the bonded clipboard provider first, then a
+ * legacy copy fallback — which resolves `false` instead of throwing), so it
+ * works on insecure (non-HTTPS) contexts too; the copied feedback shows and
+ * `onCopy` fires only when the copy succeeded. The input is read-only and
+ * selects its content on focus, so manual Ctrl/Cmd+C still works as the
+ * fallback. Labels use `copyLink.*` i18n keys (companion bond:
  * `@molecule/app-locales-copy-link-field`), read through the binding's
  * `useTranslation()` — the bonded `@molecule/app-i18n` provider satisfies it,
  * so the static `t` works wherever the provider is bonded. Styling routes

@@ -10,6 +10,7 @@
 import type { Component } from 'solid-js'
 import { createSignal, onCleanup } from 'solid-js'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-solid'
@@ -17,8 +18,9 @@ import { Button } from '@molecule/app-ui-solid'
 import type { CopyLinkFieldProps } from './copy-link-field-types.js'
 
 /**
- * Read-only input paired with a copy button that writes the given URL to the
- * clipboard, showing "Copied!" for 1500ms afterwards.
+ * Read-only input paired with a copy button that copies the given URL through
+ * `copyTextWithFallback()` from `@molecule/app-clipboard`, showing "Copied!"
+ * for 1500ms afterwards only when a copy happened.
  *
  * The input's value is written through Solid's `attr:` namespace
  * (`attr:value`), the same way `@molecule/app-ui-solid`'s `Input` does: React
@@ -36,12 +38,11 @@ export const CopyLinkField: Component<CopyLinkFieldProps> = (props) => {
 
   /** Copies the value, then shows the "Copied!" feedback for 1500ms. */
   const copy = (): void => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      void navigator.clipboard.writeText(props.value).then(() => {
-        setCopied(true)
-        timer = setTimeout(() => setCopied(false), 1500)
-      })
-    }
+    void copyTextWithFallback(props.value).then((copiedOk) => {
+      if (!copiedOk) return
+      setCopied(true)
+      timer = setTimeout(() => setCopied(false), 1500)
+    })
   }
 
   onCleanup(() => clearTimeout(timer))
@@ -52,6 +53,7 @@ export const CopyLinkField: Component<CopyLinkFieldProps> = (props) => {
         type="text"
         readonly
         attr:value={props.value}
+        aria-label={t('shareLinkCard.aria.url', {}, { defaultValue: 'Share link' })}
         onFocusIn={(event) => (event.target as HTMLInputElement).select()}
         class={cm.cn(cm.input(), cm.flex1)}
       />

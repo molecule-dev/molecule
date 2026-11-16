@@ -10,13 +10,26 @@
 
 import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import Host from '@molecule/app-framework-conformance/adapters/svelte-bindings/Host.svelte'
 import { setMoleculeContext } from '@molecule/app-svelte'
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
 import CopyLinkField from '../CopyLinkField.svelte'
 import ShareLinkCard from '../ShareLinkCard.svelte'
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
 
 /** A snippet rendering the given markup, the way a caller fills a slot. */
 const raw = (html: string): Snippet => createRawSnippet(() => ({ render: () => html }))
@@ -67,6 +80,33 @@ describe('CopyLinkField', () => {
     const host = render(CopyLinkField, { value: 'u', className: 'clf-cls' })
     expect(host.querySelector('div')?.getAttribute('class')).toContain('clf-cls')
   })
+
+  it('names the url field with an accessible label', () => {
+    const host = render(CopyLinkField, { value: 'u' })
+    expect(host.querySelector('input')?.getAttribute('aria-label')).toBe('Share link')
+  })
+
+  it('copies the value when the copy button is clicked', async () => {
+    const host = render(CopyLinkField, { value: 'https://x.test/abc' })
+    const button = host.querySelector('button') as HTMLButtonElement
+    button.click()
+    await vi.waitFor(() => expect(button.textContent).toContain('Copied!'))
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc')
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const host = render(CopyLinkField, { value: 'https://x.test/abc' })
+    const button = host.querySelector('button') as HTMLButtonElement
+    button.click()
+    await vi.waitFor(() =>
+      expect(copyTextWithFallbackMock).toHaveBeenCalledWith('https://x.test/abc'),
+    )
+    flushSync()
+    expect(button.textContent).toContain('Copy')
+    expect(button.textContent).not.toContain('Copied!')
+  })
 })
 
 describe('ShareLinkCard', () => {
@@ -116,6 +156,27 @@ describe('ShareLinkCard', () => {
       passwordProtect: { enabled: true, onChange: () => {}, label: 'Require a password' },
     })
     expect(host.textContent).toContain('Require a password')
+  })
+
+  it('names the password switch from its visible label', () => {
+    const host = render(ShareLinkCard, {
+      url: 'u',
+      passwordProtect: { enabled: false, onChange: () => {} },
+    })
+    const switchButton = host.querySelector('button[role="switch"]')
+    const labelId = switchButton?.getAttribute('aria-labelledby')
+    expect(labelId).toBeTruthy()
+    expect(document.getElementById(labelId ?? '')?.textContent).toContain('Password protect')
+  })
+
+  it('falls back to an i18n name for a switch with an empty label', () => {
+    const host = render(ShareLinkCard, {
+      url: 'u',
+      passwordProtect: { enabled: false, onChange: () => {}, label: '' },
+    })
+    const switchButton = host.querySelector('button[role="switch"]')
+    expect(switchButton?.hasAttribute('aria-labelledby')).toBe(false)
+    expect(switchButton?.getAttribute('aria-label')).toBe('Password protect')
   })
 
   it('sets data-mol-id and forwards className onto the Card', () => {

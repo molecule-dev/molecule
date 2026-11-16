@@ -1,7 +1,9 @@
+// @vitest-environment jsdom
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -31,11 +33,34 @@ vi.mock('@molecule/app-react', () => ({
 }))
 
 vi.mock('@molecule/app-ui-react', () => ({
-  Button: ({ children }: { children?: ReactNode }) =>
-    createElement('button', { 'data-button': '' }, children),
+  Button: ({ children, onClick }: { children?: ReactNode; onClick?: () => void }) =>
+    createElement('button', { 'data-button': '', type: 'button', onClick }, children),
 }))
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+
 const { CodeBlock } = await import('../CodeBlock.js')
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
+
+beforeEach(() => {
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
+})
+
+afterEach(() => {
+  cleanup()
+  vi.restoreAllMocks()
+})
+
+/** Helper — the copy button. */
+function copyButton(): HTMLButtonElement {
+  return document.querySelector('button[data-button]') as HTMLButtonElement
+}
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
@@ -76,5 +101,24 @@ describe('CodeBlock', () => {
   it('forwards className', () => {
     const markup = html(createElement(CodeBlock, { code, className: 'cb-cls' }))
     expect(markup).toContain('cb-cls')
+  })
+
+  it('copies the displayed code when the copy button is clicked', async () => {
+    render(createElement(CodeBlock, { code }))
+    fireEvent.click(copyButton())
+    expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith(code)
+    await waitFor(() => expect(copyButton().textContent).toBe('Copied!'))
+  })
+
+  it('leaves the copied state off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    render(createElement(CodeBlock, { code }))
+    fireEvent.click(copyButton())
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith(code)
+    await act(async () => {
+      await Promise.resolve()
+    })
+    expect(copyButton().textContent).toBe('Copy')
   })
 })

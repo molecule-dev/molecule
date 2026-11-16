@@ -5,4 +5,5 @@ export const ro: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Copiat!',
   'copyLink.copy': 'Copiați',
   'shareLink.passwordProtect': 'Protecție prin parolă',
+  'shareLinkCard.aria.url': 'Distribuie linkul',
 }
