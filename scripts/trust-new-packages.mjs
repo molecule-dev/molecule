@@ -75,6 +75,8 @@ import { createOtpGate, npmTwoFactorFailure, TwoFactorRateLimited } from './lib/
 import {
   collectPackages,
   existsOnRegistry,
+  FRESH_LINK_MS,
+  ledgerEntryTimes,
   readTrustLedger,
   ROOT,
   TRUST_STATE_PATH,
@@ -145,12 +147,30 @@ const untrusted = CI ? await registryAbsentPackages() : untrustedPackages()
 // but never accepted an OIDC publish for sits on a dead link while the ledger calls it
 // trusted (15 of them on 2026-10-16, refused by every release while this script
 // reported nothing to do). Those are re-linked — revoked and added fresh — not skipped.
+// A link made in the last FRESH_LINK_MS still works: it is only waiting for the release's
+// first OIDC publish, and re-making it costs 2FA codes for nothing (346 such links, made
+// on 2026-11-15, would have been re-made the next morning).
 if (!CI) {
   const listed = new Set(untrusted.map((pkg) => pkg.name))
   const ledgerNow = readTrustLedger()
-  const unproven = await unprovenPackages(collectPackages().filter((p) => ledgerNow.has(p.name)))
+  const unproven = (
+    await unprovenPackages(collectPackages().filter((p) => ledgerNow.has(p.name)))
+  ).filter((pkg) => !listed.has(pkg.name))
+  const linkedAt = ledgerEntryTimes()
+  const now = Date.now()
+  const waiting = unproven.filter((pkg) => now - (linkedAt.get(pkg.name) ?? 0) < FRESH_LINK_MS)
+  if (waiting.length) {
+    const hours = Math.round(FRESH_LINK_MS / 3_600_000)
+    console.log(
+      `${waiting.length} package(s) linked in the last ${hours} h are waiting for their first ` +
+        `publish from CI; their links are not re-made (${waiting
+          .slice(0, 3)
+          .map((pkg) => pkg.name)
+          .join(', ')}${waiting.length > 3 ? ', …' : ''}). Run the release so CI publishes them.`,
+    )
+  }
   untrusted.push(
-    ...unproven.filter((pkg) => !listed.has(pkg.name)).map((pkg) => ({ ...pkg, relink: true })),
+    ...unproven.filter((pkg) => !waiting.includes(pkg)).map((pkg) => ({ ...pkg, relink: true })),
   )
 }
 

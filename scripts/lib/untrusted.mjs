@@ -5,6 +5,8 @@
  * (fixes) so the two can never disagree about what counts as untrusted — a
  * checker that flags a package the fixer does not fix is worse than neither.
  */
+import { execFileSync } from 'node:child_process'
+import console from 'node:console'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -64,6 +66,49 @@ export const collectPackages = (dir = join(ROOT, 'packages'), found = []) => {
  */
 export const readTrustLedger = () =>
   new Set(existsSync(TRUST_STATE_PATH) ? JSON.parse(readFileSync(TRUST_STATE_PATH, 'utf8')) : [])
+
+/**
+ * How long a link nothing has published through yet keeps working. npm drops an unused
+ * link after about two days; inside this window a re-link only spends 2FA codes (three
+ * npm calls per package) to replace a link that still works.
+ */
+export const FRESH_LINK_MS = 36 * 60 * 60 * 1000
+
+/**
+ * When each ledger entry was added: the committer time of the commit that added its line
+ * (`git blame`), or now for a line not committed yet. trust:new adds a name's line in the
+ * run that links it, so this is when its link was made. A re-link keeps the line, so a
+ * re-linked package reads as old as its first link.
+ *
+ * @param root - Repo root holding `.trust-state.json`.
+ * @param run - Runs git and returns its stdout (tests pass a stand-in).
+ * @returns Package name -> epoch ms; empty when the ledger or its history is unreadable.
+ */
+export const ledgerEntryTimes = (
+  root = ROOT,
+  run = (args) =>
+    execFileSync('git', args, { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }),
+) => {
+  const times = new Map()
+  let porcelain
+  try {
+    porcelain = run(['blame', '--line-porcelain', '--', '.trust-state.json'])
+  } catch (error) {
+    // No history (a copy outside git, a shallow clone): every entry reads as old, so the
+    // caller re-links as it did before link ages were known.
+    console.error(`  could not read when trust links were made (${error.message.split('\n')[0]})`)
+    return times
+  }
+  let time = 0
+  for (const line of porcelain.split('\n')) {
+    if (line.startsWith('committer-time '))
+      time = Number(line.slice('committer-time '.length)) * 1000
+    else if (line.startsWith('\t') && time) {
+      for (const [, name] of line.matchAll(/"(@molecule\/[^"]+)"/g)) times.set(name, time)
+    }
+  }
+  return times
+}
 
 /**
  * Lists packages present in the repo but absent from the trust ledger.

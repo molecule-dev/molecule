@@ -3,7 +3,7 @@
  * (preloaded into the child), the phone approval service is a real Unix socket
  * served from this test. Nothing reaches npm or the real trust ledger.
  */
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import {
   cpSync,
   existsSync,
@@ -164,6 +164,29 @@ function scratchRepo({
 }
 
 /**
+ * Makes the scratch repo a git repo whose ledger was committed `at`, the time trust:new
+ * reads as when its links were made. Git variables from a calling hook are dropped so
+ * nothing here can reach the real repo.
+ */
+function commitLedger(root: string, at: Date) {
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')),
+  )
+  const when = at.toISOString()
+  Object.assign(env, {
+    GIT_AUTHOR_NAME: 'test',
+    GIT_AUTHOR_EMAIL: 'test@example.com',
+    GIT_COMMITTER_NAME: 'test',
+    GIT_COMMITTER_EMAIL: 'test@example.com',
+    GIT_AUTHOR_DATE: when,
+    GIT_COMMITTER_DATE: when,
+  })
+  execFileSync('git', ['init', '-q'], { cwd: root, env })
+  execFileSync('git', ['add', '.trust-state.json'], { cwd: root, env })
+  execFileSync('git', ['commit', '-q', '--no-verify', '-m', 'ledger'], { cwd: root, env })
+}
+
+/**
  * The phone side: hands out `answers` in order, one per request. A request past the
  * scripted answers is denied, so a run that asks more often than expected ends instead
  * of asking forever. `onCreate` runs as each request opens (given its 1-based number).
@@ -303,6 +326,28 @@ describe("trust:new with the owner's phone", { timeout: RUN_MS }, () => {
       `trust:new needs an npm code to trust 2 package(s): ${A}, ${B}`,
     )
     expect(ledgerOf(root).sort()).toEqual([A, B])
+  })
+
+  it('leaves a link made in the last 36 h alone: it waits for CI, it is not dead', async () => {
+    const root = scratchRepo()
+    commitLedger(root, new Date(Date.now() - 10 * 3_600_000))
+    const run = await runTrustNew(root, [], { codes: { '424242': 4 } })
+    expect(run.code, run.out).toBe(0)
+    expect(run.out).toMatch(
+      /2 package\(s\) linked in the last 36 h are waiting for their first publish from CI/,
+    )
+    expect(run.calls.filter((c) => c.name === A || c.name === B)).toEqual([])
+  })
+
+  it('re-makes a link older than 36 h that nothing has published through', async () => {
+    const root = scratchRepo()
+    commitLedger(root, new Date(Date.now() - 3 * 24 * 3_600_000))
+    const { socketPath, phone } = await phoneService(root, [{ status: 'code', code: '424242' }])
+    const run = await runTrustNew(root, [], { codes: { '424242': 6 } }, socketPath)
+    expect(run.code, run.out).toBe(0)
+    expect(run.out).not.toMatch(/waiting for their first publish/)
+    expect(phone.created).toHaveLength(1)
+    expect(new Set(run.calls.map((c) => c.name))).toEqual(new Set([A, B]))
   })
 
   it('a case that ends while its run still waits on the phone leaves no process behind', async () => {
