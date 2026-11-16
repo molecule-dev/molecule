@@ -1,5 +1,15 @@
 # @molecule/app-bonds-default-svelte
 
+## 1.2.0
+
+### Minor Changes
+
+- Wire the web clipboard by default: add `setupAppClipboardWeb()`, which `setupAllDefaultBonds()` now calls.
+
+### Patch Changes
+
+- Accept `@molecule/app-drag-drop-dndkit` 2.x for the drag-drop bond.
+
 ## 1.1.0
 
 ### Minor Changes

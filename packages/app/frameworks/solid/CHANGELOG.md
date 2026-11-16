@@ -1,5 +1,12 @@
 # @molecule/app-solid
 
+## 3.7.1
+
+### Patch Changes
+
+- Clarify that cached JWT tokens and user profiles restore synchronously without a request. Only token-only and cookie-only sessions need an asynchronous current-user request before their first session decision.
+- Keep earlier loaded fields when a form receives independent field fills. Preserve unchanged dirty-field validation state and discard the previous draft when a record id changes.
+
 ## 3.7.0
 
 ### Minor Changes

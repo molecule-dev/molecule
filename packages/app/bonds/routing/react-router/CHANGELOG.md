@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.4.0
+
+### Minor Changes
+
+- Add ListRouteNav for URL-selected list navigation. One declaration keeps every choice visible, generates router links, and resets pagination when changing views. Local UI Tabs remain independent.
+
 ## 1.3.0
 
 ### Minor Changes

@@ -1,5 +1,15 @@
 # @molecule/app-ui-angular
 
+## 1.2.0
+
+### Minor Changes
+
+- ConfirmDialog and PromptDialog are named by their title and described by their description, the SidebarUserCard drawer is named "Account", and Tabs sets `aria-controls` only on the tab whose panel is rendered. Modal now passes updated `aria-*` and `data-*` attributes to its dialog, and `reapplyRestAttributes` takes an `includeDescribedBy` option.
+
+### Patch Changes
+
+- Require the `@molecule/app-ui` version that has the ClassMap members these components use.
+
 ## 1.1.3
 
 ### Patch Changes

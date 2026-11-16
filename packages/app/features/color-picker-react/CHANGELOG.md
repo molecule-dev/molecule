@@ -1,5 +1,11 @@
 # @molecule/app-color-picker-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The channel labels use literal translation keys (`colorPicker.r`, `colorPicker.g`, `colorPicker.b`).
+
 ## 4.0.0
 
 ### Patch Changes

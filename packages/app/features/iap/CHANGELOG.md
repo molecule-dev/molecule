@@ -1,5 +1,11 @@
 # @molecule/app-iap
 
+## 1.0.6
+
+### Patch Changes
+
+- Resolve every known store error code through its literal `iap.error.*` translation key, so the locale bond's translation applies in every language.
+
 ## 1.0.5
 
 ### Patch Changes

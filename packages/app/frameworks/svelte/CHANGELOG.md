@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.7.1
+
+### Patch Changes
+
+- Keep earlier loaded fields when a form receives independent field fills. Preserve unchanged dirty-field validation state and discard the previous draft when a record id changes.
+
 ## 3.7.0
 
 ### Minor Changes

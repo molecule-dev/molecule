@@ -1,5 +1,11 @@
 # @molecule/app-push-react-native
 
+## 1.0.7
+
+### Patch Changes
+
+- `scheduleLocal({ sound })` plays the named sound file instead of the default sound.
+
 ## 1.0.6
 
 ### Patch Changes

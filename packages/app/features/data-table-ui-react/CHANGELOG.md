@@ -1,5 +1,11 @@
 # @molecule/app-data-table-ui-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Require the `@molecule/app-ui` version that has the ClassMap members these components use.
+
 ## 4.0.1
 
 ### Patch Changes

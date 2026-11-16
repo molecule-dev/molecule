@@ -1,5 +1,11 @@
 # @molecule/app-locales-angular
 
+## 1.1.2
+
+### Patch Changes
+
+- Add the eight missing provider-missing translations (`useEditor`, `useHttp`, `useLogger`, `usePreview`, `useRouter`, `useStorage`, `useTheme`, `useWorkspace`) in every language.
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 2.2.0
+
+### Minor Changes
+
+- Record elapsed clocks for unfinished native Playwright steps at the failed attempt boundary. Preserve unknown clock values explicitly without enabling tracing.
+
 ## 2.1.1
 
 ### Patch Changes

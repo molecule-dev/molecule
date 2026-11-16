@@ -1,5 +1,11 @@
 # @molecule/app-clipboard
 
+## 1.0.5
+
+### Patch Changes
+
+- `copyTextWithFallback()` falls back to the copy command when the bonded provider refuses the write, as it already did when no provider is bonded.
+
 ## 1.0.4
 
 ### Patch Changes

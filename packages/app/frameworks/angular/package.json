@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-angular",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "description": "Angular framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -63,7 +63,7 @@
     "@molecule/app-ai-chat": "1.8.0",
     "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-framework-conformance": "0.0.0",
-    "@molecule/app-utilities": "1.0.6",
+    "@molecule/app-utilities": "1.0.7",
     "@types/node": "26.6.5",
     "rxjs": "7.8.2",
     "typescript": "6.0.3",

@@ -1,5 +1,11 @@
 # @molecule/api-resource-device
 
+## 1.1.5
+
+### Patch Changes
+
+- `GET /devices/push/public-key` asks a push provider that fetches its key (the molecule.dev hosted bond) instead of answering 503.
+
 ## 1.1.4
 
 ### Patch Changes

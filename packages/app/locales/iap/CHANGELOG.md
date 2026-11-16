@@ -1,5 +1,11 @@
 # @molecule/app-locales-iap
 
+## 1.0.4
+
+### Patch Changes
+
+- Add the four missing store-error translations (`E_USER_CANCELLED`, `E_ITEM_UNAVAILABLE`, `E_SERVICE_ERROR`, `E_VERIFICATION_FAILED`) in every language.
+
 ## 1.0.3
 
 ### Patch Changes

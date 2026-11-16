@@ -1,5 +1,12 @@
 # @molecule/app-angular
 
+## 3.7.1
+
+### Patch Changes
+
+- Resolve the provider-missing error messages through literal `angular.error.*` translation keys, so the locale bond's translation applies in every language.
+- Keep earlier loaded fields when a form receives independent field fills. Preserve unchanged dirty-field validation state and discard the previous draft when a record id changes.
+
 ## 3.7.0
 
 ### Minor Changes

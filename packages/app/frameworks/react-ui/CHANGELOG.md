@@ -1,5 +1,12 @@
 # @molecule/app-ui-react
 
+## 4.1.4
+
+### Patch Changes
+
+- ConfirmDialog and PromptDialog are named by their title and described by their description, the SidebarUserCard drawer is named "Account", and Tabs sets `aria-controls` only on the tab whose panel is rendered.
+- Require the `@molecule/app-ui` version that has the ClassMap members these components use.
+
 ## 4.1.3
 
 ### Patch Changes

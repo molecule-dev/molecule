@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-routing-react-router",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "React Router provider with URL-backed list pagination, filters, path/query selections and auth readiness",
   "type": "module",
   "main": "dist/index.js",

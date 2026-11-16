@@ -1,5 +1,11 @@
 # @molecule/app-reading-progress-bar-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The `color` prop's documentation suggests a theme-aware value instead of a hex color.
+
 ## 4.0.0
 
 ### Patch Changes

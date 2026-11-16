@@ -1,5 +1,11 @@
 # @molecule/app-network
 
+## 1.0.6
+
+### Patch Changes
+
+- Resolve the connection-type name through literal `network.<type>` translation keys, so the locale bond's translation applies in every language.
+
 ## 1.0.5
 
 ### Patch Changes

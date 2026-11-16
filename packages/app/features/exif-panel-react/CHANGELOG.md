@@ -1,5 +1,11 @@
 # @molecule/app-exif-panel-react
 
+## 4.0.1
+
+### Patch Changes
+
+- ExifPanel's aperture, shutter speed, ISO and focal length units go through translations, so each language can word them.
+
 ## 4.0.0
 
 ### Patch Changes

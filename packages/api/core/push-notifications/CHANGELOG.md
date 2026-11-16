@@ -1,5 +1,11 @@
 # @molecule/api-push-notifications
 
+## 1.2.0
+
+### Minor Changes
+
+- Add `fetchPublicKey()`, which returns the public VAPID key with any provider and asks a provider that keeps its key behind a service (the new optional `PushNotificationProvider.fetchPublicKey`).
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-push-notifications-molecule
 
+## 1.2.1
+
+### Patch Changes
+
+- `fetchPublicKey()` asks molecule.dev once and shares the key with later and concurrent calls; the docs serve it through the core's `fetchPublicKey()`.
+
 ## 1.2.0
 
 ### Minor Changes

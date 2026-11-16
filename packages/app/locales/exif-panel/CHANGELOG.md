@@ -1,5 +1,11 @@
 # @molecule/app-locales-exif-panel
 
+## 1.0.4
+
+### Patch Changes
+
+- Add the EXIF value unit translations in every language.
+
 ## 1.0.3
 
 ### Patch Changes

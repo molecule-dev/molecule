@@ -1,5 +1,11 @@
 # @molecule/app-locales-color-picker
 
+## 1.0.4
+
+### Patch Changes
+
+- Add the red, green and blue channel label translations (`colorPicker.r`, `colorPicker.g`, `colorPicker.b`) in every language.
+
 ## 1.0.3
 
 ### Patch Changes

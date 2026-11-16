@@ -1,5 +1,11 @@
 # @molecule/app-ui-react-native
 
+## 1.0.9
+
+### Patch Changes
+
+- Require the `@molecule/app-ui` version that has the ClassMap members these components use.
+
 ## 1.0.8
 
 ### Patch Changes

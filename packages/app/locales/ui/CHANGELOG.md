@@ -1,5 +1,11 @@
 # @molecule/app-locales-ui
 
+## 1.1.4
+
+### Patch Changes
+
+- Add the SidebarUserCard drawer label translations in every language.
+
 ## 1.1.3
 
 ### Patch Changes

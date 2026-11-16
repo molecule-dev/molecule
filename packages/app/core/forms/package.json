@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-forms",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "description": "Form handling interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

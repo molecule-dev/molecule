@@ -1,5 +1,18 @@
 # @molecule/app-bonds-default-react
 
+## 3.1.0
+
+### Minor Changes
+
+- Wire the web clipboard by default: add `setupAppClipboardWeb()`, which `setupAllDefaultBonds()` now calls.
+
+### Patch Changes
+
+- Accept `@molecule/app-drag-drop-dndkit` 2.x for the drag-drop bond.
+- Updated dependencies
+- Updated dependencies
+  - @molecule/app-bonds-default@1.2.0
+
 ## 3.0.4
 
 ### Patch Changes

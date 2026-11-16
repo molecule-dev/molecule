@@ -1,5 +1,11 @@
 # @molecule/app-battery
 
+## 1.0.6
+
+### Patch Changes
+
+- Resolve the charging-state label through literal `battery.<state>` translation keys, so the locale bond's translation applies in every language.
+
 ## 1.0.5
 
 ### Patch Changes

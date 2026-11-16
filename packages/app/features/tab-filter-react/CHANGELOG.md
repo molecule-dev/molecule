@@ -1,5 +1,11 @@
 # @molecule/app-tab-filter-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Require the `@molecule/app-ui` version that has the ClassMap members these components use.
+
 ## 4.1.0
 
 ### Minor Changes

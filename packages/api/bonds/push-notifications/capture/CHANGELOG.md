@@ -1,5 +1,11 @@
 # @molecule/api-push-capture
 
+## 1.2.0
+
+### Minor Changes
+
+- Pass `fetchPublicKey()` through to the wrapped provider, so a wrapped molecule.dev hosted bond serves its public key.
+
 ## 1.1.0
 
 ### Minor Changes
