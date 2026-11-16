@@ -1,0 +1,82 @@
+/**
+ * Types for the Solid trace waterfall, the same props and results
+ * `@molecule/app-trace-waterfall-react` accepts and returns.
+ *
+ * @module
+ */
+
+import type { JSX } from 'solid-js'
+
+/** Status indicator for a span. Mirrors common OTel-style status semantics. */
+export type SpanStatus = 'ok' | 'error' | 'pending'
+
+/**
+ * A single distributed-trace span. Times are numeric milliseconds (labels
+ * assume ms; layout is unit-agnostic) — `startTime` and `duration` must
+ * share a unit. The tree is formed by `parentId` references; spans without
+ * a `parentId` (or whose `parentId` isn't present in the input array) are
+ * roots.
+ */
+export interface Span {
+  /** Stable id for this span. */
+  id: string
+  /** Id of the parent span; omit (or set undefined) for a root span. */
+  parentId?: string
+  /** Operation name (e.g. `GET /users/:id`, `db.query`). */
+  name: string
+  /** Service / component label that emitted this span (e.g. `auth-api`). */
+  service?: string
+  /**
+   * Start time relative to some shared origin. Any unit is fine as long as
+   * it matches `duration`; the trace is auto-scaled to its own min/max.
+   */
+  startTime: number
+  /** Duration in the same unit as `startTime`. Must be >= 0. */
+  duration: number
+  /** Optional status; controls the bar color. */
+  status?: SpanStatus
+  /** Optional structured attributes (tags, key/value pairs). */
+  attributes?: Record<string, unknown>
+}
+
+/** Layout metadata computed for a single span row. */
+export interface SpanRow {
+  /** The original span. */
+  span: Span
+  /** Zero-based depth in the parent tree (root === 0). */
+  depth: number
+  /** Position of the bar's left edge as a fraction `[0, 1]` of the trace duration. */
+  startFraction: number
+  /** Width of the bar as a fraction `[0, 1]` of the trace duration. */
+  widthFraction: number
+}
+
+/** Output of `layoutSpans`: ordered rows + the trace's absolute time bounds. */
+export interface SpanLayout {
+  /** Rows in render order (depth-first, sorted by `startTime`). */
+  rows: SpanRow[]
+  /** Earliest `startTime` across all spans (the trace origin on the axis). */
+  traceStart: number
+  /** Latest end time (`startTime + duration`) across all spans. */
+  traceEnd: number
+  /** `traceEnd - traceStart`, clamped to a minimum of `1` to avoid divide-by-zero. */
+  traceDuration: number
+}
+
+/** Props accepted by the {@link TraceWaterfall} component — React's prop names. */
+export interface TraceWaterfallProps {
+  /** Flat list of spans; tree is derived from `parentId` references. */
+  spans: Span[]
+  /** Optional root span id to focus the view on a single subtree. */
+  rootSpanId?: string
+  /** Optional id of the currently selected span; sets `aria-selected` on that row. */
+  selectedSpanId?: string
+  /** Click handler invoked when a span row (label or bar) is selected. */
+  onSpanClick?: (span: Span) => void
+  /**
+   * Optional content shown when `spans` is empty. Solid receives it as a JSX value.
+   */
+  emptyState?: JSX.Element
+  /** Extra classes merged onto the root via `cm.cn`. */
+  className?: string
+}

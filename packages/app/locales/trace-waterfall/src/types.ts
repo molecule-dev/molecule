@@ -4,6 +4,9 @@ export type TraceWaterfallTranslationKey =
   | 'traceWaterfall.empty'
   | 'traceWaterfall.totalDuration'
   | 'traceWaterfall.row.aria'
+  | 'traceWaterfall.duration.us'
+  | 'traceWaterfall.duration.ms'
+  | 'traceWaterfall.duration.s'
 
 /** Translation record mapping trace-waterfall keys to translated strings. */
 export type TraceWaterfallTranslations = Record<TraceWaterfallTranslationKey, string>

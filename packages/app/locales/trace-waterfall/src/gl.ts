@@ -6,4 +6,7 @@ export const gl: TraceWaterfallTranslations = {
   'traceWaterfall.empty': 'Non hai intervalos para mostrar.',
   'traceWaterfall.totalDuration': 'Total: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
+  'traceWaterfall.duration.us': '{{value}}µs',
+  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.s': '{{value}}s',
 }

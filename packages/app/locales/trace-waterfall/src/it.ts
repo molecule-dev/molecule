@@ -4,6 +4,9 @@ import type { TraceWaterfallTranslations } from './types.js'
 export const it: TraceWaterfallTranslations = {
   'traceWaterfall.aria.label': 'Cascata di tracce distribuite',
   'traceWaterfall.empty': 'Nessun elemento da visualizzare.',
-  'traceWaterfall.totalDuration': 'Total: {{duration}}',
+  'traceWaterfall.totalDuration': 'Totale: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
+  'traceWaterfall.duration.us': '{{value}}µs',
+  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.s': '{{value}}s',
 }

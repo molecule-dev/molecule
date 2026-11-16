@@ -4,6 +4,9 @@ import type { TraceWaterfallTranslations } from './types.js'
 export const hy: TraceWaterfallTranslations = {
   'traceWaterfall.aria.label': 'Բաշխված հետքային ջրվեժ',
   'traceWaterfall.empty': 'Ցուցադրելու համար տարածություններ չկան։',
-  'traceWaterfall.totalDuration': 'Total: {{duration}}',
+  'traceWaterfall.totalDuration': 'Ընդհանուր: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
+  'traceWaterfall.duration.us': '{{value}}µs',
+  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.s': '{{value}}s',
 }

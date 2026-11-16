@@ -1,0 +1,338 @@
+{
+ "exports": [
+  "FileDropzone"
+ ],
+ "values": {},
+ "cases": {
+  "FileDropzone": {
+   "default copy": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "accept hint": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\".pdf\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: .pdf\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom children replace the default copy": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<span data-custom>\nMy uploader\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom children also replace the accept hint": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\".pdf\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<span data-custom>\nMy uploader\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "hidden input carries accept and multiple": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\"image/*\" multiple style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: image/*\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "disabled": {
+    "snapshots": [
+     "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "drag over highlights the zone": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #3366ff) 6%, transparent); border-radius: 12px; border: 2px dashed var(--mol-color-primary, #3366ff); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@dragover default prevented dropEffect=none"
+    ],
+    "calls": []
+   },
+   "drag over while disabled does not highlight": {
+    "snapshots": [
+     "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@dragover default kept dropEffect=none"
+    ],
+    "calls": []
+   },
+   "drag leave clears the highlight": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #3366ff) 6%, transparent); border-radius: 12px; border: 2px dashed var(--mol-color-primary, #3366ff); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@dragover default prevented dropEffect=none",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@dragleave default kept dropEffect=none"
+    ],
+    "calls": []
+   },
+   "drop delivers the first accepted file": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "drop with multiple delivers every accepted file": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input multiple style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input multiple style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {},
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "drop after a drag over clears the highlight and delivers": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #3366ff) 6%, transparent); border-radius: 12px; border: 2px dashed var(--mol-color-primary, #3366ff); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@dragover default prevented dropEffect=none",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "drop rejects a file that does not match accept": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\"image/*\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: image/*\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\"image/*\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: image/*\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "drop rejects a file over the maximum size": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "a file at exactly the maximum size is kept": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "accept matches an extension": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\".pdf\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: .pdf\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\".pdf\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: .pdf\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "accept matches an exact MIME type": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\"application/pdf\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: application/pdf\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\"application/pdf\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: application/pdf\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "accept star keeps every file": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\"*\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: *\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\"*\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: *\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "disabled drop is ignored": {
+    "snapshots": [
+     "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": []
+   },
+   "click activates the zone": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "Enter and Space activate the zone": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "disabled keyboard is inert": {
+    "snapshots": [
+     "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an input change with no files dispatches nothing": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "prop changes toggle disabled and accept": {
+    "snapshots": [
+     "<div aria-disabled=\"true\" class=\"c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input disabled style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div aria-disabled=\"false\" class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div aria-disabled=\"false\" class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\".pdf\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: .pdf\n</p>\n</div>\n@route /",
+     "<div aria-disabled=\"false\" class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input accept=\".pdf\" style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n<p class=\"c4647f690 c99fc28ae\">\nAccepts: .pdf\n</p>\n</div>\n@route /\n@drop default prevented dropEffect=none"
+    ],
+    "calls": [
+     {
+      "name": "onFiles",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     },
+     {
+      "name": "onRejected",
+      "args": [
+       [
+        {}
+       ]
+      ]
+     }
+    ]
+   },
+   "the copy follows the i18n bond": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop it here\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "the copy follows a locale switch": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop it here\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDéposez ici\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "default copy, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\nDrop files here or click to browse\n</p>\n</div>\n@route /",
+     "<div class=\"c13d4ff0f c16e96f28 c1e8176ab c42740ba6 c9773cd2b c97d61bf0 cbaac6b89 ccae02ff2\" data-mol-id=\"file-dropzone\" role=\"button\" style=\"border-radius: 12px; border: 2px dashed var(--mol-color-border, rgba(128,128,128,0.35)); min-height: 140px\" tabindex=\"0\">\n<input style=\"display: none\" type=\"file\" {value=\"\"}>\n</input>\n<p class=\"c445db9b9 c7f74399a\">\n⟦Drop files here or click to browse⟧\n</p>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

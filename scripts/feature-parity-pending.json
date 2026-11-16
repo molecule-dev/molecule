@@ -239,12 +239,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-file-dropzone-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-filter-bar-react": [
     "vue",
     "solid",
@@ -534,12 +528,6 @@
     "angular"
   ],
   "@molecule/app-timeline-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-trace-waterfall-react": [
     "vue",
     "solid",
     "svelte",

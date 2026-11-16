@@ -4,6 +4,9 @@ import type { TraceWaterfallTranslations } from './types.js'
 export const vi: TraceWaterfallTranslations = {
   'traceWaterfall.aria.label': 'Thác nước dấu vết phân tán',
   'traceWaterfall.empty': 'Không có thẻ span nào để hiển thị.',
-  'traceWaterfall.totalDuration': 'Total: {{duration}}',
+  'traceWaterfall.totalDuration': 'Tổng cộng: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
+  'traceWaterfall.duration.us': '{{value}}µs',
+  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.s': '{{value}}s',
 }

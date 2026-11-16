@@ -4,6 +4,9 @@ import type { TraceWaterfallTranslations } from './types.js'
 export const ha: TraceWaterfallTranslations = {
   'traceWaterfall.aria.label': 'Ruwan ruwan da aka rarraba',
   'traceWaterfall.empty': 'Babu wani yanki da za a nuna.',
-  'traceWaterfall.totalDuration': 'Total: {{duration}}',
+  'traceWaterfall.totalDuration': 'Jimilla: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
+  'traceWaterfall.duration.us': '{{value}}µs',
+  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.s': '{{value}}s',
 }

@@ -1,0 +1,31 @@
+/**
+ * Props for the Vue `FileDropzone` — the same props (React names) as
+ * `@molecule/app-file-dropzone-react`'s `FileDropzoneProps`.
+ *
+ * @module
+ */
+
+import type { VNodeChild } from 'vue'
+
+/** Props for {@link FileDropzone}. */
+export interface FileDropzoneProps {
+  /** Called with the File[] the user selected or dropped. */
+  onFiles: (files: File[]) => void
+  /** Accept attribute (e.g. `'image/*'` or `'.pdf,.docx'`). */
+  accept?: string
+  /** Allow multi-file selection. Defaults to false. */
+  multiple?: boolean
+  /** Max file size in bytes. Files exceeding are rejected. */
+  maxSize?: number
+  /** Called with rejected files (wrong type or size). */
+  onRejected?: (files: File[]) => void
+  /**
+   * Optional content rendered inside the dropzone (defaults to standard upload
+   * copy). Passed as a prop or as the default slot — both work.
+   */
+  children?: VNodeChild
+  /** Disabled state. */
+  disabled?: boolean
+  /** Extra classes on the dropzone wrapper. */
+  className?: string
+}

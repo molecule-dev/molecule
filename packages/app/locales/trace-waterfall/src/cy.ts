@@ -4,6 +4,9 @@ import type { TraceWaterfallTranslations } from './types.js'
 export const cy: TraceWaterfallTranslations = {
   'traceWaterfall.aria.label': 'Rhaeadr olrhain dosbarthedig',
   'traceWaterfall.empty': "Dim rhychwantau i'w harddangos.",
-  'traceWaterfall.totalDuration': 'Total: {{duration}}',
+  'traceWaterfall.totalDuration': 'Cyfanswm: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
+  'traceWaterfall.duration.us': '{{value}}µs',
+  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.s': '{{value}}s',
 }

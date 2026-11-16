@@ -4,6 +4,9 @@ import type { TraceWaterfallTranslations } from './types.js'
 export const fil: TraceWaterfallTranslations = {
   'traceWaterfall.aria.label': 'Ipinamamahaging bakas ng talon',
   'traceWaterfall.empty': 'Walang mga span na maipapakita.',
-  'traceWaterfall.totalDuration': 'Total: {{duration}}',
+  'traceWaterfall.totalDuration': 'Kabuuan: {{duration}}',
   'traceWaterfall.row.aria': '{{service}} · {{name}} · {{duration}}',
+  'traceWaterfall.duration.us': '{{value}}µs',
+  'traceWaterfall.duration.ms': '{{value}}ms',
+  'traceWaterfall.duration.s': '{{value}}s',
 }
