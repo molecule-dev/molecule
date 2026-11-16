@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-file-card",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Translations for @molecule/app-file-card-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-file-card",
   "license": "Apache-2.0",

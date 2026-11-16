@@ -1,5 +1,11 @@
 # @molecule/app-locales-file-card
 
+## 1.0.6
+
+### Patch Changes
+
+- Translates the strings that still fell back to English in every supported language.
+
 ## 1.0.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-locales-video-player
 
+## 1.0.4
+
+### Patch Changes
+
+- Translate the seek, mute, unmute, fullscreen and captions labels into every language.
+
 ## 1.0.3
 
 ### Patch Changes

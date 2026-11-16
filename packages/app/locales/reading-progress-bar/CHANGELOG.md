@@ -1,5 +1,11 @@
 # @molecule/app-locales-reading-progress-bar
 
+## 1.0.4
+
+### Patch Changes
+
+- Translates the strings that still fell back to English in every supported language.
+
 ## 1.0.3
 
 ### Patch Changes

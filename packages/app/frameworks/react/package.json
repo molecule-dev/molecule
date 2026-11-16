@@ -59,8 +59,8 @@
   "devDependencies": {
     "@molecule/app-ai-chat": "1.8.0",
     "@molecule/app-ai-models": "1.4.4",
-    "@molecule/app-bonds-default-react": "3.0.3",
-    "@molecule/app-i18n": "1.2.1",
+    "@molecule/app-bonds-default-react": "3.0.4",
+    "@molecule/app-i18n": "1.2.2",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

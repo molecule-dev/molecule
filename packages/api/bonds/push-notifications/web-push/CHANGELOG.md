@@ -1,5 +1,11 @@
 # @molecule/api-push-notifications-web-push
 
+## 1.1.0
+
+### Minor Changes
+
+- `send` and `sendMany` take optional `SendOptions` (`ttl`, `urgency`, `topic`), sent to the push service as the Web Push TTL, Urgency and Topic headers.
+
 ## 1.0.1
 
 ### Patch Changes

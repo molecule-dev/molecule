@@ -1,5 +1,11 @@
 # @molecule/app-keyboard-shortcuts-react
 
+## 1.0.5
+
+### Patch Changes
+
+- Examples translate through the framework binding's `useTranslation()`, so a component re-renders when the locale changes.
+
 ## 1.0.3
 
 ### Patch Changes

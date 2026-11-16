@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind-glass
 
+## 1.1.0
+
+### Minor Changes
+
+- Implement the ClassMap's tone classes.
+
 ## 1.0.1
 
 ### Patch Changes

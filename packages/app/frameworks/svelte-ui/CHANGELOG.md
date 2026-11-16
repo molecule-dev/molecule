@@ -1,5 +1,12 @@
 # @molecule/app-ui-svelte
 
+## 1.1.4
+
+### Patch Changes
+
+- PageHeader's breadcrumb navigation label is translated (`ui.pageHeader.breadcrumbs`) and follows a locale switch.
+- Interactive cards activate with Enter and Space, tabs take arrow keys on the focused tab, prompt dialogs focus their input on open, and Flex forwards every element prop.
+
 ## 1.1.3
 
 ### Patch Changes

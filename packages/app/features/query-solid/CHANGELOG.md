@@ -1,5 +1,11 @@
 # @molecule/app-query-solid
 
+## 1.2.1
+
+### Patch Changes
+
+- Examples translate through the framework binding's `useTranslation()`, so a component re-renders when the locale changes.
+
 ## 1.2.0
 
 ### Minor Changes

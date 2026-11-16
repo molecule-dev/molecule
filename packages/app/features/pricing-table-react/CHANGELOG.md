@@ -1,5 +1,11 @@
 # @molecule/app-pricing-table-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Key each feature row, so React no longer warns that list children lack a unique key.
+
 ## 4.0.0
 
 ### Patch Changes

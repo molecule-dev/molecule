@@ -1,5 +1,11 @@
 # @molecule/app-styling-tailwind
 
+## 1.1.0
+
+### Minor Changes
+
+- Map the theme's overlay colour, so `bg-overlay` follows the theme.
+
 ## 1.0.5
 
 ### Patch Changes

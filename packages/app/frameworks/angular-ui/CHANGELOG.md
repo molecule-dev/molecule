@@ -1,5 +1,13 @@
 # @molecule/app-ui-angular
 
+## 1.1.3
+
+### Patch Changes
+
+- Input, Select and Textarea move a re-bound rest attribute (an `aria-label` that follows the locale) onto their inner element instead of keeping the first value.
+- PageHeader's breadcrumb navigation label is translated (`ui.pageHeader.breadcrumbs`) and follows a locale switch.
+- Interactive cards activate with Enter and Space, tabs take arrow keys on the focused tab, prompt dialogs focus their input on open, and Flex forwards every element prop.
+
 ## 1.1.2
 
 ### Patch Changes

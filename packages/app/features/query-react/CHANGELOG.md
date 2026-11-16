@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.6.2
+
+### Patch Changes
+
+- Examples translate through the framework binding's `useTranslation()`, so a component re-renders when the locale changes.
+
 ## 1.6.1
 
 ### Patch Changes

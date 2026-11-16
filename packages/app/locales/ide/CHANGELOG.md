@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.11.3
+
+### Patch Changes
+
+- The plan-review card says when approving the plan publishes the app and runs its test suite on the live app.
+
 ## 1.11.2
 
 ### Patch Changes

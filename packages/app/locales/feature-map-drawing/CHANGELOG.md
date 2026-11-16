@@ -1,5 +1,11 @@
 # @molecule/app-locales-feature-map-drawing
 
+## 1.0.4
+
+### Patch Changes
+
+- Keyboard and screen-reader access for canvas nodes, annotation pins, map drawing, the piano roll and margin notes, with translated labels.
+
 ## 1.0.3
 
 ### Patch Changes

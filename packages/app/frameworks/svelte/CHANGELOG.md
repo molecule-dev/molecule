@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.7.0
+
+### Minor Changes
+
+- Add useOptimisticToggle for server-backed boolean controls with custom markup and queued, argument-free toggles.
+
 ## 3.6.0
 
 ### Minor Changes

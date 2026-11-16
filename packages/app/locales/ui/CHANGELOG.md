@@ -1,5 +1,11 @@
 # @molecule/app-locales-ui
 
+## 1.1.3
+
+### Patch Changes
+
+- PageHeader's breadcrumb navigation label is translated (`ui.pageHeader.breadcrumbs`) and follows a locale switch.
+
 ## 1.1.2
 
 ### Patch Changes

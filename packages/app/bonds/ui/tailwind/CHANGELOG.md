@@ -1,5 +1,15 @@
 # @molecule/app-ui-tailwind
 
+## 1.3.0
+
+### Minor Changes
+
+- Implement the ClassMap's tone classes.
+
+### Patch Changes
+
+- Every clickable surface is reachable and operable from the keyboard and named for screen readers, using native buttons and radios where they fit.
+
 ## 1.2.12
 
 ### Patch Changes

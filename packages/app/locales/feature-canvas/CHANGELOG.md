@@ -1,5 +1,12 @@
 # @molecule/app-locales-feature-canvas
 
+## 1.0.4
+
+### Patch Changes
+
+- Keyboard and screen-reader access for canvas nodes, annotation pins, map drawing, the piano roll and margin notes, with translated labels.
+- Translates the strings that still fell back to English in every supported language.
+
 ## 1.0.3
 
 ### Patch Changes

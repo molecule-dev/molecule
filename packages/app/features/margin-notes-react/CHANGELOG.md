@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Keyboard and screen-reader access for canvas nodes, annotation pins, map drawing, the piano roll and margin notes, with translated labels.
+
 ## 4.0.0
 
 ### Patch Changes

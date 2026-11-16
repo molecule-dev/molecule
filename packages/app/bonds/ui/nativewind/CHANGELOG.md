@@ -1,5 +1,11 @@
 # @molecule/app-ui-nativewind
 
+## 1.3.0
+
+### Minor Changes
+
+- Implement the ClassMap's tone classes.
+
 ## 1.2.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-trace-waterfall-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Every clickable surface is reachable and operable from the keyboard and named for screen readers, using native buttons and radios where they fit.
+
 ## 4.0.1
 
 ### Patch Changes

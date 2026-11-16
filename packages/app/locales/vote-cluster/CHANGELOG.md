@@ -1,5 +1,11 @@
 # @molecule/app-locales-vote-cluster
 
+## 1.0.5
+
+### Patch Changes
+
+- Translates the strings that still fell back to English in every supported language.
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.4.0
+
+### Minor Changes
+
+- UIClassMap gains textTone, bgTone, borderTone, textOnTone and bgScrim, so a component colours a status from the theme instead of a hex value.
+
 ## 1.3.11
 
 ### Patch Changes

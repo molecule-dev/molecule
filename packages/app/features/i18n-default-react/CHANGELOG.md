@@ -1,5 +1,11 @@
 # @molecule/app-i18n-default-react
 
+## 1.0.6
+
+### Patch Changes
+
+- Document passing `supportedLocales` from the app's locale file names, so a first visit loads no other language's translations.
+
 ## 1.0.5
 
 ### Patch Changes

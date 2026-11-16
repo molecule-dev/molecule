@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-react",
-  "version": "4.1.2",
+  "version": "4.1.3",
   "description": "React UI primitive bundle for molecule.dev — Button, Modal, Tooltip, Toast, Alert, Card, Badge, Avatar, Tabs, Accordion, Dropdown, Select, Checkbox, Switch, Input, Table, Spinner, Skeleton, Progress and more. Import these primitives; do not rebuild them.",
   "type": "module",
   "sideEffects": false,
@@ -42,7 +42,7 @@
     "react-router": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.2.1",
+    "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-react": "4.7.0",
     "@testing-library/react": "16.3.3",

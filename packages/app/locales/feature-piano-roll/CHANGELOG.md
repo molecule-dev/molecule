@@ -1,5 +1,11 @@
 # @molecule/app-locales-feature-piano-roll
 
+## 1.0.6
+
+### Patch Changes
+
+- Keyboard and screen-reader access for canvas nodes, annotation pins, map drawing, the piano roll and margin notes, with translated labels.
+
 ## 1.0.5
 
 ### Patch Changes
