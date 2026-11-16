@@ -6,14 +6,17 @@
  * `setupAllDefaultBonds()` and `bootstrapApp()`. Switching framework means
  * changing the package name in the imports — every export below keeps its name.
  *
- * - The seven universal neutral setups — `setupAppStateSimple` (the vanilla
+ * - The eight universal neutral setups — `setupAppStateSimple` (the vanilla
  *   `simpleProvider`, so `createStore()` works from the first render — the
  *   documented `createStore()` + `useStore()` pattern needs a provider bonded
  *   and nothing else in a scaffold wires one), `setupAppFontsArimo`,
  *   `setupAppStorageLocalstorage`, `setupAppStylingTailwind` (registers the
  *   tailwind-merge class merger), `setupAppThemeCssVariables` (light + dark via
  *   `getDefaultThemeProvider()`), `setupAppUiTailwind` ClassMap,
- *   `setupAppIconsMolecule`. Routing is framework-specific and lives in the
+ *   `setupAppIconsMolecule`, `setupAppClipboardWeb` (the browser Clipboard API
+ *   with a selection-and-copy fallback, so `copyTextWithFallback()` and
+ *   `writeText()` from `@molecule/app-clipboard` work wherever a copy can).
+ *   Routing is framework-specific and lives in the
  *   per-framework packages.
  * - **Optional provider wirings live behind subpaths**, one module per pair:
  *   `@molecule/app-bonds-default/optional/<pair>.js` — `realtime-socketio`,

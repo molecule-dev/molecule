@@ -11,6 +11,7 @@
  */
 
 import {
+  setupAppClipboardWeb,
   setupAppFontsArimo,
   setupAppIconsMolecule,
   setupAppStateSimple,
@@ -39,9 +40,9 @@ export function setupAppRoutingAngularRouter(): void {
 }
 
 /**
- * Wires all 8 universal app-side bonds in one call — state (the vanilla
+ * Wires all 9 universal app-side bonds in one call — state (the vanilla
  * `simpleProvider`, so `createStore()` works), fonts, routing, storage,
- * styling, theme, UI ClassMap, icons (in that order). Auth + i18n stay
+ * styling, theme, UI ClassMap, icons, clipboard (in that order). Auth + i18n stay
  * per-app because they need app-specific config.
  *
  * Replaces the individual setupX() calls in per-app `bonds/index.ts`.
@@ -55,4 +56,5 @@ export function setupAllDefaultBonds(): void {
   setupAppThemeCssVariables()
   setupAppUiTailwind()
   setupAppIconsMolecule()
+  setupAppClipboardWeb()
 }

@@ -1,6 +1,7 @@
 /**
  * Framework-neutral default app-side bond wirings (state + Tailwind ClassMap +
- * localStorage + Arimo font + Molecule icons + CSS-variables theme).
+ * localStorage + Arimo font + Molecule icons + CSS-variables theme + web
+ * clipboard).
  *
  * Centralizes the byte-identical `app/src/bonds/<name>.ts` setup functions that
  * every flagship app shipped. Per-app bond files become 1-line re-exports —
@@ -19,6 +20,8 @@
  * @module
  */
 
+import { setProvider as setClipboard } from '@molecule/app-clipboard'
+import { provider as webClipboardProvider } from '@molecule/app-clipboard-web'
 import { setFont } from '@molecule/app-fonts'
 import { font as arimoFont } from '@molecule/app-fonts-arimo'
 import { setIconSet } from '@molecule/app-icons'
@@ -60,6 +63,20 @@ export function getDefaultThemeProvider(): ReturnType<typeof createCSSVariablesT
     })
   }
   return _defaultThemeProvider
+}
+
+/**
+ * Wires `@molecule/app-clipboard-web` to `@molecule/app-clipboard`: the browser's
+ * Clipboard API, falling back to a selection-and-copy where that API is missing
+ * or refuses (a plain-HTTP page, an iframe without the clipboard-write
+ * permission, a document that lost focus).
+ *
+ * WITHOUT this, `writeText()` throws "No provider set" and
+ * `copyTextWithFallback()` only tries the legacy copy command, so a copy button
+ * built on them works in fewer places than a raw `navigator.clipboard` call.
+ */
+export function setupAppClipboardWeb(): void {
+  setClipboard(webClipboardProvider)
 }
 
 /** Wires `@molecule/app-fonts-arimo` to `@molecule/app-fonts`. */

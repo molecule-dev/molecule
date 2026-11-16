@@ -6,14 +6,15 @@
  *   whole scaffolded `src/main.tsx`: awaits `setupProviders()` BEFORE the
  *   first render, kicks off `authClient.initialize()` (best-effort), mounts
  *   `<App />` in StrictMode on `#root`, then registers the PWA.
- * - `setupAllDefaultBonds()` — wires the EIGHT universal bonds in one call:
+ * - `setupAllDefaultBonds()` — wires the NINE universal bonds in one call:
  *   state (the vanilla `simpleProvider`, so `createStore()` works from the
  *   first render — the documented `createStore()` + `useStore()` pattern needs
  *   a provider bonded and nothing else in a scaffold wires one), fonts-arimo,
  *   routing-react-router, storage-localstorage, styling-tailwind
  *   (registers the tailwind-merge class merger), theme-css-variables
  *   (light + dark via `getDefaultThemeProvider()`), ui-tailwind ClassMap,
- *   icons-molecule. Each also exists as an individual `setupApp*()` for apps
+ *   icons-molecule, clipboard-web (the browser Clipboard API with a
+ *   selection-and-copy fallback). Each also exists as an individual `setupApp*()` for apps
  *   that wire a la carte (per-app `app/src/bonds/<name>.ts` files stay 1-line
  *   re-exports of these).
  * - **Optional provider wirings live behind subpaths**, one module per pair:

@@ -10,12 +10,13 @@
  *   whole scaffolded `src/main.ts`: awaits `setupProviders()` BEFORE the
  *   first render, kicks off `authClient.initialize()` (best-effort), mounts
  *   the root component on `#root`, then registers the PWA.
- * - `setupAllDefaultBonds()` — wires the EIGHT universal bonds in one call:
+ * - `setupAllDefaultBonds()` — wires the NINE universal bonds in one call:
  *   state (the vanilla `simpleProvider`, so `createStore()` works from the
  *   first render), fonts-arimo, routing-sveltekit, storage-localstorage,
  *   styling-tailwind (registers the tailwind-merge class merger),
  *   theme-css-variables (light + dark via `getDefaultThemeProvider()`),
- *   ui-tailwind ClassMap, icons-molecule. Each also exists as an individual
+ *   ui-tailwind ClassMap, icons-molecule, clipboard-web (the browser Clipboard API with a
+ *   selection-and-copy fallback). Each also exists as an individual
  *   `setupApp*()` for apps that wire a la carte.
  * - **Optional provider wirings live behind subpaths**, one module per pair:
  *   `@molecule/app-bonds-default-svelte/optional/<pair>.js` — `realtime-socketio`,
