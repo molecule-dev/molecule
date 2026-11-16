@@ -8,15 +8,20 @@
  */
 
 import type {
+  DragEndEvent,
   DraggableInstance,
+  DragOverEvent,
+  DragStartEvent,
   DroppableInstance,
+  SortableAxis,
   SortableInstance,
+  SortableStrategy,
 } from '@molecule/app-drag-drop'
 
 /**
  * Configuration options for the dnd-kit drag-drop provider. `activationDelay`
- * and `activationDistance` are honored by the React binding's pointer sensor
- * (see `SortableList` / `createSortableSensors`).
+ * and `activationDistance` set the pointer sensor of every framework's sortable
+ * list (see `sortableListSensors`).
  */
 export interface DndKitConfig {
   /**
@@ -35,10 +40,64 @@ export interface DndKitConfig {
   activationDistance?: number
 
   /**
-   * Whether Escape cancels a drag. `@dnd-kit`'s keyboard sensor cancels on Escape
-   * by default, so this is effectively `true`. Defaults to `true`.
+   * Whether Escape cancels a keyboard drag. When `false`, Escape does nothing and
+   * the drag ends only by dropping. Defaults to `true`.
    */
   cancelOnEscape?: boolean
+}
+
+/**
+ * What every framework's `SortableList` takes (`@molecule/app-drag-drop-dndkit-react`,
+ * `-vue`, `-solid`, `-svelte`, `-angular`), so a list swaps between them unchanged.
+ *
+ * @template T - The item type. Items must have a stable string `id`.
+ */
+export interface SortableListOptions<T extends { id: string }> {
+  /** The items, in their current order. */
+  items: T[]
+  /**
+   * Called with the whole list in its new order when a drop moves an item. Not
+   * called when the drag is cancelled, the list is disabled, or the item is
+   * dropped where it started. Persist the order here; the list renders `items`.
+   *
+   * @param items - The reordered items.
+   */
+  onReorder: (items: T[]) => void
+  /** The axis an item may move along. Defaults to `strategy`'s axis, else `'vertical'`. */
+  axis?: SortableAxis
+  /** The layout: `'grid'` lets items move in any direction. Used when `axis` is absent. */
+  strategy?: SortableStrategy
+  /** Disables dragging every item. Defaults to `false`. */
+  disabled?: boolean
+  /** Pointer activation thresholds and the Escape behavior. */
+  config?: DndKitConfig
+  /**
+   * The name a screen reader hears for an item in the drag announcements
+   * ("Picked up {label}, position 2 of 5."). Defaults to the item's `id`.
+   *
+   * @param item - The item.
+   * @returns Its label.
+   */
+  getItemLabel?: (item: T) => string
+  /** Called when a drag starts. */
+  onDragStart?: (event: DragStartEvent) => void
+  /** Called while a dragged item is over another item. */
+  onDragOver?: (event: DragOverEvent) => void
+  /** Called when a drag ends, before `onReorder`. `overId` is the item whose place it took. */
+  onDragEnd?: (event: DragEndEvent) => void
+}
+
+/**
+ * What every framework's sortable item takes (`useSortableItem` and its
+ * equivalents).
+ */
+export interface SortableItemOptions {
+  /** The item's id, the `id` of one of the list's `items`. */
+  id: string
+  /** Data carried with the drag, reported on the drag events. */
+  data?: Record<string, unknown>
+  /** Disables dragging this item. Defaults to `false`. */
+  disabled?: boolean
 }
 
 /**

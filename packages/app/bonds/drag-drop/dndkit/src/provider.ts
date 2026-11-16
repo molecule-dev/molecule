@@ -2,17 +2,16 @@
  * dnd-kit implementation of the molecule DragDropProvider.
  *
  * Provides the imperative order-store layer for drag-and-drop. Reorders are
- * computed with `@dnd-kit`'s own `arrayMove`, so the imperative store and the
- * React binding (see `./react.tsx`) agree on move semantics. The React binding
- * (`SortableList` + `useSortableItem`) is the shipped DOM-event bridge that
- * drives a real drag → `onReorder`; framework bindings may also drive the
- * extended instance types ({@link DndKitSortableInstance},
- * {@link DndKitDraggableInstance}, {@link DndKitDroppableInstance}) directly.
+ * computed with `@dnd-kit/helpers`' `arrayMove`, the same move every
+ * framework's `SortableList` makes on a drop (see `sortableListDrop`).
+ * Framework bindings may also drive the extended instance types
+ * ({@link DndKitSortableInstance}, {@link DndKitDraggableInstance},
+ * {@link DndKitDroppableInstance}) directly.
  *
  * @module
  */
 
-import { arrayMove } from '@dnd-kit/sortable'
+import { arrayMove } from '@dnd-kit/helpers'
 
 import type {
   DragDropProvider,
@@ -77,7 +76,7 @@ function createSortableInstance<T extends { id: string }>(
       if (disabled) return
       if (fromIndex < 0 || fromIndex >= items.length) return
       if (toIndex < 0 || toIndex >= items.length) return
-      items = arrayMove(items, fromIndex, toIndex)
+      items = arrayMove([...items], fromIndex, toIndex)
       options.onReorder(items)
     },
 

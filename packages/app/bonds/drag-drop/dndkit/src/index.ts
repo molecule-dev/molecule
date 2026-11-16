@@ -1,17 +1,24 @@
 /**
  * Real `@dnd-kit` drag-drop provider for molecule.dev.
  *
- * Implements `DragDropProvider` from `@molecule/app-drag-drop` against
- * `@dnd-kit/*`. Two layers ship here:
+ * Implements `DragDropProvider` from `@molecule/app-drag-drop` on `@dnd-kit`'s
+ * framework-neutral DOM layer. Two layers ship here, neither tied to a UI
+ * framework:
  *
  * 1. An imperative order store ({@link provider} / {@link createDndKitProvider})
  *    — `createSortable`/`createDraggable`/`createDroppable` — whose reorders use
- *    `@dnd-kit`'s own `arrayMove`.
- * 2. A **real React binding** — {@link SortableList} + {@link useSortableItem} —
- *    that wraps `DndContext` / `SortableContext` / `useSortable` with pointer and
- *    keyboard sensors and, on drop, reorders and invokes the core `onReorder`
- *    with the new order. This is the shipped DOM-event bridge; a drag actually
- *    reorders the list (mouse, touch, or keyboard).
+ *    `@dnd-kit/helpers`' `arrayMove`.
+ * 2. What every framework's sortable list shares: the pointer and keyboard
+ *    sensors ({@link sortableListSensors}), the axis limits
+ *    ({@link sortableListModifiers}), the translated screen-reader instructions
+ *    and announcements ({@link sortableListPlugins}) and the drop rule
+ *    ({@link sortableListDrop}), with the options every list takes
+ *    ({@link SortableListOptions}).
+ *
+ * The sortable lists themselves are in the framework bindings:
+ * `@molecule/app-drag-drop-dndkit-react`, `-vue`, `-solid`, `-svelte` and
+ * `-angular`. Each takes the same {@link SortableListOptions}, so a list swaps
+ * between frameworks unchanged.
  *
  * @example
  * ```typescript
@@ -21,26 +28,16 @@
  * setProvider(provider)
  * ```
  *
- * @example
- * ```tsx
- * import { SortableList, useSortableItem } from '@molecule/app-drag-drop-dndkit'
- *
- * // Dropping a row calls onReorder(newOrder); Space + arrow keys reorder too.
- * <SortableList items={items} onReorder={setItems}>
- *   <ul>{items.map((item) => <Row key={item.id} item={item} />)}</ul>
- * </SortableList>
- * ```
- *
  * @remarks
- * The React binding requires `react` / `react-dom` (peer dependencies) since
- * `@dnd-kit` is React-only. The imperative store's extended instance types
- * (`_`-prefixed methods) remain available for consumers wiring their own
- * (non-@dnd-kit) drag events. `DndKitConfig.activationDelay` /
- * `activationDistance` are honored by the React binding's pointer sensor.
+ * The announcements use the `dragDrop.sortable.*` keys; bond
+ * `@molecule/app-locales-drag-drop-dndkit` for their translations.
+ * `DndKitConfig.activationDelay` / `activationDistance` set the pointer
+ * sensor of every framework's list.
  *
  * @module
  */
 
 export * from './provider.js'
-export * from './react.js'
+export * from './sortable-list.js'
+export * from './sortable-list-locale.js'
 export * from './types.js'

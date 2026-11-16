@@ -15,6 +15,7 @@
     "./adapters/vue": "./src/adapters/vue.ts",
     "./adapters/vue-bindings": "./src/adapters/vue-bindings.ts",
     "./bindings": "./src/bindings/index.ts",
+    "./drag-drop": "./src/drag-drop/index.ts",
     "./features": "./src/features/index.ts",
     "./features/cases/*": "./src/features/cases/*.ts",
     "./link": "./src/link/index.ts",

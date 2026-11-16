@@ -48,7 +48,7 @@
     "@molecule/app-command-palette": "^1.0.1",
     "@molecule/app-command-palette-cmdk": "^1.0.1",
     "@molecule/app-drag-drop": "^1.0.1",
-    "@molecule/app-drag-drop-dndkit": "^1.0.1",
+    "@molecule/app-drag-drop-dndkit": "^1.0.1 || ^2.0.0",
     "@molecule/app-keyboard-shortcuts": "^1.0.1",
     "@molecule/app-keyboard-shortcuts-hotkeys": "^1.0.1",
     "@molecule/app-maps": "^1.0.1",

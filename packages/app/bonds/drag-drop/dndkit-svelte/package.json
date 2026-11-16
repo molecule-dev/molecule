@@ -1,0 +1,76 @@
+{
+  "name": "@molecule/app-drag-drop-dndkit-svelte",
+  "version": "1.0.0",
+  "description": "Svelte binding for @molecule/app-drag-drop-dndkit — a sortable list that reorders with the pointer, touch and the keyboard, with translated screen-reader announcements.",
+  "homepage": "https://www.molecule.dev/packages/app-drag-drop-dndkit-svelte",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "!dist/**/__tests__",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*",
+    "README.md"
+  ],
+  "svelte": "./dist/index.js",
+  "scripts": {
+    "build": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings && svelte-package --input src --output dist --tsconfig ./tsconfig.json",
+    "dev": "svelte-package --input src --output dist --tsconfig ./tsconfig.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "molecule",
+    "drag",
+    "drop",
+    "sortable",
+    "dnd-kit",
+    "svelte"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/drag-drop/dndkit-svelte"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@molecule/app-drag-drop": "^1.0.1",
+    "@molecule/app-drag-drop-dndkit": "^2.0.0",
+    "svelte": "^5.29.0"
+  },
+  "dependencies": {
+    "@dnd-kit/svelte": "0.5.3"
+  },
+  "devDependencies": {
+    "@molecule/app-drag-drop": "1.0.4",
+    "@molecule/app-drag-drop-dndkit": "2.0.0",
+    "@molecule/app-framework-conformance": "0.0.0",
+    "@molecule/app-i18n": "1.2.2",
+    "@sveltejs/package": "3.0.2",
+    "@sveltejs/vite-plugin-svelte": "7.1.2",
+    "@types/node": "26.6.5",
+    "jsdom": "30.1.3",
+    "svelte": "5.57.2",
+    "svelte-check": "4.7.7",
+    "typescript": "6.0.3",
+    "vite": "8.3.5",
+    "vitest": "4.1.12"
+  }
+}
