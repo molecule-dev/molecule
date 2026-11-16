@@ -6,4 +6,5 @@ export const ky: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Жокко чыгаруу',
   'inlineEdit.saving': 'Сакталууда…',
   'inlineEdit.save': 'Сактоо',
+  'inlineEdit.aria.edit': 'Түзөтүү',
 }

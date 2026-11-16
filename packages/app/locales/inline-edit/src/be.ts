@@ -6,4 +6,5 @@ export const be: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Адмена',
   'inlineEdit.saving': 'Захаванне…',
   'inlineEdit.save': 'Захаваць',
+  'inlineEdit.aria.edit': 'Рэдагаваць',
 }

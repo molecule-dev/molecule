@@ -17,7 +17,11 @@ export interface InlineEditProps {
   variant?: 'input' | 'textarea'
   /** Renderer for the read state — a snippet receiving the value; defaults to plain text. */
   renderRead?: Snippet<[string]>
-  /** Placeholder when value is empty. */
+  /**
+   * Placeholder when value is empty. Also becomes the editor field's
+   * accessible label while editing; without it the field falls back to the
+   * translated `inlineEdit.aria.edit` default.
+   */
   placeholder?: string
   /** Extra classes. */
   className?: string

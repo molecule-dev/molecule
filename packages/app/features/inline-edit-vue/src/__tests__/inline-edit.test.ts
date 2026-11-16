@@ -72,13 +72,14 @@ vi.mock('@molecule/app-ui-vue', async () => {
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { InlineEdit } from '../InlineEdit.js'
+import type { InlineEditProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
 })
 
 /** Renders an {@link InlineEdit} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: InlineEditProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(InlineEdit, props) }))

@@ -6,4 +6,5 @@ export const sw: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Ghairi',
   'inlineEdit.saving': 'Inahifadhi…',
   'inlineEdit.save': 'Hifadhi',
+  'inlineEdit.aria.edit': 'Hariri',
 }

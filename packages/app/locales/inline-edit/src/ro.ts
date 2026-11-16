@@ -6,4 +6,5 @@ export const ro: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Se salvează…',
   'inlineEdit.save': 'Salvați',
   'inlineEdit.empty': 'Faceți clic pentru a edita',
+  'inlineEdit.aria.edit': 'Editează',
 }

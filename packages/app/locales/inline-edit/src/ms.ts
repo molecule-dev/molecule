@@ -6,4 +6,5 @@ export const ms: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Menyimpan…',
   'inlineEdit.save': 'Simpan',
   'inlineEdit.empty': 'Klik untuk mengedit',
+  'inlineEdit.aria.edit': 'Sunting',
 }

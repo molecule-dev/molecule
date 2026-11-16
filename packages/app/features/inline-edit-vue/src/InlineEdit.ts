@@ -122,10 +122,12 @@ export const InlineEdit = defineComponent({
       props.placeholder ?? t('inlineEdit.empty', {}, { defaultValue: 'Click to edit' })
 
     /**
-     * The field's accessible label (React's `aria-label={placeholder ?? 'Edit'}`).
+     * The field's accessible label (React's
+     * `aria-label={placeholder ?? t('inlineEdit.aria.edit', …)}`).
      * @returns The aria label.
      */
-    const ariaLabel = (): string => props.placeholder ?? 'Edit'
+    const ariaLabel = (): string =>
+      props.placeholder ?? t('inlineEdit.aria.edit', {}, { defaultValue: 'Edit' })
 
     return (): VNode => {
       if (!editing.value) {

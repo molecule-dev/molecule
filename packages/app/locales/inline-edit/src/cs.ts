@@ -6,4 +6,5 @@ export const cs: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Ukládání…',
   'inlineEdit.save': 'Uložit',
   'inlineEdit.empty': 'Kliknutím upravíte',
+  'inlineEdit.aria.edit': 'Upravit',
 }

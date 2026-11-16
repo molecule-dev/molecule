@@ -6,4 +6,5 @@ export const ne: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'रद्द गर्नुहोस्',
   'inlineEdit.saving': 'बचत गर्दै...',
   'inlineEdit.save': 'बचत गर्नुहोस्',
+  'inlineEdit.aria.edit': 'सम्पादन गर्नुहोस्',
 }

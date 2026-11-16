@@ -6,4 +6,5 @@ export const ga: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Cealaigh',
   'inlineEdit.saving': 'Ag sábháil…',
   'inlineEdit.save': 'Sábháil',
+  'inlineEdit.aria.edit': 'Cuir in eagar',
 }

@@ -6,4 +6,5 @@ export const uk: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Збереження…',
   'inlineEdit.save': 'Зберегти',
   'inlineEdit.empty': 'Натисніть, щоб редагувати',
+  'inlineEdit.aria.edit': 'Редагувати',
 }

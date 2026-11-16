@@ -15,7 +15,11 @@ export interface InlineEditProps {
   variant?: 'input' | 'textarea'
   /** Renderer for the read state — defaults to plain text. */
   renderRead?: (value: string) => ReactNode
-  /** Placeholder when value is empty. */
+  /**
+   * Placeholder when value is empty. Also becomes the editor field's
+   * accessible label while editing; without it the field falls back to the
+   * translated `inlineEdit.aria.edit` default.
+   */
   placeholder?: string
   /** Extra classes. */
   className?: string
@@ -126,7 +130,7 @@ export function InlineEdit({
           value={draft}
           onChange={(e) => setDraft((e.target as HTMLInputElement).value)}
           onKeyDown={onKey}
-          aria-label={placeholder ?? 'Edit'}
+          aria-label={placeholder ?? t('inlineEdit.aria.edit', {}, { defaultValue: 'Edit' })}
         />
       ) : (
         <Textarea
@@ -134,7 +138,7 @@ export function InlineEdit({
           value={draft}
           onChange={(e) => setDraft((e.target as HTMLTextAreaElement).value)}
           onKeyDown={onKey}
-          aria-label={placeholder ?? 'Edit'}
+          aria-label={placeholder ?? t('inlineEdit.aria.edit', {}, { defaultValue: 'Edit' })}
         />
       )}
       <Button variant="ghost" size="sm" onClick={cancel} disabled={saving}>

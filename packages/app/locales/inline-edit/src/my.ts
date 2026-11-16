@@ -6,4 +6,5 @@ export const my: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'ပယ်ဖျက်ရန်',
   'inlineEdit.saving': 'သိမ်းဆည်းနေသည်…',
   'inlineEdit.save': 'သိမ်းဆည်းပါ',
+  'inlineEdit.aria.edit': 'တည်းဖြတ်',
 }

@@ -6,4 +6,5 @@ export const en: InlineEditTranslations = {
   'inlineEdit.cancel': 'Cancel',
   'inlineEdit.saving': 'Saving…',
   'inlineEdit.save': 'Save',
+  'inlineEdit.aria.edit': 'Edit',
 }

@@ -6,4 +6,5 @@ export const am: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'ሰርዝ',
   'inlineEdit.saving': 'በማስቀመጥ ላይ…',
   'inlineEdit.save': 'አስቀምጥ',
+  'inlineEdit.aria.edit': 'አርትዕ',
 }

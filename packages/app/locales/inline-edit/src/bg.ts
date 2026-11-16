@@ -6,4 +6,5 @@ export const bg: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Отказ',
   'inlineEdit.saving': 'Запазване…',
   'inlineEdit.save': 'Запазване',
+  'inlineEdit.aria.edit': 'Редактиране',
 }

@@ -6,4 +6,5 @@ export const gl: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Cancelar',
   'inlineEdit.saving': 'Gardando…',
   'inlineEdit.save': 'Gardar',
+  'inlineEdit.aria.edit': 'Editar',
 }

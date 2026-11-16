@@ -6,4 +6,5 @@ export const cy: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Canslo',
   'inlineEdit.saving': 'Yn cadw…',
   'inlineEdit.save': 'Cadw',
+  'inlineEdit.aria.edit': 'Golygu',
 }

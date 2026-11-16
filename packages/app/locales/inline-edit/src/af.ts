@@ -6,4 +6,5 @@ export const af: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Kanselleer',
   'inlineEdit.saving': 'Stoor …',
   'inlineEdit.save': 'Stoor',
+  'inlineEdit.aria.edit': 'Wysig',
 }

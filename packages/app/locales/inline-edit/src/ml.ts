@@ -6,4 +6,5 @@ export const ml: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'റദ്ദാക്കുക',
   'inlineEdit.saving': 'സംരക്ഷിക്കുന്നു...',
   'inlineEdit.save': 'രക്ഷിക്കും',
+  'inlineEdit.aria.edit': 'എഡിറ്റ് ചെയ്യുക',
 }

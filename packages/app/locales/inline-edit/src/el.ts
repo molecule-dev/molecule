@@ -6,4 +6,5 @@ export const el: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Αποθήκευση…',
   'inlineEdit.save': 'Αποθήκευση',
   'inlineEdit.empty': 'Κάντε κλικ για επεξεργασία',
+  'inlineEdit.aria.edit': 'Επεξεργασία',
 }

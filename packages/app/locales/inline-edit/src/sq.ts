@@ -6,4 +6,5 @@ export const sq: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Anulo',
   'inlineEdit.saving': 'Duke u ruajtur…',
   'inlineEdit.save': 'Ruaj',
+  'inlineEdit.aria.edit': 'Modifiko',
 }

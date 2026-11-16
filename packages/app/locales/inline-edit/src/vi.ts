@@ -6,4 +6,5 @@ export const vi: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Đang lưu…',
   'inlineEdit.save': 'Lưu',
   'inlineEdit.empty': 'Nhấp chuột để chỉnh sửa',
+  'inlineEdit.aria.edit': 'Chỉnh sửa',
 }

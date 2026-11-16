@@ -6,4 +6,5 @@ export const is: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Hætta við',
   'inlineEdit.saving': 'Vistar…',
   'inlineEdit.save': 'Vista',
+  'inlineEdit.aria.edit': 'Breyta',
 }

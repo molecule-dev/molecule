@@ -6,4 +6,5 @@ export const ta: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'ரத்துசெய்',
   'inlineEdit.saving': 'சேமிப்பு…',
   'inlineEdit.save': 'சேமிக்கவும்',
+  'inlineEdit.aria.edit': 'திருத்து',
 }

@@ -6,4 +6,5 @@ export const pa: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'ਰੱਦ ਕਰੋ',
   'inlineEdit.saving': 'ਸੇਵ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...',
   'inlineEdit.save': 'ਸੇਵ ਕਰੋ',
+  'inlineEdit.aria.edit': 'ਸੰਪਾਦਿਤ ਕਰੋ',
 }

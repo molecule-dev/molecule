@@ -6,4 +6,5 @@ export const ig: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Kagbuo',
   'inlineEdit.saving': 'Na-echekwa…',
   'inlineEdit.save': 'Chekwaa',
+  'inlineEdit.aria.edit': 'Dezie',
 }

@@ -6,4 +6,5 @@ export const fi: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Tallennetaan…',
   'inlineEdit.save': 'Tallenna',
   'inlineEdit.empty': 'Klikkaa muokataksesi',
+  'inlineEdit.aria.edit': 'Muokkaa',
 }

@@ -6,4 +6,5 @@ export const ca: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Cancel·la',
   'inlineEdit.saving': 'Desant…',
   'inlineEdit.save': 'Desa',
+  'inlineEdit.aria.edit': 'Edita',
 }

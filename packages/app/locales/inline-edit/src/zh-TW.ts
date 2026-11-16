@@ -6,4 +6,5 @@ export const zhTW: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': '取消',
   'inlineEdit.saving': '保存…',
   'inlineEdit.save': '節省',
+  'inlineEdit.aria.edit': '編輯',
 }

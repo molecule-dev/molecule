@@ -6,4 +6,5 @@ export const lv: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Atcelt',
   'inlineEdit.saving': 'Saglabāšana…',
   'inlineEdit.save': 'Saglabāt',
+  'inlineEdit.aria.edit': 'Rediģēt',
 }

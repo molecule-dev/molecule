@@ -6,4 +6,5 @@ export const hu: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Mentés…',
   'inlineEdit.save': 'Mentés',
   'inlineEdit.empty': 'Kattintson a szerkesztéshez',
+  'inlineEdit.aria.edit': 'Szerkesztés',
 }

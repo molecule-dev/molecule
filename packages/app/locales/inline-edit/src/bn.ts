@@ -6,4 +6,5 @@ export const bn: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'বাতিল করুন',
   'inlineEdit.saving': 'সঞ্চয়…',
   'inlineEdit.save': 'সংরক্ষণ করুন',
+  'inlineEdit.aria.edit': 'সম্পাদনা',
 }

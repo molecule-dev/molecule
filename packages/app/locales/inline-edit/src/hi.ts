@@ -6,4 +6,5 @@ export const hi: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'सहेजा जा रहा है…',
   'inlineEdit.save': 'सहेजें',
   'inlineEdit.empty': 'सम्पादन के लिए क्लिक करो',
+  'inlineEdit.aria.edit': 'संपादित करें',
 }

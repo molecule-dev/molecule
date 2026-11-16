@@ -6,4 +6,5 @@ export const he: Partial<InlineEditTranslations> = {
   'inlineEdit.save': 'לְהַצִיל',
   'inlineEdit.empty': 'לחץ כדי לערוך',
   'inlineEdit.saving': 'חִסָכוֹן…',
+  'inlineEdit.aria.edit': 'עריכה',
 }

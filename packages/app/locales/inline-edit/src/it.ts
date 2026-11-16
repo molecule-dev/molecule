@@ -6,4 +6,5 @@ export const it: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Salvataggio…',
   'inlineEdit.save': 'Salva',
   'inlineEdit.empty': 'Fai clic per modificare',
+  'inlineEdit.aria.edit': 'Modifica',
 }

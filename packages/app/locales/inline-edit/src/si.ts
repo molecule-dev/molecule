@@ -6,4 +6,5 @@ export const si: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'අවලංගු කරන්න',
   'inlineEdit.saving': 'සුරකිමින්...',
   'inlineEdit.save': 'සුරකින්න',
+  'inlineEdit.aria.edit': 'සංස්කරණය කරන්න',
 }

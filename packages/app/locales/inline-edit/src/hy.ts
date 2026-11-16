@@ -6,4 +6,5 @@ export const hy: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Չեղարկել',
   'inlineEdit.saving': 'Պահպանվում է…',
   'inlineEdit.save': 'Պահպանել',
+  'inlineEdit.aria.edit': 'Խմբագրել',
 }

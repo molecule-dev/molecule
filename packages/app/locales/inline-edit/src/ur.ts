@@ -6,4 +6,5 @@ export const ur: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'منسوخ کریں۔',
   'inlineEdit.saving': 'محفوظ ہو رہا ہے…',
   'inlineEdit.save': 'محفوظ کریں۔',
+  'inlineEdit.aria.edit': 'ترمیم کریں۔',
 }

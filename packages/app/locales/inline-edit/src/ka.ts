@@ -6,4 +6,5 @@ export const ka: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'გაუქმება',
   'inlineEdit.saving': 'შენახვა…',
   'inlineEdit.save': 'შენახვა',
+  'inlineEdit.aria.edit': 'რედაქტირება',
 }

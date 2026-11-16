@@ -6,4 +6,5 @@ export const fa: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'لغو',
   'inlineEdit.saving': 'در حال ذخیره…',
   'inlineEdit.save': 'ذخیره',
+  'inlineEdit.aria.edit': 'ویرایش',
 }

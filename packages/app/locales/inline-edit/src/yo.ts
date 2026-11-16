@@ -6,4 +6,5 @@ export const yo: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Fagilee',
   'inlineEdit.saving': 'Nfipamọ́…',
   'inlineEdit.save': 'Fipamọ',
+  'inlineEdit.aria.edit': 'Ṣatunkọ',
 }

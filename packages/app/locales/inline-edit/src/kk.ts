@@ -6,4 +6,5 @@ export const kk: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Бас тарту',
   'inlineEdit.saving': 'Сақталуда…',
   'inlineEdit.save': 'Сақтау',
+  'inlineEdit.aria.edit': 'Өңдеу',
 }

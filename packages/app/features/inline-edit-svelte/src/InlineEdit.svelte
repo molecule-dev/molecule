@@ -104,8 +104,12 @@
   const placeholderText = (): string =>
     placeholder ?? t('inlineEdit.empty', {}, { defaultValue: 'Click to edit' })
 
-  /** The field's accessible label (React's `aria-label={placeholder ?? 'Edit'}`). */
-  const ariaLabel = (): string => placeholder ?? 'Edit'
+  /**
+   * The field's accessible label (React's
+   * `aria-label={placeholder ?? t('inlineEdit.aria.edit', …)}`).
+   */
+  const ariaLabel = (): string =>
+    placeholder ?? t('inlineEdit.aria.edit', {}, { defaultValue: 'Edit' })
 </script>
 
 {#if !editing}

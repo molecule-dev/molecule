@@ -6,4 +6,5 @@ export const lo: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'ຍົກເລີກ',
   'inlineEdit.saving': 'ກຳລັງບັນທຶກ...',
   'inlineEdit.save': 'ບັນທຶກ',
+  'inlineEdit.aria.edit': 'ແກ້ໄຂ',
 }

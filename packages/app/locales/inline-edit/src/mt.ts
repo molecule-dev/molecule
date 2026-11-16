@@ -6,4 +6,5 @@ export const mt: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Ikkanċella',
   'inlineEdit.saving': 'Iffrankar…',
   'inlineEdit.save': 'Issejvja',
+  'inlineEdit.aria.edit': 'Editja',
 }

@@ -6,4 +6,5 @@ export const km: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'បោះបង់',
   'inlineEdit.saving': 'កំពុងរក្សាទុក...',
   'inlineEdit.save': 'រក្សាទុក',
+  'inlineEdit.aria.edit': 'កែសម្រួល',
 }

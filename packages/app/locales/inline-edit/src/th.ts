@@ -6,4 +6,5 @@ export const th: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'ยกเลิก',
   'inlineEdit.saving': 'ประหยัด…',
   'inlineEdit.save': 'บันทึก',
+  'inlineEdit.aria.edit': 'แก้ไข',
 }

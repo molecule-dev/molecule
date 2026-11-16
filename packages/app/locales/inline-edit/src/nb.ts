@@ -6,4 +6,5 @@ export const nb: Partial<InlineEditTranslations> = {
   'inlineEdit.saving': 'Lagrer…',
   'inlineEdit.save': 'Lagre',
   'inlineEdit.empty': 'Klikk for å redigere',
+  'inlineEdit.aria.edit': 'Rediger',
 }

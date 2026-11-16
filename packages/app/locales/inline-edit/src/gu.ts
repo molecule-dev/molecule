@@ -6,4 +6,5 @@ export const gu: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'રદ કરો',
   'inlineEdit.saving': 'સાચવી રહ્યું છે...',
   'inlineEdit.save': 'સાચવો',
+  'inlineEdit.aria.edit': 'સંપાદિત કરો',
 }

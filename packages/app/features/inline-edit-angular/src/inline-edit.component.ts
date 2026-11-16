@@ -212,11 +212,12 @@ export class InlineEdit implements DoCheck, OnChanges {
   }
 
   /**
-   * The field's accessible label (React's `aria-label={placeholder ?? 'Edit'}`).
+   * The field's accessible label (React's
+   * `aria-label={placeholder ?? t('inlineEdit.aria.edit', …)}`).
    * @returns The aria label.
    */
   ariaLabel(): string {
-    return this.placeholder ?? 'Edit'
+    return this.placeholder ?? this.i18n.t('inlineEdit.aria.edit', {}, { defaultValue: 'Edit' })
   }
 
   /**
