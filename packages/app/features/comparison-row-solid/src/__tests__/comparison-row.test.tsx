@@ -3,9 +3,9 @@
  * Unit tests for the Solid `ComparisonRow` — a port of
  * `@molecule/app-comparison-row-react/src/__tests__/comparison-row.test.tsx`:
  * the same behavioral assertions, rendered with Solid in jsdom and asserted
- * on the markup the component produces. Inline colors are set through the
- * CSSOM, so jsdom serializes them as `rgb(...)` (the same values React's
- * runtime mount produces).
+ * on the markup the component produces. The delta's tone is a ClassMap class,
+ * so the assertions check which `textTone-<tone>` class the row picked (the
+ * same mock the React tests use).
  *
  * @module
  */
@@ -29,7 +29,9 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`textTone-success`) the row picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
@@ -75,7 +77,8 @@ describe('ComparisonRow', () => {
     const markup = container.innerHTML
     expect(markup).toContain('▲')
     expect(markup).toContain('12.5%')
-    expect(markup).toContain('color: rgb(34, 197, 94)')
+    expect(markup).toContain('textTone-success')
+    expect(markup).not.toContain('style=')
   })
 
   it('renders a down arrow for a negative delta', () => {
@@ -83,12 +86,13 @@ describe('ComparisonRow', () => {
     const markup = container.innerHTML
     expect(markup).toContain('▼')
     expect(markup).toContain('8.0%')
-    expect(markup).toContain('color: rgb(239, 68, 68)')
+    expect(markup).toContain('textTone-error')
   })
 
   it('renders the neutral dash for a zero delta', () => {
     const container = mount(() => <ComparisonRow label="R" current="$1" deltaPct={0} />)
     expect(container.innerHTML).toContain('–')
+    expect(container.innerHTML).toContain('textTone-secondary')
   })
 
   it('uses a custom formatDelta when supplied', () => {

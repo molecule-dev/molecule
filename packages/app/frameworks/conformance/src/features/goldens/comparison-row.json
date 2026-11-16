@@ -19,31 +19,31 @@
    },
    "positive delta": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 16.4%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n▲ 16.4%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "negative delta": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ 8.0%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a cab1062ad\">\n▼ 8.0%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "zero delta": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(148, 163, 184)\">\n– 0.0%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a ca1579aed\">\n– 0.0%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "fractional negative delta": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ 3.2%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a cab1062ad\">\n▼ 3.2%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "period label with everything": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n<span class=\"c4647f690\">\nvs. last month\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$24,800\n</span>\n<span class=\"c4647f690\" style=\"opacity: 0.6; text-decoration: line-through\">\n$21,300\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 16.4%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n<span class=\"c4647f690\">\nvs. last month\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$24,800\n</span>\n<span class=\"c4647f690\" style=\"opacity: 0.6; text-decoration: line-through\">\n$21,300\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n▲ 16.4%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -55,33 +55,33 @@
    },
    "node label, current, previous and period label": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\n<strong>\nRevenue\n</strong>\n</span>\n<span class=\"c4647f690\">\n<small>\nvs. last month\n</small>\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n<em>\n$24,800\n</em>\n</span>\n<span class=\"c4647f690\" style=\"opacity: 0.6; text-decoration: line-through\">\n<s>\n$21,300\n</s>\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 2.0%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\n<strong>\nRevenue\n</strong>\n</span>\n<span class=\"c4647f690\">\n<small>\nvs. last month\n</small>\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n<em>\n$24,800\n</em>\n</span>\n<span class=\"c4647f690\" style=\"opacity: 0.6; text-decoration: line-through\">\n<s>\n$21,300\n</s>\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n▲ 2.0%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "custom formatDelta with markup": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n<strong>\ndelta 5 pts\n</strong>\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n<strong>\ndelta 5 pts\n</strong>\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "custom formatDelta returning text": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\ndown -12.5% to plan\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a cab1062ad\">\ndown -12.5% to plan\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "delta change flips arrow and color": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\n▲ 12.0%\n</span>\n</div>\n</div>\n@route /",
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ 5.0%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\n▲ 12.0%\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a cab1062ad\">\n▼ 5.0%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
    "a custom formatter follows the delta": {
     "snapshots": [
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(34, 197, 94)\">\ndelta 4\n</span>\n</div>\n</div>\n@route /",
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\ndelta -6.5\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c311bf57c c4647f690 c7f74399a\">\ndelta 4\n</span>\n</div>\n</div>\n@route /",
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a cab1062ad\">\ndelta -6.5\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },
@@ -95,7 +95,7 @@
    "delta appears on a later render": {
     "snapshots": [
      "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n</div>\n</div>\n@route /",
-     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a\" style=\"color: rgb(239, 68, 68)\">\n▼ 4.0%\n</span>\n</div>\n</div>\n@route /"
+     "<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<div class=\"c2cbb8333 c9766e542 cbaac6b89 ccae02ff2\">\n<span class=\"c4647f690 c7f74399a\">\nRevenue\n</span>\n</div>\n<div class=\"c42740ba6 c50554581 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<span class=\"c0d99ed10 c6a2a1a28\">\n$1\n</span>\n<span class=\"c4647f690 c7f74399a cab1062ad\">\n▼ 4.0%\n</span>\n</div>\n</div>\n@route /"
     ],
     "calls": []
    },

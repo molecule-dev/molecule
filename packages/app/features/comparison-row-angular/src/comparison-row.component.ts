@@ -14,11 +14,16 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import type { UIClassMap } from '@molecule/app-ui'
+import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 const ARROW = (n: number): string => (n > 0 ? '▲' : n < 0 ? '▼' : '–')
-const COLOR = (n: number): string => (n > 0 ? '#22c55e' : n < 0 ? '#ef4444' : '#94a3b8')
+
+/**
+ * The semantic tone colouring the delta: the theme's success green for a
+ * rise, its error red for a fall, its secondary grey for no change.
+ */
+const TONE = (n: number): ColorVariant => (n > 0 ? 'success' : n < 0 ? 'error' : 'secondary')
 
 /**
  * Whether a projected node renders anything (an element, or text with
@@ -46,9 +51,9 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
  *
  * Period-over-period stat comparison row — current value, optional previous
  * value, and a coloured delta% chip. The host IS the root `<div>`
- * (`div[mol-comparison-row]`), matching React's root exactly. The delta color
- * is applied inline through style bindings (the CSSOM, as react-dom does);
- * the layout and type classes come from the ClassMap bond. Same props, same
+ * (`div[mol-comparison-row]`), matching React's root exactly. The delta's
+ * tone class and the layout and type classes come from the ClassMap bond.
+ * Same props, same
  * DOM as `@molecule/app-comparison-row-react`'s `ComparisonRow`. Node-valued
  * `label`, `current`, `previous` and `periodLabel` content is projected
  * (`[slot=<name>]`); a string or number input renders as text. A custom
@@ -68,7 +73,7 @@ const hasRenderableContent = (el: HTMLElement): boolean =>
       <span [class]="labelClass()">@if (hasLabel) {<ng-container>{{ label }}</ng-container>}<ng-content select="[slot=label]" /></span>@if (showPeriodLabel) {<span #periodSpan [class]="cm().textSize('xs')">@if (hasPeriodLabel) {<ng-container>{{ periodLabel }}</ng-container>}<ng-content select="[slot=periodLabel]" /></span>}
     </div>
     <div [class]="valuesClass()">
-      <span [class]="currentClass()">@if (hasCurrent) {<ng-container>{{ current }}</ng-container>}<ng-content select="[slot=current]" /></span>@if (showPrevious) {<span #previousSpan [class]="cm().cn(cm().textSize('xs'))" [style.text-decoration]="'line-through'" [style.opacity]="0.6">@if (hasPrevious) {<ng-container>{{ previous }}</ng-container>}<ng-content select="[slot=previous]" /></span>}@if (hasDelta) {<span [class]="deltaClass()" [style.color]="deltaColor()">@if (formatDelta) {<ng-container [ngTemplateOutlet]="formatDelta" [ngTemplateOutletContext]="deltaContext()" />}@else {<ng-container>{{ arrow() }} {{ pct() }}%</ng-container>}</span>}
+      <span [class]="currentClass()">@if (hasCurrent) {<ng-container>{{ current }}</ng-container>}<ng-content select="[slot=current]" /></span>@if (showPrevious) {<span #previousSpan [class]="cm().cn(cm().textSize('xs'))" [style.text-decoration]="'line-through'" [style.opacity]="0.6">@if (hasPrevious) {<ng-container>{{ previous }}</ng-container>}<ng-content select="[slot=previous]" /></span>}@if (hasDelta) {<span [class]="deltaClass()">@if (formatDelta) {<ng-container [ngTemplateOutlet]="formatDelta" [ngTemplateOutletContext]="deltaContext()" />}@else {<ng-container>{{ arrow() }} {{ pct() }}%</ng-container>}</span>}
     </div>`,
 })
 export class ComparisonRow implements AfterViewInit {
@@ -192,11 +197,15 @@ export class ComparisonRow implements AfterViewInit {
   }
 
   /**
-   * The delta chip's class.
+   * The delta chip's class, with the tone of the current direction.
    * @returns The class string.
    */
   deltaClass(): string {
-    return this.cm().cn(this.cm().textSize('xs'), this.cm().fontWeight('semibold'))
+    return this.cm().cn(
+      this.cm().textSize('xs'),
+      this.cm().fontWeight('semibold'),
+      this.cm().textTone(TONE(this.deltaPct ?? 0)),
+    )
   }
 
   /**
@@ -256,14 +265,6 @@ export class ComparisonRow implements AfterViewInit {
    */
   pct(): string {
     return this.deltaPct === undefined ? '' : Math.abs(this.deltaPct).toFixed(1)
-  }
-
-  /**
-   * The delta chip's inline color of the current direction.
-   * @returns The hex color.
-   */
-  deltaColor(): string {
-    return COLOR(this.deltaPct ?? 0)
   }
 
   /**

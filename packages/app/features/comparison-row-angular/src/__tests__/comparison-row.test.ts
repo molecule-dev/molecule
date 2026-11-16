@@ -5,24 +5,23 @@
  * the component with a mocked ClassMap and asserts the markup; this port
  * mounts the same tree through Angular's real renderer (the same
  * `createApplication` + JIT host approach the conformance kit's Angular
- * adapter uses) and asserts the same markup strings. Inline colors are set
- * through the CSSOM, so jsdom serializes them as `rgb(...)` (the same values
- * React's runtime mount produces).
+ * adapter uses) and asserts the same markup strings. The delta's tone is a
+ * ClassMap class, so the assertions check which `textTone-<tone>` class the
+ * row picked.
  *
  * @module
  */
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
-  type TemplateRef,
   type Type,
-  viewChild,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -41,7 +40,9 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`textTone-success`) the row picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
@@ -84,8 +85,6 @@ async function render(
     class SpecHost {
       /** The inputs the template binds. */
       p: Record<string, unknown> = props
-      /** A custom formatter template, bound as the `formatDelta` input. */
-      readonly fmt = viewChild.required<TemplateRef<unknown>>('fmt')
     },
   )
   const appRef: ApplicationRef = await createApplication({
@@ -132,7 +131,8 @@ describe('ComparisonRow', () => {
     const markup = m.host.innerHTML
     expect(markup).toContain('▲')
     expect(markup).toContain('12.5%')
-    expect(markup).toContain('color: rgb(34, 197, 94)')
+    expect(markup).toContain('textTone-success')
+    expect(markup).not.toContain('style=')
   })
 
   it('renders a down arrow for a negative delta', async () => {
@@ -140,12 +140,13 @@ describe('ComparisonRow', () => {
     const markup = m.host.innerHTML
     expect(markup).toContain('▼')
     expect(markup).toContain('8.0%')
-    expect(markup).toContain('color: rgb(239, 68, 68)')
+    expect(markup).toContain('textTone-error')
   })
 
   it('renders the neutral dash for a zero delta', async () => {
     const m = await render({ label: 'R', current: '$1', deltaPct: 0 })
     expect(m.host.innerHTML).toContain('–')
+    expect(m.host.innerHTML).toContain('textTone-secondary')
   })
 
   it('uses a custom formatDelta when supplied', async () => {

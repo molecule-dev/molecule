@@ -3,9 +3,9 @@
  * Unit tests for the Svelte `ComparisonRow` — a port of
  * `@molecule/app-comparison-row-react/src/__tests__/comparison-row.test.tsx`:
  * the same behavioral assertions, rendered with a real mount (jsdom) and the
- * bonded ClassMap. Inline colors are set through the CSSOM, so jsdom
- * serializes them as `rgb(...)` (the same values React's runtime mount
- * produces).
+ * bonded ClassMap. The delta's tone is a ClassMap class, so the assertions
+ * check which tone class (`text-success`, `text-error`, `text-secondary`) the
+ * row picked.
  */
 import '@molecule/app-framework-conformance/ui/setup'
 import { createRawSnippet, flushSync, mount, type Snippet, unmount } from 'svelte'
@@ -82,19 +82,20 @@ describe('ComparisonRow', () => {
     const markup = render({ label: 'R', current: '$1', deltaPct: 12.5 })
     expect(markup).toContain('▲')
     expect(markup).toContain('12.5%')
-    expect(markup).toContain('color: rgb(34, 197, 94)')
+    expect(markup).toContain('text-success')
   })
 
   it('renders a down arrow for a negative delta', () => {
     const markup = render({ label: 'R', current: '$1', deltaPct: -8 })
     expect(markup).toContain('▼')
     expect(markup).toContain('8.0%')
-    expect(markup).toContain('color: rgb(239, 68, 68)')
+    expect(markup).toContain('text-error')
   })
 
   it('renders the neutral dash for a zero delta', () => {
     const markup = render({ label: 'R', current: '$1', deltaPct: 0 })
     expect(markup).toContain('–')
+    expect(markup).toContain('text-secondary')
   })
 
   it('uses a custom formatDelta when supplied', () => {

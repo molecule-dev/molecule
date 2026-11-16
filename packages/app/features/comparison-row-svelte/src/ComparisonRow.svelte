@@ -2,8 +2,8 @@
   ComparisonRow: the Svelte counterpart of `@molecule/app-comparison-row-react`'s
   `ComparisonRow` — period-over-period stat comparison row: current value,
   optional previous value, and a coloured delta% chip. Same props (React
-  names), same DOM for the same input; the delta color is applied inline via
-  the CSSOM and the layout and type classes come from the ClassMap bond.
+  names), same DOM for the same input; the delta's tone class and the layout
+  and type classes come from the ClassMap bond.
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
@@ -25,8 +25,12 @@
   const arrow = $derived(
     deltaPct === undefined ? '' : deltaPct > 0 ? '▲' : deltaPct < 0 ? '▼' : '–',
   )
-  const color = $derived(
-    deltaPct === undefined ? '' : deltaPct > 0 ? '#22c55e' : deltaPct < 0 ? '#ef4444' : '#94a3b8',
+  // The delta's tone class: the theme's success green for a rise, its error
+  // red for a fall, its secondary grey for no change.
+  const deltaToneClass = $derived(
+    deltaPct === undefined
+      ? ''
+      : cm.textTone(deltaPct > 0 ? 'success' : deltaPct < 0 ? 'error' : 'secondary'),
   )
   const pct = $derived(deltaPct === undefined ? '' : Math.abs(deltaPct).toFixed(1))
 </script>
@@ -55,7 +59,7 @@
       </span>
     {/if}
     {#if deltaPct !== undefined}
-      <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))} use:reactStyle={{ color }}>
+      <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), deltaToneClass)}>
         {#if formatDelta}{@render formatDelta(deltaPct)}{:else}{arrow} {pct}%{/if}
       </span>
     {/if}

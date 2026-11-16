@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link ComparisonRow}. */
@@ -21,7 +22,12 @@ export interface ComparisonRowProps {
 }
 
 const ARROW = (n: number): string => (n > 0 ? '▲' : n < 0 ? '▼' : '–')
-const COLOR = (n: number): string => (n > 0 ? '#22c55e' : n < 0 ? '#ef4444' : '#94a3b8')
+
+/**
+ * The semantic tone colouring the delta: the theme's success green for a
+ * rise, its error red for a fall, its secondary grey for no change.
+ */
+const TONE = (n: number): ColorVariant => (n > 0 ? 'success' : n < 0 ? 'error' : 'secondary')
 
 /**
  * Period-over-period stat comparison row — current value, optional
@@ -59,8 +65,11 @@ export function ComparisonRow({
         )}
         {deltaPct !== undefined && (
           <span
-            className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
-            style={{ color: COLOR(deltaPct) }}
+            className={cm.cn(
+              cm.textSize('xs'),
+              cm.fontWeight('semibold'),
+              cm.textTone(TONE(deltaPct)),
+            )}
           >
             {formatDelta ? (
               formatDelta(deltaPct)

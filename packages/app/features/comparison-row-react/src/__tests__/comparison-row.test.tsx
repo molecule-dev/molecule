@@ -15,7 +15,9 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // Tone resolvers echo their argument, so assertions can tell which
+        // semantic tone (`textTone-success`) the row picked.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}-${String(args[0])}` : token)
       },
     }
     return new Proxy({}, handler)
@@ -47,19 +49,21 @@ describe('ComparisonRow', () => {
     const markup = html(createElement(ComparisonRow, { label: 'R', current: '$1', deltaPct: 12.5 }))
     expect(markup).toContain('▲')
     expect(markup).toContain('12.5%')
-    expect(markup).toContain('color:#22c55e')
+    expect(markup).toContain('textTone-success')
+    expect(markup).not.toContain('style=')
   })
 
   it('renders a down arrow for a negative delta', () => {
     const markup = html(createElement(ComparisonRow, { label: 'R', current: '$1', deltaPct: -8 }))
     expect(markup).toContain('▼')
     expect(markup).toContain('8.0%')
-    expect(markup).toContain('color:#ef4444')
+    expect(markup).toContain('textTone-error')
   })
 
   it('renders the neutral dash for a zero delta', () => {
     const markup = html(createElement(ComparisonRow, { label: 'R', current: '$1', deltaPct: 0 }))
     expect(markup).toContain('–')
+    expect(markup).toContain('textTone-secondary')
   })
 
   it('uses a custom formatDelta when supplied', () => {
