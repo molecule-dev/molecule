@@ -368,6 +368,7 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
               got: '{"profile":{"username":"probe2","following":false}}',
             },
             console: [],
+            actions: [],
           },
         ],
         'the local app',
@@ -693,6 +694,7 @@ describe('failureTraceNote — a request with no response is not a failed reques
         },
       ],
       console: [],
+      actions: [],
     }
     const withoutFailure = String(failureTraceNote([m112], 'the deployed app'))
     expect(withoutFailure).not.toMatch(/→ -1/)
@@ -737,6 +739,7 @@ describe('failureTraceNote — the page shell is not the step (xr-molecule-flash
     line: 18,
     requests,
     console: [],
+    actions: [],
   })
 
   it('never lists a service worker, a font or an asset as a missing response', () => {
@@ -998,6 +1001,7 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
               { method: 'GET', path: '/api/user', status: 401, type: 'fetch', sentCookie: true },
             ],
             console: [],
+            actions: [],
           },
         ],
         'the deployed app',
@@ -1023,6 +1027,7 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
               { method: 'POST', path: '/api/users', status: 422, type: 'fetch' },
             ],
             console: [],
+            actions: [],
           },
         ],
         'the deployed app',
@@ -1081,6 +1086,7 @@ describe('failureTraceNote — a font URL that answered index.html (m186 +15:52)
     console: [
       'Failed to decode downloaded font: http://127.0.0.1:4173/fonts/ionicons.woff | OTS parsing error: invalid sfntVersion: 1008821359',
     ],
+    actions: [],
   }
 
   it('names the URL and says it answered index.html, not a font', () => {
@@ -1137,6 +1143,7 @@ describe('failureTraceNote — a rejected login is not a missing token (m165 +10
       },
     ],
     console: [],
+    actions: [],
   }
 
   it('says the credentials were rejected, and leads with the setup origin', () => {
@@ -1167,6 +1174,7 @@ describe('failureTraceNote — a rejected login is not a missing token (m165 +10
       line: 4,
       requests: [{ method: 'POST', path: '/api/session', status: 401, type: 'fetch' }],
       console: [],
+      actions: [],
     }
     const report = { authEndpoints: ['/session'] }
     const withConfig = String(
@@ -1208,6 +1216,7 @@ describe('failureTraceNote — a rejected login is not a missing token (m165 +10
         },
       ],
       console: [],
+      actions: [],
     }
     const note = String(failureTraceNote([traced], 'https://app.apps.mlcl.dev', [], ['/api']))
     expect(note).toContain('credential exchange')
@@ -1222,6 +1231,7 @@ describe('failureTraceNote — a rejected login is not a missing token (m165 +10
       line: 12,
       requests: [{ method: 'POST', path: '/api/articles', status: 401, type: 'fetch' }],
       console: [],
+      actions: [],
     }
     const note = String(failureTraceNote([traced], 'https://app.apps.mlcl.dev', [], ['/api']))
     expect(note).toContain('carried no `Authorization` header')
@@ -1345,6 +1355,7 @@ describe('failureTraceNote — a signed-out refusal is not a lost token (m221)',
         pageAfter: '/',
       },
       console: [],
+      actions: [],
     }
     const note = String(failureTraceNote([signedIn], 'https://app.apps.mlcl.dev'))
     expect(note).toContain('In `e2e/social.spec.ts:42`, the browser sent')
@@ -1382,6 +1393,7 @@ describe('failureTraceNote — a signed-out refusal is not a lost token (m221)',
         },
       ],
       console: [],
+      actions: [],
     }
     const note = String(failureTraceNote([signedIn], 'https://app.apps.mlcl.dev'))
     expect(note).toContain(
@@ -1413,6 +1425,7 @@ describe('failureTraceNote — a signed-out refusal is not a lost token (m221)',
         },
       ],
       console: [],
+      actions: [],
     }
     const note = String(failureTraceNote([mixedContexts], 'https://app.apps.mlcl.dev'))
     expect(note).toContain('If this test is signed out, that refusal is expected')
@@ -1434,6 +1447,7 @@ describe('failureTraceNote — the rows it spends (m112 +53:46)', () => {
     line,
     requests: paths.map((path) => ({ method: 'GET', path, status: -1 })),
     console: [],
+    actions: [],
   })
 
   /**
@@ -1448,6 +1462,7 @@ describe('failureTraceNote — the rows it spends (m112 +53:46)', () => {
       { method: 'POST', path: '/api/articles/some-article/favorite', status },
     ],
     console: [],
+    actions: [],
   })
 
   it('spends no row on requests that got no response, and shows the cause those rows hid', () => {
@@ -1490,12 +1505,14 @@ describe('failureTraceNote — the rows it spends (m112 +53:46)', () => {
         line: 145,
         requests: [{ method: 'POST', path: '/api/articles/some-article/favorite', status: 200 }],
         console: [],
+        actions: [],
       },
       {
         spec: 'e2e/realworld-specs/social.spec.ts',
         line: 120,
         requests: [{ method: 'GET', path: '/api/profiles/some-user', status: 200 }],
         console: [],
+        actions: [],
       },
     ]
     const note = String(failureTraceNote(items, 'the deployed app'))
@@ -1524,6 +1541,7 @@ describe('failureTraceNote — the rows it spends (m112 +53:46)', () => {
       line: 120,
       requests: [{ method: 'GET', path: '/api/profiles/some-user', status: 200 }],
       console: [],
+      actions: [],
     }
     const failing = favorite(150, 500)
     const list = failureTraceNote(
@@ -1552,12 +1570,14 @@ describe('failureTraceNote — the rows it spends (m112 +53:46)', () => {
       line: 107,
       requests: [{ method: 'GET', path: '/api/tags', status: 200 }],
       console: [],
+      actions: [],
     }
     const oneOff: TraceArtifact = {
       spec: 'e2e/realworld-specs/social.spec.ts',
       line: 120,
       requests: [{ method: 'GET', path: '/api/profiles/some-user', status: 200 }],
       console: [],
+      actions: [],
     }
     const rows = String(
       failureTraceNote([oneOff, hook], 'the deployed app', [
@@ -1575,6 +1595,7 @@ describe('failureTraceNote — the rows it spends (m112 +53:46)', () => {
       line: 123,
       requests: [{ method: 'POST', path: '/api/articles/some-article/favorite', status: 200 }],
       console: [],
+      actions: [],
     }
     const failed: TraceArtifact = {
       ...answered,
@@ -1594,6 +1615,7 @@ describe('failureTraceNote — bounded, and honest about what it has', () => {
     line: n,
     requests: [{ method: 'POST', path: `/api/thing${n}`, status }],
     console: [],
+    actions: [],
   })
 
   it('names at most the first traces and says how many it left out', () => {
@@ -1606,7 +1628,9 @@ describe('failureTraceNote — bounded, and honest about what it has', () => {
   })
 
   it('is null when no trace held a request or a console error', () => {
-    expect(failureTraceNote([{ spec: null, line: 0, requests: [], console: [] }], 'x')).toBeNull()
+    expect(
+      failureTraceNote([{ spec: null, line: 0, requests: [], console: [], actions: [] }], 'x'),
+    ).toBeNull()
   })
 })
 

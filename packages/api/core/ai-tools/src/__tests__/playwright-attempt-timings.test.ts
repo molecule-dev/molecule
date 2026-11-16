@@ -14,23 +14,27 @@ const step = (extra: Partial<PlaywrightTimingStep> = {}): PlaywrightTimingStep =
   ...extra,
 })
 
+/** What Playwright's own step record carries beyond the narrowed fields the emitter reads. */
+type NativeStep = PlaywrightTimingStep & { title: string; parameters: Record<string, unknown> }
+
 describe('native Playwright attempt timings', () => {
   it('keeps nested action clocks and source locations, without values or error text', () => {
+    // `title`/`parameters` exist on the native record and must not leak into the emitted
+    // timeline (they can carry form values), so the fixture carries them for real.
+    const privateFill: NativeStep = {
+      ...step({
+        duration: 155,
+        location: { file: '/workspace/catalog/setup.ts', line: 46, column: 3 },
+        error: new Error('secret'),
+      }),
+      title: 'fill private-password',
+      parameters: { value: 'secret' },
+    }
     const native = step({
       category: 'hook',
       duration: 200,
-      steps: [
-        {
-          ...step({
-            duration: 155,
-            location: { file: '/workspace/catalog/setup.ts', line: 46, column: 3 },
-            error: new Error('secret'),
-          }),
-          title: 'fill private-password',
-          parameters: { value: 'secret' },
-        },
-      ],
-    } as PlaywrightTimingStep)
+      steps: [privateFill],
+    })
     const result = playwrightAttemptTimings({ startTime: start, duration: 201, steps: [native] })
     expect(result.steps).toEqual([
       {

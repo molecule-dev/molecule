@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   buildAgentPrompt,
@@ -456,7 +456,9 @@ describe('buildTools', () => {
     const result = (await exec.execute({ command })) as { error?: string }
     expect(result.error).toBeUndefined()
     expect(backend.run).toHaveBeenCalled()
-    expect(backend.run.mock.calls[0]?.[0]).toContain("cat > artifact <<'EOF'\nfixture body\nEOF\n")
+    expect(vi.mocked(backend.run).mock.calls[0]?.[0]).toContain(
+      "cat > artifact <<'EOF'\nfixture body\nEOF\n",
+    )
   })
 
   it('exec_command never crashes when no command arrives under any name', async () => {
@@ -473,7 +475,7 @@ describe('buildTools', () => {
     // it (xr-molecule-flash-m117 +04:06): the shell reports the pipeline's LAST stage's code, and
     // a model that trusts the number concludes "clean".
     const backend = mockBackend()
-    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    vi.mocked(backend.run).mockResolvedValueOnce({
       stdout: 'src/handlers/conduit.ts(867,24): error TS2339: Property does not exist.\n',
       stderr: '',
       exitCode: 0,
@@ -581,7 +583,7 @@ describe('buildTools', () => {
     const result = (await exec.execute({
       command: 'npx playwright test e2e/realworld/social.spec.ts:22 --reporter=list',
     })) as { note?: string }
-    const ran = String(backend.run.mock.calls[0]?.[0])
+    const ran = String(vi.mocked(backend.run).mock.calls[0]?.[0])
     expect(ran).toContain('--trace=retain-on-failure')
     expect(result.note).toContain('--trace=retain-on-failure')
   })
@@ -596,19 +598,19 @@ describe('buildTools', () => {
     // X1 P373–P385: the recording slowed every local whole walk (4.36 s a passed test with the
     // flag, 3.06 s with `--trace=off`); a failure is diagnosed in the narrowed re-run instead.
     await exec.execute({ command: 'npx playwright test --max-failures=0 --config p.config.ts' })
-    expect(String(backend.run.mock.calls[0]?.[0])).not.toContain('--trace')
+    expect(String(vi.mocked(backend.run).mock.calls[0]?.[0])).not.toContain('--trace')
     // Inverting only the titles the request excludes still walks the whole suite.
     await exec.execute({ command: `npx playwright test --config p.config.ts -G '${excluded}'` })
-    expect(String(backend.run.mock.calls[1]?.[0])).not.toContain('--trace')
+    expect(String(vi.mocked(backend.run).mock.calls[1]?.[0])).not.toContain('--trace')
     // A cap narrows the walk, so it records a trace for its failure.
     await exec.execute({ command: 'npx playwright test --max-failures=1 --config p.config.ts' })
-    expect(String(backend.run.mock.calls[2]?.[0])).toContain('--trace=retain-on-failure')
+    expect(String(vi.mocked(backend.run).mock.calls[2]?.[0])).toContain('--trace=retain-on-failure')
 
     await exec.execute({
       command: 'npx playwright test e2e/a.spec.ts:3 --trace=on --config p.config.ts',
     })
-    expect(String(backend.run.mock.calls[3]?.[0])).toContain('--trace=on')
-    expect(String(backend.run.mock.calls[3]?.[0])).not.toContain('retain-on-failure')
+    expect(String(vi.mocked(backend.run).mock.calls[3]?.[0])).toContain('--trace=on')
+    expect(String(vi.mocked(backend.run).mock.calls[3]?.[0])).not.toContain('retain-on-failure')
   })
 
   it('says nothing when the suite’s own config already records failures', async () => {
@@ -619,7 +621,7 @@ describe('buildTools', () => {
     const result = (await exec.execute({
       command: 'npx playwright test e2e/a.spec.ts:3 --config playwright.config.ts',
     })) as { note?: string }
-    expect(String(backend.run.mock.calls[0]?.[0])).not.toContain('--trace')
+    expect(String(vi.mocked(backend.run).mock.calls[0]?.[0])).not.toContain('--trace')
     expect(result.note).toBeUndefined()
   })
 
@@ -1013,19 +1015,11 @@ describe('buildTools', () => {
   it('save_plan declares and round-trips typed package decisions beside the Markdown', async () => {
     const backend = mockBackend()
     const savePlan = buildTools(backend).find((t) => t.name === 'save_plan')!
-    const schema = savePlan.parameters as {
-      properties: {
-        packages: {
-          items: { required: string[]; properties: { decision: { enum: string[] } } }
-        }
-      }
-    }
-    expect(schema.properties.packages.items.required).toEqual(['domain', 'decision', 'reason'])
-    expect(schema.properties.packages.items.properties.decision.enum).toEqual([
-      'use',
-      'own',
-      'skip',
-    ])
+    // Navigated through JSONSchema itself — a missing node fails the assertion below instead of
+    // trusting a cast.
+    const packagesItems = savePlan.parameters.properties?.packages?.items
+    expect(packagesItems?.required).toEqual(['domain', 'decision', 'reason'])
+    expect(packagesItems?.properties?.decision?.enum).toEqual(['use', 'own', 'skip'])
     expect(savePlan.description).toContain('not as Markdown lines or tables')
     const packages = [
       {
