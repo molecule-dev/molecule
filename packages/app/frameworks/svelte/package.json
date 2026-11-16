@@ -38,7 +38,7 @@
     "@molecule/app-auth": "^3.0.0",
     "@molecule/app-code-editor": "^1.0.1",
     "@molecule/app-device": "^1.0.1",
-    "@molecule/app-forms": "^2.3.1",
+    "@molecule/app-forms": "^2.4.0",
     "@molecule/app-http": "^1.0.1",
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-ide": "^1.0.1",
