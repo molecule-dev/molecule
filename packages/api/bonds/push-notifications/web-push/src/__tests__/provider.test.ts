@@ -130,11 +130,14 @@ describe('@molecule/api-push-notifications-web-push', () => {
         endpoint: 'https://push.example.com',
         keys: { p256dh: 'a', auth: 'b' },
       }
-      const result = await provider.send(subscription, { title: 'Hello', body: 'World' })
+      const result = await provider.send(subscription, {
+        title: 'Hello',
+        options: { body: 'World' },
+      })
 
       expect(mockSendNotification).toHaveBeenCalledWith(
         subscription,
-        '{"title":"Hello","body":"World"}',
+        '{"title":"Hello","options":{"body":"World"}}',
       )
       expect(result.statusCode).toBe(201)
     })
