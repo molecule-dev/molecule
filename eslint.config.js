@@ -120,6 +120,38 @@ const APP_CROSS_STACK_IMPORTS = {
 }
 
 /**
+ * Angular's signal-based component APIs, which these packages' tests cannot see. Each Angular
+ * test compiles components with Angular's JIT compiler (`import '@angular/compiler'`), and JIT
+ * reads inputs, outputs and queries only from decorator metadata: `input()`, `output()`,
+ * `model()` and the signal queries are found by the ngc build alone, so under test a binding to
+ * one is dropped without an error (2026-11-16: the chat widget launcher's `output()` never
+ * opened its panel, and the error fallback's `input()` never received the error). Shared by
+ * the .ts blocks below, like {@link APP_CROSS_STACK_IMPORTS}.
+ */
+const ANGULAR_SIGNAL_COMPONENT_APIS = [
+  {
+    name: '@angular/core',
+    importNames: [
+      'input',
+      'output',
+      'model',
+      'viewChild',
+      'viewChildren',
+      'contentChild',
+      'contentChildren',
+    ],
+    message:
+      "Declare it in the component's metadata: Angular tests here compile with the JIT compiler, which sees only decorator metadata, so a binding to a signal input, output, model or query is silently dropped under test. Use `inputs: ['name']` (a plain field), `outputs: ['name']` with `readonly name = new EventEmitter<T>()`, and `@ViewChild` / `@ContentChild` (in a test, the `queries` metadata).",
+  },
+  {
+    name: '@angular/core/rxjs-interop',
+    importNames: ['outputFromObservable'],
+    message:
+      "Declare the output in the component's metadata (`outputs: ['name']` with an `EventEmitter`): Angular tests here compile with the JIT compiler, which does not see `outputFromObservable()`.",
+  },
+]
+
+/**
  * Solid packages write .tsx too, but it is not React: rules for React components skip them,
  * and the framework rules below hold them instead.
  */
@@ -290,6 +322,17 @@ export default tseslint.config(
   {
     files: ['packages/app/**/*.ts'],
     rules: {
+      'no-restricted-imports': [
+        'error',
+        { patterns: [APP_CROSS_STACK_IMPORTS], paths: ANGULAR_SIGNAL_COMPONENT_APIS },
+      ],
+    },
+  },
+  {
+    // dndkit-angular's directives keep their signal inputs: its suite compiles the package with
+    // ngc and imports the build (vitest.global-setup.ts), so its tests see what consumers get.
+    files: ['packages/app/bonds/drag-drop/dndkit-angular/**/*.ts'],
+    rules: {
       'no-restricted-imports': ['error', { patterns: [APP_CROSS_STACK_IMPORTS] }],
     },
   },
@@ -341,6 +384,7 @@ export default tseslint.config(
               message:
                 "A UI component must translate through its framework binding's `useTranslation()` (@molecule/app-vue, -solid, -svelte or -angular): the static `t` does not follow a locale switch. A helper takes `t` from the component that calls it; an error thrown outside rendering is an `I18nError`.",
             },
+            ...ANGULAR_SIGNAL_COMPONENT_APIS,
           ],
         },
       ],
