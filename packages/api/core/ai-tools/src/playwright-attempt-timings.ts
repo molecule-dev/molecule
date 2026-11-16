@@ -1,5 +1,7 @@
-/** The native fields needed from a Playwright step; titles and parameters are deliberately absent. */
+/** Native action clocks plus the hook title used to locate teardown; titles never enter the output. */
 export interface PlaywrightTimingStep {
+  /** Native hook title, used only to locate the teardown boundary; never serialized. */
+  title?: string
   category: string
   startTime: Date
   duration: number
@@ -11,13 +13,16 @@ export interface PlaywrightTimingStep {
 /** A bounded timeline of the actions Playwright already recorded for one attempt. */
 export interface PlaywrightAttemptTimings {
   version: 1
-  startTime: string
+  startTime: string | null
   durationMs: number
   steps: {
     parent: number | null
     category: string
-    startTime: string
-    durationMs: number
+    startTime: string | null
+    /** Native duration, or elapsed time to the attempt cutoff for an unfinished step. */
+    durationMs: number | null
+    /** The native step never ended. Null duration means its clock cannot establish elapsed time. */
+    unfinished?: true
     location?: { file: string; line: number; column: number }
     failed: boolean
   }[]
@@ -32,6 +37,8 @@ export interface PlaywrightAttemptTimings {
  * runner setting. The result identifies slow actions by source location. It cannot distinguish
  * server, network and browser scheduling inside an action. Titles, arguments and error messages
  * are excluded because they can contain credentials or form values.
+ * Unfinished steps use the native After Hooks start as their cutoff when present,
+ * otherwise the attempt's end. Inconsistent clocks remain null, never a fabricated zero.
  *
  * Self-contained so execution tools can emit its source into a sandbox reporter.
  * @param result - The native attempt's existing clocks and step tree.
@@ -42,9 +49,15 @@ export function playwrightAttemptTimings(result: {
   duration: number
   steps: PlaywrightTimingStep[]
 }): PlaywrightAttemptTimings {
+  const iso = (date: Date): string | null =>
+    Number.isFinite(date.getTime()) ? date.toISOString() : null
+  const cutoff =
+    result.steps
+      .find((step) => step.category === 'hook' && step.title === 'After Hooks')
+      ?.startTime.getTime() ?? result.startTime.getTime() + result.duration
   const timeline: PlaywrightAttemptTimings = {
     version: 1,
-    startTime: result.startTime.toISOString(),
+    startTime: iso(result.startTime),
     durationMs: result.duration,
     steps: [],
     omittedSteps: 0,
@@ -54,11 +67,18 @@ export function playwrightAttemptTimings(result: {
     const { step, parent } = pending.pop()!
     const index = timeline.steps.length
     if (index < 2_000) {
+      const unfinished = step.duration < 0
+      const elapsed = cutoff - step.startTime.getTime()
       timeline.steps.push({
         parent,
         category: step.category,
-        startTime: step.startTime.toISOString(),
-        durationMs: step.duration,
+        startTime: iso(step.startTime),
+        durationMs: unfinished
+          ? Number.isFinite(elapsed) && elapsed >= 0
+            ? elapsed
+            : null
+          : step.duration,
+        ...(unfinished ? { unfinished: true as const } : {}),
         ...(step.location ? { location: { ...step.location } } : {}),
         failed: Boolean(step.error),
       })

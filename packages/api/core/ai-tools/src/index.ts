@@ -15,7 +15,9 @@
  * - **Failed-attempt timings without tracing:** `playwrightAttemptTimings(result)` serializes
  *   the native action clocks already available to a Playwright reporter's `onTestEnd`.
  *   Call it only on a failed attempt and retain its output as an attachment. It starts no browser
- *   recorder and excludes action titles, arguments and error text. A passing attempt needs no work.
+ *   recorder and excludes action titles, arguments and error text. Unfinished steps carry their
+ *   elapsed time to the native teardown boundary with `unfinished: true`; invalid clocks remain
+ *   null. A passing attempt needs no work.
  * - `outputFilterAfterRunner` returns only removable output cuts. File redirects, in-place
  *   edits, command substitutions and filter programs with write or execution effects retain
  *   their pipelines. Dynamic/external filter scripts and unrecognized awk options stay unchanged.
