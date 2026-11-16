@@ -42,6 +42,7 @@
     "check:peer-floors": "node scripts/check-peer-floors.mjs",
     "check:peer-deps": "node scripts/check-peer-deps.js",
     "check:publishable": "node scripts/check-publishable.mjs",
+    "check:published-tests": "node scripts/check-published-tests.mjs",
     "check:security-workflow": "node scripts/check-security-workflow.js",
     "check:syntax": "node scripts/check-syntax.mjs",
     "check:undeclared-imports": "node scripts/check-undeclared-imports.mjs",

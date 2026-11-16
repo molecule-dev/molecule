@@ -62,7 +62,9 @@ function exportsChanged(file) {
 const needingChangeset = new Set()
 for (const file of changed) {
   const source = file.match(/^(packages\/.+?)\/src\/(.+)$/)
-  const publishedSource = source && !source[2].startsWith('__tests__/')
+  // Nothing under a `__tests__/` directory is published, at any depth
+  // (`src/composables/__tests__/` too): check:published-tests holds every build to that.
+  const publishedSource = source && !/(^|\/)__tests__\//.test(source[2])
   const manifestFile = file.match(/^(packages\/.+)\/package\.json$/)
   if (!publishedSource && !(manifestFile && exportsChanged(file))) continue
   const dir = source?.[1] ?? manifestFile[1]

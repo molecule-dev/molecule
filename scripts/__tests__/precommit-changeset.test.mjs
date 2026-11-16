@@ -85,6 +85,16 @@ describe('published-file changeset pre-commit gate', () => {
     expect(run(root).status).toBe(1)
   })
 
+  it('treats a test in a nested __tests__ directory as unpublished, like a top-level one', () => {
+    // 2026-11-16: test-only changes to @molecule/app-vue's src/composables/__tests__/ were refused
+    // as published source, though its build excludes src/**/__tests__/** and the tarball has none.
+    const root = fixture()
+    stage(root, 'packages/a/src/composables/__tests__/useA.test.ts', 'export const nested = 1\n')
+    expect(run(root).status).toBe(0)
+    stage(root, 'packages/a/src/composables/useA.ts', 'export const useA = 1\n')
+    expect(run(root).status).toBe(1)
+  })
+
   it('refuses a deleted published source even though the hook’s format list excludes deletions', () => {
     const root = fixture()
     git(root, 'rm', '-q', 'packages/a/src/index.ts')

@@ -175,6 +175,9 @@ fi
 #   keeps every specifier, so `./X.js` names a missing file in the published package.
 #   It type-checks, tests and builds green; a consuming app's `vite build` was the first
 #   to fail (2026-11-14, five Solid feature packages).
+# - check-published-tests: no publishable package's build puts src/**/__tests__ in its
+#   tarball (precommit-changeset.mjs above counts on it). 193 packages whose tsconfig
+#   lacked the exclude shipped dist/__tests__/*.test.js to npm until 2026-11-16.
 node scripts/run-on-index.mjs \
   "scripts/check-lockfile.js" \
   "scripts/check-peer-deps.js" \
@@ -182,7 +185,8 @@ node scripts/run-on-index.mjs \
   "scripts/check-package-metadata.mjs" \
   "scripts/check-i18n-parity.js --check" \
   "scripts/check-locale-placeholders.js" \
-  "scripts/check-jsx-specifiers.mjs"
+  "scripts/check-jsx-specifiers.mjs" \
+  "scripts/check-published-tests.mjs"
 
 # Registry export-drift gate (same spirit as i18n-parity, but cross-REPO). A
 # package's public exports are the source of truth, yet they are recorded in
