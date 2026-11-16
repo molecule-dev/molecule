@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  getProvider as getI18nProvider,
+  type I18nProvider,
+  setProvider as setI18nProvider,
+} from '@molecule/app-i18n'
+
+import {
   checkConnectivity,
   getCapabilities,
   getConnectionType,
@@ -252,6 +258,9 @@ describe('network/network', () => {
 describe('network/utilities', () => {
   let mockProvider: NetworkProvider
 
+  // Saved before any test replaces it, so a marker provider never leaks.
+  const savedI18nProvider = getI18nProvider()
+
   beforeEach(() => {
     vi.useFakeTimers()
     mockProvider = createMockProvider()
@@ -262,6 +271,7 @@ describe('network/utilities', () => {
   afterEach(() => {
     vi.useRealTimers()
     vi.restoreAllMocks()
+    setI18nProvider(savedI18nProvider)
   })
 
   describe('getConnectionTypeName', () => {
@@ -295,6 +305,29 @@ describe('network/utilities', () => {
 
     it('should return Unknown for unknown type', () => {
       expect(getConnectionTypeName('unknown')).toBe('Unknown')
+    })
+
+    it('translates every connection type through its literal key', () => {
+      const t = vi.fn((key: string) => `t:${key}`)
+      expect(getConnectionTypeName('wifi', t)).toBe('t:network.wifi')
+      expect(getConnectionTypeName('cellular', t)).toBe('t:network.cellular')
+      expect(getConnectionTypeName('ethernet', t)).toBe('t:network.ethernet')
+      expect(getConnectionTypeName('bluetooth', t)).toBe('t:network.bluetooth')
+      expect(getConnectionTypeName('vpn', t)).toBe('t:network.vpn')
+      expect(getConnectionTypeName('other', t)).toBe('t:network.other')
+      expect(getConnectionTypeName('none', t)).toBe('t:network.none')
+      expect(getConnectionTypeName('unknown', t)).toBe('t:network.unknown')
+    })
+
+    it('resolves a value outside the union to the unknown fallback key', () => {
+      const t = vi.fn((key: string) => `t:${key}`)
+      expect(getConnectionTypeName('wimax' as ConnectionType, t)).toBe('t:network.unknown')
+    })
+
+    it('passes the key’s bond English as the literal defaultValue', () => {
+      const t = vi.fn((key: string) => `t:${key}`)
+      getConnectionTypeName('none', t)
+      expect(t).toHaveBeenCalledWith('network.none', undefined, { defaultValue: 'Disconnected' })
     })
   })
 
@@ -491,6 +524,21 @@ describe('network/utilities', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
+    it('translates the timeout error through its literal key', async () => {
+      setI18nProvider({ t: (key: string) => `t:${key}` } as Partial<I18nProvider> as I18nProvider)
+      mockProvider.isConnected = vi.fn().mockResolvedValue(false)
+      const callback = vi.fn()
+
+      const promise = whenOnline(callback, 2000)
+      // Attach a no-op catch to prevent unhandled rejection warning
+      // (the actual assertion happens below)
+      promise.catch((_error) => {})
+
+      await vi.advanceTimersByTimeAsync(3000)
+
+      await expect(promise).rejects.toThrow('t:network.error.connectionTimeout')
+    })
+
     it('should handle async callbacks', async () => {
       mockProvider.isConnected = vi.fn().mockResolvedValue(true)
       const asyncCallback = vi.fn().mockResolvedValue('async result')
@@ -525,6 +573,17 @@ describe('network/utilities', () => {
       const networkFetch = createNetworkAwareFetch()
 
       await expect(networkFetch('https://example.com')).rejects.toThrow('Network unavailable')
+    })
+
+    it('translates the offline rejection through its literal key', async () => {
+      setI18nProvider({ t: (key: string) => `t:${key}` } as Partial<I18nProvider> as I18nProvider)
+      mockProvider.isConnected = vi.fn().mockResolvedValue(false)
+
+      const networkFetch = createNetworkAwareFetch()
+
+      await expect(networkFetch('https://example.com')).rejects.toThrow(
+        't:network.error.unavailable',
+      )
     })
 
     it('should pass request init options to fetch', async () => {
