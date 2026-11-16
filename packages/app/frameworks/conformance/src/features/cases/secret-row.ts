@@ -13,7 +13,7 @@ import type { FeatureCases } from '../spec.js'
 const base = {
   id: 'sk-1',
   key: 'STRIPE_SECRET_KEY',
-  value: 'sk_live_abcdef123456',
+  value: 'example_abcdef123456',
 }
 
 /** `@molecule/app-secret-row-react`. */
@@ -155,7 +155,7 @@ export const secretRowFeature: FeatureCases = {
             { type: 'click', selector: 'button:nth-of-type(1)' },
             {
               type: 'props',
-              props: { secret: { ...base, value: 'sk_live_rotated' } },
+              props: { secret: { ...base, value: 'example_rotated' } },
             },
           ],
         },

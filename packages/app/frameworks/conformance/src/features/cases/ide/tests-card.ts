@@ -524,7 +524,7 @@ export const testsCardCases: FeatureComponentCases = {
         ...listed,
         run: runOf(
           [
-            { type: 'start', runId: 'r9', ids: [], source: 'agent', command: null },
+            { type: 'start', runId: 'r9', ids: [], source: 'agent' },
             { type: 'output', id: HOME, chunk: 'RUN  v2.1.1' },
           ],
           { external: true },
