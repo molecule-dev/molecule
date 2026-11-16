@@ -1,0 +1,13 @@
+{
+  "packages": [
+    "@molecule/app-drag-drop-dndkit-angular",
+    "@molecule/app-drag-drop-dndkit-react",
+    "@molecule/app-drag-drop-dndkit-solid",
+    "@molecule/app-drag-drop-dndkit-svelte",
+    "@molecule/app-drag-drop-dndkit-vue",
+    "@molecule/app-locales-drag-drop-dndkit"
+  ],
+  "changesets": [
+    ".changeset/drag-drop-dndkit-frameworks.md"
+  ]
+}
