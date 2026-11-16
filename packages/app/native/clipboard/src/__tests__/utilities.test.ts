@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { unbond } from '@molecule/app-bond'
+
 import { setProvider } from '../provider.js'
 import type { ClipboardProvider } from '../types.js'
 import { copyTextWithFallback, isTextInClipboard } from '../utilities.js'
@@ -43,44 +45,68 @@ describe('clipboard/utilities', () => {
       expect(mockProvider.writeText).toHaveBeenCalledWith('test text')
     })
 
-    it('should use execCommand fallback when no provider', async () => {
-      // Mock the global document for this test
-      const mockTextarea = {
-        value: '',
-        style: { position: '', left: '' },
-        select: vi.fn(),
+    /**
+     * Gives the test a document whose copy command records the selected field's text.
+     *
+     * @param result - What the command reports.
+     * @returns The texts it copied, the command, and a function that puts the document back.
+     */
+    const stubDocument = (
+      result: boolean,
+    ): { copied: string[]; execCommand: ReturnType<typeof vi.fn>; restore: () => void } => {
+      const copied: string[] = []
+      const field = { value: '', style: { position: '', left: '' }, select: vi.fn() }
+      const execCommand = vi.fn((command: string) => {
+        if (command === 'copy' && result) copied.push(field.value)
+        return result
+      })
+      const globals = globalThis as Record<string, unknown>
+      const original = globals.document
+      globals.document = {
+        createElement: vi.fn(() => field),
+        body: { appendChild: vi.fn(), removeChild: vi.fn() },
+        execCommand,
       }
-      const execCommandMock = vi.fn().mockReturnValue(true)
-      const appendChildMock = vi.fn()
-      const removeChildMock = vi.fn()
-
-      // Store original document if it exists
-      const originalDocument = (globalThis as Record<string, unknown>).document
-
-      // Mock document globally
-      ;(globalThis as Record<string, unknown>).document = {
-        createElement: vi.fn().mockReturnValue(mockTextarea),
-        body: {
-          appendChild: appendChildMock,
-          removeChild: removeChildMock,
-        },
-        execCommand: execCommandMock,
+      const restore = (): void => {
+        if (original !== undefined) globals.document = original
+        else delete globals.document
       }
+      return { copied, execCommand, restore }
+    }
 
-      // Test with provider that fails, so it falls back to execCommand
-      mockProvider.writeText = vi.fn().mockRejectedValue(new Error('Failed'))
+    it('copies with the copy command when the provider refuses', async () => {
+      mockProvider.writeText = vi.fn().mockRejectedValue(new Error('Write permission denied'))
       setProvider(mockProvider)
+      const doc = stubDocument(true)
+      try {
+        expect(await copyTextWithFallback('test text')).toBe(true)
+        expect(mockProvider.writeText).toHaveBeenCalledWith('test text')
+        expect(doc.copied).toEqual(['test text'])
+      } finally {
+        doc.restore()
+      }
+    })
 
-      const result = await copyTextWithFallback('test text')
-      // When provider throws, the function catches and returns false
-      // The fallback path is only used when there's NO provider at all
-      expect(result).toBe(false)
+    it('copies with the copy command when no provider is bonded', async () => {
+      unbond('clipboard')
+      const doc = stubDocument(true)
+      try {
+        expect(await copyTextWithFallback('test text')).toBe(true)
+        expect(doc.copied).toEqual(['test text'])
+      } finally {
+        doc.restore()
+      }
+    })
 
-      // Restore original document
-      if (originalDocument !== undefined) {
-        ;(globalThis as Record<string, unknown>).document = originalDocument
-      } else {
-        delete (globalThis as Record<string, unknown>).document
+    it('returns false when the provider refuses and the copy command fails', async () => {
+      mockProvider.writeText = vi.fn().mockRejectedValue(new Error('Write permission denied'))
+      setProvider(mockProvider)
+      const doc = stubDocument(false)
+      try {
+        expect(await copyTextWithFallback('test text')).toBe(false)
+        expect(doc.execCommand).toHaveBeenCalledWith('copy')
+      } finally {
+        doc.restore()
       }
     })
 
