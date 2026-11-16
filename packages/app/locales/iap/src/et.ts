@@ -34,4 +34,9 @@ export const et: IapTranslations = {
   'iap.error.6': 'Viga.',
   'iap.error.7': 'Ese kuulub juba.',
   'iap.error.8': 'Ese ei kuulu.',
+
+  'iap.error.E_USER_CANCELLED': 'Ost tühistati.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'See toode ei ole ostuks saadaval.',
+  'iap.error.E_VERIFICATION_FAILED': 'Ostu kinnitamine ebaõnnestus.',
+  'iap.error.E_SERVICE_ERROR': 'Poeteenuses esines viga.',
 }

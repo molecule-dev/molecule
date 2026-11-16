@@ -34,4 +34,9 @@ export const lo: IapTranslations = {
   'iap.error.6': 'ຂໍ້ຜິດພາດ.',
   'iap.error.7': 'ມີລາຍການນີ້ແລ້ວ.',
   'iap.error.8': 'ບໍ່ມີລາຍການນີ້.',
+
+  'iap.error.E_USER_CANCELLED': 'ການຊື້ຖືກຍົກເລີກ.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'ສິນຄ້ານີ້ບໍ່ສາມາດຊື້ໄດ້.',
+  'iap.error.E_VERIFICATION_FAILED': 'ການຢືນຢັນການຊື້ບໍ່ສຳເລັດ.',
+  'iap.error.E_SERVICE_ERROR': 'ບໍລິການຮ້ານຄ້າມີຂໍ້ຜິດພາດ.',
 }

@@ -34,4 +34,9 @@ export const be: IapTranslations = {
   'iap.error.6': 'Памылка.',
   'iap.error.7': 'Элемент ужо набыты.',
   'iap.error.8': 'Элемент не набыты.',
+
+  'iap.error.E_USER_CANCELLED': 'Пакупка была скасавана.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Гэты тавар недаступны для пакупкі.',
+  'iap.error.E_VERIFICATION_FAILED': 'Не ўдалося праверыць пакупку.',
+  'iap.error.E_SERVICE_ERROR': 'У сэрвісе крамы здарылася памылка.',
 }

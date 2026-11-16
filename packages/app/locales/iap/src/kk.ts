@@ -34,4 +34,9 @@ export const kk: IapTranslations = {
   'iap.error.6': 'Қате.',
   'iap.error.7': 'Элемент бұрыннан сатып алынған.',
   'iap.error.8': 'Элемент сатып алынбаған.',
+
+  'iap.error.E_USER_CANCELLED': 'Сатып алу болдырмалды.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Бұл зат сатып алуға қолжетімсіз.',
+  'iap.error.E_VERIFICATION_FAILED': 'Сатып алуды тексеру сәтсіз аяқталды.',
+  'iap.error.E_SERVICE_ERROR': 'Дүкен қызметінде қате орын алды.',
 }

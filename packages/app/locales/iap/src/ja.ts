@@ -36,4 +36,9 @@ export const ja: Partial<IapTranslations> = {
   'iap.error.6': 'エラー。',
   'iap.error.7': '既に所有している商品です。',
   'iap.error.8': '所有していない商品です。',
+
+  'iap.error.E_USER_CANCELLED': '購入はキャンセルされました。',
+  'iap.error.E_ITEM_UNAVAILABLE': 'このアイテムは購入できません。',
+  'iap.error.E_VERIFICATION_FAILED': '購入の検証に失敗しました。',
+  'iap.error.E_SERVICE_ERROR': 'ストアサービスでエラーが発生しました。',
 }

@@ -34,4 +34,9 @@ export const hu: IapTranslations = {
   'iap.error.6': 'Hiba.',
   'iap.error.7': 'Elem már birtokolt.',
   'iap.error.8': 'Elem nincs birtokolva.',
+
+  'iap.error.E_USER_CANCELLED': 'A vásárlás megszakítva.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Ez a tétel nem érhető el megvásárlásra.',
+  'iap.error.E_VERIFICATION_FAILED': 'A vásárlás ellenőrzése sikertelen.',
+  'iap.error.E_SERVICE_ERROR': 'Hiba történt az áruház szolgáltatásban.',
 }

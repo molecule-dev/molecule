@@ -35,4 +35,9 @@ export const de: Partial<IapTranslations> = {
   'iap.error.6': 'Fehler.',
   'iap.error.7': 'Artikel ist bereits in meinem Besitz.',
   'iap.error.8': 'Gegenstand ist nicht im Besitz des Eigentümers.',
+
+  'iap.error.E_USER_CANCELLED': 'Der Kauf wurde storniert.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Dieser Artikel ist nicht zum Kauf verfügbar.',
+  'iap.error.E_VERIFICATION_FAILED': 'Kaufverifizierung fehlgeschlagen.',
+  'iap.error.E_SERVICE_ERROR': 'Im Store-Dienst ist ein Fehler aufgetreten.',
 }

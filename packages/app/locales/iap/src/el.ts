@@ -34,4 +34,9 @@ export const el: IapTranslations = {
   'iap.error.6': 'Σφάλμα.',
   'iap.error.7': 'Το στοιχείο ανήκει ήδη.',
   'iap.error.8': 'Το στοιχείο δεν ανήκει.',
+
+  'iap.error.E_USER_CANCELLED': 'Η αγορά ακυρώθηκε.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Αυτό το προϊόν δεν είναι διαθέσιμο για αγορά.',
+  'iap.error.E_VERIFICATION_FAILED': 'Αποτυχία επαλήθευσης αγοράς.',
+  'iap.error.E_SERVICE_ERROR': 'Η υπηρεσία καταστήματος αντιμετώπισε σφάλμα.',
 }

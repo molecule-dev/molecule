@@ -34,4 +34,9 @@ export const ga: IapTranslations = {
   'iap.error.6': 'Earráid.',
   'iap.error.7': 'Mír atá agat cheana.',
   'iap.error.8': 'Mír nach bhfuil agat.',
+
+  'iap.error.E_USER_CANCELLED': 'Ceallaíodh an ceannach.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Níl an mhír seo ar fáil le ceannach.',
+  'iap.error.E_VERIFICATION_FAILED': 'Theip ar fhíorú ceannaigh.',
+  'iap.error.E_SERVICE_ERROR': 'Bhuail earráid le seirbhís na siopa.',
 }

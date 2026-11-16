@@ -34,4 +34,9 @@ export const mt: Partial<IapTranslations> = {
   'iap.error.4': 'Oġġett mhux disponibbli.',
   'iap.error.7': 'Oġġett diġà tiegħek.',
   'iap.error.8': "Oġġett mhux proprjetà ta' xi ħadd.",
+
+  'iap.error.E_USER_CANCELLED': 'Ix-xiri thasssar.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Dan l-oġġett mhux disponibbli biex jinxera.',
+  'iap.error.E_VERIFICATION_FAILED': 'Il-verifika tax-xiri ma rnexxietx.',
+  'iap.error.E_SERVICE_ERROR': 'Is-servizz tal-ħanut għamel żball.',
 }

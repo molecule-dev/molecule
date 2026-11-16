@@ -34,4 +34,9 @@ export const ta: IapTranslations = {
   'iap.error.6': 'பிழை.',
   'iap.error.7': 'பொருள் ஏற்கனவே சொந்தமானது.',
   'iap.error.8': 'பொருள் சொந்தமானது அல்ல.',
+
+  'iap.error.E_USER_CANCELLED': 'கொள்முதல் ரத்து செய்யப்பட்டது.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'இந்தப் பொருள் வாங்குவதற்குக் கிடைக்கவில்லை.',
+  'iap.error.E_VERIFICATION_FAILED': 'கொள்முதல் சரிபார்ப்பு தோல்வியுற்றது.',
+  'iap.error.E_SERVICE_ERROR': 'கடை சேவையில் பிழை ஏற்பட்டது.',
 }

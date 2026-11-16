@@ -34,4 +34,9 @@ export const mk: IapTranslations = {
   'iap.error.6': 'Грешка.',
   'iap.error.7': 'Артиклот веќе е во сопственост.',
   'iap.error.8': 'Артиклот не е во сопственост.',
+
+  'iap.error.E_USER_CANCELLED': 'Купувањето е откажано.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Оваа ставка не е достапна за купување.',
+  'iap.error.E_VERIFICATION_FAILED': 'Неуспешна верификација на купувањето.',
+  'iap.error.E_SERVICE_ERROR': 'Услугата на продавницата наиде на грешка.',
 }

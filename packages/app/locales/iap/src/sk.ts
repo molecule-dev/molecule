@@ -34,4 +34,9 @@ export const sk: IapTranslations = {
   'iap.error.6': 'Chyba.',
   'iap.error.7': 'Položka už vlastnená.',
   'iap.error.8': 'Položka nie je vlastnená.',
+
+  'iap.error.E_USER_CANCELLED': 'Nákup bol zrušený.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Táto položka nie je dostupná na kúpu.',
+  'iap.error.E_VERIFICATION_FAILED': 'Nepodarilo sa overiť nákup.',
+  'iap.error.E_SERVICE_ERROR': 'V službe obchodu sa vyskytla chyba.',
 }

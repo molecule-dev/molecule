@@ -35,4 +35,9 @@ export const nl: Partial<IapTranslations> = {
   'iap.error.6': 'Fout.',
   'iap.error.7': 'Artikel reeds in bezit.',
   'iap.error.8': 'Dit artikel is niet mijn eigendom.',
+
+  'iap.error.E_USER_CANCELLED': 'De aankoop is geannuleerd.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Dit artikel is niet beschikbaar om te kopen.',
+  'iap.error.E_VERIFICATION_FAILED': 'Verificatie van de aankoop mislukt.',
+  'iap.error.E_SERVICE_ERROR': 'De winkelservice ondervond een fout.',
 }

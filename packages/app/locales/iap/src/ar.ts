@@ -34,4 +34,9 @@ export const ar: Partial<IapTranslations> = {
   'iap.error.6': 'خطأ.',
   'iap.error.7': 'هذا المنتج مملوك بالفعل.',
   'iap.error.8': 'هذا المنتج غير مملوك.',
+
+  'iap.error.E_USER_CANCELLED': 'تم إلغاء عملية الشراء.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'هذا العنصر غير متاح للشراء.',
+  'iap.error.E_VERIFICATION_FAILED': 'فشل التحقق من عملية الشراء.',
+  'iap.error.E_SERVICE_ERROR': 'حدث خطأ في خدمة المتجر.',
 }

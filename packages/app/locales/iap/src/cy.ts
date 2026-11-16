@@ -34,4 +34,9 @@ export const cy: Partial<IapTranslations> = {
   'iap.error.E_PAYMENT_NOT_ALLOWED': "Ni chaniateir i'r ddyfais wneud pryniannau.",
   'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': "Caniatâd gwasanaeth cwmwl wedi'i wrthod.",
   'iap.error.E_CLOUD_SERVICE_REVOKED': 'Cafodd gwasanaeth cwmwl ei ddirymu.',
+
+  'iap.error.E_USER_CANCELLED': 'Cafodd y pryniant ei ganslo.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Nid yr eitem hon ar gael i’w prynu.',
+  'iap.error.E_VERIFICATION_FAILED': 'Methwyd dilysu pryniant.',
+  'iap.error.E_SERVICE_ERROR': 'Daeth gwasanaeth y siop ar draws gwall.',
 }

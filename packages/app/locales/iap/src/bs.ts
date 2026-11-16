@@ -34,4 +34,9 @@ export const bs: IapTranslations = {
   'iap.error.6': 'Greška.',
   'iap.error.7': 'Stavka već u vlasništvu.',
   'iap.error.8': 'Stavka nije u vlasništvu.',
+
+  'iap.error.E_USER_CANCELLED': 'Kupovina je otkazana.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Ovaj artikal nije dostupan za kupovinu.',
+  'iap.error.E_VERIFICATION_FAILED': 'Neuspješna verifikacija kupovine.',
+  'iap.error.E_SERVICE_ERROR': 'Usluga prodavnice naišla je na grešku.',
 }

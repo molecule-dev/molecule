@@ -34,4 +34,9 @@ export const gl: IapTranslations = {
   'iap.error.6': 'Erro.',
   'iap.error.7': 'Artigo xa adquirido.',
   'iap.error.8': 'Artigo non adquirido.',
+
+  'iap.error.E_USER_CANCELLED': 'A compra foi cancelada.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Este artigo non está dispoñible para comprar.',
+  'iap.error.E_VERIFICATION_FAILED': 'Non se puido verificar a compra.',
+  'iap.error.E_SERVICE_ERROR': 'O servizo da tenda atopou un erro.',
 }

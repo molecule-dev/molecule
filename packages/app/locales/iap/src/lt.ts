@@ -34,4 +34,9 @@ export const lt: IapTranslations = {
   'iap.error.6': 'Klaida.',
   'iap.error.7': 'Elementas jau priklausantis.',
   'iap.error.8': 'Elementas nepriklausantis.',
+
+  'iap.error.E_USER_CANCELLED': 'Pirkimas atšauktas.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Ši prekė neprieinama pirkimui.',
+  'iap.error.E_VERIFICATION_FAILED': 'Nepavyko patvirtinti pirkimo.',
+  'iap.error.E_SERVICE_ERROR': 'Parduotuvės paslaugoje įvyko klaida.',
 }

@@ -34,4 +34,9 @@ export const zh: Partial<IapTranslations> = {
   'iap.error.6': '错误。',
   'iap.error.7': '已拥有该物品。',
   'iap.error.8': '物品非本人所有。',
+
+  'iap.error.E_USER_CANCELLED': '购买已取消。',
+  'iap.error.E_ITEM_UNAVAILABLE': '此商品无法购买。',
+  'iap.error.E_VERIFICATION_FAILED': '购买验证失败。',
+  'iap.error.E_SERVICE_ERROR': '商店服务发生错误。',
 }

@@ -34,4 +34,9 @@ export const eu: IapTranslations = {
   'iap.error.6': 'Errorea.',
   'iap.error.7': 'Elementua dagoeneko erosita.',
   'iap.error.8': 'Elementua ez da erosita.',
+
+  'iap.error.E_USER_CANCELLED': 'Erosketa bertan behera utzi da.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Artikulu hau ezin da erosi.',
+  'iap.error.E_VERIFICATION_FAILED': 'Erosketa egiaztatzeak huts egin du.',
+  'iap.error.E_SERVICE_ERROR': 'Denda-zerbitzuak errore bat izan du.',
 }

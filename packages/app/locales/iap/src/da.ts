@@ -34,4 +34,9 @@ export const da: IapTranslations = {
   'iap.error.6': 'Fejl.',
   'iap.error.7': 'Element allerede ejet.',
   'iap.error.8': 'Element ikke ejet.',
+
+  'iap.error.E_USER_CANCELLED': 'Køb blev annulleret.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Denne vare er ikke tilgængelig for køb.',
+  'iap.error.E_VERIFICATION_FAILED': 'Køb kunne ikke verificeres.',
+  'iap.error.E_SERVICE_ERROR': 'Butikstjenesten stødte på en fejl.',
 }

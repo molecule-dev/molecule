@@ -34,4 +34,9 @@ export const es: Partial<IapTranslations> = {
   'iap.error.6': 'Error.',
   'iap.error.7': 'Artículo ya adquirido.',
   'iap.error.8': 'Artículo no propio.',
+
+  'iap.error.E_USER_CANCELLED': 'La compra fue cancelada.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Este artículo no está disponible para comprar.',
+  'iap.error.E_VERIFICATION_FAILED': 'No se pudo verificar la compra.',
+  'iap.error.E_SERVICE_ERROR': 'El servicio de la tienda encontró un error.',
 }

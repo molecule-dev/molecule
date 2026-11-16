@@ -35,4 +35,9 @@ export const ka: IapTranslations = {
   'iap.error.6': 'Shetsdoma.',
   'iap.error.7': 'Nivershi ukve sashuleblia.',
   'iap.error.8': 'Nivershi ar aris sashuleblia.',
+
+  'iap.error.E_USER_CANCELLED': 'Shedzena gaauqmes.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Es produqti yidvisatvis ar aris khelmisamisvdomia.',
+  'iap.error.E_VERIFICATION_FAILED': 'Shedzienis veripikacia ver mokherkhda.',
+  'iap.error.E_SERVICE_ERROR': 'Xanuti servisshi shecdoma moxvda.',
 }

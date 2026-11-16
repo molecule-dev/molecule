@@ -34,4 +34,9 @@ export const uk: IapTranslations = {
   'iap.error.6': 'Помилка.',
   'iap.error.7': 'Товар вже придбано.',
   'iap.error.8': 'Товар не придбано.',
+
+  'iap.error.E_USER_CANCELLED': 'Покупку скасовано.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Цей товар недоступний для покупки.',
+  'iap.error.E_VERIFICATION_FAILED': 'Не вдалося підтвердити покупку.',
+  'iap.error.E_SERVICE_ERROR': 'У сервісі магазину сталася помилка.',
 }

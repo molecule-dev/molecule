@@ -34,4 +34,9 @@ export const ne: IapTranslations = {
   'iap.error.6': 'त्रुटि।',
   'iap.error.7': 'वस्तु पहिले नै स्वामित्वमा।',
   'iap.error.8': 'वस्तु स्वामित्वमा छैन।',
+
+  'iap.error.E_USER_CANCELLED': 'खरिद रद्द गरियो।',
+  'iap.error.E_ITEM_UNAVAILABLE': 'यो वस्तु खरिदका लागि उपलब्ध छैन।',
+  'iap.error.E_VERIFICATION_FAILED': 'खरिद प्रमाणित गर्न असफल।',
+  'iap.error.E_SERVICE_ERROR': 'पसल सेवामा त्रुटि भयो।',
 }

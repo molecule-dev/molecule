@@ -34,4 +34,9 @@ export const gu: IapTranslations = {
   'iap.error.6': 'ભૂલ.',
   'iap.error.7': 'આઇટમ પહેલાથી માલિકીમાં છે.',
   'iap.error.8': 'આઇટમ માલિકીમાં નથી.',
+
+  'iap.error.E_USER_CANCELLED': 'ખરીદી રદ કરવામાં આવી.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'આ આઇટમ ખરીદવા માટે ઉપલબ્ધ નથી.',
+  'iap.error.E_VERIFICATION_FAILED': 'ખરીદી ચકાસવામાં નિષ્ફળ.',
+  'iap.error.E_SERVICE_ERROR': 'સ્ટોર સેવામાં ભૂલ આવી.',
 }

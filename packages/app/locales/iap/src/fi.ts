@@ -34,4 +34,9 @@ export const fi: IapTranslations = {
   'iap.error.6': 'Virhe.',
   'iap.error.7': 'Kohde jo omistettu.',
   'iap.error.8': 'Kohdetta ei omisteta.',
+
+  'iap.error.E_USER_CANCELLED': 'Osto peruutettiin.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Tämä tuote ei ole ostettavissa.',
+  'iap.error.E_VERIFICATION_FAILED': 'Oston vahvistus epäonnistui.',
+  'iap.error.E_SERVICE_ERROR': 'Kauppapalvelussa tapahtui virhe.',
 }

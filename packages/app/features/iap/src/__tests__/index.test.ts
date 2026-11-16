@@ -861,12 +861,12 @@ describe('@molecule/app-iap', () => {
         expect(errorMessages.E_NOT_AVAILABLE).toBe('In-app purchases are not available.')
         expect(errorMessages.E_USER_CANCELLED).toBe('Purchase was cancelled.')
         expect(errorMessages.E_ITEM_UNAVAILABLE).toBe('This item is not available for purchase.')
-        expect(errorMessages.E_NETWORK).toBe('A network error occurred. Please try again.')
+        expect(errorMessages.E_NETWORK).toBe('Network error.')
         expect(errorMessages.E_SERVICE_ERROR).toBe('The store service encountered an error.')
         expect(errorMessages.E_ALREADY_OWNED).toBe('You already own this item.')
         expect(errorMessages.E_NOT_OWNED).toBe('You do not own this item.')
         expect(errorMessages.E_VERIFICATION_FAILED).toBe('Purchase verification failed.')
-        expect(errorMessages.E_DEFERRED).toBe('Purchase is pending approval.')
+        expect(errorMessages.E_DEFERRED).toBe('Purchase requires approval.')
       })
     })
 
@@ -907,6 +907,65 @@ describe('@molecule/app-iap', () => {
       it('should fall back to error message for unrecognized codes', () => {
         const error: IAPError = { code: 'E_NONEXISTENT', message: 'Fallback message' }
         expect(getErrorMessage(error)).toBe('Fallback message')
+      })
+    })
+
+    describe('getErrorMessage — i18n keys', () => {
+      it('translates every known error code through its literal key', () => {
+        const t = vi.fn((key: string) => `t:${key}`)
+        expect(getErrorMessage({ code: 'E_UNKNOWN', message: '' }, t)).toBe('t:iap.error.E_UNKNOWN')
+        expect(getErrorMessage({ code: 'E_NOT_AVAILABLE', message: '' }, t)).toBe(
+          't:iap.error.E_NOT_AVAILABLE',
+        )
+        expect(getErrorMessage({ code: 'E_USER_CANCELLED', message: '' }, t)).toBe(
+          't:iap.error.E_USER_CANCELLED',
+        )
+        expect(getErrorMessage({ code: 'E_ITEM_UNAVAILABLE', message: '' }, t)).toBe(
+          't:iap.error.E_ITEM_UNAVAILABLE',
+        )
+        expect(getErrorMessage({ code: 'E_NETWORK', message: '' }, t)).toBe('t:iap.error.E_NETWORK')
+        expect(getErrorMessage({ code: 'E_SERVICE_ERROR', message: '' }, t)).toBe(
+          't:iap.error.E_SERVICE_ERROR',
+        )
+        expect(getErrorMessage({ code: 'E_ALREADY_OWNED', message: '' }, t)).toBe(
+          't:iap.error.E_ALREADY_OWNED',
+        )
+        expect(getErrorMessage({ code: 'E_NOT_OWNED', message: '' }, t)).toBe(
+          't:iap.error.E_NOT_OWNED',
+        )
+        expect(getErrorMessage({ code: 'E_VERIFICATION_FAILED', message: '' }, t)).toBe(
+          't:iap.error.E_VERIFICATION_FAILED',
+        )
+        expect(getErrorMessage({ code: 'E_DEFERRED', message: '' }, t)).toBe(
+          't:iap.error.E_DEFERRED',
+        )
+        expect(t).toHaveBeenCalledTimes(10)
+      })
+
+      it('passes the key’s bond English as the literal defaultValue', () => {
+        const t = vi.fn((key: string) => `t:${key}`)
+        getErrorMessage({ code: 'E_USER_CANCELLED', message: '' }, t)
+        expect(t).toHaveBeenCalledWith('iap.error.E_USER_CANCELLED', undefined, {
+          defaultValue: 'Purchase was cancelled.',
+        })
+      })
+
+      it('routes a code outside the known set to the error’s own message, never a built key', () => {
+        const t = vi.fn((key: string) => `t:${key}`)
+        expect(getErrorMessage({ code: 'STORE_CODE_42', message: 'Store said no' }, t)).toBe(
+          'Store said no',
+        )
+        expect(getErrorMessage({ code: 7, message: 'Item already owned' }, t)).toBe(
+          'Item already owned',
+        )
+        expect(t).not.toHaveBeenCalled()
+      })
+
+      it('falls back to the literal E_UNKNOWN key for unknown-shaped errors', () => {
+        const t = vi.fn((key: string) => `t:${key}`)
+        expect(getErrorMessage(null, t)).toBe('t:iap.error.E_UNKNOWN')
+        expect(getErrorMessage({}, t)).toBe('t:iap.error.E_UNKNOWN')
+        expect(getErrorMessage({ code: 'MYSTERY', message: '' }, t)).toBe('t:iap.error.E_UNKNOWN')
       })
     })
   })

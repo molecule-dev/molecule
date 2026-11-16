@@ -34,4 +34,9 @@ export const he: IapTranslations = {
   'iap.error.6': 'שגיאה.',
   'iap.error.7': 'הפריט כבר בבעלות.',
   'iap.error.8': 'הפריט אינו בבעלות.',
+
+  'iap.error.E_USER_CANCELLED': 'הרכישה בוטלה.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'פריט זה אינו זמין לרכישה.',
+  'iap.error.E_VERIFICATION_FAILED': 'אימות הרכישה נכשל.',
+  'iap.error.E_SERVICE_ERROR': 'שירות החנות נתקל בשגיאה.',
 }

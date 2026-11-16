@@ -34,4 +34,9 @@ export const th: IapTranslations = {
   'iap.error.6': 'ข้อผิดพลาด',
   'iap.error.7': 'มีรายการนี้แล้ว',
   'iap.error.8': 'ไม่ได้เป็นเจ้าของรายการ',
+
+  'iap.error.E_USER_CANCELLED': 'การซื้อถูกยกเลิก',
+  'iap.error.E_ITEM_UNAVAILABLE': 'รายการนี้ไม่พร้อมให้ซื้อ',
+  'iap.error.E_VERIFICATION_FAILED': 'การตรวจสอบการซื้อไม่สำเร็จ',
+  'iap.error.E_SERVICE_ERROR': 'บริการสโตร์เกิดข้อผิดพลาด',
 }

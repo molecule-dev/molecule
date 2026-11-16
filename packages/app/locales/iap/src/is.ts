@@ -34,4 +34,9 @@ export const is: IapTranslations = {
   'iap.error.6': 'Villa.',
   'iap.error.7': 'Hlutur þegar í eigu.',
   'iap.error.8': 'Hlutur ekki í eigu.',
+
+  'iap.error.E_USER_CANCELLED': 'Kaup var hætt við.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Þessi vara er ekki tiltæk til kaupa.',
+  'iap.error.E_VERIFICATION_FAILED': 'Kaupstaðfesting mistókst.',
+  'iap.error.E_SERVICE_ERROR': 'Villa kom upp í verslunarþjónustunni.',
 }

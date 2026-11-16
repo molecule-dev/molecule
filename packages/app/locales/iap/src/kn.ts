@@ -34,4 +34,9 @@ export const kn: IapTranslations = {
   'iap.error.6': 'ದೋಷ.',
   'iap.error.7': 'ಐಟಂ ಈಗಾಗಲೇ ಹೊಂದಿದೆ.',
   'iap.error.8': 'ಐಟಂ ಹೊಂದಿಲ್ಲ.',
+
+  'iap.error.E_USER_CANCELLED': 'ಖರೀದಿ ರದ್ದುಗೊಂಡಿತು.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'ಈ ಐಟಂ ಖರೀದಿಸಲು ಲಭ್ಯವಿಲ್ಲ.',
+  'iap.error.E_VERIFICATION_FAILED': 'ಖರೀದಿ ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ.',
+  'iap.error.E_SERVICE_ERROR': 'ಅಂಗಡಿ ಸೇವೆಯಲ್ಲಿ ದೋಷ ಕಂಡುಬಂದಿದೆ.',
 }

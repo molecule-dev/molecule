@@ -35,4 +35,9 @@ export const hy: IapTranslations = {
   'iap.error.6': 'Skhalmunk.',
   'iap.error.7': 'Iretsy arten sephakanutyun e.',
   'iap.error.8': 'Iretsy sephakanutyun che.',
+
+  'iap.error.E_USER_CANCELLED': 'Gnumy chegnarkvel e.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Artadry gnlu hamar hasaneli che.',
+  'iap.error.E_VERIFICATION_FAILED': 'Gnumy stugely dzakhogvec.',
+  'iap.error.E_SERVICE_ERROR': 'Xanutyuny servisum skhalmunk teghecov.',
 }

@@ -34,4 +34,9 @@ export const nb: IapTranslations = {
   'iap.error.6': 'Feil.',
   'iap.error.7': 'Element allerede eid.',
   'iap.error.8': 'Element ikke eid.',
+
+  'iap.error.E_USER_CANCELLED': 'Kjøp ble avbrutt.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Denne varen er ikke tilgjengelig for kjøp.',
+  'iap.error.E_VERIFICATION_FAILED': 'Kjøp kunne ikke verifiseres.',
+  'iap.error.E_SERVICE_ERROR': 'Butikktjenesten støtte på en feil.',
 }

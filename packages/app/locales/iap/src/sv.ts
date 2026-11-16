@@ -35,4 +35,9 @@ export const sv: Partial<IapTranslations> = {
   'iap.error.6': 'Fel.',
   'iap.error.7': 'Varan ägs redan.',
   'iap.error.8': 'Föremålet ägs inte.',
+
+  'iap.error.E_USER_CANCELLED': 'Köpet avbröts.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Denna vara är inte tillgänglig för köp.',
+  'iap.error.E_VERIFICATION_FAILED': 'Köpverifieringen misslyckades.',
+  'iap.error.E_SERVICE_ERROR': 'Butikstjänsten stötte på ett fel.',
 }

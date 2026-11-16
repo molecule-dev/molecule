@@ -34,4 +34,9 @@ export const af: Partial<IapTranslations> = {
   'iap.error.8': 'Item nie besit nie.',
   'iap.error.E_UNKNOWN': "'n Onbekende fout het voorgekom.",
   'iap.error.0': "'n Onbekende fout het voorgekom.",
+
+  'iap.error.E_USER_CANCELLED': 'Aankoop is gekanselleer.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Hierdie item is nie vir aankoop beskikbaar nie.',
+  'iap.error.E_VERIFICATION_FAILED': 'Aankoopverifikasie het misluk.',
+  'iap.error.E_SERVICE_ERROR': "Die winkeldiens het 'n fout ondervind.",
 }

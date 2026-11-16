@@ -34,4 +34,9 @@ export const lv: IapTranslations = {
   'iap.error.6': 'Kļūda.',
   'iap.error.7': 'Vienums jau pieder.',
   'iap.error.8': 'Vienums nepieder.',
+
+  'iap.error.E_USER_CANCELLED': 'Pirkums atcelts.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Šis vienums nav pieejams pirkšanai.',
+  'iap.error.E_VERIFICATION_FAILED': 'Pirkuma verificēšana neizdevās.',
+  'iap.error.E_SERVICE_ERROR': 'Veikala pakalpojumā radās kļūda.',
 }

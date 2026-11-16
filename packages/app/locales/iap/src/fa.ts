@@ -34,4 +34,9 @@ export const fa: IapTranslations = {
   'iap.error.6': 'خطا.',
   'iap.error.7': 'مورد قبلاً خریداری شده.',
   'iap.error.8': 'مورد خریداری نشده.',
+
+  'iap.error.E_USER_CANCELLED': 'خرید لغو شد.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'این مورد برای خرید در دسترس نیست.',
+  'iap.error.E_VERIFICATION_FAILED': 'تأیید خرید ناموفق بود.',
+  'iap.error.E_SERVICE_ERROR': 'سرویس فروشگاه با خطا مواجه شد.',
 }

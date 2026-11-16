@@ -34,4 +34,9 @@ export const ca: Partial<IapTranslations> = {
   'iap.error.E_PAYMENT_CANCELLED': "L'usuari ha cancel·lat la sol·licitud.",
   'iap.error.E_PAYMENT_INVALID': "L'identificador de compra no era vàlid.",
   'iap.error.1': "L'usuari ha cancel·lat.",
+
+  'iap.error.E_USER_CANCELLED': "La compra s'ha cancel·lat.",
+  'iap.error.E_ITEM_UNAVAILABLE': 'Aquest article no està disponible per comprar.',
+  'iap.error.E_VERIFICATION_FAILED': 'No s’ha pogut verificar la compra.',
+  'iap.error.E_SERVICE_ERROR': 'El servei de la botiga ha trobat un error.',
 }

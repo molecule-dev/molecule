@@ -34,4 +34,9 @@ export const az: IapTranslations = {
   'iap.error.6': 'Xəta.',
   'iap.error.7': 'Element artıq alınıb.',
   'iap.error.8': 'Element alınmayıb.',
+
+  'iap.error.E_USER_CANCELLED': 'Alış ləğv edildi.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Bu məhsul satış üçün mövcud deyil.',
+  'iap.error.E_VERIFICATION_FAILED': 'Alışın doğrulanması uğursuz oldu.',
+  'iap.error.E_SERVICE_ERROR': 'Mağaza xidmətində xəta baş verdi.',
 }

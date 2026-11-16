@@ -34,4 +34,9 @@ export const ur: IapTranslations = {
   'iap.error.6': 'خرابی۔',
   'iap.error.7': 'آئٹم پہلے سے ملکیت میں۔',
   'iap.error.8': 'آئٹم ملکیت میں نہیں۔',
+
+  'iap.error.E_USER_CANCELLED': 'خریداری منسوخ کر دی گئی۔',
+  'iap.error.E_ITEM_UNAVAILABLE': 'یہ آئٹم خریداری کے لیے دستیاب نہیں ہے۔',
+  'iap.error.E_VERIFICATION_FAILED': 'خریداری کی تصدیق ناکام رہی۔',
+  'iap.error.E_SERVICE_ERROR': 'اسٹور سروس میں خرابی آئی۔',
 }

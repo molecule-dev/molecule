@@ -34,4 +34,9 @@ export const hi: Partial<IapTranslations> = {
   'iap.error.6': 'गलती।',
   'iap.error.7': 'यह वस्तु पहले से ही किसी और के पास है।',
   'iap.error.8': 'यह वस्तु मेरे स्वामित्व में नहीं है।',
+
+  'iap.error.E_USER_CANCELLED': 'खरीद रद्द कर दी गई।',
+  'iap.error.E_ITEM_UNAVAILABLE': 'यह आइटम खरीदने के लिए उपलब्ध नहीं है।',
+  'iap.error.E_VERIFICATION_FAILED': 'खरीद की पुष्टि करने में विफल।',
+  'iap.error.E_SERVICE_ERROR': 'स्टोर सेवा में त्रुटि हुई।',
 }

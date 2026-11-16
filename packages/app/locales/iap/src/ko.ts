@@ -35,4 +35,9 @@ export const ko: Partial<IapTranslations> = {
   'iap.error.6': '오류.',
   'iap.error.7': '이미 소유한 상품입니다.',
   'iap.error.8': '해당 상품은 제가 소유하고 있지 않습니다.',
+
+  'iap.error.E_USER_CANCELLED': '구매가 취소되었습니다.',
+  'iap.error.E_ITEM_UNAVAILABLE': '이 상품은 구매할 수 없습니다.',
+  'iap.error.E_VERIFICATION_FAILED': '구매 검증에 실패했습니다.',
+  'iap.error.E_SERVICE_ERROR': '스토어 서비스에서 오류가 발생했습니다.',
 }

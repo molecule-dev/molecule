@@ -34,4 +34,9 @@ export const bg: IapTranslations = {
   'iap.error.6': 'Грешка.',
   'iap.error.7': 'Артикулът вече е притежаван.',
   'iap.error.8': 'Артикулът не е притежаван.',
+
+  'iap.error.E_USER_CANCELLED': 'Покупката е отменена.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Този артикул не е наличен за покупка.',
+  'iap.error.E_VERIFICATION_FAILED': 'Неуспешна верификация на покупката.',
+  'iap.error.E_SERVICE_ERROR': 'Услугата на магазина срещна грешка.',
 }

@@ -34,4 +34,9 @@ export const am: IapTranslations = {
   'iap.error.6': 'ስህተት።',
   'iap.error.7': 'ንጥሉ አስቀድሞ ተያዟል።',
   'iap.error.8': 'ንጥሉ አልተያዘም።',
+
+  'iap.error.E_USER_CANCELLED': 'ግዢ ተሰርዟል።',
+  'iap.error.E_ITEM_UNAVAILABLE': 'የዚህ ዕቃ ለግዢ አይገኝም።',
+  'iap.error.E_VERIFICATION_FAILED': 'የግዢ ማረጋገጫ አልተሳካም።',
+  'iap.error.E_SERVICE_ERROR': 'የመሸጫ አገልግሎት ስህተት አጋጥሟል።',
 }

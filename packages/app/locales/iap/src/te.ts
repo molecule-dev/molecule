@@ -34,4 +34,9 @@ export const te: IapTranslations = {
   'iap.error.6': 'లోపం.',
   'iap.error.7': 'అంశం ఇప్పటికే స్వంతం.',
   'iap.error.8': 'అంశం స్వంతం కాదు.',
+
+  'iap.error.E_USER_CANCELLED': 'కొనుగోలు రద్దు చేయబడింది.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'ఈ అంశం కొనడానికి అందుబాటులో లేదు.',
+  'iap.error.E_VERIFICATION_FAILED': 'కొనుగోలు ధృవీకరణ విఫలమైంది.',
+  'iap.error.E_SERVICE_ERROR': 'స్టోర్ సేవలో లోపం జరిగింది.',
 }

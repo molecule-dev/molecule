@@ -34,4 +34,9 @@ export const ml: IapTranslations = {
   'iap.error.6': 'പിശക്.',
   'iap.error.7': 'ഇനം ഇതിനകം ഉടമസ്ഥതയിലാണ്.',
   'iap.error.8': 'ഇനം ഉടമസ്ഥതയിലല്ല.',
+
+  'iap.error.E_USER_CANCELLED': 'വാങ്ങൽ റദ്ദാക്കി.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'ഈ ഇനം വാങ്ങുന്നതിന് ലഭ്യമല്ല.',
+  'iap.error.E_VERIFICATION_FAILED': 'വാങ്ങൽ സ്ഥിരീകരണം പരാജയപ്പെട്ടു.',
+  'iap.error.E_SERVICE_ERROR': 'സ്റ്റോർ സേവനത്തിൽ പിശക് സംഭവിച്ചു.',
 }

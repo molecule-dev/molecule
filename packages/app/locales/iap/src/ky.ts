@@ -34,4 +34,9 @@ export const ky: IapTranslations = {
   'iap.error.6': 'Ката.',
   'iap.error.7': 'Нерсе мурунтан эле сатылып алынган.',
   'iap.error.8': 'Нерсе сатылып алынган эмес.',
+
+  'iap.error.E_USER_CANCELLED': 'Сатып алуу жокко чыгарылды.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Бул нерсе сатып алууга жеткиликсиз.',
+  'iap.error.E_VERIFICATION_FAILED': 'Сатып алууну текшерүү ишке ашкан жок.',
+  'iap.error.E_SERVICE_ERROR': 'Дүкөн кызматинде ката келип чыкты.',
 }

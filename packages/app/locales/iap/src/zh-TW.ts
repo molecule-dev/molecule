@@ -34,4 +34,9 @@ export const zhTW: IapTranslations = {
   'iap.error.6': '錯誤。',
   'iap.error.7': '項目已擁有。',
   'iap.error.8': '項目未擁有。',
+
+  'iap.error.E_USER_CANCELLED': '購買已取消。',
+  'iap.error.E_ITEM_UNAVAILABLE': '此商品無法購買。',
+  'iap.error.E_VERIFICATION_FAILED': '購買驗證失敗。',
+  'iap.error.E_SERVICE_ERROR': '商店服務發生錯誤。',
 }

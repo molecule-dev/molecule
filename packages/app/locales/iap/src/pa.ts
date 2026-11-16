@@ -34,4 +34,9 @@ export const pa: IapTranslations = {
   'iap.error.6': 'ਗਲਤੀ।',
   'iap.error.7': 'ਆਈਟਮ ਪਹਿਲਾਂ ਤੋਂ ਮਲਕੀਅਤ ਵਿੱਚ।',
   'iap.error.8': 'ਆਈਟਮ ਮਲਕੀਅਤ ਵਿੱਚ ਨਹੀਂ।',
+
+  'iap.error.E_USER_CANCELLED': 'ਖਰੀਦ ਰੱਦ ਕਰ ਦਿੱਤੀ ਗਈ।',
+  'iap.error.E_ITEM_UNAVAILABLE': 'ਇਹ ਵਸਤੂ ਖਰੀਦਣ ਲਈ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।',
+  'iap.error.E_VERIFICATION_FAILED': 'ਖਰੀਦ ਦੀ ਤਸਦੀਕ ਅਸਫਲ ਰਹੀ।',
+  'iap.error.E_SERVICE_ERROR': 'ਸਟੋਰ ਸੇਵਾ ਵਿੱਚ ਗਲਤੀ ਆਈ।',
 }

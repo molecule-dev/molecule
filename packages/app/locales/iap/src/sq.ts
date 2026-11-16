@@ -34,4 +34,9 @@ export const sq: IapTranslations = {
   'iap.error.6': 'Gabim.',
   'iap.error.7': 'Artikulli tashme i zoterue.',
   'iap.error.8': 'Artikulli nuk eshte i zoterue.',
+
+  'iap.error.E_USER_CANCELLED': 'Blerja u anulua.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Ky artikujl nuk është i disponueshëm për blerje.',
+  'iap.error.E_VERIFICATION_FAILED': 'Verifikimi i blerjes deshtoi.',
+  'iap.error.E_SERVICE_ERROR': 'Shërbimi i dyqanit hasi në një gabim.',
 }

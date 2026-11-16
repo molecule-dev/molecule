@@ -34,4 +34,9 @@ export const ig: Partial<IapTranslations> = {
   'iap.error.8': 'Enwetaghị ihe a.',
   'iap.error.E_SETUP': "Ịtọliteghị ihe ịzụrụ ihe n'ime ngwa.",
   'iap.error.E_NOT_AVAILABLE': "Ịzụta ihe n'ime ngwa adịghị.",
+
+  'iap.error.E_USER_CANCELLED': 'Ekagburu ịzụ ahịa.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Ihe a adịghị maka ịzụta.',
+  'iap.error.E_VERIFICATION_FAILED': 'Inyocha ịzụ ahịa dara ada.',
+  'iap.error.E_SERVICE_ERROR': 'Ọrụ ụlọ ahịa nwere njehie.',
 }

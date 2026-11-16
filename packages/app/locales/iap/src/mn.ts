@@ -34,4 +34,9 @@ export const mn: IapTranslations = {
   'iap.error.6': 'Алдаа.',
   'iap.error.7': 'Зүйл аль хэдийн эзэмшигдсэн.',
   'iap.error.8': 'Зүйл эзэмшигдээгүй.',
+
+  'iap.error.E_USER_CANCELLED': 'Худалдан авалт цуцлагдсан.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Энэ бараа худалдаж авах боломжгүй.',
+  'iap.error.E_VERIFICATION_FAILED': 'Худалдан авалтыг баталгаажуулалт амжилтгүй боллоо.',
+  'iap.error.E_SERVICE_ERROR': 'Дэлгүүрийн үйлчилгээнд алдаа гарлаа.',
 }

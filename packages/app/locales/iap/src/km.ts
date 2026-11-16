@@ -34,4 +34,9 @@ export const km: IapTranslations = {
   'iap.error.6': 'កំហុស។',
   'iap.error.7': 'មានរបស់នេះរួចហើយ។',
   'iap.error.8': 'មិនមានរបស់នេះ។',
+
+  'iap.error.E_USER_CANCELLED': 'ការទិញត្រូវបានបោះបង់។',
+  'iap.error.E_ITEM_UNAVAILABLE': 'មុខទំនិញនេះមិនអាចទិញបានទេ។',
+  'iap.error.E_VERIFICATION_FAILED': 'បរាជ័យក្នុងការផ្ទៀងផ្ទាត់ការទិញ។',
+  'iap.error.E_SERVICE_ERROR': 'សេវាកម្មហាងទំនិញមានកំហុស។',
 }

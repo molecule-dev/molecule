@@ -34,4 +34,9 @@ export const fil: IapTranslations = {
   'iap.error.6': 'May error.',
   'iap.error.7': 'Pag-aari na ang item.',
   'iap.error.8': 'Hindi pag-aari ang item.',
+
+  'iap.error.E_USER_CANCELLED': 'Kinansela ang pagbili.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Hindi available ang item na ito para sa pagbili.',
+  'iap.error.E_VERIFICATION_FAILED': 'Nabigo ang pag-verify ng pagbili.',
+  'iap.error.E_SERVICE_ERROR': 'Nagkaroon ng error sa serbisyo ng store.',
 }

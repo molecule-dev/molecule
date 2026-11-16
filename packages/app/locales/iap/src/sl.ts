@@ -34,4 +34,9 @@ export const sl: IapTranslations = {
   'iap.error.6': 'Napaka.',
   'iap.error.7': 'Predmet že v lasti.',
   'iap.error.8': 'Predmet ni v lasti.',
+
+  'iap.error.E_USER_CANCELLED': 'Nakup je bil preklican.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Ta postavka ni na voljo za nakup.',
+  'iap.error.E_VERIFICATION_FAILED': 'Preverjanje nakupa ni uspelo.',
+  'iap.error.E_SERVICE_ERROR': 'Storitev trgovine je naletela na napako.',
 }

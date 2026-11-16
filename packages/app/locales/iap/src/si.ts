@@ -34,4 +34,9 @@ export const si: IapTranslations = {
   'iap.error.6': 'දෝෂයක්.',
   'iap.error.7': 'අයිතමය දැනටමත් හිමිය.',
   'iap.error.8': 'අයිතමය හිමි නැත.',
+
+  'iap.error.E_USER_CANCELLED': 'මිලදී ගැනීම අවලංගු කරන ලදී.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'මෙම අයිතමය මිලදී ගැනීමට ලබාගත නොහැක.',
+  'iap.error.E_VERIFICATION_FAILED': 'මිලදී ගැනීමේ සත්‍යාපනය අසාර්ථක විය.',
+  'iap.error.E_SERVICE_ERROR': 'වෙළඳ සේවාවේ දෝෂයක් සිදු විය.',
 }

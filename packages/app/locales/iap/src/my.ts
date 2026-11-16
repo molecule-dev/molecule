@@ -34,4 +34,9 @@ export const my: IapTranslations = {
   'iap.error.6': 'အမှား။',
   'iap.error.7': 'အရာကို ပိုင်ဆိုင်ပြီးဖြစ်သည်။',
   'iap.error.8': 'အရာကို မပိုင်ဆိုင်ပါ။',
+
+  'iap.error.E_USER_CANCELLED': 'ဝယ်ယူမှု ပယ်ဖျက်ခံရသည်။',
+  'iap.error.E_ITEM_UNAVAILABLE': 'ဤပစ္စည်းကို ဝယ်ယူရန် မရနိုင်ပါ။',
+  'iap.error.E_VERIFICATION_FAILED': 'ဝယ်ယူမှု စိစစ်အတည်ပြုခြင်း မအောင်မြင်ပါ။',
+  'iap.error.E_SERVICE_ERROR': 'စတို့ ဝန်ဆောင်မှုတွင် အမှား ဖြစ်ပွားသည်။',
 }

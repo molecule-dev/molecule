@@ -34,4 +34,9 @@ export const ro: IapTranslations = {
   'iap.error.6': 'Eroare.',
   'iap.error.7': 'Articol deja achiziționat.',
   'iap.error.8': 'Articol neachiziționat.',
+
+  'iap.error.E_USER_CANCELLED': 'Achiziția a fost anulată.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Acest articol nu este disponibil pentru cumpărare.',
+  'iap.error.E_VERIFICATION_FAILED': 'Verificarea achiziției a eșuat.',
+  'iap.error.E_SERVICE_ERROR': 'Serviciul magazinului a întâmpinat o eroare.',
 }

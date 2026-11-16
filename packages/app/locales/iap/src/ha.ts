@@ -35,4 +35,9 @@ export const ha: Partial<IapTranslations> = {
   'iap.error.7': 'An riga an mallaki abu.',
   'iap.error.8': 'Ba a mallaki abu ba.',
   'iap.error.E_PAYMENT_NOT_ALLOWED': "Ba a yarda da na'urar yin sayayya ba.",
+
+  'iap.error.E_USER_CANCELLED': 'An soke sayayya.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Wannan kaya ba ya samuwa don siye.',
+  'iap.error.E_VERIFICATION_FAILED': 'An kasa tabbatar da sayayya.',
+  'iap.error.E_SERVICE_ERROR': 'Hidimar kantin sayda ta fuskanti kuskure.',
 }

@@ -34,4 +34,9 @@ export const ms: IapTranslations = {
   'iap.error.6': 'Ralat.',
   'iap.error.7': 'Item sudah dimiliki.',
   'iap.error.8': 'Item tidak dimiliki.',
+
+  'iap.error.E_USER_CANCELLED': 'Pembelian dibatalkan.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Item ini tidak tersedia untuk dibeli.',
+  'iap.error.E_VERIFICATION_FAILED': 'Pengesahan pembelian gagal.',
+  'iap.error.E_SERVICE_ERROR': 'Perkhidmatan stor mengalami ralat.',
 }

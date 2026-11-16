@@ -34,4 +34,9 @@ export const uz: Partial<IapTranslations> = {
   'iap.error.E_PAYMENT_INVALID': "Xarid identifikatori noto'g'ri edi.",
   'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE': "Mahsulot hozirgi do'konda mavjud emas.",
   'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED': "Bulutli xizmat tarmog'i ishlamay qoldi.",
+
+  'iap.error.E_USER_CANCELLED': 'Xarid bekor qilindi.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Bu buyum sotib olish uchun mavjud emas.',
+  'iap.error.E_VERIFICATION_FAILED': 'Xaridni tasdiqlash amalga oshmadi.',
+  'iap.error.E_SERVICE_ERROR': "Do'kon xizmatida xatolik yuz berdi.",
 }

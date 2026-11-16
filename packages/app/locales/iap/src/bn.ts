@@ -34,4 +34,9 @@ export const bn: IapTranslations = {
   'iap.error.6': 'ত্রুটি।',
   'iap.error.7': 'আইটেম ইতিমধ্যে মালিকানাধীন।',
   'iap.error.8': 'আইটেম মালিকানাধীন নয়।',
+
+  'iap.error.E_USER_CANCELLED': 'ক্রয় বাতিল করা হয়েছে।',
+  'iap.error.E_ITEM_UNAVAILABLE': 'এই আইটেমটি কেনার জন্য উপলব্ধ নয়।',
+  'iap.error.E_VERIFICATION_FAILED': 'ক্রয় যাচাই করতে ব্যর্থ।',
+  'iap.error.E_SERVICE_ERROR': 'স্টোর পরিষেবায় একটি ত্রুটি ঘটেছে।',
 }

@@ -34,4 +34,9 @@ export const vi: Partial<IapTranslations> = {
   'iap.error.6': 'Lỗi.',
   'iap.error.7': 'Sản phẩm đã qua sử dụng.',
   'iap.error.8': 'Vật phẩm không thuộc sở hữu của tôi.',
+
+  'iap.error.E_USER_CANCELLED': 'Giao dịch mua hàng đã bị hủy.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Mặt hàng này không có sẵn để mua.',
+  'iap.error.E_VERIFICATION_FAILED': 'Xác minh giao dịch mua hàng thất bại.',
+  'iap.error.E_SERVICE_ERROR': 'Dịch vụ cửa hàng gặp lỗi.',
 }

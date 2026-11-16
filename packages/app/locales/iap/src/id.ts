@@ -35,4 +35,9 @@ export const id: Partial<IapTranslations> = {
   'iap.error.6': 'Kesalahan.',
   'iap.error.7': 'Barang sudah dimiliki.',
   'iap.error.8': 'Barang bukan milik.',
+
+  'iap.error.E_USER_CANCELLED': 'Pembelian dibatalkan.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Item ini tidak tersedia untuk dibeli.',
+  'iap.error.E_VERIFICATION_FAILED': 'Verifikasi pembelian gagal.',
+  'iap.error.E_SERVICE_ERROR': 'Layanan toko mengalami kesalahan.',
 }

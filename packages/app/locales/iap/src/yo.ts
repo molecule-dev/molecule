@@ -34,4 +34,9 @@ export const yo: IapTranslations = {
   'iap.error.6': 'Àṣìṣe.',
   'iap.error.7': 'A ti ra ohun yìí tẹ́lẹ̀.',
   'iap.error.8': 'A kò tíì ra ohun yìí.',
+
+  'iap.error.E_USER_CANCELLED': 'Rírà ti fagílé.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Àwọn ọjà yìí kò sí fún rírà.',
+  'iap.error.E_VERIFICATION_FAILED': 'Ìjẹ́rìísí rírà kùnà.',
+  'iap.error.E_SERVICE_ERROR': 'Àṣìṣe ṣẹlẹ̀ nínú iṣẹ́ ìtajà.',
 }

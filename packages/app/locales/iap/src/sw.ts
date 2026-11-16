@@ -34,4 +34,9 @@ export const sw: IapTranslations = {
   'iap.error.6': 'Hitilafu.',
   'iap.error.7': 'Kipengee tayari kinamilikiwa.',
   'iap.error.8': 'Kipengee hakimilikiwi.',
+
+  'iap.error.E_USER_CANCELLED': 'Ununuzi umeghairiwa.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Kipengee hiki hakipatikani kwa kununua.',
+  'iap.error.E_VERIFICATION_FAILED': 'Uthibitishaji wa ununuzi umeshindikana.',
+  'iap.error.E_SERVICE_ERROR': 'Huduma ya duka imekumbana na hitilafu.',
 }

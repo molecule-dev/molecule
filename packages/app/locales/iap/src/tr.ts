@@ -34,4 +34,9 @@ export const tr: Partial<IapTranslations> = {
   'iap.error.6': 'Hata.',
   'iap.error.7': 'Ürün zaten bende mevcut.',
   'iap.error.8': 'Ürün bana ait değil.',
+
+  'iap.error.E_USER_CANCELLED': 'Satın alma işlemi iptal edildi.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Bu öğe satın almak için mevcut değil.',
+  'iap.error.E_VERIFICATION_FAILED': 'Satın alma doğrulaması başarısız oldu.',
+  'iap.error.E_SERVICE_ERROR': 'Mağaza hizmetinde bir hata oluştu.',
 }

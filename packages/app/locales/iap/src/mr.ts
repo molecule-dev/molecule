@@ -34,4 +34,9 @@ export const mr: IapTranslations = {
   'iap.error.6': 'त्रुटी.',
   'iap.error.7': 'आयटम आधीपासून मालकीचा.',
   'iap.error.8': 'आयटम मालकीचा नाही.',
+
+  'iap.error.E_USER_CANCELLED': 'खरेदी रद्द करण्यात आली.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'ही वस्तू खरेदीसाठी उपलब्ध नाही.',
+  'iap.error.E_VERIFICATION_FAILED': 'खरेदी सत्यापन अयशस्वी.',
+  'iap.error.E_SERVICE_ERROR': 'स्टोअर सेवेत त्रुटी आली.',
 }

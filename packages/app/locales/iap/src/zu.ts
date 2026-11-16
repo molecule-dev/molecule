@@ -34,4 +34,9 @@ export const zu: IapTranslations = {
   'iap.error.6': 'Iphutha.',
   'iap.error.7': 'Into isivele inayo.',
   'iap.error.8': 'Into ayinayo.',
+
+  'iap.error.E_USER_CANCELLED': 'Ukuthenga kukhanseliwe.',
+  'iap.error.E_ITEM_UNAVAILABLE': 'Le nto ayitholakali ukuthengwa.',
+  'iap.error.E_VERIFICATION_FAILED': 'Ukuqinisekisa ukuthenga kukhohlulekile.',
+  'iap.error.E_SERVICE_ERROR': 'Insiza yesitolo yahlangabezana nephutha.',
 }
