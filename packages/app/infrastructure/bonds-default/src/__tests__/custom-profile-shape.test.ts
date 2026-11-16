@@ -21,7 +21,7 @@
 import { join } from 'node:path'
 
 import ts from 'typescript'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type { AuthClientConfig, AuthResult, StorageAdapter } from '@molecule/app-auth'
 import { getClient } from '@molecule/app-auth'
@@ -60,10 +60,17 @@ function diagnosticsFor(source: string): string[] {
   const getSourceFile = host.getSourceFile.bind(host)
   const fileExists = host.fileExists.bind(host)
   const readFile = host.readFile.bind(host)
-  host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
-    fileName === virtualFile
-      ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+  host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+    if (fileName === virtualFile)
+      return ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
+    const key = `${fileName}\u0000${JSON.stringify(languageVersion)}`
+    if (!parsedFiles.has(key))
+      parsedFiles.set(
+        key,
+        getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile),
+      )
+    return parsedFiles.get(key)
+  }
   host.fileExists = (fileName) => fileName === virtualFile || fileExists(fileName)
   host.readFile = (fileName) => (fileName === virtualFile ? source : readFile(fileName))
   const program = ts.createProgram([virtualFile], options, host)
@@ -72,6 +79,18 @@ function diagnosticsFor(source: string): string[] {
     .filter((diagnostic) => !diagnostic.file || diagnostic.file.fileName === virtualFile)
     .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
 }
+
+/**
+ * Parsed lib and package files, shared by every probe. Each probe is its own program, and
+ * re-parsing `lib.dom.d.ts` and the package sources for every one brought single tests to the
+ * 5 s limit on a loaded runner. The probe file itself is never shared.
+ */
+const parsedFiles = new Map<string, ts.SourceFile | undefined>()
+
+// The one-time parse of the libs and the package is setup, not any one probe's work.
+beforeAll(() => {
+  diagnosticsFor(`import '../index.js'\n`)
+}, 120_000)
 
 /**
  * The app profile every probe shares: the wire fields, and no `id` at all.
