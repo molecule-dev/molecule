@@ -200,7 +200,10 @@ async function phoneService(
   return { socketPath, phone }
 }
 
-/** Runs trust:new detached (no controlling terminal), like an agent's shell. */
+/**
+ * Runs trust:new detached (no controlling terminal), like an agent's shell. The returned
+ * promise also carries the run's `pid`.
+ */
 function runTrustNew(
   root: string,
   args: string[],
@@ -209,47 +212,64 @@ function runTrustNew(
   env: Record<string, string> = {},
 ) {
   writeFileSync(join(root, 'scenario.json'), JSON.stringify(scenario))
-  return new Promise<{ code: number | null; out: string; calls: Array<Record<string, unknown>> }>(
-    (resolve) => {
-      const child = spawn(
-        process.execPath,
-        ['--import', join(root, 'stub-fetch.mjs'), 'scripts/trust-new-packages.mjs', ...args],
-        {
-          cwd: root,
-          detached: true,
-          stdio: ['ignore', 'pipe', 'pipe'],
-          env: {
-            PATH: `${join(root, 'bin')}:${process.env.PATH}`,
-            GH_LOG: join(root, 'gh.log'),
-            HOME: join(root, 'home'),
-            STUB_SCENARIO: join(root, 'scenario.json'),
-            STUB_LOG: join(root, 'calls.log'),
-            STUB_DEAD: join(root, 'login-died'),
-            MOL_APPROVAL_SOCKET: socketPath ?? join(root, 'no-service.sock'),
-            XDG_RUNTIME_DIR: join(root, 'run'),
-            ...env,
-          },
+  let pid: number | undefined
+  const run = new Promise<{
+    code: number | null
+    out: string
+    calls: Array<Record<string, unknown>>
+  }>((resolve) => {
+    const child = spawn(
+      process.execPath,
+      ['--import', join(root, 'stub-fetch.mjs'), 'scripts/trust-new-packages.mjs', ...args],
+      {
+        cwd: root,
+        detached: true,
+        stdio: ['ignore', 'pipe', 'pipe'],
+        env: {
+          PATH: `${join(root, 'bin')}:${process.env.PATH}`,
+          GH_LOG: join(root, 'gh.log'),
+          HOME: join(root, 'home'),
+          STUB_SCENARIO: join(root, 'scenario.json'),
+          STUB_LOG: join(root, 'calls.log'),
+          STUB_DEAD: join(root, 'login-died'),
+          MOL_APPROVAL_SOCKET: socketPath ?? join(root, 'no-service.sock'),
+          XDG_RUNTIME_DIR: join(root, 'run'),
+          ...env,
         },
-      )
-      let out = ''
-      child.stdout.on('data', (c) => (out += c))
-      child.stderr.on('data', (c) => (out += c))
-      child.on('close', (code) => {
-        let calls: Array<Record<string, unknown>>
-        try {
-          calls = readFileSync(join(root, 'calls.log'), 'utf8')
-            .trim()
-            .split('\n')
-            .filter(Boolean)
-            .map((line) => JSON.parse(line))
-        } catch (_error) {
-          // No trust call was made: the log was never written.
-          calls = []
-        }
-        resolve({ code, out, calls })
-      })
-    },
-  )
+      },
+    )
+    pid = child.pid
+    // A case that times out leaves its run waiting (on the phone, on a lock pause); the run
+    // is detached, so nothing else ends it. Kill its whole process group when the case ends.
+    let exited = false
+    child.on('exit', () => (exited = true))
+    cleanups.push(() => {
+      if (exited || child.pid === undefined) return
+      try {
+        process.kill(-child.pid, 'SIGKILL')
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error
+      }
+    })
+    let out = ''
+    child.stdout.on('data', (c) => (out += c))
+    child.stderr.on('data', (c) => (out += c))
+    child.on('close', (code) => {
+      let calls: Array<Record<string, unknown>>
+      try {
+        calls = readFileSync(join(root, 'calls.log'), 'utf8')
+          .trim()
+          .split('\n')
+          .filter(Boolean)
+          .map((line) => JSON.parse(line))
+      } catch (_error) {
+        // No trust call was made: the log was never written.
+        calls = []
+      }
+      resolve({ code, out, calls })
+    })
+  })
+  return Object.assign(run, { pid })
 }
 
 /**
@@ -283,6 +303,30 @@ describe("trust:new with the owner's phone", { timeout: RUN_MS }, () => {
       `trust:new needs an npm code to trust 2 package(s): ${A}, ${B}`,
     )
     expect(ledgerOf(root).sort()).toEqual([A, B])
+  })
+
+  it('a case that ends while its run still waits on the phone leaves no process behind', async () => {
+    const root = scratchRepo()
+    let asked = (): void => {}
+    const waiting = new Promise<void>((resolve) => (asked = resolve))
+    // The phone never answers, so the run waits for it until something ends it.
+    const { socketPath } = await phoneService(root, [{ status: 'pending' }], () => asked())
+    const run = runTrustNew(root, [], { codes: { '424242': 4 } }, socketPath)
+    await waiting
+    const alive = (): boolean => {
+      try {
+        process.kill(run.pid!, 0)
+        return true
+      } catch (_error) {
+        // ESRCH: the process is gone, which is what this case waits for.
+        return false
+      }
+    }
+    expect(alive()).toBe(true)
+    // What afterEach does when a case ends, including one that timed out.
+    while (cleanups.length) await cleanups.pop()?.()
+    for (let i = 0; i < 50 && alive(); i++) await new Promise((r) => setTimeout(r, 100))
+    expect(alive(), 'the run outlived its case').toBe(false)
   })
 
   it('asks again mid-run when npm stops accepting the code, as many times as needed', async () => {
