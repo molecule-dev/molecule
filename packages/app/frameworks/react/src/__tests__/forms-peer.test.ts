@@ -3,10 +3,10 @@ import { readFileSync } from 'node:fs'
 
 import { expect, it } from 'vitest'
 
-it('requires the forms release that exports the hook value utilities', () => {
+it('requires the forms release that exports the hook value utilities and FormUpdateOptions', () => {
   const manifest = JSON.parse(
     readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
   ) as { peerDependencies: Record<string, string> }
 
-  expect(manifest.peerDependencies['@molecule/app-forms']).toBe('^2.2.0')
+  expect(manifest.peerDependencies['@molecule/app-forms']).toBe('^2.4.0')
 })
