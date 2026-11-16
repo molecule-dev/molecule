@@ -75,6 +75,79 @@ function exportedPackages(root) {
 }
 
 /**
+ * The installs a build in an export cannot find. For each package directory: the names in its
+ * `dependencies`, `devDependencies` and non-optional `peerDependencies` (what `scripts/build.js`
+ * follows), and in those of every package of the export it reaches through them, that are
+ * neither a package of the export nor installed in the export's
+ * `node_modules` or the package's own. The checkout can still find such a package in an install
+ * above it (a workspace root's `node_modules`); an export under the temp directory cannot, so
+ * its build fails with `Cannot find module` (2026-11-16: dnd-kit 0.5 was in the workspace
+ * root's install and not in molecule's).
+ *
+ * @param exportDir - The export root (from createCommittedExport).
+ * @param dirs - Package directories, relative to the export root, about to be built.
+ * @returns Package directory -> the dependency names it cannot find (sorted), for each
+ *   directory that misses any.
+ */
+export function missingInstalls(exportDir, dirs) {
+  const exported = new Map(
+    exportedPackages(exportDir)
+      .filter((pkg) => pkg.name)
+      .map((pkg) => [pkg.name, pkg.dir]),
+  )
+  /**
+   * One package's own needs: the export packages it depends on and the names it needs
+   * installed that are not.
+   *
+   * @type {Map<string, { workspace: string[], missing: string[] }>}
+   */
+  const own = new Map()
+  const ownNeeds = (dir) => {
+    const known = own.get(dir)
+    if (known) return known
+    const needs = { workspace: [], missing: [] }
+    own.set(dir, needs)
+    let manifest
+    try {
+      manifest = JSON.parse(readFileSync(join(exportDir, dir, 'package.json'), 'utf8'))
+    } catch (_error) {
+      // An unreadable manifest declares nothing to look for; the build fails on the
+      // manifest itself, with its own message.
+      return needs
+    }
+    // The fields scripts/build.js follows; an optional peer is not needed to build.
+    const optionalPeers = Object.entries(manifest.peerDependenciesMeta ?? {})
+      .filter(([, meta]) => meta?.optional)
+      .map(([name]) => name)
+    const needed = Object.keys({
+      ...manifest.dependencies,
+      ...manifest.devDependencies,
+      ...manifest.peerDependencies,
+    }).filter((name) => !optionalPeers.includes(name))
+    for (const name of needed) {
+      const inExport = exported.get(name)
+      if (inExport) needs.workspace.push(inExport)
+      else if (
+        !existsSync(join(exportDir, 'node_modules', name, 'package.json')) &&
+        !existsSync(join(exportDir, dir, 'node_modules', name, 'package.json'))
+      )
+        needs.missing.push(name)
+    }
+    return needs
+  }
+  const result = new Map()
+  for (const dir of dirs) {
+    // Every export package the build of `dir` reaches, itself included; a dependency cycle
+    // ends at a package already seen.
+    const reached = new Set([dir])
+    for (const next of reached) for (const dep of ownNeeds(next).workspace) reached.add(dep)
+    const missing = new Set([...reached].flatMap((next) => ownNeeds(next).missing))
+    if (missing.size) result.set(dir, [...missing].sort())
+  }
+  return result
+}
+
+/**
  * Export one commit of a checkout into a new temporary directory, with a
  * `node_modules` that resolves workspace packages inside the export.
  *

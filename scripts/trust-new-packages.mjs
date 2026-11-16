@@ -50,7 +50,7 @@ import { ReadStream, WriteStream } from 'node:tty'
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
 import { buildFirstPublishes } from './lib/build-first-publishes.mjs'
 import { commitTrustState } from './lib/commit-trust-state.mjs'
-import { createCommittedExport } from './lib/committed-export.mjs'
+import { createCommittedExport, missingInstalls } from './lib/committed-export.mjs'
 import {
   loadSeed,
   parseSecret,
@@ -259,6 +259,14 @@ process.on('exit', () => phoneLogin?.dispose())
 // this repo chasing the wrong constraint for hours. So the login is checked first.
 // An `npm login` session lasts at most 12 hours, so the saved one is often dead.
 const savedLoginStatus = CI || !token ? null : await whoamiStatus(token)
+/**
+ * Why the saved login cannot be used, when the owner's phone signs in instead. That sign-in
+ * waits until the first publishes are built: a run whose packages cannot build has nothing to
+ * sign in for (2026-11-16: the owner signed in, then all six builds failed).
+ *
+ * @type {string | null}
+ */
+let phoneSignInWhy = null
 if (!CI && savedLoginStatus !== 200) {
   const why = token
     ? `The npm login in ~/.npmrc is not valid (whoami -> ${savedLoginStatus})`
@@ -267,8 +275,17 @@ if (!CI && savedLoginStatus !== 200) {
     console.error(`${why}. Run \`npm login\`, then push again.`)
     process.exit(1)
   }
+  phoneSignInWhy = why
+}
+
+/**
+ * Asks the owner's phone to sign in to npm, and makes that login this run's.
+ *
+ * @param why - Why the saved login cannot be used.
+ * @param names - The packages the run is about to trust.
+ */
+const signInFromPhone = async (why, names) => {
   console.error(`${why}; asked the owner's phone to sign in to npm…`)
-  const names = untrusted.map((pkg) => pkg.name)
   try {
     token = await requestOwnerNpmLogin({
       purpose:
@@ -653,6 +670,24 @@ for (const pkg of untrusted) {
   }
   firstPublishes.push(pkg)
 }
+// The export resolves third-party packages from this repo's own install only. A dependency
+// that install lacks fails the build with `Cannot find module`, after the halving search below
+// has rebuilt it several times, so name the install instead (2026-11-16: dnd-kit 0.5 was in the
+// workspace root's install, where the checkout found it, and not in molecule's).
+const unresolved = firstPublishes.length
+  ? missingInstalls(
+      committedTree().dir,
+      firstPublishes.map((pkg) => pkg.dir),
+    )
+  : new Map()
+for (const pkg of firstPublishes.filter((p) => unresolved.has(p.dir))) {
+  console.error(
+    `  ✗ ${pkg.name}: its build needs ${unresolved.get(pkg.dir).join(', ')}, which this repo's ` +
+      'node_modules does not have — run `npm install` here, then trust:new again',
+  )
+  failed.push(pkg.name)
+  firstPublishes.splice(firstPublishes.indexOf(pkg), 1)
+}
 if (firstPublishes.length) {
   console.log(
     `\n  npm has never seen ${firstPublishes.length} package(s) — building them to publish first`,
@@ -757,6 +792,14 @@ for (const pkg of firstPublishes) {
 }
 const ready = untrusted.filter((pkg) => !failed.includes(pkg.name))
 progress.names = ready.map((pkg) => pkg.name)
+if (!ready.length) {
+  console.error(
+    `\nNothing to trust: none of the ${untrusted.length} package(s) can be published yet ` +
+      '(reasons above). Nothing was changed, and the phone was not asked.',
+  )
+  process.exit(1)
+}
+if (phoneSignInWhy) await signInFromPhone(phoneSignInWhy, progress.names)
 
 /**
  * Publishes (when new) and trusts one package, or re-links one npm has.

@@ -165,10 +165,11 @@ function scratchRepo({
 
 /**
  * Makes the scratch repo a git repo whose ledger was committed `at`, the time trust:new
- * reads as when its links were made. Git variables from a calling hook are dropped so
- * nothing here can reach the real repo.
+ * reads as when its links were made, together with `paths` (the packages, for a run that
+ * builds from the committed tree). Git variables from a calling hook are dropped so nothing
+ * here can reach the real repo.
  */
-function commitLedger(root: string, at: Date) {
+function commitLedger(root: string, at: Date, paths: string[] = []) {
   const env = Object.fromEntries(
     Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')),
   )
@@ -182,7 +183,7 @@ function commitLedger(root: string, at: Date) {
     GIT_COMMITTER_DATE: when,
   })
   execFileSync('git', ['init', '-q'], { cwd: root, env })
-  execFileSync('git', ['add', '.trust-state.json'], { cwd: root, env })
+  execFileSync('git', ['add', '.trust-state.json', ...paths], { cwd: root, env })
   execFileSync('git', ['commit', '-q', '--no-verify', '-m', 'ledger'], { cwd: root, env })
 }
 
@@ -326,6 +327,57 @@ describe("trust:new with the owner's phone", { timeout: RUN_MS }, () => {
       `trust:new needs an npm code to trust 2 package(s): ${A}, ${B}`,
     )
     expect(ledgerOf(root).sort()).toEqual([A, B])
+  })
+
+  it('names a dependency the install lacks, and asks the phone nothing when nothing can be published', async () => {
+    const C = '@molecule/api-demo-c'
+    const root = scratchRepo({ ledger: [], names: [C] })
+    const manifest = join(root, 'packages', 'api', 'bonds', 'api-demo-c', 'package.json')
+    writeFileSync(
+      manifest,
+      JSON.stringify({ name: C, version: '1.0.0', dependencies: { 'dep-not-installed': '1.0.0' } }),
+    )
+    commitLedger(root, new Date(), ['packages'])
+    // The saved login is dead, so a run with work would ask the phone to sign in.
+    const { socketPath, phone } = await phoneService(root, [{ status: 'pending' }])
+    const run = await runTrustNew(
+      root,
+      [],
+      { sessions: ['phone-session'], loginToken: 'phone-session', absent: [C] },
+      socketPath,
+    )
+    expect(run.code, run.out).toBe(1)
+    expect(run.out).toMatch(
+      `✗ ${C}: its build needs dep-not-installed, which this repo's node_modules does not have — run \`npm install\` here`,
+    )
+    expect(run.out).toMatch(/Nothing to trust: none of the 1 package\(s\) can be published yet/)
+    expect(phone.created).toEqual([])
+    expect(run.calls.filter((c) => c.name !== '(sign-in)')).toEqual([])
+  })
+
+  it('a dependency that is installed passes the check and goes to the build', async () => {
+    const C = '@molecule/api-demo-c'
+    const root = scratchRepo({ ledger: [], names: [C] })
+    writeFileSync(
+      join(root, 'packages', 'api', 'bonds', 'api-demo-c', 'package.json'),
+      JSON.stringify({ name: C, version: '1.0.0', dependencies: { 'dep-installed': '1.0.0' } }),
+    )
+    mkdirSync(join(root, 'node_modules', 'dep-installed'), { recursive: true })
+    writeFileSync(join(root, 'node_modules', 'dep-installed', 'package.json'), '{}')
+    commitLedger(root, new Date(), ['packages'])
+    const { socketPath, phone } = await phoneService(root, [{ status: 'pending' }])
+    const run = await runTrustNew(
+      root,
+      [],
+      { sessions: ['phone-session'], loginToken: 'phone-session', absent: [C] },
+      socketPath,
+    )
+    // The scratch repo has no scripts/build.js, so the build itself fails, and with nothing
+    // left to publish the phone is still not asked.
+    expect(run.out).not.toMatch(/node_modules does not have/)
+    expect(run.out).toMatch(`✗ ${C}: not publishable`)
+    expect(run.code, run.out).toBe(1)
+    expect(phone.created).toEqual([])
   })
 
   it('leaves a link made in the last 36 h alone: it waits for CI, it is not dead', async () => {

@@ -18,6 +18,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs'
+import { createRequire as createRequireFrom } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
@@ -25,7 +26,7 @@ import { fileURLToPath } from 'node:url'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { createCommittedExport } from '../lib/committed-export.mjs'
+import { createCommittedExport, missingInstalls } from '../lib/committed-export.mjs'
 
 const BUILD_JS = join(dirname(fileURLToPath(import.meta.url)), '..', 'build.js')
 
@@ -152,7 +153,8 @@ describe('createCommittedExport', () => {
     // The uncommitted package is not in the export, and nothing in it resolves there.
     expect(existsSync(join(tree.dir, 'packages/core/new'))).toBe(false)
     expect(existsSync(join(tree.dir, 'node_modules/@molecule/new'))).toBe(false)
-  })
+    // Two real build.js runs: past vitest's 5 s default on a loaded machine (2026-11-16).
+  }, 60_000)
 
   it('resolves installs that are not workspace links to the checkout', () => {
     const root = checkout()
@@ -178,5 +180,92 @@ describe('createCommittedExport', () => {
     expect(existsSync(join(root, 'node_modules/@molecule/registry-copy/package.json'))).toBe(true)
     expect(existsSync(join(root, 'packages/bonds/b/node_modules/local-only'))).toBe(true)
     expect(lstatSync(join(root, 'node_modules/@molecule/a')).isSymbolicLink()).toBe(true)
+  })
+})
+
+/** Write `manifest` as the package.json of `dir` under `root`. */
+const writeManifest = (root: string, dir: string, manifest: Record<string, unknown>) => {
+  mkdirSync(join(root, dir), { recursive: true })
+  writeFileSync(join(root, dir, 'package.json'), JSON.stringify(manifest))
+}
+
+/** An empty install of `name` under `modules`. */
+const install = (modules: string, name: string) => {
+  mkdirSync(join(modules, name), { recursive: true })
+  writeFileSync(join(modules, name, 'package.json'), JSON.stringify({ name }))
+}
+
+describe('missingInstalls', () => {
+  it('names a dependency installed only above the checkout, which the export cannot see', () => {
+    // A workspace whose root install holds a dependency the checkout's own install lacks:
+    // the checkout's build finds it by walking up, the export (under the temp dir) does not.
+    const workspace = mkdtempSync(join(tmpdir(), 'committed-export-ws-'))
+    dirs.push(workspace)
+    const root = join(workspace, 'molecule')
+    mkdirSync(root)
+    git(root, 'init', '-q', '-b', 'main')
+    git(root, 'config', 'user.email', 'test@example.com')
+    git(root, 'config', 'user.name', 'test')
+    writeManifest(root, 'packages/core/base', {
+      name: '@molecule/base',
+      version: '1.0.0',
+      dependencies: { 'only-above': '1.0.0', 'here-too': '1.0.0' },
+    })
+    writeManifest(root, 'packages/bonds/user', {
+      name: '@molecule/user',
+      version: '1.0.0',
+      devDependencies: { '@molecule/base': '1.0.0' },
+    })
+    writeManifest(root, 'packages/bonds/apart', { name: '@molecule/apart', version: '1.0.0' })
+    git(root, 'add', 'packages')
+    git(root, 'commit', '-q', '-m', 'packages')
+    install(join(workspace, 'node_modules'), 'only-above')
+    install(join(root, 'node_modules'), 'here-too')
+    // The checkout's own build finds it.
+    const fromBase = createRequireFrom(join(root, 'packages/core/base/package.json'))
+    expect(realpathSync(fromBase.resolve('only-above/package.json'))).toBe(
+      realpathSync(join(workspace, 'node_modules/only-above/package.json')),
+    )
+
+    const tree = createCommittedExport({ root })
+    exports.push(tree)
+    expect(
+      missingInstalls(tree.dir, [
+        'packages/core/base',
+        'packages/bonds/user',
+        'packages/bonds/apart',
+      ]),
+    ).toEqual(
+      new Map([
+        ['packages/core/base', ['only-above']],
+        // Through its workspace dependency, which its build builds first.
+        ['packages/bonds/user', ['only-above']],
+      ]),
+    )
+  })
+
+  it('finds package-local installs, skips optional peers and ends on a dependency cycle', () => {
+    const root = mkdtempSync(join(tmpdir(), 'committed-export-deps-'))
+    dirs.push(root)
+    writeManifest(root, 'packages/a', {
+      name: '@molecule/a',
+      dependencies: { '@molecule/b': '1.0.0', 'local-dep': '1.0.0' },
+      peerDependencies: { 'needed-peer': '*', 'optional-peer': '*' },
+      peerDependenciesMeta: { 'optional-peer': { optional: true } },
+    })
+    writeManifest(root, 'packages/b', {
+      name: '@molecule/b',
+      dependencies: { '@molecule/a': '1.0.0', 'root-dep': '1.0.0' },
+    })
+    install(join(root, 'packages/a/node_modules'), 'local-dep')
+    install(join(root, 'node_modules'), 'root-dep')
+    expect(missingInstalls(root, ['packages/a', 'packages/b'])).toEqual(
+      new Map([
+        ['packages/a', ['needed-peer']],
+        ['packages/b', ['needed-peer']],
+      ]),
+    )
+    install(join(root, 'node_modules'), 'needed-peer')
+    expect(missingInstalls(root, ['packages/a', 'packages/b'])).toEqual(new Map())
   })
 })

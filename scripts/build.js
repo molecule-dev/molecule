@@ -18,6 +18,7 @@ import {
   realpathSync,
   rmSync,
   statSync,
+  writeFileSync,
 } from 'node:fs'
 import { createRequire } from 'node:module'
 import { availableParallelism } from 'node:os'
@@ -93,6 +94,27 @@ function newestMtime(dir) {
 }
 
 /**
+ * Left in dist/ by a build that failed. Compilers write output before they report errors
+ * (tsc does), so without it the failed package's dist/ is newer than its src/ and the next run
+ * skipped it and exited 0 (2026-11-16: the second build of a package whose dependencies were not
+ * installed reported "0 built, 5 skipped (up-to-date)"). A successful build removes it.
+ */
+const FAILED_MARKER = '.build-failed'
+
+/**
+ * Records the outcome of a package's build: a failure leaves FAILED_MARKER in its dist/ (when the
+ * build left a dist/ at all), a success removes it.
+ *
+ * @param pkgDir - Package root directory.
+ * @param ok - Whether the build succeeded.
+ */
+function recordBuildOutcome(pkgDir, ok) {
+  const marker = join(pkgDir, 'dist', FAILED_MARKER)
+  if (ok) rmSync(marker, { force: true })
+  else if (existsSync(join(pkgDir, 'dist'))) writeFileSync(marker, '')
+}
+
+/**
  * Check whether a package's dist/ is up-to-date relative to its src/.
  *
  * @param pkgDir - Package root directory.
@@ -103,6 +125,7 @@ function isUpToDate(pkgDir) {
   const srcDir = join(pkgDir, 'src')
   const tsconfigFile = join(pkgDir, 'tsconfig.json')
   if (!existsSync(distDir)) return false
+  if (existsSync(join(distDir, FAILED_MARKER))) return false
   const distTime = newestMtime(distDir)
   if (distTime === 0) return false
   const srcTime = newestMtime(srcDir)
@@ -137,6 +160,12 @@ function buildOne(name, pkgDir) {
       stderr += chunk
     })
     child.on('close', (code) => {
+      try {
+        recordBuildOutcome(pkgDir, code === 0)
+      } catch (error) {
+        reject(new Error(`${name}: could not record its build outcome`, { cause: error }))
+        return
+      }
       if (code === 0) {
         resolve()
       } else {
@@ -219,6 +248,8 @@ function buildTscBatch(names, plans) {
     child.on('close', (code) => {
       try {
         for (const plan of plans) rmSync(plan.info, { force: true })
+        // One compiler run for the group: a failure is recorded on every package in it.
+        for (const name of names) recordBuildOutcome(packages.get(name).path, code === 0)
         if (code === 0) resolveBatch()
         else reject(new Error(names.join(', ') + ' failed:\n' + output))
       } catch (error) {

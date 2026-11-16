@@ -167,6 +167,31 @@ it('never runs a dependent level after a compiler error and cleans newly-owned s
   for (const n of ['a', 'c'])
     expect(fs.existsSync(root + '/packages/' + n + '/tsconfig.tsbuildinfo')).toBe(false)
 }, 30_000)
+it('builds a package whose last build failed again, instead of skipping its leftover output', () => {
+  const root = fixture()
+  write(root + '/packages/a/src/index.ts', 'export const value: string = 42\n')
+  const first = run(root)
+  expect(first.status).not.toBe(0)
+  // tsc wrote a's output before it reported the error, so that output is newer than its source.
+  expect(fs.existsSync(root + '/packages/a/dist/index.js')).toBe(true)
+  const again = run(root)
+  expect(again.status, again.stdout + again.stderr).not.toBe(0)
+  expect(again.stdout + again.stderr).toContain('TS2322')
+  write(root + '/packages/a/src/index.ts', 'export const value = 2\n')
+  const fixed = run(root)
+  expect(fixed.status, fixed.stdout + fixed.stderr).toBe(0)
+  expect(fs.existsSync(root + '/packages/a/dist/.build-failed')).toBe(false)
+  // Nothing changed since: everything is up to date now.
+  expect(run(root).stdout).toContain('0 built, 3 skipped (up-to-date)')
+}, 60_000)
+it('builds a single failed package again too', () => {
+  const root = fixture()
+  write(root + '/packages/c/src/index.ts', 'export const value: string = 42\n')
+  expect(run(root, ['--only=@molecule/c']).status).not.toBe(0)
+  const again = run(root, ['--only=@molecule/c'])
+  expect(again.status, again.stdout + again.stderr).not.toBe(0)
+  expect(again.tsc).toHaveLength(1)
+}, 60_000)
 it('keeps ngc as a distinct package command', () => {
   const root = fixture()
   write(root + '/packages/ng/package.json', {
