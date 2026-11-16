@@ -11,6 +11,8 @@
  * Bypass for a deliberate, reviewed case: `git commit --no-verify`.
  */
 import { execFileSync } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import process from 'node:process'
 
 /** [label, regex] — high-confidence secret value shapes. Keep in sync with redact-secrets.ts. */
@@ -46,6 +48,85 @@ const RULES = [
   ['Private key block', /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY-----/],
   ['URL credentials', /[a-zA-Z][a-zA-Z0-9+.-]{0,63}:\/\/[^/\s:@]*:[^/\s:@]+@/],
 ]
+
+/**
+ * [label, regex] — rules of gitleaks' default set whose shape is wider than the matching rule
+ * above. They apply only in a repo whose root has a `.gitleaks.toml` (its CI runs gitleaks), and
+ * only where that CI scan would report them: outside the file's allowlisted `paths`, and not when
+ * the match is one of its allowlisted `regexes` or contains one of its `stopwords`. Without them a
+ * value passes this hook and fails CI: `sk_live_` plus 12 characters is under the 16 of "Stripe
+ * live key" and over the 10 of gitleaks' `stripe-access-token`.
+ */
+const GITLEAKS_RULES = [
+  [
+    'Stripe key (gitleaks stripe-access-token)',
+    /\b(?:sk|rk)_(?:test|live|prod)_[a-zA-Z0-9]{10,99}(?=[`'"\s;]|\\[nr]|$)/g,
+  ],
+]
+
+/**
+ * Compiles one `.gitleaks.toml` pattern (Go RE2 syntax) as a JavaScript regex. A leading `(?i)`
+ * becomes the `i` flag.
+ *
+ * @param source - The pattern as written in the file.
+ * @returns The regex, or `null` (with a warning) when JavaScript cannot compile it.
+ */
+function compileGitleaksPattern(source) {
+  const insensitive = source.startsWith('(?i)')
+  try {
+    return new RegExp(insensitive ? source.slice(4) : source, insensitive ? 'i' : '')
+  } catch (error) {
+    process.stderr.write(
+      `pre-commit: .gitleaks.toml pattern ${source} is not a JavaScript regex (${error.message}); this scan does not apply it\n`,
+    )
+    return null
+  }
+}
+
+/**
+ * The allowlist of the repo's `.gitleaks.toml`: the `paths`, `regexes` and `stopwords` of its
+ * `[allowlist]` (or `[[allowlists]]`) tables. Strings are read as TOML literals (`'''…'''`,
+ * `'…'`) or basic strings (`"…"`), one or more per line; comment lines are skipped.
+ *
+ * @returns `null` when the repo has no `.gitleaks.toml`, else its allowlist.
+ */
+function readGitleaksAllowlist() {
+  let root
+  try {
+    root = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim()
+  } catch (_error) {
+    // Not inside a work tree: the staged diff below exits for that case before any line is read.
+    return null
+  }
+  const file = join(root, '.gitleaks.toml')
+  if (!existsSync(file)) return null
+  const allow = { paths: [], regexes: [], stopwords: [] }
+  let inAllowlist = false
+  let key = null
+  for (const line of readFileSync(file, 'utf8').split('\n')) {
+    if (line.trim().startsWith('#')) continue
+    const header = line.match(/^\s*\[\[?\s*([^\]]+?)\s*\]\]?\s*$/)
+    if (header) {
+      inAllowlist = header[1] === 'allowlist' || header[1] === 'allowlists'
+      key = null
+      continue
+    }
+    if (!inAllowlist) continue
+    const assignment = line.match(/^\s*([A-Za-z_]+)\s*=/)
+    if (assignment) key = assignment[1] in allow ? assignment[1] : null
+    if (!key) continue
+    for (const [, triple, basic, literal] of line.matchAll(
+      /'''(.*?)'''|"((?:[^"\\]|\\.)*)"|'([^']*)'/g,
+    )) {
+      allow[key].push(triple ?? (basic === undefined ? literal : JSON.parse(`"${basic}"`)))
+    }
+  }
+  return {
+    paths: allow.paths.map(compileGitleaksPattern).filter(Boolean),
+    regexes: allow.regexes.map(compileGitleaksPattern).filter(Boolean),
+    stopwords: allow.stopwords.map((word) => word.toLowerCase()),
+  }
+}
 
 let staged
 try {
@@ -166,6 +247,23 @@ function pemHeadersAreQuoteTerminated(line) {
  */
 const SELF = /(?:^|\/)precommit-secret-scan(?:\.test)?\.mjs(?:\.tpl)?$/
 
+const gitleaks = readGitleaksAllowlist()
+
+/**
+ * Whether CI's gitleaks scan would report this match: its path is not allowlisted, and the match
+ * is neither an allowlisted regex nor contains a stopword.
+ *
+ * @param file - The repo-relative path of the staged file.
+ * @param secret - The matched value.
+ * @returns True when gitleaks would report it.
+ */
+function gitleaksReports(file, secret) {
+  if (!gitleaks || gitleaks.paths.some((re) => re.test(file ?? ''))) return false
+  if (gitleaks.regexes.some((re) => re.test(secret))) return false
+  const lower = secret.toLowerCase()
+  return !gitleaks.stopwords.some((word) => lower.includes(word))
+}
+
 let currentFile = null
 const hits = []
 for (const line of staged.split('\n')) {
@@ -177,12 +275,18 @@ for (const line of staged.split('\n')) {
   if (line[0] !== '+' || line.startsWith('+++')) continue
   if (currentFile && SELF.test(currentFile)) continue
   const added = line.slice(1)
+  const before = hits.length
   for (const [label, re] of RULES) {
     if (!re.test(added)) continue
     if (label === 'URL credentials' && urlCredsAreLocalPlaceholders(added)) continue
     if (label === 'URL credentials' && urlCredsAreInterpolationPlaceholders(added)) continue
     if (label === 'Private key block' && pemHeadersAreQuoteTerminated(added)) continue
     hits.push({ file: currentFile, label, line: added.trim().slice(0, 120) })
+  }
+  if (hits.length > before || !gitleaks) continue
+  for (const [label, re] of GITLEAKS_RULES) {
+    if ([...added.matchAll(re)].some(([secret]) => gitleaksReports(currentFile, secret)))
+      hits.push({ file: currentFile, label, line: added.trim().slice(0, 120) })
   }
 }
 
