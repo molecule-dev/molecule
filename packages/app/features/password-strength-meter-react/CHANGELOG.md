@@ -1,5 +1,11 @@
 # @molecule/app-password-strength-meter-react
 
+## 4.0.2
+
+### Patch Changes
+
+- Name the strength bar for assistive technology, and resolve the score labels through literal `passwordStrengthMeter.label.<score>` translation keys.
+
 ## 4.0.1
 
 ### Patch Changes

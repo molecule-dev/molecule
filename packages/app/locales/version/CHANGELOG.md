@@ -1,5 +1,11 @@
 # @molecule/app-locales-version
 
+## 1.1.2
+
+### Patch Changes
+
+- The published package no longer includes its compiled tests.
+
 ## 1.1.1
 
 ### Patch Changes

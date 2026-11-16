@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.8.1
+
+### Patch Changes
+
+- Keep HTTP handles captured before provider setup on the configured transport and current session.
+
 ## 1.8.0
 
 ### Minor Changes

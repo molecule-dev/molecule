@@ -1,5 +1,11 @@
 # @molecule/app-locales-reorderable-list
 
+## 1.1.1
+
+### Patch Changes
+
+- The published package no longer includes its compiled tests.
+
 ## 1.1.0
 
 ### Minor Changes

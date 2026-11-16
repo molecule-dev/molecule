@@ -1,5 +1,11 @@
 # @molecule/app-locales-billing
 
+## 1.0.5
+
+### Patch Changes
+
+- The published package no longer includes its compiled tests.
+
 ## 1.0.4
 
 ### Patch Changes

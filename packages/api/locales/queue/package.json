@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-locales-queue",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Translations for molecule queue package in 79 languages",
   "homepage": "https://www.molecule.dev/packages/api-locales-queue",
   "license": "Apache-2.0",

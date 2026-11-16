@@ -1,5 +1,11 @@
 # @molecule/app-query-angular
 
+## 1.3.0
+
+### Minor Changes
+
+- Render a selected collection's empty state as one branch exclusive with loaded content.
+
 ## 1.2.1
 
 ### Patch Changes

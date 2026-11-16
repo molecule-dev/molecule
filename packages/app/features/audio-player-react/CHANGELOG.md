@@ -1,5 +1,11 @@
 # @molecule/app-audio-player-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Add `captions`, `captionsLang` and `captionsLabel`: a WebVTT track whose current cue shows under the controls in a polite live region.
+
 ## 4.0.0
 
 ### Patch Changes

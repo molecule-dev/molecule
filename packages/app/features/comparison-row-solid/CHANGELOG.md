@@ -1,5 +1,11 @@
 # @molecule/app-comparison-row-solid
 
+## 1.1.1
+
+### Patch Changes
+
+- Delta colours come from the theme's success, error and secondary tones instead of fixed hex values, and the delta chip is styled by a class rather than an inline style. `@molecule/app-ui` is now a `^1.4.0` peer in the Angular, Solid, Svelte and Vue ports.
+
 ## 1.1.0
 
 ### Minor Changes

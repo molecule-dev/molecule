@@ -1,5 +1,11 @@
 # @molecule/app-avatar-stack-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render linked user identities with one canonical name link and separate avatar and action content.
+
 ## 4.0.0
 
 ### Patch Changes

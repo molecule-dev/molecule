@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-filter-bar-angular",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Composable, field-driven Angular filter bar",
   "homepage": "https://www.molecule.dev/packages/app-filter-bar-angular",
   "type": "module",

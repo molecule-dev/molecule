@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-join-code-solid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Multi-slot join-code input with auto-advance, paste-to-fill, and alphabet validation. Used for live quiz join, virtual classroom room codes, and similar short-code entry UX.",
   "homepage": "https://www.molecule.dev/packages/app-join-code-solid",
   "type": "module",

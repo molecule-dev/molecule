@@ -1,5 +1,11 @@
 # @molecule/app-root-error-boundary-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- The boundary's fallback receives the caught error in JIT-compiled builds too, so it logs the error there as well.
+
 ## 1.1.0
 
 ### Minor Changes

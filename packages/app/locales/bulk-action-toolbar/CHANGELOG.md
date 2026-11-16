@@ -1,5 +1,12 @@
 # @molecule/app-locales-bulk-action-toolbar
 
+## 1.0.5
+
+### Patch Changes
+
+- The toolbar's accessible name is looked up through the `bulkActions.aria.toolbar` translation key instead of a fixed English string, so it follows the active language. The locale bond adds that key in every language.
+- The published package no longer includes its compiled tests.
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-gradebook-solid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Gradebook UI — table of grades (course / assignment / letter / numeric / weight / contribution-to-GPA) plus optional GpaCard hero",
   "homepage": "https://www.molecule.dev/packages/app-gradebook-solid",
   "type": "module",

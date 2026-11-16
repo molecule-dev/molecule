@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-root-error-boundary-angular",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Top-level Angular error boundary that logs render errors via the bonded app logger and shows a minimal recovery surface",
   "homepage": "https://www.molecule.dev/packages/app-root-error-boundary-angular",
   "type": "module",

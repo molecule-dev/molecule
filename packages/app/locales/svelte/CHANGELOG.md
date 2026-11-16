@@ -1,5 +1,11 @@
 # @molecule/app-locales-svelte
 
+## 1.0.6
+
+### Patch Changes
+
+- The published package no longer includes its compiled tests.
+
 ## 1.0.5
 
 ### Patch Changes

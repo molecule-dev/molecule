@@ -1,5 +1,12 @@
 # @molecule/app-locales-password-strength-meter
 
+## 1.0.4
+
+### Patch Changes
+
+- Add the strength bar label translations in every language.
+- The published package no longer includes its compiled tests.
+
 ## 1.0.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-locales-secrets-doppler",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Translations for @molecule/api-secrets-doppler in 79 languages",
   "homepage": "https://www.molecule.dev/packages/api-locales-secrets-doppler",
   "license": "Apache-2.0",

@@ -117,7 +117,7 @@
     "@molecule/api-reporting-database": "1.0.5",
     "@molecule/api-resource": "1.1.2",
     "@molecule/api-resource-device": "1.1.5",
-    "@molecule/api-resource-payment": "1.0.6",
+    "@molecule/api-resource-payment": "1.0.7",
     "@molecule/api-resource-user": "1.10.3",
     "@molecule/api-search": "1.0.4",
     "@molecule/api-search-meilisearch": "1.0.4",

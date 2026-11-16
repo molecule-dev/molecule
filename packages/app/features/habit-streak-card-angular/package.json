@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-habit-streak-card-angular",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Habit / streak card with current streak, best streak, completion heatmap",
   "homepage": "https://www.molecule.dev/packages/app-habit-streak-card-angular",
   "type": "module",

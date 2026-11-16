@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-feature-track-lane-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Horizontal track lane primitive for music-DAW, video-editor, animation-tool — a single row in a multi-track timeline rendering draggable/resizable clips on a time-base axis",
   "homepage": "https://www.molecule.dev/packages/app-feature-track-lane-svelte",
   "type": "module",

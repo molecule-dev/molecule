@@ -1,5 +1,11 @@
 # @molecule/app-feature-barcode-scanner-react
 
+## 5.0.0
+
+### Major Changes
+
+- BarcodeScanner takes the BarcodeDetector constructor and the zxing loader as props; the __set…Override test hooks are removed.
+
 ## 4.0.0
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-drag-drop-dndkit-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Svelte binding for @molecule/app-drag-drop-dndkit — a sortable list that reorders with the pointer, touch and the keyboard, with translated screen-reader announcements.",
   "homepage": "https://www.molecule.dev/packages/app-drag-drop-dndkit-svelte",
   "type": "module",

@@ -1,5 +1,11 @@
 # @molecule/app-locales-ui
 
+## 1.1.5
+
+### Patch Changes
+
+- The published package no longer includes its compiled tests.
+
 ## 1.1.4
 
 ### Patch Changes

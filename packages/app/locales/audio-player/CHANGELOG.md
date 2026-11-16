@@ -1,5 +1,12 @@
 # @molecule/app-locales-audio-player
 
+## 1.0.5
+
+### Patch Changes
+
+- Add the captions track label translations in every language.
+- The published package no longer includes its compiled tests.
+
 ## 1.0.4
 
 ### Patch Changes

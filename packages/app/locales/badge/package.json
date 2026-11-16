@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-badge",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Translations for @molecule/app-badge in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-badge",
   "license": "Apache-2.0",

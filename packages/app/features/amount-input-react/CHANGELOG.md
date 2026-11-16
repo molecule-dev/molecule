@@ -1,5 +1,11 @@
 # @molecule/app-amount-input-react
 
+## 4.0.3
+
+### Patch Changes
+
+- Resolve the type toggle labels through literal `amountInput.type.<type>` translation keys, so the locale bond's translation applies in every language.
+
 ## 4.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-collapsible-section-svelte
 
+## 1.1.1
+
+### Patch Changes
+
+- The toggle button now wraps only the label, with `actions` beside it in the same header row. Anything passed to `actions` may therefore contain buttons and links, and a click there does not toggle the section.
+
 ## 1.1.0
 
 ### Minor Changes

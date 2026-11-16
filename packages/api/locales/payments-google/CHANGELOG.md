@@ -1,5 +1,11 @@
 # @molecule/api-locales-payments-google
 
+## 1.0.3
+
+### Patch Changes
+
+- The published package no longer includes its compiled tests.
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-locales-angular
 
+## 1.1.3
+
+### Patch Changes
+
+- The published package no longer includes its compiled tests.
+
 ## 1.1.2
 
 ### Patch Changes

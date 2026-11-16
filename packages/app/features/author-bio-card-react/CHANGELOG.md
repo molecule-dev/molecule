@@ -1,5 +1,11 @@
 # @molecule/app-author-bio-card-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Resolve each social link's label through literal `authorBioCard.social.<platform>` translation keys, so the locale bond's translation applies in every language.
+
 ## 4.0.0
 
 ### Patch Changes

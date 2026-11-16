@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-bulk-action-toolbar-solid",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Selection-aware floating toolbar that appears when N rows are selected",
   "homepage": "https://www.molecule.dev/packages/app-bulk-action-toolbar-solid",
   "type": "module",

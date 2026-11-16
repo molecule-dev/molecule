@@ -51,7 +51,7 @@
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-locales-settings-actions-bar": "1.0.4",
+    "@molecule/app-locales-settings-actions-bar": "1.0.5",
     "@molecule/app-ui": "1.4.0",
     "@molecule/app-ui-vue": "1.1.4",
     "@molecule/app-vue": "3.7.1",

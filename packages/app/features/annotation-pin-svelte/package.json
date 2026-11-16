@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-annotation-pin-svelte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Pin/annotation marker overlay with click-to-place pins and label/note popups for 3d-model-viewer, image annotations, map pins, hotspot tours",
   "homepage": "https://www.molecule.dev/packages/app-annotation-pin-svelte",
   "type": "module",

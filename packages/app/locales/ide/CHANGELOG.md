@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.11.4
+
+### Patch Changes
+
+- The published package no longer includes its compiled tests.
+
 ## 1.11.3
 
 ### Patch Changes

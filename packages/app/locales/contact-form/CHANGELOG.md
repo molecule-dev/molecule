@@ -1,5 +1,12 @@
 # @molecule/app-locales-contact-form
 
+## 1.0.4
+
+### Patch Changes
+
+- The fields' accessible labels and the fallback failure message now come from translation keys instead of fixed English text, so they follow the active locale. The contact-form locale bond adds those keys in every language.
+- The published package no longer includes its compiled tests.
+
 ## 1.0.3
 
 ### Patch Changes

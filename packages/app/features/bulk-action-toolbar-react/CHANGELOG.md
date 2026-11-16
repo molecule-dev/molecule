@@ -1,5 +1,11 @@
 # @molecule/app-bulk-action-toolbar-react
 
+## 4.0.2
+
+### Patch Changes
+
+- The toolbar's accessible name is looked up through the `bulkActions.aria.toolbar` translation key instead of a fixed English string, so it follows the active language. The locale bond adds that key in every language.
+
 ## 4.0.1
 
 ### Patch Changes

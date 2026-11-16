@@ -1,5 +1,11 @@
 # @molecule/app-query-tanstack
 
+## 1.1.0
+
+### Minor Changes
+
+- Keep resource row lists unique by URL identity when cached mutation responses are inserted again.
+
 ## 1.0.5
 
 ### Patch Changes

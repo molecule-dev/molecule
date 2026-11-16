@@ -1,5 +1,11 @@
 # @molecule/app-action-menu-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Translate the trigger button's default `Actions` label through the `actionMenu.aria.trigger` key; `triggerAriaLabel` still overrides it.
+
 ## 4.0.0
 
 ### Patch Changes

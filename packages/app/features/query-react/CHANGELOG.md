@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.7.0
+
+### Minor Changes
+
+- Render a selected collection's empty state as one branch exclusive with loaded content.
+
 ## 1.6.2
 
 ### Patch Changes
