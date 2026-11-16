@@ -9,13 +9,14 @@
  *
  * @example
  * ```typescript
- * import { setProvider, send } from '@molecule/api-push-notifications'
+ * import { fetchPublicKey, send, setProvider } from '@molecule/api-push-notifications'
  * import { provider as push } from '@molecule/api-push-notifications-molecule'
  *
  * setProvider(push) // reads MOLECULE_API_KEY from the environment
  *
- * // One-time: give the browser molecule.dev's public key to subscribe with.
- * const applicationServerKey = await push.fetchPublicKey()
+ * // The browser subscribes with molecule.dev's public key; serve it from your
+ * // public-key route. The core's fetchPublicKey() asks the service once and caches it.
+ * const applicationServerKey = await fetchPublicKey()
  *
  * await send(subscription, { title: 'Order shipped', options: { body: 'Track it here.' } })
  * ```
@@ -28,12 +29,14 @@
  *   refused unless the host is loopback or a private-network endpoint such as
  *   the sandbox gateway `host.docker.internal` (RFC 1918 / *.docker.internal)).
  * - **Subscriptions are bound to the VAPID key they were created with.** A
- *   browser subscribes with the `applicationServerKey` returned by
+ *   browser subscribes with the `applicationServerKey` returned by the core's
  *   `fetchPublicKey()` — molecule.dev's public key — and only molecule.dev can
  *   then send to those subscriptions. Moving to your own VAPID identity (the
  *   web-push bond) means your users re-subscribe.
  * - `getPublicKey()` is the core's SYNCHRONOUS method, so it returns the
- *   cache: `undefined` until `fetchPublicKey()` has run. `configure()` is a
+ *   cache: `undefined` until `fetchPublicKey()` has run. Serve the key with the core's
+ *   `fetchPublicKey()` (`@molecule/api-resource-device`'s public-key route does), which
+ *   works with this bond and with the web-push bond alike. `configure()` is a
  *   no-op (the service holds the keys), and `generateVapidKeys()` throws —
  *   generating your own keys is a self-hosted concern (`@molecule/api-push-notifications-web-push`).
  * - Payloads are bounded at 3072 characters of serialized JSON (the Web Push

@@ -43,6 +43,7 @@ describe('push notification provider', () => {
   let configure: typeof ProviderModule.configure
   let generateVapidKeys: typeof ProviderModule.generateVapidKeys
   let getPublicKey: typeof ProviderModule.getPublicKey
+  let fetchPublicKey: typeof ProviderModule.fetchPublicKey
 
   beforeEach(async () => {
     vi.resetModules()
@@ -57,6 +58,7 @@ describe('push notification provider', () => {
     configure = providerModule.configure
     generateVapidKeys = providerModule.generateVapidKeys
     getPublicKey = providerModule.getPublicKey
+    fetchPublicKey = providerModule.fetchPublicKey
   })
 
   describe('setProvider', () => {
@@ -118,6 +120,7 @@ describe('push notification provider', () => {
       )
       expect(() => generateVapidKeys()).toThrow(/No push notification provider bonded/)
       expect(() => getPublicKey()).toThrow(/No push notification provider bonded/)
+      return expect(fetchPublicKey()).rejects.toThrow(/No push notification provider bonded/)
     })
 
     describe('with bonded provider', () => {
@@ -149,8 +152,12 @@ describe('push notification provider', () => {
       it('should delegate send to provider', async () => {
         const result = await send(mockSubscription, mockPayload)
 
-        expect(mockProvider.send).toHaveBeenCalledWith(mockSubscription, mockPayload)
+        expect(mockProvider.send).toHaveBeenCalledWith(mockSubscription, mockPayload, undefined)
         expect(result).toEqual({ statusCode: 201, headers: {}, body: '' })
+
+        const options = { ttl: 60, urgency: 'high' as const, topic: 'order' }
+        await send(mockSubscription, mockPayload, options)
+        expect(mockProvider.send).toHaveBeenLastCalledWith(mockSubscription, mockPayload, options)
       })
 
       it('should delegate sendMany to provider', async () => {
@@ -158,7 +165,11 @@ describe('push notification provider', () => {
 
         await sendMany(subscriptions, mockPayload)
 
-        expect(mockProvider.sendMany).toHaveBeenCalledWith(subscriptions, mockPayload)
+        expect(mockProvider.sendMany).toHaveBeenCalledWith(subscriptions, mockPayload, undefined)
+
+        const options = { ttl: 60 }
+        await sendMany(subscriptions, mockPayload, options)
+        expect(mockProvider.sendMany).toHaveBeenLastCalledWith(subscriptions, mockPayload, options)
       })
 
       it('should delegate generateVapidKeys to provider', () => {
@@ -177,6 +188,24 @@ describe('push notification provider', () => {
         expect(mockProvider.getPublicKey).toHaveBeenCalled()
         expect(key).toBe('test-public-key')
       })
+
+      it('fetchPublicKey answers from getPublicKey when the provider holds its key', async () => {
+        expect(await fetchPublicKey()).toBe('test-public-key')
+        expect(mockProvider.getPublicKey).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('fetchPublicKey asks a provider whose key lives behind a service', async () => {
+      // The hosted bond's synchronous getPublicKey is empty until its key is fetched.
+      const hosted = {
+        ...createMockProvider(),
+        getPublicKey: vi.fn<() => string | undefined>(() => undefined),
+        fetchPublicKey: vi.fn(() => Promise.resolve('hosted-key')),
+      }
+      setProvider(hosted)
+      expect(await fetchPublicKey()).toBe('hosted-key')
+      expect(hosted.fetchPublicKey).toHaveBeenCalledTimes(1)
+      expect(hosted.getPublicKey).not.toHaveBeenCalled()
     })
   })
 

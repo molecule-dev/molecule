@@ -246,6 +246,7 @@ export class MoleculePushProvider implements PushNotificationProvider {
   private readonly servicesUrl: string
   private readonly timeoutMs: number
   private cachedPublicKey: string | undefined
+  private publicKeyRequest: Promise<string> | undefined
 
   /**
    * Create the provider.
@@ -330,11 +331,12 @@ export class MoleculePushProvider implements PushNotificationProvider {
    *
    * The core's method is SYNCHRONOUS while the key lives behind a service
    * call, so this returns the cache: `undefined` until {@link fetchPublicKey}
-   * has run (or a send cached it). Await the fetch first:
+   * has run. Serve the key with the core's `fetchPublicKey()`,
+   * which calls {@link fetchPublicKey} on this provider:
    *
    * ```typescript
-   * await provider.fetchPublicKey() // once, e.g. at startup
-   * const applicationServerKey = provider.getPublicKey()
+   * import { fetchPublicKey } from '@molecule/api-push-notifications'
+   * const applicationServerKey = await fetchPublicKey()
    * ```
    *
    * @returns The cached public key, or `undefined` before the first fetch.
@@ -344,15 +346,27 @@ export class MoleculePushProvider implements PushNotificationProvider {
   }
 
   /**
-   * Fetches molecule.dev's public VAPID key from the hosted service and
-   * caches it for {@link getPublicKey}.
+   * Fetches molecule.dev's public VAPID key from the hosted service once and caches it
+   * for {@link getPublicKey}. Later calls answer from the cache, and calls made while
+   * the request is in flight share it, so a public-key route that calls this per request
+   * asks the service once per process. A failed request is not cached: the next call
+   * asks again.
    *
    * @returns The public key string.
    */
-  async fetchPublicKey(): Promise<string> {
-    const { publicKey } = await this.request<{ publicKey: string }>('vapid-key', {})
-    this.cachedPublicKey = publicKey
-    return publicKey
+  fetchPublicKey(): Promise<string> {
+    if (this.cachedPublicKey) return Promise.resolve(this.cachedPublicKey)
+    this.publicKeyRequest ??= this.request<{ publicKey: string }>('vapid-key', {}).then(
+      ({ publicKey }) => {
+        this.cachedPublicKey = publicKey
+        return publicKey
+      },
+      (error: unknown) => {
+        this.publicKeyRequest = undefined
+        throw error
+      },
+    )
+    return this.publicKeyRequest
   }
 
   /**

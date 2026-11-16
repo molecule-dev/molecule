@@ -1,5 +1,7 @@
-import { get } from '@molecule/api-bond'
+import { get, getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
+
+const logger = getLogger()
 
 /**
  * Push public key — `GET /devices/push/public-key`.
@@ -15,15 +17,21 @@ import { t } from '@molecule/api-i18n'
  *
  * Bond-gated like `oauthAuthorize` in `@molecule/api-resource-user`: provider
  * knowledge stays in the bond — the handler asks the bonded push-notifications
- * provider (`get('push-notifications')`) for its `getPublicKey()`. A provider
- * that is not bonded yields a clean 404; one that is bonded but unconfigured
- * (no `VAPID_PUBLIC_KEY`) yields a 503 — never a crash.
+ * provider (`get('push-notifications')`) for its key: `fetchPublicKey()` when the
+ * provider keeps its key behind a service (the molecule.dev hosted bond, whose
+ * synchronous `getPublicKey()` is empty until that call has run), else
+ * `getPublicKey()`. A provider that is not bonded yields a clean 404; one that is
+ * bonded but unconfigured (no `VAPID_PUBLIC_KEY`), or whose key request fails
+ * (logged), yields a 503 — never a crash.
  *
  * @returns A request handler that responds `200` with `{ publicKey }`.
  */
 export const pushPublicKey = () => {
   return async () => {
-    const pushProvider = get<{ getPublicKey?: () => string | undefined }>('push-notifications')
+    const pushProvider = get<{
+      getPublicKey?: () => string | undefined
+      fetchPublicKey?: () => Promise<string | undefined>
+    }>('push-notifications')
 
     if (!pushProvider?.getPublicKey) {
       return {
@@ -37,10 +45,21 @@ export const pushPublicKey = () => {
       }
     }
 
-    const publicKey = pushProvider.getPublicKey()
+    let publicKey: string | undefined
+    try {
+      publicKey = pushProvider.fetchPublicKey
+        ? await pushProvider.fetchPublicKey()
+        : pushProvider.getPublicKey()
+    } catch (error) {
+      // The hosted service refused or could not be reached: the route answers 503
+      // like an unconfigured provider, and the cause goes to the operator's log.
+      logger.error('device push public key: the push provider could not fetch its key', {
+        error,
+      })
+    }
     if (!publicKey) {
-      // Bonded but unconfigured (VAPID_PUBLIC_KEY unset) — an operator
-      // problem, not a client one.
+      // Bonded but unconfigured (VAPID_PUBLIC_KEY unset) or its key request
+      // failed — an operator problem, not a client one.
       return {
         statusCode: 503,
         body: {

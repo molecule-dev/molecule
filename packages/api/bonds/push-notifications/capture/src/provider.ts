@@ -163,6 +163,14 @@ export function createPushCaptureProvider(
       // captured instead of delivered.
       return realProvider?.getPublicKey() ?? process.env.VAPID_PUBLIC_KEY
     },
+
+    async fetchPublicKey(): Promise<string | undefined> {
+      // A real provider whose key lives behind a service (the molecule.dev hosted
+      // bond) is asked for it: its getPublicKey() is empty until then, so wrapping
+      // it would otherwise leave the public-key route unconfigured.
+      if (realProvider?.fetchPublicKey) return realProvider.fetchPublicKey()
+      return this.getPublicKey()
+    },
   }
 }
 

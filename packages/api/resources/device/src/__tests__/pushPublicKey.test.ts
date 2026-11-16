@@ -4,10 +4,12 @@
  * The route delivers the VAPID public key at RUNTIME so browsers can
  * subscribe with `applicationServerKey` (Chromium rejects keyless
  * subscriptions). Bond-gated like `oauthAuthorize`: no bonded
- * push-notifications provider → 404; bonded but unconfigured → 503.
+ * push-notifications provider → 404; bonded but unconfigured → 503. A provider
+ * that keeps its key behind a service (the molecule.dev hosted bond) is asked
+ * with fetchPublicKey(), since its getPublicKey() is empty until then.
  */
 
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { bond, unbond } from '@molecule/api-bond'
 
@@ -50,5 +52,24 @@ describe('pushPublicKey handler', () => {
     const response = await handler()
     expect(response.statusCode).toBe(200)
     expect(response.body).toEqual({ publicKey: TEST_PUBLIC_KEY })
+  })
+
+  it('asks a provider that fetches its key, whose getPublicKey is still empty', async () => {
+    const fetchPublicKey = vi.fn(() => Promise.resolve(TEST_PUBLIC_KEY))
+    bond('push-notifications', { getPublicKey: () => undefined, fetchPublicKey })
+    const response = await pushPublicKey()()
+    expect(response.statusCode).toBe(200)
+    expect(response.body).toEqual({ publicKey: TEST_PUBLIC_KEY })
+    expect(fetchPublicKey).toHaveBeenCalledTimes(1)
+  })
+
+  it('responds 503 when the provider cannot fetch its key', async () => {
+    bond('push-notifications', {
+      getPublicKey: () => undefined,
+      fetchPublicKey: () => Promise.reject(new Error('molecule.dev push/vapid-key failed (401)')),
+    })
+    const response = await pushPublicKey()()
+    expect(response.statusCode).toBe(503)
+    expect(response.body).toMatchObject({ errorKey: 'device.error.pushNotConfigured' })
   })
 })

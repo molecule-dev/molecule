@@ -142,7 +142,17 @@ export interface PushNotificationProvider {
 
   /**
    * Returns the public VAPID key for client-side subscription requests,
-   * or `undefined` if VAPID is not configured.
+   * or `undefined` if VAPID is not configured. A provider whose key lives behind a
+   * service call returns its cache here and implements {@link fetchPublicKey}.
    */
   getPublicKey(): string | undefined
+
+  /**
+   * Returns the public VAPID key when the provider has to ask a service for it (the
+   * molecule.dev hosted bond): it fetches the key once, caches it for
+   * {@link getPublicKey}, and resolves to it. A provider that holds its key leaves this
+   * out. Callers use the core's `fetchPublicKey()`, which falls back to
+   * `getPublicKey()`.
+   */
+  fetchPublicKey?(): Promise<string | undefined>
 }

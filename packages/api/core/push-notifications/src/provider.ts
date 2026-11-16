@@ -131,3 +131,17 @@ export const generateVapidKeys = (): VapidKeys => {
 export const getPublicKey = (): string | undefined => {
   return requireProvider().getPublicKey()
 }
+
+/**
+ * Returns the public VAPID key for a browser's `pushManager.subscribe()`, with any
+ * provider: one whose key lives behind a service (the molecule.dev hosted bond) is asked
+ * for it, and any other answers from {@link getPublicKey}. Serve this from the
+ * public-key route rather than `getPublicKey()`, which returns `undefined` on the
+ * hosted bond until its key has been fetched.
+ *
+ * @returns The public VAPID key string, or `undefined` if not configured.
+ */
+export const fetchPublicKey = async (): Promise<string | undefined> => {
+  const provider = requireProvider()
+  return provider.fetchPublicKey ? provider.fetchPublicKey() : provider.getPublicKey()
+}

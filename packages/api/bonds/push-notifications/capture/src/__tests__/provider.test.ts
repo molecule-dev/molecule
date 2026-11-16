@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { ActivityEvent } from '@molecule/api-activity'
 import type {
   NotificationPayload,
   PushNotificationProvider,
@@ -7,10 +8,10 @@ import type {
   SendResult,
 } from '@molecule/api-push-notifications'
 
-const record = vi.fn(() => Promise.resolve())
+const record = vi.fn<(event: ActivityEvent) => Promise<void>>(() => Promise.resolve())
 
 vi.mock('@molecule/api-activity', () => ({
-  record: (...args: unknown[]) => record(...args),
+  record: (event: ActivityEvent) => record(event),
 }))
 
 import { createPushCaptureProvider, provider } from '../provider.js'
@@ -156,6 +157,31 @@ describe('push capture provider', () => {
       const push = createPushCaptureProvider(real)
       expect(push.generateVapidKeys()).toEqual({ publicKey: 'pub', privateKey: 'priv' })
       expect(push.getPublicKey()).toBe('pub')
+    })
+
+    it('asks a real provider that fetches its key (the hosted bond) for it', async () => {
+      const real: PushNotificationProvider = {
+        configure: vi.fn(),
+        send: vi.fn(),
+        sendMany: vi.fn(),
+        generateVapidKeys: vi.fn(),
+        getPublicKey: vi.fn(() => undefined),
+        fetchPublicKey: vi.fn(() => Promise.resolve('hosted-pub')),
+      }
+      const push = createPushCaptureProvider(real)
+      expect(await push.fetchPublicKey?.()).toBe('hosted-pub')
+      expect(real.fetchPublicKey).toHaveBeenCalledTimes(1)
+    })
+
+    it('answers fetchPublicKey from getPublicKey for a real provider that holds its key', async () => {
+      const real: PushNotificationProvider = {
+        configure: vi.fn(),
+        send: vi.fn(),
+        sendMany: vi.fn(),
+        generateVapidKeys: vi.fn(),
+        getPublicKey: vi.fn(() => 'pub'),
+      }
+      expect(await createPushCaptureProvider(real).fetchPublicKey?.()).toBe('pub')
     })
   })
 

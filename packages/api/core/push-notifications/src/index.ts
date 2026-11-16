@@ -7,7 +7,10 @@
  *
  * @remarks
  * - The VAPID **private** key is a server secret — it stays in the API (config/secrets).
- *   Only the **public** key ({@link getPublicKey}) goes to the browser for `subscribe()`.
+ *   Only the **public** key goes to the browser for `subscribe()`: serve
+ *   `await fetchPublicKey()`, which works with every bond (the molecule.dev hosted bond
+ *   keeps its key behind a service call, so its synchronous {@link getPublicKey} is
+ *   `undefined` until that call has run).
  *   Generate the pair ONCE with {@link generateVapidKeys} and persist it in env; do NOT
  *   regenerate per boot — new keys invalidate every existing subscription.
  * - Store each {@link PushSubscription} server-side, scoped to its user, and send from the
@@ -22,10 +25,13 @@
  *
  * @example
  * ```ts
- * import { configure, sendMany, getPublicKey } from '@molecule/api-push-notifications'
+ * import { configure, fetchPublicKey, sendMany } from '@molecule/api-push-notifications'
  * configure({ email: 'ops@app.com', publicKey: VAPID_PUBLIC, privateKey: VAPID_PRIVATE })
  *
  * // Browser subscribes with the PUBLIC key only; the API stores the subscription per user.
+ * router.get('/push/public-key', async (_req, res) => {
+ *   res.json({ publicKey: await fetchPublicKey() })
+ * })
  * router.post('/push/subscribe', async (req, res) => {
  *   await saveSubscription(getUserId(res), req.body.subscription) // scoped to the user
  *   res.json({ ok: true })

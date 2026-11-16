@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { NotificationPayload, PushSubscription } from '@molecule/api-push-notifications'
+import { fetchPublicKey, setProvider } from '@molecule/api-push-notifications'
 
 import {
   createProvider,
@@ -117,18 +118,43 @@ describe('api-push-notifications-molecule', () => {
     expect(results[1].error).toBeInstanceOf(Error)
   })
 
-  it('fetchPublicKey caches the key for the synchronous getPublicKey', async () => {
+  it("the core's fetchPublicKey asks the service and caches the key for getPublicKey", async () => {
     const fetchMock = stubFetch(200, { publicKey: 'BPk1-test' })
     const provider = createProvider({
       apiKey: 'mk_test',
       servicesUrl: 'http://localhost:1/api/v1/services',
     })
+    setProvider(provider)
     expect(provider.getPublicKey()).toBeUndefined()
-    expect(await provider.fetchPublicKey()).toBe('BPk1-test')
+    expect(await fetchPublicKey()).toBe('BPk1-test')
     expect(provider.getPublicKey()).toBe('BPk1-test')
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(url).toBe('http://localhost:1/api/v1/services/push/vapid-key')
     expect(JSON.parse(String(init.body))).toEqual({})
+  })
+
+  it('asks the service for the key once: later and concurrent calls share it', async () => {
+    const fetchMock = stubFetch(200, { publicKey: 'BPk1-test' })
+    const provider = new MoleculePushProvider({
+      apiKey: 'mk_test',
+      servicesUrl: 'http://localhost:1/api/v1/services',
+    })
+    const keys = await Promise.all([provider.fetchPublicKey(), provider.fetchPublicKey()])
+    expect(keys).toEqual(['BPk1-test', 'BPk1-test'])
+    expect(await provider.fetchPublicKey()).toBe('BPk1-test')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not keep a failed key request: the next call asks again', async () => {
+    stubFetch(500, { error: 'down' })
+    const provider = new MoleculePushProvider({
+      apiKey: 'mk_test',
+      servicesUrl: 'http://localhost:1/api/v1/services',
+    })
+    await expect(provider.fetchPublicKey()).rejects.toThrow(/push\/vapid-key failed \(500\)/)
+    expect(provider.getPublicKey()).toBeUndefined()
+    stubFetch(200, { publicKey: 'BPk1-test' })
+    expect(await provider.fetchPublicKey()).toBe('BPk1-test')
   })
 
   it('refuses bad subscriptions and payloads locally, before any request', async () => {
