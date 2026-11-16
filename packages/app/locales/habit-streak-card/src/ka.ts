@@ -5,4 +5,6 @@ export const ka: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'დღის სერია',
   'habit.bestStreak': 'საუკეთესო',
   'habit.total': 'სულ',
+  'habit.aria.recentActivity': 'ბოლოდროინდელი აქტივობა',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

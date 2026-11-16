@@ -49,9 +49,10 @@ const nodeOrSlot = (
  *
  * Vue counterpart of `@molecule/app-habit-streak-card-react`'s
  * `HabitStreakCard` — the same props (React names), the same ClassMap tokens
- * and the same DOM for the same input. The stat labels go through
- * `useTranslation()` with React's exact keys and English defaults, and
- * `heatmapDays` truncates `heatmap` from the end (most recent days win).
+ * and the same DOM for the same input. The stat labels and the heatmap's
+ * strip and day labels go through `useTranslation()` with React's exact keys
+ * and English defaults, and `heatmapDays` truncates `heatmap` from the end
+ * (most recent days win).
  *
  * @param props - Component props (see {@link HabitStreakCardProps} in
  *   `./types.js`).
@@ -74,6 +75,21 @@ export const HabitStreakCard = defineComponent({
   setup(props, { slots }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+
+    /**
+     * One heatmap square's accessible label and tooltip (`<date>: <count>`).
+     *
+     * @param day - The day.
+     * @returns Its label.
+     */
+    const dayLabel = (day: StreakDay): string =>
+      t(
+        'habit.cell.tooltip',
+        { date: day.date, count: day.count },
+        {
+          defaultValue: '{{date}}: {{count}}',
+        },
+      )
 
     return (): VNode => {
       const days = (props.heatmap ?? []).slice(-props.heatmapDays)
@@ -123,13 +139,19 @@ export const HabitStreakCard = defineComponent({
                 'div',
                 {
                   class: cm.flex({ align: 'center', gap: 'xs' }),
-                  'aria-label': 'Recent activity',
+                  role: 'group',
+                  'aria-label': t(
+                    'habit.aria.recentActivity',
+                    {},
+                    { defaultValue: 'Recent activity' },
+                  ),
                 },
                 days.map((d) =>
                   h('span', {
                     key: d.date,
-                    'aria-label': `${d.date}: ${d.count}`,
-                    title: `${d.date}: ${d.count}`,
+                    role: 'img',
+                    'aria-label': dayLabel(d),
+                    title: dayLabel(d),
                     style: {
                       width: '10px',
                       height: '10px',

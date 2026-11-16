@@ -5,4 +5,6 @@ export const ar: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'أيام متتالية',
   'habit.total': 'الإجمالي',
   'habit.bestStreak': 'أفضل',
+  'habit.aria.recentActivity': 'النشاط الأخير',
+  'habit.cell.tooltip': '{{date}} : {{count}}',
 }

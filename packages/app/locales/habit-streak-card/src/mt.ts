@@ -5,4 +5,6 @@ export const mt: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': "sensiela ta' ġurnata",
   'habit.bestStreak': 'l-aqwa',
   'habit.total': 'totali',
+  'habit.aria.recentActivity': 'Attività riċenti',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

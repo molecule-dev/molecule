@@ -5,4 +5,6 @@ export const am: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'የቀን ተከታታይ',
   'habit.bestStreak': 'ምርጥ',
   'habit.total': 'ጠቅላላ',
+  'habit.aria.recentActivity': 'የቅርብ ጊዜ እንቅስቃሴ',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

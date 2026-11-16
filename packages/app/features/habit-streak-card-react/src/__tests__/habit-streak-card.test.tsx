@@ -25,8 +25,15 @@ vi.mock('@molecule/app-ui', () => ({
 
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    // The provider's contract: the inline English default, `{{placeholders}}`
+    // filled from `values`.
+    t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+      const base = opts?.defaultValue ?? key
+      if (!values) return base
+      return base.replace(/\{\{\s*(\w+)\s*\}\}/g, (m, k: string) =>
+        k in values ? String(values[k]) : m,
+      )
+    },
   }),
 }))
 
@@ -90,6 +97,24 @@ describe('HabitStreakCard', () => {
     )
     expect(markup).toContain('aria-label="2026-05-01: 0"')
     expect(markup).toContain('aria-label="2026-05-02: 3"')
+  })
+
+  it('gives the heatmap strip a group role and each day square an img role', () => {
+    const markup = html(
+      createElement(HabitStreakCard, {
+        name: 'M',
+        currentStreak: 2,
+        heatmap: [
+          { date: '2026-05-01', count: 0 },
+          { date: '2026-05-02', count: 3 },
+        ],
+      }),
+    )
+    // The strip is a named group; each square is a named image, which lets
+    // aria-label and title stay on them (axe's aria-prohibited-attr).
+    expect(markup).toMatch(/<div[^>]*role="group"[^>]*aria-label="Recent activity"/)
+    expect(markup).toMatch(/<span[^>]*role="img"[^>]*aria-label="2026-05-01: 0"/)
+    expect(markup).toMatch(/<span[^>]*role="img"[^>]*title="2026-05-02: 3"/)
   })
 
   it('truncates the heatmap to the heatmapDays window from the end', () => {

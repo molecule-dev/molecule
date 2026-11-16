@@ -5,4 +5,6 @@ export const pt: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'dias de sequência',
   'habit.bestStreak': 'melhor',
   'habit.total': 'total',
+  'habit.aria.recentActivity': 'Atividade recente',
+  'habit.cell.tooltip': '{{date}} : {{count}}',
 }

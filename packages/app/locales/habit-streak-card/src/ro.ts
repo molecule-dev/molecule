@@ -5,4 +5,6 @@ export const ro: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'serie de zile',
   'habit.bestStreak': 'cel mai bun',
   'habit.total': 'total',
+  'habit.aria.recentActivity': 'Activitate recentă',
+  'habit.cell.tooltip': '{{date}} : {{count}}',
 }

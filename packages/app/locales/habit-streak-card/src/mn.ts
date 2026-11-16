@@ -5,4 +5,6 @@ export const mn: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'өдрийн цуврал',
   'habit.bestStreak': 'хамгийн сайн',
   'habit.total': 'нийт',
+  'habit.aria.recentActivity': 'Сүүлийн үйл ажиллагаа',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

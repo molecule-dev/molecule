@@ -5,4 +5,6 @@ export const el: Partial<HabitStreakCardTranslations> = {
   'habit.total': 'σύνολο',
   'habit.currentStreak': 'ημερήσια σειρά',
   'habit.bestStreak': 'καλύτερος',
+  'habit.aria.recentActivity': 'Πρόσφατη δραστηριότητα',
+  'habit.cell.tooltip': '{{date}} : {{count}}',
 }

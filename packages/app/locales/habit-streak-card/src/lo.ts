@@ -5,4 +5,6 @@ export const lo: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'ຊ່ວງເວລາປະຈຳວັນ',
   'habit.bestStreak': 'ດີທີ່ສຸດ',
   'habit.total': 'ລວມທັງໝົດ',
+  'habit.aria.recentActivity': 'ການເຄື່ອນໄຫວຫຼ້າສຸດ',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

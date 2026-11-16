@@ -5,4 +5,6 @@ export const ta: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'நாள் தொடர்',
   'habit.bestStreak': 'சிறந்தது',
   'habit.total': 'மொத்தம்',
+  'habit.aria.recentActivity': 'சமீபத்திய செயல்பாடு',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

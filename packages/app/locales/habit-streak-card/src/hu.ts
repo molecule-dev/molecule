@@ -5,4 +5,6 @@ export const hu: Partial<HabitStreakCardTranslations> = {
   'habit.total': 'összesen',
   'habit.currentStreak': 'napi sorozat',
   'habit.bestStreak': 'legjobb',
+  'habit.aria.recentActivity': 'Legutóbbi tevékenység',
+  'habit.cell.tooltip': '{{date}} : {{count}}',
 }

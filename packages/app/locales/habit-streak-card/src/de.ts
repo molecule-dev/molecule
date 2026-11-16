@@ -5,4 +5,6 @@ export const de: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'Tage in Folge',
   'habit.total': 'insgesamt',
   'habit.bestStreak': 'am besten',
+  'habit.aria.recentActivity': 'Letzte Aktivität',
+  'habit.cell.tooltip': '{{date}} : {{count}}',
 }

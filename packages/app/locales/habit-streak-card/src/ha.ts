@@ -5,4 +5,6 @@ export const ha: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'jerin rana',
   'habit.bestStreak': 'mafi kyau',
   'habit.total': 'jimilla',
+  'habit.aria.recentActivity': 'Kwanan aiki',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

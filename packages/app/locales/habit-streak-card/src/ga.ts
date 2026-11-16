@@ -5,4 +5,6 @@ export const ga: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'sraith lae',
   'habit.bestStreak': 'is fearr',
   'habit.total': 'iomlán',
+  'habit.aria.recentActivity': 'Gníomhaíocht le déanaí',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

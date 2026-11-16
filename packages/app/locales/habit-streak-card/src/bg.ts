@@ -5,4 +5,6 @@ export const bg: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'дневна серия',
   'habit.bestStreak': 'най-добрият',
   'habit.total': 'общо',
+  'habit.aria.recentActivity': 'Скорошна активност',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

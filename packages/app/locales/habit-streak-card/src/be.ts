@@ -5,4 +5,6 @@ export const be: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'дзённая паласа',
   'habit.bestStreak': 'найлепшы',
   'habit.total': 'агульная сума',
+  'habit.aria.recentActivity': 'Нядаўняя актыўнасць',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

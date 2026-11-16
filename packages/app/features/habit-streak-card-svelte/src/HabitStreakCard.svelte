@@ -3,14 +3,16 @@
   `@molecule/app-habit-streak-card-react`'s `HabitStreakCard` — current streak,
   best streak, total completions, and an optional per-day heatmap strip. Same
   props, same DOM for the same input; `name` and `icon` are snippets (or plain
-  strings), and the heatmap squares carry React's inline styles exactly.
+  strings), the stat labels and the heatmap's strip and day labels go through
+  `useTranslation()` with React's exact keys and English defaults, and the
+  heatmap squares carry React's inline styles exactly.
 -->
 <script lang="ts">
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
   import { Card } from '@molecule/app-ui-svelte'
 
-  import type { HabitStreakCardProps } from './types.js'
+  import type { HabitStreakCardProps, StreakDay } from './types.js'
 
   let {
     name,
@@ -40,6 +42,20 @@
     const t = Math.min(1, count / Math.max(1, top))
     // simple green ramp
     return `rgba(34,197,94,${0.25 + 0.75 * t})`
+  }
+
+  /**
+   * One heatmap square's accessible label and tooltip (`<date>: <count>`).
+   *
+   * @param day - The day.
+   * @returns Its label.
+   */
+  function dayLabel(day: StreakDay): string {
+    return t(
+      'habit.cell.tooltip',
+      { date: day.date, count: day.count },
+      { defaultValue: '{{date}}: {{count}}' },
+    )
   }
 </script>
 
@@ -76,11 +92,16 @@
       {/if}
     </div>
     {#if days.length > 0}
-      <div class={cm.flex({ align: 'center', gap: 'xs' })} aria-label="Recent activity">
+      <div
+        class={cm.flex({ align: 'center', gap: 'xs' })}
+        role="group"
+        aria-label={t('habit.aria.recentActivity', {}, { defaultValue: 'Recent activity' })}
+      >
         {#each days as day (day.date)}
           <span
-            aria-label={`${day.date}: ${day.count}`}
-            title={`${day.date}: ${day.count}`}
+            role="img"
+            aria-label={dayLabel(day)}
+            title={dayLabel(day)}
             style:width="10px"
             style:height="10px"
             style:border-radius="2px"

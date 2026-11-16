@@ -5,4 +5,6 @@ export const ig: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'usoro ụbọchị',
   'habit.bestStreak': 'kacha mma',
   'habit.total': 'mkpokọta',
+  'habit.aria.recentActivity': 'Mmemme na-adịbeghị anya',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

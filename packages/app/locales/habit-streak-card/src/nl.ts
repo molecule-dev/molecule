@@ -5,4 +5,6 @@ export const nl: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'dagen op rij',
   'habit.total': 'totaal',
   'habit.bestStreak': 'best',
+  'habit.aria.recentActivity': 'Recente activiteit',
+  'habit.cell.tooltip': '{{date}} : {{count}}',
 }

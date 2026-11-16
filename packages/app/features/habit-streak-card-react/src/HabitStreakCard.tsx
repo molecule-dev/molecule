@@ -64,6 +64,19 @@ export function HabitStreakCard({
   const { t } = useTranslation()
   const days = (heatmap ?? []).slice(-heatmapDays)
   const max = days.reduce((m, d) => Math.max(m, d.count), 0)
+  /**
+   * One heatmap square's accessible label and tooltip (`<date>: <count>`).
+   * @param day - The day.
+   * @returns Its label.
+   */
+  const dayLabel = (day: StreakDay): string =>
+    t(
+      'habit.cell.tooltip',
+      { date: day.date, count: day.count },
+      {
+        defaultValue: '{{date}}: {{count}}',
+      },
+    )
   return (
     <Card className={className}>
       <div className={cm.stack(3)}>
@@ -100,12 +113,17 @@ export function HabitStreakCard({
           )}
         </div>
         {days.length > 0 && (
-          <div className={cm.flex({ align: 'center', gap: 'xs' })} aria-label="Recent activity">
+          <div
+            className={cm.flex({ align: 'center', gap: 'xs' })}
+            role="group"
+            aria-label={t('habit.aria.recentActivity', {}, { defaultValue: 'Recent activity' })}
+          >
             {days.map((d) => (
               <span
                 key={d.date}
-                aria-label={`${d.date}: ${d.count}`}
-                title={`${d.date}: ${d.count}`}
+                role="img"
+                aria-label={dayLabel(d)}
+                title={dayLabel(d)}
                 style={{
                   width: 10,
                   height: 10,

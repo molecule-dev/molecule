@@ -5,4 +5,6 @@ export const ms: Partial<HabitStreakCardTranslations> = {
   'habit.total': 'jumlah',
   'habit.currentStreak': 'rentetan hari',
   'habit.bestStreak': 'terbaik',
+  'habit.aria.recentActivity': 'Aktiviti terkini',
+  'habit.cell.tooltip': '{{date}} : {{count}}',
 }

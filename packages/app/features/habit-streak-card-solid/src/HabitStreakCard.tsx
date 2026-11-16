@@ -34,9 +34,10 @@ function intensityColor(count: number, max: number): string {
  *
  * Solid counterpart of `@molecule/app-habit-streak-card-react`'s
  * `HabitStreakCard` — the same props (React names), the same ClassMap tokens
- * and the same DOM for the same input. The stat labels go through
- * `useTranslation()` with React's exact keys and English defaults, and
- * `heatmapDays` truncates `heatmap` from the end (most recent days win).
+ * and the same DOM for the same input. The stat labels and the heatmap's
+ * strip and day labels go through `useTranslation()` with React's exact keys
+ * and English defaults, and `heatmapDays` truncates `heatmap` from the end
+ * (most recent days win).
  *
  * @param props - Component props (see {@link HabitStreakCardProps}).
  * @returns The rendered habit streak card.
@@ -46,6 +47,19 @@ export const HabitStreakCard: Component<HabitStreakCardProps> = (props) => {
   const { t } = useTranslation()
   const days = (): StreakDay[] => (props.heatmap ?? []).slice(-(props.heatmapDays ?? 30))
   const max = (): number => days().reduce((m, d) => Math.max(m, d.count), 0)
+  /**
+   * One heatmap square's accessible label and tooltip (`<date>: <count>`).
+   * @param day - The day.
+   * @returns Its label.
+   */
+  const dayLabel = (day: StreakDay): string =>
+    t(
+      'habit.cell.tooltip',
+      { date: day.date, count: day.count },
+      {
+        defaultValue: '{{date}}: {{count}}',
+      },
+    )
 
   return (
     <Card className={props.className}>
@@ -83,12 +97,17 @@ export const HabitStreakCard: Component<HabitStreakCardProps> = (props) => {
           )}
         </div>
         {days().length > 0 && (
-          <div class={cm.flex({ align: 'center', gap: 'xs' })} aria-label="Recent activity">
+          <div
+            class={cm.flex({ align: 'center', gap: 'xs' })}
+            role="group"
+            aria-label={t('habit.aria.recentActivity', {}, { defaultValue: 'Recent activity' })}
+          >
             <For each={days()}>
               {(day) => (
                 <span
-                  aria-label={`${day.date}: ${day.count}`}
-                  title={`${day.date}: ${day.count}`}
+                  role="img"
+                  aria-label={dayLabel(day)}
+                  title={dayLabel(day)}
                   style={{
                     width: '10px',
                     height: '10px',

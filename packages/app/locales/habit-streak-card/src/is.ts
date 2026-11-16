@@ -5,4 +5,6 @@ export const is: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'dagsröð',
   'habit.bestStreak': 'besta',
   'habit.total': 'samtals',
+  'habit.aria.recentActivity': 'Nýleg virkni',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

@@ -5,4 +5,6 @@ export const pa: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'ਦਿਨ ਦੀ ਲੜੀ',
   'habit.bestStreak': 'ਸਭ ਤੋਂ ਵਧੀਆ',
   'habit.total': 'ਕੁੱਲ',
+  'habit.aria.recentActivity': 'ਹਾਲੀਆ ਗਤੀਵਿਧੀ',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

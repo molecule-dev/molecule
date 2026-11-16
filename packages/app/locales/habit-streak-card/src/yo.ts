@@ -5,4 +5,6 @@ export const yo: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'ìlà ọjọ́',
   'habit.bestStreak': 'ti o dara julọ',
   'habit.total': 'apapọ',
+  'habit.aria.recentActivity': 'Iṣẹ́ tí ó ṣẹṣẹ',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

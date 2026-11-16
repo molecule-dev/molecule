@@ -5,4 +5,6 @@ export const fa: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'خط روز',
   'habit.bestStreak': 'بهترین',
   'habit.total': 'مجموع',
+  'habit.aria.recentActivity': 'فعالیت اخیر',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

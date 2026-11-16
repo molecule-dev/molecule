@@ -5,4 +5,6 @@ export const lv: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'dienas sērija',
   'habit.bestStreak': 'labākais',
   'habit.total': 'kopā',
+  'habit.aria.recentActivity': 'Jaunākās aktivitātes',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

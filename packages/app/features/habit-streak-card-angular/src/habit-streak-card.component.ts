@@ -33,9 +33,10 @@ function intensityColor(count: number, max: number): string {
  * and an optional heatmap strip. The host IS React's root `<div>`
  * (`div[mol-habit-streak-card]`), carrying the `Card` classes exactly as
  * React's `Card` does. `name` and `icon` are projected content
- * (`[slot=name]`, `[slot=icon]`) or plain string inputs; the stat labels go
- * through `useTranslation()` with React's exact keys and English defaults.
- * `heatmapDays` truncates `heatmap` from the end (most recent days win).
+ * (`[slot=name]`, `[slot=icon]`) or plain string inputs; the stat labels and
+ * the heatmap's strip and day labels go through `useTranslation()` with
+ * React's exact keys and English defaults. `heatmapDays` truncates `heatmap`
+ * from the end (most recent days win).
  */
 @Component({
   selector: 'div[mol-habit-streak-card]',
@@ -54,7 +55,7 @@ function intensityColor(count: number, max: number): string {
     '[class]': 'cardClasses()',
   },
   // prettier-ignore
-  template: `<div [class]="stackClasses()"><header [class]="headerClasses()"><ng-content select="[slot=icon]"></ng-content>@if (hasIcon) {<ng-container>{{ icon }}</ng-container>}<h3 [class]="nameClasses()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]"></ng-content></h3></header><div [class]="statsClasses()"><div><div [class]="currentValueClasses()">{{ currentStreak }}</div><div [class]="labelClasses()">{{ currentLabel() }}</div></div>@if (bestStreak !== undefined) {<div><div [class]="secondaryValueClasses()">{{ bestStreak }}</div><div [class]="labelClasses()">{{ bestLabel() }}</div></div>}@if (totalCompletions !== undefined) {<div><div [class]="secondaryValueClasses()">{{ totalCompletions }}</div><div [class]="labelClasses()">{{ totalLabel() }}</div></div>}</div>@if (days().length > 0) {<div [class]="stripClasses()" aria-label="Recent activity">@for (day of days(); track day.date) {<span [attr.aria-label]="dayLabel(day)" [attr.title]="dayLabel(day)" [style.width]="'10px'" [style.height]="'10px'" [style.border-radius]="'2px'" [style.background]="dayBackground(day)"></span>}</div>}</div>`,
+  template: `<div [class]="stackClasses()"><header [class]="headerClasses()"><ng-content select="[slot=icon]"></ng-content>@if (hasIcon) {<ng-container>{{ icon }}</ng-container>}<h3 [class]="nameClasses()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]"></ng-content></h3></header><div [class]="statsClasses()"><div><div [class]="currentValueClasses()">{{ currentStreak }}</div><div [class]="labelClasses()">{{ currentLabel() }}</div></div>@if (bestStreak !== undefined) {<div><div [class]="secondaryValueClasses()">{{ bestStreak }}</div><div [class]="labelClasses()">{{ bestLabel() }}</div></div>}@if (totalCompletions !== undefined) {<div><div [class]="secondaryValueClasses()">{{ totalCompletions }}</div><div [class]="labelClasses()">{{ totalLabel() }}</div></div>}</div>@if (days().length > 0) {<div role="group" [class]="stripClasses()" [attr.aria-label]="stripLabel()">@for (day of days(); track day.date) {<span role="img" [attr.aria-label]="dayLabel(day)" [attr.title]="dayLabel(day)" [style.width]="'10px'" [style.height]="'10px'" [style.border-radius]="'2px'" [style.background]="dayBackground(day)"></span>}</div>}</div>`,
 })
 export class HabitStreakCard {
   /** Habit name — a string input, or `[slot=name]` projected content. */
@@ -179,12 +180,24 @@ export class HabitStreakCard {
   }
 
   /**
-   * One heatmap square's label (`<date>: <count>`).
+   * The heatmap strip's accessible label.
+   * @returns The translated strip label.
+   */
+  stripLabel(): string {
+    return this.i18n.t('habit.aria.recentActivity', {}, { defaultValue: 'Recent activity' })
+  }
+
+  /**
+   * One heatmap square's label and tooltip (`<date>: <count>`).
    * @param day - The day.
    * @returns Its label.
    */
   dayLabel(day: StreakDay): string {
-    return `${day.date}: ${day.count}`
+    return this.i18n.t(
+      'habit.cell.tooltip',
+      { date: day.date, count: day.count },
+      { defaultValue: '{{date}}: {{count}}' },
+    )
   }
 
   /**

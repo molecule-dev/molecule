@@ -5,4 +5,6 @@ export const az: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'gün seriyası',
   'habit.bestStreak': 'ən yaxşı',
   'habit.total': 'cəmi',
+  'habit.aria.recentActivity': 'Son fəaliyyət',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }

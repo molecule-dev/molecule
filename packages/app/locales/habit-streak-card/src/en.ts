@@ -5,4 +5,6 @@ export const en: HabitStreakCardTranslations = {
   'habit.currentStreak': 'day streak',
   'habit.bestStreak': 'best',
   'habit.total': 'total',
+  'habit.aria.recentActivity': 'Recent activity',
+  'habit.cell.tooltip': '{{date}}: {{count}}',
 }
