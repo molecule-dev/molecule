@@ -80,32 +80,38 @@ function compile(http: ResourceHttp): Example {
   return exports as Example
 }
 
-it('the complete resource example compiles against the installed public contracts', () => {
-  const file = join(__dirname, '__resource-example__.tsx')
-  const options: ts.CompilerOptions = {
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: [],
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Bundler,
-    jsx: ts.JsxEmit.ReactJSX,
-  }
-  const host = ts.createCompilerHost(options)
-  const getSourceFile = host.getSourceFile.bind(host)
-  host.getSourceFile = (path, languageVersion, onError, shouldCreateNewSourceFile) =>
-    path === file
-      ? ts.createSourceFile(path, snippet, languageVersion, true, ts.ScriptKind.TSX)
-      : getSourceFile(path, languageVersion, onError, shouldCreateNewSourceFile)
-  const diagnostics = ts.getPreEmitDiagnostics(ts.createProgram([file], options, host))
-  expect(
-    diagnostics.map((item) => ({
-      line: item.file?.getLineAndCharacterOfPosition(item.start ?? 0).line,
-      message: ts.flattenDiagnosticMessageText(item.messageText, '\n'),
-    })),
-  ).toEqual([])
-})
+// The real program build over the installed contracts takes far longer than the
+// default test budget on a loaded machine; the timeout is the only slack added.
+it(
+  'the complete resource example compiles against the installed public contracts',
+  { timeout: 180_000 },
+  () => {
+    const file = join(__dirname, '__resource-example__.tsx')
+    const options: ts.CompilerOptions = {
+      strict: true,
+      noEmit: true,
+      skipLibCheck: true,
+      types: [],
+      target: ts.ScriptTarget.ES2022,
+      module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      jsx: ts.JsxEmit.ReactJSX,
+    }
+    const host = ts.createCompilerHost(options)
+    const getSourceFile = host.getSourceFile.bind(host)
+    host.getSourceFile = (path, languageVersion, onError, shouldCreateNewSourceFile) =>
+      path === file
+        ? ts.createSourceFile(path, snippet, languageVersion, true, ts.ScriptKind.TSX)
+        : getSourceFile(path, languageVersion, onError, shouldCreateNewSourceFile)
+    const diagnostics = ts.getPreEmitDiagnostics(ts.createProgram([file], options, host))
+    expect(
+      diagnostics.map((item) => ({
+        line: item.file?.getLineAndCharacterOfPosition(item.start ?? 0).line,
+        message: ts.flattenDiagnosticMessageText(item.messageText, '\n'),
+      })),
+    ).toEqual([])
+  },
+)
 
 let root: Root | undefined
 let host: HTMLDivElement

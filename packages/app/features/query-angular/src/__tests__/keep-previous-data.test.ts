@@ -11,7 +11,7 @@
 import '@angular/compiler'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { QueryProvider } from '@molecule/app-query'
+import type { QueryOptions, QueryProvider } from '@molecule/app-query'
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
 import { provider as memoryProvider } from '@molecule/app-query-memory'
 import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
@@ -306,11 +306,16 @@ describe.each([
 
   it('refuses retention without a principal', async () => {
     await expect(
-      mountQuery(() => ({
-        key: ['list'],
-        keepPreviousData: true,
-        fetch: async () => [],
-      })),
+      mountQuery(
+        () =>
+          ({
+            key: ['list'],
+            keepPreviousData: true,
+            fetch: async () => [],
+            // Deliberately violating the type that requires `principal` with
+            // `keepPreviousData`, to assert the harness guard.
+          }) as unknown as QueryOptions<never[]>,
+      ),
     ).rejects.toThrow(/keepPreviousData requires principal/)
   })
 

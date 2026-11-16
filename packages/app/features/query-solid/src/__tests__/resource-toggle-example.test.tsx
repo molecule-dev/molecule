@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import './node-globals.js'
+import type { JSX } from 'solid-js'
 import * as SolidJS from 'solid-js'
 import * as SolidWeb from 'solid-js/web'
 import { render as solidRender } from 'solid-js/web'
@@ -35,17 +36,18 @@ interface Invoice {
   number: string
   flagged: boolean
 }
-interface Example {
+type Example = {
   invoices: QueryResource<Invoice>
-  InvoicePage: (props: { id: string }) => unknown
+  InvoicePage: (props: { id: string }) => JSX.Element
 }
 const initial: Invoice = { id: 'one', number: 'INV-1', flagged: false }
 const sourcePath = join(import.meta.dirname, '../index.ts')
 const doc = readFileSync(sourcePath, 'utf8').replace(/^ \* ?/gm, '')
-const snippet = [...doc.matchAll(/```tsx\n([\s\S]*?)```/g)].find((match) =>
+const snippetCandidate = [...doc.matchAll(/```tsx\n([\s\S]*?)```/g)].find((match) =>
   match[1]?.includes('export const invoices'),
 )?.[1]
-if (!snippet) throw new Error('Missing executable query-resource example')
+if (!snippetCandidate) throw new Error('Missing executable query-resource example')
+const snippet = snippetCandidate
 
 /** Bind services, retaining the example's actual UI, primitive and resource composition. */
 function compile(http: ResourceHttp): Example {

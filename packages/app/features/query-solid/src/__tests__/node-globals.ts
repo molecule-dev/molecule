@@ -61,7 +61,7 @@ class RealmTextDecoder {
    * @param input - The bytes (defaults to empty).
    * @returns The decoded text.
    */
-  decode(input?: ArrayBuffer | ArrayBufferView): string {
+  decode(input?: NodeJS.AllowSharedBufferSource): string {
     return nodeDecoder.decode(input ?? new Uint8Array())
   }
 }

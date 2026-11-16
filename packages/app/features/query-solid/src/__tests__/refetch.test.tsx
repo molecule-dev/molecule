@@ -27,7 +27,7 @@ describe.each([
   it('refreshes the rendered collection through the optional-method wrapper used by l2433', async () => {
     let serverRows = ['existing']
     const fetch = vi.fn(async () => [...serverRows])
-    const page = mountPage<string>(() => ({ key: ['comments', 'viewer', 'record'], fetch }))
+    const page = mountPage<string[]>(() => ({ key: ['comments', 'viewer', 'record'], fetch }))
     await settle()
     expect(page.text()).toBe('["existing"]')
     // The retained wrapper casts the query to { refetch?: () => Promise<unknown> } and calls

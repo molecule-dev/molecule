@@ -50,32 +50,38 @@ if (!snippet) throw new Error('Missing the published query-resource example')
 // The page below mirrors the published example with plain `inputs` (JIT
 // cannot see signal inputs); this compiles the published one itself, so the
 // documentation cannot drift from the installed public contracts.
-it('the complete resource example compiles against the installed public contracts', () => {
-  const file = join(here, '__resource-example__.ts')
-  const options: ts.CompilerOptions = {
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: [],
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Bundler,
-    experimentalDecorators: true,
-  }
-  const host = ts.createCompilerHost(options)
-  const getSourceFile = host.getSourceFile.bind(host)
-  host.getSourceFile = (path, languageVersion, onError, shouldCreateNewSourceFile) =>
-    path === file
-      ? ts.createSourceFile(path, snippet, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(path, languageVersion, onError, shouldCreateNewSourceFile)
-  const diagnostics = ts.getPreEmitDiagnostics(ts.createProgram([file], options, host))
-  expect(
-    diagnostics.map((item) => ({
-      line: item.file?.getLineAndCharacterOfPosition(item.start ?? 0).line,
-      message: ts.flattenDiagnosticMessageText(item.messageText, '\n'),
-    })),
-  ).toEqual([])
-})
+// The real program build over the installed contracts takes far longer than the
+// default test budget on a loaded machine; the timeout is the only slack added.
+it(
+  'the complete resource example compiles against the installed public contracts',
+  { timeout: 180_000 },
+  () => {
+    const file = join(here, '__resource-example__.ts')
+    const options: ts.CompilerOptions = {
+      strict: true,
+      noEmit: true,
+      skipLibCheck: true,
+      types: [],
+      target: ts.ScriptTarget.ES2022,
+      module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      experimentalDecorators: true,
+    }
+    const host = ts.createCompilerHost(options)
+    const getSourceFile = host.getSourceFile.bind(host)
+    host.getSourceFile = (path, languageVersion, onError, shouldCreateNewSourceFile) =>
+      path === file
+        ? ts.createSourceFile(path, snippet, languageVersion, true, ts.ScriptKind.TS)
+        : getSourceFile(path, languageVersion, onError, shouldCreateNewSourceFile)
+    const diagnostics = ts.getPreEmitDiagnostics(ts.createProgram([file], options, host))
+    expect(
+      diagnostics.map((item) => ({
+        line: item.file?.getLineAndCharacterOfPosition(item.start ?? 0).line,
+        message: ts.flattenDiagnosticMessageText(item.messageText, '\n'),
+      })),
+    ).toEqual([])
+  },
+)
 
 /** Host selectors minted so far (each example defines its own components). */
 let exampleCount = 0

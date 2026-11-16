@@ -9,20 +9,19 @@ import { join } from 'node:path'
 
 import './node-globals.js'
 import * as SolidJS from 'solid-js'
-import { createSignal } from 'solid-js'
+import { createSignal, type JSX } from 'solid-js'
 import * as SolidWeb from 'solid-js/web'
 import { render as solidRender } from 'solid-js/web'
 import ts from 'typescript'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createFetchClient, isHttpError } from '@molecule/app-http'
+import { t } from '@molecule/app-i18n'
 import type { QueryOptions, QueryProvider } from '@molecule/app-query'
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
 import { provider as memoryProvider } from '@molecule/app-query-memory'
 import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
 
-import { isHttpError } from '../../../../core/http/src/errors.js'
-import { createFetchClient } from '../../../../core/http/src/provider.js'
-import { t } from '../../../../core/i18n/src/translator.js'
 import { intentPrefetchProps, useQuery } from '../index.js'
 import { runExample } from './example-runner.js'
 import { settle } from './helpers.jsx'
@@ -33,7 +32,7 @@ interface PackageDocument {
 }
 
 interface DetailExample {
-  PackagePage: (props: { name: string }) => unknown
+  PackagePage: (props: { name: string }) => JSX.Element
   packageQuery: (name: string) => QueryOptions<PackageDocument | null>
 }
 
@@ -58,6 +57,7 @@ function compileSnippet<T>(code: string, names: string[]): T {
     'solid-js': SolidJS,
     'solid-js/web': SolidWeb,
     '@molecule/app-query-solid': { useQuery, intentPrefetchProps },
+    '@molecule/app-solid': { useTranslation: () => ({ t }) },
     '@molecule/app-http': { getClient: () => http, isHttpError },
     '@molecule/app-i18n': { t },
     '@molecule/app-query': { getQueryClient, setProvider },

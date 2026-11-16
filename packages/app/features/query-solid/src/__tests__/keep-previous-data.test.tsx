@@ -312,7 +312,9 @@ describe.each([
           key: ['list'],
           keepPreviousData: true,
           fetch: async () => [],
-        }),
+          // Deliberately violating the type that requires `principal` with
+          // `keepPreviousData`, to assert the hook's own runtime guard.
+        } as unknown as QueryOptions<never[]>),
       ),
     ).toThrow(/keepPreviousData requires principal/)
   })

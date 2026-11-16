@@ -245,7 +245,11 @@ it('a loaded null is missing rather than pending or actionable', async () => {
 it('follows each replaced query object: states move from pending through loaded to error', async () => {
   // An app passes a new `query` object per state, as React's conformance case
   // re-renders with one: a later object without `data` leaves the loaded branch.
-  const [query, setQuery] = createSignal<QueryContentProps<unknown>['query']>({ status: 'idle' })
+  const [query, setQuery] = createSignal<QueryContentProps<unknown>['query']>({
+    data: undefined,
+    status: 'idle',
+    error: undefined,
+  })
   const mounted = mountComponent(() => (
     <QueryContent
       query={query()}
@@ -264,11 +268,11 @@ it('follows each replaced query object: states move from pending through loaded 
   await settle()
   expect(mounted.host.querySelector('[data-state="pending"]')).not.toBeNull()
 
-  setQuery({ data: { name: 'pkg-a' }, status: 'success' })
+  setQuery({ data: { name: 'pkg-a' }, status: 'success', error: undefined })
   await settle()
   expect(mounted.host.querySelector('article')?.getAttribute('data-doc')).toBe('pkg-a')
 
-  setQuery({ status: 'error', error: { message: 'boom' } })
+  setQuery({ data: undefined, status: 'error', error: { message: 'boom' } })
   await settle()
   expect(mounted.host.querySelector('[data-state="error"]')?.textContent).toBe('failed: boom')
   expect(mounted.host.querySelector('article')).toBeNull()

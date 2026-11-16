@@ -17,14 +17,13 @@ import { Component as AngularComponent, computed, signal, type Type } from '@ang
 import ts from 'typescript'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createFetchClient, isHttpError } from '@molecule/app-http'
+import { t } from '@molecule/app-i18n'
 import type { QueryOptions, QueryProvider } from '@molecule/app-query'
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
 import { provider as memoryProvider } from '@molecule/app-query-memory'
 import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
 
-import { isHttpError } from '../../../../core/http/src/errors.js'
-import { createFetchClient } from '../../../../core/http/src/provider.js'
-import { t } from '../../../../core/i18n/src/translator.js'
 import { intentPrefetchProps, useQuery } from '../index.js'
 import { type ComponentMount, drain, mountComponent } from './harness.js'
 
@@ -302,6 +301,7 @@ function compileSnippet<T>(code: string, names: string[]): T {
   const http = createFetchClient({ baseURL: 'https://catalog.example', retry: { maxRetries: 0 } })
   const imports: Record<string, unknown> = {
     '@angular/core': { Component: AngularComponent, computed, input: () => () => undefined },
+    '@molecule/app-angular': { useTranslation: () => ({ t }) },
     '@molecule/app-query-angular': { useQuery, intentPrefetchProps },
     '@molecule/app-http': { getClient: () => http, isHttpError },
     '@molecule/app-i18n': { t },

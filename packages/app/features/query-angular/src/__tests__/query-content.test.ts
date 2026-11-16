@@ -226,7 +226,7 @@ it('follows a replaced query prop when the new observer answers', async () => {
     mountComponent<{ showSecond: ReturnType<typeof signal<boolean>> }>(Page),
   )
   expect(view.host.querySelector('button[data-record]')).toBeNull()
-  view.host.querySelector('button[data-flip]')!.click()
+  view.host.querySelector<HTMLButtonElement>('button[data-flip]')!.click()
   await view.settle()
   resolveSecond({ id: 'second' })
   await flush()
