@@ -124,6 +124,13 @@ if [ -n "$TS_STAGED" ]; then
   echo "$TS_STAGED" | xargs node scripts/check-syntax.mjs
 fi
 
+# Each staged package's @molecule peer floors must export what it imports (CI's
+# check:peer-floors, scoped to the packages whose package.json or src/ is staged;
+# no npm request when none is). 2026-11-16: a forms fix imported a type new in
+# app-forms 2.4.0 into five bindings under ^2.3.1, and nothing caught it before
+# CI failed on the release's version commit.
+echo "$STAGED" | node scripts/check-peer-floors.mjs --paths-from-stdin
+
 # .md is checked here (it was `.prettierignore`d until 2026-08-03, which is how
 # ~900 generated README.md files drifted). *.json is still ignored on purpose —
 # registry.json and the locale data are machine-written.

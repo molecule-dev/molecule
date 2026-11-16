@@ -10,6 +10,7 @@ import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
@@ -26,6 +27,7 @@ import {
   fetchPublishedVersions,
   findFloorGaps,
   namedImports,
+  packagesForPaths,
   prefetchTarballs,
   publishedExports,
   scanFleet,
@@ -561,6 +563,88 @@ describe('scanFleet', () => {
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
+  })
+
+  // The pre-commit hook passes the staged paths (2026-11-16: a forms fix imported a type
+  // new in app-forms 2.4.0 into five bindings under ^2.3.1; only CI on the release's
+  // version commit caught it).
+  const twoBindings = () =>
+    tree({
+      'packages/app/core/forms/package.json': JSON.stringify({
+        name: '@molecule/app-forms',
+        version: '2.4.0',
+      }),
+      'packages/app/core/forms/src/index.ts': 'export type FormUpdateOptions = {}',
+      'packages/app/frameworks/react/package.json': JSON.stringify({
+        name: '@molecule/app-react',
+        version: '4.7.1',
+        peerDependencies: { '@molecule/app-forms': '^2.2.0' },
+      }),
+      'packages/app/frameworks/react/src/useForm.ts':
+        "import type { FormUpdateOptions } from '@molecule/app-forms'",
+      'packages/app/frameworks/vue/package.json': JSON.stringify({
+        name: '@molecule/app-vue',
+        version: '3.7.1',
+        peerDependencies: { '@molecule/app-ui': '^1.0.0' },
+      }),
+      'packages/app/frameworks/vue/src/useForm.ts':
+        "import { getClassMap } from '@molecule/app-ui'",
+    })
+
+  it('maps paths to the packages whose package.json or src/ they are', () => {
+    const root = twoBindings()
+    try {
+      expect(
+        packagesForPaths(root, [
+          'packages/app/frameworks/react/src/useForm.ts',
+          'packages/app/frameworks/vue/package.json',
+          'packages/app/frameworks/vue/README.md',
+          'packages/app/core/forms/CHANGELOG.md',
+          'scripts/check-peer-floors.mjs',
+        ]),
+      ).toEqual(new Set(['packages/app/frameworks/react', 'packages/app/frameworks/vue']))
+      expect(packagesForPaths(root, ['README.md', 'package-lock.json'])).toEqual(new Set())
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('checks only the packages it is given, and asks npm only about their peers', async () => {
+    const root = twoBindings()
+    try {
+      const versionsOf = vi.fn(async (names: string[]) => {
+        expect(names).toEqual(['@molecule/app-forms'])
+        return new Map([['@molecule/app-forms', ['2.2.0', '2.3.1']]])
+      })
+      const rows = await scanFleet(
+        root,
+        {
+          versionsOf,
+          prefetch: async () => undefined,
+          exportsAt: () => new Set<string>(),
+        },
+        { only: new Set(['packages/app/frameworks/react']) },
+      )
+      expect(versionsOf).toHaveBeenCalledTimes(1)
+      expect(rows.map((r: { package: string }) => r.package)).toEqual(['@molecule/app-react'])
+      expect(rows[0].gaps[0]).toMatchObject({ floor: '2.2.0', fix: '^2.4.0' })
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('exits clean without an npm request when no path belongs to a package', () => {
+    // An unroutable registry: any request would fail the run.
+    const out = execFileSync(
+      process.execPath,
+      [fileURLToPath(new URL('../check-peer-floors.mjs', import.meta.url)), '--paths-from-stdin'],
+      {
+        input: 'README.md\npackage-lock.json\n',
+        env: { ...process.env, npm_config_registry: 'http://127.0.0.1:9/' },
+        encoding: 'utf8',
+      },
+    )
+    expect(out).toBe('')
   })
 })
 

@@ -56,6 +56,15 @@
  * Usage:
  *   node scripts/check-peer-floors.mjs            # check (exit 1 on any offender)
  *   node scripts/check-peer-floors.mjs --json     # machine-readable report
+ *   git diff --cached --name-only | node scripts/check-peer-floors.mjs --paths-from-stdin
+ *                                                 # only the packages those paths belong to
+ *
+ * `--paths-from-stdin` is what molecule's pre-commit hook runs: a package is checked when
+ * a staged path is its package.json or under its src/, and nothing reaches npm when no
+ * staged path belongs to a package. (2026-11-16: a forms fix taught five framework
+ * bindings to import `FormUpdateOptions`, new in app-forms 2.4.0, under `^2.2.0` and
+ * `^2.3.1`; nothing ran this check until CI on the release's version commit, which failed
+ * and held the whole package wave for a second CI pass.)
  */
 import { Buffer } from 'node:buffer'
 import { execFile } from 'node:child_process'
@@ -459,12 +468,32 @@ function findPackages(dir, out = []) {
 }
 
 /**
+ * The package directories a set of repo paths belongs to: a path counts for a package
+ * when it is that package's package.json or lies under its src/.
+ *
+ * @param root - The monorepo root (its `packages/` is scanned).
+ * @param paths - Paths relative to `root`, as `git diff --name-only` prints them.
+ * @returns Package directories relative to `root`.
+ */
+export function packagesForPaths(root, paths) {
+  const dirs = findPackages(join(root, 'packages')).map((dir) => relative(root, dir))
+  const out = new Set()
+  for (const path of paths) {
+    const dir = dirs.find((d) => path === `${d}/package.json` || path.startsWith(`${d}/src/`))
+    if (dir) out.add(dir)
+  }
+  return out
+}
+
+/**
  * Read every publishable package and the names it imports from its `@molecule/*` peers.
  *
  * @param root - The monorepo root (its `packages/` is scanned).
+ * @param only - Package directories relative to `root` to read imports for; null reads all.
+ *   Every manifest is still read, for the workspace versions.
  * @returns The packages with their imports, and every workspace version by name.
  */
-function readFleet(root) {
+function readFleet(root, only = null) {
   const manifests = findPackages(join(root, 'packages')).map((dir) => ({
     dir,
     pkg: JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')),
@@ -486,6 +515,7 @@ function readFleet(root) {
   const packages = []
   for (const { dir, pkg } of manifests) {
     if (pkg.private) continue
+    if (only && !only.has(relative(root, dir))) continue
     const peers = Object.keys(pkg.peerDependencies ?? {}).filter((n) => n.startsWith('@molecule/'))
     if (peers.length === 0) continue
     const srcRoot = join(dir, 'src')
@@ -522,6 +552,8 @@ function readFleet(root) {
  * @param deps - Injected npm access: `versionsOf` (see {@link fetchPublishedVersions}),
  *   `exportsAt` (see {@link findFloorGaps}) and `prefetch`, which receives each
  *   `name@version` before it is read.
+ * @param options - `only`: package directories relative to `root` to check (see
+ *   {@link packagesForPaths}); omitted checks every package.
  * @returns One row per package with a gap.
  */
 export async function scanFleet(
@@ -531,8 +563,9 @@ export async function scanFleet(
     exportsAt = publishedExports,
     prefetch = prefetchTarballs,
   } = {},
+  { only = null } = {},
 ) {
-  const { packages, workspaceVersions } = readFleet(root)
+  const { packages, workspaceVersions } = readFleet(root, only)
   const publishedVersions = await versionsOf([
     ...new Set(
       packages.flatMap(({ pkg, imports }) =>
@@ -565,11 +598,20 @@ export async function scanFleet(
 
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
 if (isMain) {
-  const rows = await scanFleet()
+  const only = process.argv.includes('--paths-from-stdin')
+    ? packagesForPaths(ROOT, readFileSync(0, 'utf8').split('\n').filter(Boolean))
+    : null
+  const rows = only?.size === 0 ? [] : await scanFleet(ROOT, {}, { only })
   if (process.argv.includes('--json')) {
     console.log(JSON.stringify(rows, null, 2))
+  } else if (only?.size === 0) {
+    // No staged path belongs to a package: nothing to check, and no npm request.
   } else if (rows.length === 0) {
-    console.log('✓ every @molecule peer floor exports the names its dependents import')
+    console.log(
+      only
+        ? `✓ the @molecule peer floors of ${only.size} package(s) export the names they import`
+        : '✓ every @molecule peer floor exports the names its dependents import',
+    )
   } else {
     for (const row of rows) {
       for (const gap of row.gaps) {
