@@ -18,9 +18,16 @@
 import { join } from 'node:path'
 
 import ts from 'typescript'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { createForm } from '../index.js'
+
+/**
+ * Parsed lib and package files, shared by every probe. Each probe is its own
+ * program, and re-parsing `lib.dom.d.ts` and the package sources for every one
+ * took ~1 s a probe, enough to time out the eight-probe case on a loaded CI runner.
+ */
+const parsedFiles = new Map<string, ts.SourceFile | undefined>()
 
 /**
  * Compiles `source` as if it were a file in this package and returns the
@@ -45,10 +52,17 @@ function diagnosticsFor(source: string): string[] {
   const getSourceFile = host.getSourceFile.bind(host)
   const fileExists = host.fileExists.bind(host)
   const readFile = host.readFile.bind(host)
-  host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
-    fileName === virtualFile
-      ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+  host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+    if (fileName === virtualFile)
+      return ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
+    const key = `${fileName}\u0000${JSON.stringify(languageVersion)}`
+    if (!parsedFiles.has(key))
+      parsedFiles.set(
+        key,
+        getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile),
+      )
+    return parsedFiles.get(key)
+  }
   host.fileExists = (fileName) => fileName === virtualFile || fileExists(fileName)
   host.readFile = (fileName) => (fileName === virtualFile ? source : readFile(fileName))
   const program = ts.createProgram([virtualFile], options, host)
@@ -58,6 +72,11 @@ function diagnosticsFor(source: string): string[] {
 }
 
 describe('form values accept an ordinary interface', () => {
+  // The one-time parse of the libs and the package is setup, not any one probe's work.
+  beforeAll(() => {
+    diagnosticsFor(`import '../index.js'\n`)
+  }, 120_000)
+
   it('types FormOptions, FormState, FormController and createForm from an interface', () => {
     const diagnostics = diagnosticsFor(`
 import { createForm, createNativeFormProvider } from '../index.js'
