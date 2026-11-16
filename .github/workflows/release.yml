@@ -57,6 +57,14 @@ on:
         description: 'Who dispatched (agent-presence session id). Tags the run-name so the dispatcher watches its OWN run — see run-name above.'
         required: false
         type: string
+      phase:
+        description: 'all (default), or updates plus their new requirements. The release runner owns the later tail dispatch.'
+        required: false
+        type: choice
+        default: all
+        options:
+          - all
+          - updates
 
 # Two dispatches queue rather than one killing the other mid-flight — a full
 # fleet publish takes ~3h at delay=20, and the publisher is resumable, so
@@ -233,6 +241,7 @@ jobs:
           MOL_PUBLISH_DELAY: ${{ inputs.delay }}
           MOL_PUBLISH_HOLD: ${{ inputs.hold }}
           MOL_REVIEW_HOLD: ${{ inputs.review_hold }}
+          MOL_PUBLISH_PHASE: ${{ inputs.phase }}
 
       # npm's own reason for a refused publish lives only in its debug log (its
       # ENEEDAUTH line says nothing about why the OIDC exchange gave no

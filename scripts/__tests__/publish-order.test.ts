@@ -66,8 +66,8 @@ describe('exactMoleculeDeps', () => {
         peerDependencies: { '@molecule/e': '1.0.0' },
       }),
     ).toEqual([
-      { name: '@molecule/c', version: '2.1.0' },
       { name: '@molecule/a', version: '1.0.0' },
+      { name: '@molecule/c', version: '2.1.0' },
     ])
   })
 })

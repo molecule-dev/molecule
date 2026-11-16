@@ -61,9 +61,9 @@ import {
   withoutHeldPackages,
 } from './lib/held-changesets.mjs'
 import {
-  dependencyOrder,
   exactMoleculeDeps,
   missingDependency,
+  publicationPlan,
   requiredMoleculePeers,
   requiredPeerCycles,
 } from './lib/publish-order.mjs'
@@ -89,6 +89,8 @@ const flag = (name, fallback) => {
 const DELAY_S = flag('delay', envPublishDelaySeconds(process.env.MOL_PUBLISH_DELAY))
 const LIMIT = flag('limit', Number(process.env.MOL_PUBLISH_LIMIT) || Infinity)
 const DRY = args.includes('--dry-run')
+const PHASE = process.env.MOL_PUBLISH_PHASE || 'all'
+if (!['all', 'updates'].includes(PHASE)) throw new Error(`invalid MOL_PUBLISH_PHASE: ${PHASE}`)
 // Packages the release holds because npm refused them (MOL_PUBLISH_HOLD, the
 // Release workflow's `hold` input). They are still tried, so they ship the run
 // after their trust link is fixed, but LAST, and their refusals never count as
@@ -424,20 +426,26 @@ all.sort((a, b) => a.name.localeCompare(b.name))
 
 if (DRY) {
   const missing = []
+  let unknown = 0
   let cursor = 0
   const worker = async () => {
     while (cursor < all.length) {
       const pkg = all[cursor++]
-      if ((await isPublished(pkg.name, pkg.version)) === false) missing.push(pkg)
+      const state = await isPublished(pkg.name, pkg.version)
+      if (state === false) missing.push(pkg)
+      else if (state === null) unknown++
     }
   }
   await Promise.all(Array.from({ length: 8 }, worker))
-  missing.sort((a, b) => a.name.localeCompare(b.name))
+  const pending = missing.length
+  const plan = publicationPlan(missing, { last: HOLD, registry: knownVersions() })
+  missing.splice(0, missing.length, ...(PHASE === 'updates' ? plan.consumer : plan.ordered))
   process.stderr.write(
-    `already published: ${all.length - missing.length} | to publish: ${missing.length}\n`,
+    `already published: ${all.length - pending - unknown} | to publish: ${missing.length}` +
+      ` | deferred: ${pending - missing.length} | unknown: ${unknown}\n`,
   )
   missing.forEach((p) => console.log(`${p.name}@${p.version}`))
-  process.exit(0)
+  process.exit(unknown ? 1 : 0)
 }
 
 // How many packages must fail auth, with NONE succeeding, before the run calls
@@ -463,17 +471,27 @@ let failed = []
 // next package cannot succeed and only makes things worse.
 let abortReason = null
 
-// Find what needs publishing with CONCURRENT reads, stopping as soon as we have
-// enough for this run. Two earlier designs each failed on one half of this:
-//
-//   - an upfront sweep of all 910 was fast at skipping but cost minutes of
-//     silence before a --limit 1 run could publish anything;
-//   - a lazy sequential check started instantly but crawled, because it walks the
-//     ~333 already-published packages one at a time and each read can cost up to
-//     30s under a slow registry. A real run sat at "checked 50/910" for 30 min.
-//
-// Reads are not the rate-limited path (a full 910 sweep hit zero read-429s), so
-// concurrency is safe here — only PUBLISHES must stay single-threaded and paced.
+/**
+ * Stop every upload after npm's account-wide limiter, including diagnostics.
+ *
+ * @param pkg - The package npm refused.
+ */
+function abortForRateLimit(pkg) {
+  process.stderr.write(
+    `\n✗ RATE LIMITED on ${pkg.name}\n` +
+      `  Published ${done} package(s) this run before hitting the limiter.\n` +
+      `  Stopping immediately — per npm support, continued attempts keep the\n` +
+      `  window shut. Wait a FULL 24h with zero publish attempts (including\n` +
+      `  CI), then resume in small batches:  --limit 25 --delay 20\n`,
+  )
+  abortReason = 'rate limited'
+}
+
+// Scan the fleet with bounded concurrent reads before choosing a limited batch.
+// Stopping at the first N missing names would fill a small batch with alphabetic
+// newcomers before ever seeing an update at the end of the alphabet. The scan
+// also supplies the complete queued requirement graph for both publish tiers.
+// Only uploads are single-threaded and paced.
 const todo = []
 // Packages whose registry read was INCONCLUSIVE (state === null). They are
 // rightly not published blind — but they must be REPORTED and must fail the
@@ -486,11 +504,10 @@ const inconclusive = []
 // stops it can say re-dispatching will not help.
 const cycleNotes = new Map()
 {
-  const want = LIMIT === Infinity ? all.length : LIMIT
   let cursor = 0
   let scanned = 0
   const worker = async () => {
-    while (cursor < all.length && todo.length < want) {
+    while (cursor < all.length) {
       const pkg = all[cursor++]
       const state = await isPublished(pkg.name, pkg.version)
       scanned++
@@ -507,9 +524,11 @@ const cycleNotes = new Map()
     }
   }
   await Promise.all(Array.from({ length: 8 }, worker))
-  // Dependencies and required peers first (lib/publish-order.mjs says why).
-  // Held packages after everything else (their dependents follow them anyway).
-  todo.splice(0, todo.length, ...dependencyOrder(todo, { last: HOLD, registry: knownVersions() }))
+  // Existing consumers first, including new requirements. The updates-only
+  // dispatch confines propagation deferrals to this lane: pushing an update to
+  // the end of a 500-package first-publish tail would defeat its priority.
+  const plan = publicationPlan(todo, { last: HOLD, registry: knownVersions() })
+  todo.splice(0, todo.length, ...(PHASE === 'updates' ? plan.consumer : plan.ordered))
   // Required peers can wait on each other, and then NO order of this queue makes
   // both installable. Name the cycle once per member, so a re-dispatch is not
   // mistaken for the answer; the gate below still refuses each member itself.
@@ -731,6 +750,10 @@ for (const pkg of todo) {
       const reason = (errLines.length ? errLines.slice(-4) : out.trim().split('\n').slice(-4))
         .join(' | ')
         .slice(0, 400)
+      if (/E429|429 Too Many/i.test(out)) {
+        abortForRateLimit(pkg)
+        break
+      }
       if (error.signal === 'SIGKILL') {
         // Killed by our own timeout. Report it as itself rather than letting it
         // land in the generic bucket, where a hang looks like a publish error.
@@ -743,19 +766,6 @@ for (const pkg of todo) {
       if (/cannot publish over|EPUBLISHCONFLICT|previously published/i.test(out)) {
         published = true // Already there; done, not an error.
         how = 'already on registry (publish conflict)'
-      } else if (/E429|429 Too Many/i.test(out)) {
-        // STOP THE ENTIRE RUN. Do not retry, do not continue to the next package
-        // — the limiter is account-wide, so every subsequent attempt both fails
-        // and extends the cooldown.
-        process.stderr.write(
-          `\n✗ RATE LIMITED on ${pkg.name}\n` +
-            `  Published ${done} package(s) this run before hitting the limiter.\n` +
-            `  Stopping immediately — per npm support, continued attempts keep the\n` +
-            `  window shut. Wait a FULL 24h with zero publish attempts (including\n` +
-            `  CI), then resume in small batches:  --limit 25 --delay 20\n`,
-        )
-        abortReason = 'rate limited'
-        break
       } else if (
         /ENEEDAUTH|E401|401 Unauthorized|EOTP/i.test(out) &&
         (HOLD.has(pkg.name) ||
@@ -842,13 +852,21 @@ for (const pkg of todo) {
           published = true
           process.stderr.write(`      ${pkg.name}: published on the traced retry\n`)
         } catch (trace) {
-          const traced = `${trace.stdout ?? ''}${trace.stderr ?? ''}`
-            .split('\n')
-            .filter((line) => /oidc|trusted|exchange|id[-_ ]token|provenance/i.test(line))
-            .slice(0, 25)
-          process.stderr.write(
-            `      OIDC trace for ${pkg.name}:\n      ${traced.join('\n      ') || '(npm printed no OIDC lines — the exchange was never attempted)'}\n`,
-          )
+          const traceOutput = `${trace.stdout ?? ''}${trace.stderr ?? ''}`
+          if (/E429|429 Too Many/i.test(traceOutput)) {
+            // Replace the obsolete auth diagnosis with the final refusal below.
+            // The diagnostic is an upload too: it must stop the entire queue.
+            failed.pop()
+            abortForRateLimit(pkg)
+          } else {
+            const traced = traceOutput
+              .split('\n')
+              .filter((line) => /oidc|trusted|exchange|id[-_ ]token|provenance/i.test(line))
+              .slice(0, 25)
+            process.stderr.write(
+              `      OIDC trace for ${pkg.name}:\n      ${traced.join('\n      ') || '(npm printed no OIDC lines — the exchange was never attempted)'}\n`,
+            )
+          }
         }
         // BREAK OUT OF THE RETRY LOOP. Retrying an auth rejection cannot help —
         // the credential does not change between attempts — and without this the

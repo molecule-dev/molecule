@@ -44,8 +44,14 @@ import semver from 'semver'
  * @returns `{ name, version }` per exact pin.
  */
 export function exactMoleculeDeps(manifest) {
-  return Object.entries({ ...manifest.optionalDependencies, ...manifest.dependencies })
-    .filter(([name, range]) => name.startsWith('@molecule/') && /^\d+\.\d+\.\d+$/.test(range))
+  // npm gives a same-named optional dependency precedence over dependencies.
+  return Object.entries({ ...manifest.dependencies, ...manifest.optionalDependencies })
+    .filter(
+      ([name, version]) =>
+        name.startsWith('@molecule/') &&
+        typeof version === 'string' &&
+        semver.valid(version) === version,
+    )
     .map(([name, version]) => ({ name, version }))
 }
 
@@ -130,11 +136,15 @@ function queuedPeerToWaitFor(peer, queuedPeer, registry) {
  * but only when no published version already satisfies the range.
  *
  * @param queue - `{ name, version, deps, peers }` entries.
- * @param options - `last`: names to publish after everything that does not need
+ * @param options - `first`: consumer names whose requirements publish first.
+ *   `last`: names to publish after everything that does not need
  *   them. `registry`: published versions per package name, as this run read them.
  * @returns A new array in publish order.
  */
-export function dependencyOrder(queue, { last = new Set(), registry = new Map() } = {}) {
+export function dependencyOrder(
+  queue,
+  { first = new Set(), last = new Set(), registry = new Map() } = {},
+) {
   const byName = new Map(queue.map((p) => [p.name, p]))
   /**
    * The queue entries this one cannot be published before.
@@ -166,9 +176,17 @@ export function dependencyOrder(queue, { last = new Set(), registry = new Map() 
       }
     }
   }
-  const sorted = [...queue].sort(
-    (a, b) => Number(late.has(a.name)) - Number(late.has(b.name)) || a.name.localeCompare(b.name),
-  )
+  // Promote requirements with their consumer, rather than delaying an update
+  // behind the entire first-publish tier when it needs one new package.
+  const early = new Set()
+  const promote = (pkg) => {
+    if (early.has(pkg.name)) return
+    early.add(pkg.name)
+    for (const dep of waitsOn(pkg)) promote(dep)
+  }
+  for (const pkg of queue) if (first.has(pkg.name)) promote(pkg)
+  const tier = (pkg) => (late.has(pkg.name) ? 2 : early.has(pkg.name) ? 0 : 1)
+  const sorted = [...queue].sort((a, b) => tier(a) - tier(b) || a.name.localeCompare(b.name))
   const seen = new Set()
   const ordered = []
   const visit = (pkg) => {
@@ -179,6 +197,74 @@ export function dependencyOrder(queue, { last = new Set(), registry = new Map() 
   }
   sorted.forEach(visit)
   return ordered
+}
+
+/**
+ * Whether npm has served a usable release of this name. trust:new's bootstrap
+ * versions establish the OIDC link, not an installed consumer: count those
+ * names with first publishes until their first real version lands.
+ *
+ * @param versions - Served versions, or null when unreadable.
+ * @returns True for a name with a release other than a trust placeholder.
+ */
+export function hasPublishedRelease(versions) {
+  return (
+    Array.isArray(versions) &&
+    versions.some((version) => !/^0\.(?:0\.[01]|1\.0)-stage(?:\.\d+)?$/.test(version))
+  )
+}
+
+/**
+ * Plan the consumer lane and the first-publish tail using the same requirement
+ * edges as the publisher. Unknown names cannot be classified as new. A hold
+ * needed by an update disables splitting, preserving the global try-last tier.
+ *
+ * @param queue - Missing versions with exact dependencies and required peers.
+ * @param options - Registry version lists and npm-recovery holds.
+ * @returns The ordered queue, consumer requirements, tail, and split decision.
+ */
+export function publicationPlan(queue, { registry, last = new Set() }) {
+  for (const pkg of queue) {
+    if (!Array.isArray(registry.get(pkg.name)))
+      throw new Error(`cannot classify publish queue: registry unreadable for ${pkg.name}`)
+  }
+  const updates = new Set(
+    queue.filter((p) => hasPublishedRelease(registry.get(p.name))).map((p) => p.name),
+  )
+  const ordered = dependencyOrder(queue, { first: updates, last, registry })
+  // dependencyOrder's prefix is the transitive requirement closure of updates.
+  // Compute that closure independently of sort position: a late update must
+  // never turn unrelated first publishes into consumer requirements.
+  const required = new Set(updates)
+  const byName = new Map(queue.map((p) => [p.name, p]))
+  for (let grew = true; grew;) {
+    grew = false
+    for (const name of [...required]) {
+      const pkg = byName.get(name)
+      const requirements = [
+        ...(pkg.deps ?? []).map((dep) => {
+          const queued = byName.get(dep.name)
+          return queued?.version === dep.version ? queued : null
+        }),
+        ...(pkg.peers ?? []).map((peer) =>
+          queuedPeerToWaitFor(peer, byName.get(peer.name), registry),
+        ),
+      ]
+      for (const dep of requirements)
+        if (dep && !required.has(dep.name)) {
+          required.add(dep.name)
+          grew = true
+        }
+    }
+  }
+  const consumer = ordered.filter((p) => required.has(p.name))
+  const tail = ordered.filter((p) => !required.has(p.name))
+  return {
+    ordered,
+    consumer,
+    tail,
+    split: consumer.length > 0 && tail.length > 0 && !consumer.some((p) => last.has(p.name)),
+  }
 }
 
 /**
@@ -303,8 +389,11 @@ export function missingDependency(
     return Array.isArray(versions) && versions.includes(dep.version)
   }
   const missingExact = (pkg.deps ?? []).find((dep) => {
-    if (servesExact(dep)) return false
     const id = `${dep.name}@${dep.version}`
+    if (servesExact(dep) || published.has(id)) return false
+    // A real read outranks queue membership. A requirement outside this
+    // checkout can be absent too; not queued never means already served.
+    if (registry.has(dep.name)) return true
     return queued.has(id) ? !published.has(id) : unknown.has(id)
   })
   if (missingExact) {
@@ -313,6 +402,8 @@ export function missingDependency(
     const state = awaiting.get(`${missingExact.name}@${missingExact.version}`)
     if (state === 'unknown') return { ...missingExact, why: 'registry-unknown' }
     if (state === 'pending') return { ...missingExact, why: 'not-served-yet' }
+    if (registry.has(missingExact.name) && !Array.isArray(registry.get(missingExact.name)))
+      return { ...missingExact, why: 'registry-unknown' }
     return missingExact
   }
   for (const peer of pkg.peers ?? []) {
