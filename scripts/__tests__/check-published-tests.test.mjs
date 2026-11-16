@@ -1,10 +1,11 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { findPublishedTests, withTestExclude } from '../check-published-tests.mjs'
+import { findPublishedTests, listFiles, withTestExclude } from '../check-published-tests.mjs'
 
 const roots = []
 afterEach(() => {
@@ -103,6 +104,26 @@ describe('check:published-tests', () => {
       'packages/app/c',
     ])
     expect(findings[1].problem).toContain('unknown build (vite build)')
+  })
+
+  it('lists the untracked new packages of a checkout, but not what git ignores', () => {
+    const { root } = tree({
+      'packages/app/old': { ...tsc(), 'tsconfig.json': '{}\n' },
+      'packages/app/new': { ...tsc(), 'tsconfig.json': '{}\n' },
+      'packages/app/new/dist': { 'index.js': '' },
+    })
+    const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' })
+    git('init', '-q')
+    writeFileSync(join(root, '.gitignore'), 'dist/\n')
+    git('add', 'packages/app/old')
+    const files = listFiles(realpathSync(root))
+    expect(files).toContain('packages/app/old/tsconfig.json')
+    expect(files).toContain('packages/app/new/tsconfig.json')
+    expect(files).not.toContain('packages/app/new/dist/index.js')
+    expect(findPublishedTests(realpathSync(root), files).map((finding) => finding.dir)).toEqual([
+      'packages/app/new',
+      'packages/app/old',
+    ])
   })
 
   it('--fix adds the exclude in the file’s own formatting', () => {

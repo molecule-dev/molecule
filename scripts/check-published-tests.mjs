@@ -142,20 +142,26 @@ export function findPublishedTests(root, files) {
 }
 
 /**
- * Every file under `packages/`: the tracked ones in a checkout, or every file of an export
- * (the pre-commit hook runs this from an export of the index, which has no `.git`).
+ * Every file under `packages/`: in a checkout the tracked ones and the untracked ones git does
+ * not ignore (a new package is checked, and `--fix` reaches it, before it is staged), or every
+ * file of an export (the pre-commit hook runs this from an export of the index, which has no
+ * `.git`).
  *
  * @param root - The repo root, or the export's.
  * @returns Paths relative to the root.
  */
-function listFiles(root) {
+export function listFiles(root) {
   const top = spawnSync('git', ['rev-parse', '--show-toplevel'], { cwd: root, encoding: 'utf8' })
   if (top.status === 0 && top.stdout.trim() === root)
-    return execFileSync('git', ['ls-files', 'packages'], {
-      cwd: root,
-      encoding: 'utf8',
-      maxBuffer: 1 << 28,
-    })
+    return execFileSync(
+      'git',
+      ['ls-files', '--cached', '--others', '--exclude-standard', 'packages'],
+      {
+        cwd: root,
+        encoding: 'utf8',
+        maxBuffer: 1 << 28,
+      },
+    )
       .split('\n')
       .filter(Boolean)
   const files = []
