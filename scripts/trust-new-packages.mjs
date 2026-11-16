@@ -30,7 +30,8 @@
  * The placeholder is built and published from an export of the committed HEAD
  * (lib/committed-export.mjs), never from the checkout, which other sessions
  * share: their uncommitted edits can neither fail the build nor reach npm. A
- * package that is not committed yet is refused until it is.
+ * package that is not committed yet is left for a later run (one summary line),
+ * and does not fail the run.
  *
  * Non-interactive callers (CI, a piped shell) warn and exit 0 — a hook that
  * hangs on a tty nobody is watching is worse than a late failure.
@@ -605,7 +606,17 @@ const npmPublish = (args, cwd) =>
 
 const ledger = readTrustLedger()
 const ledgerBefore = new Set(ledger)
+/** Packages npm refused or a call failed for, after the phone was asked. */
 const failed = []
+/** Packages refused before any npm call: their build, install or pack is not ready. */
+const refused = []
+/**
+ * New packages not in the committed tree yet: another session's work in progress. They are
+ * left for a later run, not failed: nothing about this run can publish them.
+ */
+const uncommitted = []
+/** Packages this run trusted or re-linked. */
+const trusted = []
 
 /**
  * This run's export of HEAD, once a first publish needs it.
@@ -642,6 +653,7 @@ for (const signal of ['SIGINT', 'SIGTERM'])
  * @param name - The package.
  */
 const record = (name) => {
+  trusted.push(name)
   ledger.add(name)
   writeFileSync(TRUST_STATE_PATH, `${JSON.stringify([...ledger].sort(), null, 2)}\n`)
 }
@@ -662,13 +674,18 @@ for (const pkg of untrusted) {
   // session's uncommitted edit to a dependency failed this build (or was published) when it
   // read the working tree (lib/committed-export.mjs).
   if (!existsSync(join(committedTree().dir, pkg.dir, 'package.json'))) {
-    console.error(
-      `  ✗ ${pkg.name}: not committed yet — only committed code is published; commit it, then run trust:new again`,
-    )
-    failed.push(pkg.name)
+    uncommitted.push(pkg.name)
     continue
   }
   firstPublishes.push(pkg)
+}
+if (uncommitted.length) {
+  const shown = uncommitted.slice(0, 5).join(', ')
+  const more = uncommitted.length > 5 ? `, and ${uncommitted.length - 5} more` : ''
+  console.log(
+    `  ${uncommitted.length} new package(s) are not committed yet, so they are left for a later run ` +
+      `(only committed code is published): ${shown}${more}`,
+  )
 }
 // The export resolves third-party packages from this repo's own install only. A dependency
 // that install lacks fails the build with `Cannot find module`, after the halving search below
@@ -685,7 +702,7 @@ for (const pkg of firstPublishes.filter((p) => unresolved.has(p.dir))) {
     `  ✗ ${pkg.name}: its build needs ${unresolved.get(pkg.dir).join(', ')}, which this repo's ` +
       'node_modules does not have — run `npm install` here, then trust:new again',
   )
-  failed.push(pkg.name)
+  refused.push(pkg.name)
   firstPublishes.splice(firstPublishes.indexOf(pkg), 1)
 }
 if (firstPublishes.length) {
@@ -707,7 +724,7 @@ const builds = buildFirstPublishes(
 )
 for (const name of builds.failed) {
   console.error(`  ✗ ${name}: not publishable — the build printed the reason above`)
-  failed.push(name)
+  refused.push(name)
 }
 for (const pkg of firstPublishes) {
   if (!builds.built.includes(pkg.name)) continue
@@ -787,10 +804,12 @@ for (const pkg of firstPublishes) {
         ? error.message
         : 'the build printed the reason above'
     console.error(`  ✗ ${pkg.name}: not publishable — ${reason}`)
-    failed.push(pkg.name)
+    refused.push(pkg.name)
   }
 }
-const ready = untrusted.filter((pkg) => !failed.includes(pkg.name))
+const ready = untrusted.filter(
+  (pkg) => !refused.includes(pkg.name) && !uncommitted.includes(pkg.name),
+)
 progress.names = ready.map((pkg) => pkg.name)
 if (!ready.length) {
   console.error(
@@ -982,16 +1001,20 @@ if (!CI) {
     )
 }
 
-if (failed.length) {
+if (refused.length)
   console.error(
-    `\n${failed.length} failed. If the code expired mid-run, the successes above\n` +
-      `are saved — run \`npm run trust:new\` with a fresh code to finish.`,
+    `\n${refused.length} could not be published (reasons above): fix them, then run ` +
+      '`npm run trust:new` again.',
   )
-  process.exit(1)
-}
+if (failed.length)
+  console.error(
+    `\n${failed.length} failed at npm (reasons above). The packages trusted before that are ` +
+      'saved: run `npm run trust:new` again (with a fresh code if the last one expired) to finish.',
+  )
+if (refused.length || failed.length) process.exit(1)
 
 console.log(
-  `\nTrusted ${untrusted.length}. Their links are PENDING until CI publishes through them — npm ` +
+  `\nTrusted ${trusted.length}. Their links are PENDING until CI publishes through them — npm ` +
     'gives about two days. Run the release now so CI publishes their real versions:\n' +
     '  node ../scripts/release.mjs --only=gates,version,publish,pins,lockfiles\n' +
     'Then `node ../scripts/audit-npm-trust.mjs` lists any package still never published over OIDC.',

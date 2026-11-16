@@ -402,6 +402,25 @@ describe("trust:new with the owner's phone", { timeout: RUN_MS }, () => {
     expect(new Set(run.calls.map((c) => c.name))).toEqual(new Set([A, B]))
   })
 
+  it("leaves another session's uncommitted packages for later without failing the run (OLD MUSTFAIL)", async () => {
+    // A and B need re-linking; C and D are new and only in the working tree.
+    const C = '@molecule/api-demo-c'
+    const D = '@molecule/api-demo-d'
+    const root = scratchRepo({ names: [A, B, C, D] })
+    commitLedger(root, new Date(Date.now() - 3 * 24 * 3_600_000))
+    const { socketPath } = await phoneService(root, [{ status: 'code', code: '424242' }])
+    const run = await runTrustNew(root, [], { codes: { '424242': 6 }, absent: [C, D] }, socketPath)
+    expect(run.code, run.out).toBe(0)
+    expect(run.out).toMatch(
+      `2 new package(s) are not committed yet, so they are left for a later run (only committed code is published): ${C}, ${D}`,
+    )
+    // Nothing went wrong at npm, so no code-expiry advice, and the count is what was trusted.
+    expect(run.out).not.toMatch(/failed|expired/)
+    expect(run.out).toMatch(/Trusted 2\./)
+    expect(ledgerOf(root).sort()).toEqual([A, B])
+    expect(new Set(run.calls.map((c) => c.name))).toEqual(new Set([A, B]))
+  })
+
   it('a case that ends while its run still waits on the phone leaves no process behind', async () => {
     const root = scratchRepo()
     let asked = (): void => {}
