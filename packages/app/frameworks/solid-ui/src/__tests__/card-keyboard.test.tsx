@@ -31,6 +31,7 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
+import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 
 const { Card } = await import('../components/Card.jsx')

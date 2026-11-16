@@ -18,6 +18,7 @@ export const uz: UiTranslations = {
   'ui.radioGroup.label': 'Radio tugmalar guruhi',
   'ui.progress.label': 'Rivojlanish',
   'sidebarUserCard.guest': 'Mehmon',
+  'sidebarUserCard.drawer': 'Hisob',
   'userMenuPopover.guest': 'Hisob',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

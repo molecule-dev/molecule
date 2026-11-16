@@ -19,6 +19,7 @@ export const en: UiTranslations = {
   'ui.radioGroup.label': 'Radio group',
   'ui.progress.label': 'Progress',
   'sidebarUserCard.guest': 'Guest',
+  'sidebarUserCard.drawer': 'Account',
   'userMenuPopover.guest': 'Account',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

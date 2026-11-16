@@ -18,6 +18,7 @@ export const ga: UiTranslations = {
   'ui.radioGroup.label': 'Grúpa raidió',
   'ui.progress.label': 'Dul chun cinn',
   'sidebarUserCard.guest': 'Aoi',
+  'sidebarUserCard.drawer': 'Cuntas',
   'userMenuPopover.guest': 'Cuntas',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

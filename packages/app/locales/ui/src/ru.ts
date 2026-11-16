@@ -24,6 +24,7 @@ export const ru: UiTranslations = {
   'ui.radioGroup.label': 'Группа переключателей',
   'ui.progress.label': 'Прогресс',
   'sidebarUserCard.guest': 'Гость',
+  'sidebarUserCard.drawer': 'Счет',
   'userMenuPopover.guest': 'Счет',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

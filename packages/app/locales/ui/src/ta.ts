@@ -25,6 +25,7 @@ export const ta: UiTranslations = {
   'ui.radioGroup.label': '\u0bb0\u0bc7\u0b9f\u0bbf\u0baf\u0bcb \u0b95\u0bc1\u0bb4\u0bc1',
   'ui.progress.label': '\u0bae\u0bc1\u0ba9\u0bcd\u0ba9\u0bc7\u0bb1\u0bcd\u0bb1\u0bae\u0bcd',
   'sidebarUserCard.guest': 'விருந்தினர்',
+  'sidebarUserCard.drawer': 'கணக்கு',
   'userMenuPopover.guest': 'கணக்கு',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

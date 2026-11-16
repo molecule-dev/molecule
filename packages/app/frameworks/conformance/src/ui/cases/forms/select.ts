@@ -4,7 +4,14 @@
  * @module
  */
 
-import type { UIComponentCases } from '../../spec.js'
+import type { CaseA11y, UIComponentCases } from '../../spec.js'
+
+/** A bare Select with no label: its name is the caller's (a label, aria-label or FormField). */
+const UNLABELLED: CaseA11y = {
+  expect: ['select-name'],
+  reason:
+    "A bare Select with no label: its name is the caller's (a label, aria-label or FormField)",
+}
 
 const plans = [
   { value: 'free', label: 'Free' },
@@ -17,9 +24,10 @@ export const selectCases: UIComponentCases = {
   component: 'Select',
   keyedLists: [{ prop: 'options', selector: 'option' }],
   cases: [
-    { name: 'defaults', props: { options: plans, name: 'plan' } },
+    { name: 'defaults', a11y: UNLABELLED, props: { options: plans, name: 'plan' } },
     ...(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => ({
       name: `size ${size}`,
+      a11y: UNLABELLED,
       props: { size, options: plans, name: 'plan' },
     })),
     { name: 'label', props: { options: plans, label: 'Plan', name: 'plan' } },
@@ -27,17 +35,24 @@ export const selectCases: UIComponentCases = {
       name: 'label required',
       props: { options: plans, label: 'Plan', required: true, name: 'plan' },
     },
-    { name: 'placeholder', props: { options: plans, placeholder: 'Choose a plan…', name: 'plan' } },
+    {
+      name: 'placeholder',
+      a11y: UNLABELLED,
+      props: { options: plans, placeholder: 'Choose a plan…', name: 'plan' },
+    },
     {
       name: 'clearable without placeholder adds clear option',
+      a11y: UNLABELLED,
       props: { options: plans, clearable: true, name: 'plan' },
     },
     {
       name: 'clearable with placeholder suppresses clear option',
+      a11y: UNLABELLED,
       props: { options: plans, clearable: true, placeholder: 'Choose…', name: 'plan' },
     },
     {
       name: 'grouped options',
+      a11y: UNLABELLED,
       props: {
         options: [
           { value: 's', label: 'Small', group: 'Size' },
@@ -50,6 +65,7 @@ export const selectCases: UIComponentCases = {
     },
     {
       name: 'mixed grouped and ungrouped options',
+      a11y: UNLABELLED,
       props: {
         options: [
           { value: 'none', label: 'No style' },
@@ -61,6 +77,7 @@ export const selectCases: UIComponentCases = {
     },
     {
       name: 'disabled option',
+      a11y: UNLABELLED,
       props: {
         options: [
           { value: 'a', label: 'Available' },
@@ -69,41 +86,59 @@ export const selectCases: UIComponentCases = {
         name: 'pick',
       },
     },
-    { name: 'empty options', props: { options: [], name: 'plan' } },
-    { name: 'error', props: { options: plans, error: 'Pick a plan to continue.', name: 'plan' } },
-    { name: 'hint', props: { options: plans, hint: 'You can switch later.', name: 'plan' } },
+    { name: 'empty options', a11y: UNLABELLED, props: { options: [], name: 'plan' } },
+    {
+      name: 'error',
+      a11y: UNLABELLED,
+      props: { options: plans, error: 'Pick a plan to continue.', name: 'plan' },
+    },
+    {
+      name: 'hint',
+      a11y: UNLABELLED,
+      props: { options: plans, hint: 'You can switch later.', name: 'plan' },
+    },
     {
       name: 'error overrides hint',
+      a11y: UNLABELLED,
       props: { options: plans, error: 'Required.', hint: 'Optional.', name: 'plan' },
     },
-    { name: 'disabled', props: { options: plans, disabled: true, name: 'plan' } },
+    { name: 'disabled', a11y: UNLABELLED, props: { options: plans, disabled: true, name: 'plan' } },
     { name: 'explicit id', props: { options: plans, id: 'plan-field', label: 'Plan' } },
     {
       name: 'controlled change reports value',
+      a11y: UNLABELLED,
       props: { options: plans, value: 'free', name: 'plan' },
       callbacks: ['onChange', 'onValueChange'],
       interactions: [{ type: 'input', selector: 'select', value: 'pro' }],
     },
     {
       name: 'uncontrolled change keeps selection',
+      a11y: UNLABELLED,
       props: { options: plans, defaultValue: 'free', name: 'plan' },
       callbacks: ['onChange', 'onValueChange'],
       interactions: [{ type: 'input', selector: 'select', value: 'enterprise' }],
     },
     {
       name: 'value with no matching option',
+      a11y: UNLABELLED,
       props: { options: plans, value: 'ghost', name: 'plan' },
       callbacks: ['onChange', 'onValueChange'],
     },
     {
       name: 'value changes on re-render',
+      a11y: UNLABELLED,
       props: { options: plans, value: 'free', name: 'plan' },
       callbacks: ['onChange', 'onValueChange'],
       interactions: [{ type: 'props', props: { value: 'pro' } }],
     },
-    { name: 'multiple passthrough', props: { options: plans, multiple: true, name: 'plan' } },
+    {
+      name: 'multiple passthrough',
+      a11y: UNLABELLED,
+      props: { options: plans, multiple: true, name: 'plan' },
+    },
     {
       name: 'className, style and testId',
+      a11y: UNLABELLED,
       props: {
         options: plans,
         className: 'parity-token',

@@ -18,6 +18,7 @@ export const mt: UiTranslations = {
   'ui.radioGroup.label': 'Grupp tar-radju',
   'ui.progress.label': 'Progress',
   'sidebarUserCard.guest': 'Mistieden',
+  'sidebarUserCard.drawer': 'Kont',
   'userMenuPopover.guest': 'Kont',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

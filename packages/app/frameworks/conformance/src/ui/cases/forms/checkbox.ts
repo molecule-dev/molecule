@@ -4,13 +4,20 @@
  * @module
  */
 
-import type { UIComponentCases } from '../../spec.js'
+import type { CaseA11y, UIComponentCases } from '../../spec.js'
+
+/** A bare Checkbox with no label: its name is the caller's (a label, aria-label or FormField). */
+const UNLABELLED: CaseA11y = {
+  expect: ['label'],
+  reason:
+    "A bare Checkbox with no label: its name is the caller's (a label, aria-label or FormField)",
+}
 
 /** Checkbox: label, checked/indeterminate states, error, disabled and change events. */
 export const checkboxCases: UIComponentCases = {
   component: 'Checkbox',
   cases: [
-    { name: 'defaults', props: { name: 'agree' } },
+    { name: 'defaults', a11y: UNLABELLED, props: { name: 'agree' } },
     { name: 'label', props: { label: 'Accept terms', name: 'agree' } },
     {
       name: 'element label',
@@ -46,7 +53,7 @@ export const checkboxCases: UIComponentCases = {
       name: 'error',
       props: { label: 'Accept terms', error: 'You must accept to continue.', name: 'agree' },
     },
-    { name: 'error without label', props: { error: 'Required.', name: 'agree' } },
+    { name: 'error without label', a11y: UNLABELLED, props: { error: 'Required.', name: 'agree' } },
     { name: 'explicit id', props: { id: 'agree-box', label: 'Accept terms' } },
     {
       name: 'defaultChecked passthrough',
@@ -54,6 +61,7 @@ export const checkboxCases: UIComponentCases = {
     },
     {
       name: 'className, style and testId',
+      a11y: UNLABELLED,
       props: {
         className: 'parity-token',
         style: { marginTop: '4px' },

@@ -18,6 +18,7 @@ export const gl: UiTranslations = {
   'ui.radioGroup.label': 'Grupo de opcións',
   'ui.progress.label': 'Progreso',
   'sidebarUserCard.guest': 'Convidado',
+  'sidebarUserCard.drawer': 'Conta',
   'userMenuPopover.guest': 'Conta',
   'ui.avatar.fallback': '¿?',
   'ui.icon.check': '✓',

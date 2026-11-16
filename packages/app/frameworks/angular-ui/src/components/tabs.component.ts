@@ -61,7 +61,7 @@ import { MolTemplateOutlet } from './template-outlet.directive.js'
           type="button"
           role="tab"
           [attr.aria-selected]="item.value === activeValue() ? 'true' : 'false'"
-          [attr.aria-controls]="panelId(item.value)"
+          [attr.aria-controls]="controlsId(item)"
           [attr.data-state]="item.value === activeValue() ? 'active' : 'inactive'"
           [attr.tabindex]="item.value === activeValue() ? 0 : -1"
           [disabled]="!!item.disabled"
@@ -173,6 +173,19 @@ export class Tabs implements OnInit {
    */
   panelId(value: string): string {
     return `${this.idBase}-tabpanel-${value}`
+  }
+
+  /**
+   * The `aria-controls` value for one tab, or null: only the tab whose panel
+   * is actually rendered (the active one, when its item has content) may name
+   * it — an `aria-controls` pointing at nothing (an inactive tab's, or a
+   * content-less active item's) fails axe `aria-valid-attr-value` and
+   * misleads assistive tech.
+   * @param item - The tab item.
+   * @returns The panel id, or null.
+   */
+  controlsId(item: TabItem<string>): string | null {
+    return item.value === this.activeValue() && !!item.content ? this.panelId(item.value) : null
   }
 
   /**

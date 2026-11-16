@@ -18,6 +18,7 @@ export const lt: UiTranslations = {
   'ui.radioGroup.label': 'Radijo mygtukų grupė',
   'ui.progress.label': 'Eiga',
   'sidebarUserCard.guest': 'Svečias',
+  'sidebarUserCard.drawer': 'Paskyra',
   'userMenuPopover.guest': 'Paskyra',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

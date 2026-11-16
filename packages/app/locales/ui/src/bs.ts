@@ -18,6 +18,7 @@ export const bs: UiTranslations = {
   'ui.radioGroup.label': 'Radio grupa',
   'ui.progress.label': 'Napredak',
   'sidebarUserCard.guest': 'Gost',
+  'sidebarUserCard.drawer': 'Račun',
   'userMenuPopover.guest': 'Račun',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

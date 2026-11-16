@@ -89,7 +89,7 @@ function renderDialog(
 describe('PromptDialog', () => {
   it('seeds the input from initialValue and accepts edits', () => {
     const { getByLabelText } = renderDialog()
-    const input = getByLabelText('Rename board') as HTMLInputElement
+    const input = getByLabelText('Rename board', { selector: 'input' }) as HTMLInputElement
     expect(input.value).toBe('Sprint 4')
     fireEvent.change(input, { target: { value: 'Sprint 5' } })
     expect(input.value).toBe('Sprint 5')
@@ -97,7 +97,7 @@ describe('PromptDialog', () => {
 
   it('focuses the input when it opens', () => {
     const { getByLabelText } = renderDialog()
-    expect(document.activeElement).toBe(getByLabelText('Rename board'))
+    expect(document.activeElement).toBe(getByLabelText('Rename board', { selector: 'input' }))
   })
 
   it('cancel closes without calling onSubmit', () => {
@@ -109,7 +109,9 @@ describe('PromptDialog', () => {
 
   it('submit passes the entered value and closes on resolve', async () => {
     const d = renderDialog({ onSubmit: vi.fn().mockResolvedValue(undefined) })
-    fireEvent.change(d.getByLabelText('Rename board'), { target: { value: 'Sprint 5' } })
+    fireEvent.change(d.getByLabelText('Rename board', { selector: 'input' }), {
+      target: { value: 'Sprint 5' },
+    })
     fireEvent.click(d.getByText('Confirm'))
     await waitFor(() => expect(d.onSubmit).toHaveBeenCalledWith('Sprint 5'))
     await waitFor(() => expect(d.onClose).toHaveBeenCalledTimes(1))
@@ -122,19 +124,25 @@ describe('PromptDialog', () => {
     fireEvent.click(d.getByText('Confirm'))
     await waitFor(() => expect(d.onClose).toHaveBeenCalledTimes(1))
     await waitFor(() =>
-      expect((d.getByLabelText('Rename board') as HTMLInputElement).disabled).toBe(false),
+      expect(
+        (d.getByLabelText('Rename board', { selector: 'input' }) as HTMLInputElement).disabled,
+      ).toBe(false),
     )
     expect((d.getByText('Confirm') as HTMLButtonElement).disabled).toBe(false)
   })
 
   it('stays open with the value intact when onSubmit rejects', async () => {
     const d = renderDialog({ onSubmit: vi.fn().mockRejectedValue(new Error('taken')) })
-    fireEvent.change(d.getByLabelText('Rename board'), { target: { value: 'Dup' } })
+    fireEvent.change(d.getByLabelText('Rename board', { selector: 'input' }), {
+      target: { value: 'Dup' },
+    })
     fireEvent.click(d.getByText('Confirm'))
     await waitFor(() => expect(d.onSubmit).toHaveBeenCalled())
     expect(d.onClose).not.toHaveBeenCalled()
     // Pending state cleared — the confirm control is enabled again.
     await waitFor(() => expect((d.getByText('Confirm') as HTMLButtonElement).disabled).toBe(false))
-    expect((d.getByLabelText('Rename board') as HTMLInputElement).value).toBe('Dup')
+    expect(
+      (d.getByLabelText('Rename board', { selector: 'input' }) as HTMLInputElement).value,
+    ).toBe('Dup')
   })
 })

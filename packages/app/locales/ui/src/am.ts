@@ -18,6 +18,7 @@ export const am: UiTranslations = {
   'ui.radioGroup.label': 'የሬዲዮ ቡድን',
   'ui.progress.label': 'ሂደት',
   'sidebarUserCard.guest': 'እንግዳ',
+  'sidebarUserCard.drawer': 'መለያ',
   'userMenuPopover.guest': 'መለያ',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

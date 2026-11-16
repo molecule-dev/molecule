@@ -19,6 +19,7 @@ export const lo: UiTranslations = {
   'ui.radioGroup.label': 'ກຸ່ມປຸ່ມວິທະຍຸ',
   'ui.progress.label': 'ຄວາມຄືັບໜ້າ',
   'sidebarUserCard.guest': 'ແຂກ',
+  'sidebarUserCard.drawer': 'ບັນຊີ',
   'userMenuPopover.guest': 'ບັນຊີ',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

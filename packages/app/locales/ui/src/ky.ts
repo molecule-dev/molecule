@@ -18,6 +18,7 @@ export const ky: UiTranslations = {
   'ui.radioGroup.label': 'Радио тобу',
   'ui.progress.label': 'Прогресс',
   'sidebarUserCard.guest': 'Конок',
+  'sidebarUserCard.drawer': 'Аккаунт',
   'userMenuPopover.guest': 'Аккаунт',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

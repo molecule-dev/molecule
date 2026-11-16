@@ -23,6 +23,7 @@ export const mr: UiTranslations = {
   'ui.radioGroup.label': 'रेडिओ गट',
   'ui.progress.label': 'प्रगती',
   'sidebarUserCard.guest': 'पाहुणे',
+  'sidebarUserCard.drawer': 'खाते',
   'userMenuPopover.guest': 'खाते',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

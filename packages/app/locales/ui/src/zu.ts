@@ -18,6 +18,7 @@ export const zu: UiTranslations = {
   'ui.radioGroup.label': 'Iqembu lerediyo',
   'ui.progress.label': 'Inqubekela phambili',
   'sidebarUserCard.guest': 'Isivakashi',
+  'sidebarUserCard.drawer': 'I-akhawunti',
   'userMenuPopover.guest': 'I-akhawunti',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

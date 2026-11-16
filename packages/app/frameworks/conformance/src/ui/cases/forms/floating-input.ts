@@ -4,14 +4,20 @@
  * @module
  */
 
-import type { UIComponentCases } from '../../spec.js'
+import type { CaseA11y, UIComponentCases } from '../../spec.js'
+
+/** The case gives no placeholder, which is the only label a FloatingInput draws. */
+const NO_PLACEHOLDER: CaseA11y = {
+  expect: ['label'],
+  reason: 'The case gives no placeholder, which is the only label a FloatingInput draws',
+}
 
 /** FloatingInput: placeholder-as-label association, controlled and uncontrolled typing, types and passthrough. */
 export const floatingInputCases: UIComponentCases = {
   component: 'FloatingInput',
   cases: [
     { name: 'defaults', props: { placeholder: 'Email address' } },
-    { name: 'no placeholder', props: { name: 'anon' } },
+    { name: 'no placeholder', a11y: NO_PLACEHOLDER, props: { name: 'anon' } },
     {
       name: 'defaultValue',
       props: { placeholder: 'Email address', defaultValue: 'ada@example.com' },

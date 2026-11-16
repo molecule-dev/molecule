@@ -21,6 +21,7 @@ export const km: UiTranslations = {
   'ui.radioGroup.label': 'ក្រុមប៊ូតុងរ៉ាឌីយ៉ូ',
   'ui.progress.label': 'វឌ្ឍនភាព',
   'sidebarUserCard.guest': 'ភ្ញៀវ',
+  'sidebarUserCard.drawer': 'គណនី',
   'userMenuPopover.guest': 'គណនី',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

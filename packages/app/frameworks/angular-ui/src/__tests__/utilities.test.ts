@@ -5,9 +5,11 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 
+// The mock stands in for the bonded icon set: names are real `IconName`s (the
+// type `getIconSvg` accepts), and only the outlined names carry stroke data.
 vi.mock('@molecule/app-icons', () => ({
   getIcon: vi.fn((name: string) => {
-    if (name === 'with-stroke') {
+    if (name === 'info-circle') {
       return {
         name,
         viewBox: '0 0 24 24',
@@ -35,7 +37,7 @@ describe('cn', () => {
 
 describe('getIconSvg', () => {
   it('builds an <svg> string with the supplied className and a default viewBox', () => {
-    const svg = getIconSvg('plain', 'icon-a icon-b')
+    const svg = getIconSvg('check', 'icon-a icon-b')
     expect(svg.startsWith('<svg ')).toBe(true)
     expect(svg).toContain('class="icon-a icon-b"')
     expect(svg).toContain('viewBox="0 0 20 20"')
@@ -45,7 +47,7 @@ describe('getIconSvg', () => {
   })
 
   it('includes stroke attributes and path fill/clip rules when the icon provides them', () => {
-    const svg = getIconSvg('with-stroke', 'icon')
+    const svg = getIconSvg('info-circle', 'icon')
     expect(svg).toContain('viewBox="0 0 24 24"')
     expect(svg).toContain('stroke="currentColor"')
     expect(svg).toContain('stroke-width="2"')

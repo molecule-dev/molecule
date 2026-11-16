@@ -18,6 +18,7 @@ export const sq: UiTranslations = {
   'ui.radioGroup.label': 'Grupi i butonave radio',
   'ui.progress.label': 'Përparimi',
   'sidebarUserCard.guest': 'Mysafir',
+  'sidebarUserCard.drawer': 'Llogari',
   'userMenuPopover.guest': 'Llogari',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

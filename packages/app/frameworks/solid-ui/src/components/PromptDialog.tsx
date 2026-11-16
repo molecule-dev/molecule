@@ -13,6 +13,7 @@ import {
   type Component,
   createEffect,
   createSignal,
+  createUniqueId,
   type JSX,
   on,
   Show,
@@ -88,6 +89,13 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
   const { t } = useTranslation()
   const [value, setValue] = createSignal(local.initialValue ?? '')
   const [pending, setPending] = createSignal(false)
+  // The dialog names itself with its visible title and, when rendered, its
+  // description (WAI-ARIA dialog pattern): the ids reach the dialog element
+  // through Modal's `aria-*` pass-through, so screen readers announce
+  // "Rename board — The slug updates automatically." instead of an unnamed
+  // dialog (axe `aria-dialog-name`).
+  const titleId = createUniqueId()
+  const descriptionId = createUniqueId()
 
   let inputRef: HTMLInputElement | undefined
 
@@ -159,12 +167,21 @@ export const PromptDialog: Component<PromptDialogProps> = (props) => {
   }
 
   return (
-    <Modal open={local.open} onClose={handleClose}>
+    <Modal
+      open={local.open}
+      onClose={handleClose}
+      aria-labelledby={titleId}
+      aria-describedby={local.description ? descriptionId : undefined}
+    >
       <form onSubmit={handleSubmit}>
         <div class={cm.stack(3)}>
-          <h2 class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{local.title}</h2>
+          <h2 id={titleId} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+            {local.title}
+          </h2>
           <Show when={local.description}>
-            <p class={cm.textSize('sm')}>{local.description}</p>
+            <p id={descriptionId} class={cm.textSize('sm')}>
+              {local.description}
+            </p>
           </Show>
           <Input
             ref={(element: HTMLInputElement) => {

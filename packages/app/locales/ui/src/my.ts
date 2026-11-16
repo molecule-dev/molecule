@@ -25,6 +25,7 @@ export const my: UiTranslations = {
   'ui.radioGroup.label': 'ရေဒီယိုအုပ်စု',
   'ui.progress.label': 'တိုးတက်မှု',
   'sidebarUserCard.guest': 'ဧည့်သည်',
+  'sidebarUserCard.drawer': 'အကောင့်',
   'userMenuPopover.guest': 'အကောင့်',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

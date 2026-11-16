@@ -23,6 +23,7 @@ export const hy: UiTranslations = {
   'ui.radioGroup.label': 'Ռադիո խումբ',
   'ui.progress.label': 'Պրոգրես',
   'sidebarUserCard.guest': 'Հյուր',
+  'sidebarUserCard.drawer': 'Հաշիվ',
   'userMenuPopover.guest': 'Հաշիվ',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

@@ -22,6 +22,7 @@ import {
   nextTick,
   type PropType,
   ref,
+  useId,
   watch,
 } from 'vue'
 
@@ -92,6 +93,13 @@ export const PromptDialog = defineComponent({
     const { t } = useTranslation()
     const value = ref(props.initialValue)
     const pending = ref(false)
+    // The dialog names itself with its visible title and, when rendered, its
+    // description (WAI-ARIA dialog pattern): the ids reach the dialog element
+    // through Modal's `aria-*` pass-through, so screen readers announce
+    // "Rename board — The slug updates automatically." instead of an unnamed
+    // dialog (axe `aria-dialog-name`).
+    const titleId = useId()
+    const descriptionId = useId()
     // The Input component instance, whose root wraps the native input this
     // dialog focuses on open.
     const inputRef = ref<ComponentPublicInstance | null>(null)
@@ -155,6 +163,8 @@ export const PromptDialog = defineComponent({
         Modal,
         {
           open: props.open,
+          'aria-labelledby': titleId,
+          'aria-describedby': description ? descriptionId : undefined,
           onClose: () => {
             if (!pending.value) emit('close')
           },
@@ -163,8 +173,12 @@ export const PromptDialog = defineComponent({
           default: () => [
             h('form', { onSubmit: handleSubmit }, [
               h('div', { class: cm.stack(3) }, [
-                h('h2', { class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) }, [title]),
-                description ? h('p', { class: cm.textSize('sm') }, [description]) : null,
+                h('h2', { id: titleId, class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) }, [
+                  title,
+                ]),
+                description
+                  ? h('p', { id: descriptionId, class: cm.textSize('sm') }, [description])
+                  : null,
                 h(Input, {
                   ref: inputRef,
                   value: value.value,

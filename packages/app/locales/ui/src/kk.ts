@@ -22,6 +22,7 @@ export const kk: UiTranslations = {
   'ui.radioGroup.label': 'Радио тобы',
   'ui.progress.label': 'Прогресс',
   'sidebarUserCard.guest': 'Қонақ',
+  'sidebarUserCard.drawer': 'Тіркелгі',
   'userMenuPopover.guest': 'Тіркелгі',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

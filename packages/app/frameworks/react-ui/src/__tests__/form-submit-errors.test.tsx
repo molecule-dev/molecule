@@ -43,11 +43,19 @@ describe('Form submission error defaults', () => {
   it('uses the real useForm submit handler without an app-owned error catch', async () => {
     function ProfileForm() {
       const form = useForm({ defaultValues: { bio: 'Draft bio' } })
+      const submit = form.handleSubmit(async () => {
+        throw new Error('Save rejected')
+      })
+      // Form's framework-agnostic onSubmit receives a DOM Event, while useForm's
+      // handler takes the React FormEvent it gets from a React form — its own
+      // event argument is optional, so invoke the real handler directly and
+      // keep the form's native submission prevented (jsdom would navigate).
       return (
         <Form
-          onSubmit={form.handleSubmit(async () => {
-            throw new Error('Save rejected')
-          })}
+          onSubmit={(event) => {
+            event.preventDefault()
+            return submit()
+          }}
         >
           <input name="bio" defaultValue="Draft bio" />
           <button>Save profile</button>

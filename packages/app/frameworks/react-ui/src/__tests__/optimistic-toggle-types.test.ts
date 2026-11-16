@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { join } from 'node:path'
 
 import ts from 'typescript'
@@ -31,18 +32,35 @@ const button = <OptimisticToggleButton ${props} />`
 
 const props =
   'value={false} commit={async (desired) => desired} activeLabel="Unstar" inactiveLabel="Star"'
+
+// Each assertion compiles a TypeScript program from disk, which takes far
+// longer than Vitest's 10 s default on a loaded machine.
+const TYPE_CHECK_TIMEOUT_MS = 120_000
+
 describe('the optimistic toggle consumer contract', () => {
-  it('accepts a loaded boolean and a save returning the confirmed boolean', () => {
-    expect(diagnostics(props)).toEqual([])
-  })
-  it.each(['undefined', 'null'])('rejects an initial record that is still %s', (value) => {
-    expect(diagnostics(props.replace('value={false}', `value={${value}}`))).toEqual([
-      expect.stringContaining(`Type '${value}' is not assignable to type 'boolean'`),
-    ])
-  })
-  it('requires both labels so the opposite action cannot disappear after a save', () => {
-    expect(diagnostics(props.replace('activeLabel="Unstar" ', ''))).toEqual([
-      expect.stringContaining("Property 'activeLabel' is missing"),
-    ])
-  })
+  it(
+    'accepts a loaded boolean and a save returning the confirmed boolean',
+    () => {
+      expect(diagnostics(props)).toEqual([])
+    },
+    TYPE_CHECK_TIMEOUT_MS,
+  )
+  it.each(['undefined', 'null'])(
+    'rejects an initial record that is still %s',
+    (value) => {
+      expect(diagnostics(props.replace('value={false}', `value={${value}}`))).toEqual([
+        expect.stringContaining(`Type '${value}' is not assignable to type 'boolean'`),
+      ])
+    },
+    TYPE_CHECK_TIMEOUT_MS,
+  )
+  it(
+    'requires both labels so the opposite action cannot disappear after a save',
+    () => {
+      expect(diagnostics(props.replace('activeLabel="Unstar" ', ''))).toEqual([
+        expect.stringContaining("Property 'activeLabel' is missing"),
+      ])
+    },
+    TYPE_CHECK_TIMEOUT_MS,
+  )
 })

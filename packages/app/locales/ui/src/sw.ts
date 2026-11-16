@@ -18,6 +18,7 @@ export const sw: UiTranslations = {
   'ui.radioGroup.label': 'Kikundi cha redio',
   'ui.progress.label': 'Maendeleo',
   'sidebarUserCard.guest': 'Mgeni',
+  'sidebarUserCard.drawer': 'Akaunti',
   'userMenuPopover.guest': 'Akaunti',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

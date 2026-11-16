@@ -18,6 +18,7 @@ export const is: UiTranslations = {
   'ui.radioGroup.label': 'Valhnappar hópur',
   'ui.progress.label': 'Framvinda',
   'sidebarUserCard.guest': 'Gestur',
+  'sidebarUserCard.drawer': 'Reikningur',
   'userMenuPopover.guest': 'Reikningur',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

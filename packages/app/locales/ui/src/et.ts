@@ -18,6 +18,7 @@ export const et: UiTranslations = {
   'ui.radioGroup.label': 'Raadionuppude rühm',
   'ui.progress.label': 'Edenemine',
   'sidebarUserCard.guest': 'Külaline',
+  'sidebarUserCard.drawer': 'Konto',
   'userMenuPopover.guest': 'Konto',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

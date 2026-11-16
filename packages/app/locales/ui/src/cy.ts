@@ -18,6 +18,7 @@ export const cy: Partial<UiTranslations> = {
   'ui.pagination.next': "Ewch i'r dudalen nesaf",
   'ui.pagination.last': "Mynd i'r dudalen olaf",
   'sidebarUserCard.guest': 'Gwestai',
+  'sidebarUserCard.drawer': 'Cyfrif',
   'userMenuPopover.guest': 'Cyfrif',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

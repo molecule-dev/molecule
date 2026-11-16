@@ -18,6 +18,7 @@ export const ko: Partial<UiTranslations> = {
   'ui.table.empty': '사용 가능한 데이터가 없습니다.',
   'ui.radioGroup.label': '라디오 그룹',
   'sidebarUserCard.guest': '게스트',
+  'sidebarUserCard.drawer': '계정',
   'userMenuPopover.guest': '계정',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

@@ -18,6 +18,7 @@ export const ha: UiTranslations = {
   'ui.radioGroup.label': 'Ƙungiyar rediyo',
   'ui.progress.label': 'Ci gaba',
   'sidebarUserCard.guest': 'Baƙo',
+  'sidebarUserCard.drawer': 'Asusu',
   'userMenuPopover.guest': 'Asusu',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

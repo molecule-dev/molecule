@@ -1,3 +1,4 @@
+/// <reference types="node" />
 // @vitest-environment jsdom
 /**
  * A ConfirmButton whose `onConfirm` rejects returns to idle so the user can

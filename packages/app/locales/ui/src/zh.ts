@@ -18,6 +18,7 @@ export const zh: Partial<UiTranslations> = {
   'ui.table.empty': '暂无数据',
   'ui.radioGroup.label': '广播集团',
   'sidebarUserCard.guest': '访客',
+  'sidebarUserCard.drawer': '账户',
   'userMenuPopover.guest': '账户',
   'ui.avatar.fallback': '？',
   'ui.icon.check': '✓',

@@ -48,7 +48,7 @@
  * @module
  */
 
-import React, { type JSX, useEffect, useRef, useState } from 'react'
+import React, { type JSX, useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -118,6 +118,13 @@ export function PromptDialog({
   const [value, setValue] = useState(initialValue)
   const [pending, setPending] = useState(false)
   const inputRef = useRef<HTMLInputElement | null>(null)
+  // The dialog names itself with its visible title and, when rendered, its
+  // description (WAI-ARIA dialog pattern): the ids reach the dialog element
+  // through Modal's `aria-*` pass-through, so screen readers announce
+  // "Rename board — The slug updates automatically." instead of an unnamed
+  // dialog (axe `aria-dialog-name`).
+  const titleId = useId()
+  const descriptionId = useId()
 
   // Re-seed from initialValue each open so a reopened dialog shows the
   // CURRENT value, not whatever the user typed last time.
@@ -155,11 +162,22 @@ export function PromptDialog({
   }
 
   return (
-    <Modal open={open} onClose={pending ? () => {} : onClose}>
+    <Modal
+      open={open}
+      onClose={pending ? () => {} : onClose}
+      aria-labelledby={titleId}
+      aria-describedby={description ? descriptionId : undefined}
+    >
       <form onSubmit={handleSubmit}>
         <div className={cm.stack(3)}>
-          <h2 className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{title}</h2>
-          {description ? <p className={cm.textSize('sm')}>{description}</p> : null}
+          <h2 id={titleId} className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+            {title}
+          </h2>
+          {description ? (
+            <p id={descriptionId} className={cm.textSize('sm')}>
+              {description}
+            </p>
+          ) : null}
           <Input
             ref={inputRef}
             value={value}

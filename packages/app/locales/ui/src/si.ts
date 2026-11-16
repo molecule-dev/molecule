@@ -23,6 +23,7 @@ export const si: UiTranslations = {
   'ui.radioGroup.label': 'රේඩියෝ සමූහය',
   'ui.progress.label': 'ප්‍රගතිය',
   'sidebarUserCard.guest': 'අමුත්තා',
+  'sidebarUserCard.drawer': 'ගිණුම',
   'userMenuPopover.guest': 'ගිණුම',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

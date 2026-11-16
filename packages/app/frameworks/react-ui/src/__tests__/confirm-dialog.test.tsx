@@ -71,6 +71,16 @@ describe('ConfirmDialog', () => {
     expect(d.getByText('This cannot be undone.')).toBeTruthy()
   })
 
+  it('names the dialog with its visible title', () => {
+    const d = renderDialog({})
+    // `aria-labelledby` points at the rendered <h2>, so the dialog's
+    // accessible name resolves to the title text (axe `aria-dialog-name`).
+    const heading = d.getByRole('heading', { level: 2 }) as HTMLHeadingElement
+    expect(heading.id).not.toBe('')
+    expect(d.getByRole('dialog').getAttribute('aria-labelledby')).toBe(heading.id)
+    expect(d.getByRole('dialog', { name: 'Delete account' })).toBeTruthy()
+  })
+
   it('uses the default Cancel / Confirm labels', () => {
     const d = renderDialog({})
     expect(d.getByText('Cancel')).toBeTruthy()

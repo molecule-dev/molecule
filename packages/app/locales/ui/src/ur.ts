@@ -24,6 +24,7 @@ export const ur: UiTranslations = {
   'ui.radioGroup.label': 'ریڈیو گروپ',
   'ui.progress.label': 'پیش رفت',
   'sidebarUserCard.guest': 'مہمان',
+  'sidebarUserCard.drawer': 'اکاؤنٹ',
   'userMenuPopover.guest': 'اکاؤنٹ',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

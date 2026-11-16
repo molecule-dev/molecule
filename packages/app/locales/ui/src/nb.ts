@@ -18,6 +18,7 @@ export const nb: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Laster',
   'ui.radioGroup.label': 'Radiogruppe',
   'sidebarUserCard.guest': 'Gjest',
+  'sidebarUserCard.drawer': 'Konto',
   'userMenuPopover.guest': 'Konto',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

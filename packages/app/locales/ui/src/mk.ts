@@ -24,6 +24,7 @@ export const mk: UiTranslations = {
   'ui.radioGroup.label': 'Радио група',
   'ui.progress.label': 'Напредок',
   'sidebarUserCard.guest': 'Гостин',
+  'sidebarUserCard.drawer': 'Сметка',
   'userMenuPopover.guest': 'Сметка',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

@@ -18,6 +18,7 @@ export const da: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Indlæser',
   'ui.radioGroup.label': 'Radiogruppe',
   'sidebarUserCard.guest': 'Gæst',
+  'sidebarUserCard.drawer': 'Konto',
   'userMenuPopover.guest': 'Konto',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

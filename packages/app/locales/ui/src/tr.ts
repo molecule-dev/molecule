@@ -18,6 +18,7 @@ export const tr: Partial<UiTranslations> = {
   'ui.avatar.alt': 'Avatar',
   'ui.radioGroup.label': 'Radyo grubu',
   'sidebarUserCard.guest': 'Misafir',
+  'sidebarUserCard.drawer': 'Hesap',
   'userMenuPopover.guest': 'Hesap',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

@@ -54,6 +54,11 @@
   const displayName = $derived(name ?? user?.name ?? user?.email ?? guestName)
   const displaySecondary = $derived(secondaryLine ?? user?.email ?? undefined)
   const displayAvatarUrl = $derived(avatarUrl ?? user?.avatarUrl ?? undefined)
+  // The drawer is a title-less Modal (its panel content carries its own
+  // headings), so it is named with the localized `sidebarUserCard.drawer`
+  // label through Modal's `aria-*` pass-through — screen readers announce
+  // "Account" instead of an unnamed dialog (axe `aria-dialog-name`).
+  const drawerLabel = $derived(t('sidebarUserCard.drawer', {}, { defaultValue: 'Account' }))
 </script>
 
 <button
@@ -110,6 +115,6 @@
     {/if}
   </span>
 </button>
-<Modal {open} onClose={() => (open = false)} className={cm.drawer}>
+<Modal {open} onClose={() => (open = false)} className={cm.drawer} aria-label={drawerLabel}>
   <PanelCloseProvider close={() => (open = false)}>{@render children?.()}</PanelCloseProvider>
 </Modal>

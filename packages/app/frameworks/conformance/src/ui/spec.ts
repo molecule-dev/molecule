@@ -464,6 +464,21 @@ export interface UICase {
   pointer?: 'fine' | 'coarse'
   /** Layout geometry for elements jsdom gives none (a scrolling message list). */
   layout?: LayoutStub[]
+  /**
+   * The axe-core rules this case's OWN input breaks on purpose, with the reason: an
+   * empty label it passes to see what the component does with one, a bare `<input>`
+   * it hands a slot. `a11y-goldens.test.ts` runs axe over every recorded snapshot and
+   * fails on any other violation, and on a rule listed here that no snapshot breaks.
+   */
+  a11y?: CaseA11y
+}
+
+/** The axe-core rules a case's own input breaks on purpose ({@link UICase.a11y}). */
+export interface CaseA11y {
+  /** axe-core rule ids (`button-name`, `label`, `image-alt` …). */
+  expect: string[]
+  /** What in the case's input breaks them (`the case passes an empty label`). */
+  reason: string
 }
 
 /**

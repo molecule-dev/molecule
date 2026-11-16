@@ -82,7 +82,11 @@ interface AccountUserShape {
           <span [class]="secondaryClasses()">{{ secondary }}</span>
         }
       </span></button
-    ><mol-modal [open]="isOpen()" (close)="isOpen.set(false)" [className]="cm().drawer"
+    ><mol-modal
+      [open]="isOpen()"
+      (close)="isOpen.set(false)"
+      [className]="cm().drawer"
+      [attr.aria-label]="drawerLabel()"
       ><mol-panel-close-provider [close]="closePanel"
         ><ng-content></ng-content></mol-panel-close-provider
     ></mol-modal>`,
@@ -146,6 +150,19 @@ export class SidebarUserCard implements AfterViewInit, OnDestroy {
         defaultValue: this.ariaLabelDefault ?? 'Open account menu',
       },
     )
+  }
+
+  /**
+   * The drawer's accessible label. The drawer is a title-less Modal (its
+   * panel content carries its own headings), so it is named with the
+   * localized `sidebarUserCard.drawer` label: the binding on `<mol-modal>`
+   * lands on its host element, which Modal's rest-attribute move copies onto
+   * the dialog `<div>` — screen readers announce "Account" instead of an
+   * unnamed dialog (axe `aria-dialog-name`).
+   * @returns The label text.
+   */
+  drawerLabel(): string {
+    return this.i18n.t('sidebarUserCard.drawer', {}, { defaultValue: 'Account' })
   }
 
   /**

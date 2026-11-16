@@ -18,6 +18,7 @@ export const af: UiTranslations = {
   'ui.radioGroup.label': 'Radiogroep',
   'ui.progress.label': 'Vordering',
   'sidebarUserCard.guest': 'Gas',
+  'sidebarUserCard.drawer': 'Rekening',
   'userMenuPopover.guest': 'Rekening',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

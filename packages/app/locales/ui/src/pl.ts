@@ -18,6 +18,7 @@ export const pl: Partial<UiTranslations> = {
   'ui.table.empty': 'Brak dostępnych danych',
   'ui.radioGroup.label': 'Grupa radiowa',
   'sidebarUserCard.guest': 'Gość',
+  'sidebarUserCard.drawer': 'Konto',
   'userMenuPopover.guest': 'Konto',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

@@ -11,6 +11,7 @@
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { useGeneratedId } from '../dom.js'
   import type { PromptDialogProps } from '../types.js'
   import Button from './Button.svelte'
   import Input from './Input.svelte'
@@ -36,6 +37,13 @@
 
   const { t } = useTranslation()
   const cm = $derived(getClassMap())
+  // The dialog names itself with its visible title and, when rendered, its
+  // description (WAI-ARIA dialog pattern): the ids reach the dialog element
+  // through Modal's `aria-*` pass-through, so screen readers announce
+  // "Rename board — The slug updates automatically." instead of an unnamed
+  // dialog (axe `aria-dialog-name`).
+  const titleId = useGeneratedId()
+  const descriptionId = useGeneratedId()
   // Re-seed from initialValue each open so a reopened dialog shows the
   // CURRENT value, not whatever the user typed last time.
   let value = $state(untrack(() => initialValue))
@@ -97,13 +105,20 @@
   }
 </script>
 
-<Modal {open} onClose={pending ? () => undefined : onClose}>
+<Modal
+  {open}
+  onClose={pending ? () => undefined : onClose}
+  aria-labelledby={titleId}
+  aria-describedby={description ? descriptionId : undefined}
+>
   <form bind:this={formEl} onsubmit={handleSubmit}>
     <div class={cm.stack(3)}>
-      <h2 bind:this={titleEl} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+      <h2 id={titleId} bind:this={titleEl} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
         <ReactNode node={title} />
       </h2>
-      {#if description}<p class={cm.textSize('sm')}><ReactNode node={description} /></p>{/if}
+      {#if description}<p id={descriptionId} class={cm.textSize('sm')}>
+          <ReactNode node={description} />
+        </p>{/if}
       <Input
         {value}
         onChange={(e) => {

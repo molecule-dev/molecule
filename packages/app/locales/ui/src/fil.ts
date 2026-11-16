@@ -18,6 +18,7 @@ export const fil: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Naglo-load',
   'ui.radioGroup.label': 'Grupo sa radyo',
   'sidebarUserCard.guest': 'Bisita',
+  'sidebarUserCard.drawer': 'Account',
   'userMenuPopover.guest': 'Account',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

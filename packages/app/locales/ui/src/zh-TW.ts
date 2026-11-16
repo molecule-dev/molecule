@@ -18,6 +18,7 @@ export const zhTW: UiTranslations = {
   'ui.radioGroup.label': '選項群組',
   'ui.progress.label': '進度',
   'sidebarUserCard.guest': '客人',
+  'sidebarUserCard.drawer': '帳戶',
   'userMenuPopover.guest': '帳戶',
   'ui.avatar.fallback': '？',
   'ui.icon.check': '✓',

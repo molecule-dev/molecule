@@ -18,6 +18,7 @@ export const fa: UiTranslations = {
   'ui.radioGroup.label': 'گروه دکمه‌های رادیویی',
   'ui.progress.label': 'پیشرفت',
   'sidebarUserCard.guest': 'مهمان',
+  'sidebarUserCard.drawer': 'حساب کاربری',
   'userMenuPopover.guest': 'حساب کاربری',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

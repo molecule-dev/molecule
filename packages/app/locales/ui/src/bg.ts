@@ -18,6 +18,7 @@ export const bg: UiTranslations = {
   'ui.radioGroup.label': 'Радио група',
   'ui.progress.label': 'Напредък',
   'sidebarUserCard.guest': 'Гост',
+  'sidebarUserCard.drawer': 'Профил',
   'userMenuPopover.guest': 'Профил',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

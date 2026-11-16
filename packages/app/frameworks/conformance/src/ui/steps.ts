@@ -497,6 +497,7 @@ const CASE_FIELDS: FieldsOf<UICase> = {
   viewportWidth: 'optional',
   pointer: 'optional',
   layout: 'optional',
+  a11y: 'optional',
 }
 
 /** The fields each interaction takes. */

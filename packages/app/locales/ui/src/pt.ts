@@ -18,6 +18,7 @@ export const pt: Partial<UiTranslations> = {
   'ui.avatar.alt': 'Avatar',
   'ui.radioGroup.label': 'Grupo de rádio',
   'sidebarUserCard.guest': 'Convidado',
+  'sidebarUserCard.drawer': 'Conta',
   'userMenuPopover.guest': 'Conta',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

@@ -18,6 +18,7 @@ export const ar: Partial<UiTranslations> = {
   'ui.table.empty': 'لا توجد بيانات متاحة',
   'ui.radioGroup.label': 'مجموعة راديو',
   'sidebarUserCard.guest': 'ضيف',
+  'sidebarUserCard.drawer': 'الحساب',
   'userMenuPopover.guest': 'الحساب',
   'ui.avatar.fallback': '؟',
   'ui.icon.check': '✓',

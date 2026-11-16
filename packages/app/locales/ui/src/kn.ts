@@ -25,6 +25,7 @@ export const kn: UiTranslations = {
   'ui.radioGroup.label': '\u0cb0\u0cc7\u0ca1\u0cbf\u0caf\u0ccb \u0c97\u0cc1\u0c82\u0caa\u0cc1',
   'ui.progress.label': '\u0caa\u0ccd\u0cb0\u0c97\u0ca4\u0cbf',
   'sidebarUserCard.guest': 'ಅತಿಥಿ',
+  'sidebarUserCard.drawer': 'ಖಾತೆ',
   'userMenuPopover.guest': 'ಖಾತೆ',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

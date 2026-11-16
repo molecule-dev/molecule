@@ -18,6 +18,7 @@ export const he: Partial<UiTranslations> = {
   'ui.spinner.loading': 'טְעִינָה',
   'ui.radioGroup.label': 'קבוצת רדיו',
   'sidebarUserCard.guest': 'אוֹרֵחַ',
+  'sidebarUserCard.drawer': 'חֶשְׁבּוֹן',
   'userMenuPopover.guest': 'חֶשְׁבּוֹן',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

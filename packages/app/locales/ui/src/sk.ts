@@ -18,6 +18,7 @@ export const sk: UiTranslations = {
   'ui.radioGroup.label': 'Skupina prepínačov',
   'ui.progress.label': 'Priebeh',
   'sidebarUserCard.guest': 'Hosť',
+  'sidebarUserCard.drawer': 'Účet',
   'userMenuPopover.guest': 'Účet',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

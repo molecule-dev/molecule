@@ -4,7 +4,13 @@
  * @module
  */
 
-import type { UIComponentCases } from '../../spec.js'
+import type { CaseA11y, UIComponentCases } from '../../spec.js'
+
+/** The case renders the field without a label. */
+const UNLABELLED_FIELD: CaseA11y = {
+  expect: ['label'],
+  reason: 'The case renders the field without a label',
+}
 
 /** FormField: label association and the aria-describedby/aria-invalid injection onto a single child. */
 export const formFieldCases: UIComponentCases = {
@@ -37,6 +43,7 @@ export const formFieldCases: UIComponentCases = {
     },
     {
       name: 'name drives ids without label',
+      a11y: UNLABELLED_FIELD,
       props: { name: 'email' },
       children: [{ component: 'Input' }],
     },
@@ -57,6 +64,7 @@ export const formFieldCases: UIComponentCases = {
     },
     {
       name: 'multiple children are not cloned',
+      a11y: UNLABELLED_FIELD,
       props: { label: 'Pair', name: 'pair' },
       children: [
         { component: 'Input', props: { name: 'first' } },

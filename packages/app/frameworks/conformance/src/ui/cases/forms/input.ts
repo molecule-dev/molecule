@@ -4,7 +4,13 @@
  * @module
  */
 
-import type { NodeSpec, UIComponentCases } from '../../spec.js'
+import type { CaseA11y, NodeSpec, UIComponentCases } from '../../spec.js'
+
+/** A bare Input with no label: its name is the caller's (a label, aria-label or FormField). */
+const UNLABELLED: CaseA11y = {
+  expect: ['label'],
+  reason: "A bare Input with no label: its name is the caller's (a label, aria-label or FormField)",
+}
 
 const adornment = (name: string): NodeSpec[] => [
   { tag: 'svg', attrs: { 'data-icon': name, viewBox: '0 0 24 24' } },
@@ -14,7 +20,7 @@ const adornment = (name: string): NodeSpec[] => [
 export const inputCases: UIComponentCases = {
   component: 'Input',
   cases: [
-    { name: 'defaults', props: { name: 'plain' } },
+    { name: 'defaults', a11y: UNLABELLED, props: { name: 'plain' } },
     ...(
       [
         'email',
@@ -27,80 +33,97 @@ export const inputCases: UIComponentCases = {
         'time',
         'datetime-local',
       ] as const
-    ).map((type) => ({ name: `type ${type}`, props: { type, name: type } })),
+    ).map((type) => ({ name: `type ${type}`, a11y: UNLABELLED, props: { type, name: type } })),
     ...(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => ({
       name: `size ${size}`,
+      a11y: UNLABELLED,
       props: { size, name: 'sized' },
     })),
-    { name: 'align left', props: { align: 'left', name: 'left' } },
-    { name: 'align center', props: { align: 'center', name: 'center' } },
+    { name: 'align left', a11y: UNLABELLED, props: { align: 'left', name: 'left' } },
+    { name: 'align center', a11y: UNLABELLED, props: { align: 'center', name: 'center' } },
     { name: 'label', props: { label: 'Email address', name: 'email' } },
     { name: 'label required', props: { label: 'Email address', required: true, name: 'email' } },
     { name: 'placeholder', props: { placeholder: 'you@example.com', name: 'email' } },
-    { name: 'hint', props: { hint: 'We never share your email.', name: 'email' } },
-    { name: 'error', props: { error: 'That email is taken.', name: 'email' } },
+    {
+      name: 'hint',
+      a11y: UNLABELLED,
+      props: { hint: 'We never share your email.', name: 'email' },
+    },
+    { name: 'error', a11y: UNLABELLED, props: { error: 'That email is taken.', name: 'email' } },
     {
       name: 'error overrides hint',
+      a11y: UNLABELLED,
       props: { error: 'Required field.', hint: 'Optional help.', name: 'email' },
     },
-    { name: 'disabled', props: { disabled: true, name: 'email' } },
+    { name: 'disabled', a11y: UNLABELLED, props: { disabled: true, name: 'email' } },
     { name: 'explicit id', props: { id: 'custom-id', label: 'Email' } },
     {
       name: 'left element',
+      a11y: UNLABELLED,
       slots: { leftElement: adornment('mail') },
       props: { name: 'email' },
     },
     {
       name: 'right element',
+      a11y: UNLABELLED,
       slots: { rightElement: adornment('eye') },
       props: { name: 'password' },
     },
     {
       name: 'left and right elements',
+      a11y: UNLABELLED,
       slots: { leftElement: adornment('mail'), rightElement: adornment('eye') },
       props: { name: 'email' },
     },
     {
       name: 'clearable with value shows clear button',
+      a11y: UNLABELLED,
       props: { clearable: true, value: 'typed text', name: 'search' },
       callbacks: ['onChange', 'onClear'],
       interactions: [{ type: 'click', selector: 'button[aria-label="Clear"]' }],
     },
     {
       name: 'clearable with custom clear label',
+      a11y: UNLABELLED,
       props: { clearable: true, clearLabel: 'Remove text', value: 'kept', name: 'search' },
       callbacks: ['onChange', 'onClear'],
       interactions: [{ type: 'click', selector: 'button[aria-label="Remove text"]' }],
     },
     {
       name: 'clearable without value hides clear button',
+      a11y: UNLABELLED,
       props: { clearable: true, name: 'search' },
     },
     {
       name: 'right element wins over clearable',
+      a11y: UNLABELLED,
       slots: { rightElement: adornment('search') },
       props: { clearable: true, value: 'text', name: 'search' },
       callbacks: ['onChange'],
     },
     {
       name: 'uncontrolled typing',
+      a11y: UNLABELLED,
       props: { defaultValue: 'start', name: 'notes' },
       callbacks: ['onChange'],
       interactions: [{ type: 'input', selector: 'input', value: 'typed more' }],
     },
     {
       name: 'controlled value restored after typing',
+      a11y: UNLABELLED,
       props: { value: 'locked', name: 'notes' },
       callbacks: ['onChange'],
       interactions: [{ type: 'input', selector: 'input', value: 'attempt' }],
     },
     {
       name: 'numeric value',
+      a11y: UNLABELLED,
       props: { type: 'number', value: 42, name: 'count' },
       callbacks: ['onChange'],
     },
     {
       name: 'className, style and testId',
+      a11y: UNLABELLED,
       props: {
         className: 'parity-token',
         style: { marginTop: '4px' },
@@ -114,6 +137,7 @@ export const inputCases: UIComponentCases = {
     },
     {
       name: 'focus and blur callbacks',
+      a11y: UNLABELLED,
       props: { name: 'email' },
       callbacks: ['onFocus', 'onBlur'],
       interactions: [
@@ -123,12 +147,14 @@ export const inputCases: UIComponentCases = {
     },
     {
       name: 'keydown is forwarded',
+      a11y: UNLABELLED,
       props: { name: 'email' },
       callbacks: ['onKeyDown'],
       interactions: [{ type: 'keydown', selector: 'input', key: 'Enter' }],
     },
     {
       name: 'readOnly, maxLength and autoComplete passthrough',
+      a11y: UNLABELLED,
       props: {
         readOnly: true,
         maxLength: 40,

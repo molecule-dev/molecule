@@ -35,7 +35,7 @@ import { type Component, createRawSnippet, mount, unmount } from 'svelte'
 
 const { default: Card } = await import('../components/Card.svelte')
 
-const mounted: Array<ReturnType<typeof unmount>> = []
+const mounted: Array<ReturnType<typeof mount>> = []
 const hosts: HTMLElement[] = []
 
 afterEach(() => {

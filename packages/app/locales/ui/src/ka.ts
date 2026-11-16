@@ -25,6 +25,7 @@ export const ka: UiTranslations = {
   'ui.radioGroup.label': 'რადიო ჯგუფი',
   'ui.progress.label': 'პროგრესი',
   'sidebarUserCard.guest': 'სტუმარი',
+  'sidebarUserCard.drawer': 'ანგარიში',
   'userMenuPopover.guest': 'ანგარიში',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

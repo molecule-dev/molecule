@@ -18,6 +18,7 @@ export const eu: UiTranslations = {
   'ui.radioGroup.label': 'Aukera-botoi taldea',
   'ui.progress.label': 'Aurrerapena',
   'sidebarUserCard.guest': 'Gonbidatua',
+  'sidebarUserCard.drawer': 'Kontua',
   'userMenuPopover.guest': 'Kontua',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

@@ -119,6 +119,11 @@ export const SidebarUserCard: Component<SidebarUserCardProps> = (props) => {
     local.secondaryLine ?? user()?.email ?? undefined
   const displayAvatarUrl = (): string | undefined =>
     local.avatarUrl ?? user()?.avatarUrl ?? undefined
+  // The drawer is a title-less Modal (its panel content carries its own
+  // headings), so it is named with the localized `sidebarUserCard.drawer`
+  // label through Modal's `aria-*` pass-through — screen readers announce
+  // "Account" instead of an unnamed dialog (axe `aria-dialog-name`).
+  const drawerLabel = (): string => t('sidebarUserCard.drawer', {}, { defaultValue: 'Account' })
 
   return (
     <>
@@ -190,7 +195,12 @@ export const SidebarUserCard: Component<SidebarUserCardProps> = (props) => {
           </Show>
         </span>
       </button>
-      <Modal open={open()} onClose={() => setOpen(false)} className={cm.drawer}>
+      <Modal
+        open={open()}
+        onClose={() => setOpen(false)}
+        className={cm.drawer}
+        aria-label={drawerLabel()}
+      >
         <PanelCloseProvider close={() => setOpen(false)}>{local.children}</PanelCloseProvider>
       </Modal>
     </>

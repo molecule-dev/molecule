@@ -11,7 +11,7 @@
  * @module
  */
 import { act, cleanup, render, screen } from '@testing-library/react'
-import { createElement } from 'react'
+import { createElement, type FunctionComponent } from 'react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -23,7 +23,14 @@ vi.mock('@molecule/app-react', () => ({
   }),
 }))
 
-import { AuthGuard } from '../components/AuthGuard.js'
+import { AuthGuard, type AuthGuardProps } from '../components/AuthGuard.js'
+
+/**
+ * AuthGuard's props parameter is optional (it defaults to `{}`), so
+ * `createElement` infers `{}` for it and rejects every real prop. Annotate the
+ * component with its props type so the call sites are type-checked.
+ */
+const Guard: FunctionComponent<AuthGuardProps> = AuthGuard
 
 let renders = 0
 
@@ -39,7 +46,7 @@ const renderWrapped = (initial: string, loginPath?: string): void => {
       MemoryRouter,
       { initialEntries: [initial] },
       createElement(
-        AuthGuard,
+        Guard,
         { loginPath },
         createElement(
           Routes,

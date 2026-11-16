@@ -24,6 +24,7 @@ export const te: UiTranslations = {
   'ui.radioGroup.label': 'రేడియో సమూహం',
   'ui.progress.label': 'పురోగతి',
   'sidebarUserCard.guest': 'అతిథి',
+  'sidebarUserCard.drawer': 'ఖాతా',
   'userMenuPopover.guest': 'ఖాతా',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

@@ -4,23 +4,36 @@
  * @module
  */
 
-import type { UIComponentCases } from '../../spec.js'
+import type { CaseA11y, UIComponentCases } from '../../spec.js'
+
+/** A bare Switch with no label: its name is the caller's (a label or aria-label). */
+const UNLABELLED: CaseA11y = {
+  expect: ['button-name'],
+  reason: "A bare Switch with no label: its name is the caller's (a label or aria-label)",
+}
 
 /** Switch: sizes, colors, checked states, labels, disabled and the native change event it forwards. */
 export const switchCases: UIComponentCases = {
   component: 'Switch',
   cases: [
-    { name: 'defaults' },
+    { name: 'defaults', a11y: UNLABELLED },
     ...(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => ({
       name: `size ${size}`,
+      a11y: UNLABELLED,
       props: { size },
     })),
     ...(['primary', 'secondary', 'success', 'warning', 'error', 'info'] as const).map((color) => ({
       name: `color ${color}`,
+      a11y: UNLABELLED,
       props: { color, checked: true },
     })),
-    { name: 'checked', props: { checked: true }, callbacks: ['onChange'] },
-    { name: 'unchecked explicit', props: { checked: false }, callbacks: ['onChange'] },
+    { name: 'checked', a11y: UNLABELLED, props: { checked: true }, callbacks: ['onChange'] },
+    {
+      name: 'unchecked explicit',
+      a11y: UNLABELLED,
+      props: { checked: false },
+      callbacks: ['onChange'],
+    },
     { name: 'label', props: { label: 'Dark mode' } },
     {
       name: 'element label',
@@ -39,11 +52,13 @@ export const switchCases: UIComponentCases = {
     },
     {
       name: 'large success checked',
+      a11y: UNLABELLED,
       props: { size: 'lg', color: 'success', checked: true },
       callbacks: ['onChange'],
     },
     {
       name: 'className, style and testId',
+      a11y: UNLABELLED,
       props: { className: 'parity-token', style: { marginTop: '4px' }, testId: 'toggle' },
     },
     {

@@ -13,7 +13,7 @@
  * @module
  */
 
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, useId } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { useTranslation } from '@molecule/app-vue'
@@ -62,6 +62,13 @@ export const ConfirmDialog = defineComponent({
   setup(props, { slots, emit }) {
     const cm = getClassMap()
     const { t } = useTranslation()
+    // The dialog names itself with its visible title and, when rendered, its
+    // description (WAI-ARIA dialog pattern): the ids reach the dialog element
+    // through Modal's `aria-*` pass-through, so screen readers announce the
+    // title and description instead of an unnamed dialog (axe
+    // `aria-dialog-name`).
+    const titleId = useId()
+    const descriptionId = useId()
 
     return () => {
       const title = props.title ?? slots.title?.()
@@ -69,11 +76,16 @@ export const ConfirmDialog = defineComponent({
       const confirmLabel = props.confirmLabel ?? slots.confirmLabel?.()
       const cancelLabel = props.cancelLabel ?? slots.cancelLabel?.()
       const children = slots.default?.()
+      // A dialog without a rendered heading must not carry a labelledby that
+      // resolves to nothing — omit the name wiring entirely instead.
+      const headingId = title != null ? titleId : undefined
 
       return h(
         Modal,
         {
           open: props.open,
+          'aria-labelledby': headingId,
+          'aria-describedby': description ? descriptionId : undefined,
           // Modal emits 'close' bare for escape/overlay and with the click
           // event for its chrome button; forward the exact same shape (an
           // extra undefined arg would change the recorded call).
@@ -85,8 +97,10 @@ export const ConfirmDialog = defineComponent({
         {
           default: () => [
             h('div', { class: cm.stack(3) }, [
-              h('h2', { class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) }, [title]),
-              h('p', { class: cm.textSize('sm') }, [description]),
+              h('h2', { id: headingId, class: cm.cn(cm.textSize('lg'), cm.fontWeight('bold')) }, [
+                title,
+              ]),
+              h('p', { id: descriptionId, class: cm.textSize('sm') }, [description]),
               children,
               h('div', { class: cm.flex({ justify: 'end', gap: 'sm' }) }, [
                 h(

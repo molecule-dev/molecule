@@ -7,7 +7,7 @@
  * @module
  */
 
-import { type Component, type JSX, splitProps } from 'solid-js'
+import { type Component, createUniqueId, type JSX, splitProps } from 'solid-js'
 
 import { useTranslation } from '@molecule/app-solid'
 import { getClassMap } from '@molecule/app-ui'
@@ -63,12 +63,28 @@ export const ConfirmDialog: Component<ConfirmDialogProps> = (props) => {
   ])
   const cm = getClassMap()
   const { t } = useTranslation()
+  // The dialog names itself with its visible title and, when rendered, its
+  // description (WAI-ARIA dialog pattern): the ids reach the dialog element
+  // through Modal's `aria-*` pass-through, so screen readers announce the
+  // title and description instead of an unnamed dialog (axe
+  // `aria-dialog-name`).
+  const titleId = createUniqueId()
+  const descriptionId = createUniqueId()
 
   return (
-    <Modal open={local.open} onClose={local.onClose}>
+    <Modal
+      open={local.open}
+      onClose={local.onClose}
+      aria-labelledby={titleId}
+      aria-describedby={local.description ? descriptionId : undefined}
+    >
       <div class={cm.stack(3)}>
-        <h2 class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{local.title}</h2>
-        <p class={cm.textSize('sm')}>{local.description}</p>
+        <h2 id={titleId} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+          {local.title}
+        </h2>
+        <p id={descriptionId} class={cm.textSize('sm')}>
+          {local.description}
+        </p>
         {local.children}
         <div class={cm.flex({ justify: 'end', gap: 'sm' })}>
           <Button variant="ghost" onClick={local.onClose} disabled={local.loading}>

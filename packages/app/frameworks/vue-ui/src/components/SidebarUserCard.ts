@@ -124,6 +124,11 @@ export const SidebarUserCard = defineComponent({
       const displayName = props.name ?? user?.name ?? user?.email ?? guestName
       const displaySecondary = props.secondaryLine ?? user?.email ?? undefined
       const displayAvatarUrl = props.avatarUrl ?? user?.avatarUrl ?? undefined
+      // The drawer is a title-less Modal (its panel content carries its own
+      // headings), so it is named with the localized `sidebarUserCard.drawer`
+      // label through Modal's `aria-*` pass-through — screen readers announce
+      // "Account" instead of an unnamed dialog (axe `aria-dialog-name`).
+      const drawerLabel = t('sidebarUserCard.drawer', {}, { defaultValue: 'Account' })
 
       return [
         h(
@@ -209,6 +214,7 @@ export const SidebarUserCard = defineComponent({
             open: open.value,
             onClose: () => (open.value = false),
             className: cm.drawer,
+            'aria-label': drawerLabel,
           },
           {
             default: () => [

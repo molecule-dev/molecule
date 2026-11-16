@@ -23,6 +23,7 @@ export const pa: UiTranslations = {
   'ui.radioGroup.label': 'ਰੇਡੀਓ ਸਮੂਹ',
   'ui.progress.label': 'ਤਰੱਕੀ',
   'sidebarUserCard.guest': 'ਮਹਿਮਾਨ',
+  'sidebarUserCard.drawer': 'ਖਾਤਾ',
   'userMenuPopover.guest': 'ਖਾਤਾ',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

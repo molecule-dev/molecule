@@ -18,6 +18,7 @@ export const bn: UiTranslations = {
   'ui.radioGroup.label': 'রেডিও গ্রুপ',
   'ui.progress.label': 'অগ্রগতি',
   'sidebarUserCard.guest': 'অতিথি',
+  'sidebarUserCard.drawer': 'অ্যাকাউন্ট',
   'userMenuPopover.guest': 'অ্যাকাউন্ট',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

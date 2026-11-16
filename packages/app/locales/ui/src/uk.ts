@@ -18,6 +18,7 @@ export const uk: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Завантаження',
   'ui.radioGroup.label': 'Радіогрупа',
   'sidebarUserCard.guest': 'Гість',
+  'sidebarUserCard.drawer': 'Обліковий запис',
   'userMenuPopover.guest': 'Обліковий запис',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

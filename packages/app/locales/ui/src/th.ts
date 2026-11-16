@@ -21,6 +21,7 @@ export const th: UiTranslations = {
   'ui.radioGroup.label': 'กลุ่มปุ่มตัวเลือก',
   'ui.progress.label': 'ความคืบหน้า',
   'sidebarUserCard.guest': 'แขก',
+  'sidebarUserCard.drawer': 'บัญชี',
   'userMenuPopover.guest': 'บัญชี',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

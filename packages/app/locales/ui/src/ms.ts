@@ -18,6 +18,7 @@ export const ms: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Memuatkan',
   'ui.radioGroup.label': 'Kumpulan radio',
   'sidebarUserCard.guest': 'Tetamu',
+  'sidebarUserCard.drawer': 'Akaun',
   'userMenuPopover.guest': 'Akaun',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

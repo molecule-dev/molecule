@@ -27,6 +27,7 @@ export const ne: UiTranslations = {
   'ui.radioGroup.label': 'रेडियो समूह',
   'ui.progress.label': 'प्रगति',
   'sidebarUserCard.guest': 'पाहुना',
+  'sidebarUserCard.drawer': 'खाता',
   'userMenuPopover.guest': 'खाता',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

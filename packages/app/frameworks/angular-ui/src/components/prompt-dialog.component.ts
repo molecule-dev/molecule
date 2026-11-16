@@ -21,6 +21,7 @@ import { useTranslation } from '@molecule/app-angular'
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { nextInstanceId } from '../utilities/ids.js'
 import { Button } from './button.component.js'
 import { Input } from './input.component.js'
 import { Modal } from './modal.component.js'
@@ -56,14 +57,22 @@ import { Modal } from './modal.component.js'
     'data-parity-unwrap': '',
     style: 'display: contents',
   },
-  template: `<mol-modal [open]="open" (close)="onModalClose()"
+  template: `<mol-modal
+    [open]="open"
+    (close)="onModalClose()"
+    [attr.aria-labelledby]="titleId"
+    [attr.aria-describedby]="description ? descriptionId : null"
     ><form (submit)="handleSubmit($event)">
       <div [class]="cm().stack(3)">
-        <h2 #titleSlot [class]="cm().cn(cm().textSize('lg'), cm().fontWeight('bold'))">
+        <h2
+          #titleSlot
+          [attr.id]="titleId"
+          [class]="cm().cn(cm().textSize('lg'), cm().fontWeight('bold'))"
+        >
           <ng-content select="[slot=title]"></ng-content>
         </h2>
         @if (description) {
-          <p [class]="cm().textSize('sm')">{{ description }}</p>
+          <p [attr.id]="descriptionId" [class]="cm().textSize('sm')">{{ description }}</p>
         }
         <div
           mol-input
@@ -135,6 +144,22 @@ export class PromptDialog implements AfterViewInit, AfterViewChecked, DoCheck {
   @ViewChild('titleSlot') titleSlot?: ElementRef<HTMLHeadingElement>
   /** The composed input (its native element receives React's aria-label). */
   @ViewChild(Input) inputComponent?: Input
+
+  /**
+   * Per-instance id of the rendered title heading, wired as the dialog's
+   * accessible name: the binding on `<mol-modal>` lands on its host element,
+   * which Modal's rest-attribute move copies onto the dialog `<div>` —
+   * `aria-labelledby` pointing at the visible `<h2>` (WAI-ARIA dialog
+   * pattern; axe `aria-dialog-name`).
+   */
+  readonly titleId = nextInstanceId()
+
+  /**
+   * Per-instance id of the rendered description paragraph, wired as the
+   * dialog's accessible description (only bound when a description renders —
+   * a reference to nothing fails axe `aria-valid-attr-value`).
+   */
+  readonly descriptionId = nextInstanceId()
 
   /** The current input value. */
   readonly value = signal('')

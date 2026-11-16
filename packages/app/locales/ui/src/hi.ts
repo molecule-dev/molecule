@@ -18,6 +18,7 @@ export const hi: Partial<UiTranslations> = {
   'ui.table.empty': 'कोई डेटा मौजूद नहीं',
   'ui.radioGroup.label': 'रेडियो समूह',
   'sidebarUserCard.guest': 'अतिथि',
+  'sidebarUserCard.drawer': 'खाता',
   'userMenuPopover.guest': 'खाता',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

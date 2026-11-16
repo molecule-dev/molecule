@@ -18,6 +18,7 @@ export const lv: UiTranslations = {
   'ui.radioGroup.label': 'Radio pogu grupa',
   'ui.progress.label': 'Norise',
   'sidebarUserCard.guest': 'Viesis',
+  'sidebarUserCard.drawer': 'Konts',
   'userMenuPopover.guest': 'Konts',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

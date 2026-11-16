@@ -52,12 +52,9 @@ const base = { message: 'Could not load decks.' }
 describe('LoadErrorBanner', () => {
   it('renders message, detail, children, and rest-prop locator', () => {
     const d = render(
-      createElement(LoadErrorBanner, {
-        ...base,
-        detail: 'HTTP 503',
-        'data-mol-id': 'decks-load-error',
-        children: createElement('code', { 'data-extra': '' }, 'E_TIMEOUT'),
-      }),
+      <LoadErrorBanner {...base} detail="HTTP 503" data-mol-id="decks-load-error">
+        <code data-extra="">E_TIMEOUT</code>
+      </LoadErrorBanner>,
     )
     expect(d.getByText('Could not load decks.')).toBeTruthy()
     expect(d.getByText('HTTP 503')).toBeTruthy()

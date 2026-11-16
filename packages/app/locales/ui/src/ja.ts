@@ -18,6 +18,7 @@ export const ja: Partial<UiTranslations> = {
   'ui.table.empty': 'データがありません',
   'ui.radioGroup.label': 'ラジオグループ',
   'sidebarUserCard.guest': 'ゲスト',
+  'sidebarUserCard.drawer': 'アカウント',
   'userMenuPopover.guest': 'アカウント',
   'ui.avatar.fallback': '？',
   'ui.icon.check': '✓',

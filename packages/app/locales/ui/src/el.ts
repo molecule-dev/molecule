@@ -18,6 +18,7 @@ export const el: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Φόρτωση',
   'ui.radioGroup.label': 'Ομάδα ραδιοφώνου',
   'sidebarUserCard.guest': 'Επισκέπτης',
+  'sidebarUserCard.drawer': 'Λογαριασμός',
   'userMenuPopover.guest': 'Λογαριασμός',
   'ui.avatar.fallback': ';',
   'ui.icon.check': '✓',

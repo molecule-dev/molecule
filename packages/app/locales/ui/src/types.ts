@@ -17,6 +17,7 @@ export type UiTranslationKey =
   | 'ui.radioGroup.label'
   | 'ui.progress.label'
   | 'sidebarUserCard.guest'
+  | 'sidebarUserCard.drawer'
   | 'userMenuPopover.guest'
   | 'ui.avatar.fallback'
   | 'ui.icon.check'

@@ -18,6 +18,7 @@ export const ca: Partial<UiTranslations> = {
   'ui.progress.label': 'Progrés',
   'ui.pagination.last': "Anar a l'última pàgina",
   'sidebarUserCard.guest': 'Convidat',
+  'sidebarUserCard.drawer': 'Compte',
   'userMenuPopover.guest': 'Compte',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

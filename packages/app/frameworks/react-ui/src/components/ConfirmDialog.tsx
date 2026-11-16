@@ -37,7 +37,7 @@
  * @module
  */
 
-import type { JSX, ReactNode } from 'react'
+import { type JSX, type ReactNode, useId } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -90,11 +90,27 @@ export function ConfirmDialog({
 }: ConfirmDialogProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
+  // The dialog names itself with its visible title and, when rendered, its
+  // description (WAI-ARIA dialog pattern): the ids reach the dialog element
+  // through Modal's `aria-*` pass-through, so screen readers announce
+  // "Delete vault? — This action cannot be undone." instead of an unnamed
+  // dialog (axe `aria-dialog-name`).
+  const titleId = useId()
+  const descriptionId = useId()
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      aria-labelledby={titleId}
+      aria-describedby={description ? descriptionId : undefined}
+    >
       <div className={cm.stack(3)}>
-        <h2 className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>{title}</h2>
-        <p className={cm.textSize('sm')}>{description}</p>
+        <h2 id={titleId} className={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+          {title}
+        </h2>
+        <p id={descriptionId} className={cm.textSize('sm')}>
+          {description}
+        </p>
         {children}
         <div className={cm.flex({ justify: 'end', gap: 'sm' })}>
           <Button variant="ghost" onClick={onClose} disabled={loading}>

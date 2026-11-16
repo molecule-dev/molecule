@@ -18,6 +18,7 @@ export const hr: UiTranslations = {
   'ui.radioGroup.label': 'Grupa izbornih gumba',
   'ui.progress.label': 'Napredak',
   'sidebarUserCard.guest': 'Gost',
+  'sidebarUserCard.drawer': 'Račun',
   'userMenuPopover.guest': 'Račun',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

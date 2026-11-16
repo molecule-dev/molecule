@@ -10,7 +10,7 @@ import { getIcon } from '@molecule/app-icons'
 
 import { renderIcon } from '../utilities/renderIcon.js'
 
-const getIconMock = getIcon as unknown as ReturnType<typeof vi.fn>
+const getIconMock = vi.mocked(getIcon)
 
 const minimalIcon: IconData = {
   paths: [{ d: 'M0 0h20v20H0z' }],
@@ -26,6 +26,46 @@ const fullIcon: IconData = {
   paths: [{ d: 'M1 1L2 2', fillRule: 'evenodd', clipRule: 'evenodd' }, { d: 'M3 3L4 4' }],
 }
 
+/** The fields of a React element, read as plain data rather than through its props type. */
+interface ElementView {
+  type: unknown
+  key: unknown
+  props: Record<string, unknown>
+}
+
+/** Copies an object's own fields into a record, failing loudly for a non-object value. */
+function recordOf(value: unknown): Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) {
+    throw new TypeError('expected a React element or its props object')
+  }
+  const record: Record<string, unknown> = {}
+  for (const [field, content] of Object.entries(value)) record[field] = content
+  return record
+}
+
+/**
+ * Reads a React element's fields as plain data.
+ *
+ * `React.ReactElement` types `props` as `unknown` (the type parameter defaults
+ * to `unknown`), so a test that inspects an element tree matches the rendered
+ * fields at runtime instead of claiming a props type the component never
+ * declared.
+ */
+function elementView(value: unknown): ElementView {
+  const fields = recordOf(value)
+  return { type: fields.type, key: fields.key, props: recordOf(fields.props) }
+}
+
+/** Maps an array of React elements to views, failing loudly when the value is not an array. */
+function elementsOf(value: unknown): ElementView[] {
+  if (!Array.isArray(value)) {
+    throw new TypeError('expected an array of React elements')
+  }
+  const elements: ElementView[] = []
+  for (const child of value) elements.push(elementView(child))
+  return elements
+}
+
 afterEach(() => {
   getIconMock.mockReset()
 })
@@ -33,7 +73,7 @@ afterEach(() => {
 describe('renderIcon', () => {
   it('renders an <svg> React element with default viewBox + fill when icon has none', () => {
     getIconMock.mockReturnValue(minimalIcon)
-    const el = renderIcon('home')
+    const el = elementView(renderIcon('home'))
 
     expect(el.type).toBe('svg')
     expect(el.props.xmlns).toBe('http://www.w3.org/2000/svg')
@@ -43,13 +83,13 @@ describe('renderIcon', () => {
 
   it('forwards className to the svg', () => {
     getIconMock.mockReturnValue(minimalIcon)
-    const el = renderIcon('home', 'w-5 h-5')
+    const el = elementView(renderIcon('home', 'w-5 h-5'))
     expect(el.props.className).toBe('w-5 h-5')
   })
 
   it('honours icon-supplied viewBox, fill, stroke, and stroke options', () => {
     getIconMock.mockReturnValue(fullIcon)
-    const el = renderIcon('arrow')
+    const el = elementView(renderIcon('arrow-left'))
 
     expect(el.props.viewBox).toBe('0 0 24 24')
     expect(el.props.fill).toBe('#ff0000')
@@ -61,9 +101,8 @@ describe('renderIcon', () => {
 
   it('emits one <path> child per icon path entry', () => {
     getIconMock.mockReturnValue(fullIcon)
-    const el = renderIcon('arrow')
+    const children = elementsOf(elementView(renderIcon('arrow-left')).props.children)
 
-    const children = el.props.children as Array<{ type: string; props: Record<string, unknown> }>
     expect(children).toHaveLength(2)
     expect(children[0].type).toBe('path')
     expect(children[0].props.d).toBe('M1 1L2 2')
@@ -74,23 +113,21 @@ describe('renderIcon', () => {
 
   it('handles a single-path icon (children is the single element, not an array)', () => {
     getIconMock.mockReturnValue(minimalIcon)
-    const el = renderIcon('home')
-    const children = el.props.children as { type: string } | { type: string }[]
+    const children = elementView(renderIcon('home')).props.children
     // React.createElement collapses a single variadic child to the element directly.
-    const single = Array.isArray(children) ? children[0] : children
-    expect(single.type).toBe('path')
+    expect(Array.isArray(children)).toBe(false)
+    expect(elementView(children).type).toBe('path')
   })
 
   it('looks up the icon by name via getIcon()', () => {
     getIconMock.mockReturnValue(minimalIcon)
-    renderIcon('settings-cog')
-    expect(getIconMock).toHaveBeenCalledWith('settings-cog')
+    renderIcon('gear')
+    expect(getIconMock).toHaveBeenCalledWith('gear')
   })
 
   it('passes a numeric React key to each path child', () => {
     getIconMock.mockReturnValue(fullIcon)
-    const el = renderIcon('arrow')
-    const children = el.props.children as Array<{ key: string | number | null }>
+    const children = elementsOf(elementView(renderIcon('arrow-left')).props.children)
     // React stores keys on the element directly, not in props.
     expect(children[0].key).toBe('0')
     expect(children[1].key).toBe('1')
@@ -100,20 +137,16 @@ describe('renderIcon', () => {
     getIconMock.mockReturnValue(minimalIcon)
     const el = renderIcon('home')
     expect(typeof el).toBe('object')
-    expect((el as unknown as { $$typeof: symbol }).$$typeof).toBeDefined()
+    expect(el).toHaveProperty('$$typeof')
   })
 
   it('handles icons with no fillRule/clipRule on paths', () => {
     getIconMock.mockReturnValue({
       paths: [{ d: 'M0 0L10 10' }],
     })
-    const el = renderIcon('plain')
-    const children = el.props.children as
-      | { props: Record<string, unknown> }
-      | Array<{
-          props: Record<string, unknown>
-        }>
-    const single = Array.isArray(children) ? children[0] : children
+    const children = elementView(renderIcon('search')).props.children
+    expect(Array.isArray(children)).toBe(false)
+    const single = elementView(children)
     expect(single.props.d).toBe('M0 0L10 10')
     expect(single.props.fillRule).toBeUndefined()
     expect(single.props.clipRule).toBeUndefined()
@@ -121,7 +154,7 @@ describe('renderIcon', () => {
 
   it('handles an empty paths array (no path children)', () => {
     getIconMock.mockReturnValue({ paths: [] })
-    const el = renderIcon('blank')
+    const el = elementView(renderIcon('trash'))
     // React.createElement with no variadic children leaves props.children undefined.
     expect(el.props.children).toBeUndefined()
   })

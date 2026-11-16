@@ -4,7 +4,13 @@
  * @module
  */
 
-import type { UIComponentCases } from '../../spec.js'
+import type { CaseA11y, UIComponentCases } from '../../spec.js'
+
+/** The case opts the icon into the accessibility tree with role img but gives it no label. */
+const UNNAMED_IMG: CaseA11y = {
+  expect: ['svg-img-alt'],
+  reason: 'The case opts the icon into the accessibility tree with role img but gives it no label',
+}
 
 /** Icon: named glyphs, sizes, svg-backed glyphs, accessibility opt-ins and event forwarding. */
 export const iconCases: UIComponentCases = {
@@ -23,7 +29,11 @@ export const iconCases: UIComponentCases = {
       name: 'aria label opts into the a11y tree',
       props: { name: 'trash', 'aria-label': 'Delete item' },
     },
-    { name: 'role img opts into the a11y tree', props: { name: 'star', role: 'img' } },
+    {
+      name: 'role img opts into the a11y tree',
+      a11y: UNNAMED_IMG,
+      props: { name: 'star', role: 'img' },
+    },
     {
       name: 'explicit aria-hidden false',
       props: { name: 'star', 'aria-label': 'Favorite', 'aria-hidden': false },

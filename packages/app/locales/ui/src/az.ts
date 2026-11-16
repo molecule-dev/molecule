@@ -18,6 +18,7 @@ export const az: UiTranslations = {
   'ui.radioGroup.label': 'Radio qrupu',
   'ui.progress.label': 'İrəliləyiş',
   'sidebarUserCard.guest': 'Qonaq',
+  'sidebarUserCard.drawer': 'Hesab',
   'userMenuPopover.guest': 'Hesab',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

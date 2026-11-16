@@ -8,6 +8,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import type { BadgeProps, ColorVariant } from '../types.js'
 import { cn } from '../utilities.js'
 
 // =============================================================================
@@ -397,6 +398,10 @@ describe('Badge variant mapping logic', () => {
     info: 'default',
   }
 
+  /** Recreation of Badge.tsx's variant selection: `outline` wins over the color map. */
+  const badgeVariant = (variant: BadgeProps['variant'], color: ColorVariant): string =>
+    variant === 'outline' ? 'outline' : colorVariantMap[color] || 'default'
+
   it('should map primary color to default variant', () => {
     expect(colorVariantMap['primary']).toBe('default')
   })
@@ -410,17 +415,11 @@ describe('Badge variant mapping logic', () => {
   })
 
   it('should use outline variant when Badge variant prop is outline', () => {
-    const variant = 'outline'
-    const color = 'primary'
-    const cmVariant = variant === 'outline' ? 'outline' : colorVariantMap[color] || 'default'
-    expect(cmVariant).toBe('outline')
+    expect(badgeVariant('outline', 'primary')).toBe('outline')
   })
 
   it('should use color mapping when variant is not outline', () => {
-    const variant = 'solid'
-    const color = 'warning'
-    const cmVariant = variant === 'outline' ? 'outline' : colorVariantMap[color] || 'default'
-    expect(cmVariant).toBe('warning')
+    expect(badgeVariant('solid', 'warning')).toBe('warning')
   })
 })
 

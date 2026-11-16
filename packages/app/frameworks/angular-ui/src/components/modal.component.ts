@@ -5,6 +5,7 @@
  */
 
 import {
+  type AfterViewChecked,
   type AfterViewInit,
   Component,
   type DoCheck,
@@ -23,7 +24,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { createScrollLock, getFocusableElements } from '../utilities/focus.js'
 import type { ResolvedIcon } from '../utilities/render-icon.js'
 import { MolIconSvg, resolveIcon } from '../utilities/render-icon.js'
-import { moveRestAttributes } from '../utilities/rest-attrs.js'
+import { moveRestAttributes, reapplyRestAttributes } from '../utilities/rest-attrs.js'
 import { styleText } from '../utilities/style.js'
 
 /** Module-level open-modal stack (Escape/Tab act only for the topmost). */
@@ -133,7 +134,7 @@ let modalInstance = 0
       </div>
     </div>`,
 })
-export class Modal implements AfterViewInit, DoCheck, OnDestroy {
+export class Modal implements AfterViewInit, AfterViewChecked, DoCheck, OnDestroy {
   /** Whether the dialog is open. */
   open = false
   /** The dialog title. */
@@ -317,6 +318,21 @@ export class Modal implements AfterViewInit, DoCheck, OnDestroy {
     this.lastFooter = this.hasFooter()
     this.syncFooter()
     this.syncScrollLock()
+  }
+
+  /**
+   * Applies React's `{...rest}` spread on EVERY pass, not just at view init.
+   * Angular writes a changed `[attr.aria-label]`/`[attr.aria-describedby]`/
+   * `[attr.data-*]` binding back onto the host after the initial
+   * {@link moveRestAttributes}, so without this the inner dialog keeps the
+   * first value while the host accumulates the new one. Modal spreads those
+   * attributes straight onto the dialog (it merges `aria-describedby` with
+   * nothing), so it re-moves that attribute too.
+   */
+  ngAfterViewChecked(): void {
+    reapplyRestAttributes(this.host.nativeElement, this.dialog?.nativeElement, {
+      includeDescribedBy: true,
+    })
   }
 
   /** Removes listeners, unlocks scroll and restores the portal nodes (unmount). */

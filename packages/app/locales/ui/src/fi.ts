@@ -18,6 +18,7 @@ export const fi: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Ladataan',
   'ui.radioGroup.label': 'Radioryhmä',
   'sidebarUserCard.guest': 'Vieras',
+  'sidebarUserCard.drawer': 'Tili',
   'userMenuPopover.guest': 'Tili',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

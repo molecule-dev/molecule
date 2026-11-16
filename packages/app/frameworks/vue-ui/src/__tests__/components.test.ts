@@ -7,22 +7,73 @@
  * @module
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 // ============================================================================
 // Mock Vue
 // ============================================================================
 
-const mockH = vi.fn((...args: unknown[]) => ({
+/** A component or tag the mocked `h` received as its first argument. */
+type MockHTarget = string | { name?: string }
+
+/**
+ * A handler the component wrote onto the props bag of the vnode it rendered.
+ * The suites drive these directly to exercise the wiring; the event a listener
+ * receives varies per test, so it stays `unknown`.
+ */
+type MockHHandler = (event?: unknown) => unknown
+
+/**
+ * The props bag the mocked `h` received. Every prop a component passes is
+ * readable by name; `class` and `style` are declared because the suites read
+ * into the styling values rather than just comparing the bag, and the event
+ * handlers are declared because the suites invoke them by name.
+ */
+interface MockHProps {
+  class?: unknown
+  style?: Record<string, unknown>
+  onClick?: MockHHandler
+  onChange?: MockHHandler
+  onInput?: MockHHandler
+  onKeydown?: MockHHandler
+  onMouseover?: MockHHandler
+  onFocusin?: MockHHandler
+  onFocusout?: MockHHandler
+  onSubmit?: MockHHandler
+  [name: string]: unknown
+}
+
+/** The vnode the mocked `h` returns. */
+interface MockVNode {
+  __vnode: true
+  type: MockHTarget
+  props: MockHProps
+  children: unknown
+}
+
+/** The slot bag a component wrote as its render's third `h` argument. */
+type MockHSlots = { default: () => unknown }
+
+/** The component name on a mocked `h` target; a tag string carries none. */
+const hTargetName = (target: MockHTarget): string | undefined =>
+  typeof target === 'string' ? undefined : target.name
+
+const mockH = vi.fn((type: MockHTarget, props: MockHProps, children?: unknown): MockVNode => ({
   __vnode: true,
-  type: args[0],
-  props: args[1],
-  children: args[2],
+  type,
+  props,
+  children,
 }))
 const mockRef = vi.fn((val: unknown) => ({ value: val }))
 const mockShallowRef = vi.fn((val: unknown) => ({ value: val }))
 const mockComputed = vi.fn((fn: () => unknown) => ({ value: fn() }))
-const mockWatch = vi.fn()
+const mockWatch = vi.fn(
+  (
+    _source: unknown,
+    _callback: (value?: boolean) => void,
+    _options?: { immediate?: boolean },
+  ) => {},
+)
 const mockOnMounted = vi.fn()
 const mockOnUnmounted = vi.fn()
 const mockProvide = vi.fn()
@@ -31,13 +82,17 @@ const mockReactive = vi.fn((obj: unknown) => obj)
 
 const mockDefineComponent = vi.fn((opts: Record<string, unknown>) => opts)
 
+/** Counter backing the mocked `useId` (React `useId()` parity). */
+let mockUseIdCounter = 0
+
 vi.mock('vue', () => ({
   defineComponent: (opts: Record<string, unknown>) => mockDefineComponent(opts),
-  h: (...args: unknown[]) => mockH(...args),
+  useId: () => `mol-use-id-${mockUseIdCounter++}`,
+  h: (...args: unknown[]) => mockH(...(args as Parameters<typeof mockH>)),
   ref: (val: unknown) => mockRef(val),
   shallowRef: (val: unknown) => mockShallowRef(val),
   computed: (fn: () => unknown) => mockComputed(fn),
-  watch: (...args: unknown[]) => mockWatch(...args),
+  watch: (...args: unknown[]) => mockWatch(...(args as Parameters<typeof mockWatch>)),
   onMounted: (fn: unknown) => mockOnMounted(fn),
   onUnmounted: (fn: unknown) => mockOnUnmounted(fn),
   provide: (...args: unknown[]) => mockProvide(...args),
@@ -63,9 +118,9 @@ vi.mock('vue', () => ({
 // Mock @molecule/app-ui with getClassMap
 // ============================================================================
 
-const mockClassMap = {
+const classMapTokens = {
   cn: vi.fn((...args: unknown[]) => args.filter(Boolean).join(' ')),
-  stack: vi.fn((n: unknown) => `stack-${n}`),
+  stack: vi.fn((n: string | number) => `stack-${n}`),
   textSize: vi.fn((s: unknown) => `text-size-${s}`),
   fontWeight: vi.fn((w: unknown) => `font-weight-${w}`),
   button: vi.fn(
@@ -288,6 +343,35 @@ const mockClassMap = {
   dialogWrapper: 'dialog-wrapper-classes',
   dialogBody: 'dialog-body-classes',
 }
+
+/**
+ * Class-map tokens the newer component suites install in their own
+ * `beforeEach`; the shared literal above predates those components.
+ */
+type SuiteClassMapTokens = Partial<
+  Record<
+    | 'sp'
+    | 'page'
+    | 'minH'
+    | 'h'
+    | 'position'
+    | 'surface'
+    | 'borderB'
+    | 'borderT'
+    | 'borderR'
+    | 'shrink0'
+    | 'roundedFull'
+    | 'cursorPointer'
+    | 'textMuted'
+    | 'overlay'
+    | 'inset0'
+    | 'flex1',
+    string | Mock
+  >
+>
+
+/** The ClassMap stand-in: the shared tokens plus the ones suites install themselves. */
+const mockClassMap: typeof classMapTokens & SuiteClassMapTokens = classMapTokens
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => mockClassMap,
@@ -725,18 +809,18 @@ describe('Input component', () => {
   it('emits change with the native input event like React onChange', async () => {
     const { renderFn, mockEmit } = await setupInput({})
     renderFn()
-    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input') as unknown[]
+    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input')!
     const event = { type: 'input', target: { value: 'typed' } }
-    ;(inputCall[1] as Record<string, unknown>).onInput(event)
+    inputCall[1].onInput!(event)
     expect(mockEmit).toHaveBeenCalledWith('change', event)
   })
 
   it('restores a controlled value right after the change handler', async () => {
     const { renderFn } = await setupInput({ value: 'locked', name: 'notes' })
     renderFn()
-    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input') as unknown[]
+    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input')!
     const target = { value: 'attempt' }
-    ;(inputCall[1] as Record<string, unknown>).onInput({ type: 'input', target })
+    inputCall[1].onInput!({ type: 'input', target })
     expect(target.value).toBe('locked')
   })
 
@@ -746,10 +830,10 @@ describe('Input component', () => {
     const clearCall = mockH.mock.calls.find(
       (call) =>
         call[0] === 'button' && (call[1] as Record<string, unknown>)['aria-label'] === 'Clear',
-    ) as unknown[]
+    )!
     expect(clearCall).toBeDefined()
     const event = { type: 'click' }
-    ;(clearCall[1] as Record<string, unknown>).onClick(event)
+    clearCall[1].onClick!(event)
     expect(mockEmit).toHaveBeenCalledWith('clear', event)
   })
 })
@@ -830,23 +914,23 @@ describe('Textarea component', () => {
   it('renders the textarea with the rows fallback to minRows', async () => {
     const { renderFn } = await setupTextarea({})
     renderFn()
-    const textareaCall = mockH.mock.calls.find((call) => call[0] === 'textarea') as unknown[]
+    const textareaCall = mockH.mock.calls.find((call) => call[0] === 'textarea')!
     expect((textareaCall[1] as Record<string, unknown>).rows).toBe(3)
   })
 
   it('emits change with the native input event like React onChange', async () => {
     const { renderFn, mockEmit } = await setupTextarea({})
     renderFn()
-    const textareaCall = mockH.mock.calls.find((call) => call[0] === 'textarea') as unknown[]
+    const textareaCall = mockH.mock.calls.find((call) => call[0] === 'textarea')!
     const event = { type: 'input', target: { value: 'edited' } }
-    ;(textareaCall[1] as Record<string, unknown>).onInput(event)
+    textareaCall[1].onInput!(event)
     expect(mockEmit).toHaveBeenCalledWith('change', event)
   })
 
   it('autoResize neutralizes the min-height floor inline', async () => {
     const { renderFn } = await setupTextarea({ autoResize: true })
     renderFn()
-    const textareaCall = mockH.mock.calls.find((call) => call[0] === 'textarea') as unknown[]
+    const textareaCall = mockH.mock.calls.find((call) => call[0] === 'textarea')!
     const style = (textareaCall[1] as Record<string, unknown>).style as Record<string, unknown>
     expect(style).toContainEqual({ minHeight: 0, resize: 'none' })
   })
@@ -1202,9 +1286,9 @@ describe('Checkbox component', () => {
   it('renders the checkbox inside the control label', async () => {
     const { renderFn } = await setupCheckbox({ label: 'Accept terms' })
     renderFn()
-    const labelCall = mockH.mock.calls.find((call) => call[0] === 'label') as unknown[]
+    const labelCall = mockH.mock.calls.find((call) => call[0] === 'label')!
     expect(labelCall).toBeDefined()
-    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input') as unknown[]
+    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input')!
     expect((inputCall[1] as Record<string, unknown>).type).toBe('checkbox')
     expect((inputCall[1] as Record<string, unknown>)['data-state']).toBe('unchecked')
   })
@@ -1212,7 +1296,7 @@ describe('Checkbox component', () => {
   it('marks the input invalid and describes the error', async () => {
     const { renderFn } = await setupCheckbox({ error: 'Required.' })
     renderFn()
-    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input') as unknown[]
+    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input')!
     const attrs = inputCall[1] as Record<string, unknown>
     expect(attrs['aria-invalid']).toBe(true)
     expect(String(attrs['aria-describedby'])).toMatch(/-error$/)
@@ -1221,18 +1305,18 @@ describe('Checkbox component', () => {
   it('emits change with the toggling click event like React onChange', async () => {
     const { renderFn, mockEmit } = await setupCheckbox({})
     renderFn()
-    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input') as unknown[]
+    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input')!
     const event = { type: 'click', target: { checked: true } }
-    ;(inputCall[1] as Record<string, unknown>).onClick(event)
+    inputCall[1].onClick!(event)
     expect(mockEmit).toHaveBeenCalledWith('change', event)
   })
 
   it('restores a controlled checked right after the change handler', async () => {
     const { renderFn } = await setupCheckbox({ checked: true })
     renderFn()
-    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input') as unknown[]
+    const inputCall = mockH.mock.calls.find((call) => call[0] === 'input')!
     const target = { checked: false }
-    ;(inputCall[1] as Record<string, unknown>).onClick({ type: 'click', target })
+    inputCall[1].onClick!({ type: 'click', target })
     expect(target.checked).toBe(true)
   })
 })
@@ -1469,10 +1553,10 @@ describe('Switch component', () => {
   it('renders the hidden native checkbox before the label', async () => {
     const { renderFn } = await setupSwitch({})
     renderFn()
-    const first = mockH.mock.calls.find((call) => call[0] === 'input') as unknown[]
+    const first = mockH.mock.calls.find((call) => call[0] === 'input')!
     expect((first[1] as Record<string, unknown>).type).toBe('checkbox')
     expect((first[1] as Record<string, unknown>)['aria-hidden']).toBe('true')
-    const labelCall = mockH.mock.calls.find((call) => call[0] === 'label') as unknown[]
+    const labelCall = mockH.mock.calls.find((call) => call[0] === 'label')!
     expect(labelCall).toBeDefined()
   })
 
@@ -1481,9 +1565,9 @@ describe('Switch component', () => {
     renderFn()
     const buttonCall = mockH.mock.calls.find(
       (call) => call[0] === 'button' && call[1]?.role === 'switch',
-    ) as unknown[]
+    )!
     const event = { type: 'click', defaultPrevented: false }
-    ;(buttonCall[1] as Record<string, unknown>).onClick(event)
+    buttonCall[1].onClick!(event)
     expect(mockEmit).toHaveBeenCalledWith('click', event)
   })
 
@@ -1492,8 +1576,8 @@ describe('Switch component', () => {
     renderFn()
     const buttonCall = mockH.mock.calls.find(
       (call) => call[0] === 'button' && call[1]?.role === 'switch',
-    ) as unknown[]
-    ;(buttonCall[1] as Record<string, unknown>).onClick({ type: 'click', defaultPrevented: false })
+    )!
+    buttonCall[1].onClick!({ type: 'click', defaultPrevented: false })
     expect(mockEmit).toHaveBeenCalledTimes(1)
     expect(mockEmit).toHaveBeenCalledWith('click', expect.anything())
     expect(mockEmit).not.toHaveBeenCalledWith('change', expect.anything())
@@ -2422,9 +2506,9 @@ describe('Skeleton components', () => {
 
     renderFn()
     const divCall = mockH.mock.calls[mockH.mock.calls.length - 1]
-    expect(divCall[1].style.borderRadius).toBe('9999px')
+    expect(divCall[1].style?.borderRadius).toBe('9999px')
     // Circle with width but no height should set height = width
-    expect(divCall[1].style.height).toBe('40px')
+    expect(divCall[1].style?.height).toBe('40px')
   })
 
   it('Skeleton setup should apply className and testId', async () => {
@@ -3141,9 +3225,9 @@ describe('FloatingInput component', () => {
 
   const inputCall = (): { props: Record<string, unknown>; children: unknown } | undefined => {
     // The latest render: some tests render twice around an input event.
-    const call = mockH.mock.calls.findLast(
-      (c) => c[0] === 'input' && typeof c[1]?.onInput === 'function',
-    )
+    const call = [...mockH.mock.calls]
+      .reverse()
+      .find((c) => c[0] === 'input' && typeof c[1]?.onInput === 'function')
     return call ? { props: call[1], children: call[2] } : undefined
   }
 
@@ -3350,7 +3434,10 @@ describe('Tabs component', () => {
     const panel = lastPanel()!
     expect(String(buttons[0].id)).toMatch(/^mol-tabs-\d+-tab-account$/)
     expect(String(buttons[1].id)).toMatch(/^mol-tabs-\d+-tab-profile$/)
-    expect(buttons[1]['aria-controls']).toBe(String(buttons[1].id).replace(/-tab-/, '-tabpanel-'))
+    // Only the tab whose panel is rendered (the active one, when its item has
+    // content) names it; the other tabs carry no aria-controls.
+    expect(buttons[0]['aria-controls']).toBe(String(buttons[0].id).replace(/-tab-/, '-tabpanel-'))
+    expect(buttons[1]['aria-controls']).toBeUndefined()
     expect(panel.id).toMatch(/^mol-tabs-\d+-tabpanel-account$/)
   })
 
@@ -3892,7 +3979,7 @@ describe('Table component', () => {
 
     const overlay = callOf('div', (p) => p.class === 'table-loading-overlay')
     expect(overlay).toBeDefined()
-    const spinnerCall = mockH.mock.calls.find((c) => c[0]?.name === 'MSpinner')
+    const spinnerCall = mockH.mock.calls.find((c) => hTargetName(c[0]) === 'MSpinner')
     expect(spinnerCall).toBeDefined()
     expect(spinnerCall![1]).toEqual({ size: 'lg' })
   })
@@ -4036,7 +4123,7 @@ describe('Tooltip component', () => {
       (call) => call[0] === 'div' && call[1]?.style?.position === 'absolute',
     )
     expect(wrapperCall).toBeDefined()
-    expect(wrapperCall![1].style.zIndex).toBe(9999)
+    expect(wrapperCall![1].style?.zIndex).toBe(9999)
   })
 
   it('hides the tooltip and drops the Teleport when the trigger blurs', async () => {
@@ -4081,8 +4168,8 @@ describe('Tooltip component', () => {
 
   it('does not inject aria-describedby with multiple trigger children', async () => {
     await renderTooltip({ content: 'Hi', placement: 'top', delay: 0 }, [
-      mockH('span', null, 'One'),
-      mockH('span', null, 'Two'),
+      mockH('span', {}, 'One'),
+      mockH('span', {}, 'Two'),
     ])
     showTooltip()
     renderCurrent()
@@ -4553,7 +4640,7 @@ describe('Layout components', () => {
 
       renderFn()
       const divCall = mockH.mock.calls[mockH.mock.calls.length - 1]
-      expect(divCall[1].style.gridTemplateColumns).toBe('1fr 2fr 1fr')
+      expect(divCall[1].style?.gridTemplateColumns).toBe('1fr 2fr 1fr')
     })
   })
 
@@ -4892,7 +4979,7 @@ describe('PageShell component', () => {
     expect(buttonCall![1]['aria-label']).toBe('Collapse sidebar')
     expect(buttonCall![2]).toBe('◀')
 
-    buttonCall![1].onClick({ type: 'click' })
+    buttonCall![1].onClick!({ type: 'click' })
     expect(onToggle).toHaveBeenCalledWith({ type: 'click' })
   })
 
@@ -5061,7 +5148,7 @@ describe('OptimisticToggleButton component', () => {
     expect(buttonCall![1].type).toBe('button')
     expect(buttonCall![1]['aria-pressed']).toBe(false)
     expect(buttonCall![1]['aria-busy']).toBe(false)
-    expect(buttonCall![2].default()).toBe('Star')
+    expect((buttonCall![2] as MockHSlots).default()).toBe('Star')
   })
 
   it('should show the active label and pressed state when the value is true', async () => {
@@ -5075,7 +5162,7 @@ describe('OptimisticToggleButton component', () => {
     renderFn()
     const buttonCall = mockH.mock.calls.find((call) => call[0] === Button)
     expect(buttonCall![1]['aria-pressed']).toBe(true)
-    expect(buttonCall![2].default()).toBe('Unstar')
+    expect((buttonCall![2] as MockHSlots).default()).toBe('Unstar')
   })
 
   it('should fall back to the activeLabel/inactiveLabel slots', async () => {
@@ -5096,7 +5183,7 @@ describe('OptimisticToggleButton component', () => {
 
     renderFn()
     const buttonCall = mockH.mock.calls.find((call) => call[0] === Button)
-    expect(buttonCall![2].default()).toEqual(['Follow me'])
+    expect((buttonCall![2] as MockHSlots).default()).toEqual(['Follow me'])
 
     // The active-value render takes the activeLabel slot instead.
     const activeRenderFn = (
@@ -5111,7 +5198,7 @@ describe('OptimisticToggleButton component', () => {
     )
     activeRenderFn()
     const activeButtonCall = mockH.mock.calls.filter((call) => call[0] === Button).pop()
-    expect(activeButtonCall![2].default()).toEqual([strong])
+    expect((activeButtonCall![2] as MockHSlots).default()).toEqual([strong])
   })
 
   it('should pass the variant, size, disabled and passthrough props to the Button', async () => {
@@ -5173,14 +5260,14 @@ describe('OptimisticToggleButton component', () => {
 
     renderFn()
     const buttonCall = mockH.mock.calls.find((call) => call[0] === Button)
-    buttonCall![1].onClick({ type: 'click' })
+    buttonCall![1].onClick!({ type: 'click' })
 
     expect(commit).toHaveBeenCalledWith(true)
     // The optimistic flip renders immediately.
     renderFn()
     const rendered = mockH.mock.calls.filter((call) => call[0] === Button).pop()
     expect(rendered![1]['aria-pressed']).toBe(true)
-    expect(rendered![2].default()).toBe('Unstar')
+    expect((rendered![2] as MockHSlots).default()).toBe('Unstar')
 
     await drain()
     // The save settles; the confirmed value stays.
@@ -5202,8 +5289,8 @@ describe('OptimisticToggleButton component', () => {
 
     renderFn()
     const buttonCall = mockH.mock.calls.find((call) => call[0] === Button)
-    buttonCall![1].onClick({ type: 'click' })
-    buttonCall![1].onClick({ type: 'click' })
+    buttonCall![1].onClick!({ type: 'click' })
+    buttonCall![1].onClick!({ type: 'click' })
 
     await drain()
     expect(commit).toHaveBeenCalledTimes(2)
@@ -5242,14 +5329,14 @@ describe('OptimisticToggleButton component', () => {
 
     renderFn()
     const buttonCall = mockH.mock.calls.find((call) => call[0] === Button)
-    buttonCall![1].onClick({ type: 'click' })
+    buttonCall![1].onClick!({ type: 'click' })
     await drain()
 
     expect(emit).toHaveBeenCalledWith('error', failure)
     renderFn()
     const settled = mockH.mock.calls.filter((call) => call[0] === Button).pop()
     expect(settled![1]['aria-pressed']).toBe(false)
-    expect(settled![2].default()).toBe('Star')
+    expect((settled![2] as MockHSlots).default()).toBe('Star')
   })
 
   it('should show the busy state while the commit is in flight', async () => {
@@ -5269,14 +5356,14 @@ describe('OptimisticToggleButton component', () => {
 
     renderFn()
     const buttonCall = mockH.mock.calls.find((call) => call[0] === Button)
-    buttonCall![1].onClick({ type: 'click' })
+    buttonCall![1].onClick!({ type: 'click' })
     await Promise.resolve()
 
     renderFn()
     const pending = mockH.mock.calls.filter((call) => call[0] === Button).pop()
     expect(pending![1]['aria-busy']).toBe(true)
     expect(pending![1]['aria-pressed']).toBe(true)
-    expect(pending![2].default()).toBe('Unstar')
+    expect((pending![2] as MockHSlots).default()).toBe('Unstar')
 
     release(false)
     await drain()
@@ -5286,7 +5373,7 @@ describe('OptimisticToggleButton component', () => {
     const settled = mockH.mock.calls.filter((call) => call[0] === Button).pop()
     expect(settled![1]['aria-busy']).toBe(false)
     expect(settled![1]['aria-pressed']).toBe(false)
-    expect(settled![2].default()).toBe('Star')
+    expect((settled![2] as MockHSlots).default()).toBe('Star')
   })
 
   it('should keep the optimistic value when the server confirms it', async () => {
@@ -5306,14 +5393,14 @@ describe('OptimisticToggleButton component', () => {
 
     renderFn()
     const buttonCall = mockH.mock.calls.find((call) => call[0] === Button)
-    buttonCall![1].onClick({ type: 'click' })
+    buttonCall![1].onClick!({ type: 'click' })
     release(true)
     await drain()
 
     renderFn()
     const settled = mockH.mock.calls.filter((call) => call[0] === Button).pop()
     expect(settled![1]['aria-pressed']).toBe(true)
-    expect(settled![2].default()).toBe('Unstar')
+    expect((settled![2] as MockHSlots).default()).toBe('Unstar')
   })
 })
 
@@ -5459,7 +5546,7 @@ describe('UserMenu component', () => {
     const result = renderFn() as unknown[]
     expect(Array.isArray(result)).toBe(true)
 
-    const trigger = mockH.mock.calls.find((call) => call[0] === Button) as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === Button)!
     expect(trigger).toBeDefined()
     expect(trigger[1]).toEqual(
       expect.objectContaining({
@@ -5484,7 +5571,7 @@ describe('UserMenu component', () => {
       },
     )
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === Button) as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === Button)!
     expect(trigger[1]['aria-label']).toBe('Open account')
   })
 
@@ -5501,7 +5588,7 @@ describe('UserMenu component', () => {
       },
     )
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === Button) as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === Button)!
     const iconVNode = (
       trigger[2] as { default: () => { type: unknown; props: Record<string, unknown> }[] }
     ).default()[0]
@@ -5517,7 +5604,7 @@ describe('UserMenu component', () => {
       { attrs: {}, slots: {}, emit: vi.fn() },
     )
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === Button) as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === Button)!
     expect(trigger[1].disabled).toBe(true)
   })
 
@@ -5526,12 +5613,12 @@ describe('UserMenu component', () => {
     const { Modal } = await import('../components/Modal.js')
     const setup = UserMenu.setup as (...args: unknown[]) => (...args: unknown[]) => unknown
     setup(baseProps, { attrs: {}, slots: {}, emit: vi.fn() })()
-    const right = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const right = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     expect(right[1].className).toBe('drawer-classes')
     expect(right[1]['aria-label']).toBe('Account menu')
 
     setup({ ...baseProps, side: 'left' }, { attrs: {}, slots: {}, emit: vi.fn() })()
-    const left = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const left = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     expect(left[1].className).toBe('drawer-classes drawer-left-classes')
   })
 
@@ -5545,11 +5632,11 @@ describe('UserMenu component', () => {
     )
 
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === Button) as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === Button)!
     ;(trigger[1] as { onClick: () => void }).onClick()
 
     renderFn()
-    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     expect(modal[1].open).toBe(true)
   })
 
@@ -5564,13 +5651,13 @@ describe('UserMenu component', () => {
     )
 
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === Button) as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === Button)!
     expect((trigger[1] as { onClick?: () => void }).onClick).toBe(onClick)
     ;(trigger[1] as { onClick: (event: unknown) => void }).onClick({ type: 'click' })
     expect(onClick).toHaveBeenCalledTimes(1)
 
     renderFn()
-    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     expect(modal[1].open).toBe(false)
   })
 
@@ -5584,15 +5671,13 @@ describe('UserMenu component', () => {
     )
 
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === Button) as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === Button)!
     ;(trigger[1] as { onClick: () => void }).onClick()
-    const routeWatcher = mockWatch.mock.calls.find(
-      (call) => typeof call[0] === 'function',
-    ) as unknown[]
+    const routeWatcher = mockWatch.mock.calls.find((call) => typeof call[0] === 'function')!
     ;(routeWatcher[1] as () => void)()
 
     renderFn()
-    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     expect(modal[1].open).toBe(false)
   })
 
@@ -5608,11 +5693,11 @@ describe('UserMenu component', () => {
     )
 
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === Button) as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === Button)!
     ;(trigger[1] as { onClick: () => void }).onClick()
 
     renderFn()
-    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     const providerVNode = (
       modal[2] as {
         default: () => { type: unknown; props: { close: () => void }; children: unknown }[]
@@ -5625,7 +5710,7 @@ describe('UserMenu component', () => {
     providerVNode.props.close()
 
     renderFn()
-    const closed = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const closed = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     expect(closed[1].open).toBe(false)
   })
 })
@@ -5718,7 +5803,7 @@ describe('SidebarUserCard component', () => {
     const result = renderFn() as unknown[]
     expect(Array.isArray(result)).toBe(true)
 
-    const trigger = mockH.mock.calls.find((call) => call[0] === 'button') as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === 'button')!
     expect(trigger[1]).toEqual(
       expect.objectContaining({
         type: 'button',
@@ -5730,7 +5815,7 @@ describe('SidebarUserCard component', () => {
       .filter((call) => typeof call[2] === 'string')
       .map((call) => call[2])
     expect(texts.sort()).toEqual(['AL', 'Ada Lovelace', 'ada@example.com'])
-    const initials = mockH.mock.calls.find((call) => call[2] === 'AL') as unknown[]
+    const initials = mockH.mock.calls.find((call) => call[2] === 'AL')!
     expect((initials[1] as Record<string, unknown>)['aria-hidden']).toBe('true')
   })
 
@@ -5766,7 +5851,7 @@ describe('SidebarUserCard component', () => {
       },
     )
     renderFn()
-    const img = mockH.mock.calls.find((call) => call[0] === 'img') as unknown[]
+    const img = mockH.mock.calls.find((call) => call[0] === 'img')!
     expect(img).toBeDefined()
     expect((img[1] as Record<string, unknown>).src).toBe('data:image/png;base64,AAAA')
     expect((img[1] as Record<string, unknown>).alt).toBe('')
@@ -5813,7 +5898,7 @@ describe('SidebarUserCard component', () => {
       emit: vi.fn(),
     })
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === 'button') as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === 'button')!
     expect(trigger[1]).toEqual(
       expect.objectContaining({ title: 'Account', 'data-track': 'account-card' }),
     )
@@ -5825,7 +5910,7 @@ describe('SidebarUserCard component', () => {
       SidebarUserCard.setup as (...args: unknown[]) => (...args: unknown[]) => unknown
     )({ ...baseProps, className: 'parity-token' }, { attrs: {}, slots: {}, emit: vi.fn() })
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === 'button') as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === 'button')!
     expect((trigger[1] as Record<string, unknown>).class).toBe(
       'flex-layout align-center gap-sm spacing-px-3 spacing-py-3 sidebar-user-card-trigger-classes parity-token',
     )
@@ -5840,11 +5925,11 @@ describe('SidebarUserCard component', () => {
     )(baseProps, { attrs: {}, slots: { default: () => ['Panel body'] }, emit: vi.fn() })
 
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === 'button') as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === 'button')!
     ;(trigger[1] as { onClick: () => void }).onClick()
 
     renderFn()
-    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     expect(modal[1].open).toBe(true)
     expect(modal[1].className).toBe('drawer-classes')
 
@@ -5855,7 +5940,7 @@ describe('SidebarUserCard component', () => {
     providerVNode.props.close()
 
     renderFn()
-    const closed = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const closed = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     expect(closed[1].open).toBe(false)
   })
 
@@ -5867,15 +5952,13 @@ describe('SidebarUserCard component', () => {
     )(baseProps, { attrs: {}, slots: {}, emit: vi.fn() })
 
     renderFn()
-    const trigger = mockH.mock.calls.find((call) => call[0] === 'button') as unknown[]
+    const trigger = mockH.mock.calls.find((call) => call[0] === 'button')!
     ;(trigger[1] as { onClick: () => void }).onClick()
-    const routeWatcher = mockWatch.mock.calls.find(
-      (call) => typeof call[0] === 'function',
-    ) as unknown[]
+    const routeWatcher = mockWatch.mock.calls.find((call) => typeof call[0] === 'function')!
     ;(routeWatcher[1] as () => void)()
 
     renderFn()
-    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop() as unknown[]
+    const modal = mockH.mock.calls.filter((call) => call[0] === Modal).pop()!
     expect(modal[1].open).toBe(false)
   })
 })
@@ -5954,10 +6037,10 @@ describe('ConfirmDialog component', () => {
     expect(buttons).toHaveLength(2)
     // Cancel forwards the click event, like React's onClick={onClose}.
     const clickEvent = { type: 'click' }
-    buttons[0]![1].onClick(clickEvent)
+    buttons[0]![1].onClick!(clickEvent)
     expect(mockEmit).toHaveBeenCalledWith('close', clickEvent)
     // Confirm fires with no arguments, like React's () => void onConfirm().
-    buttons[1]![1].onClick()
+    buttons[1]![1].onClick!()
     expect(mockEmit).toHaveBeenCalledWith('confirm')
   })
 })
@@ -6014,11 +6097,11 @@ describe('PromptDialog component', () => {
 
     // The form lives in Modal's default slot; render it so its vnode exists
     // (the mocked Modal does not render slots itself).
-    const modalCall = mockH.mock.calls.find((call) => call[0]?.name === 'MModal')
+    const modalCall = mockH.mock.calls.find((call) => hTargetName(call[0]) === 'MModal')
     ;(modalCall![2] as { default: () => unknown }).default()
     const formCall = mockH.mock.calls.find((call) => call[0] === 'form')
     const fakeEvent = { preventDefault: vi.fn() }
-    formCall![1].onSubmit(fakeEvent)
+    formCall![1].onSubmit!(fakeEvent)
     expect(fakeEvent.preventDefault).toHaveBeenCalled()
     expect(onSubmit).toHaveBeenCalledWith('')
     await Promise.resolve()
@@ -6040,12 +6123,12 @@ describe('PromptDialog component', () => {
 
     // The form lives in Modal's default slot; render it so its vnode exists
     // (the mocked Modal does not render slots itself).
-    const modalCall = mockH.mock.calls.find((call) => call[0]?.name === 'MModal')
+    const modalCall = mockH.mock.calls.find((call) => hTargetName(call[0]) === 'MModal')
     ;(modalCall![2] as { default: () => unknown }).default()
 
     // The ref handed to the Input vnode is the dialog's own input ref; wire it
     // to a fake Input root wrapping the native input.
-    const inputCall = mockH.mock.calls.find((call) => call[0]?.name === 'MInput')
+    const inputCall = mockH.mock.calls.find((call) => hTargetName(call[0]) === 'MInput')
     const inputRef = (inputCall![1] as { ref: { value: unknown } }).ref
     const fakeInput = { focus: vi.fn() }
     inputRef.value = {
@@ -6112,12 +6195,12 @@ describe('ConfirmButton component', () => {
     renderFn()
     expect(buttonCalls().at(-1)![1]).toMatchObject({ 'data-state': 'idle', 'aria-live': 'polite' })
 
-    buttonCalls().at(-1)![1].onClick()
+    buttonCalls().at(-1)![1].onClick!()
     renderFn()
     expect(buttonCalls().at(-1)![1]).toMatchObject({ 'data-state': 'armed' })
     expect(buttonCalls().at(-1)![1].class).toContain('color-error')
 
-    buttonCalls().at(-1)![1].onClick()
+    buttonCalls().at(-1)![1].onClick!()
     renderFn()
     expect(buttonCalls().at(-1)![1]).toMatchObject({ 'data-state': 'pending', disabled: true })
 
@@ -6139,7 +6222,7 @@ describe('ConfirmButton component', () => {
     renderFn()
     const buttonCalls = () => mockH.mock.calls.filter((call) => call[0] === 'button')
     expect(buttonCalls().at(-1)![2]).toEqual(['Delete'])
-    buttonCalls().at(-1)![1].onClick()
+    buttonCalls().at(-1)![1].onClick!()
     renderFn()
     expect(buttonCalls().at(-1)![2]).toEqual(['Confirm?'])
   })
@@ -6268,9 +6351,7 @@ describe('UserMenuPopover component', () => {
     provided.setOpen(true)
     expect(provided.open.value).toBe(true)
 
-    const routeWatcher = mockWatch.mock.calls.find(
-      (call) => typeof call[0] === 'function',
-    ) as unknown[]
+    const routeWatcher = mockWatch.mock.calls.find((call) => typeof call[0] === 'function')!
     ;(routeWatcher[1] as () => void)()
     expect(provided.open.value).toBe(false)
   })
@@ -6318,7 +6399,7 @@ describe('UserMenuPopover component', () => {
       // registers its own watcher over an array of sources.
       const openWatcher = mockWatch.mock.calls.find(
         (call) => typeof call[0] === 'object' && !Array.isArray(call[0]),
-      ) as unknown[]
+      )!
       ;(openWatcher[1] as (value: boolean) => void)(true)
       expect(documentAdd).toHaveBeenCalledWith('mousedown', expect.any(Function))
       expect(documentAdd).toHaveBeenCalledWith('keydown', expect.any(Function))
@@ -6333,7 +6414,13 @@ describe('UserMenuPopover component', () => {
 })
 
 /** A popover context stand-in for exercising the sub-components standalone. */
-const popoverContext = () => ({
+const popoverContext = (): {
+  open: { value: boolean }
+  setOpen: ReturnType<typeof vi.fn>
+  displayName: { value: string }
+  email: { value: string | undefined }
+  panelId: string
+} => ({
   open: { value: false },
   setOpen: vi.fn(),
   displayName: { value: 'Ada Lovelace' },
@@ -6344,14 +6431,19 @@ const popoverContext = () => ({
 /**
  * A sub-component's own prop defaults as a setup props object — the mocked
  * `defineComponent` hands `setup` through untouched, so the defaults a real
- * mount would resolve must be passed explicitly.
+ * mount would resolve must be passed explicitly. Takes the component options
+ * object; Vue types its `props` option through an index signature, so it is
+ * read back as `unknown` and narrowed here.
  */
-const propDefaults = (component: { props: unknown }): Record<string, unknown> =>
-  Object.fromEntries(
+const propDefaults = (component: Record<string, unknown>): Record<string, unknown> => {
+  // A component declares its props as an options object or as bare keys.
+  if (Array.isArray(component.props)) return {}
+  return Object.fromEntries(
     Object.entries(component.props as Record<string, { default?: unknown }>)
       .filter(([, def]) => typeof def === 'object' && def !== null && 'default' in def)
       .map(([name, def]) => [name, def.default]),
   )
+}
 
 describe('UserMenuPopoverTrigger component', () => {
   let context: ReturnType<typeof popoverContext>
@@ -6513,7 +6605,11 @@ describe('UserMenuPopoverPanel component', () => {
     const panel = renderFn() as {
       type: string
       props: Record<string, unknown>
-      children: { type: unknown; props: Record<string, unknown> }[]
+      children: {
+        type: unknown
+        props: Record<string, unknown>
+        children: { props: Record<string, unknown>; children: unknown }[]
+      }[]
     }
     expect(panel.type).toBe('div')
     expect(panel.props).toEqual(
@@ -6833,9 +6929,7 @@ describe('AuthGuard component', () => {
       state: { from: { pathname: '/settings', search: '', hash: '' } },
     })
 
-    const redirectWatcher = mockWatch.mock.calls.find(
-      (call) => typeof call[0] === 'function',
-    ) as unknown[]
+    const redirectWatcher = mockWatch.mock.calls.find((call) => typeof call[0] === 'function')!
     routerNavigate.mockClear()
     ;(redirectWatcher[1] as () => void)()
     expect(routerNavigate).toHaveBeenCalledTimes(1)
@@ -6852,7 +6946,7 @@ describe('AuthGuard component', () => {
       // `useAuth` registers its own immediate watcher over an array of sources.
       (call) =>
         (call[2] as { immediate?: boolean } | undefined)?.immediate && !Array.isArray(call[0]),
-    ) as unknown[]
+    )!
     ;(authWatcher[1] as (value: boolean) => void)(true)
     expect(emit).toHaveBeenCalledWith('authenticated')
     emit.mockClear()
@@ -6874,7 +6968,7 @@ describe('AuthGuard component', () => {
       // `useAuth` registers its own immediate watcher over an array of sources.
       (call) =>
         (call[2] as { immediate?: boolean } | undefined)?.immediate && !Array.isArray(call[0]),
-    ) as unknown[]
+    )!
     ;(authWatcher[1] as (value: boolean) => void)(false)
     expect(emit).not.toHaveBeenCalled()
   })
@@ -7133,15 +7227,15 @@ describe('ResponsiveAppShell components', () => {
         drawerOpen: { value: boolean }
         isDesktop: { value: boolean }
       }
-      const watchers = mockWatch.mock.calls as unknown[]
+      const watchers = mockWatch.mock.calls
       expect(watchers).toHaveLength(2)
       ctx.drawerOpen.value = true
-      ;(watchers[0] as unknown[])[1]() // location.key watcher callback
+      watchers[0]![1]() // location.key watcher callback
       expect(ctx.drawerOpen.value).toBe(false)
       ctx.drawerOpen.value = true
-      ;(watchers[1] as unknown[])[1](true) // isDesktop watcher callback
+      watchers[1]![1](true) // isDesktop watcher callback
       expect(ctx.drawerOpen.value).toBe(false)
-      ;(watchers[1] as unknown[])[1](false) // staying mobile keeps it open
+      watchers[1]![1](false) // staying mobile keeps it open
       expect(ctx.drawerOpen.value).toBe(false)
     })
   })

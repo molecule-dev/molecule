@@ -18,6 +18,7 @@ export const ro: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Încărcare',
   'ui.radioGroup.label': 'Grup radio',
   'sidebarUserCard.guest': 'Vizitator',
+  'sidebarUserCard.drawer': 'Cont',
   'userMenuPopover.guest': 'Cont',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

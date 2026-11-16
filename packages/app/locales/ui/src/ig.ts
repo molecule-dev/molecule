@@ -18,6 +18,7 @@ export const ig: UiTranslations = {
   'ui.radioGroup.label': 'Otu redio',
   'ui.progress.label': 'Ọganihu',
   'sidebarUserCard.guest': 'Ọbịa',
+  'sidebarUserCard.drawer': 'Akaụntụ',
   'userMenuPopover.guest': 'Akaụntụ',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

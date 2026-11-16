@@ -18,6 +18,7 @@ export const vi: Partial<UiTranslations> = {
   'ui.table.empty': 'Không có dữ liệu nào khả dụng.',
   'ui.radioGroup.label': 'Nhóm phát thanh',
   'sidebarUserCard.guest': 'Khách',
+  'sidebarUserCard.drawer': 'Tài khoản',
   'userMenuPopover.guest': 'Tài khoản',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

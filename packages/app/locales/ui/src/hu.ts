@@ -18,6 +18,7 @@ export const hu: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Terhelés',
   'ui.radioGroup.label': 'Rádiócsoport',
   'sidebarUserCard.guest': 'Vendég',
+  'sidebarUserCard.drawer': 'Fiók',
   'userMenuPopover.guest': 'Fiók',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

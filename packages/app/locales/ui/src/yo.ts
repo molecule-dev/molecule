@@ -18,6 +18,7 @@ export const yo: UiTranslations = {
   'ui.radioGroup.label': 'Ẹgbẹ́ rédíò',
   'ui.progress.label': 'Ìlọsìwájú',
   'sidebarUserCard.guest': 'Àlejò',
+  'sidebarUserCard.drawer': 'Àkọọ́lẹ̀',
   'userMenuPopover.guest': 'Àkọọ́lẹ̀',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

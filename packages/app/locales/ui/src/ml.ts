@@ -27,6 +27,7 @@ export const ml: UiTranslations = {
     '\u0d31\u0d47\u0d21\u0d3f\u0d2f\u0d4b \u0d17\u0d4d\u0d30\u0d42\u0d2a\u0d4d\u0d2a\u0d4d',
   'ui.progress.label': '\u0d2a\u0d41\u0d30\u0d4b\u0d17\u0d24\u0d3f',
   'sidebarUserCard.guest': 'അതിഥി',
+  'sidebarUserCard.drawer': 'അക്കൗണ്ട്',
   'userMenuPopover.guest': 'അക്കൗണ്ട്',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

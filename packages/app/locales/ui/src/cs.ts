@@ -18,6 +18,7 @@ export const cs: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Načítání',
   'ui.radioGroup.label': 'Rádiová skupina',
   'sidebarUserCard.guest': 'Host',
+  'sidebarUserCard.drawer': 'Účet',
   'userMenuPopover.guest': 'Účet',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

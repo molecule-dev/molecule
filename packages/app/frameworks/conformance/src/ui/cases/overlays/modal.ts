@@ -4,7 +4,13 @@
  * @module
  */
 
-import type { UIComponentCases } from '../../spec.js'
+import type { CaseA11y, UIComponentCases } from '../../spec.js'
+
+/** The case opens a modal with no title and no aria-label. */
+const UNNAMED: CaseA11y = {
+  expect: ['aria-dialog-name'],
+  reason: 'The case opens a modal with no title and no aria-label',
+}
 
 /** Modal: sizes, title/footer, close behaviors (button, overlay, escape), passthrough. */
 export const modalCases: UIComponentCases = {
@@ -30,6 +36,7 @@ export const modalCases: UIComponentCases = {
     })),
     {
       name: 'without title uses floating close button',
+      a11y: UNNAMED,
       props: { open: true },
       callbacks: ['onClose'],
       children: ['No title here'],
@@ -107,6 +114,26 @@ export const modalCases: UIComponentCases = {
       },
       callbacks: ['onClose'],
       children: ['Body'],
+    },
+    {
+      // React spreads its `aria-*`/`data-*` rest props on every render; the
+      // ports must re-apply a changed value onto the dialog element too
+      // (a translated aria-label, a data-* state attribute).
+      name: 'pass-through attributes follow a props update',
+      props: {
+        open: true,
+        title: 'Passthrough update',
+        'aria-label': 'First label',
+        'data-state': 'one',
+      },
+      callbacks: ['onClose'],
+      children: ['Body'],
+      interactions: [
+        {
+          type: 'props',
+          props: { 'aria-label': 'Second label', 'data-state': 'two' },
+        },
+      ],
     },
     {
       name: 'overlay click calls onClose',

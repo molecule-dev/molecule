@@ -18,6 +18,7 @@ export const gu: UiTranslations = {
   'ui.radioGroup.label': 'રેડિયો જૂથ',
   'ui.progress.label': 'પ્રગતિ',
   'sidebarUserCard.guest': 'મહેમાન',
+  'sidebarUserCard.drawer': 'ખાતું',
   'userMenuPopover.guest': 'ખાતું',
   'ui.avatar.fallback': '?',
   'ui.icon.check': '✓',

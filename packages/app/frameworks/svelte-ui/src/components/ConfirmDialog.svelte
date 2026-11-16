@@ -8,6 +8,7 @@
   import { useTranslation } from '@molecule/app-svelte'
   import { getClassMap } from '@molecule/app-ui'
 
+  import { useGeneratedId } from '../dom.js'
   import type { ConfirmDialogProps } from '../types.js'
   import Button from './Button.svelte'
   import Modal from './Modal.svelte'
@@ -28,12 +29,26 @@
 
   const { t } = useTranslation()
   const cm = $derived(getClassMap())
+  // The dialog names itself with its visible title and, when rendered, its
+  // description (WAI-ARIA dialog pattern): the ids reach the dialog element
+  // through Modal's `aria-*` pass-through, so screen readers announce the
+  // title and description instead of an unnamed dialog (axe
+  // `aria-dialog-name`).
+  const titleId = useGeneratedId()
+  const descriptionId = useGeneratedId()
 </script>
 
-<Modal {open} {onClose}>
+<Modal
+  {open}
+  {onClose}
+  aria-labelledby={titleId}
+  aria-describedby={description ? descriptionId : undefined}
+>
   <div class={cm.stack(3)}>
-    <h2 class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}><ReactNode node={title} /></h2>
-    <p class={cm.textSize('sm')}><ReactNode node={description} /></p>
+    <h2 id={titleId} class={cm.cn(cm.textSize('lg'), cm.fontWeight('bold'))}>
+      <ReactNode node={title} />
+    </h2>
+    <p id={descriptionId} class={cm.textSize('sm')}><ReactNode node={description} /></p>
     {@render children?.()}
     <div class={cm.flex({ justify: 'end', gap: 'sm' })}>
       <Button variant="ghost" onClick={onClose} disabled={loading}>

@@ -91,13 +91,17 @@
       {@const isActive = item.value === activeValue}
       <!-- The arrow keys act on the focused tab (the tablist itself never
            takes focus), so the handler sits on each tab. -->
+      <!-- Only the tab whose panel is actually rendered (the active one,
+           when its item has content) may name it: an `aria-controls` pointing
+           at nothing (an inactive tab's, or a content-less active item's)
+           fails axe `aria-valid-attr-value` and misleads assistive tech. -->
       <button
         id={`${idBase}-tab-${item.value}`}
         use:tabRef={item.value}
         type="button"
         role="tab"
         aria-selected={isActive}
-        aria-controls={`${idBase}-tabpanel-${item.value}`}
+        aria-controls={isActive && !!item.content ? `${idBase}-tabpanel-${item.value}` : undefined}
         data-state={isActive ? 'active' : 'inactive'}
         tabindex={isActive ? 0 : -1}
         disabled={item.disabled}

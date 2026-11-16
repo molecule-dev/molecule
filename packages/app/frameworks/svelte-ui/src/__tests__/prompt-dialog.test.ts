@@ -46,7 +46,7 @@ import { type Component, mount, unmount } from 'svelte'
 
 const { default: PromptDialog } = await import('../components/PromptDialog.svelte')
 
-const mounted: Array<ReturnType<typeof unmount>> = []
+const mounted: Array<ReturnType<typeof mount>> = []
 const hosts: HTMLElement[] = []
 
 afterEach(() => {

@@ -129,7 +129,14 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
                 type="button"
                 role="tab"
                 aria-selected={isActive()}
-                aria-controls={`${idBase}-tabpanel-${item().value}`}
+                // Only the tab whose panel is actually rendered (the active
+                // one, when its item has content) may name it: an
+                // `aria-controls` pointing at nothing (an inactive tab's, or a
+                // content-less active item's) fails axe
+                // `aria-valid-attr-value` and misleads assistive tech.
+                aria-controls={
+                  isActive() && !!item().content ? `${idBase}-tabpanel-${item().value}` : undefined
+                }
                 // The ACTIVE look itself stays a `data-[state=active]` CSS
                 // attribute selector baked into `cm.tabsTrigger()`'s output
                 // (see core/ui's `TabsClassOptions` doc) — this attribute is
