@@ -31,7 +31,8 @@
  * (lib/committed-export.mjs), never from the checkout, which other sessions
  * share: their uncommitted edits can neither fail the build nor reach npm. A
  * package that is not committed yet is left for a later run (one summary line),
- * and does not fail the run.
+ * and does not fail the run. `--ref=<commit>` builds from that commit instead of HEAD,
+ * so new packages on a branch not yet on main can be trusted before they land.
  *
  * Non-interactive callers (CI, a piped shell) warn and exit 0 — a hook that
  * hangs on a tty nobody is watching is worse than a late failure.
@@ -122,6 +123,22 @@ const RELEASE = args.includes('--release')
 // --from-hook: the pre-push hook. A push never waits on the owner's phone; with no
 // terminal it only says what to run.
 const FROM_HOOK = args.includes('--from-hook')
+// --ref=<commit>: build first publishes from this commit instead of HEAD. New packages
+// committed on a branch that has not landed on main can be trusted before they land, so
+// a release that publishes main never meets a name npm has not been told to trust
+// (a 403). Still committed code only; the ledger commit still goes on HEAD.
+const REF = (args.find((a) => a.startsWith('--ref=')) || '').slice('--ref='.length) || 'HEAD'
+if (REF !== 'HEAD') {
+  try {
+    execFileSync('git', ['-C', ROOT, 'rev-parse', '--verify', '--quiet', `${REF}^{commit}`], {
+      stdio: 'ignore',
+    })
+  } catch (_error) {
+    // rev-parse --quiet prints nothing; the message below is the whole answer.
+    console.error(`--ref=${REF} names no commit in this repo`)
+    process.exit(2)
+  }
+}
 // --concurrency=<n>: packages handled at once. A 6-digit code is accepted for every call
 // inside its window (about 30 s), and a first publish takes several seconds, so one at a
 // time spent a code on about 8 packages (2026-11-15: 42 packages on 5 codes, about 30 more
@@ -633,9 +650,9 @@ let exported = null
  */
 const committedTree = () => {
   if (exported) return exported
-  exported = createCommittedExport({ root: ROOT })
+  exported = createCommittedExport({ root: ROOT, ref: REF })
   console.log(
-    `  building from committed HEAD ${exported.sha.slice(0, 12)} — uncommitted edits in the checkout are not built or published`,
+    `  building from committed ${REF} ${exported.sha.slice(0, 12)} — uncommitted edits in the checkout are not built or published`,
   )
   return exported
 }
@@ -683,8 +700,8 @@ if (uncommitted.length) {
   const shown = uncommitted.slice(0, 5).join(', ')
   const more = uncommitted.length > 5 ? `, and ${uncommitted.length - 5} more` : ''
   console.log(
-    `  ${uncommitted.length} new package(s) are not committed yet, so they are left for a later run ` +
-      `(only committed code is published): ${shown}${more}`,
+    `  ${uncommitted.length} new package(s) are not committed${REF === 'HEAD' ? '' : ` in ${REF}`} yet, so ` +
+      `they are left for a later run (only committed code is published): ${shown}${more}`,
   )
 }
 // The export resolves third-party packages from this repo's own install only. A dependency

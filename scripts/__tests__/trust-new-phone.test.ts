@@ -421,6 +421,54 @@ describe("trust:new with the owner's phone", { timeout: RUN_MS }, () => {
     expect(new Set(run.calls.map((c) => c.name))).toEqual(new Set([A, B]))
   })
 
+  it('--ref builds new packages from a commit that is not on HEAD yet (OLD MUSTFAIL)', async () => {
+    const C = '@molecule/api-demo-c'
+    const root = scratchRepo({ ledger: [], names: [C] })
+    commitLedger(root, new Date())
+    // C is committed on a side branch only; HEAD and the shared index stay without it.
+    const git = (...a: string[]) =>
+      execFileSync('git', a, {
+        cwd: root,
+        encoding: 'utf8',
+        env: {
+          ...Object.fromEntries(
+            Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')),
+          ),
+          GIT_AUTHOR_NAME: 'test',
+          GIT_AUTHOR_EMAIL: 'test@example.com',
+          GIT_COMMITTER_NAME: 'test',
+          GIT_COMMITTER_EMAIL: 'test@example.com',
+        },
+      }).trim()
+    git('add', 'packages')
+    git(
+      'update-ref',
+      'refs/heads/side',
+      git('commit-tree', git('write-tree'), '-p', 'HEAD', '-m', 'side'),
+    )
+    git('reset', '-q')
+    const { socketPath, phone } = await phoneService(root, [{ status: 'pending' }])
+    const scenario = { sessions: ['phone-session'], loginToken: 'phone-session', absent: [C] }
+
+    const onHead = await runTrustNew(root, [], scenario, socketPath)
+    expect(onHead.out).toMatch('1 new package(s) are not committed yet')
+
+    const onSide = await runTrustNew(root, ['--ref=side'], scenario, socketPath)
+    expect(onSide.out).toMatch(/building from committed side [0-9a-f]{12}/)
+    expect(onSide.out).not.toMatch(/not committed/)
+    // The scratch repo has no scripts/build.js, so the build is what refuses C here.
+    expect(onSide.out).toMatch(`✗ ${C}: not publishable`)
+    expect(phone.created).toEqual([])
+  })
+
+  it('refuses a --ref that names no commit', async () => {
+    const root = scratchRepo()
+    commitLedger(root, new Date())
+    const run = await runTrustNew(root, ['--ref=no-such-branch'], {})
+    expect(run.code).toBe(2)
+    expect(run.out).toMatch('--ref=no-such-branch names no commit in this repo')
+  })
+
   it('a case that ends while its run still waits on the phone leaves no process behind', async () => {
     const root = scratchRepo()
     let asked = (): void => {}
