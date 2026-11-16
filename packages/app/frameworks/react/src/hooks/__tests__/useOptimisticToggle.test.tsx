@@ -160,6 +160,53 @@ describe('useOptimisticToggle', () => {
     expect(result.current).toMatchObject({ value: false, pending: false })
   })
 
+  it('uses a late server boolean as the source for the next argument-free action', async () => {
+    const commit = vi.fn(async (desired: boolean) => desired)
+    const { result, rerender } = renderHook(
+      ({ enabled }) => bindings.useOptimisticToggle({ value: enabled, commit }),
+      { initialProps: { enabled: false } },
+    )
+    // P415 l3172 mounted its control before the profile answered. A later true prop
+    // must show the server value and choose DELETE/disable on the next click.
+    rerender({ enabled: true })
+    expect(result.current.value).toBe(true)
+    act(() => result.current.toggle())
+    expect(commit).toHaveBeenCalledExactlyOnceWith(false)
+    await act(async () => {})
+    expect(result.current.value).toBe(false)
+  })
+
+  it('restores a saved subscription from a fresh asynchronous server snapshot after remount', async () => {
+    let saved = false
+    const methods: string[] = []
+    const commit = async (desired: boolean): Promise<boolean> => {
+      methods.push(desired ? 'PUT' : 'DELETE')
+      saved = desired
+      return saved
+    }
+    function Subscription({ enabled }: { enabled: boolean }) {
+      const subscription = bindings.useOptimisticToggle({ value: enabled, commit })
+      return createElement(
+        'button',
+        { onClick: subscription.toggle },
+        subscription.value ? 'Unsubscribe from stock alerts' : 'Subscribe to stock alerts',
+      )
+    }
+    const first = render(createElement(Subscription, { enabled: false }))
+    fireEvent.click(screen.getByRole('button'))
+    await act(async () => {})
+    expect(saved).toBe(true)
+    expect(screen.getByRole('button').textContent).toBe('Unsubscribe from stock alerts')
+    first.unmount()
+    const reloaded = render(createElement(Subscription, { enabled: false }))
+    reloaded.rerender(createElement(Subscription, { enabled: saved }))
+    expect(screen.getByRole('button').textContent).toBe('Unsubscribe from stock alerts')
+    fireEvent.click(screen.getByRole('button'))
+    await act(async () => {})
+    expect(saved).toBe(false)
+    expect(methods).toEqual(['PUT', 'DELETE'])
+  })
+
   it('leaves a local UI switch as plain state with no server commit', () => {
     function LocalSwitch() {
       const [open, setOpen] = useState(false)
