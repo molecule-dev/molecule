@@ -136,6 +136,12 @@ export function createNetworkAwareFetch(options?: {
 /**
  * Get a human-readable display name for a connection type. Supports optional i18n
  * translation via a provided `t` function, falling back to English defaults.
+ *
+ * Each connection type maps to one literal `t()` call with a literal key
+ * (`network.<type>`), so the locale bond's parity check can see every key and
+ * every non-English locale resolves it; a type outside the known set resolves
+ * to the `network.unknown` fallback key.
+ *
  * @param type - The connection type to get a name for.
  * @param t - Optional i18n translation function for localized names.
  * @returns The localized or default display name for the connection type.
@@ -148,18 +154,26 @@ export function getConnectionTypeName(
     options?: { defaultValue?: string },
   ) => string,
 ): string {
-  const defaults: Record<ConnectionType, string> = {
-    wifi: 'Wi-Fi',
-    cellular: 'Cellular',
-    ethernet: 'Ethernet',
-    bluetooth: 'Bluetooth',
-    vpn: 'VPN',
-    other: 'Other',
-    none: 'Disconnected',
-    unknown: 'Unknown',
+  switch (type) {
+    case 'wifi':
+      return t ? t('network.wifi', undefined, { defaultValue: 'Wi-Fi' }) : 'Wi-Fi'
+    case 'cellular':
+      return t ? t('network.cellular', undefined, { defaultValue: 'Cellular' }) : 'Cellular'
+    case 'ethernet':
+      return t ? t('network.ethernet', undefined, { defaultValue: 'Ethernet' }) : 'Ethernet'
+    case 'bluetooth':
+      return t ? t('network.bluetooth', undefined, { defaultValue: 'Bluetooth' }) : 'Bluetooth'
+    case 'vpn':
+      return t ? t('network.vpn', undefined, { defaultValue: 'VPN' }) : 'VPN'
+    case 'other':
+      return t ? t('network.other', undefined, { defaultValue: 'Other' }) : 'Other'
+    case 'none':
+      return t ? t('network.none', undefined, { defaultValue: 'Disconnected' }) : 'Disconnected'
+    case 'unknown':
+      return t ? t('network.unknown', undefined, { defaultValue: 'Unknown' }) : 'Unknown'
+    default:
+      return t ? t('network.unknown', undefined, { defaultValue: 'Unknown' }) : 'Unknown'
   }
-  const defaultText = defaults[type] || defaults.unknown
-  return t ? t(`network.${type}`, undefined, { defaultValue: defaultText }) : defaultText
 }
 
 /**

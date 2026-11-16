@@ -83,6 +83,32 @@ describe('Utility Functions', () => {
     })
   })
 
+  describe('getChargingStateText — i18n keys', () => {
+    it('translates every charging state through its literal key', () => {
+      const t = vi.fn((key: string) => `t:${key}`)
+      expect(getChargingStateText('charging', t)).toBe('t:battery.charging')
+      expect(getChargingStateText('discharging', t)).toBe('t:battery.discharging')
+      expect(getChargingStateText('full', t)).toBe('t:battery.full')
+      expect(getChargingStateText('not-charging', t)).toBe('t:battery.not-charging')
+      expect(getChargingStateText('unknown', t)).toBe('t:battery.unknown')
+    })
+
+    it('passes the key’s bond English as the literal defaultValue', () => {
+      const t = vi.fn((key: string) => `t:${key}`)
+      getChargingStateText('not-charging', t)
+      expect(t).toHaveBeenCalledWith('battery.not-charging', undefined, {
+        defaultValue: 'Not Charging',
+      })
+    })
+
+    it('formats remaining time through literal keys', () => {
+      const t = vi.fn((key: string) => `t:${key}`)
+      expect(formatRemainingTime(-1, t)).toBe('t:battery.remainingUnknown')
+      expect(formatRemainingTime(3600, t)).toBe('t:battery.remainingTime')
+      expect(formatRemainingTime(60, t)).toBe('t:battery.remainingMinutes')
+    })
+  })
+
   describe('formatRemainingTime', () => {
     it('should format hours and minutes', () => {
       expect(formatRemainingTime(3600)).toBe('1h 0m')

@@ -26,6 +26,11 @@ export function getLevelText(level: number): string {
 
 /**
  * Get charging state description
+ *
+ * Each charging state maps to one literal `t()` call with a literal key
+ * (`battery.<state>`), so the locale bond's parity check can see every key and
+ * every non-English locale resolves it.
+ *
  * @param state - Charging state
  * @param t - Optional translation function for localized descriptions
  * @returns A human-readable label for the charging state (e.g., "Charging", "On Battery").
@@ -38,15 +43,20 @@ export function getChargingStateText(
     options?: { defaultValue?: string },
   ) => string,
 ): string {
-  const defaults: Record<ChargingState, string> = {
-    charging: 'Charging',
-    discharging: 'On Battery',
-    full: 'Fully Charged',
-    'not-charging': 'Not Charging',
-    unknown: 'Unknown',
+  switch (state) {
+    case 'charging':
+      return t ? t('battery.charging', undefined, { defaultValue: 'Charging' }) : 'Charging'
+    case 'discharging':
+      return t ? t('battery.discharging', undefined, { defaultValue: 'On Battery' }) : 'On Battery'
+    case 'full':
+      return t ? t('battery.full', undefined, { defaultValue: 'Fully Charged' }) : 'Fully Charged'
+    case 'not-charging':
+      return t
+        ? t('battery.not-charging', undefined, { defaultValue: 'Not Charging' })
+        : 'Not Charging'
+    case 'unknown':
+      return t ? t('battery.unknown', undefined, { defaultValue: 'Unknown' }) : 'Unknown'
   }
-  const defaultText = defaults[state]
-  return t ? t(`battery.${state}`, undefined, { defaultValue: defaultText }) : defaultText
 }
 
 /**
