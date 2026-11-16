@@ -24,6 +24,25 @@ import { join } from 'node:path'
 import process from 'node:process'
 
 /**
+ * The end of a failed git call's output, where a hook prints the line that says why it
+ * refused. A pre-commit hook logs every passing check first, so the start of its output
+ * holds only passes (2026-11-16: the reason "run-on-index: the commit does not carry …"
+ * was cut off by keeping the first 600 characters).
+ *
+ * @param error - What execFileSync threw.
+ * @param lines - How many trailing lines to keep.
+ * @returns The last lines of stderr and stdout, or the error message.
+ */
+export function failureTail(error, lines = 12) {
+  const output = [error?.stderr, error?.stdout]
+    .map((part) => String(part ?? '').trim())
+    .filter(Boolean)
+    .join('\n')
+  const text = output || String(error?.message || error).trim()
+  return text.split('\n').slice(-lines).join('\n')
+}
+
+/**
  * The commit subject for the packages a run added.
  * @param added - Package names newly recorded.
  * @returns The commit message, with a body listing multiple names.
@@ -190,16 +209,16 @@ function commitOnce({ root, file, added, run }) {
     return { committed: true, sha: commit.slice(0, 7) }
   } catch (error) {
     if (error instanceof Contention && !committedSha) return { contended: error.message }
-    const detail = String(error?.stderr || error?.stdout || error?.message || error).trim()
+    const detail = failureTail(error)
     if (committedSha)
       return {
         committed: true,
         sha: committedSha.slice(0, 7),
-        reason: `the trust commit landed, but the shared index could not be updated; reconcile ${file} staging before another commit:\n${detail.slice(0, 600)}`,
+        reason: `the trust commit landed, but the shared index could not be updated; reconcile ${file} staging before another commit:\n${detail}`,
       }
     return {
       committed: false,
-      reason: `the commit failed — commit ${file} by hand:\n${detail.slice(0, 600)}`,
+      reason: `the commit failed — commit ${file} by hand:\n${detail}`,
     }
   } finally {
     if (lockOwned) rmSync(indexLock, { force: true })

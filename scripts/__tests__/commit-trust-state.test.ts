@@ -241,6 +241,27 @@ describe('commitTrustState', () => {
     expect(git(root, 'diff', '--cached', '--name-only')).toBe('other.txt')
   })
 
+  it("names the hook's refusal even after many passing checks (OLD MUSTFAIL)", () => {
+    const root = repo()
+    addOwnName(root)
+    const before = snapshot(root)
+    const passes = Array.from({ length: 40 }, (_, n) => `✓ check ${n} passed on all packages`)
+    writeFileSync(
+      join(root, '.git', 'hooks', 'pre-commit'),
+      `#!/bin/sh\n${passes.map((line) => `echo '${line}' >&2`).join('\n')}\necho 'run-on-index: the commit does not carry scripts/check-x.mjs' >&2\nexit 1\n`,
+      { mode: 0o755 },
+    )
+
+    const result = commitTrustState({ root, file: LEDGER, added: ['@molecule/b'], waitMs: 0 })
+
+    expect(result.committed).toBe(false)
+    expect(result.reason).toContain('the commit failed — commit .trust-state.json by hand')
+    expect(result.reason).toContain('run-on-index: the commit does not carry scripts/check-x.mjs')
+    expect(result.reason).not.toContain('✓ check 0 passed')
+    expect(git(root, 'rev-parse', 'HEAD')).toBe(before.head)
+    expect(readFileSync(join(root, LEDGER), 'utf8')).toBe(before.ledger)
+  })
+
   it('preserves and refuses a ledger edit made while the hook runs', () => {
     const root = repo()
     addOwnName(root)
