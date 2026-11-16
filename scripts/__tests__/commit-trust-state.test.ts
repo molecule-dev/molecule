@@ -251,34 +251,37 @@ describe('commitTrustState', () => {
       { mode: 0o755 },
     )
 
-    const result = commitTrustState({ root, file: LEDGER, added: ['@molecule/b'] })
+    const result = commitTrustState({ root, file: LEDGER, added: ['@molecule/b'], waitMs: 0 })
 
+    // The retry finds a name this run did not add and refuses.
     expect(result.committed).toBe(false)
-    expect(result.reason).toContain('changed during the hook')
+    expect(result.reason).toContain("changes beyond this run's exact trusted-name additions")
     expect(git(root, 'rev-parse', 'HEAD')).toBe(before.head)
     expect(git(root, 'write-tree')).toBe(before.index)
     expect(JSON.parse(readFileSync(join(root, LEDGER), 'utf8'))).toContain('@molecule/c')
   })
 
-  it('preserves unrelated shared staging added while the hook runs', () => {
+  it('preserves unrelated shared staging added while the hook runs, and commits only the ledger', () => {
     const root = repo()
     addOwnName(root)
     const head = git(root, 'rev-parse', 'HEAD')
+    const once = join(root, '.git', 'staged-once')
     writeFileSync(
       join(root, '.git', 'hooks', 'pre-commit'),
-      `#!/bin/sh\necho peer > '${join(root, 'other.txt')}'\nGIT_INDEX_FILE='${join(root, '.git', 'index')}' git add other.txt\n`,
+      `#!/bin/sh\n[ -f '${once}' ] && exit 0\ntouch '${once}'\necho peer > '${join(root, 'other.txt')}'\nGIT_INDEX_FILE='${join(root, '.git', 'index')}' git add other.txt\n`,
       { mode: 0o755 },
     )
 
-    const result = commitTrustState({ root, file: LEDGER, added: ['@molecule/b'] })
+    const result = commitTrustState({ root, file: LEDGER, added: ['@molecule/b'], waitMs: 0 })
 
-    expect(result.committed).toBe(false)
-    expect(git(root, 'rev-parse', 'HEAD')).toBe(head)
+    expect(result.committed, result.reason).toBe(true)
+    expect(git(root, 'rev-parse', 'HEAD~1')).toBe(head)
+    expect(git(root, 'show', 'HEAD:other.txt')).toBe('one')
     expect(git(root, 'show', ':other.txt')).toBe('peer')
     expect(JSON.parse(readFileSync(join(root, LEDGER), 'utf8'))).toContain('@molecule/b')
   })
 
-  it('refuses HEAD movement during the hook without replacing the peer commit', () => {
+  it('rebuilds on a peer commit that lands during the hook, without replacing it', () => {
     const root = repo()
     addOwnName(root)
     let peer: string | undefined
@@ -286,21 +289,22 @@ describe('commitTrustState', () => {
       root,
       file: LEDGER,
       added: ['@molecule/b'],
+      waitMs: 0,
       run: (cmd, args, options) => {
         const value = execFileSync(cmd, args, options)
-        if (args[0] === 'hook') peer = landPeerCommit(root)
+        if (args[0] === 'hook' && !peer) peer = landPeerCommit(root)
         return value
       },
     })
 
-    expect(result.committed).toBe(false)
-    expect(result.reason).toContain('changed during the hook')
-    expect(git(root, 'rev-parse', 'HEAD')).toBe(peer)
+    expect(result.committed, result.reason).toBe(true)
+    expect(git(root, 'rev-parse', 'HEAD~1')).toBe(peer)
     expect(git(root, 'show', 'HEAD:other.txt')).toBe('peer committed')
+    expect(JSON.parse(git(root, 'show', `HEAD:${LEDGER}`))).toContain('@molecule/b')
     expect(JSON.parse(readFileSync(join(root, LEDGER), 'utf8'))).toContain('@molecule/b')
   })
 
-  it('uses CAS when a peer lands immediately before update-ref', () => {
+  it('uses CAS when a peer lands immediately before update-ref, then lands on top of it', () => {
     const root = repo()
     addOwnName(root)
     const before = snapshot(root)
@@ -309,15 +313,16 @@ describe('commitTrustState', () => {
       root,
       file: LEDGER,
       added: ['@molecule/b'],
+      waitMs: 0,
       run: (cmd, args, options) => {
-        if (args[0] === 'update-ref') peer = landPeerCommit(root)
+        if (args[0] === 'update-ref' && !peer) peer = landPeerCommit(root)
         return execFileSync(cmd, args, options)
       },
     })
 
-    expect(result.committed).toBe(false)
-    expect(git(root, 'rev-parse', 'HEAD')).toBe(peer)
-    expect(git(root, 'write-tree')).toBe(before.index)
+    expect(result.committed, result.reason).toBe(true)
+    expect(git(root, 'rev-parse', 'HEAD~1')).toBe(peer)
+    expect(git(root, 'show', 'HEAD:other.txt')).toBe('peer committed')
     expect(readFileSync(join(root, LEDGER), 'utf8')).toBe(before.ledger)
     expect(existsSync(join(root, '.git', 'index.lock'))).toBe(false)
   })
@@ -329,9 +334,39 @@ describe('commitTrustState', () => {
     const lock = join(root, '.git', 'index.lock')
     writeFileSync(lock, 'foreign lock')
 
-    expect(commitTrustState({ root, file: LEDGER, added: ['@molecule/b'] }).committed).toBe(false)
+    const waits: number[] = []
+    const result = commitTrustState({
+      root,
+      file: LEDGER,
+      added: ['@molecule/b'],
+      wait: (ms) => waits.push(ms),
+    })
+    expect(result.committed).toBe(false)
+    expect(result.reason).toBe(
+      `another git process held the index lock on each of 5 attempts — commit ${LEDGER} by hand`,
+    )
+    expect(waits).toEqual([3000, 6000, 9000, 12000])
     expect(readFileSync(lock, 'utf8')).toBe('foreign lock')
     expect(git(root, 'rev-parse', 'HEAD')).toBe(head)
+  })
+
+  it('commits on the next attempt when another writer held the index lock briefly', () => {
+    const root = repo()
+    addOwnName(root)
+    const head = git(root, 'rev-parse', 'HEAD')
+    const lock = join(root, '.git', 'index.lock')
+    writeFileSync(lock, 'foreign lock')
+    const result = commitTrustState({
+      root,
+      file: LEDGER,
+      added: ['@molecule/b'],
+      // The other writer finishes while this run waits.
+      wait: () => rmSync(lock),
+    })
+    expect(result.committed, result.reason).toBe(true)
+    expect(git(root, 'rev-parse', 'HEAD~1')).toBe(head)
+    expect(JSON.parse(git(root, 'show', `HEAD:${LEDGER}`))).toContain('@molecule/b')
+    expect(git(root, 'show', `:${LEDGER}`)).toBe(git(root, 'show', `HEAD:${LEDGER}`))
   })
 
   it('reports the landed commit truthfully if final index publication fails', () => {

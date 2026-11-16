@@ -3,8 +3,10 @@
  *
  * A private index contains the inspected HEAD plus the exact added names. Hooks
  * run against that index; commit-tree names that HEAD and update-ref uses CAS.
- * Unexpected same-ledger edits or intervening HEAD/index changes refuse without
- * rewriting the ledger or another session's staging. Standard Git commands keep
+ * Unexpected same-ledger edits refuse without rewriting the ledger or another
+ * session's staging. Another writer holding the index lock, or moving HEAD or the
+ * shared index while the hook runs, is retried from the new state a few times
+ * (2026-11-16: one held index.lock left a run's ledger uncommitted). Standard Git commands keep
  * the tool standalone; it never imports a workspace sibling or pushes.
  */
 import { execFileSync } from 'node:child_process'
@@ -39,10 +41,55 @@ export function trustCommitMessage(added) {
  * @param options.file - Ledger path relative to root.
  * @param options.added - Package names newly recorded by this run.
  * @param [options.run] - Command runner injected by tests.
+ * @param [options.attempts] - Attempts when another git writer gets in the way.
+ * @param [options.waitMs] - Wait before the second attempt; each later wait grows by this much.
+ * @param [options.wait] - Blocks for the given milliseconds (tests pass a stand-in).
  * @returns Commit result or a refusal reason; trust work remains saved on failure.
  */
-export function commitTrustState({ root, file, added, run = execFileSync }) {
+export function commitTrustState({
+  root,
+  file,
+  added,
+  run = execFileSync,
+  attempts = 5,
+  waitMs = 3000,
+  wait = sleepSync,
+}) {
   if (!added.length) return { committed: false, reason: 'nothing was added to the ledger' }
+  for (let attempt = 1; ; attempt++) {
+    const result = commitOnce({ root, file, added, run })
+    if (!result.contended) return result
+    if (attempt >= attempts)
+      return {
+        committed: false,
+        reason: `${result.contended} on each of ${attempts} attempts — commit ${file} by hand`,
+      }
+    wait(waitMs * attempt)
+  }
+}
+
+/**
+ * Another git writer got in the way: it held the index lock, or moved HEAD or the shared index
+ * while the hook ran. Nothing was changed, and the next attempt starts from the new state.
+ */
+class Contention extends Error {}
+
+/**
+ * Blocks the thread for `ms` (this module is synchronous, like the git calls it makes).
+ *
+ * @param ms - Milliseconds.
+ */
+function sleepSync(ms) {
+  if (ms > 0) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
+}
+
+/**
+ * One attempt at the commit.
+ *
+ * @param options - As for commitTrustState.
+ * @returns The result, or `{ contended }` naming what another writer did.
+ */
+function commitOnce({ root, file, added, run }) {
   const git = (args, env, input) =>
     run('git', args, {
       cwd: root,
@@ -112,7 +159,13 @@ export function commitTrustState({ root, file, added, run = execFileSync }) {
       GIT_INDEX_FILE: reconciled,
     })
     indexLock = join(gitDir, 'index.lock')
-    const fd = openSync(indexLock, 'wx')
+    let fd
+    try {
+      fd = openSync(indexLock, 'wx')
+    } catch (error) {
+      if (error?.code === 'EEXIST') throw new Contention('another git process held the index lock')
+      throw error
+    }
     lockOwned = true
     closeSync(fd)
     if (
@@ -120,17 +173,23 @@ export function commitTrustState({ root, file, added, run = execFileSync }) {
       !readFileSync(sharedIndex).equals(beforeIndex) ||
       readFileSync(join(root, file), 'utf8') !== worktree
     )
-      throw new Error('HEAD, index, or trust ledger changed during the hook; retained peer work')
+      throw new Contention('HEAD, index, or trust ledger changed during the hook')
     // The shared index is locked and the inspected HEAD is named explicitly.
     // A peer moving HEAD from another private index makes update-ref refuse.
     writeFileSync(indexLock, readFileSync(reconciled))
     const commit = git(['commit-tree', tree, '-p', parent, '-m', trustCommitMessage(added)]).trim()
-    git(['update-ref', '-m', trustCommitMessage(added).split('\n')[0], 'HEAD', commit, parent])
+    try {
+      git(['update-ref', '-m', trustCommitMessage(added).split('\n')[0], 'HEAD', commit, parent])
+    } catch (_error) {
+      // update-ref names the inspected HEAD: it refuses when a peer moved HEAD meanwhile.
+      throw new Contention('HEAD moved before the commit could land')
+    }
     committedSha = commit
     renameSync(indexLock, sharedIndex)
     lockOwned = false
     return { committed: true, sha: commit.slice(0, 7) }
   } catch (error) {
+    if (error instanceof Contention && !committedSha) return { contended: error.message }
     const detail = String(error?.stderr || error?.stdout || error?.message || error).trim()
     if (committedSha)
       return {
