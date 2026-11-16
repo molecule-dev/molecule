@@ -507,6 +507,8 @@ export default tseslint.config(
       'dist/',
       'node_modules/',
       'packages/**/dist/',
+      // svelte-package's copy of each Svelte package's src (gitignored): a build output, not source.
+      'packages/**/.svelte-kit/',
       'packages/**/node_modules/',
       'packages/**/*.d.ts',
       // …except a HAND-WRITTEN one under a package's src/ (ambient typings for
