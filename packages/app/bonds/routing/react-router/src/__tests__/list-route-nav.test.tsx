@@ -55,6 +55,8 @@ function mount(
       <MemoryRouter initialEntries={[initial]}>
         <Routes>
           <Route path="/shelves/:shelf" element={<Page />} />
+          <Route path="/members/:member" element={<Page />} />
+          <Route path="/members/:member/saved" element={<Page />} />
           <Route path="*" element={<Page />} />
         </Routes>
       </MemoryRouter>,
@@ -79,6 +81,24 @@ const library = {
 } satisfies Record<string, ListRouteNavItem>
 
 describe('ListRouteNav URL-selected navigation', () => {
+  it('keeps a sibling view destination independent of the currently selected view', () => {
+    const memberViews = {
+      authored: { path: '/members/:member', label: 'Authored entries' },
+      saved: { path: '/members/:member/saved', label: 'Saved entries' },
+    } satisfies Record<string, ListRouteNavItem>
+    mount('/members/Ada%20Lovelace?page=3', memberViews)
+    expect(choice('authored').getAttribute('aria-current')).toBe('page')
+    expect(choice('saved').getAttribute('href')).toBe('/members/Ada%20Lovelace/saved')
+    act(() => choice('saved').click())
+    expect(read('url')).toBe('/members/Ada%20Lovelace/saved')
+    expect(read('page')).toBe('1')
+    expect(choice('saved').getAttribute('aria-current')).toBe('page')
+    expect(choice('authored').getAttribute('href')).toBe('/members/Ada%20Lovelace')
+    act(() => choice('authored').click())
+    expect(read('url')).toBe('/members/Ada%20Lovelace')
+    expect(choice('authored').getAttribute('aria-current')).toBe('page')
+  })
+
   it('keeps every declared choice visible on a parameterized route', () => {
     mount('/shelves/reference?page=2', library)
     expect(host.querySelectorAll('nav a')).toHaveLength(2)
