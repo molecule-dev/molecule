@@ -26,7 +26,7 @@ it('selects a single view-specific empty branch rather than loaded content', () 
     props: {
       query: { data: [], status: 'success', error: undefined },
       children,
-      empty: { when: (data) => Array.isArray(data) && data.length === 0, render: empty },
+      empty: { when: (data: unknown) => Array.isArray(data) && data.length === 0, render: empty },
     },
   })
   flushSync()
