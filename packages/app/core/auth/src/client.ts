@@ -360,6 +360,13 @@ export const createJWTAuthClient = <
 >(
   config: NoInfer<AuthClientConfigOptions<T>> = {},
 ): AuthClient<T, TRegister> => {
+  if (
+    config.requestEnvelope !== undefined &&
+    (typeof config.requestEnvelope !== 'string' || !config.requestEnvelope.trim())
+  )
+    throw new TypeError('requestEnvelope must be a nonempty property name')
+  const wrapRequest = (payload: object): unknown =>
+    config.requestEnvelope === undefined ? payload : { [config.requestEnvelope]: payload }
   const {
     baseURL = '',
     loginEndpoint = '/auth/login',
@@ -625,7 +632,7 @@ export const createJWTAuthClient = <
   const shapeBody = (kind: 'login' | 'register', payload: object): unknown => {
     const values = payload as Record<string, unknown>
     if (config.mapRequestBody) return config.mapRequestBody(values, kind)
-    return config.requestBody ? config.requestBody(kind, values) : payload
+    return config.requestBody ? config.requestBody(kind, values) : wrapRequest(payload)
   }
   let misplacedTokenReported = false
   const envelopeReported = new Set<'login' | 'register'>()
@@ -644,7 +651,13 @@ export const createJWTAuthClient = <
     failure: unknown,
   ): void => {
     try {
-      if (config.mapRequestBody || config.requestBody || envelopeReported.has(kind)) return
+      if (
+        config.requestEnvelope !== undefined ||
+        config.mapRequestBody ||
+        config.requestBody ||
+        envelopeReported.has(kind)
+      )
+        return
       const status = (failure as { status?: unknown } | null)?.status
       if (typeof status !== 'number' || status < 400 || status >= 500) return
       const fields = fieldsSentButReportedMissing(sent, (failure as { body?: unknown }).body)
@@ -1543,7 +1556,7 @@ export const createJWTAuthClient = <
           (typeof endpoint !== 'string' || !endpoint.trim())
         )
           throw new TypeError('profileEndpoint must resolve to a nonempty route')
-        const body = profileRequestBody ? profileRequestBody(data) : data
+        const body = profileRequestBody ? profileRequestBody(data) : wrapRequest(data)
         // Body adapters may return custom serializers; finish caller code before
         // checking which session will authorize the request.
         const serializedBody = JSON.stringify(body)

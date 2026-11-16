@@ -347,7 +347,12 @@
  * }
  * ```
  *
- * - **An API with its own auth envelope keeps this client.** `mapRequestBody` wraps the
+ * - **An API with its own auth envelope keeps this client.** When login,
+ *   registration and profile writes share a wrapper, set `requestEnvelope: 'member'`
+ *   once: all three send `{ member: values }`. This avoids a profile save silently
+ *   sending bare fields when only the login/register mapper was configured.
+ *   Explicit `mapRequestBody` and `profileRequestBody` still override individual
+ *   operations when their wire contracts differ. `mapRequestBody` wraps the
  *   login/register payload (`(payload) => ({ user: payload })`), `mapAuthResponse` reads the
  *   token and user out of the answer — keeping the wire bearer OUT of the profile,
  *   because the client caches `user` in Web Storage (see the mapper example below) —

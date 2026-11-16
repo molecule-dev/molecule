@@ -910,6 +910,14 @@ export type AuthClientConfig<T extends object = UserProfile> = AuthClientConfigO
  */
 export interface AuthClientConfigOptions<T extends object = UserProfile> {
   /**
+   * Wrap login, registration and profile-update values under this property, e.g.
+   * `'member'` sends `{ member: values }` for all three operations. Configure it
+   * once when those endpoints share an envelope. Explicit `mapRequestBody`,
+   * legacy `requestBody`, and `profileRequestBody` adapters take precedence for
+   * their respective operations. Omit it for a flat API; the name must be nonempty.
+   */
+  requestEnvelope?: string
+  /**
    * API base URL.
    */
   baseURL?: string
