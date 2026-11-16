@@ -25,9 +25,25 @@
  *
  * // Single user row in a dropdown
  * <UserChip name="Alice Kim" src="/avatars/alice.jpg" subtitle="Admin" />
+ *
+ * // A byline or assignment row has one canonical profile link, on the name.
+ * // The adjacent avatar stays outside that link; actions stay in the trailing slot.
+ * <UserChip
+ *   name="Alice Kim"
+ *   src="/avatars/alice.jpg"
+ *   href="/people/alice"
+ *   nameLinkProps={{ className: 'person-name' }}
+ *   subtitle="Maintenance lead"
+ * />
  * ```
  *
  * @remarks
+ * Use `UserChip` with `href` for linked bylines and row-level identities. It renders one
+ * name link, a decorative avatar and separate subtitle/actions, so callers do not need
+ * to duplicate the name-link selector or accessible name on an avatar link. Link props
+ * can attach the app's router click handler and styling. Repeated identity rows in a
+ * header/footer or a list remain separate rows; scope selectors to the intended row.
+ *
  * The overflow chip announces "+N more" — this is the only user-visible
  * text (currently English-only). Avatar fallbacks (initials, color hash)
  * come from `<Avatar>` in `@molecule/app-ui-react`. The overlap is an
