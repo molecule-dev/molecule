@@ -363,6 +363,19 @@ export function reactPartsUrl(reactPackage: string): string {
 }
 
 /**
+ * The parts a port's run checks. A run narrowed to some components
+ * (`CONFORMANCE_COMPONENTS`) renders only their cases, so it checks only the parts among
+ * them: the parts that other workers have not ported yet are not that run's.
+ *
+ * @param feature - The feature's cases.
+ * @param filter - The components the run is narrowed to, or `null` for all of them.
+ * @returns The listed parts the run checks.
+ */
+export function partsToCheck(feature: FeatureCases, filter: readonly string[] | null): string[] {
+  return (feature.parts ?? []).filter((part) => !filter || filter.includes(part))
+}
+
+/**
  * Checks a feature's parts: each listed part exists in the parts module, is not
  * also a public export (then it is an ordinary family), and is rendered by a case.
  *
@@ -458,11 +471,14 @@ export function runFeatureConformance(
     adapter,
     gaps,
   )
-  if ((feature.parts ?? []).length > 0) {
+  const checkedParts = partsToCheck(feature, filter)
+  if (checkedParts.length > 0) {
     describe(`${adapter.name} ${reactPackage} parts`, () => {
       it('passes its parts module, holding every part the cases render', () => {
-        expect(featurePartProblems(feature, options.parts, goldens.exports)).toEqual([])
-        for (const part of feature.parts ?? [])
+        expect(
+          featurePartProblems({ ...feature, parts: checkedParts }, options.parts, goldens.exports),
+        ).toEqual([])
+        for (const part of checkedParts)
           expect(adapter.has(part), `${adapter.name} adapter has the part ${part}`).toBe(true)
       })
     })

@@ -8,7 +8,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { featurePartProblems, reactPartsUrl } from '../features/run.js'
+import { featurePartProblems, partsToCheck, reactPartsUrl } from '../features/run.js'
 import type { FeatureCases } from '../features/spec.js'
 
 const feature: FeatureCases = {
@@ -19,6 +19,21 @@ const feature: FeatureCases = {
   ],
   parts: ['MessageItem'],
 }
+
+describe('partsToCheck', () => {
+  it('checks every part when the run is not narrowed', () => {
+    expect(partsToCheck(feature, null)).toEqual(['MessageItem'])
+  })
+
+  it('checks only the parts among the components a narrowed run renders', () => {
+    expect(partsToCheck(feature, ['Panel'])).toEqual([])
+    expect(partsToCheck(feature, ['Panel', 'MessageItem'])).toEqual(['MessageItem'])
+  })
+
+  it('has nothing to check for a feature without parts', () => {
+    expect(partsToCheck({ ...feature, parts: undefined }, null)).toEqual([])
+  })
+})
 
 describe('featurePartProblems', () => {
   it('accepts a part that its module exports, that is not public and that a family renders', () => {
