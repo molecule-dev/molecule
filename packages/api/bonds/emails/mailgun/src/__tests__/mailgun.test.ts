@@ -194,9 +194,9 @@ describe('Mailgun Email Provider', () => {
       const { sendMail } = await import('../provider.js')
 
       // Sending should throw because the API key is required
-      await expect(sendMail({ to: 'test@test.com', subject: 'Test' })).rejects.toThrow(
-        'MAILGUN_API_KEY is not set',
-      )
+      await expect(
+        sendMail({ from: 'sender@example.com', to: 'test@test.com', subject: 'Test' }),
+      ).rejects.toThrow('MAILGUN_API_KEY is not set')
     })
 
     it('tags the missing-key error as a config-missing 503 (statusCode + errorKey)', async () => {
@@ -206,9 +206,11 @@ describe('Mailgun Email Provider', () => {
       vi.resetModules()
       const { sendMail } = await import('../provider.js')
       let caught: unknown
-      await sendMail({ to: 'test@test.com', subject: 'Test' }).catch((e: unknown) => {
-        caught = e
-      })
+      await sendMail({ from: 'sender@example.com', to: 'test@test.com', subject: 'Test' }).catch(
+        (e: unknown) => {
+          caught = e
+        },
+      )
       expect((caught as { statusCode?: number }).statusCode).toBe(503)
       expect((caught as { errorKey?: string }).errorKey).toBe('config.notConfigured')
     })
@@ -228,18 +230,26 @@ describe('Mailgun Email Provider', () => {
   describe('request timeout', () => {
     it('defaults to 10 s and honours MAILGUN_TIMEOUT_MS', async () => {
       mockSendMail.mockResolvedValue({ accepted: [], rejected: [] })
-      const mailgun = (await import('nodemailer-mailgun-transport')).default as ReturnType<
-        typeof vi.fn
-      >
+      const mailgun = vi.mocked((await import('nodemailer-mailgun-transport')).default)
       const { sendMail } = await import('../provider.js')
-      await sendMail({ to: 'test@test.com', subject: 'Test', text: 'x' })
+      await sendMail({
+        from: 'sender@example.com',
+        to: 'test@test.com',
+        subject: 'Test',
+        text: 'x',
+      })
       expect(mailgun).toHaveBeenLastCalledWith(expect.objectContaining({ timeout: 10_000 }))
 
       vi.resetModules()
       process.env.MAILGUN_TIMEOUT_MS = '2500'
-      const mg2 = (await import('nodemailer-mailgun-transport')).default as ReturnType<typeof vi.fn>
+      const mg2 = vi.mocked((await import('nodemailer-mailgun-transport')).default)
       const mod2 = await import('../provider.js')
-      await mod2.sendMail({ to: 'test@test.com', subject: 'Test', text: 'x' })
+      await mod2.sendMail({
+        from: 'sender@example.com',
+        to: 'test@test.com',
+        subject: 'Test',
+        text: 'x',
+      })
       expect(mg2).toHaveBeenLastCalledWith(expect.objectContaining({ timeout: 2500 }))
       delete process.env.MAILGUN_TIMEOUT_MS
     })
@@ -250,12 +260,15 @@ describe('Mailgun Email Provider', () => {
       process.env.MAILGUN_API_HOST = 'api.eu.mailgun.net'
       mockSendMail.mockResolvedValue({ accepted: [], rejected: [] })
 
-      const mailgun = (await import('nodemailer-mailgun-transport')).default as ReturnType<
-        typeof vi.fn
-      >
+      const mailgun = vi.mocked((await import('nodemailer-mailgun-transport')).default)
       const { sendMail } = await import('../provider.js')
 
-      await sendMail({ to: 'test@test.com', subject: 'Test', text: 'x' })
+      await sendMail({
+        from: 'sender@example.com',
+        to: 'test@test.com',
+        subject: 'Test',
+        text: 'x',
+      })
 
       expect(mailgun).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -269,14 +282,17 @@ describe('Mailgun Email Provider', () => {
       delete process.env.MAILGUN_API_HOST
       mockSendMail.mockResolvedValue({ accepted: [], rejected: [] })
 
-      const mailgun = (await import('nodemailer-mailgun-transport')).default as ReturnType<
-        typeof vi.fn
-      >
+      const mailgun = vi.mocked((await import('nodemailer-mailgun-transport')).default)
       const { sendMail } = await import('../provider.js')
 
-      await sendMail({ to: 'test@test.com', subject: 'Test', text: 'x' })
+      await sendMail({
+        from: 'sender@example.com',
+        to: 'test@test.com',
+        subject: 'Test',
+        text: 'x',
+      })
 
-      const opts = mailgun.mock.calls[0][0] as Record<string, unknown>
+      const opts = mailgun.mock.calls[0][0]
       expect(opts).not.toHaveProperty('host')
       expect(opts).toEqual({
         auth: { api_key: 'test-mailgun-api-key', domain: 'test.mailgun.org' },

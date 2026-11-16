@@ -444,7 +444,7 @@ describe('health() status parsing (in-process, no docker exec)', () => {
               createdAt: '',
               driver: 'docker-compose',
             },
-            { projectPath: '/tmp/mol-stage-test' },
+            { name: 'docker-compose', projectPath: '/tmp/mol-stage-test' },
           ),
         ).rejects.toThrow(/Unsafe staging environment slug/)
       }

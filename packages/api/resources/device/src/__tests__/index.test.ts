@@ -18,8 +18,25 @@ import {
   pushSubscriptionSchema,
   updatePropsSchema,
   webPushSubscriptionSchema,
+  z,
 } from '../schema.js'
 import type * as types from '../types.js'
+
+/**
+ * The exported `resource` is declared as `types.Resource`, whose `schema` is
+ * `unknown` (the interface also admits non-Zod schemas for backward
+ * compatibility). Narrow it with Zod's own class check so the tests read the
+ * schema with its real type instead of casting the value.
+ * @param value - The value to narrow.
+ * @returns The value as a Zod schema.
+ */
+function zodSchema(value: unknown): z.ZodType {
+  if (!(value instanceof z.ZodType)) {
+    throw new Error('Device resource.schema is not a Zod schema')
+  }
+
+  return value
+}
 
 describe('Device resource definition', () => {
   it('should have correct name', () => {
@@ -32,7 +49,7 @@ describe('Device resource definition', () => {
 
   it('should have a schema', () => {
     expect(resource.schema).toBeDefined()
-    expect(resource.schema.safeParse).toBeDefined()
+    expect(zodSchema(resource.schema).safeParse).toBeDefined()
   })
 
   // The interface a CONSUMER writes at the call site — `get<DeviceService>('device')` — has to be
@@ -549,7 +566,7 @@ describe('resource schema matches propsSchema', () => {
     }
 
     const propsResult = propsSchema.safeParse(testData)
-    const resourceResult = resource.schema.safeParse(testData)
+    const resourceResult = zodSchema(resource.schema).safeParse(testData)
 
     expect(propsResult.success).toBe(true)
     expect(resourceResult.success).toBe(true)

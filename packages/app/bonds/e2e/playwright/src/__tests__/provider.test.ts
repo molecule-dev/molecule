@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
 import { connectPlaywright, provider } from '../provider.js'
+import type { PlaywrightBrowserName, PlaywrightConnectOptions } from '../types.js'
 
 describe('the playwright bond', () => {
   it('is named playwright and rejects an unknown browser before launching', async () => {
     expect(provider.name).toBe('playwright')
-    await expect(provider.connect({ browser: 'edge' as never })).rejects.toThrow(
-      /unknown browser "edge"/,
-    )
+    // 'edge' is deliberately invalid input: the bond must reject it before launching.
+    const browser = 'edge' as PlaywrightBrowserName
+    const options: PlaywrightConnectOptions = { browser }
+    await expect(provider.connect(options)).rejects.toThrow(/unknown browser "edge"/)
   })
 
   it('opens a real page when a browser is installed, closing browser + context with the page', async ({

@@ -33,7 +33,7 @@ vi.mock('../keys.js', () => ({
   writeKeys: vi.fn(),
 }))
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type * as BondModule from '@molecule/api-bond'
 

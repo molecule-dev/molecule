@@ -1,8 +1,11 @@
+/// <reference lib="dom" />
 /**
  * The whole preview bond in a REAL browser: an HTTP server carrying the hub and
  * the client script, headless Chromium showing the page (standing in for the
  * IDE's preview tab), and the driver turning that tab into a Playwright-shaped
- * page. Skips when no Playwright browser is installed on this machine.
+ * page. Skips when no Playwright browser is installed on this machine. The
+ * `evaluate` callbacks below run inside Chromium, so the DOM lib is referenced
+ * for their types.
  */
 import { createServer, type Server } from 'node:http'
 

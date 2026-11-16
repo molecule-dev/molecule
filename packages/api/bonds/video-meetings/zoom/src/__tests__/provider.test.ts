@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { VideoMeetingsProvider } from '@molecule/api-video-meetings'
@@ -27,7 +28,9 @@ function makeResponse(body: unknown, init: { status?: number; ok?: boolean } = {
 describe('@molecule/api-video-meetings-zoom', () => {
   const calls: RecordedCall[] = []
   const responses: Response[] = []
-  let mockFetch: ReturnType<typeof vi.fn>
+  // Typed as the real `fetch` contract so it can be injected as
+  // `ZoomVideoMeetingsConfig['fetch']` without a cast.
+  let mockFetch: Mock<typeof fetch>
 
   function queueResponse(body: unknown, init: { status?: number; ok?: boolean } = {}): void {
     responses.push(makeResponse(body, init))
@@ -52,14 +55,16 @@ describe('@molecule/api-video-meetings-zoom', () => {
   beforeEach(() => {
     calls.length = 0
     responses.length = 0
-    mockFetch = vi.fn((input: string | URL | Request, init?: RequestInit): Promise<Response> => {
-      calls.push({ url: typeof input === 'string' ? input : input.toString(), init })
-      const next = responses.shift()
-      if (!next) {
-        return Promise.resolve(makeResponse({}))
-      }
-      return Promise.resolve(next)
-    })
+    mockFetch = vi.fn<typeof fetch>(
+      (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
+        calls.push({ url: typeof input === 'string' ? input : input.toString(), init })
+        const next = responses.shift()
+        if (!next) {
+          return Promise.resolve(makeResponse({}))
+        }
+        return Promise.resolve(next)
+      },
+    )
     process.env.ZOOM_ACCOUNT_ID = 'acct_test'
     process.env.ZOOM_CLIENT_ID = 'cid_test'
     process.env.ZOOM_CLIENT_SECRET = 'csec_test'

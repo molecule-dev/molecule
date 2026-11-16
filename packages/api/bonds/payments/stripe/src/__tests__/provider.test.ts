@@ -4,14 +4,15 @@
  * @module
  */
 
-import type Stripe from 'stripe'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { SubscriptionResult } from '../types.js'
 
 const mockSubscription = {
   id: 'sub_123',
   status: 'active',
   items: {
-    data: [{ price: { product: 'prod_123' } }],
+    data: [{ id: 'si_123', price: { product: 'prod_123' } }],
   },
   current_period_start: 1700000000,
   current_period_end: 1702592000,
@@ -506,17 +507,17 @@ describe('Stripe Provider', () => {
     it('should normalize an active subscription', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'active' as const,
         items: {
-          data: [{ price: { product: 'prod_123' } }],
+          data: [{ id: 'si_123', price: { product: 'prod_123' } }],
         },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -534,15 +535,15 @@ describe('Stripe Provider', () => {
     it('should normalize a trialing subscription', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'trialing' as const,
-        items: { data: [{ price: { product: 'prod_123' } }] },
+        items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -553,15 +554,15 @@ describe('Stripe Provider', () => {
     it('should normalize a canceled subscription', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'canceled' as const,
-        items: { data: [{ price: { product: 'prod_123' } }] },
+        items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: true,
         canceled_at: 1701000000,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -574,15 +575,15 @@ describe('Stripe Provider', () => {
     it('should normalize a past_due subscription', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'past_due' as const,
-        items: { data: [{ price: { product: 'prod_123' } }] },
+        items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -605,15 +606,15 @@ describe('Stripe Provider', () => {
       }
 
       for (const [stripeStatus, expectedStatus] of Object.entries(statusMap)) {
-        const subscription = {
+        const subscription: SubscriptionResult = {
           id: 'sub_123',
-          status: stripeStatus as Stripe.Subscription.Status,
-          items: { data: [{ price: { product: 'prod_123' } }] },
+          status: stripeStatus,
+          items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
           current_period_start: 1700000000,
           current_period_end: 1702592000,
           cancel_at_period_end: false,
           canceled_at: null,
-        } as unknown as Stripe.Subscription
+        }
 
         const normalized = normalizeSubscription(subscription)
         expect(normalized.status).toBe(expectedStatus)
@@ -623,7 +624,7 @@ describe('Stripe Provider', () => {
     it('should handle subscription with empty items', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'active' as const,
         items: { data: [] },
@@ -631,7 +632,7 @@ describe('Stripe Provider', () => {
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -641,15 +642,15 @@ describe('Stripe Provider', () => {
     it('should include raw data', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'active' as const,
-        items: { data: [{ price: { product: 'prod_123' } }] },
+        items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -659,15 +660,15 @@ describe('Stripe Provider', () => {
     it('should normalize a paused subscription', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'paused' as const,
-        items: { data: [{ price: { product: 'prod_123' } }] },
+        items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -678,15 +679,15 @@ describe('Stripe Provider', () => {
     it('should normalize an incomplete subscription', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'incomplete' as const,
-        items: { data: [{ price: { product: 'prod_123' } }] },
+        items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -697,15 +698,15 @@ describe('Stripe Provider', () => {
     it('should normalize an incomplete_expired subscription', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'incomplete_expired' as const,
-        items: { data: [{ price: { product: 'prod_123' } }] },
+        items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -716,15 +717,15 @@ describe('Stripe Provider', () => {
     it('should normalize an unpaid subscription to past_due', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'unpaid' as const,
-        items: { data: [{ price: { product: 'prod_123' } }] },
+        items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -735,15 +736,23 @@ describe('Stripe Provider', () => {
     it('should handle subscription with product as object', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
-        status: 'active' as const,
-        items: { data: [{ price: { product: { id: 'prod_object_123' } } }] },
+        status: 'active',
+        items: {
+          // Deliberately out-of-contract input: Stripe returns the product
+          // EXPANDED as an object at runtime, while
+          // `SubscriptionResult.items[].price.product` models the unexpanded id.
+          // `normalizeSubscription` must tolerate this shape.
+          data: [
+            { id: 'si_123', price: { product: { id: 'prod_object_123' } } },
+          ] as unknown as SubscriptionResult['items']['data'],
+        },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: false,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 
@@ -755,15 +764,15 @@ describe('Stripe Provider', () => {
     it('should handle subscription set to cancel at period end', async () => {
       const { normalizeSubscription } = await import('../provider.js')
 
-      const subscription = {
+      const subscription: SubscriptionResult = {
         id: 'sub_123',
         status: 'active' as const,
-        items: { data: [{ price: { product: 'prod_123' } }] },
+        items: { data: [{ id: 'si_123', price: { product: 'prod_123' } }] },
         current_period_start: 1700000000,
         current_period_end: 1702592000,
         cancel_at_period_end: true,
         canceled_at: null,
-      } as unknown as Stripe.Subscription
+      }
 
       const normalized = normalizeSubscription(subscription)
 

@@ -1,20 +1,25 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 import type { PanelId } from '@molecule/app-ide'
 
 import { createProvider, DefaultWorkspaceProvider } from '../provider.js'
+import type { StorageAdapter } from '../types.js'
 
-function mockStorage(): {
-  getItem: ReturnType<typeof vi.fn>
-  setItem: ReturnType<typeof vi.fn>
-  removeItem: ReturnType<typeof vi.fn>
-  _store: Map<string, string>
-} {
+/** In-memory StorageAdapter test double whose methods are vi mocks. */
+type MockStorage = {
+  [K in keyof StorageAdapter]: Mock<StorageAdapter[K]>
+} & { _store: Map<string, string> }
+
+function mockStorage(): MockStorage {
   const store = new Map<string, string>()
   return {
-    getItem: vi.fn((key: string) => store.get(key) ?? null),
-    setItem: vi.fn((key: string, value: string) => store.set(key, value)),
-    removeItem: vi.fn((key: string) => store.delete(key)),
+    getItem: vi.fn((key: string): string | null => store.get(key) ?? null),
+    setItem: vi.fn((key: string, value: string): void => {
+      store.set(key, value)
+    }),
+    removeItem: vi.fn((key: string): void => {
+      store.delete(key)
+    }),
     _store: store,
   }
 }

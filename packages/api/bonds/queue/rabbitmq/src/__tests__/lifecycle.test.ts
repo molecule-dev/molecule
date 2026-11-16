@@ -13,7 +13,8 @@ async function settleImport(): Promise<void> {
 
 describe('rabbitmq bond lifecycle integration', () => {
   beforeEach(() => {
-    clearProviders()
+    // The queue bond registers under the 'queue' category in the bond registry.
+    clearProviders('queue')
     resetRegistrationsForTests()
   })
 

@@ -162,8 +162,10 @@ describe('the phone bar reserves its space at the end of the page', () => {
   it('re-measures whenever the bar changes size (the panel opens with a transition)', () => {
     // x291, 2026-09-28: measured once on the next frame, the half-open panel
     // reserved too little and the footer's last line sat under it.
-    let resized: (() => void) | null = null
-    let observed: Element | null = null
+    // Assigned from the fake ResizeObserver's constructor, so no initializer:
+    // `= null` would narrow these to `null` here and `resized?.()` to never.
+    let resized: (() => void) | undefined
+    let observed: Element | undefined
     vi.stubGlobal(
       'ResizeObserver',
       class {

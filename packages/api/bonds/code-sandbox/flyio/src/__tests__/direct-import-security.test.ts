@@ -14,7 +14,11 @@ const limits = { maxBytes: 1024, timeoutMs: 10_000 }
 
 async function fixture() {
   const double = createFetchDouble().fallback({ body: { id: 'm1', state: 'started' } })
-  const client = new FlyApiClient({ token: () => 'test', fetchImpl: double.fetch })
+  const client = new FlyApiClient({
+    token: () => 'test',
+    baseUrl: 'https://api.machines.dev/v1',
+    fetchImpl: double.fetch,
+  })
   const store = createStoreDouble()
   // Use the actual store client's SigV4 presigner with local fixture credentials.
   // No request is sent to a vendor. The double models S3's replay/expiry rules.

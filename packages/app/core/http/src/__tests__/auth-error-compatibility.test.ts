@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createJWTAuthClient } from '@molecule/app-auth'
 import { I18nError } from '@molecule/app-i18n'
 import {
   createConsoleLoggerProvider,
@@ -8,7 +9,6 @@ import {
   setProvider,
 } from '@molecule/app-logger'
 
-import { createJWTAuthClient } from '../../../auth/src/index.js'
 import { createFetchClient, HttpError, isAuthFailure, isHttpError, isNoResponse } from '../index.js'
 
 const errorsFrom = (caught: unknown): Record<string, string[]> | null => {

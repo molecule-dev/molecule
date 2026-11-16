@@ -138,9 +138,11 @@ describe('@molecule/api-resource-subscriber utilities', () => {
     }
 
     it('strips token fields from the public view', () => {
-      const pub = toPublicSubscriber(row) as Record<string, unknown>
-      expect(pub).not.toHaveProperty('confirmToken')
-      expect(pub).not.toHaveProperty('unsubscribeToken')
+      const pub = toPublicSubscriber(row)
+      // Runtime check: the token columns come in on the row but must not leak
+      // into the public view, which is why this inspects the actual keys.
+      expect(Object.keys(pub)).not.toContain('confirmToken')
+      expect(Object.keys(pub)).not.toContain('unsubscribeToken')
     })
 
     it('parses serialized metadata', () => {

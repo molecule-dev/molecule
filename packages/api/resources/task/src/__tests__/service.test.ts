@@ -27,7 +27,7 @@ import {
   toTask,
   updateTaskForOwner,
 } from '../service.js'
-import type { TaskRow } from '../types.js'
+import type { TaskPriority, TaskRow } from '../types.js'
 
 function makeRow(overrides: Partial<TaskRow> = {}): TaskRow {
   return {
@@ -39,7 +39,6 @@ function makeRow(overrides: Partial<TaskRow> = {}): TaskRow {
     due_date: null,
     due_time: null,
     parent_id: null,
-    project_id: null,
     recurrence_rule: null,
     position: 0,
     is_completed: false,
@@ -72,9 +71,13 @@ describe('toTask', () => {
   })
 
   it('clamps priority outside 1-4 to 4', () => {
-    expect(toTask(makeRow({ priority: 0 })).priority).toBe(4)
-    expect(toTask(makeRow({ priority: 9 })).priority).toBe(4)
-    expect(toTask(makeRow({ priority: null as unknown as number })).priority).toBe(4)
+    // A DB read is not type-checked, so a stored priority can be any number (or
+    // null); the cast models that invalid input deliberately to check clamping.
+    const rowWithStoredPriority = (priority: number | null): TaskRow =>
+      makeRow({ priority: priority as TaskPriority })
+    expect(toTask(rowWithStoredPriority(0)).priority).toBe(4)
+    expect(toTask(rowWithStoredPriority(9)).priority).toBe(4)
+    expect(toTask(rowWithStoredPriority(null)).priority).toBe(4)
   })
 
   it('renders due_date Date instances as YYYY-MM-DD without TZ shift', () => {

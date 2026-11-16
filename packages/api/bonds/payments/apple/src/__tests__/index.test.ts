@@ -6,7 +6,29 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { HttpResponse } from '@molecule/api-http'
+
 import type { InAppPurchase, VerifyReceiptResponse } from '../types.js'
+
+/**
+ * Build a full {@link HttpResponse} around a test body.
+ *
+ * `post()` resolves an `HttpResponse`, so a mock that returns only `{ data }`
+ * does not stand in for the real contract. The provider reads `response.data`
+ * and nothing else, so the remaining fields are fixed placeholders.
+ *
+ * @param data - Response body the provider will read.
+ * @returns A complete `HttpResponse` carrying `data`.
+ */
+function httpResponse<T>(data: T): HttpResponse<T> {
+  return {
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    data,
+    request: { url: 'https://buy.itunes.apple.com/verifyReceipt' },
+  }
+}
 
 // Mock @molecule/api-http
 vi.mock('@molecule/api-http', () => ({
@@ -64,7 +86,7 @@ describe('Apple Provider', () => {
         ],
       }
 
-      vi.mocked(post).mockResolvedValue({ data: mockResponse })
+      vi.mocked(post).mockResolvedValue(httpResponse(mockResponse))
 
       const { verifyReceipt } = await import('../provider.js')
       const result = await verifyReceipt('base64_receipt_data')
@@ -94,8 +116,8 @@ describe('Apple Provider', () => {
       }
 
       vi.mocked(post)
-        .mockResolvedValueOnce({ data: { status: 21007 } })
-        .mockResolvedValueOnce({ data: sandboxResponse })
+        .mockResolvedValueOnce(httpResponse<VerifyReceiptResponse>({ status: 21007 }))
+        .mockResolvedValueOnce(httpResponse(sandboxResponse))
 
       const { verifyReceipt } = await import('../provider.js')
       const result = await verifyReceipt('base64_receipt_data')
@@ -116,7 +138,7 @@ describe('Apple Provider', () => {
       vi.stubEnv('NODE_ENV', 'development')
       const { post } = await import('@molecule/api-http')
 
-      vi.mocked(post).mockResolvedValueOnce({ data: { status: 21007 } })
+      vi.mocked(post).mockResolvedValueOnce(httpResponse<VerifyReceiptResponse>({ status: 21007 }))
 
       const { verifyReceipt } = await import('../provider.js')
 
@@ -137,7 +159,7 @@ describe('Apple Provider', () => {
       vi.stubEnv('NODE_ENV', 'production')
       const { post } = await import('@molecule/api-http')
 
-      vi.mocked(post).mockResolvedValueOnce({ data: { status: 21007 } })
+      vi.mocked(post).mockResolvedValueOnce(httpResponse<VerifyReceiptResponse>({ status: 21007 }))
 
       const { verifyReceipt } = await import('../provider.js')
 
@@ -158,7 +180,7 @@ describe('Apple Provider', () => {
         environment: 'Sandbox',
       }
 
-      vi.mocked(post).mockResolvedValue({ data: mockResponse })
+      vi.mocked(post).mockResolvedValue(httpResponse(mockResponse))
 
       const { verifyReceipt } = await import('../provider.js')
       await verifyReceipt('base64_receipt_data', true)

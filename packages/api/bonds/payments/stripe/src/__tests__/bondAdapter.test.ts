@@ -7,7 +7,8 @@
 import crypto from 'crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { CheckoutSessionResult, SubscriptionResult, WebhookEventResult } from '../types.js'
+import type * as provider from '../provider.js'
+import type { CheckoutSessionResult, SubscriptionResult } from '../types.js'
 
 /**
  * Builds the same tagged shape `@molecule/api-secrets`'s `configNotConfiguredError()`
@@ -52,18 +53,22 @@ const mockCheckoutSessionResult: CheckoutSessionResult = {
 
 // ─── Provider mock functions ─────────────────────────────────────────────────
 
-const mockCreateCheckoutSession = vi.fn<[], Promise<CheckoutSessionResult>>()
-const mockGetCheckoutSession = vi.fn<[], Promise<CheckoutSessionResult>>()
-const mockGetSubscription = vi.fn<[], Promise<SubscriptionResult>>()
-const mockNormalizeSubscription = vi.fn()
-const mockStripeUpdateSubscription = vi.fn<[], Promise<SubscriptionResult>>()
-const mockVerifyWebhookSignature = vi.fn<[], WebhookEventResult>()
+const mockCreateCheckoutSession = vi.fn<typeof provider.createCheckoutSession>()
+const mockGetCheckoutSession = vi.fn<typeof provider.getCheckoutSession>()
+const mockGetSubscription = vi.fn<typeof provider.getSubscription>()
+const mockNormalizeSubscription = vi.fn<typeof provider.normalizeSubscription>()
+const mockStripeUpdateSubscription = vi.fn<typeof provider.updateSubscription>()
+const mockVerifyWebhookSignature = vi.fn<typeof provider.verifyWebhookSignature>()
 
 vi.mock('../provider.js', () => ({
-  createCheckoutSession: (...args: unknown[]) => mockCreateCheckoutSession(...(args as [])),
-  getCheckoutSession: (...args: unknown[]) => mockGetCheckoutSession(...(args as [])),
-  getSubscription: (...args: unknown[]) => mockGetSubscription(...(args as [])),
-  normalizeSubscription: (...args: unknown[]) => mockNormalizeSubscription(...(args as [])),
+  createCheckoutSession: (...args: Parameters<typeof provider.createCheckoutSession>) =>
+    mockCreateCheckoutSession(...args),
+  getCheckoutSession: (...args: Parameters<typeof provider.getCheckoutSession>) =>
+    mockGetCheckoutSession(...args),
+  getSubscription: (...args: Parameters<typeof provider.getSubscription>) =>
+    mockGetSubscription(...args),
+  normalizeSubscription: (...args: Parameters<typeof provider.normalizeSubscription>) =>
+    mockNormalizeSubscription(...args),
   normalizeSubscriptionStatus: (rawStatus: string | undefined) => {
     const statusMap: Record<string, string> = {
       active: 'active',
@@ -77,8 +82,10 @@ vi.mock('../provider.js', () => ({
     }
     return (rawStatus && statusMap[rawStatus]) || 'unknown'
   },
-  updateSubscription: (...args: unknown[]) => mockStripeUpdateSubscription(...(args as [])),
-  verifyWebhookSignature: (...args: unknown[]) => mockVerifyWebhookSignature(...(args as [])),
+  updateSubscription: (...args: Parameters<typeof provider.updateSubscription>) =>
+    mockStripeUpdateSubscription(...args),
+  verifyWebhookSignature: (...args: Parameters<typeof provider.verifyWebhookSignature>) =>
+    mockVerifyWebhookSignature(...args),
 }))
 
 // ─── Bond mock ───────────────────────────────────────────────────────────────
@@ -1268,7 +1275,17 @@ describe('Stripe Bond Adapter', () => {
         ...mockSubscriptionResult,
         id: 'sub_existing',
         items: {
-          data: [{ id: 'si_item', price: { product: 'prod_new' }, current_period_end: periodEnd }],
+          // Stripe API 2025+ reports the period end on the subscription ITEM;
+          // the shipped `SubscriptionResult.items.data[]` element type does not
+          // model it yet (the adapter reads it through a Record cast), so this
+          // fixture feeds the real Stripe shape.
+          data: [
+            {
+              id: 'si_item',
+              price: { product: 'prod_new' },
+              current_period_end: periodEnd,
+            } as SubscriptionResult['items']['data'][number] & { current_period_end: number },
+          ],
         },
         cancel_at_period_end: false,
       })

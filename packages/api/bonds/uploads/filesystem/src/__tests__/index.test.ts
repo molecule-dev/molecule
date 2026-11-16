@@ -29,9 +29,14 @@ vi.mock('fs', () => ({
   createReadStream: (...args: unknown[]) => mockCreateReadStream(...args),
 }))
 
-// Mock uuid
+// Mock uuid. Typed with the no-argument overload the provider calls
+// (`provider.ts` uses `uuid()`), so per-test implementations stay `() => string`.
+const uuidMock = vi.hoisted(() => ({
+  v4: vi.fn<() => string>().mockReturnValue('test-uuid-1234'),
+}))
+
 vi.mock('uuid', () => ({
-  v4: vi.fn().mockReturnValue('test-uuid-1234'),
+  v4: uuidMock.v4,
 }))
 
 const mockLogger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), trace: vi.fn() }
@@ -991,8 +996,7 @@ describe('Filesystem Edge Cases', () => {
   describe('concurrent operations', () => {
     it('should handle multiple simultaneous uploads', async () => {
       let callCount = 0
-      const { v4 } = await import('uuid')
-      vi.mocked(v4).mockImplementation(() => `test-uuid-${++callCount}`)
+      uuidMock.v4.mockImplementation(() => `test-uuid-${++callCount}`)
 
       const { upload } = await import('../provider.js')
 

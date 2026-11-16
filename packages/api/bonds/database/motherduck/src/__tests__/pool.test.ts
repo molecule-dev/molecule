@@ -6,6 +6,8 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { DatabasePool, DatabaseTransaction } from '@molecule/api-database'
+
 const fromCacheMock = vi.hoisted(() => vi.fn())
 const connectMock = vi.hoisted(() => vi.fn())
 const disconnectMock = vi.hoisted(() => vi.fn())
@@ -39,6 +41,20 @@ function fakeResult(rows: Record<string, unknown>[] = [], rowsChanged = 0): obje
 
 const instance = { connect: connectMock }
 
+/**
+ * Opens an interactive transaction on the pool — required, because these tests
+ * pin the BEGIN/COMMIT/ROLLBACK this bond sends inside one.
+ *
+ * @param p - The pool under test.
+ * @returns The opened transaction.
+ */
+async function openTransaction(p: DatabasePool): Promise<DatabaseTransaction> {
+  if (!p.transaction) {
+    throw new Error('MotherDuck createPool() must support interactive transactions')
+  }
+  return p.transaction()
+}
+
 beforeEach(() => {
   vi.unstubAllEnvs()
   delete process.env.MOTHERDUCK_TOKEN
@@ -58,10 +74,12 @@ afterEach(async () => {
 describe('token handling', () => {
   it('throws the tagged config error when no token is set anywhere', async () => {
     const p = createPool()
-    const error = await p.query('SELECT 1').catch((e: Error) => e)
-    expect((error as { errorKey?: string }).errorKey).toBe('config.notConfigured')
-    expect((error as { statusCode?: number }).statusCode).toBe(503)
-    expect(error.message).toMatch(/MOTHERDUCK_TOKEN is not set/)
+    const refused = p.query('SELECT 1')
+    await expect(refused).rejects.toMatchObject({
+      errorKey: 'config.notConfigured',
+      statusCode: 503,
+    })
+    await expect(refused).rejects.toThrow(/MOTHERDUCK_TOKEN is not set/)
     expect(fromCacheMock).not.toHaveBeenCalled()
   })
 
@@ -160,7 +178,7 @@ describe('queries and transactions', () => {
 
   it('a transaction sends BEGIN, runs statements and COMMITs on the same connection', async () => {
     const p = createPool()
-    const tx = await p.transaction()
+    const tx = await openTransaction(p)
     await tx.query('INSERT INTO t VALUES ($1)', ['a'])
     await tx.commit()
     const sql = runMock.mock.calls.map((call) => call[0])
@@ -172,7 +190,7 @@ describe('queries and transactions', () => {
 
   it('rollback sends ROLLBACK and frees the connection', async () => {
     const p = createPool()
-    const tx = await p.transaction()
+    const tx = await openTransaction(p)
     await tx.query('INSERT INTO t VALUES ($1)', ['a'])
     await tx.rollback()
     const sql = runMock.mock.calls.map((call) => call[0])

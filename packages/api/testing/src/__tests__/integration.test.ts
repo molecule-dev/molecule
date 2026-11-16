@@ -4,7 +4,7 @@
  * isolation.
  */
 
-import type { Request, Response } from 'express'
+import type { NextFunction, Request, Response } from 'express'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 
@@ -303,7 +303,7 @@ describe('Provider type safety integration', () => {
 // ============================================================================
 
 describe('Validation middleware integration', () => {
-  let next: ReturnType<typeof vi.fn>
+  let next: NextFunction
 
   beforeEach(() => {
     next = vi.fn()

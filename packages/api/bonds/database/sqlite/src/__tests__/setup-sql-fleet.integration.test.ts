@@ -136,12 +136,14 @@ describe.runIf(HAVE_FLEET)('the fleet’s setup SQL on SQLite', () => {
         workDir = null
       }
     }
-  })
+    // The corpus is 50+ real files; applying each on a fresh database takes
+    // about the 5 s Vitest default on an idle machine and past it under load.
+  }, 30_000)
 
   it('applies the whole fleet in one database, the shape a scaffolded app runs', async () => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
     await migrate(FILES)
-  })
+  }, 30_000)
 
   it('is Postgres dialect, which is why the translation is load-bearing', async () => {
     // The corpus is not accidentally SQLite-clean: the constructs the translator

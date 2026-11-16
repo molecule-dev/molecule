@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { clearProviders } from '@molecule/api-bond'
+import { reset } from '@molecule/api-bond'
 import { resetRegistrationsForTests, setProvider } from '@molecule/api-process-lifecycle'
 import { createProcessLifecycleProvider } from '@molecule/api-process-lifecycle-express'
 
@@ -13,7 +13,8 @@ async function settleImport(): Promise<void> {
 
 describe('postgresql bond lifecycle integration', () => {
   beforeEach(() => {
-    clearProviders()
+    // Restore the bond registry to its initial empty state between tests.
+    reset()
     resetRegistrationsForTests()
   })
 

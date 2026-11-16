@@ -70,6 +70,7 @@ vi.mock('@molecule/app-vue', async () => {
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { TopNavLayout } from '../TopNavLayout.js'
+import type { TopNavLayoutProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -79,10 +80,7 @@ afterEach(() => {
 const routedView = (): VNodeChild => h('div', { 'data-outlet': '' })
 
 /** Renders a {@link TopNavLayout} and returns the markup it produced. */
-const render = (
-  props: Record<string, unknown>,
-  slots?: Record<string, () => VNodeChild[]>,
-): string => {
+const render = (props: TopNavLayoutProps, slots?: Record<string, () => VNodeChild[]>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(TopNavLayout, props, slots) }))

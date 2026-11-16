@@ -422,6 +422,9 @@ describe('@molecule/api-database-mysql index exports', () => {
     })
 
     describe('transaction()', () => {
+      // `DatabasePool.transaction()` is optional in the core interface; this bond
+      // always implements it (asserted above), so the non-null calls below are the
+      // implemented contract method, not a suppressed null.
       it('should begin a transaction', async () => {
         const mysql = await import('mysql2/promise')
         const { createPool } = await import('../index.js')
@@ -430,7 +433,7 @@ describe('@molecule/api-database-mysql index exports', () => {
         const mockConnection = await mockPool.getConnection()
 
         const pool = createPool()
-        const tx = await pool.transaction()
+        const tx = await pool.transaction!()
 
         expect(mockPool.getConnection).toHaveBeenCalled()
         expect(mockConnection.beginTransaction).toHaveBeenCalled()
@@ -453,7 +456,7 @@ describe('@molecule/api-database-mysql index exports', () => {
         ] as never)
 
         const pool = createPool()
-        const tx = await pool.transaction()
+        const tx = await pool.transaction!()
         const result = await tx.query('INSERT INTO users (name) VALUES ($1) RETURNING id', ['Test'])
 
         expect(mockConnection.query).toHaveBeenCalled()
@@ -468,7 +471,7 @@ describe('@molecule/api-database-mysql index exports', () => {
         const mockConnection = await mockPool.getConnection()
 
         const pool = createPool()
-        const tx = await pool.transaction()
+        const tx = await pool.transaction!()
         await tx.commit()
 
         expect(mockConnection.commit).toHaveBeenCalled()
@@ -483,7 +486,7 @@ describe('@molecule/api-database-mysql index exports', () => {
         const mockConnection = await mockPool.getConnection()
 
         const pool = createPool()
-        const tx = await pool.transaction()
+        const tx = await pool.transaction!()
         await tx.rollback()
 
         expect(mockConnection.rollback).toHaveBeenCalled()
@@ -498,7 +501,7 @@ describe('@molecule/api-database-mysql index exports', () => {
         const mockConnection = await mockPool.getConnection()
 
         const pool = createPool()
-        const tx = await pool.transaction()
+        const tx = await pool.transaction!()
         tx.release()
 
         expect(mockConnection.release).toHaveBeenCalled()
@@ -624,7 +627,7 @@ describe('@molecule/api-database-mysql index exports', () => {
         .mockResolvedValueOnce([{ affectedRows: 1 }, []] as never)
 
       const pool = createPool()
-      const tx = await pool.transaction()
+      const tx = await pool.transaction!()
 
       // Execute multiple queries within transaction
       await tx.query('INSERT INTO orders (user_id, total) VALUES ($1, $2)', [1, 100])
@@ -651,7 +654,7 @@ describe('@molecule/api-database-mysql index exports', () => {
         .mockRejectedValueOnce(new Error('Constraint violation'))
 
       const pool = createPool()
-      const tx = await pool.transaction()
+      const tx = await pool.transaction!()
 
       // First query succeeds
       await tx.query('INSERT INTO orders (user_id, total) VALUES ($1, $2)', [1, 100])

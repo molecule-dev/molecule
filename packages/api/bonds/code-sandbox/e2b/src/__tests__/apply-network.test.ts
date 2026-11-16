@@ -35,6 +35,25 @@ interface NetworkCapableHandle {
 }
 
 /**
+ * A `files.read` fake: the SDK's two overloads — text, and bytes when asked for
+ * bytes — over one implementation. These tests never read a file.
+ *
+ * @param _path - The path the provider asked for.
+ * @returns Empty text, or empty bytes when `format: 'bytes'` was requested.
+ */
+async function readFile(_path: string): Promise<string>
+async function readFile(
+  _path: string,
+  opts: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<Uint8Array>
+async function readFile(
+  _path: string,
+  opts?: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<string | Uint8Array> {
+  return opts?.format === 'bytes' ? new Uint8Array() : ''
+}
+
+/**
  * A minimal live sandbox. `hasUpdateNetwork: false` models an SDK build whose
  * sandbox cannot be given a network policy at all.
  *
@@ -71,7 +90,7 @@ function fakeSandbox(
       }) as E2BSandboxLike['commands']['run'],
     },
     files: {
-      read: (async () => '') as E2BSandboxLike['files']['read'],
+      read: readFile,
       async write() {
         return {}
       },

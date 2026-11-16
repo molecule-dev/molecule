@@ -7,6 +7,8 @@ vi.mock('@molecule/app-i18n', () => ({
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { ChatAttachment } from '@molecule/app-ai-chat'
+
 import { createProvider, HttpChatProvider } from '../provider.js'
 
 function createMockStreamResponse(lines: string[]): Record<string, unknown> {
@@ -738,7 +740,10 @@ describe('HTTP queued-message contract', () => {
   it('uses the queue endpoint, auth headers, intent flags and explicit stable id', async () => {
     fetchMock.mockResolvedValue(ack())
     const onEvent = vi.fn()
-    const attachments = [{ filename: 'logo.png', mediaType: 'image/png', data: 'YWJj' }]
+    // 'YWJj' is base64 for 3 bytes, so the size matches the payload.
+    const attachments: ChatAttachment[] = [
+      { filename: 'logo.png', mediaType: 'image/png', data: 'YWJj', size: 3 },
+    ]
     await new HttpChatProvider({
       baseUrl: 'https://example.test',
       headers: { Authorization: 'test' },

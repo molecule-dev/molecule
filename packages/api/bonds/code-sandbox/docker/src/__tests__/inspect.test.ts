@@ -24,8 +24,26 @@ function context(request: InspectContext['request']): InspectContext {
   return { request, labelPrefix: 'molecule-sandbox', warn: vi.fn(), debug: vi.fn() }
 }
 
+/**
+ * Shape of the fields {@link ../inspect.js | inspect.ts}'s `toDescriptor` reads
+ * from `GET /containers/{id}/json`. The source module keeps this type private,
+ * so the test carries a structural copy; keeping it exact is what makes a
+ * fixture that misses a field a type error instead of a silently wrong test.
+ */
+interface ContainerInspectPayload {
+  Id: string
+  Created?: string
+  Image?: string
+  State?: { Running?: boolean; StartedAt?: string }
+  Config?: { Labels?: Record<string, string>; Image?: string }
+  Mounts?: Array<{ Type?: string; Name?: string }>
+  NetworkSettings?: {
+    Ports?: Record<string, Array<{ HostIp?: string; HostPort?: string }> | null> | null
+  }
+}
+
 /** A container inspect payload with sensible defaults. */
-function inspectPayload(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+function inspectPayload(overrides: Partial<ContainerInspectPayload> = {}): ContainerInspectPayload {
   return {
     Id: 'container-1',
     Created: '2026-08-01T00:00:00Z',

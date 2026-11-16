@@ -10,13 +10,19 @@ const { mockCreate, mockFetch, MockTwilio } = vi.hoisted(() => {
   const mockCreate = vi.fn()
   const mockFetch = vi.fn()
 
-  const mockMessages = vi.fn().mockImplementation((sid?: string) => {
-    if (sid) {
-      return { fetch: mockFetch }
-    }
-    return undefined
-  })
-  mockMessages.create = mockCreate
+  // Twilio's `client.messages` is BOTH callable (`messages(sid)` returns the
+  // message instance) and a namespace with `.create()`. Object.assign keeps
+  // both shapes on one typed mock instead of bolting a property onto a plain
+  // `vi.fn()` (which its inferred `Mock<Procedure>` type has no slot for).
+  const mockMessages = Object.assign(
+    vi.fn().mockImplementation((sid?: string) => {
+      if (sid) {
+        return { fetch: mockFetch }
+      }
+      return undefined
+    }),
+    { create: mockCreate },
+  )
 
   const MockTwilio = vi.fn().mockReturnValue({
     messages: mockMessages,

@@ -265,14 +265,17 @@ describe('pg RemoteDb — runQuery', () => {
 
     // Build a custom pool whose second client.query NEVER resolves.
     const baseClient: PgPoolClientLike = {
-      query: vi.fn(async (sql: string) => {
+      // A plain generic method (not `vi.fn`): the mock wrapper erases the
+      // signature's type parameter, so it can never match `query<T>`. Only
+      // `release` is asserted below.
+      async query<T = Record<string, unknown>>(sql: string): Promise<PgQueryResult<T>> {
         if (sql.startsWith('SET statement_timeout')) {
           return { rows: [], rowCount: 0, fields: [] }
         }
         return new Promise(() => {
           /* never resolves */
         })
-      }),
+      },
       release: vi.fn(),
     }
     const pool: PgPoolLike = {

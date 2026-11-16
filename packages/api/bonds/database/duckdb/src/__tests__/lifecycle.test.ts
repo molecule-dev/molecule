@@ -13,7 +13,8 @@ async function settleImport(): Promise<void> {
 
 describe('duckdb bond lifecycle integration', () => {
   beforeEach(() => {
-    clearProviders()
+    // The database bond registers under the 'database' category in the bond registry.
+    clearProviders('database')
     resetRegistrationsForTests()
   })
 

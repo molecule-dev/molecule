@@ -16,6 +16,8 @@ vi.mock('@molecule/api-i18n', () => ({
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { ConfigSchema, ConfigValidationResult } from '@molecule/api-config'
+
 import { envProvider, provider } from '../provider.js'
 
 describe('@molecule/api-config-env', () => {
@@ -124,22 +126,40 @@ describe('@molecule/api-config-env', () => {
   })
 
   describe('set', () => {
+    // `set` is optional on the core ConfigProvider interface (a provider may
+    // not support runtime overrides); the env provider always implements it,
+    // and the exports test above asserts that. Bind it through this runtime
+    // check so the calls below are defined and typed.
+    const set = (key: string, value: unknown): void => {
+      if (!provider.set) throw new Error('env provider must implement set().')
+      provider.set(key, value)
+    }
+
     it('should set env var', () => {
-      provider.set('__TEST_SET__', 'new-value')
+      set('__TEST_SET__', 'new-value')
 
       expect(process.env.__TEST_SET__).toBe('new-value')
     })
 
     it('should stringify non-string values', () => {
-      provider.set('__TEST_SET__', 42)
+      set('__TEST_SET__', 42)
 
       expect(process.env.__TEST_SET__).toBe('42')
     })
   })
 
   describe('validate', () => {
+    // `validate` is optional on the core ConfigProvider interface (a provider
+    // may not support schema validation); the env provider always implements
+    // it, and the exports test above asserts that. Bind it through this
+    // runtime check so the calls below are defined and typed.
+    const validate = (schema: ConfigSchema[]): ConfigValidationResult => {
+      if (!provider.validate) throw new Error('env provider must implement validate().')
+      return provider.validate(schema)
+    }
+
     it('should return valid for empty schema', () => {
-      const result = provider.validate([])
+      const result = validate([])
 
       expect(result.valid).toBe(true)
       expect(result.errors).toHaveLength(0)
@@ -147,7 +167,7 @@ describe('@molecule/api-config-env', () => {
     })
 
     it('should error on missing required config', () => {
-      const result = provider.validate([{ key: '__TEST_REQ__', required: true }])
+      const result = validate([{ key: '__TEST_REQ__', required: true }])
 
       expect(result.valid).toBe(false)
       expect(result.errors).toHaveLength(1)
@@ -157,13 +177,13 @@ describe('@molecule/api-config-env', () => {
     it('should pass for present required config', () => {
       process.env.__TEST_REQ__ = 'present'
 
-      const result = provider.validate([{ key: '__TEST_REQ__', required: true }])
+      const result = validate([{ key: '__TEST_REQ__', required: true }])
 
       expect(result.valid).toBe(true)
     })
 
     it('should skip optional missing config without error', () => {
-      const result = provider.validate([{ key: '__TEST_REQ__', required: false }])
+      const result = validate([{ key: '__TEST_REQ__', required: false }])
 
       expect(result.valid).toBe(true)
     })
@@ -172,7 +192,7 @@ describe('@molecule/api-config-env', () => {
       it('should error for non-numeric value', () => {
         process.env.__TEST_NUM__ = 'not-a-number'
 
-        const result = provider.validate([{ key: '__TEST_NUM__', type: 'number' }])
+        const result = validate([{ key: '__TEST_NUM__', type: 'number' }])
 
         expect(result.valid).toBe(false)
         expect(result.errors[0].message).toContain('must be a number')
@@ -181,7 +201,7 @@ describe('@molecule/api-config-env', () => {
       it('should error when below min', () => {
         process.env.__TEST_NUM__ = '3'
 
-        const result = provider.validate([{ key: '__TEST_NUM__', type: 'number', min: 5 }])
+        const result = validate([{ key: '__TEST_NUM__', type: 'number', min: 5 }])
 
         expect(result.valid).toBe(false)
         expect(result.errors[0].message).toContain('at least 5')
@@ -190,7 +210,7 @@ describe('@molecule/api-config-env', () => {
       it('should error when above max', () => {
         process.env.__TEST_NUM__ = '100'
 
-        const result = provider.validate([{ key: '__TEST_NUM__', type: 'number', max: 50 }])
+        const result = validate([{ key: '__TEST_NUM__', type: 'number', max: 50 }])
 
         expect(result.valid).toBe(false)
         expect(result.errors[0].message).toContain('at most 50')
@@ -199,9 +219,7 @@ describe('@molecule/api-config-env', () => {
       it('should pass for valid number within range', () => {
         process.env.__TEST_NUM__ = '10'
 
-        const result = provider.validate([
-          { key: '__TEST_NUM__', type: 'number', min: 1, max: 100 },
-        ])
+        const result = validate([{ key: '__TEST_NUM__', type: 'number', min: 1, max: 100 }])
 
         expect(result.valid).toBe(true)
       })
@@ -211,7 +229,7 @@ describe('@molecule/api-config-env', () => {
       it.each(['true', 'false', '1', '0', 'TRUE', 'FALSE'])('should accept %s', (value) => {
         process.env.__TEST_BOOL__ = value
 
-        const result = provider.validate([{ key: '__TEST_BOOL__', type: 'boolean' }])
+        const result = validate([{ key: '__TEST_BOOL__', type: 'boolean' }])
 
         expect(result.valid).toBe(true)
       })
@@ -219,7 +237,7 @@ describe('@molecule/api-config-env', () => {
       it('should error for non-boolean value', () => {
         process.env.__TEST_BOOL__ = 'maybe'
 
-        const result = provider.validate([{ key: '__TEST_BOOL__', type: 'boolean' }])
+        const result = validate([{ key: '__TEST_BOOL__', type: 'boolean' }])
 
         expect(result.valid).toBe(false)
         expect(result.errors[0].message).toContain('must be a boolean')
@@ -230,7 +248,7 @@ describe('@molecule/api-config-env', () => {
       it('should accept valid JSON', () => {
         process.env.__TEST_JSON__ = '{"key":"value"}'
 
-        const result = provider.validate([{ key: '__TEST_JSON__', type: 'json' }])
+        const result = validate([{ key: '__TEST_JSON__', type: 'json' }])
 
         expect(result.valid).toBe(true)
       })
@@ -238,7 +256,7 @@ describe('@molecule/api-config-env', () => {
       it('should error for invalid JSON', () => {
         process.env.__TEST_JSON__ = '{invalid}'
 
-        const result = provider.validate([{ key: '__TEST_JSON__', type: 'json' }])
+        const result = validate([{ key: '__TEST_JSON__', type: 'json' }])
 
         expect(result.valid).toBe(false)
         expect(result.errors[0].message).toContain('must be valid JSON')
@@ -249,7 +267,7 @@ describe('@molecule/api-config-env', () => {
       it('should pass for matching pattern', () => {
         process.env.__TEST_PAT__ = 'abc-123'
 
-        const result = provider.validate([{ key: '__TEST_PAT__', pattern: '^[a-z]+-\\d+$' }])
+        const result = validate([{ key: '__TEST_PAT__', pattern: '^[a-z]+-\\d+$' }])
 
         expect(result.valid).toBe(true)
       })
@@ -257,7 +275,7 @@ describe('@molecule/api-config-env', () => {
       it('should error for non-matching pattern', () => {
         process.env.__TEST_PAT__ = 'INVALID'
 
-        const result = provider.validate([{ key: '__TEST_PAT__', pattern: '^[a-z]+$' }])
+        const result = validate([{ key: '__TEST_PAT__', pattern: '^[a-z]+$' }])
 
         expect(result.valid).toBe(false)
         expect(result.errors[0].message).toContain('does not match pattern')
@@ -268,7 +286,7 @@ describe('@molecule/api-config-env', () => {
       it('should pass for valid enum value', () => {
         process.env.__TEST_ENUM__ = 'production'
 
-        const result = provider.validate([
+        const result = validate([
           { key: '__TEST_ENUM__', enum: ['development', 'staging', 'production'] },
         ])
 
@@ -278,7 +296,7 @@ describe('@molecule/api-config-env', () => {
       it('should error for invalid enum value', () => {
         process.env.__TEST_ENUM__ = 'invalid'
 
-        const result = provider.validate([
+        const result = validate([
           { key: '__TEST_ENUM__', enum: ['development', 'staging', 'production'] },
         ])
 
@@ -291,7 +309,7 @@ describe('@molecule/api-config-env', () => {
       process.env.__TEST_NUM__ = 'not-a-number'
       process.env.__TEST_BOOL__ = 'maybe'
 
-      const result = provider.validate([
+      const result = validate([
         { key: '__TEST_REQ__', required: true },
         { key: '__TEST_NUM__', type: 'number' },
         { key: '__TEST_BOOL__', type: 'boolean' },

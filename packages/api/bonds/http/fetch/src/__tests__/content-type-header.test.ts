@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /** The bonded fetch provider must preserve caller content types on the real wire. */
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'

@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { ActivityEvent } from '@molecule/api-activity'
 import type { SMSProvider, SMSResult } from '@molecule/api-sms'
 
-const record = vi.fn(() => Promise.resolve())
+// Typed as the real `record(event)` so the mock's call args are the contract's
+// ActivityEvent rather than an unknown tuple.
+const record = vi.fn<(event: ActivityEvent) => Promise<void>>()
 
 vi.mock('@molecule/api-activity', () => ({
-  record: (...args: unknown[]) => record(...args),
+  record: (event: ActivityEvent) => record(event),
 }))
 
 import { createSMSCaptureProvider, provider } from '../provider.js'

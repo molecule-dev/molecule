@@ -297,7 +297,10 @@ describe('renderCanvasDocument — PNG shape dispatch', () => {
         {
           width: 100,
           height: 100,
-          // @ts-expect-error — exercising runtime validation
+          // Deliberately invalid at runtime: an image layer with no source.
+          // `ImageLayer` types src/data/buffer as optional (it does not encode
+          // the "exactly one source" constraint), so this object type-checks —
+          // renderCanvasDocument rejects it at runtime instead.
           layers: [{ kind: 'image', x: 0, y: 0, width: 10, height: 10 }],
         },
         { format: 'png' },
@@ -505,17 +508,21 @@ describe('createCanvasRenderHandler', () => {
     setCanvasModule(undefined)
   })
 
-  function fakeRes(): CanvasRenderResponse & {
+  /** A `CanvasRenderResponse` that records what the handler wrote, for assertions. */
+  type FakeResponse = CanvasRenderResponse & {
     headers: Record<string, string>
     status: number
     body: Buffer | unknown
     bodyKind: 'buffer' | 'json' | null
-  } {
+  }
+
+  function fakeRes(): FakeResponse {
     const headers: Record<string, string> = {}
     let status = 200
     let body: Buffer | unknown = null
     let bodyKind: 'buffer' | 'json' | null = null
-    return {
+    // Annotated (not cast) so the callback parameters get real contextual types.
+    const res: FakeResponse = {
       headers,
       get status() {
         return status
@@ -540,12 +547,8 @@ describe('createCanvasRenderHandler', () => {
         body = j
         bodyKind = 'json'
       },
-    } as unknown as CanvasRenderResponse & {
-      headers: Record<string, string>
-      status: number
-      body: Buffer | unknown
-      bodyKind: 'buffer' | 'json' | null
     }
+    return res
   }
 
   it('returns 200 with attachment headers for a valid PNG request', async () => {

@@ -1,6 +1,18 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 import { fetchClient, provider } from '../provider.js'
+
+/** The parts of `Response` the provider reads, with each reader mocked. */
+interface MockResponse {
+  ok: boolean
+  status: number
+  statusText: string
+  headers: Headers
+  text: Mock<() => Promise<string>>
+  json: Mock<() => Promise<unknown>>
+  blob: Mock<() => Promise<unknown>>
+  arrayBuffer: Mock<() => Promise<unknown>>
+}
 
 describe('@molecule/api-http-fetch', () => {
   const mockFetch = vi.fn()
@@ -17,7 +29,7 @@ describe('@molecule/api-http-fetch', () => {
   const mockResponse = (
     data: unknown,
     options: { status?: number; statusText?: string; headers?: Record<string, string> } = {},
-  ): Record<string, unknown> => {
+  ): MockResponse => {
     const { status = 200, statusText = 'OK', headers = {} } = options
     const headersObj = new Headers(headers)
     return {
@@ -25,10 +37,12 @@ describe('@molecule/api-http-fetch', () => {
       status,
       statusText,
       headers: headersObj,
-      text: vi.fn().mockResolvedValue(typeof data === 'string' ? data : JSON.stringify(data)),
-      json: vi.fn().mockResolvedValue(data),
-      blob: vi.fn().mockResolvedValue(data),
-      arrayBuffer: vi.fn().mockResolvedValue(data),
+      text: vi
+        .fn<() => Promise<string>>()
+        .mockResolvedValue(typeof data === 'string' ? data : JSON.stringify(data)),
+      json: vi.fn<() => Promise<unknown>>().mockResolvedValue(data),
+      blob: vi.fn<() => Promise<unknown>>().mockResolvedValue(data),
+      arrayBuffer: vi.fn<() => Promise<unknown>>().mockResolvedValue(data),
     }
   }
 

@@ -14,25 +14,38 @@ import type { CacheOptions, CacheProvider } from '../types.js'
 
 /**
  * Creates a mock cache provider for testing.
+ *
+ * The store-backed implementations are typed with the interface's own method
+ * types and installed with `mockImplementation`: Vitest's `Mock` erases
+ * generics from its call signature, so a generic function passed to `vi.fn`
+ * cannot be assigned to a generic provider method. `vi.fn()` keeps the spy,
+ * and the `CacheProvider` field supplies the generic signature.
  */
 const createMockProvider = (overrides: Partial<CacheProvider> = {}): CacheProvider => {
   const store = new Map<string, unknown>()
 
-  return {
-    get: vi.fn(async <T>(key: string): Promise<T | undefined> => {
-      return store.get(key) as T | undefined
-    }),
-    set: vi.fn(async <T>(key: string, value: T, _options?: CacheOptions): Promise<void> => {
-      store.set(key, value)
-    }),
-    delete: vi.fn(async (key: string): Promise<boolean> => {
-      return store.delete(key)
-    }),
-    has: vi.fn(async (key: string): Promise<boolean> => {
-      return store.has(key)
-    }),
-    ...overrides,
+  const getImplementation: CacheProvider['get'] = async <T = unknown>(key: string) =>
+    store.get(key) as T | undefined
+  const setImplementation: CacheProvider['set'] = async <T = unknown>(
+    key: string,
+    value: T,
+    _options?: CacheOptions,
+  ): Promise<void> => {
+    store.set(key, value)
   }
+  const deleteImplementation: CacheProvider['delete'] = async (key: string) => store.delete(key)
+  const hasImplementation: CacheProvider['has'] = async (key: string) => store.has(key)
+
+  const getMock = vi.fn()
+  getMock.mockImplementation(getImplementation)
+  const setMock = vi.fn()
+  setMock.mockImplementation(setImplementation)
+  const deleteMock = vi.fn()
+  deleteMock.mockImplementation(deleteImplementation)
+  const hasMock = vi.fn()
+  hasMock.mockImplementation(hasImplementation)
+
+  return { get: getMock, set: setMock, delete: deleteMock, has: hasMock, ...overrides }
 }
 
 describe('@molecule/api-cache', () => {

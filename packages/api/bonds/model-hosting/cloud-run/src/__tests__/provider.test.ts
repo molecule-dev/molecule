@@ -6,6 +6,7 @@ import type { ModelEndpointSpec } from '@molecule/api-model-hosting'
 
 import { signServiceAccountJwt } from '../client.js'
 import { createProvider, fromRunService, toRunService } from '../provider.js'
+import type { RunService } from '../types.js'
 
 const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 })
 const KEY = JSON.stringify({
@@ -27,7 +28,7 @@ const SPEC: ModelEndpointSpec = {
 }
 
 const NAME = 'projects/acme/locations/us-central1/services/laya'
-const READY = {
+const READY: RunService = {
   name: NAME,
   uri: 'https://laya-abc-uc.a.run.app',
   reconciling: false,

@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { dumpToFile, restoreFromFile } from '../dump.js'
+
 // project-archive DESTROYS the original once a capture verifies, so every test
 // here is really about one question: can this provider ever report success
 // having captured nothing? The cases that matter are the silent ones — a local
@@ -7,9 +9,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // for an empty one, and a resolver that answered with something other than a
 // list.
 
+// Typed with the real helper signatures so the recorded call arguments in these
+// tests describe the contract the provider actually invokes.
 const dump = vi.hoisted(() => ({
-  dumpToFile: vi.fn(async () => 128),
-  restoreFromFile: vi.fn(async () => undefined),
+  dumpToFile: vi.fn<typeof dumpToFile>(async () => 128),
+  restoreFromFile: vi.fn<typeof restoreFromFile>(async () => undefined),
 }))
 const fsp = vi.hoisted(() => ({ readFile: vi.fn(async () => Buffer.alloc(128)) }))
 
@@ -47,7 +51,7 @@ describe('capture', () => {
 
     await provider.capture(captureInput() as never)
 
-    const args = dump.dumpToFile.mock.calls[0][1] as string[]
+    const args = dump.dumpToFile.mock.calls[0][1]
     expect(args).toContain('--remote')
     expect(args.slice(0, 3)).toEqual(['d1', 'export', 'mol_a'])
   })
@@ -60,7 +64,7 @@ describe('capture', () => {
 
     await provider.capture(captureInput() as never)
 
-    expect(dump.dumpToFile.mock.calls[0][1] as string[]).not.toContain('--remote')
+    expect(dump.dumpToFile.mock.calls[0][1]).not.toContain('--remote')
   })
 
   it('treats a zero-byte export as a FAILURE, not an empty database', async () => {
@@ -123,7 +127,7 @@ describe('restore', () => {
       restoreInput([{ kind: KIND, id: 'mol_a', part: 'database/d1/mol_a.sql' }]) as never,
     )
 
-    const [, args, srcPath] = dump.restoreFromFile.mock.calls[0] as [string, string[], string]
+    const [, args, srcPath] = dump.restoreFromFile.mock.calls[0]
     expect(args).toContain('--file')
     expect(args).toContain('/archive/database/d1/mol_a.sql')
     // wrangler never reads stdin; streaming to it would apply nothing while

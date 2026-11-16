@@ -15,6 +15,8 @@ import { describe, expect, it, vi } from 'vitest'
 // inline defaultValue that would otherwise mask a missing key.
 import { en as settingsActionsBarEn } from '@molecule/app-locales-settings-actions-bar'
 
+import type { SettingsActionsBarProps } from '../types.js'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `surface`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -90,7 +92,7 @@ const { h } = await import('vue')
  * @param props - The component props.
  * @returns The serialized markup.
  */
-const html = async (props: Record<string, unknown>): Promise<string> =>
+const html = async (props: SettingsActionsBarProps): Promise<string> =>
   renderToString(h(SettingsActionsBar, props))
 
 describe('SettingsActionsBar', () => {

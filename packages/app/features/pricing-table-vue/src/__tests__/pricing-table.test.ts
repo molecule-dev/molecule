@@ -63,7 +63,7 @@ vi.mock('@molecule/app-ui-vue', async () => {
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { PricingTable } from '../PricingTable.js'
-import type { PricingFeature, PricingPlan } from '../types.js'
+import type { PricingFeature, PricingPlan, PricingTableProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -75,7 +75,7 @@ afterEach(() => {
  * @param props - The table props.
  * @returns The rendered markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: PricingTableProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(

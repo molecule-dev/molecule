@@ -5,6 +5,7 @@
  */
 
 import { PassThrough } from 'stream'
+import type { Version4Options } from 'uuid'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Create mock functions
@@ -38,9 +39,16 @@ vi.mock('@aws-sdk/lib-storage', () => ({
   }),
 }))
 
-// Mock uuid
+// Mock uuid. The mock is typed against v4's string-returning overload (no
+// buffer argument), which is the shape the provider actually calls.
+const { mockV4 } = vi.hoisted(() => {
+  const mockV4 = vi.fn<(options?: Version4Options) => string>()
+  mockV4.mockReturnValue('test-uuid-1234')
+  return { mockV4 }
+})
+
 vi.mock('uuid', () => ({
-  v4: vi.fn().mockReturnValue('test-uuid-1234'),
+  v4: mockV4,
 }))
 
 const mockLogger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), trace: vi.fn() }
@@ -362,8 +370,7 @@ describe('S3 Provider Edge Cases', () => {
   describe('concurrent operations', () => {
     it('should handle multiple simultaneous uploads', async () => {
       let callCount = 0
-      const { v4 } = await import('uuid')
-      vi.mocked(v4).mockImplementation(() => `test-uuid-${++callCount}`)
+      mockV4.mockImplementation(() => `test-uuid-${++callCount}`)
 
       mockUploadDone.mockResolvedValue({
         Location: 'https://test-bucket.s3.amazonaws.com/test-uuid',

@@ -33,6 +33,9 @@ interface TestCertBundle {
  * Build a self-signed CA ("WWDR") + a signer cert chained off it, and
  * return both the PEM strings and forge cert handles for verification.
  *
+ * The two pure-JS 2048-bit RSA keygens cost ~3 s per bundle on a loaded
+ * machine — tests using this helper carry an explicit 30 s timeout.
+ *
  * @returns Self-signed CA cert + signer cert + their PEM encodings.
  */
 function buildTestCertBundle(): TestCertBundle {
@@ -116,7 +119,7 @@ describe('createApplePass', () => {
 
     const names = entries.map((e) => e.name).sort()
     expect(names).toEqual(['manifest.json', 'pass.json', 'signature'])
-  })
+  }, 30_000)
 
   test('manifest.json contains correct SHA-1 hashes for every other file', async () => {
     const certs = buildTestCertBundle()
@@ -132,7 +135,7 @@ describe('createApplePass', () => {
       const expected = createHash('sha1').update(entry.data).digest('hex')
       expect(manifest[entry.name]).toBe(expected)
     }
-  })
+  }, 30_000)
 
   test('signature parses as detached CMS with the signer + WWDR certs embedded', async () => {
     const certs = buildTestCertBundle()
@@ -148,7 +151,7 @@ describe('createApplePass', () => {
     const certPems = p7.certificates.map((c) => forge.pki.certificateToPem(c))
     expect(certPems).toContain(certs.signerCertPem)
     expect(certPems).toContain(certs.wwdrCertPem)
-  })
+  }, 30_000)
 
   test('signature is a detached CMS — content field absent in payload', async () => {
     const certs = buildTestCertBundle()
@@ -157,11 +160,14 @@ describe('createApplePass', () => {
 
     const signature = entries.find((e) => e.name === 'signature')!.data
     const asn1 = forge.asn1.fromDer(forge.util.createBuffer(signature.toString('binary')))
-    const p7 = forge.pkcs7.messageFromAsn1(asn1) as forge.pkcs7.PkcsSignedData
+    const p7 = forge.pkcs7.messageFromAsn1(asn1)
 
-    // Detached signature ⇒ no inline content bytes.
-    expect(p7.rawCapture?.content).toBeUndefined()
-  })
+    // Detached signature ⇒ no inline content bytes: node-forge's ASN.1
+    // validation stores the SignedData ContentInfo's content field (present
+    // only for attached signatures) at rawCapture.content.
+    const rawCapture = p7.rawCapture as { content?: forge.asn1.Asn1 } | undefined
+    expect(rawCapture?.content).toBeUndefined()
+  }, 30_000)
 
   test('Node crypto verifies the real detached signature and its manifest digest', async () => {
     const certs = buildTestCertBundle()
@@ -199,14 +205,14 @@ describe('createApplePass', () => {
     expect(verify('sha256', signed, certs.signerCertPem, bytes)).toBe(true)
     bytes[bytes.length - 1] ^= 1
     expect(verify('sha256', signed, certs.signerCertPem, bytes)).toBe(false)
-  })
+  }, 30_000)
 
   test('rejects malformed signer certificate without leaking key material', async () => {
     const certs = buildTestCertBundle()
     await expect(
       createApplePass(samplePass, { ...certs, signerCertPem: 'not a cert' }),
     ).rejects.toThrowError(/signer certificate/)
-  })
+  }, 30_000)
 
   test('rejects malformed private key without leaking key material', async () => {
     const certs = buildTestCertBundle()
@@ -219,12 +225,12 @@ describe('createApplePass', () => {
     expect(captured).toBeDefined()
     expect(captured!.message).not.toContain(certs.signerKeyPem)
     expect(captured!.message).toMatch(/private key/)
-  })
+  }, 30_000)
 
   test('rejects malformed WWDR certificate', async () => {
     const certs = buildTestCertBundle()
     await expect(
       createApplePass(samplePass, { ...certs, wwdrCertPem: 'not a cert' }),
     ).rejects.toThrowError(/WWDR/)
-  })
+  }, 30_000)
 })

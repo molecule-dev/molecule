@@ -47,7 +47,7 @@ vi.mock('@molecule/app-solid', () => ({
 
 const { NotificationFeed } = await import('../NotificationFeed.jsx')
 const { fmtRelativeShort } = await import('../fmtRelativeShort.js')
-import type { FeedItem } from '../types.js'
+import type { FeedItem, NotificationFeedProps } from '../types.js'
 
 const disposers: Array<() => void> = []
 
@@ -56,7 +56,7 @@ afterEach(() => {
 })
 
 /** Renders a {@link NotificationFeed} and returns the markup it produced. */
-const html = (props: Record<string, unknown>): string => {
+const html = (props: NotificationFeedProps): string => {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(() => <NotificationFeed {...props} />, container))

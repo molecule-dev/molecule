@@ -22,17 +22,43 @@ import type {
 // look, or could not act, must never come back shaped like a successful one.
 // ---------------------------------------------------------------------------
 
+/**
+ * A `files.read` fake: the SDK's two overloads — text, and bytes when asked for
+ * bytes — over one implementation. These tests never read a file.
+ *
+ * @param _path - The path the provider asked for.
+ * @returns Empty text, or empty bytes when `format: 'bytes'` was requested.
+ */
+async function readFile(_path: string): Promise<string>
+async function readFile(
+  _path: string,
+  opts: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<Uint8Array>
+async function readFile(
+  _path: string,
+  opts?: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<string | Uint8Array> {
+  return opts?.format === 'bytes' ? new Uint8Array() : ''
+}
+
 /** A minimal live sandbox; only what these tests touch is populated. */
 function fakeSandbox(sandboxId: string): E2BSandboxLike {
   return {
     sandboxId,
     commands: {
       async run() {
-        return { stdout: '', stderr: '', exitCode: 0 }
+        const result = { stdout: '', stderr: '', exitCode: 0 }
+        return {
+          ...result,
+          pid: 1,
+          wait: async () => result,
+          sendStdin: async () => {},
+          kill: async () => true,
+        }
       },
     },
     files: {
-      read: (async () => '') as E2BSandboxLike['files']['read'],
+      read: readFile,
       async write() {
         return {}
       },
@@ -44,6 +70,9 @@ function fakeSandbox(sandboxId: string): E2BSandboxLike {
     getHost: (port) => `${port}-${sandboxId}.e2b.app`,
     async setTimeout() {},
     async kill() {},
+    async isRunning() {
+      return true
+    },
   }
 }
 
@@ -114,9 +143,10 @@ function harness(
       return snapshot
     },
     async listSnapshots(listOpts) {
-      if (!listOpts?.name) return snapshots
+      const name = listOpts?.name
+      if (!name) return snapshots
       return snapshots.filter(
-        (s) => s.names?.[0]?.endsWith(`/${listOpts.name}`) || s.snapshotId.includes(listOpts.name),
+        (s) => s.names?.[0]?.endsWith(`/${name}`) || s.snapshotId.includes(name),
       )
     },
     async deleteSnapshot(snapshotId) {

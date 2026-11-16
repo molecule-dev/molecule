@@ -1,4 +1,5 @@
 import type pg from 'pg'
+import type { Mock } from 'vitest'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createPostgresLockFactory, PgLeaderLockSession } from '../lock.js'
@@ -14,12 +15,19 @@ afterEach(async () => {
 })
 
 /**
+ * The one query answer shape these tests stand in for.
+ */
+interface FakeResult {
+  rows: unknown[]
+}
+
+/**
  * The slice of `pg.Client` a leadership session uses.
  */
 interface FakeClient {
-  query: ReturnType<typeof vi.fn>
-  end: ReturnType<typeof vi.fn>
-  on: ReturnType<typeof vi.fn>
+  query: Mock<(sql: string | pg.QueryConfig) => Promise<FakeResult>>
+  end: Mock<() => Promise<void>>
+  on: Mock<(event: string, handler: () => void) => void>
   emitLost: () => void
 }
 

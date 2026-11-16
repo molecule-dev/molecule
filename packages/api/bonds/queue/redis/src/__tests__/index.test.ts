@@ -888,7 +888,10 @@ describe('@molecule/api-queue-redis', () => {
         } as unknown as Job
 
         const receivedMessage = createReceivedMessage(mockJob)
-        await receivedMessage.nack()
+        const nack = receivedMessage.nack
+        expect(nack).toBeDefined()
+        if (!nack) throw new Error('createReceivedMessage must provide nack()')
+        await nack()
 
         expect(mockMoveToFailed).toHaveBeenCalledWith(expect.any(Error), 'nack-token')
       })

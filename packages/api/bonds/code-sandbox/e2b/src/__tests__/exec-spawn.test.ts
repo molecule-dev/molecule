@@ -35,6 +35,25 @@ class FakeCommandExitError extends Error {
 const SIDECAR_LAUNCH =
   "nohup sh -c 'command -v redis-server >/dev/null 2>&1 || exit 0; redis-server --port 6379' > /tmp/redis.log 2>&1 & true"
 
+/**
+ * A `files.read` fake: the SDK's two overloads — text, and bytes when asked for
+ * bytes — over one implementation. These tests never read a file.
+ *
+ * @param _path - The path the provider asked for.
+ * @returns Empty text, or empty bytes when `format: 'bytes'` was requested.
+ */
+async function readFile(_path: string): Promise<string>
+async function readFile(
+  _path: string,
+  opts: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<Uint8Array>
+async function readFile(
+  _path: string,
+  opts?: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<string | Uint8Array> {
+  return opts?.format === 'bytes' ? new Uint8Array() : ''
+}
+
 interface RunCall {
   cmd: string
   opts: Record<string, unknown>
@@ -87,7 +106,7 @@ function fakeSandbox(
       }) as unknown as E2BSandboxLike['commands']['run'],
     },
     files: {
-      read: (async () => '') as E2BSandboxLike['files']['read'],
+      read: readFile,
       async write() {
         return {}
       },
@@ -216,7 +235,7 @@ function fakeSandboxWithHeldStream(opts: {
       }) as unknown as E2BSandboxLike['commands']['run'],
     },
     files: {
-      read: (async () => '') as E2BSandboxLike['files']['read'],
+      read: readFile,
       async write() {
         return {}
       },

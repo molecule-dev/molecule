@@ -4,6 +4,25 @@ import { E2BSandboxProvider } from '../provider.js'
 import type { E2BSandboxClientLike, E2BSandboxLike } from '../types.js'
 
 /**
+ * A `files.read` fake: the SDK's two overloads — text, and bytes when asked for
+ * bytes — over one implementation. These tests never read a file.
+ *
+ * @param _path - The path the provider asked for.
+ * @returns Empty text, or empty bytes when `format: 'bytes'` was requested.
+ */
+async function readFile(_path: string): Promise<string>
+async function readFile(
+  _path: string,
+  opts: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<Uint8Array>
+async function readFile(
+  _path: string,
+  opts?: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<string | Uint8Array> {
+  return opts?.format === 'bytes' ? new Uint8Array() : ''
+}
+
+/**
  * A fake SDK sandbox that records the exact BYTES written to the spool piece.
  *
  * `importFiles` hands each piece to the SDK as a `Blob`, so the Blob's bytes are
@@ -18,11 +37,18 @@ function fakeSandbox(sandboxId: string) {
     sandboxId,
     commands: {
       async run() {
-        return { stdout: '', stderr: '', exitCode: 0 }
+        const result = { stdout: '', stderr: '', exitCode: 0 }
+        return {
+          ...result,
+          pid: 1,
+          wait: async () => result,
+          sendStdin: async () => {},
+          kill: async () => true,
+        }
       },
     },
     files: {
-      read: (async () => '') as E2BSandboxLike['files']['read'],
+      read: readFile,
       async write(_path, data) {
         if (data instanceof Blob) pieces.push(new Uint8Array(await data.arrayBuffer()))
         return {}
@@ -35,6 +61,9 @@ function fakeSandbox(sandboxId: string) {
     getHost: (port) => `${port}-${sandboxId}.e2b.app`,
     async setTimeout() {},
     async kill() {},
+    async isRunning() {
+      return true
+    },
   }
   return { sbx, pieces }
 }

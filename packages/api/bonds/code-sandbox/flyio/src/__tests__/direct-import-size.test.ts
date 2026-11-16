@@ -55,7 +55,11 @@ describe('independent archive and file-content transfer limits', () => {
         'project',
       ])
       const double = createFetchDouble().fallback({ body: { id: 'm1', state: 'started' } })
-      const client = new FlyApiClient({ token: () => 'test', fetchImpl: double.fetch })
+      const client = new FlyApiClient({
+        token: () => 'test',
+        baseUrl: 'https://api.machines.dev/v1',
+        fetchImpl: double.fetch,
+      })
       const sandbox = (await createProvider({ orgSlug: 'test' }, client).get('app:m1'))!
       let commands = 0
       sandbox.exec = async (command) => {

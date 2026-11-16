@@ -34,7 +34,7 @@ function makeRow(overrides: Partial<InvoiceRow> = {}): InvoiceRow {
   return {
     id: 'inv-1',
     user_id: 'user-1',
-    client_id: null,
+    client_id: 'c-1',
     number: 'INV-2026-0001',
     status: 'draft',
     items: [{ description: 'Widget', quantity: 2, unit_price: 50 }],

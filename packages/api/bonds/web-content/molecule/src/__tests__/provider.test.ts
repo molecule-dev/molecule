@@ -40,8 +40,14 @@ describe('molecule web content provider local refusals', () => {
     await expect(p.fetch({ url: 'https://e.example.com/', html: '<p>x</p>' })).rejects.toThrow(
       'exactly one',
     )
-    await expect(p.fetch({ html: '<p>x</p>' })).rejects.toThrow('exactly one')
-    await expect(p.extract({ url: 'https://e.example.com/' })).rejects.toThrow('exactly one')
+    // Deliberate invalid input: the signature requires `url` on fetch, so the
+    // only way to reach this case is to pass what the type rejects — the
+    // provider's own runtime validation is exactly what is under test.
+    await expect(p.fetch({ html: '<p>x</p>' } as never)).rejects.toThrow('exactly one')
+    // Same for extract, whose signature requires `html`.
+    await expect(p.extract({ url: 'https://e.example.com/' } as never)).rejects.toThrow(
+      'exactly one',
+    )
     await expect(p.fetch({ url: 'file:///etc/passwd' })).rejects.toThrow('http(s) URL')
     await expect(p.fetch({ url: '' })).rejects.toThrow('1-2048')
     await expect(p.fetch({ url: `https://e.example.com/${'x'.repeat(2100)}` })).rejects.toThrow(
@@ -51,13 +57,16 @@ describe('molecule web content provider local refusals', () => {
       'non-empty',
     )
     await expect(p.extract({ html: '<p>x</p>', baseUrl: 'nope' })).rejects.toThrow('http(s) URL')
-    await expect(p.extract({ html: '<p>x</p>' }, { mode: 'sideways' })).rejects.toThrow(
+    // Deliberate invalid option values: the option types admit only the
+    // validated values, so each of these is fed what the type rejects to prove
+    // the provider's runtime check refuses it locally.
+    await expect(p.extract({ html: '<p>x</p>' }, { mode: 'sideways' } as never)).rejects.toThrow(
       '"raw" or "browser"',
     )
-    await expect(p.extract({ html: '<p>x</p>' }, { format: 'html' })).rejects.toThrow(
+    await expect(p.extract({ html: '<p>x</p>' }, { format: 'html' } as never)).rejects.toThrow(
       '"markdown" or "text"',
     )
-    await expect(p.extract({ html: '<p>x</p>' }, { includeLinks: 'yes' })).rejects.toThrow(
+    await expect(p.extract({ html: '<p>x</p>' }, { includeLinks: 'yes' } as never)).rejects.toThrow(
       'boolean',
     )
     await expect(p.extract({ html: '<p>x</p>' }, { settleMs: 9000 })).rejects.toThrow('0 to 5000')

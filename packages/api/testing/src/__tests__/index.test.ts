@@ -39,6 +39,32 @@ import {
 import type { LogEntry } from '../mocks/logger.js'
 
 // ============================================================================
+// Helpers
+// ============================================================================
+
+/**
+ * The core contracts mark any operation a provider MAY omit as optional — the
+ * mock database pool's `transaction`/`stats`, the mock cache's batch, tag and
+ * close methods, the mock queue's `sendBatch`/`size`/`purge` and the provider's
+ * queue-management methods. Each mock implements every one of them, so a test
+ * that exercises an optional operation proves it is really there: a mock that
+ * dropped one fails the assertion here instead of the call site reading as an
+ * unsupported no-op.
+ * @param value - The mock, provider or queue under test.
+ * @param methods - The optional methods this test requires to be implemented.
+ */
+function assertImplements<T extends object, K extends keyof T>(
+  value: T,
+  ...methods: K[]
+): asserts value is T & Required<Pick<T, K>> {
+  for (const method of methods) {
+    if (typeof value[method] !== 'function') {
+      throw new Error(`expected ${String(method)} to be implemented`)
+    }
+  }
+}
+
+// ============================================================================
 // Mock Database Tests
 // ============================================================================
 
@@ -135,6 +161,7 @@ describe('Mock Database', () => {
         expect(connResult.rows).toEqual([{ id: 'conn-once' }])
 
         db.setQueryResultOnce({ rows: [{ id: 'tx-once' }], rowCount: 1 })
+        assertImplements(db, 'transaction')
         const tx = await db.transaction()
         const txResult = await tx.query('SELECT 1')
         expect(txResult.rows).toEqual([{ id: 'tx-once' }])
@@ -177,6 +204,7 @@ describe('Mock Database', () => {
 
     describe('transaction', () => {
       it('should return a transaction with commit and rollback', async () => {
+        assertImplements(db, 'transaction')
         const tx = await db.transaction()
 
         await tx.query('INSERT INTO users VALUES ($1)', ['test'])
@@ -186,6 +214,7 @@ describe('Mock Database', () => {
       })
 
       it('should support rollback', async () => {
+        assertImplements(db, 'transaction')
         const tx = await db.transaction()
 
         await tx.query('INSERT INTO users VALUES ($1)', ['test'])
@@ -197,6 +226,7 @@ describe('Mock Database', () => {
 
     describe('stats', () => {
       it('should return pool stats', () => {
+        assertImplements(db, 'stats')
         const stats = db.stats()
 
         expect(stats).toEqual({ total: 1, idle: 1, waiting: 0 })
@@ -288,6 +318,7 @@ describe('Mock Cache', () => {
 
     describe('getMany/setMany', () => {
       it('should handle batch operations', async () => {
+        assertImplements(cache, 'setMany', 'getMany')
         await cache.setMany([
           ['key1', 'value1'],
           ['key2', 'value2'],
@@ -304,6 +335,7 @@ describe('Mock Cache', () => {
 
     describe('deleteMany', () => {
       it('should delete multiple keys', async () => {
+        assertImplements(cache, 'setMany', 'deleteMany')
         await cache.setMany([
           ['key1', 'value1'],
           ['key2', 'value2'],
@@ -327,6 +359,7 @@ describe('Mock Cache', () => {
       })
 
       it('should invalidate by tag', async () => {
+        assertImplements(cache, 'invalidateTag')
         await cache.set('user:1', { name: 'Test' }, { tags: ['users'] })
         await cache.set('user:2', { name: 'Test2' }, { tags: ['users'] })
         await cache.set('other', { name: 'Other' })
@@ -341,6 +374,7 @@ describe('Mock Cache', () => {
 
     describe('clear', () => {
       it('should remove all entries', async () => {
+        assertImplements(cache, 'setMany', 'clear')
         await cache.setMany([
           ['key1', 'value1'],
           ['key2', 'value2'],
@@ -354,6 +388,7 @@ describe('Mock Cache', () => {
 
     describe('getOrSet', () => {
       it('should return cached value if exists', async () => {
+        assertImplements(cache, 'getOrSet')
         await cache.set('key1', 'cached')
         const factory = vi.fn().mockResolvedValue('fresh')
 
@@ -364,6 +399,7 @@ describe('Mock Cache', () => {
       })
 
       it('should call factory and cache if not exists', async () => {
+        assertImplements(cache, 'getOrSet')
         const factory = vi.fn().mockResolvedValue('fresh')
 
         const result = await cache.getOrSet('key1', factory)
@@ -386,6 +422,7 @@ describe('Mock Cache', () => {
 
     describe('close', () => {
       it('should resolve without error', async () => {
+        assertImplements(cache, 'close')
         await expect(cache.close()).resolves.toBeUndefined()
       })
     })
@@ -407,6 +444,35 @@ describe('Mock Cache', () => {
 // Mock Queue Tests
 // ============================================================================
 
+/**
+ * The instance type the mock provider records in its `queues` map — it keeps
+ * the mock's `messages` recording, which the core `Queue` type `queue()` is
+ * declared to return does not have.
+ */
+type MockQueueInstance =
+  ReturnType<typeof createMockQueue>['queues'] extends Map<string, infer Instance>
+    ? Instance
+    : never
+
+/**
+ * Creates a queue through the provider and returns the instance the provider
+ * recorded in `queues`, so a test can assert on the mock's `messages` array.
+ * The core `QueueProvider.queue()` type erases that recording; reading it back
+ * from the provider's own map keeps the type honest, and a missing entry fails
+ * loudly instead of being asserted away.
+ * @param provider - The mock queue provider.
+ * @param name - Queue name to create and read back.
+ * @returns The recorded mock queue instance.
+ */
+function openQueue(provider: ReturnType<typeof createMockQueue>, name: string): MockQueueInstance {
+  provider.queue(name)
+  const instance = provider.queues.get(name)
+  if (!instance) {
+    throw new Error(`expected queue "${name}" to have been created`)
+  }
+  return instance
+}
+
 describe('Mock Queue', () => {
   describe('createMockQueue', () => {
     let queue: ReturnType<typeof createMockQueue>
@@ -427,7 +493,7 @@ describe('Mock Queue', () => {
 
     describe('send/receive', () => {
       it('should send messages to a queue', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
 
         const id = await q.send({ body: { type: 'test', data: 123 } })
 
@@ -437,7 +503,7 @@ describe('Mock Queue', () => {
       })
 
       it('should receive messages from a queue', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
         await q.send({ body: 'message1' })
         await q.send({ body: 'message2' })
 
@@ -449,7 +515,7 @@ describe('Mock Queue', () => {
       })
 
       it('should respect maxMessages option', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
         await q.send({ body: 'message1' })
         await q.send({ body: 'message2' })
         await q.send({ body: 'message3' })
@@ -460,7 +526,7 @@ describe('Mock Queue', () => {
       })
 
       it('should acknowledge messages', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
         await q.send({ body: 'message1' })
 
         const [msg] = await q.receive<string>()
@@ -470,7 +536,7 @@ describe('Mock Queue', () => {
       })
 
       it('should use provided message id', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
 
         const id = await q.send({ id: 'custom-id', body: 'test' })
 
@@ -480,7 +546,8 @@ describe('Mock Queue', () => {
 
     describe('sendBatch', () => {
       it('should send multiple messages', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
+        assertImplements(q, 'sendBatch')
 
         const ids = await q.sendBatch([{ body: 'msg1' }, { body: 'msg2' }])
 
@@ -491,10 +558,10 @@ describe('Mock Queue', () => {
 
     describe('subscribe', () => {
       it('should notify subscribers on new messages', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
         const received: unknown[] = []
 
-        q.subscribe<string>((msg) => {
+        q.subscribe<string>(async (msg) => {
           received.push(msg.body)
         })
 
@@ -507,10 +574,10 @@ describe('Mock Queue', () => {
       })
 
       it('should return unsubscribe function', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
         const received: unknown[] = []
 
-        const unsubscribe = q.subscribe<string>((msg) => {
+        const unsubscribe = q.subscribe<string>(async (msg) => {
           received.push(msg.body)
         })
 
@@ -525,7 +592,8 @@ describe('Mock Queue', () => {
 
     describe('size', () => {
       it('should return message count', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
+        assertImplements(q, 'size')
         await q.send({ body: 'msg1' })
         await q.send({ body: 'msg2' })
 
@@ -535,7 +603,8 @@ describe('Mock Queue', () => {
 
     describe('purge', () => {
       it('should remove all messages', async () => {
-        const q = queue.queue('test-queue')
+        const q = openQueue(queue, 'test-queue')
+        assertImplements(q, 'purge')
         await q.send({ body: 'msg1' })
         await q.send({ body: 'msg2' })
 
@@ -547,6 +616,7 @@ describe('Mock Queue', () => {
 
     describe('listQueues', () => {
       it('should list all queue names', async () => {
+        assertImplements(queue, 'listQueues')
         queue.queue('queue1')
         queue.queue('queue2')
 
@@ -558,6 +628,7 @@ describe('Mock Queue', () => {
 
     describe('createQueue', () => {
       it('should create a new queue', async () => {
+        assertImplements(queue, 'createQueue')
         const q = await queue.createQueue('new-queue')
 
         expect(q.name).toBe('new-queue')
@@ -567,6 +638,7 @@ describe('Mock Queue', () => {
 
     describe('deleteQueue', () => {
       it('should remove a queue', async () => {
+        assertImplements(queue, 'deleteQueue')
         queue.queue('to-delete')
 
         await queue.deleteQueue('to-delete')
@@ -588,6 +660,7 @@ describe('Mock Queue', () => {
 
     describe('close', () => {
       it('should resolve without error', async () => {
+        assertImplements(queue, 'close')
         await expect(queue.close()).resolves.toBeUndefined()
       })
     })
@@ -825,7 +898,7 @@ describe('Mock Logger', () => {
       })
 
       it('should accept setLevel calls without error', () => {
-        expect(() => logger.setLevel()).not.toThrow()
+        expect(() => logger.setLevel('debug')).not.toThrow()
       })
     })
   })
@@ -947,9 +1020,13 @@ describe('Helpers', () => {
     })
 
     it('should check error type', async () => {
+      // `expectThrows`'s `errorType` parameter is typed
+      // `new (...args: unknown[]) => T`, which only a constructor accepting any
+      // number of unknown arguments satisfies — hence the variadic signature
+      // around the single string message this test throws with.
       class CustomError extends Error {
-        constructor(message: string) {
-          super(message)
+        constructor(...args: unknown[]) {
+          super(typeof args[0] === 'string' ? args[0] : undefined)
           this.name = 'CustomError'
         }
       }
@@ -962,8 +1039,19 @@ describe('Helpers', () => {
     })
 
     it('should throw when error type does not match', async () => {
-      class CustomError extends Error {}
-      class OtherError extends Error {}
+      // `expectThrows`'s `errorType` parameter is typed
+      // `new (...args: unknown[]) => T`, which only a constructor accepting any
+      // number of unknown arguments satisfies — hence the explicit signatures.
+      class CustomError extends Error {
+        constructor(..._args: unknown[]) {
+          super()
+        }
+      }
+      class OtherError extends Error {
+        constructor(message: string) {
+          super(message)
+        }
+      }
 
       await expect(
         expectThrows(() => {
@@ -984,7 +1072,10 @@ describe('Helpers', () => {
     })
 
     it('should call the implementation', () => {
-      const spy = createSpy((a: number, b: number) => a + b)
+      // `createSpy` types the implementation as `(...args: unknown[]) => unknown`,
+      // so it must accept untyped arguments; this call throws two numbers at it,
+      // which the implementation converts back to numbers.
+      const spy = createSpy((a: unknown, b: unknown) => Number(a) + Number(b))
 
       const result = spy(2, 3)
 
@@ -1182,7 +1273,7 @@ describe('Fixtures', () => {
 
   describe('createMany', () => {
     it('should create multiple fixtures', () => {
-      const users = createMany(createUserFixture, 5)
+      const users = createMany(() => createUserFixture(), 5)
 
       expect(users).toHaveLength(5)
       users.forEach((user) => {

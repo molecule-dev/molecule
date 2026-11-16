@@ -54,6 +54,7 @@ vi.mock('@molecule/app-vue', () => ({
 import { createApp, defineComponent, h } from 'vue'
 
 import { PaginationBar } from '../PaginationBar.js'
+import type { PaginationBarProps } from '../types.js'
 
 const mounted: HTMLElement[] = []
 
@@ -63,7 +64,7 @@ afterEach(() => {
 })
 
 /** Renders a {@link PaginationBar} and returns the host element it produced. */
-const render = (props: Record<string, unknown>): HTMLElement => {
+const render = (props: PaginationBarProps): HTMLElement => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   mounted.push(host)

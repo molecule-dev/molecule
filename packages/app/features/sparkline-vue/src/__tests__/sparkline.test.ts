@@ -36,6 +36,7 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h } from 'vue'
 
 import { Sparkline } from '../Sparkline.js'
+import type { SparklineProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -47,7 +48,7 @@ afterEach(() => {
  * @param props - The sparkline props.
  * @returns The markup of the mounted sparkline.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: SparklineProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(Sparkline, props) }))

@@ -25,6 +25,9 @@ const TSC = join(dirname(require.resolve('typescript')), 'tsc.js')
 const CONFIG = join(import.meta.dirname, 'fixtures', 'tsconfig.http-types.json')
 
 describe('MoleculeRequest accepts an Express 5 request without a cast', () => {
+  // The test runs a real `tsc` project compile in a child process (a few seconds
+  // on an idle machine, far more under load), so the 5 s default is not a
+  // meaningful budget for it. The assertion below is unchanged.
   it('compiles the assignability fixture', () => {
     let status = 0
     let output = ''
@@ -36,5 +39,5 @@ describe('MoleculeRequest accepts an Express 5 request without a cast', () => {
       output = `${failed.stdout ?? ''}${failed.stderr ?? ''}`
     }
     expect(status, output).toBe(0)
-  })
+  }, 60_000)
 })

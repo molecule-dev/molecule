@@ -32,7 +32,7 @@ function makePgPool(overrides: Partial<PgPoolLike> = {}): PgPoolLike {
 
 function makeMysqlPool(overrides: Partial<MysqlPoolLike> = {}): MysqlPoolLike {
   return {
-    query: vi.fn(async () => [[], []]),
+    query: vi.fn<MysqlPoolLike['query']>(async () => [[], []]),
     end: vi.fn(async () => undefined),
     ...overrides,
   }

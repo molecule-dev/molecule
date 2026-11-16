@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
@@ -109,7 +110,7 @@ async function mount(
 
 /** The divider element of the rendered tree. */
 const dividerEl = (host: HTMLElement): HTMLElement => {
-  const el = host.querySelector('[mol-section-divider]')
+  const el = host.querySelector<HTMLElement>('[mol-section-divider]')
   if (!el) throw new Error('no SectionDivider host rendered')
   return el
 }

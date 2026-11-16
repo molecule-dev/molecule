@@ -177,12 +177,15 @@ describe('generateQrCode — margin and size', () => {
 })
 
 describe('createQrCodeHandler', () => {
-  function fakeRes(): QrCodeResponse & {
+  /** A {@link QrCodeResponse} shim that records what the handler wrote. */
+  type FakeResponse = QrCodeResponse & {
     headers: Record<string, string>
     status: number
     body: Buffer | string | unknown
     bodyKind: 'buffer' | 'text' | 'json' | null
-  } {
+  }
+
+  function fakeRes(): FakeResponse {
     const headers: Record<string, string> = {}
     let status = 200
     let body: Buffer | string | unknown = null
@@ -216,11 +219,6 @@ describe('createQrCodeHandler', () => {
         body = j
         bodyKind = 'json'
       },
-    } as unknown as QrCodeResponse & {
-      headers: Record<string, string>
-      status: number
-      body: Buffer | string | unknown
-      bodyKind: 'buffer' | 'text' | 'json' | null
     }
   }
 

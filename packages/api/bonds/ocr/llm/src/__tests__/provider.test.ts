@@ -19,6 +19,9 @@ function fakeAi(events: ChatEvent[]): { ai: AIProvider; calls: ChatParams[] } {
   }
 }
 
+/** Terminal event ending a scripted stream. The bond never reads its usage. */
+const DONE: ChatEvent = { type: 'done', usage: { inputTokens: 10, outputTokens: 5 } }
+
 const IMAGE = { data: new Uint8Array([1, 2, 3]), mimeType: 'image/png' }
 
 /** The content blocks of the user message the bond builds. */
@@ -39,7 +42,7 @@ describe('api-ocr-llm', () => {
   })
 
   it('sends the image as a base64 block plus the transcription instruction', async () => {
-    const { ai, calls } = fakeAi([{ type: 'text', content: 'x' }, { type: 'done' }])
+    const { ai, calls } = fakeAi([{ type: 'text', content: 'x' }, DONE])
     await createProvider({ ai }).recognize(IMAGE)
     const [user] = calls[0].messages
     const content = userBlocks(user)
@@ -48,7 +51,7 @@ describe('api-ocr-llm', () => {
   })
 
   it('forwards the language hint, model and instructions', async () => {
-    const { ai, calls } = fakeAi([{ type: 'text', content: 'x' }, { type: 'done' }])
+    const { ai, calls } = fakeAi([{ type: 'text', content: 'x' }, DONE])
     await createProvider({
       ai,
       model: 'vision-mini',
@@ -61,7 +64,7 @@ describe('api-ocr-llm', () => {
   })
 
   it('falls back to the config language when the call passes none', async () => {
-    const { ai, calls } = fakeAi([{ type: 'text', content: 'x' }, { type: 'done' }])
+    const { ai, calls } = fakeAi([{ type: 'text', content: 'x' }, DONE])
     await createProvider({ ai, language: 'zh-TW' }).recognize(IMAGE)
     const content = userBlocks(calls[0].messages[0])
     expect((content[1] as { text: string }).text).toContain('"zh-TW"')
@@ -78,10 +81,10 @@ describe('api-ocr-llm', () => {
   })
 
   it('omits temperature by default (rejectsTemperature models 400 on the parameter)', async () => {
-    const { ai, calls } = fakeAi([{ type: 'text', content: 'x' }, { type: 'done' }])
+    const { ai, calls } = fakeAi([{ type: 'text', content: 'x' }, DONE])
     await createProvider({ ai }).recognize(IMAGE)
     expect(calls[0].temperature).toBeUndefined()
-    const { ai: ai2, calls: calls2 } = fakeAi([{ type: 'text', content: 'x' }, { type: 'done' }])
+    const { ai: ai2, calls: calls2 } = fakeAi([{ type: 'text', content: 'x' }, DONE])
     await createProvider({ ai: ai2, temperature: 0.2 }).recognize(IMAGE)
     expect(calls2[0].temperature).toBe(0.2)
   })

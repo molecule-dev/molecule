@@ -16,6 +16,8 @@
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { EditorToolbarProps } from '../types.js'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -54,12 +56,10 @@ afterEach(() => {
  * @param props - The toolbar props.
  * @returns The rendered markup.
  */
-const renderToolbar = (props: Record<string, unknown>): string => {
+const renderToolbar = (props: EditorToolbarProps): string => {
   const container = document.createElement('div')
   document.body.appendChild(container)
-  disposers.push(
-    render(() => <EditorToolbar {...(props as Parameters<typeof EditorToolbar>[0])} />, container),
-  )
+  disposers.push(render(() => <EditorToolbar {...props} />, container))
   return container.innerHTML
 }
 

@@ -2,9 +2,10 @@
  * The Fly Machines adapter: the `machine list` parse, the homogeneity refusal and
  * the provider operations driven by a fake flyctl runner.
  */
+import type { Mock } from 'vitest'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { FlyCommandResult } from '../fly.js'
+import type { FlyCommandResult, FlyCommandRunner } from '../fly.js'
 import {
   assertHomogeneousFlyMachines,
   createFlyInPlaceProvider,
@@ -23,8 +24,8 @@ const machine = (id: string, overrides: Record<string, unknown> = {}): Record<st
   ...overrides,
 })
 
-const runner = (responses: FlyCommandResult[]): ReturnType<typeof vi.fn> => {
-  const fn = vi.fn(async () => responses.shift() ?? { status: 0, stdout: '[]' })
+const runner = (responses: FlyCommandResult[]): Mock<FlyCommandRunner> => {
+  const fn = vi.fn<FlyCommandRunner>(async () => responses.shift() ?? { status: 0, stdout: '[]' })
   return fn
 }
 
@@ -280,7 +281,14 @@ describe('createFlyInstanceProvider', () => {
     const provider = createFlyInstanceProvider({
       app: 'molecule-api',
       run,
-      launch: async (index) => ({ id, upstreamUrl: `https://${index}.example` }),
+      launch: async (index) => ({
+        id,
+        upstreamUrl: `https://${index}.example`,
+        state: 'started',
+        imageRef: 'registry.fly.io/molecule-api:deployment-1',
+        version: 'v1',
+        gracePeriodMs: 0,
+      }),
       isServing: async () => true,
     })
     const instance = await provider.create(0)

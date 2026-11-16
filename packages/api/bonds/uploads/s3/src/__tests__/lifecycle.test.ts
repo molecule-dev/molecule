@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { clearProviders } from '@molecule/api-bond'
+import { reset as resetBonds } from '@molecule/api-bond'
 import { resetRegistrationsForTests, setProvider } from '@molecule/api-process-lifecycle'
 import { createProcessLifecycleProvider } from '@molecule/api-process-lifecycle-express'
 
@@ -13,7 +13,7 @@ async function settleImport(): Promise<void> {
 
 describe('s3 bond lifecycle integration', () => {
   beforeEach(() => {
-    clearProviders()
+    resetBonds()
     resetRegistrationsForTests()
   })
 

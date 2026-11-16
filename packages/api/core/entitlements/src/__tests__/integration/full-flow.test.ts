@@ -16,10 +16,18 @@
 import type Stripe from 'stripe'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type * as CacheModule from '../../cache.js'
-import type * as MiddlewareModule from '../../middleware.js'
-import type * as ProviderModule from '../../provider.js'
-import type * as RegistryModule from '../../registry.js'
+import type * as CacheNamespace from '../../cache.js'
+import type * as MiddlewareNamespace from '../../middleware.js'
+import type * as ProviderNamespace from '../../provider.js'
+import type * as RegistryNamespace from '../../registry.js'
+
+// The module namespaces themselves can't be used as types, so the test's
+// module variables are typed with `typeof` of each namespace import (the
+// modules are re-imported in `beforeEach` after `vi.resetModules()`).
+type CacheModule = typeof CacheNamespace
+type MiddlewareModule = typeof MiddlewareNamespace
+type ProviderModule = typeof ProviderNamespace
+type RegistryModule = typeof RegistryNamespace
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET

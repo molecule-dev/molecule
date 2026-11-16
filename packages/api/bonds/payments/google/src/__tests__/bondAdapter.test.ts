@@ -37,6 +37,16 @@ vi.mock('@molecule/api-bond', () => ({
 // Import after mocks are set up.
 const { paymentProvider } = await import('../bondAdapter.js')
 
+// The shared PaymentProvider interface declares every method optional (each provider
+// implements only the flows its platform uses); the Google bond always implements both
+// the receipt verify flow and RTDN parsing. Narrow them once with a runtime check so the
+// tests below call the real implementations and the compiler sees they are defined.
+const verifyPurchase = paymentProvider.verifyPurchase
+const parseNotification = paymentProvider.parseNotification
+if (!verifyPurchase || !parseNotification) {
+  throw new Error('google paymentProvider must implement verifyPurchase and parseNotification')
+}
+
 /** Helper to build a fake Google SubscriptionPurchaseV2. */
 function makeSubscription(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -69,7 +79,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(sub)
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       expect(result).not.toBeNull()
       expect(result!.productId).toBe('premium_monthly')
@@ -82,7 +92,7 @@ describe('paymentProvider', () => {
     it('returns null when verifySubscription returns null', async () => {
       mockVerifySubscription.mockResolvedValue(null)
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       expect(result).toBeNull()
     })
@@ -97,7 +107,7 @@ describe('paymentProvider', () => {
       // future expiry + product match — only the state gate should reject these.
       mockVerifySubscription.mockResolvedValue(makeSubscription({ subscriptionState: state }))
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       expect(result).toBeNull()
     })
@@ -108,7 +118,7 @@ describe('paymentProvider', () => {
       )
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       expect(result).not.toBeNull()
     })
@@ -116,7 +126,7 @@ describe('paymentProvider', () => {
     it('returns null when verifySubscription throws', async () => {
       mockVerifySubscription.mockRejectedValue(new Error('network error'))
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       expect(result).toBeNull()
       expect(mockLogger.error).toHaveBeenCalled()
@@ -133,9 +143,10 @@ describe('paymentProvider', () => {
       )
       mockVerifySubscription.mockRejectedValue(configError)
 
-      await expect(
-        paymentProvider.verifyPurchase('token-abc', 'premium_monthly'),
-      ).rejects.toMatchObject({ statusCode: 503, errorKey: 'config.notConfigured' })
+      await expect(verifyPurchase('token-abc', 'premium_monthly')).rejects.toMatchObject({
+        statusCode: 503,
+        errorKey: 'config.notConfigured',
+      })
     })
 
     it('returns null for expired subscription (anti-replay)', async () => {
@@ -149,7 +160,7 @@ describe('paymentProvider', () => {
       })
       mockVerifySubscription.mockResolvedValue(sub)
 
-      const result = await paymentProvider.verifyPurchase('old-token', 'premium_monthly')
+      const result = await verifyPurchase('old-token', 'premium_monthly')
 
       expect(result).toBeNull()
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -171,7 +182,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(sub)
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       expect(result).not.toBeNull()
       expect(result!.expiresAt).toBe(futureDate)
@@ -182,7 +193,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(sub)
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       expect(result).not.toBeNull()
       expect(result!.expiresAt).toBeUndefined()
@@ -200,7 +211,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(sub)
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       // NaN fails Number.isFinite check, so the expiry guard is skipped
       expect(result).not.toBeNull()
@@ -211,7 +222,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(sub)
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       expect(result).not.toBeNull()
       expect(result!.expiresAt).toBeUndefined()
@@ -222,7 +233,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(makeSubscription())
       mockAcknowledgeSubscription.mockRejectedValue(new Error('ack failed'))
 
-      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+      const result = await verifyPurchase('token-abc', 'premium_monthly')
 
       expect(result).not.toBeNull()
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -235,7 +246,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(makeSubscription())
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      await paymentProvider.verifyPurchase('my-token', 'premium_yearly')
+      await verifyPurchase('my-token', 'premium_yearly')
 
       expect(mockAcknowledgeSubscription).toHaveBeenCalledWith('premium_yearly', 'my-token')
     })
@@ -244,7 +255,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(makeSubscription())
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      await paymentProvider.verifyPurchase('the-token', 'sub-id')
+      await verifyPurchase('the-token', 'sub-id')
 
       expect(mockVerifySubscription).toHaveBeenCalledWith('sub-id', 'the-token')
     })
@@ -259,7 +270,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(sub)
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      const result = await paymentProvider.verifyPurchase('token', 'product')
+      const result = await verifyPurchase('token', 'product')
 
       expect(result).not.toBeNull()
       expect(result!.transactionId).toBeUndefined()
@@ -272,7 +283,7 @@ describe('paymentProvider', () => {
       mockVerifySubscription.mockResolvedValue(sub)
       mockAcknowledgeSubscription.mockResolvedValue(undefined)
 
-      const result = await paymentProvider.verifyPurchase('token', 'product')
+      const result = await verifyPurchase('token', 'product')
 
       expect(result).not.toBeNull()
       expect(result!.autoRenews).toBeUndefined()
@@ -294,14 +305,14 @@ describe('paymentProvider', () => {
     }
 
     it('returns null when message.data is missing', async () => {
-      const result = await paymentProvider.parseNotification!({ message: {} })
+      const result = await parseNotification({ message: {} })
 
       expect(result).toBeNull()
       expect(mockLogger.error).toHaveBeenCalledWith(expect.stringContaining('missing message.data'))
     })
 
     it('returns null when message is missing', async () => {
-      const result = await paymentProvider.parseNotification!({})
+      const result = await parseNotification({})
 
       expect(result).toBeNull()
     })
@@ -314,7 +325,7 @@ describe('paymentProvider', () => {
         subscriptionNotification: { notificationType: 1, subscriptionId: 'sub-premium' },
       })
 
-      const result = await paymentProvider.parseNotification!(body)
+      const result = await parseNotification(body)
 
       expect(result).toBeNull()
       expect(mockVerifySubscription).not.toHaveBeenCalled()
@@ -330,7 +341,7 @@ describe('paymentProvider', () => {
         },
       })
 
-      const result = await paymentProvider.parseNotification!(body)
+      const result = await parseNotification(body)
 
       expect(mockVerifySubscription).toHaveBeenCalledWith('sub-premium', 'forged-token')
       expect(result).toBeNull()
@@ -346,7 +357,7 @@ describe('paymentProvider', () => {
         },
       })
 
-      const result = await paymentProvider.parseNotification!(body)
+      const result = await parseNotification(body)
 
       expect(result).toBeNull()
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -377,7 +388,7 @@ describe('paymentProvider', () => {
         },
       })
 
-      const result = await paymentProvider.parseNotification!(body)
+      const result = await parseNotification(body)
 
       expect(mockVerifySubscription).toHaveBeenCalledWith('sub-product-id', 'pt-abc')
       expect(result).not.toBeNull()
@@ -398,7 +409,7 @@ describe('paymentProvider', () => {
         },
       })
 
-      const result = await paymentProvider.parseNotification!(body)
+      const result = await parseNotification(body)
 
       expect(result!.type).toBe('canceled')
     })
@@ -410,7 +421,7 @@ describe('paymentProvider', () => {
         },
       }
 
-      const result = await paymentProvider.parseNotification!(body)
+      const result = await parseNotification(body)
 
       expect(result).toBeNull()
       expect(mockLogger.error).toHaveBeenCalled()
@@ -419,7 +430,7 @@ describe('paymentProvider', () => {
     it('returns null when NONE of subscriptionNotification/oneTimeProductNotification/voidedPurchaseNotification/testNotification is present', async () => {
       const body = makePubSubBody({ packageName: 'com.example.app' })
 
-      const result = await paymentProvider.parseNotification!(body)
+      const result = await parseNotification(body)
 
       expect(result).toBeNull()
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -441,7 +452,7 @@ describe('paymentProvider', () => {
         },
       }
 
-      const result = await paymentProvider.parseNotification!(body)
+      const result = await parseNotification(body)
 
       expect(result).not.toBeNull()
       expect(result!.type).toBe('on_hold')
@@ -469,7 +480,7 @@ describe('paymentProvider', () => {
           },
         })
 
-        const result = await paymentProvider.parseNotification!(body)
+        const result = await parseNotification(body)
 
         expect(mockVerifyProduct).toHaveBeenCalledWith('coins_100', 'pt-onetime')
         expect(result).toEqual({
@@ -493,7 +504,7 @@ describe('paymentProvider', () => {
           },
         })
 
-        const result = await paymentProvider.parseNotification!(body)
+        const result = await parseNotification(body)
 
         expect(result?.type).toBe('canceled')
         expect(mockAcknowledgeProduct).not.toHaveBeenCalled()
@@ -504,7 +515,7 @@ describe('paymentProvider', () => {
           oneTimeProductNotification: { notificationType: 1, sku: 'coins_100' },
         })
 
-        const result = await paymentProvider.parseNotification!(body)
+        const result = await parseNotification(body)
 
         expect(result).toBeNull()
         expect(mockVerifyProduct).not.toHaveBeenCalled()
@@ -521,7 +532,7 @@ describe('paymentProvider', () => {
           },
         })
 
-        const result = await paymentProvider.parseNotification!(body)
+        const result = await parseNotification(body)
 
         expect(result).toBeNull()
       })
@@ -537,7 +548,7 @@ describe('paymentProvider', () => {
           },
         })
 
-        const result = await paymentProvider.parseNotification!(body)
+        const result = await parseNotification(body)
 
         expect(result).toBeNull()
         expect(mockLogger.error).toHaveBeenCalled()
@@ -558,7 +569,7 @@ describe('paymentProvider', () => {
           },
         })
 
-        const result = await paymentProvider.parseNotification!(body)
+        const result = await parseNotification(body)
 
         expect(result).toEqual({ transactionId: 'GS.0000-0000-0000', type: 'refund' })
         // No re-verification call is made — see the module doc for why.
@@ -577,7 +588,7 @@ describe('paymentProvider', () => {
           },
         })
 
-        const result = await paymentProvider.parseNotification!(body)
+        const result = await parseNotification(body)
 
         expect(result).toEqual({ transactionId: 'GS.1111-1111-1111', type: 'refund' })
       })
@@ -587,7 +598,7 @@ describe('paymentProvider', () => {
           voidedPurchaseNotification: { purchaseToken: 'pt-voided', productType: 1, refundType: 1 },
         })
 
-        const result = await paymentProvider.parseNotification!(body)
+        const result = await parseNotification(body)
 
         expect(result).toBeNull()
       })

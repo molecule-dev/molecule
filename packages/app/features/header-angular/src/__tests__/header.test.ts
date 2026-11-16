@@ -13,14 +13,17 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
+  type EnvironmentProviders,
+  type Provider,
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type * as AngularBinding from '@molecule/app-angular'
@@ -146,7 +149,7 @@ async function mount(
   template: string,
   component: Type<unknown>,
   props: Record<string, unknown> = {},
-  providers: unknown[] = [],
+  providers: (Provider | EnvironmentProviders)[] = [],
 ): Promise<Mounted> {
   const Host = Component({
     selector: 'mol-spec-host',
@@ -196,7 +199,7 @@ const mounted: Mounted[] = []
  */
 async function renderHeader(
   props: Record<string, unknown> = {},
-  providers: unknown[] = [],
+  providers: (Provider | EnvironmentProviders)[] = [],
   slotContent = '',
 ): Promise<Mounted> {
   const m = await mount(
@@ -210,7 +213,7 @@ async function renderHeader(
 }
 
 /** The theme and i18n providers together — the state a real wired app has. */
-const withProviders = (): unknown[] => [
+const withProviders = (): Provider[] => [
   { provide: THEME_PROVIDER, useValue: {} },
   { provide: I18N_PROVIDER, useValue: {} },
 ]

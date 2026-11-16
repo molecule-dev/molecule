@@ -84,8 +84,10 @@ describe('@molecule/app-maps-leaflet', () => {
     )
   })
 
-  it('adds markers as Leaflet markers (with popup) and tracks them', () => {
-    const map = provider.createMap(cfg())
+  it('adds markers as Leaflet markers (with popup) and tracks them', async () => {
+    // The provider contract allows createMap() to resolve asynchronously
+    // (MapInstance | Promise<MapInstance>); Leaflet's is synchronous.
+    const map = await provider.createMap(cfg())
     map.addMarker({ id: 'a', position: { lat: 1, lng: 2 }, popup: 'Hello' })
     expect(hoisted.L.marker).toHaveBeenCalledWith(
       [1, 2],
@@ -97,21 +99,21 @@ describe('@molecule/app-maps-leaflet', () => {
     expect(map.getMarkers()).toEqual([])
   })
 
-  it('draws the default pin with no class of its own', () => {
-    const map = provider.createMap(cfg())
+  it('draws the default pin with no class of its own', async () => {
+    const map = await provider.createMap(cfg())
     map.addMarker({ id: 'a', position: { lat: 1, lng: 2 } })
     // An empty className keeps Leaflet's boxed `leaflet-div-icon` default off without
     // adding a CSS class name of our own (styling classes belong to the ClassMap bonds).
     expect(hoisted.L.divIcon).toHaveBeenCalledWith(expect.objectContaining({ className: '' }))
   })
 
-  it('reads the viewport from the live map', () => {
-    const map = provider.createMap(cfg())
+  it('reads the viewport from the live map', async () => {
+    const map = await provider.createMap(cfg())
     expect(map.getViewport()).toEqual({ center: { lat: 1, lng: 2 }, zoom: 10 })
   })
 
-  it('fitBounds forwards molecule Bounds to Leaflet', () => {
-    const map = provider.createMap(cfg())
+  it('fitBounds forwards molecule Bounds to Leaflet', async () => {
+    const map = await provider.createMap(cfg())
     map.fitBounds({ ne: { lat: 3, lng: 4 }, sw: { lat: 1, lng: 2 } })
     expect(hoisted.mapInstance.fitBounds).toHaveBeenCalledWith(
       [
@@ -122,14 +124,14 @@ describe('@molecule/app-maps-leaflet', () => {
     )
   })
 
-  it('destroy() removes the Leaflet map', () => {
-    const map = provider.createMap(cfg())
+  it('destroy() removes the Leaflet map', async () => {
+    const map = await provider.createMap(cfg())
     map.destroy()
     expect(hoisted.mapInstance.remove).toHaveBeenCalled()
   })
 
   it('getSnapshot rejects (Leaflet has no built-in export)', async () => {
-    const map = provider.createMap(cfg())
+    const map = await provider.createMap(cfg())
     await expect(map.getSnapshot()).rejects.toThrow(/not supported/i)
   })
 

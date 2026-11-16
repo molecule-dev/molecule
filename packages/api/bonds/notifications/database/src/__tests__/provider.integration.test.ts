@@ -104,17 +104,24 @@ function makeEngineStore(options: { returnRowOnCreate?: boolean } = {}): DataSto
     async count(table, where) {
       return rows(table).filter((r) => matches(r, where)).length
     },
-    async create(table, data) {
+    async create<T = Record<string, unknown>>(
+      table: string,
+      data: Record<string, unknown>,
+    ): Promise<MutationResult<T>> {
       const stored: Record<string, unknown> = {}
       for (const [key, value] of Object.entries(data)) stored[key] = bindValue(value)
       rows(table).push(stored)
-      return { data: returnRowOnCreate ? stored : null, affected: 1 } as MutationResult<never>
+      return { data: returnRowOnCreate ? (stored as T) : null, affected: 1 }
     },
-    async updateById(table, id, data) {
+    async updateById<T = Record<string, unknown>>(
+      table: string,
+      id: string | number,
+      data: Record<string, unknown>,
+    ): Promise<MutationResult<T>> {
       const row = rows(table).find((r) => r.id === id)
       if (!row) return { data: null, affected: 0 }
       for (const [key, value] of Object.entries(data)) row[key] = bindValue(value)
-      return { data: row, affected: 1 } as MutationResult<never>
+      return { data: row as T, affected: 1 }
     },
     async updateMany(table, where, data) {
       const matched = rows(table).filter((r) => matches(r, where))

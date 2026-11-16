@@ -426,19 +426,21 @@ describe('http types', () => {
     expect(error.response?.status).toBe(404)
   })
 
-  it('should export RequestInterceptor type', () => {
+  it('should export RequestInterceptor type', async () => {
     const interceptor: RequestInterceptor = (options) => {
       return { ...options, headers: { ...options.headers, 'X-Custom': 'value' } }
     }
-    const result = interceptor({ url: 'https://test.com', headers: {} })
+    // The interceptor contract may return the options or a promise of them.
+    const result = await interceptor({ url: 'https://test.com', headers: {} })
     expect(result.headers).toHaveProperty('X-Custom')
   })
 
-  it('should export ResponseInterceptor type', () => {
+  it('should export ResponseInterceptor type', async () => {
     const interceptor: ResponseInterceptor = (response) => {
       return { ...response, data: { wrapped: response.data } }
     }
-    const result = interceptor({
+    // The interceptor contract may return the response or a promise of it.
+    const result = await interceptor({
       status: 200,
       statusText: 'OK',
       headers: {},
@@ -448,14 +450,15 @@ describe('http types', () => {
     expect(result.data).toEqual({ wrapped: 'original' })
   })
 
-  it('should export ErrorInterceptor type', () => {
+  it('should export ErrorInterceptor type', async () => {
     const interceptor: ErrorInterceptor = (error) => {
       return { ...error, message: 'Modified: ' + error.message }
     }
     const error: HttpError = Object.assign(new Error('original'), {
       request: { url: 'https://test.com' },
     })
-    const result = interceptor(error)
+    // The interceptor contract may return the error or a promise of it.
+    const result = await interceptor(error)
     expect(result.message).toBe('Modified: original')
   })
 
@@ -516,47 +519,49 @@ describe('http types', () => {
   })
 
   it('should export HttpClient type with optional methods', () => {
+    // The stub bodies are never read; each method satisfies the generic contract by
+    // fabricating a body of whatever T the caller asks for.
     const client: HttpClient = {
-      request: async () => ({
+      request: async <T>(): Promise<HttpResponse<T>> => ({
         status: 200,
         statusText: 'OK',
         headers: {},
-        data: null,
+        data: null as T,
         request: { url: '' },
       }),
-      get: async () => ({
+      get: async <T>(): Promise<HttpResponse<T>> => ({
         status: 200,
         statusText: 'OK',
         headers: {},
-        data: null,
+        data: null as T,
         request: { url: '' },
       }),
-      post: async () => ({
+      post: async <T>(): Promise<HttpResponse<T>> => ({
         status: 200,
         statusText: 'OK',
         headers: {},
-        data: null,
+        data: null as T,
         request: { url: '' },
       }),
-      put: async () => ({
+      put: async <T>(): Promise<HttpResponse<T>> => ({
         status: 200,
         statusText: 'OK',
         headers: {},
-        data: null,
+        data: null as T,
         request: { url: '' },
       }),
-      patch: async () => ({
+      patch: async <T>(): Promise<HttpResponse<T>> => ({
         status: 200,
         statusText: 'OK',
         headers: {},
-        data: null,
+        data: null as T,
         request: { url: '' },
       }),
-      delete: async () => ({
+      delete: async <T>(): Promise<HttpResponse<T>> => ({
         status: 200,
         statusText: 'OK',
         headers: {},
-        data: null,
+        data: null as T,
         request: { url: '' },
       }),
       create: (_defaults: HttpRequestOptions) => client,

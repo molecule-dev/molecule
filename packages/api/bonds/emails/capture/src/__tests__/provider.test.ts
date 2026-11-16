@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { ActivityEvent } from '@molecule/api-activity'
 import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/api-emails'
 
-const record = vi.fn(() => Promise.resolve())
+const record = vi.fn<(event: ActivityEvent) => Promise<void>>()
 
 vi.mock('@molecule/api-activity', () => ({
-  record: (...args: unknown[]) => record(...args),
+  record: (event: ActivityEvent) => record(event),
 }))
 
 import { createEmailCaptureProvider, provider } from '../provider.js'
@@ -37,7 +38,7 @@ describe('email capture provider', () => {
       expect(result.messageId).toMatch(/^captured-/)
 
       expect(record).toHaveBeenCalledTimes(1)
-      const event = record.mock.calls[0][0]
+      const event = record.mock.calls[0]![0]
       expect(event.type).toBe('email')
       expect(event.status).toBe('captured')
       expect(event.recipient).toBe('user@example.com')
@@ -70,7 +71,7 @@ describe('email capture provider', () => {
       expect(result).toBe(realResult)
 
       expect(record).toHaveBeenCalledTimes(1)
-      const event = record.mock.calls[0][0]
+      const event = record.mock.calls[0]![0]
       expect(event.status).toBe('sent')
       expect(event.result).toBe(realResult)
     })
@@ -83,7 +84,7 @@ describe('email capture provider', () => {
 
       await expect(transport.sendMail(message)).rejects.toThrow('smtp down')
       expect(record).toHaveBeenCalledTimes(1)
-      expect(record.mock.calls[0][0].status).toBe('failed')
+      expect(record.mock.calls[0]![0].status).toBe('failed')
     })
 
     it('FAILURE DISAMBIGUATION: a throwing ActivitySink does NOT turn a successful real send into a rejection', async () => {

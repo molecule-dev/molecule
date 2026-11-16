@@ -324,6 +324,8 @@ describe('@molecule/api-database-mysql', () => {
   })
 
   describe('pool.transaction()', () => {
+    // `DatabasePool.transaction()` is optional in the core interface; this bond
+    // always implements it, so the non-null calls below exercise the real method.
     it('should begin a transaction', async () => {
       const mysql = await import('mysql2/promise')
       const { createPool } = await import('../provider.js')
@@ -332,7 +334,7 @@ describe('@molecule/api-database-mysql', () => {
       const mockConnection = await mockPool.getConnection()
 
       const pool = createPool()
-      const tx = await pool.transaction()
+      const tx = await pool.transaction!()
 
       expect(mockPool.getConnection).toHaveBeenCalled()
       expect(mockConnection.beginTransaction).toHaveBeenCalled()
@@ -347,7 +349,7 @@ describe('@molecule/api-database-mysql', () => {
       const mockConnection = await mockPool.getConnection()
 
       const pool = createPool()
-      const tx = await pool.transaction()
+      const tx = await pool.transaction!()
       await tx.commit()
 
       expect(mockConnection.commit).toHaveBeenCalled()
@@ -362,7 +364,7 @@ describe('@molecule/api-database-mysql', () => {
       const mockConnection = await mockPool.getConnection()
 
       const pool = createPool()
-      const tx = await pool.transaction()
+      const tx = await pool.transaction!()
       await tx.rollback()
 
       expect(mockConnection.rollback).toHaveBeenCalled()
@@ -378,7 +380,7 @@ describe('@molecule/api-database-mysql', () => {
       vi.mocked(mockConnection.query).mockResolvedValueOnce([[{ id: 1 }], []] as never)
 
       const pool = createPool()
-      const tx = await pool.transaction()
+      const tx = await pool.transaction!()
       const result = await tx.query('SELECT * FROM users')
 
       expect(result.rows).toEqual([{ id: 1 }])

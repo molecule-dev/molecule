@@ -192,13 +192,13 @@ describe('HTTP handlers', () => {
       get body() {
         return body
       },
-      setStatus: (s) => {
+      setStatus: (s: number) => {
         status = s
       },
-      sendJson: (j) => {
+      sendJson: (j: unknown) => {
         body = j
       },
-    } as unknown as VideoRenderResponse & { status: number; body: unknown }
+    }
   }
 
   // Sources must be existing files inside a REAL media root, so the handler tests use a temp one.

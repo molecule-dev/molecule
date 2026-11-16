@@ -49,6 +49,12 @@ describe('device query handler', () => {
     mockFindMany.mockResolvedValue([{ id: 'other' }, { id: 'd1' }])
     const response = await query({ tableName: 'devices' })(mockReq(), mockRes())
     expect(response.statusCode).toBe(200)
-    expect(response.body[0]).toMatchObject({ id: 'd1', isCurrent: true })
+    // The handler's return type is a union of result shapes, so narrow the body
+    // to the array branch before reading its first element.
+    const { body } = response
+    if (!Array.isArray(body)) {
+      throw new Error(`expected an array of devices, got ${JSON.stringify(body)}`)
+    }
+    expect(body[0]).toMatchObject({ id: 'd1', isCurrent: true })
   })
 })

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
@@ -35,7 +36,7 @@ vi.mock('@molecule/app-ui-react', () => ({
     className,
     'data-mol-id': dataMolId,
   }: {
-    children?: unknown
+    children?: ReactNode
     className?: string
     'data-mol-id'?: string
   }) => createElement('div', { className, 'data-mol-id': dataMolId, 'data-card': '' }, children),
@@ -102,11 +103,15 @@ describe('KpiCardGrid', () => {
   })
 
   it('forwards className', () => {
-    expect(html(createElement(KpiCardGrid, { className: 'grid-cls' }, 'x'))).toContain('grid-cls')
+    expect(html(createElement(KpiCardGrid, { className: 'grid-cls', children: 'x' }))).toContain(
+      'grid-cls',
+    )
   })
 
   it('accepts custom columns + gap without throwing', () => {
-    expect(() => html(createElement(KpiCardGrid, { columns: 6, gap: 'lg' }, 'x'))).not.toThrow()
+    expect(() =>
+      html(createElement(KpiCardGrid, { columns: 6, gap: 'lg', children: 'x' })),
+    ).not.toThrow()
   })
 })
 

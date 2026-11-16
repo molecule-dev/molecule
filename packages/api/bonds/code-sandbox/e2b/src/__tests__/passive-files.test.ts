@@ -26,7 +26,14 @@ function fixture() {
     commands: {
       run: async () => {
         calls.push('exec')
-        return { stdout: '', stderr: '', exitCode: 0 }
+        const result = { stdout: '', stderr: '', exitCode: 0 }
+        return {
+          ...result,
+          pid: 1,
+          wait: async () => result,
+          sendStdin: async () => {},
+          kill: async () => true,
+        }
       },
     },
     files: { read, write: async () => {}, list: async () => [], remove: async () => {} },

@@ -29,7 +29,7 @@ function makeProvider(): InstanceLeadershipProvider {
 
 describe('@molecule/api-instance-leadership provider accessors', () => {
   beforeEach(() => {
-    clearProviders()
+    clearProviders('instance-leadership')
   })
 
   it('reports no provider before one is bonded', () => {

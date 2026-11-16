@@ -49,7 +49,8 @@ describe('setupI18nDefault', () => {
     const populated = new Set(['es', 'fr', 'de', 'ja', 'zh', 'pt'])
     const provider = setupI18nDefault({
       enUi: {},
-      lazyLoadUi: (code) => Promise.resolve(populated.has(code) ? { 'app.key': 'value' } : {}),
+      lazyLoadUi: (code): Promise<Record<string, string>> =>
+        Promise.resolve<Record<string, string>>(populated.has(code) ? { 'app.key': 'value' } : {}),
     })
     // Wait a few microtask cycles for the probe to finish.
     for (let i = 0; i < 4; i++) await flushAsync()
@@ -145,7 +146,8 @@ describe('setupI18nDefault', () => {
     }
     const provider = setupI18nDefault({
       enUi: {},
-      lazyLoadUi: (code) => Promise.resolve(code === 'es' ? { 'auth.signIn': 'Acceder' } : {}),
+      lazyLoadUi: (code): Promise<Record<string, string>> =>
+        Promise.resolve<Record<string, string>>(code === 'es' ? { 'auth.signIn': 'Acceder' } : {}),
       supportedLocales: ['es'],
       packageLocales: [authBond],
     })

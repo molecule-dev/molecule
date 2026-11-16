@@ -2,20 +2,35 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { SearchProvider } from '@molecule/api-search'
 
-const mockQuery = vi.fn().mockResolvedValue({ rows: [] })
+import type { PostgresSearchOptions } from '../types.js'
+
+/**
+ * Shape the provider reads back from the database bond's `query()`: only the
+ * `rows` array (the full `QueryResult` also carries `rowCount`/`fields`, which
+ * this provider never touches).
+ */
+interface MockQueryResult {
+  rows: unknown[]
+}
+
+// Stands in for `query(text, values)` from `@molecule/api-database`, so the
+// recorded call arguments are typed: `mock.calls[0]` is `[sql, params]`.
+const mockQuery = vi
+  .fn<(text: string, values: unknown[]) => Promise<MockQueryResult>>()
+  .mockResolvedValue({ rows: [] })
 
 vi.mock('@molecule/api-database', () => ({
-  query: (...args: unknown[]) => mockQuery(...args),
+  query: (text: string, values: unknown[]) => mockQuery(text, values),
 }))
 
-let createProvider: (options?: Record<string, unknown>) => SearchProvider
+let createProvider: (options?: PostgresSearchOptions) => SearchProvider
 
 describe('postgres search provider', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     vi.resetModules()
     const mod = await import('../provider.js')
-    createProvider = mod.createProvider as (options?: Record<string, unknown>) => SearchProvider
+    createProvider = mod.createProvider
   })
 
   describe('createProvider', () => {
@@ -49,16 +64,16 @@ describe('postgres search provider', () => {
       const p = createProvider()
       await p.createIndex('products')
 
-      const calls = mockQuery.mock.calls.map((c: unknown[]) => c[0])
-      expect(calls.some((sql: string) => sql.includes('USING GIN'))).toBe(true)
+      const calls = mockQuery.mock.calls.map(([sql]) => sql)
+      expect(calls.some((sql) => sql.includes('USING GIN'))).toBe(true)
     })
 
     it('should skip GIN indexes when disabled', async () => {
       const p = createProvider({ useGinIndex: false })
       await p.createIndex('products')
 
-      const calls = mockQuery.mock.calls.map((c: unknown[]) => c[0])
-      const ginCalls = calls.filter((sql: string) => sql.includes('USING GIN(search_vector)'))
+      const calls = mockQuery.mock.calls.map(([sql]) => sql)
+      const ginCalls = calls.filter((sql) => sql.includes('USING GIN(search_vector)'))
       expect(ginCalls).toHaveLength(0)
     })
 

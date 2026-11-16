@@ -36,6 +36,7 @@ const { shellQuote } = await import('../utilities.js')
 
 import type { ExecResult } from '@molecule/api-code-sandbox'
 
+import type { TemplateContext } from '../templates.js'
 import type { FlyioConfig } from '../types.js'
 
 const PROJECT_ID = 'a3f1c0de-0000-4000-8000-000000000001'
@@ -64,11 +65,11 @@ interface RecordedExec {
 function makeContext(
   store: StoreDouble | null,
   results: ExecResult[] = [OK],
-): { ctx: templates.TemplateContext; execs: RecordedExec[]; started: string[] } {
+): { ctx: TemplateContext; execs: RecordedExec[]; started: string[] } {
   const execs: RecordedExec[] = []
   const started: string[] = []
   let index = 0
-  const ctx: templates.TemplateContext = {
+  const ctx: TemplateContext = {
     store,
     async exec(app, machineId, command, timeoutMs) {
       execs.push({ app, machineId, command, timeoutMs })

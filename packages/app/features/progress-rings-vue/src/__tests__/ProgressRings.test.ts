@@ -12,6 +12,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { type App, createApp, defineComponent, h } from 'vue'
 
+import type { ProgressRingsProps } from '../types.js'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => ({
     cn: (...args: unknown[]) => args.flat().filter(Boolean).join(' '),
@@ -42,7 +44,7 @@ const apps: App[] = []
  * @param props - The component props.
  * @returns The mount container.
  */
-function render(props: Record<string, unknown>): HTMLElement {
+function render(props: ProgressRingsProps): HTMLElement {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const app = createApp(

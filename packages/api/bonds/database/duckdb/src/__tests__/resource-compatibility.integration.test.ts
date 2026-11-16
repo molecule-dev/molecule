@@ -25,7 +25,8 @@ const withConnection = async <T>(run: (connection: DuckDBConnection) => Promise<
 
 const rows = async (connection: DuckDBConnection, sql: string): Promise<unknown[][]> => {
   const result = await connection.run(sql)
-  return result.getRowsJS() as unknown[][]
+  // getRowsJS() resolves to the driver's JS values, each assignable to unknown.
+  return result.getRowsJS()
 }
 
 const apply = async (connection: DuckDBConnection, sql: string): Promise<void> => {

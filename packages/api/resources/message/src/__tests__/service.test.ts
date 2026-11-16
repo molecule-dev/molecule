@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { FindManyOptions } from '@molecule/api-database'
+
 const {
   mockCreate,
   mockFindById,
@@ -144,8 +146,8 @@ describe('@molecule/api-resource-message service', () => {
 
   describe('listThreadsForParticipant', () => {
     it('merges and sorts by lastMessageAt desc', async () => {
-      mockFindMany.mockImplementation((_table: string, opts: { where: { field: string }[] }) => {
-        if (opts.where[0].field === 'participantAId') {
+      mockFindMany.mockImplementation((_table: string, opts: FindManyOptions) => {
+        if (opts.where?.[0].field === 'participantAId') {
           return Promise.resolve([
             { id: 't1', lastMessageAt: '2026-01-02T00:00:00Z', participantAId: 'me' },
             { id: 't3', lastMessageAt: null, participantAId: 'me' },
@@ -463,8 +465,8 @@ describe('@molecule/api-resource-message service', () => {
 
   describe('getTotalUnreadCount', () => {
     it('sums unread across A and B sides', async () => {
-      mockFindMany.mockImplementation((_table: string, opts: { where: { value: string }[] }) => {
-        if (opts.where[0].field === 'participantAId') {
+      mockFindMany.mockImplementation((_table: string, opts: FindManyOptions) => {
+        if (opts.where?.[0].field === 'participantAId') {
           return Promise.resolve([{ unreadCountA: 3 }, { unreadCountA: 1 }])
         }
         return Promise.resolve([{ unreadCountB: 5 }])

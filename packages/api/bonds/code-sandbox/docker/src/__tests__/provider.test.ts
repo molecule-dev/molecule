@@ -9,8 +9,9 @@
  */
 
 import http from 'http'
+import net from 'net'
 import { EventEmitter, PassThrough } from 'stream'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 import type { SandboxConfig } from '@molecule/api-code-sandbox'
 
@@ -40,45 +41,74 @@ vi.mock('@molecule/api-i18n', () => ({
 
 // ─── HTTP mock helpers ────────────────────────────────────────────────────────
 
+/** A minimal real response object, used where a request's body is never read. */
+function stubResponse(): http.IncomingMessage {
+  return new http.IncomingMessage(new net.Socket())
+}
+
 /**
- * Builds a mock IncomingMessage (http response) that emits data and end events.
+ * Builds a real IncomingMessage (http response) carrying `statusCode` and a
+ * body that is fed asynchronously, so listeners can be attached first — the
+ * paused readable buffers it until a reader arrives, like a real response.
  */
-function buildMockResponse(statusCode: number, body: string | Buffer): EventEmitter {
-  const res = new PassThrough() as PassThrough & { statusCode: number }
+function buildMockResponse(statusCode: number, body: string | Buffer): http.IncomingMessage {
+  const res = stubResponse()
   res.statusCode = statusCode
-  // Write the body asynchronously so listeners can be attached
   process.nextTick(() => {
-    res.end(typeof body === 'string' ? Buffer.from(body) : body)
+    res.push(typeof body === 'string' ? Buffer.from(body) : body)
+    res.push(null)
   })
   return res
 }
 
 /**
- * Builds a mock ClientRequest that captures options and triggers the response callback.
+ * A mock ClientRequest: a real-shaped request object whose write/end/destroy/
+ * setTimeout methods are mocks so assertions can inspect the calls.
  */
-function buildMockRequest(
-  _response: EventEmitter,
-  _capturedOpts?: { ref: http.RequestOptions | null },
-): EventEmitter & {
-  write: ReturnType<typeof vi.fn>
-  end: ReturnType<typeof vi.fn>
-  destroy: ReturnType<typeof vi.fn>
-  setTimeout: ReturnType<typeof vi.fn>
-} {
-  const req = new EventEmitter() as EventEmitter & {
-    write: ReturnType<typeof vi.fn>
-    end: ReturnType<typeof vi.fn>
-    destroy: ReturnType<typeof vi.fn>
-    setTimeout: ReturnType<typeof vi.fn>
-  }
-  req.write = vi.fn()
-  req.end = vi.fn()
-  req.destroy = vi.fn()
-  req.setTimeout = vi.fn()
-  return req
+type MockClientRequest = http.ClientRequest & {
+  write: Mock<(chunk: string) => boolean>
+  end: Mock<() => void>
+  destroy: Mock<(error?: Error) => void>
+  setTimeout: Mock<(msecs: number, callback?: () => void) => void>
 }
 
-type RequestCallback = (res: EventEmitter) => void
+/**
+ * Builds a mock ClientRequest that captures options and triggers the response callback.
+ */
+function buildMockRequest(_response: http.IncomingMessage = stubResponse()): MockClientRequest {
+  return Object.assign(new EventEmitter() as http.ClientRequest, {
+    write: vi.fn<(chunk: string) => boolean>(),
+    end: vi.fn<() => void>(),
+    destroy: vi.fn<(error?: Error) => void>(),
+    setTimeout: vi.fn<(msecs: number, callback?: () => void) => void>(),
+  })
+}
+
+type RequestCallback = (res: http.IncomingMessage) => void
+
+/**
+ * A PassThrough standing in for the socket Docker's exec-upgrade hands back,
+ * with the teardown methods (`setTimeout`, `destroy`) as mocks so assertions
+ * can inspect how the provider treats the upgraded connection.
+ */
+type MockSpawnSocket = Omit<PassThrough, 'destroy' | 'setTimeout'> & {
+  destroyed: boolean
+  setTimeout: Mock<(msecs: number, callback?: () => void) => void>
+  destroy: Mock<(error?: Error) => void>
+}
+
+/** Build a mock spawn socket: fresh, not destroyed, teardown calls recorded. */
+function buildMockSpawnSocket(): MockSpawnSocket {
+  const socket = Object.assign(new PassThrough(), {
+    destroyed: false,
+    setTimeout: vi.fn<(msecs: number, callback?: () => void) => void>(),
+    destroy: vi.fn<(error?: Error) => void>(),
+  })
+  socket.destroy.mockImplementation(() => {
+    socket.destroyed = true
+  })
+  return socket
+}
 
 /** Tracks all http.request calls for assertion. */
 let httpRequestCalls: Array<{
@@ -148,15 +178,17 @@ beforeEach(() => {
 
   vi.spyOn(http, 'request').mockImplementation(
     (
-      opts: string | URL | http.RequestOptions,
+      url: string | URL,
       cbOrOpts?: RequestCallback | http.RequestOptions,
       maybeCb?: RequestCallback,
     ) => {
+      // The provider always calls http.request(options, callback), so the
+      // options object arrives here in the first (url) parameter.
+      const requestOpts = (
+        typeof url === 'object' && !(url instanceof URL) ? url : {}
+      ) as http.RequestOptions
       // http.request(opts, callback) or http.request(url, opts, callback)
       const callback = typeof cbOrOpts === 'function' ? cbOrOpts : maybeCb
-      const requestOpts = (
-        typeof opts === 'object' && !(opts instanceof URL) ? opts : {}
-      ) as http.RequestOptions
 
       const queued = responseQueue.shift()
       const res = queued
@@ -169,6 +201,7 @@ beforeEach(() => {
       let capturedBody: string | undefined
       req.write.mockImplementation((data: string) => {
         capturedBody = data
+        return true
       })
 
       // When end() is called, trigger the callback with the response
@@ -192,7 +225,7 @@ beforeEach(() => {
         get: () => capturedBody,
       })
 
-      return req as unknown as http.ClientRequest
+      return req
     },
   )
 })
@@ -530,21 +563,12 @@ describe('DockerSandboxProvider', () => {
 
       // Override http.request for the upgrade call to provide a mock socket
       const originalMock = vi.mocked(http.request)
-      const mockSocket = new PassThrough() as PassThrough & {
-        destroyed: boolean
-        setTimeout: ReturnType<typeof vi.fn>
-        destroy: ReturnType<typeof vi.fn>
-      }
-      mockSocket.destroyed = false
-      mockSocket.setTimeout = vi.fn()
-      mockSocket.destroy = vi.fn(() => {
-        mockSocket.destroyed = true
-      })
+      const mockSocket = buildMockSpawnSocket()
 
       let callCount = 0
       originalMock.mockImplementation(
         (
-          opts: string | URL | http.RequestOptions,
+          url: string | URL,
           cbOrOpts?: RequestCallback | http.RequestOptions,
           maybeCb?: RequestCallback,
         ) => {
@@ -557,18 +581,18 @@ describe('DockerSandboxProvider', () => {
             req.end.mockImplementation(() => {
               process.nextTick(() => callback?.(res))
             })
-            return req as unknown as http.ClientRequest
+            return req
           }
 
           // Second call: exec start (upgrade)
-          const req = buildMockRequest(new EventEmitter())
+          const req = buildMockRequest()
           req.end.mockImplementation(() => {
             // Simulate upgrade
             process.nextTick(() => {
               req.emit('upgrade', {}, mockSocket, Buffer.alloc(0))
             })
           })
-          return req as unknown as http.ClientRequest
+          return req
         },
       )
 
@@ -599,39 +623,34 @@ describe('DockerSandboxProvider', () => {
      */
     async function spawnPty(): Promise<{
       handle: Awaited<ReturnType<NonNullable<Awaited<ReturnType<typeof createSandbox>>['spawn']>>>
-      socket: PassThrough & { destroyed: boolean; setTimeout: ReturnType<typeof vi.fn> }
+      socket: MockSpawnSocket
     }> {
       const sandbox = await createSandbox('container-pty')
 
-      const mockSocket = new PassThrough() as PassThrough & {
-        destroyed: boolean
-        setTimeout: ReturnType<typeof vi.fn>
-        destroy: ReturnType<typeof vi.fn>
-      }
-      mockSocket.destroyed = false
-      mockSocket.setTimeout = vi.fn()
-      mockSocket.destroy = vi.fn(() => {
-        mockSocket.destroyed = true
-      })
+      const mockSocket = buildMockSpawnSocket()
 
       let callCount = 0
       vi.mocked(http.request).mockImplementation(
         (
-          opts: string | URL | http.RequestOptions,
+          url: string | URL,
           cbOrOpts?: RequestCallback | http.RequestOptions,
           maybeCb?: RequestCallback,
         ) => {
           callCount++
-          const options = (typeof opts === 'object' ? opts : {}) as http.RequestOptions
+          // The provider always calls http.request(options, callback), so the
+          // options object arrives here in the first (url) parameter.
+          const options = (
+            typeof url === 'object' && !(url instanceof URL) ? url : {}
+          ) as http.RequestOptions
           const callback = typeof cbOrOpts === 'function' ? cbOrOpts : maybeCb
-          const req = buildMockRequest(new EventEmitter())
+          const req = buildMockRequest()
           const record = {
             opts: options,
             body: undefined as string | undefined,
             req,
             respond: () => {},
           }
-          req.write = vi.fn((chunk: string) => {
+          req.write.mockImplementation((chunk: string) => {
             record.body = String(chunk)
             return true
           })
@@ -641,21 +660,21 @@ describe('DockerSandboxProvider', () => {
             req.end.mockImplementation(() => {
               process.nextTick(() => callback?.(res))
             })
-            return req as unknown as http.ClientRequest
+            return req
           }
           if (String(options.path).includes('/resize')) {
             const res = buildMockResponse(200, '{}')
             req.end.mockImplementation(() => {
               process.nextTick(() => callback?.(res))
             })
-            return req as unknown as http.ClientRequest
+            return req
           }
           req.end.mockImplementation(() => {
             process.nextTick(() => {
               req.emit('upgrade', {}, mockSocket, Buffer.alloc(0))
             })
           })
-          return req as unknown as http.ClientRequest
+          return req
         },
       )
 
@@ -863,7 +882,7 @@ describe('DockerSandboxProvider', () => {
   // ─── Published-port bind address (publishHostIp) ──────────────────────
 
   describe('published-port bind address', () => {
-    async function createBodyWith(config: Parameters<typeof createProvider>[0] = {}) {
+    async function createBodyWith(config: DockerConfig = {}) {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock', ...config })
       enqueueNetworkCreate()
@@ -1023,19 +1042,12 @@ describe('DockerSandboxProvider', () => {
       const sandbox = await provider.create({ projectId: 'test-st' })
 
       // Mock the upgrade flow
-      const mockSocket = new PassThrough() as PassThrough & {
-        destroyed: boolean
-        setTimeout: ReturnType<typeof vi.fn>
-        destroy: ReturnType<typeof vi.fn>
-      }
-      mockSocket.destroyed = false
-      mockSocket.setTimeout = vi.fn()
-      mockSocket.destroy = vi.fn()
+      const mockSocket = buildMockSpawnSocket()
 
       let callCount = 0
       vi.mocked(http.request).mockImplementation(
         (
-          opts: string | URL | http.RequestOptions,
+          url: string | URL,
           cbOrOpts?: RequestCallback | http.RequestOptions,
           maybeCb?: RequestCallback,
         ) => {
@@ -1049,17 +1061,17 @@ describe('DockerSandboxProvider', () => {
             req.end.mockImplementation(() => {
               process.nextTick(() => callback?.(res))
             })
-            return req as unknown as http.ClientRequest
+            return req
           }
 
           // exec start (upgrade)
-          const req = buildMockRequest(new EventEmitter())
+          const req = buildMockRequest()
           req.end.mockImplementation(() => {
             process.nextTick(() => {
               req.emit('upgrade', {}, mockSocket, Buffer.alloc(0))
             })
           })
-          return req as unknown as http.ClientRequest
+          return req
         },
       )
 
@@ -1076,19 +1088,12 @@ describe('DockerSandboxProvider', () => {
       enqueueJson(201, { Id: 'container-st2' })
       const sandbox = await provider.create({ projectId: 'test-st2' })
 
-      const mockSocket = new PassThrough() as PassThrough & {
-        destroyed: boolean
-        setTimeout: ReturnType<typeof vi.fn>
-        destroy: ReturnType<typeof vi.fn>
-      }
-      mockSocket.destroyed = false
-      mockSocket.setTimeout = vi.fn()
-      mockSocket.destroy = vi.fn()
+      const mockSocket = buildMockSpawnSocket()
 
       let callCount = 0
       vi.mocked(http.request).mockImplementation(
         (
-          opts: string | URL | http.RequestOptions,
+          url: string | URL,
           cbOrOpts?: RequestCallback | http.RequestOptions,
           maybeCb?: RequestCallback,
         ) => {
@@ -1101,16 +1106,16 @@ describe('DockerSandboxProvider', () => {
             req.end.mockImplementation(() => {
               process.nextTick(() => callback?.(res))
             })
-            return req as unknown as http.ClientRequest
+            return req
           }
 
-          const req = buildMockRequest(new EventEmitter())
+          const req = buildMockRequest()
           req.end.mockImplementation(() => {
             process.nextTick(() => {
               req.emit('upgrade', {}, mockSocket, Buffer.alloc(0))
             })
           })
-          return req as unknown as http.ClientRequest
+          return req
         },
       )
 
@@ -1221,17 +1226,19 @@ describe('DockerSandboxProvider', () => {
       // call is handled without offsetting the container/exec branches.
       vi.mocked(http.request).mockImplementation(
         (
-          opts: string | URL | http.RequestOptions,
+          url: string | URL,
           cbOrOpts?: RequestCallback | http.RequestOptions,
           maybeCb?: RequestCallback,
         ) => {
-          const callback = typeof cbOrOpts === 'function' ? cbOrOpts : maybeCb
+          // The provider always calls http.request(options, callback), so the
+          // options object arrives here in the first (url) parameter.
           const requestOpts = (
-            typeof opts === 'object' && !(opts instanceof URL) ? opts : {}
+            typeof url === 'object' && !(url instanceof URL) ? url : {}
           ) as http.RequestOptions
+          const callback = typeof cbOrOpts === 'function' ? cbOrOpts : maybeCb
           const path = String(requestOpts.path ?? '')
 
-          const req = buildMockRequest(new EventEmitter())
+          const req = buildMockRequest()
 
           if (path.includes('/networks/create')) {
             // [C1-1] Leading network ensure
@@ -1239,7 +1246,7 @@ describe('DockerSandboxProvider', () => {
             req.end.mockImplementation(() => {
               process.nextTick(() => callback?.(res))
             })
-            return req as unknown as http.ClientRequest
+            return req
           }
 
           if (path.includes('/containers/create')) {
@@ -1248,7 +1255,7 @@ describe('DockerSandboxProvider', () => {
             req.end.mockImplementation(() => {
               process.nextTick(() => callback?.(res))
             })
-            return req as unknown as http.ClientRequest
+            return req
           }
 
           if (path.endsWith('/exec')) {
@@ -1257,7 +1264,7 @@ describe('DockerSandboxProvider', () => {
             req.end.mockImplementation(() => {
               process.nextTick(() => callback?.(res))
             })
-            return req as unknown as http.ClientRequest
+            return req
           }
 
           if (path.includes('/start')) {
@@ -1272,7 +1279,7 @@ describe('DockerSandboxProvider', () => {
             })
             req.end.mockImplementation(() => {
               process.nextTick(() => {
-                const res = new EventEmitter() as EventEmitter & { statusCode: number }
+                const res = stubResponse()
                 res.statusCode = 200
 
                 callback?.(res)
@@ -1286,7 +1293,7 @@ describe('DockerSandboxProvider', () => {
               })
             })
 
-            return req as unknown as http.ClientRequest
+            return req
           }
 
           // Fallback — exec inspect (should not be reached if error is thrown)
@@ -1294,7 +1301,7 @@ describe('DockerSandboxProvider', () => {
           req.end.mockImplementation(() => {
             process.nextTick(() => callback?.(res))
           })
-          return req as unknown as http.ClientRequest
+          return req
         },
       )
 

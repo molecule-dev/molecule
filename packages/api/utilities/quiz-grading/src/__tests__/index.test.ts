@@ -373,7 +373,8 @@ describe('@molecule/api-quiz-grading', () => {
     })
 
     it('handles missing keys', () => {
-      // @ts-expect-error — partial answer to confirm the grader is defensive.
+      // A partial answer is valid Record<string, string>; this confirms the
+      // grader is defensive about keys missing from it.
       const r = gradeMatching(payload, { a: '1' })
       expect(r.fraction).toBeCloseTo(1 / 3)
     })

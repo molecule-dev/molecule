@@ -239,7 +239,9 @@ describe('exportPptx', () => {
     const deck: Deck = {
       slides: [
         {
-          // @ts-expect-error — exercising runtime validation
+          // Type-valid per ImageElement (src/data/buffer are all optional) —
+          // the runtime validation rejecting a source-less image is what is
+          // exercised here.
           elements: [{ kind: 'image', x: 0, y: 0, w: 1, h: 1 }],
         },
       ],
@@ -438,11 +440,6 @@ describe('createPptxExportHandler', () => {
         body = j
         bodyKind = 'json'
       },
-    } as unknown as PptxResponse & {
-      headers: Record<string, string>
-      status: number
-      body: Buffer | unknown
-      bodyKind: 'buffer' | 'json' | null
     }
   }
 

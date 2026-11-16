@@ -8,8 +8,16 @@ import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { applyMigrations, createMigrator, MIGRATION_LEDGER } from '../migrator.js'
+import type { DatabasePool } from '@molecule/api-database'
+
+import {
+  applyMigrations,
+  createMigrator,
+  type MigratablePool,
+  MIGRATION_LEDGER,
+} from '../migrator.js'
 import { createPool } from '../pool.js'
+import type { DuckdbConfig } from '../types.js'
 
 let dir: string
 let migrations: string
@@ -25,6 +33,30 @@ afterEach(async () => {
   await rm(dir, { recursive: true, force: true })
 })
 
+/**
+ * Narrows a `DatabasePool` to the interactive-transaction shape the migration
+ * runner needs. The core interface marks `transaction()` optional because not
+ * every bond supports it; this bond's `createPool()` always installs it, and
+ * the runtime check keeps that guarantee honest.
+ */
+function isMigratablePool(pool: DatabasePool): pool is MigratablePool {
+  return typeof pool.transaction === 'function'
+}
+
+/**
+ * Creates this bond's pool and checks it satisfies `MigratablePool`.
+ *
+ * @param config - The pool configuration (path, resource limits, timeout).
+ * @returns The pool, typed for the migration runner.
+ */
+function createMigratablePool(config?: DuckdbConfig): MigratablePool {
+  const pool = createPool(config)
+  if (!isMigratablePool(pool)) {
+    throw new Error('DuckDB createPool() did not provide transaction()')
+  }
+  return pool
+}
+
 describe('applyMigrations', () => {
   it('applies new files in lexical order and records each in the ledger', async () => {
     await writeFile(
@@ -32,7 +64,7 @@ describe('applyMigrations', () => {
       'CREATE TABLE a (x INT); INSERT INTO a VALUES (1);',
     )
     await writeFile(join(migrations, '0002_more.sql'), 'CREATE TABLE b (y VARCHAR);')
-    const pool = createPool({ path: dbPath })
+    const pool = createMigratablePool({ path: dbPath })
     await applyMigrations(pool, migrations)
     const rows = await pool.query<{ file: string }>(
       `SELECT file FROM "${MIGRATION_LEDGER}" ORDER BY file`,
@@ -47,7 +79,7 @@ describe('applyMigrations', () => {
       join(migrations, '0001_seed.sql'),
       'CREATE TABLE s (x INT); INSERT INTO s VALUES (1);',
     )
-    const pool = createPool({ path: dbPath })
+    const pool = createMigratablePool({ path: dbPath })
     await applyMigrations(pool, migrations)
     await applyMigrations(pool, migrations)
     expect((await pool.query<{ n: number }>('SELECT count(*) AS n FROM s')).rows[0]!.n).toBe(1)
@@ -59,7 +91,7 @@ describe('applyMigrations', () => {
       join(migrations, '0001_bad.sql'),
       'CREATE TABLE ok (x INT); SELECT * FROM missing;',
     )
-    const pool = createPool({ path: dbPath })
+    const pool = createMigratablePool({ path: dbPath })
     await expect(applyMigrations(pool, migrations)).rejects.toThrow(/0001_bad\.sql/)
     // The whole file rolled back — the table before the bad statement is gone.
     const tables = await pool.query<{ n: number }>(
@@ -72,7 +104,7 @@ describe('applyMigrations', () => {
   it('names EVERY broken file in one error', async () => {
     await writeFile(join(migrations, '0001_bad.sql'), 'SELECT * FROM missing1;')
     await writeFile(join(migrations, '0002_also_bad.sql'), 'SELECT * FROM missing2;')
-    const pool = createPool({ path: dbPath })
+    const pool = createMigratablePool({ path: dbPath })
     const error = await applyMigrations(pool, migrations).catch((e: Error) => e.message)
     expect(error).toMatch(/0001_bad\.sql/)
     expect(error).toMatch(/0002_also_bad\.sql/)
@@ -81,7 +113,7 @@ describe('applyMigrations', () => {
 
   it('an "already exists" error is a warning, not a failure', async () => {
     await writeFile(join(migrations, '0001_init.sql'), 'CREATE TABLE dup (x INT);')
-    const pool = createPool({ path: dbPath })
+    const pool = createMigratablePool({ path: dbPath })
     await applyMigrations(pool, migrations)
     // Hand-craft an unrecorded file that re-creates the same table.
     await writeFile(join(migrations, '0002_dup.sql'), 'CREATE TABLE dup (x INT);')
@@ -94,7 +126,7 @@ describe('applyMigrations', () => {
     await mkdir(other, { recursive: true })
     await writeFile(join(migrations, '0001_init.sql'), 'CREATE TABLE first (x INT);')
     await writeFile(join(other, '0001_init.sql'), 'CREATE TABLE second (x INT);')
-    const pool = createPool({ path: dbPath })
+    const pool = createMigratablePool({ path: dbPath })
     await applyMigrations(pool, migrations)
     await applyMigrations(pool, other, { namespace: 'other' })
     const rows = await pool.query<{ file: string }>(
@@ -109,7 +141,7 @@ describe('applyMigrations', () => {
       join(migrations, '0001_selfmanaged.sql'),
       'BEGIN; CREATE TABLE self (x INT); COMMIT;',
     )
-    const pool = createPool({ path: dbPath })
+    const pool = createMigratablePool({ path: dbPath })
     await applyMigrations(pool, migrations)
     expect(
       (
@@ -122,7 +154,7 @@ describe('applyMigrations', () => {
   })
 
   it('an empty or missing directory is a no-op, not an error', async () => {
-    const pool = createPool({ path: dbPath })
+    const pool = createMigratablePool({ path: dbPath })
     await expect(applyMigrations(pool, join(dir, 'nope'))).resolves.toBeUndefined()
     await pool.end()
   })
@@ -137,7 +169,7 @@ describe('Postgres-dialect translation', () => {
        ALTER TABLE pg ADD COLUMN IF NOT EXISTS extra VARCHAR;
        ALTER TABLE pg DROP COLUMN IF EXISTS ghost;`,
     )
-    const pool = createPool({ path: dbPath })
+    const pool = createMigratablePool({ path: dbPath })
     await applyMigrations(pool, migrations)
     const type = await pool.query<{ data_type: string }>(
       "SELECT data_type FROM information_schema.columns WHERE table_name = 'pg' AND column_name = 'meta'",
@@ -154,7 +186,7 @@ describe('createMigrator', () => {
     process.env.DUCKDB_PATH = dbPath
     try {
       await createMigrator(migrations)()
-      const pool = createPool({ path: dbPath })
+      const pool = createMigratablePool({ path: dbPath })
       expect(
         (
           await pool.query<{ n: number }>(

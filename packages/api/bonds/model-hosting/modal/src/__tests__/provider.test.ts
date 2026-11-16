@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ModelEndpointSpec } from '@molecule/api-model-hosting'
+import type { ModelEndpointSpec, ModelHostingProvider } from '@molecule/api-model-hosting'
 
 import { appSource, gpuFor, toPython } from '../app-source.js'
 import { endpointUrl, resolveModalConfig } from '../client.js'
@@ -24,6 +24,19 @@ const SPEC: ModelEndpointSpec = {
 
 const ok = (stdout = ''): RunResult => ({ code: 0, stdout, stderr: '' })
 const fail = (stderr: string, code = 1): RunResult => ({ code, stdout: '', stderr })
+
+/**
+ * Narrows the provider's optional `estimate` method for the pricing tests:
+ * this bond must implement it (it quotes Modal's dated list prices), so a
+ * missing implementation fails here instead of reading as `undefined`.
+ */
+function requireEstimate(
+  hosting: ModelHostingProvider,
+): NonNullable<ModelHostingProvider['estimate']> {
+  const estimate = hosting.estimate
+  if (!estimate) throw new Error('Modal model hosting provider must implement estimate()')
+  return estimate.bind(hosting)
+}
 
 describe('model-hosting-modal', () => {
   let runner: ModalRunner
@@ -211,7 +224,8 @@ describe('model-hosting-modal', () => {
 
   it('estimates from the dated list prices, GPU and CPU, min≥1 and scale-to-zero', async () => {
     const hosting = provider()
-    const gpu = await hosting.estimate(SPEC, { requestsPerDay: 5000, busyMsPerRequest: 200 })
+    const estimate = requireEstimate(hosting)
+    const gpu = await estimate(SPEC, { requestsPerDay: 5000, busyMsPerRequest: 200 })
     // T4 0.000164 + 4 GiB memory, ×1.15 us — always-on (min 0 → busy-time billing here)
     expect(gpu.currency).toBe('USD')
     expect(gpu.basis.map((b) => b.item)).toEqual([
@@ -221,7 +235,7 @@ describe('model-hosting-modal', () => {
     ])
     const busyGpu = (200 / 1000) * 5000 * 30 * (0.000164 + (4 / 1024) * (0.00000222 / 3600)) * 1.15
     expect(gpu.monthly).toBeCloseTo(busyGpu, 1)
-    const warm = await hosting.estimate(
+    const warm = await estimate(
       {
         ...SPEC,
         accelerator: { kind: 'gpu', minVramGb: 16 },
@@ -233,7 +247,7 @@ describe('model-hosting-modal', () => {
       0.000164 * 86400 * 30 * 1.15 + (4 / 1024) * (0.00000222 / 3600) * 86400 * 30 * 1.15,
       1,
     )
-    const cpu = await hosting.estimate(
+    const cpu = await estimate(
       { ...SPEC, accelerator: { kind: 'cpu' }, cpu: 2, memoryMb: 4096 },
       { requestsPerDay: 5000, busyMsPerRequest: 1000 },
     )
@@ -243,7 +257,7 @@ describe('model-hosting-modal', () => {
       'region multiplier (us)',
     ])
     await expect(
-      hosting.estimate(
+      estimate(
         { ...SPEC, accelerator: { kind: 'gpu', minVramGb: 80, model: 'H100' } },
         { requestsPerDay: 1, busyMsPerRequest: 1 },
       ),

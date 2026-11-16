@@ -149,14 +149,14 @@ describe('createFlagForUser', () => {
     await createFlagForUser('user-1', {
       key: 'k',
       name: 'N',
-      flag_type: 'percentage',
+      flag_type: 'multivariate',
       default_value: 'control',
       rollout_percentage: 25,
       environment: 'staging',
       stale_days: 7,
     })
     const payload = mockCreate.mock.calls[0][1]
-    expect(payload.flag_type).toBe('percentage')
+    expect(payload.flag_type).toBe('multivariate')
     expect(payload.default_value).toBe('control')
     expect(payload.rollout_percentage).toBe(25)
     expect(payload.environment).toBe('staging')

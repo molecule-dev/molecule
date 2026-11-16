@@ -53,7 +53,7 @@ import { createApp, defineComponent, h } from 'vue'
 
 const { NotificationFeed } = await import('../NotificationFeed.js')
 const { fmtRelativeShort } = await import('../fmtRelativeShort.js')
-import type { FeedItem } from '../types.js'
+import type { FeedItem, NotificationFeedProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -61,7 +61,7 @@ afterEach(() => {
 
 /** Renders a {@link NotificationFeed} and returns the markup it produced. */
 const render = (
-  props: Record<string, unknown>,
+  props: NotificationFeedProps,
   slots?: Record<string, () => VNodeChild[]>,
 ): string => {
   const host = document.createElement('div')

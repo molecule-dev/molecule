@@ -27,7 +27,7 @@ function makeResponse(body: unknown, init: { status?: number; ok?: boolean } = {
 describe('@molecule/api-video-rooms-daily-co', () => {
   const calls: RecordedCall[] = []
   const responses: Response[] = []
-  let mockFetch: ReturnType<typeof vi.fn>
+  let mockFetch: typeof fetch
 
   /**
    * Queue the next response that the mocked fetch should return. Calls

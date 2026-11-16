@@ -110,19 +110,22 @@ describe('listThreads sort modes', () => {
 describe('createThread', () => {
   it('generates a slug from the title', async () => {
     mockCreate.mockResolvedValue({ data: makeThread() })
-    await createThread('user-1', { title: 'Hello, World!  How are you?' })
+    await createThread('user-1', {
+      title: 'Hello, World!  How are you?',
+      body: 'First post.',
+    })
     expect(mockCreate.mock.calls[0][1].slug).toBe('hello-world-how-are-you')
   })
 
   it('caps slug length at 120 chars', async () => {
     mockCreate.mockResolvedValue({ data: makeThread() })
-    await createThread('user-1', { title: 'a'.repeat(200) })
+    await createThread('user-1', { title: 'a'.repeat(200), body: 'Body' })
     expect(mockCreate.mock.calls[0][1].slug.length).toBeLessThanOrEqual(120)
   })
 
   it('initialises with status=open, is_pinned=false, counts=0', async () => {
     mockCreate.mockResolvedValue({ data: makeThread() })
-    await createThread('user-1', { title: 'New' })
+    await createThread('user-1', { title: 'New', body: 'Body' })
     const payload = mockCreate.mock.calls[0][1]
     expect(payload.status).toBe('open')
     expect(payload.is_pinned).toBe(false)

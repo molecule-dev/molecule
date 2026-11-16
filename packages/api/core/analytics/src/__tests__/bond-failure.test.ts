@@ -11,7 +11,6 @@ function recordingProvider(opts: { failTrack?: boolean } = {}): {
 } {
   const events: AnalyticsEvent[] = []
   const provider: AnalyticsProvider = {
-    name: 'recording',
     async track(event: AnalyticsEvent): Promise<void> {
       if (opts.failTrack) throw new Error('provider down')
       events.push(event)

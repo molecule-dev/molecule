@@ -11,9 +11,15 @@ import {
   runRollout,
   setProvider,
 } from '../provider.js'
-import type { DeployRolloutProvider, RolloutOutcome } from '../types.js'
+import type { DeployRolloutProvider, RolloutOptions, RolloutOutcome } from '../types.js'
 
-const emptyOutcome: RolloutOutcome = {
+/**
+ * A completed outcome that created, upstreamed, retired and failed nothing.
+ * Typed over `never` because it mentions no instance, so it satisfies
+ * `RolloutOutcome<I>` for whatever instance type the provider's generic `run`
+ * was called with.
+ */
+const emptyOutcome: RolloutOutcome<never> = {
   status: 'completed',
   created: [],
   upstreams: [],
@@ -42,7 +48,7 @@ describe('deploy-rollout accessors', () => {
     const provider = fake()
     setProvider(provider)
     expect(hasProvider()).toBe(true)
-    const options = {
+    const options: RolloutOptions = {
       provider: {
         create: vi.fn(),
         waitReady: vi.fn(),
@@ -52,7 +58,7 @@ describe('deploy-rollout accessors', () => {
         destroy: vi.fn(),
       },
     }
-    await runRollout(options as never)
+    await runRollout(options)
     expect(provider.run).toHaveBeenCalledWith(options)
     await runInPlaceRollout({ machines: [{ id: 'a' }] })
     expect(provider.runInPlace).toHaveBeenCalled()

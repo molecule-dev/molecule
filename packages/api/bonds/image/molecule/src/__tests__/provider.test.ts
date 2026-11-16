@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createProvider, IMAGE_SERVICE_LIMITS } from '../provider.js'
+import { createProvider, IMAGE_SERVICE_LIMITS, MoleculeImageProvider } from '../provider.js'
 
 function stubFetch(status: number, body: unknown): ReturnType<typeof vi.fn> {
   const fn = vi
@@ -46,7 +46,9 @@ describe('api-image-molecule', () => {
 
   it('maps every core method to its op shape', async () => {
     const fetchMock = stubFetch(200, RESULT)
-    const p = createProvider({ apiKey: 'mk_test' })
+    // `rotate`, `flip` and `flop` are optional members on the core
+    // `ImageProvider`, so call them through the bond's class, which requires them.
+    const p = new MoleculeImageProvider({ apiKey: 'mk_test' })
     await p.resize(IMG, { width: 10, height: 10, fit: 'cover' })
     await p.crop(IMG, { left: 1, top: 2, width: 3, height: 4 })
     await p.convert(IMG, 'webp', 80)
@@ -70,7 +72,7 @@ describe('api-image-molecule', () => {
 
   it('refuses oversized images and empty pipelines locally, before any request', async () => {
     const fetchMock = stubFetch(200, RESULT)
-    const p = createProvider({ apiKey: 'mk_test' })
+    const p = new MoleculeImageProvider({ apiKey: 'mk_test' })
     await expect(
       p.flip(Buffer.alloc(IMAGE_SERVICE_LIMITS.maxImageBytes + 1)),
     ).rejects.toMatchObject({ status: 413 })
@@ -94,7 +96,7 @@ describe('api-image-molecule', () => {
     delete process.env.MOLECULE_API_KEY
     try {
       await expect(
-        createProvider({ servicesUrl: 'http://localhost:1/api/v1/services' }).flip(IMG),
+        new MoleculeImageProvider({ servicesUrl: 'http://localhost:1/api/v1/services' }).flip(IMG),
       ).rejects.toMatchObject({ status: 401 })
     } finally {
       if (old !== undefined) process.env.MOLECULE_API_KEY = old

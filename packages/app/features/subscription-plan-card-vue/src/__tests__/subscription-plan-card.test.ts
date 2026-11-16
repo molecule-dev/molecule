@@ -71,6 +71,7 @@ vi.mock('@molecule/app-ui-vue', async () => {
 import { createApp, defineComponent, h } from 'vue'
 
 import { SubscriptionPlanCard } from '../SubscriptionPlanCard.js'
+import type { SubscriptionPlanCardProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -83,7 +84,7 @@ afterEach(() => {
  * @param props - The card's props.
  * @returns The markup.
  */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: SubscriptionPlanCardProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(SubscriptionPlanCard, props) }))

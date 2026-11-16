@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 // Mock amqplib
 vi.mock('amqplib', () => ({
@@ -12,6 +12,27 @@ import amqp from 'amqplib'
 
 import { connect, createProvider, provider } from '../provider.js'
 import { createQueue, createReceivedMessage, createReceivedMessageFromGet } from '../queue.js'
+
+/**
+ * The core contract types mark any operation a provider MAY omit as optional —
+ * `QueueProvider.createQueue`/`deleteQueue`/`listQueues`/`close`,
+ * `Queue.sendBatch`/`size`/`purge` and `ReceivedMessage.nack`. The RabbitMQ
+ * bond implements every one of them, so each test that exercises an optional
+ * operation proves it is really there: a bond that dropped one fails the test
+ * here instead of the call site reading as an unsupported no-op.
+ * @param value - The provider, queue or received message under test.
+ * @param methods - The optional methods this test requires to be implemented.
+ */
+function assertImplements<T extends object, K extends keyof T>(
+  value: T,
+  ...methods: K[]
+): asserts value is T & Required<Pick<T, K>> {
+  for (const method of methods) {
+    if (typeof value[method] !== 'function') {
+      throw new Error(`expected ${String(method)} to be implemented`)
+    }
+  }
+}
 
 describe('RabbitMQ Queue Provider', () => {
   let mockConnection: {
@@ -277,6 +298,7 @@ describe('RabbitMQ Queue Provider', () => {
   describe('provider.createQueue', () => {
     it('should create a queue with default options', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'createQueue')
       const queue = await provider.createQueue('new-queue')
 
       expect(mockChannel.assertQueue).toHaveBeenCalledWith('new-queue', {
@@ -288,6 +310,7 @@ describe('RabbitMQ Queue Provider', () => {
 
     it('should create a queue with message retention', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'createQueue')
       await provider.createQueue('ttl-queue', { messageRetentionSeconds: 3600 })
 
       expect(mockChannel.assertQueue).toHaveBeenCalledWith('ttl-queue', {
@@ -300,6 +323,7 @@ describe('RabbitMQ Queue Provider', () => {
 
     it('should create a queue with max message size', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'createQueue')
       await provider.createQueue('size-queue', { maxMessageSize: 262144 })
 
       expect(mockChannel.assertQueue).toHaveBeenCalledWith('size-queue', {
@@ -312,6 +336,7 @@ describe('RabbitMQ Queue Provider', () => {
 
     it('should create a queue with dead letter queue', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'createQueue')
       await provider.createQueue('main-queue', {
         deadLetterQueue: { name: 'dlq', maxReceiveCount: 3 },
       })
@@ -329,6 +354,7 @@ describe('RabbitMQ Queue Provider', () => {
   describe('provider.deleteQueue', () => {
     it('should delete a queue', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'deleteQueue')
       await provider.deleteQueue('queue-to-delete')
 
       expect(mockChannel.deleteQueue).toHaveBeenCalledWith('queue-to-delete')
@@ -338,12 +364,14 @@ describe('RabbitMQ Queue Provider', () => {
   describe('channel-safe asserts (404/406 regression)', () => {
     it('replays createQueue arguments byte-identically on every later re-assert', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'createQueue')
       await provider.createQueue('dlx-queue', {
         deadLetterQueue: { name: 'dlq', maxReceiveCount: 3 },
       })
       mockChannel.assertQueue.mockClear()
 
       const q = provider.queue('dlx-queue')
+      assertImplements(q, 'size', 'purge')
       await q.send({ body: 'x' })
       await q.size()
       await q.purge()
@@ -367,6 +395,7 @@ describe('RabbitMQ Queue Provider', () => {
     it('purge() asserts the queue first (purging a missing queue 404s and closes the shared channel)', async () => {
       const provider = await createProvider()
       const q = provider.queue('maybe-missing')
+      assertImplements(q, 'purge')
       await q.purge()
 
       expect(mockChannel.assertQueue).toHaveBeenCalledWith('maybe-missing', { durable: true })
@@ -378,6 +407,7 @@ describe('RabbitMQ Queue Provider', () => {
 
     it('deleteQueue() asserts first with the recorded options, then forgets them', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'createQueue', 'deleteQueue')
       await provider.createQueue('opted-queue', { messageRetentionSeconds: 60 })
       mockChannel.assertQueue.mockClear()
 
@@ -394,12 +424,15 @@ describe('RabbitMQ Queue Provider', () => {
 
       // After deletion the recorded options are gone — a fresh handle re-asserts plain.
       mockChannel.assertQueue.mockClear()
-      await provider.queue('opted-queue').size()
+      const reopened = provider.queue('opted-queue')
+      assertImplements(reopened, 'size')
+      await reopened.size()
       expect(mockChannel.assertQueue).toHaveBeenCalledWith('opted-queue', { durable: true })
     })
 
     it('deleteQueue() on a never-created queue asserts plain durable first (idempotent no-op)', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'deleteQueue')
       await provider.deleteQueue('never-existed')
 
       expect(mockChannel.assertQueue).toHaveBeenCalledWith('never-existed', { durable: true })
@@ -410,6 +443,7 @@ describe('RabbitMQ Queue Provider', () => {
   describe('provider.listQueues', () => {
     it('should return list of known queues', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'listQueues')
       provider.queue('queue-1')
       provider.queue('queue-2')
 
@@ -421,6 +455,7 @@ describe('RabbitMQ Queue Provider', () => {
   describe('provider.close', () => {
     it('should close channel and connection', async () => {
       const provider = await createProvider()
+      assertImplements(provider, 'close')
       await provider.close()
 
       expect(mockChannel.close).toHaveBeenCalled()
@@ -439,6 +474,7 @@ describe('RabbitMQ Queue Provider', () => {
       // The exported `provider` is a module-level singleton — reset its
       // internal realProvider/connectPromise so state never leaks into
       // another test.
+      assertImplements(provider, 'close')
       await provider.close()
     })
 
@@ -652,6 +688,7 @@ describe('RabbitMQ Queue', () => {
   describe('queue.sendBatch', () => {
     it('should send multiple messages', async () => {
       const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+      assertImplements(queue, 'sendBatch')
 
       const ids = await queue.sendBatch([
         { body: { data: 'msg1' } },
@@ -665,6 +702,7 @@ describe('RabbitMQ Queue', () => {
 
     it('should return message IDs in order', async () => {
       const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+      assertImplements(queue, 'sendBatch')
 
       const ids = await queue.sendBatch([
         { id: 'id-1', body: { data: 'msg1' } },
@@ -955,6 +993,7 @@ describe('RabbitMQ Queue', () => {
       mockChannel.assertQueue.mockResolvedValue({ messageCount: 42, consumerCount: 2 })
 
       const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+      assertImplements(queue, 'size')
       const size = await queue.size()
 
       expect(size).toBe(42)
@@ -964,6 +1003,7 @@ describe('RabbitMQ Queue', () => {
   describe('queue.purge', () => {
     it('should purge all messages from queue', async () => {
       const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+      assertImplements(queue, 'purge')
       await queue.purge()
 
       expect(mockChannel.purgeQueue).toHaveBeenCalledWith('test-queue')
@@ -1060,6 +1100,7 @@ describe('createReceivedMessage', () => {
     } as unknown as ConsumeMessage
 
     const received = createReceivedMessage(mockChannel as unknown as Channel, mockMsg)
+    assertImplements(received, 'nack')
     await received.nack()
 
     expect(mockChannel.nack).toHaveBeenCalledWith(mockMsg, false, true)
@@ -1156,6 +1197,7 @@ describe('createReceivedMessageFromGet', () => {
     } as unknown as GetMessage
 
     const received = createReceivedMessageFromGet(mockChannel as unknown as Channel, mockMsg)
+    assertImplements(received, 'nack')
     await received.nack()
 
     expect(mockChannel.nack).toHaveBeenCalledWith(mockMsg, false, true)

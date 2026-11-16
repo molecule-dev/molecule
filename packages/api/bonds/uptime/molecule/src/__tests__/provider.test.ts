@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createProvider } from '../provider.js'
+import type { UptimeProbeSpec } from '@molecule/api-uptime'
+
+import { createProvider, MoleculeUptimeProvider } from '../provider.js'
 
 const OK_RESULT = {
   status: 'operational',
@@ -31,7 +33,8 @@ describe('molecule uptime provider local refusals', () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     const provider = createProvider({ apiKey: 'mk_test' })
-    for (const spec of [
+    const specs: UptimeProbeSpec[] = [
+      // Deliberately invalid input: the empty spec is fed to check the local refusal.
       {} as never,
       { url: '' },
       { url: 'notaurl' },
@@ -42,7 +45,8 @@ describe('molecule uptime provider local refusals', () => {
       { url: 'https://a.com', expectText: '' },
       { url: 'https://a.com', method: 'HEAD', expectText: 'ok' },
       { url: 'https://a.com', degradedLatencyMs: -1 },
-    ]) {
+    ]
+    for (const spec of specs) {
       await expect(provider.probe(spec), JSON.stringify(spec)).rejects.toThrow(
         /MoleculeServiceError|characters|http\(s\)|integer|GET|HEAD/,
       )
@@ -174,7 +178,7 @@ describe('molecule uptime provider scheduled monitors', () => {
   it('schedules a monitor with the normalized spec and the alert subscription', async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ monitor: MONITOR }))
     vi.stubGlobal('fetch', fetchMock)
-    const provider = createProvider({ apiKey: 'mk_test' })
+    const provider = new MoleculeUptimeProvider({ apiKey: 'mk_test' })
     const monitor = await provider.scheduleMonitor({
       url: 'https://example.com/health',
       intervalSeconds: 300,
@@ -203,7 +207,7 @@ describe('molecule uptime provider scheduled monitors', () => {
   it('mirrors the schedule bounds locally without any request', async () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
-    const provider = createProvider({ apiKey: 'mk_test' })
+    const provider = new MoleculeUptimeProvider({ apiKey: 'mk_test' })
     for (const intervalSeconds of [0, 30, 59, 86_401, 1.5, '300' as never]) {
       await expect(
         provider.scheduleMonitor({ url: 'https://example.com', intervalSeconds }),
@@ -236,7 +240,7 @@ describe('molecule uptime provider scheduled monitors', () => {
       )
       .mockResolvedValueOnce(jsonResponse({ removed: true, id: 'm1' }))
     vi.stubGlobal('fetch', fetchMock)
-    const provider = createProvider({ apiKey: 'mk_test' })
+    const provider = new MoleculeUptimeProvider({ apiKey: 'mk_test' })
     expect((await provider.listMonitors()).map((m) => m.id)).toEqual(['m1'])
     const history = await provider.monitorHistory('m1', 100)
     expect(history.summary.uptimePercent).toBe(100)
@@ -249,7 +253,7 @@ describe('molecule uptime provider scheduled monitors', () => {
   it('mirrors the history bounds and the id requirements locally', async () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
-    const provider = createProvider({ apiKey: 'mk_test' })
+    const provider = new MoleculeUptimeProvider({ apiKey: 'mk_test' })
     for (const limit of [0, -1, 1.5, 501]) {
       await expect(provider.monitorHistory('m1', limit)).rejects.toThrow(/limit/)
     }
@@ -268,7 +272,7 @@ describe('molecule uptime provider scheduled monitors', () => {
         ),
       )
     vi.stubGlobal('fetch', fetchMock)
-    const provider = createProvider({ apiKey: 'mk_test' })
+    const provider = new MoleculeUptimeProvider({ apiKey: 'mk_test' })
     try {
       await provider.monitorHistory('other')
       expect.fail('should have thrown')

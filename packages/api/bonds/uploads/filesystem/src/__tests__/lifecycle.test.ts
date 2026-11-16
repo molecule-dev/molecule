@@ -13,7 +13,7 @@ async function settleImport(): Promise<void> {
 
 describe('filesystem uploads bond lifecycle integration', () => {
   beforeEach(() => {
-    clearProviders()
+    clearProviders('process-lifecycle')
     resetRegistrationsForTests()
   })
 

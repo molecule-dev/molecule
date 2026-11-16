@@ -53,7 +53,12 @@ import {
 } from '../jobStore.js'
 import { resolveMediaSource } from '../mediaPaths.js'
 import { cancelRender, getRenderStatus, renderAudio } from '../renderAudio.js'
-import { describeSpawnFailure, processAudioRenderJob, resolveFfmpegPath } from '../worker.js'
+import {
+  describeSpawnFailure,
+  processAudioRenderJob,
+  resolveFfmpegPath,
+  type SpawnFunction,
+} from '../worker.js'
 
 interface MockQueueInstance extends Queue {
   messages: Array<{ id: string; body: unknown }>
@@ -325,9 +330,9 @@ describe('processAudioRenderJob', () => {
     payload.jobId = job.id
 
     const fakeChild = makeFakeChild()
-    const spawn = vi.fn(() => fakeChild)
+    const spawn = vi.fn<SpawnFunction>(() => fakeChild)
 
-    const promise = processAudioRenderJob(payload, { spawn: spawn as unknown as never })
+    const promise = processAudioRenderJob(payload, { spawn })
     await Promise.resolve()
     fakeChild.emit('close', 0)
 
@@ -350,9 +355,9 @@ describe('processAudioRenderJob', () => {
     payload.jobId = job.id
 
     const fakeChild = makeFakeChild()
-    const spawn = vi.fn(() => fakeChild)
+    const spawn = vi.fn<SpawnFunction>(() => fakeChild)
 
-    const promise = processAudioRenderJob(payload, { spawn: spawn as unknown as never })
+    const promise = processAudioRenderJob(payload, { spawn })
     await Promise.resolve()
     fakeChild.stderr.emit('data', Buffer.from('mock ffmpeg error'))
     fakeChild.emit('close', 1)
@@ -370,8 +375,8 @@ describe('processAudioRenderJob', () => {
       .body as AudioRenderJobPayload
     payload.jobId = job.id
 
-    const spawn = vi.fn()
-    const result = await processAudioRenderJob(payload, { spawn: spawn as unknown as never })
+    const spawn = vi.fn<SpawnFunction>()
+    const result = await processAudioRenderJob(payload, { spawn })
     expect(result.status).toBe('cancelled')
     expect(spawn).not.toHaveBeenCalled()
   })
@@ -382,11 +387,11 @@ describe('processAudioRenderJob', () => {
       .body as AudioRenderJobPayload
     payload.jobId = job.id
 
-    const spawn = vi.fn(() => {
+    const spawn = vi.fn<SpawnFunction>(() => {
       throw new Error('ENOENT: ffmpeg not found')
     })
 
-    const result = await processAudioRenderJob(payload, { spawn: spawn as unknown as never })
+    const result = await processAudioRenderJob(payload, { spawn })
     expect(result.status).toBe('failed')
     expect(result.error).toContain('ENOENT')
     expect(getJob(job.id)?.status).toBe('failed')
@@ -402,8 +407,8 @@ describe('processAudioRenderJob', () => {
       payload.jobId = job.id
 
       const fakeChild = makeFakeChild()
-      const spawn = vi.fn(() => fakeChild)
-      const promise = processAudioRenderJob(payload, { spawn: spawn as unknown as never })
+      const spawn = vi.fn<SpawnFunction>(() => fakeChild)
+      const promise = processAudioRenderJob(payload, { spawn })
       await Promise.resolve()
       fakeChild.emit('close', 0)
       await promise
@@ -422,12 +427,12 @@ describe('processAudioRenderJob', () => {
       .body as AudioRenderJobPayload
     payload.jobId = job.id
 
-    const spawn = vi.fn(() => {
+    const spawn = vi.fn<SpawnFunction>(() => {
       throw Object.assign(new Error('spawn /opt/ffmpeg ENOENT'), { code: 'ENOENT' })
     })
 
     const result = await processAudioRenderJob(payload, {
-      spawn: spawn as unknown as never,
+      spawn,
       ffmpegPath: '/opt/ffmpeg',
     })
     expect(result.status).toBe('failed')
@@ -443,9 +448,9 @@ describe('processAudioRenderJob', () => {
     payload.jobId = job.id
 
     const fakeChild = makeFakeChild()
-    const spawn = vi.fn(() => fakeChild)
+    const spawn = vi.fn<SpawnFunction>(() => fakeChild)
     const promise = processAudioRenderJob(payload, {
-      spawn: spawn as unknown as never,
+      spawn,
       ffmpegPath: 'ffmpeg',
     })
     await Promise.resolve()
@@ -508,8 +513,8 @@ describe('AudioJobStore injection (split-process status fix)', () => {
       .body as AudioRenderJobPayload
     payload.jobId = job.id
     const fakeChild = makeFakeChild()
-    const spawn = vi.fn(() => fakeChild)
-    const promise = processAudioRenderJob(payload, { spawn: spawn as unknown as never })
+    const spawn = vi.fn<SpawnFunction>(() => fakeChild)
+    const promise = processAudioRenderJob(payload, { spawn })
     await Promise.resolve()
     fakeChild.emit('close', 0)
     await promise

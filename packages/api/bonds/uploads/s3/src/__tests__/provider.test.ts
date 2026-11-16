@@ -318,7 +318,7 @@ describe('S3 Provider', () => {
       await abortUpload(file)
 
       expect(mockUploadAbort).toHaveBeenCalled()
-      expect(file.upload).toBeUndefined()
+      expect(file.abort).toBeUndefined()
       expect(file.uploadPromise).toBeUndefined()
       expect(file.stream).toBeUndefined()
     })
@@ -1334,14 +1334,15 @@ describe('R93: headFile and a missing bucket, the part size, a source that error
     const source = new PassThrough()
     const onError = vi.fn()
     createProvider({ bucket: 'b' }).upload('file', source, info, onError)
-    const plain = vi.mocked(Upload).mock.calls.at(-1)![0] as {
-      partSize?: number
-      params: { Body: PassThrough }
-    }
+    const plain = vi.mocked(Upload).mock.calls.at(-1)![0]
     expect(plain.partSize).toBeUndefined()
+    const body = plain.params.Body
+    if (!(body instanceof PassThrough)) {
+      throw new Error('expected the upload Body to be the bond-owned PassThrough')
+    }
     source.destroy(new Error('connection reset'))
     await new Promise((resolve) => setImmediate(resolve))
-    expect(plain.params.Body.destroyed).toBe(true)
+    expect(body.destroyed).toBe(true)
   })
 })
 

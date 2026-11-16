@@ -171,9 +171,18 @@ describe('deleteByUserId', () => {
 })
 
 describe('deleteOthersByUserId', () => {
+  // `deleteOthersByUserId` is optional on the `DeviceService` interface (a custom service may
+  // predate it). The shipped `deviceService` implements it, and this suite tests that
+  // implementation, so narrow it once here — a regression that dropped it fails loudly.
+  const deleteOthersByUserId = deviceService.deleteOthersByUserId
+
+  if (!deleteOthersByUserId) {
+    throw new Error('deviceService must implement deleteOthersByUserId')
+  }
+
   it('deletes the user’s devices except the caller’s own (a password change keeps its session)', async () => {
     mockDeleteMany.mockResolvedValue({ affected: 2 })
-    await deviceService.deleteOthersByUserId('user-1', 'current-device')
+    await deleteOthersByUserId('user-1', 'current-device')
     expect(mockDeleteMany).toHaveBeenCalledWith('devices', [
       { field: 'userId', operator: '=', value: 'user-1' },
       { field: 'id', operator: '!=', value: 'current-device' },
@@ -182,9 +191,7 @@ describe('deleteOthersByUserId', () => {
 
   it('swallows DB errors (logs only)', async () => {
     mockDeleteMany.mockRejectedValue(new Error('db down'))
-    await expect(
-      deviceService.deleteOthersByUserId('user-1', 'current-device'),
-    ).resolves.toBeUndefined()
+    await expect(deleteOthersByUserId('user-1', 'current-device')).resolves.toBeUndefined()
     expect(mockLoggerError).toHaveBeenCalled()
   })
 })

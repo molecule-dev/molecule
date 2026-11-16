@@ -14,6 +14,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import Database from 'better-sqlite3'
+import type { Mock } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createMigrator } from '../migrator.js'
@@ -77,7 +78,7 @@ describe('createMigrator (sqlite) — who owns a table', () => {
     }
   }
 
-  const quiet = (): ReturnType<typeof vi.spyOn> => {
+  const quiet = (): Mock<(...data: unknown[]) => void> => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
     return vi.spyOn(console, 'warn').mockImplementation(() => {})
   }

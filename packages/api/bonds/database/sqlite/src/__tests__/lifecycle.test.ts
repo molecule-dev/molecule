@@ -1,31 +1,40 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { clearProviders } from '@molecule/api-bond'
+import { reset } from '@molecule/api-bond'
+import type { ProcessLifecycleProvider } from '@molecule/api-process-lifecycle'
 import { resetRegistrationsForTests, setProvider } from '@molecule/api-process-lifecycle'
 import { createProcessLifecycleProvider } from '@molecule/api-process-lifecycle-express'
 
 import { registerLifecycleIntegration } from '../lifecycle.js'
 
-/** Let the dynamic import inside the integration resolve. */
-async function settleImport(): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 200))
+/**
+ * Wait until the integration's dynamic import has resolved and registered its
+ * readiness check (it registers the shutdown hook in the same callback).
+ * Polls the provider's public report, so a slow import is waited out instead
+ * of racing a fixed sleep.
+ */
+async function waitForRegistration(lifecycle: ProcessLifecycleProvider): Promise<void> {
+  await vi.waitUntil(
+    async () => (await lifecycle.isReady()).checks.some((entry) => entry.name === 'database'),
+    2_000,
+  )
 }
 
 describe('sqlite bond lifecycle integration', () => {
   beforeEach(() => {
-    clearProviders()
+    reset()
     resetRegistrationsForTests()
   })
 
   it('registers a database readiness check that reflects the probe', async () => {
     const lifecycle = createProcessLifecycleProvider()
-    setProvider(lifecycle)
     registerLifecycleIntegration({
       ping: async () => {},
       close: async () => {},
       created: () => false,
     })
-    await settleImport()
+    setProvider(lifecycle)
+    await waitForRegistration(lifecycle)
     lifecycle.markReady()
 
     const report = await lifecycle.isReady()
@@ -37,7 +46,6 @@ describe('sqlite bond lifecycle integration', () => {
 
   it('reports not ready when the probe rejects', async () => {
     const lifecycle = createProcessLifecycleProvider()
-    setProvider(lifecycle)
     registerLifecycleIntegration({
       ping: async () => {
         throw new Error('connection refused')
@@ -45,7 +53,8 @@ describe('sqlite bond lifecycle integration', () => {
       close: async () => {},
       created: () => false,
     })
-    await settleImport()
+    setProvider(lifecycle)
+    await waitForRegistration(lifecycle)
     lifecycle.markReady()
 
     const report = await lifecycle.isReady()
@@ -55,9 +64,9 @@ describe('sqlite bond lifecycle integration', () => {
   it('closes the resource at shutdown only when it was created', async () => {
     const close = vi.fn(async () => {})
     registerLifecycleIntegration({ ping: async () => {}, close, created: () => true })
-    await settleImport()
     const lifecycle = createProcessLifecycleProvider()
     setProvider(lifecycle)
+    await waitForRegistration(lifecycle)
 
     const report = await lifecycle.runShutdownHooks('SIGTERM')
     expect(report.hooks.find((hook) => hook.name === 'database-pool')?.ok).toBe(true)
@@ -67,9 +76,9 @@ describe('sqlite bond lifecycle integration', () => {
   it('never opens a connection just to close it', async () => {
     const close = vi.fn(async () => {})
     registerLifecycleIntegration({ ping: async () => {}, close, created: () => false })
-    await settleImport()
     const lifecycle = createProcessLifecycleProvider()
     setProvider(lifecycle)
+    await waitForRegistration(lifecycle)
 
     await lifecycle.runShutdownHooks('SIGTERM')
     expect(close).not.toHaveBeenCalled()

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // `useLocation` is hoisted so tests can vary the active pathname.
 const { mockUseLocation } = vi.hoisted(() => ({ mockUseLocation: vi.fn() }))

@@ -12,6 +12,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, defineComponent, h } from 'vue'
 
+import type { TabFilterProps } from '../types.js'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -41,9 +43,7 @@ const { TabFilter } = await import('../TabFilter.js')
  * @param props - The component props.
  * @returns The mounted container.
  */
-const mountFilter = (
-  props: Record<string, unknown>,
-): { host: HTMLElement; destroy: () => void } => {
+const mountFilter = (props: TabFilterProps): { host: HTMLElement; destroy: () => void } => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(TabFilter, props) }))
@@ -58,7 +58,7 @@ const mountFilter = (
 }
 
 /** Renders a {@link TabFilter} and returns the markup it produced. */
-const html = (props: Record<string, unknown>): string => {
+const html = (props: TabFilterProps): string => {
   const mounted = mountFilter(props)
   const markup = mounted.host.innerHTML
   mounted.destroy()

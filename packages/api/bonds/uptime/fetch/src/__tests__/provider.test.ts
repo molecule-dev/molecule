@@ -41,7 +41,7 @@ describe('api-uptime-fetch probe', () => {
     expect(r.httpStatus).toBe(200)
     expect(r.expectTextMatched).toBe(true)
     expect(r.latencyMs).toBeGreaterThanOrEqual(0)
-    expect(r.headers['content-type']).toBe('application/json')
+    expect(r.headers?.['content-type']).toBe('application/json')
     expect(r.bodyBytesRead).toBe(11)
     expect(r.message).toBeUndefined()
   })

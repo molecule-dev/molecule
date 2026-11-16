@@ -1,7 +1,7 @@
 import { PDFDocument } from 'pdf-lib'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createProvider, PDF_SERVICE_LIMITS } from '../provider.js'
+import { createProvider, MoleculePdfProvider, PDF_SERVICE_LIMITS } from '../provider.js'
 
 function stubFetch(status: number, body: unknown): ReturnType<typeof vi.fn> {
   const fn = vi
@@ -61,7 +61,7 @@ describe('api-pdf-molecule', () => {
 
   it('refuses oversized and malformed input locally, before any request', async () => {
     const fetchMock = stubFetch(200, RESULT)
-    const p = createProvider({ apiKey: 'mk_test' })
+    const p = new MoleculePdfProvider({ apiKey: 'mk_test' })
     await expect(p.render('')).rejects.toMatchObject({ status: 400 })
     await expect(p.render('x'.repeat(PDF_SERVICE_LIMITS.maxHtmlChars + 1))).rejects.toMatchObject({
       status: 413,
@@ -83,14 +83,16 @@ describe('api-pdf-molecule', () => {
 
   it('refuses fromTemplate (interpolation is caller-side)', async () => {
     stubFetch(200, RESULT)
-    await expect(createProvider({ apiKey: 'mk_test' }).fromTemplate()).rejects.toMatchObject({
+    await expect(
+      createProvider({ apiKey: 'mk_test' }).fromTemplate('<p>{{name}}</p>', { name: 'Invoice' }),
+    ).rejects.toMatchObject({
       status: 400,
     })
   })
 
   it('counts pages and reads metadata LOCALLY, with no network call', async () => {
     const fetchMock = stubFetch(200, RESULT)
-    const p = createProvider({ apiKey: 'mk_test' })
+    const p = new MoleculePdfProvider({ apiKey: 'mk_test' })
     const pdf = await realPdf()
     await expect(p.getPageCount(pdf)).resolves.toBe(1)
     const meta = await p.getMetadata(pdf)

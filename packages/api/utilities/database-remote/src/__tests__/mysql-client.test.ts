@@ -224,7 +224,7 @@ describe('mysql RemoteDb — runQuery', () => {
     const state = freshState()
     state.results.push([[{ '1': 1 }] as MysqlRow[], []])
     const slowPool: MysqlPoolLike = {
-      query: vi.fn(async (sql: string) => {
+      query: vi.fn<MysqlPoolLike['query']>(async (sql: string) => {
         if (sql === 'SELECT 1') return [[{ '1': 1 }] as MysqlRow[], []]
         return new Promise(() => {
           /* never resolves */

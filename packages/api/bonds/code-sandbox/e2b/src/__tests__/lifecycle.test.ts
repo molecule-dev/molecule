@@ -24,17 +24,43 @@ class FakeSandboxNotFoundError extends Error {
   }
 }
 
+/**
+ * A `files.read` fake: the SDK's two overloads — text, and bytes when asked for
+ * bytes — over one implementation. These tests never read a file.
+ *
+ * @param _path - The path the provider asked for.
+ * @returns Empty text, or empty bytes when `format: 'bytes'` was requested.
+ */
+async function readFile(_path: string): Promise<string>
+async function readFile(
+  _path: string,
+  opts: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<Uint8Array>
+async function readFile(
+  _path: string,
+  opts?: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<string | Uint8Array> {
+  return opts?.format === 'bytes' ? new Uint8Array() : ''
+}
+
 /** A minimal live sandbox; only the surface these tests touch is populated. */
 function fakeSandbox(sandboxId: string): E2BSandboxLike {
   return {
     sandboxId,
     commands: {
       async run() {
-        return { stdout: '', stderr: '', exitCode: 0 }
+        const result = { stdout: '', stderr: '', exitCode: 0 }
+        return {
+          ...result,
+          pid: 1,
+          wait: async () => result,
+          sendStdin: async () => {},
+          kill: async () => true,
+        }
       },
     },
     files: {
-      read: (async () => '') as E2BSandboxLike['files']['read'],
+      read: readFile,
       async write() {
         return {}
       },
@@ -46,6 +72,9 @@ function fakeSandbox(sandboxId: string): E2BSandboxLike {
     getHost: (port) => `${port}-${sandboxId}.e2b.app`,
     async setTimeout() {},
     async kill() {},
+    async isRunning() {
+      return true
+    },
   }
 }
 
@@ -218,11 +247,16 @@ describe('sandboxes the caller never receives are destroyed, not leaked', () => 
     sbx.updateNetwork = async () => {
       if (opts.network === 'throw') throw new Error('network policy rejected')
     }
-    sbx.commands.run = (async () => ({
-      stdout: opts.curl ?? '000',
-      stderr: '',
-      exitCode: 0,
-    })) as E2BSandboxLike['commands']['run']
+    sbx.commands.run = async () => {
+      const result = { stdout: opts.curl ?? '000', stderr: '', exitCode: 0 }
+      return {
+        ...result,
+        pid: 1,
+        wait: async () => result,
+        sendStdin: async () => {},
+        kill: async () => true,
+      }
+    }
     return sbx
   }
 

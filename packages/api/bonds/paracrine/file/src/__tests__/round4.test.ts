@@ -25,7 +25,7 @@ interface ChildResult {
 
 const runChild = (args: string[], preload?: string): Promise<ChildResult> =>
   new Promise((resolve, reject) => {
-    const env = { ...process.env, PARACRINE_DIR: root }
+    const env: NodeJS.ProcessEnv = { ...process.env, PARACRINE_DIR: root }
     if (preload !== undefined) env.NODE_OPTIONS = `${env.NODE_OPTIONS ?? ''} --import=${preload}`
     const child = spawn(process.execPath, args, {
       stdio: ['ignore', 'pipe', 'pipe'],

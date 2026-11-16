@@ -8,6 +8,8 @@ import { format } from 'node:util'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { PinoLoggerOptions } from '../types.js'
+
 // Mock pino before importing the module
 const mockTrace = vi.fn()
 const mockDebug = vi.fn()
@@ -33,7 +35,13 @@ const mockChildLoggerInstance = {
   error: mockError,
 }
 
-const mockPino = vi.fn(() => mockLoggerInstance)
+// Typed with the arguments the provider actually passes (options, and the
+// optional destination stream), so `mock.calls[n][0]` is a real
+// `PinoLoggerOptions` instead of an empty tuple.
+const mockPino = vi.fn(
+  (_options: PinoLoggerOptions, _destination?: PinoLoggerOptions['destination']) =>
+    mockLoggerInstance,
+)
 // Mirror the real module surface the provider uses: pino.stdSerializers.err
 // (the provider maps both `err` and `error` meta keys through it).
 ;(mockPino as unknown as { stdSerializers: unknown }).stdSerializers = {

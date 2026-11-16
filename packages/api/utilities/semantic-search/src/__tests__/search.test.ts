@@ -8,10 +8,15 @@ import {
 } from '@molecule/api-ai-embeddings'
 import {
   type AIVectorStoreProvider,
+  type CreateCollectionParams,
   type MetadataFilter,
   setProvider as setVectorStoreProvider,
+  type VectorDeleteParams,
+  type VectorFetchParams,
+  type VectorQueryParams,
   type VectorRecord,
   type VectorSearchResult,
+  type VectorUpsertParams,
 } from '@molecule/api-ai-vector-store'
 
 import { indexDocuments, removeDocuments, search } from '../search.js'
@@ -99,14 +104,14 @@ function createMockVectorStore(): AIVectorStoreProvider {
   const collections = new Map<string, Map<string, VectorRecord>>()
   return {
     name: 'mock-vector-store',
-    createCollection: vi.fn(async ({ name }): Promise<void> => {
+    createCollection: vi.fn(async ({ name }: CreateCollectionParams): Promise<void> => {
       if (!collections.has(name)) collections.set(name, new Map())
     }),
     deleteCollection: vi.fn(async (name: string): Promise<void> => {
       collections.delete(name)
     }),
     listCollections: vi.fn(async (): Promise<string[]> => [...collections.keys()]),
-    upsert: vi.fn(async ({ collection, records }): Promise<void> => {
+    upsert: vi.fn(async ({ collection, records }: VectorUpsertParams): Promise<void> => {
       const col = collections.get(collection) ?? new Map<string, VectorRecord>()
       collections.set(collection, col)
       for (const record of records) {
@@ -119,7 +124,13 @@ function createMockVectorStore(): AIVectorStoreProvider {
       }
     }),
     query: vi.fn(
-      async ({ collection, embedding, topK, filter, minScore }): Promise<VectorSearchResult[]> => {
+      async ({
+        collection,
+        embedding,
+        topK,
+        filter,
+        minScore,
+      }: VectorQueryParams): Promise<VectorSearchResult[]> => {
         const col = collections.get(collection)
         if (!col) return []
         let records = [...col.values()]
@@ -132,12 +143,12 @@ function createMockVectorStore(): AIVectorStoreProvider {
         return hits
       },
     ),
-    fetch: vi.fn(async ({ collection, ids }): Promise<VectorRecord[]> => {
+    fetch: vi.fn(async ({ collection, ids }: VectorFetchParams): Promise<VectorRecord[]> => {
       const col = collections.get(collection)
       if (!col) return []
       return ids.map((id) => col.get(id)).filter((r): r is VectorRecord => r !== undefined)
     }),
-    delete: vi.fn(async ({ collection, ids }): Promise<void> => {
+    delete: vi.fn(async ({ collection, ids }: VectorDeleteParams): Promise<void> => {
       const col = collections.get(collection)
       if (col) for (const id of ids) col.delete(id)
     }),

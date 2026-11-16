@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
@@ -112,7 +113,8 @@ async function mount(
 
 /** The rendered `<ol>` host element. */
 const listEl = (host: HTMLElement): HTMLElement => {
-  const el = host.querySelector('ol[mol-status-timeline]')
+  // The host mounts the component's own `<ol mol-status-timeline>` element.
+  const el = host.querySelector<HTMLElement>('ol[mol-status-timeline]')
   if (!el) throw new Error('no StatusTimeline rendered')
   return el
 }

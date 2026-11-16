@@ -61,7 +61,13 @@ function makeResult(
  * @returns A fake HttpResponse.
  */
 function ok<T>(data: T): HttpResponse<T> {
-  return { data, status: 200, statusText: 'OK', headers: {}, config: {} }
+  return {
+    data,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: { method: 'GET', url: '' },
+  }
 }
 
 /**
@@ -74,6 +80,8 @@ function buildMockHttpClient(
   overrides: Partial<Pick<HttpClient, 'get' | 'post'>> = {},
 ): HttpClient {
   return {
+    baseURL: '',
+    defaultHeaders: {},
     get:
       overrides.get ?? vi.fn().mockResolvedValue(ok({ items: [], total: 0, offset: 0, limit: 20 })),
     post: overrides.post ?? vi.fn().mockResolvedValue(ok({ ok: true })),
@@ -86,6 +94,7 @@ function buildMockHttpClient(
     onAuthError: () => () => {},
     addRequestInterceptor: () => () => {},
     addResponseInterceptor: () => () => {},
+    addErrorInterceptor: () => () => {},
   }
 }
 

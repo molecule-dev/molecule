@@ -5,12 +5,20 @@
  */
 import { createServer, type Server } from 'node:http'
 
+import type { Page } from '@playwright/test'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import WebSocket from 'ws'
 
 import { provider } from '../provider.js'
 import { attachE2EHub, type E2EHub } from '../server.js'
-import { E2E_WS_PATH } from '../types.js'
+import { E2E_WS_PATH, type PreviewConnectOptions } from '../types.js'
+
+/**
+ * The bond's connect with the preview bond's own options (`url`, `token`,
+ * `connectTimeout`), which the core `E2EConnectOptions` the runner passes does
+ * not carry.
+ */
+const connect = (options: PreviewConnectOptions): Promise<Page> => provider.connect(options)
 
 const listen = (server: Server): Promise<number> =>
   new Promise((resolve) => {
@@ -50,7 +58,7 @@ describe('provider.connect() with no preview page attached', () => {
   })
 
   it('fails within the connect timeout, names the cause and the playwright alternative, then fails at once', async () => {
-    const first = await timed(provider.connect({ url, token: hub.token, connectTimeout: 400 }))
+    const first = await timed(connect({ url, token: hub.token, connectTimeout: 400 }))
     expect(first.error?.message).toMatch(/No preview page is attached/u)
     expect(first.error?.message).toMatch(/open this project's preview in the molecule\.dev IDE/u)
     expect(first.error?.message).toMatch(/MOL_E2E_PROVIDER=playwright/u)
@@ -59,7 +67,7 @@ describe('provider.connect() with no preview page attached', () => {
     expect(first.ms).toBeLessThan(2_000)
 
     // The runner calls connect() once per test: the second one must not wait again.
-    const second = await timed(provider.connect({ url, token: hub.token, connectTimeout: 400 }))
+    const second = await timed(connect({ url, token: hub.token, connectTimeout: 400 }))
     expect(second.error?.message).toMatch(/No preview page is attached/u)
     expect(second.ms).toBeLessThan(150)
 
@@ -83,7 +91,7 @@ describe('provider.connect() with no preview page attached', () => {
       }),
     )
     await new Promise((resolve) => setTimeout(resolve, 50))
-    const connected = await provider.connect({ url, token: hub.token, connectTimeout: 400 })
+    const connected = await connect({ url, token: hub.token, connectTimeout: 400 })
     expect(connected.url()).toBe('http://x/')
     await connected.close()
   })

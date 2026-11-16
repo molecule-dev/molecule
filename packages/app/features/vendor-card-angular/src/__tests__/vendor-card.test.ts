@@ -13,13 +13,14 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -58,10 +59,10 @@ vi.mock('@molecule/app-ui-angular', async () => {
     template: `<img [attr.data-avatar]="src || ''" [attr.data-avatar-name]="name || ''" />`,
   })(
     class {
-      constructor() {
-        this.src = undefined
-        this.name = undefined
-      }
+      /** Image source (input `src`) — undefined until Angular assigns the binding. */
+      src?: string
+      /** Display name (input `name`) — undefined until Angular assigns the binding. */
+      name?: string
     },
   )
   const Card = Component({

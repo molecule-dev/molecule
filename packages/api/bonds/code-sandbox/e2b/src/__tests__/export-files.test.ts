@@ -12,7 +12,14 @@ function fakeSandbox(sandboxId: string, tarBytes = new Uint8Array([1, 2, 3])) {
     commands: {
       async run(cmd) {
         commands.push(cmd)
-        return { stdout: '', stderr: '', exitCode: 0 }
+        const result = { stdout: '', stderr: '', exitCode: 0 }
+        return {
+          ...result,
+          pid: 1,
+          wait: async () => result,
+          sendStdin: async () => {},
+          kill: async () => true,
+        }
       },
     },
     files: {
@@ -37,6 +44,9 @@ function fakeSandbox(sandboxId: string, tarBytes = new Uint8Array([1, 2, 3])) {
     getHost: (port) => `${port}-${sandboxId}.e2b.app`,
     async setTimeout() {},
     async kill() {},
+    async isRunning() {
+      return true
+    },
   }
   return { sbx, commands, writes }
 }
@@ -184,9 +194,16 @@ describe('R93: bounded pieces, failures that must fail, export cleanup', () => {
     const made = fakeSandbox(sandboxId)
     made.sbx.commands.run = async (cmd: string) => {
       made.commands.push(cmd)
-      return match(cmd)
+      const result = match(cmd)
         ? { stdout: '', stderr: 'boom', exitCode }
         : { stdout: '', stderr: '', exitCode: 0 }
+      return {
+        ...result,
+        pid: 1,
+        wait: async () => result,
+        sendStdin: async () => {},
+        kill: async () => true,
+      }
     }
     return made
   }

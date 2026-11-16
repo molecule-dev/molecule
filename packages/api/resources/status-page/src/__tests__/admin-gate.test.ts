@@ -36,7 +36,7 @@ vi.mock('@molecule/api-locales-status-page', () => ({}))
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { MoleculeResponse } from '@molecule/api-resource'
+import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import { isStatusAdmin, requireAdmin, STATUS_ADMIN_PERMISSION } from '../authorizers/index.js'
 import { createIncident } from '../handlers/createIncident.js'
@@ -57,6 +57,17 @@ function mockRes(
   locals: Record<string, unknown> = { session: { userId: 'u1', isAdmin: true } },
 ): MoleculeResponse {
   return { locals } as unknown as MoleculeResponse
+}
+
+/**
+ * A deliberately-minimal request double. `requireAdmin` never reads the request
+ * (its first parameter is `_req`), so an empty envelope is a real
+ * `MoleculeRequest` — no cast needed.
+ *
+ * @returns The stand-in request.
+ */
+function mockReq(): MoleculeRequest {
+  return { body: {}, params: {}, query: {}, headers: {} }
 }
 
 const VALID_UUID = '11111111-1111-4111-8111-111111111111'
@@ -127,7 +138,7 @@ describe('status-page admin gate', () => {
   describe('requireAdmin middleware', () => {
     it('calls next(Unauthorized) when there is no session', async () => {
       const next = vi.fn()
-      await requireAdmin()(mockRes({}), mockRes({}), next)
+      await requireAdmin()(mockReq(), mockRes({}), next)
       // First positional arg is the forwarded error string.
       expect(next).toHaveBeenCalledWith('Unauthorized.')
     })
@@ -135,14 +146,14 @@ describe('status-page admin gate', () => {
     it('calls next(Forbidden) for an authenticated non-admin', async () => {
       const next = vi.fn()
       const res = mockRes({ session: { userId: 'u1' } })
-      await requireAdmin()(res, res, next)
+      await requireAdmin()(mockReq(), res, next)
       expect(next).toHaveBeenCalledWith('Permission required to manage the status page')
     })
 
     it('calls next() with no error for an admin', async () => {
       const next = vi.fn()
       const res = mockRes({ session: { userId: 'u1', isAdmin: true } })
-      await requireAdmin()(res, res, next)
+      await requireAdmin()(mockReq(), res, next)
       expect(next).toHaveBeenCalledWith()
     })
   })

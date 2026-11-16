@@ -73,6 +73,7 @@ vi.mock('@molecule/app-ui-vue', async () => {
 import { createApp, defineComponent, h, type PropType, type VNodeChild } from 'vue'
 
 import { SortPicker } from '../SortPicker.js'
+import type { SortPickerProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -80,12 +81,23 @@ afterEach(() => {
 
 /** Renders a {@link SortPicker} and returns the markup it produced. */
 const render = (
-  props: Record<string, unknown>,
+  props: Partial<SortPickerProps>,
   slots?: Record<string, () => VNodeChild[]>,
 ): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  const app = createApp(defineComponent({ render: () => h(SortPicker, props, slots) }))
+  const app = createApp(
+    defineComponent({
+      render: () =>
+        h(
+          SortPicker,
+          // The required props every test starts from; each call's overrides
+          // spread after them.
+          { value: 'recent', options, onChange: () => {}, ...props },
+          slots,
+        ),
+    }),
+  )
   app.mount(host)
   const markup = host.innerHTML
   app.unmount()

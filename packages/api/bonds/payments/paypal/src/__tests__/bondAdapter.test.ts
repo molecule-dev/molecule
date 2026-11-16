@@ -7,10 +7,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type {
-  CheckoutSessionResult,
+  cancelSubscription,
+  captureOrder,
+  createSubscription,
+  getOrder,
+  getPlan,
+  getSubscription,
+  reviseSubscription,
+  verifyWebhookSignature,
+} from '../provider.js'
+import type {
+  NormalizedSubscription,
   PayPalOrder,
+  PayPalPlan,
   PayPalSubscription,
-  WebhookEventResult,
+  SubscriptionStatus,
 } from '../types.js'
 
 /**
@@ -42,7 +53,7 @@ const mockSubscription: PayPalSubscription = {
   billing_info: { next_billing_time: '2099-08-01T10:00:00Z' },
 }
 
-const mockPlan = {
+const mockPlan: PayPalPlan = {
   id: 'P-5ML4271244454362WXNWU5NQ',
   product_id: 'PROD-6XF24676R0513620K',
   name: 'Pro Monthly',
@@ -63,28 +74,34 @@ const mockCompletedOrder: PayPalOrder = {
 
 // ─── Provider mock functions ─────────────────────────────────────────────────
 
-const mockGetSubscription = vi.fn<[], Promise<PayPalSubscription>>()
-const mockGetPlan = vi.fn()
-const mockGetOrder = vi.fn<[], Promise<PayPalOrder>>()
-const mockCaptureOrder = vi.fn<[], Promise<PayPalOrder>>()
-const mockCreateSubscription = vi.fn<[], Promise<CheckoutSessionResult>>()
-const mockReviseSubscription = vi.fn()
-const mockPaypalCancelSubscription = vi.fn<[], Promise<boolean>>()
-const mockVerifyWebhookSignature = vi.fn<[], Promise<WebhookEventResult | null>>()
+// Each mock is typed with the real provider function it stands in for, so a
+// signature drift in the provider fails here instead of silently passing.
+const mockGetSubscription = vi.fn<typeof getSubscription>()
+const mockGetPlan = vi.fn<typeof getPlan>()
+const mockGetOrder = vi.fn<typeof getOrder>()
+const mockCaptureOrder = vi.fn<typeof captureOrder>()
+const mockCreateSubscription = vi.fn<typeof createSubscription>()
+const mockReviseSubscription = vi.fn<typeof reviseSubscription>()
+const mockPaypalCancelSubscription = vi.fn<typeof cancelSubscription>()
+const mockVerifyWebhookSignature = vi.fn<typeof verifyWebhookSignature>()
 
 vi.mock('../provider.js', () => ({
-  createSubscription: (...args: unknown[]) => mockCreateSubscription(...(args as [])),
-  getSubscription: (...args: unknown[]) => mockGetSubscription(...(args as [])),
-  getPlan: (...args: unknown[]) => mockGetPlan(...(args as [])),
-  getOrder: (...args: unknown[]) => mockGetOrder(...(args as [])),
-  captureOrder: (...args: unknown[]) => mockCaptureOrder(...(args as [])),
-  reviseSubscription: (...args: unknown[]) => mockReviseSubscription(...(args as [])),
-  cancelSubscription: (...args: unknown[]) => mockPaypalCancelSubscription(...(args as [])),
-  verifyWebhookSignature: (...args: unknown[]) => mockVerifyWebhookSignature(...(args as [])),
+  createSubscription: (...args: Parameters<typeof createSubscription>) =>
+    mockCreateSubscription(...args),
+  getSubscription: (...args: Parameters<typeof getSubscription>) => mockGetSubscription(...args),
+  getPlan: (...args: Parameters<typeof getPlan>) => mockGetPlan(...args),
+  getOrder: (...args: Parameters<typeof getOrder>) => mockGetOrder(...args),
+  captureOrder: (...args: Parameters<typeof captureOrder>) => mockCaptureOrder(...args),
+  reviseSubscription: (...args: Parameters<typeof reviseSubscription>) =>
+    mockReviseSubscription(...args),
+  cancelSubscription: (...args: Parameters<typeof cancelSubscription>) =>
+    mockPaypalCancelSubscription(...args),
+  verifyWebhookSignature: (...args: Parameters<typeof verifyWebhookSignature>) =>
+    mockVerifyWebhookSignature(...args),
   // The pure normalizers run for real inside the adapter tests — they carry the
   // status-gating semantics the adapter relies on.
-  normalizeSubscriptionStatus: (rawStatus: string | undefined) => {
-    const statusMap: Record<string, string> = {
+  normalizeSubscriptionStatus: (rawStatus: string | undefined): SubscriptionStatus => {
+    const statusMap: Record<string, SubscriptionStatus> = {
       APPROVAL_PENDING: 'pending',
       APPROVED: 'pending',
       ACTIVE: 'active',
@@ -94,7 +111,10 @@ vi.mock('../provider.js', () => ({
     }
     return (rawStatus && statusMap[rawStatus]) || 'unknown'
   },
-  normalizeSubscription: (subscription: PayPalSubscription, plan?: { product_id?: string }) => {
+  normalizeSubscription: (
+    subscription: PayPalSubscription,
+    plan?: PayPalPlan,
+  ): NormalizedSubscription => {
     const periodStart = subscription.status_update_time ?? subscription.create_time
     const periodEnd = subscription.billing_info?.next_billing_time
     return {
@@ -110,7 +130,7 @@ vi.mock('../provider.js', () => ({
             SUSPENDED: 'past_due',
             CANCELLED: 'canceled',
             EXPIRED: 'expired',
-          } as Record<string, string>
+          } as Record<string, SubscriptionStatus>
         )[subscription.status] ?? 'unknown',
       isActive: subscription.status === 'ACTIVE',
       currentPeriodStart: periodStart ? Date.parse(periodStart) : undefined,
@@ -171,7 +191,7 @@ describe('PayPal Bond Adapter', () => {
     mockVerifyWebhookSignature.mockResolvedValue({
       id: 'WH-123',
       type: 'BILLING.SUBSCRIPTION.ACTIVATED',
-      resource: mockSubscription as unknown as Record<string, unknown>,
+      resource: { ...mockSubscription },
     })
     mockFindByUserId.mockResolvedValue({
       userId: 'user_123',
@@ -377,7 +397,7 @@ describe('PayPal Bond Adapter', () => {
         resource: {
           ...mockSubscription,
           status: 'CANCELLED',
-        } as unknown as Record<string, unknown>,
+        },
       })
 
       const result = await paymentProvider.handleWebhookEvent!(

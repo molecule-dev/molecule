@@ -12,6 +12,8 @@
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { TabFilterProps } from '../types.js'
+
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
@@ -47,15 +49,15 @@ afterEach(() => {
  * @param props - The component props.
  * @returns The mounted container.
  */
-const mountFilter = (props: Record<string, unknown>): HTMLElement => {
+const mountFilter = (props: TabFilterProps): HTMLElement => {
   const host = document.createElement('div')
   document.body.appendChild(host)
-  disposers.push(render(() => <TabFilter {...(props as Parameters<typeof TabFilter>[0])} />, host))
+  disposers.push(render(() => <TabFilter {...props} />, host))
   return host
 }
 
 /** Renders a {@link TabFilter} and returns the markup it produced. */
-const html = (props: Record<string, unknown>): string => mountFilter(props).innerHTML
+const html = (props: TabFilterProps): string => mountFilter(props).innerHTML
 
 const tabs = [
   { id: 'all', label: 'All', count: 42 },

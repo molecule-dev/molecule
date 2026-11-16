@@ -2,6 +2,23 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { OAuthProviderConfig, OAuthUserProps, OAuthVerifier } from '../index.js'
 
+/**
+ * Narrow a verifier result that the test expects to be present.
+ *
+ * {@link OAuthVerifier} returns `null` when the provider affirmatively rejects
+ * the code, so a test asserting on a successful verification must rule that
+ * case out. Throwing fails the test loudly if the verifier ever reports null.
+ *
+ * @param result - The value the verifier resolved with.
+ * @returns The verified user props, with `null` excluded.
+ */
+function requireUserProps(result: OAuthUserProps | null): OAuthUserProps {
+  if (!result) {
+    throw new Error('expected OAuth user props, but the verifier returned null')
+  }
+  return result
+}
+
 describe('OAuth types', () => {
   describe('OAuthUserProps', () => {
     it('should accept all required properties', () => {
@@ -134,10 +151,8 @@ describe('OAuth types', () => {
         oauthData: {},
       })
 
-      const result = await mockVerifier(
-        'auth-code',
-        'code-verifier',
-        'https://app.example.com/callback',
+      const result = requireUserProps(
+        await mockVerifier('auth-code', 'code-verifier', 'https://app.example.com/callback'),
       )
 
       expect(mockVerifier).toHaveBeenCalledWith(
@@ -157,7 +172,7 @@ describe('OAuth types', () => {
         oauthData: { email: 'user@gmail.com' },
       })
 
-      const result = await mockVerifier('auth-code')
+      const result = requireUserProps(await mockVerifier('auth-code'))
 
       expect(mockVerifier).toHaveBeenCalledWith('auth-code')
       expect(result.email).toBe('user@gmail.com')
@@ -171,7 +186,7 @@ describe('OAuth types', () => {
         oauthData: {},
       })
 
-      const result = await mockVerifier('auth-code', 'pkce-code-verifier')
+      const result = requireUserProps(await mockVerifier('auth-code', 'pkce-code-verifier'))
 
       expect(mockVerifier).toHaveBeenCalledWith('auth-code', 'pkce-code-verifier')
       expect(result.username).toBe('pkce-user@provider')
@@ -215,7 +230,7 @@ describe('OAuth types', () => {
         }
       }
 
-      const result = await verifier('code', 'verifier', 'https://redirect.uri')
+      const result = requireUserProps(await verifier('code', 'verifier', 'https://redirect.uri'))
 
       expect(result.oauthId).toBe('code-verifier')
       expect(result.oauthData).toEqual({
@@ -238,7 +253,7 @@ describe('OAuth types', () => {
         }
       }
 
-      const result = await verifier('code', undefined, undefined)
+      const result = requireUserProps(await verifier('code', undefined, undefined))
 
       expect(result.oauthData).toEqual({
         hasCodeVerifier: false,
@@ -312,7 +327,7 @@ describe('OAuth types', () => {
         }),
       }
 
-      const result = await config.verify('code', 'verifier', 'redirect')
+      const result = requireUserProps(await config.verify('code', 'verifier', 'redirect'))
 
       expect(config.verify).toHaveBeenCalledWith('code', 'verifier', 'redirect')
       expect(result.oauthServer).toBe('custom-provider')
@@ -346,7 +361,7 @@ describe('OAuth types', () => {
       }
 
       // Verify the OAuth code
-      const userProps = await githubConfig.verify('github-auth-code')
+      const userProps = requireUserProps(await githubConfig.verify('github-auth-code'))
 
       // Validate the returned user props
       expect(userProps.username).toBe('octocat@github')
@@ -379,10 +394,12 @@ describe('OAuth types', () => {
         },
       }
 
-      const result = await googleConfig.verify(
-        'google-auth-code',
-        'pkce-verifier-abc123',
-        'https://myapp.com/oauth/callback',
+      const result = requireUserProps(
+        await googleConfig.verify(
+          'google-auth-code',
+          'pkce-verifier-abc123',
+          'https://myapp.com/oauth/callback',
+        ),
       )
 
       expect(result.email).toBe('user@gmail.com')
@@ -401,7 +418,7 @@ describe('OAuth types', () => {
         }),
       }
 
-      const result = await minimalConfig.verify('min-code')
+      const result = requireUserProps(await minimalConfig.verify('min-code'))
 
       expect(result.username).toBe('min-code@minimal')
       expect(result.email).toBeUndefined()

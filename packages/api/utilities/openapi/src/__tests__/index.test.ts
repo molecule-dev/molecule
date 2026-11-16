@@ -20,12 +20,29 @@ import {
   annotateOperation,
   createOpenApiHandler,
   defineOpenApi,
+  isZodSchema,
   resolveRef,
   routeToOperation,
   validateRequest,
   zodToJsonSchema,
 } from '../index.js'
-import type { OpenApiHandlerResponse, RouteDefinition } from '../types.js'
+import type { OpenApiHandlerResponse, RouteDefinition, ZodLikeSchema } from '../types.js'
+
+/**
+ * Bridge a real zod schema into the package's `ZodLikeSchema` duck type.
+ *
+ * zod 4's static types don't structurally satisfy `ZodLikeSchema`
+ * (`_def` is an interface without an index signature; issue paths may
+ * contain symbols) — this package's own `@remarks` documents the caveat
+ * and says typed code narrows through the exported `isZodSchema()`
+ * guard. The runtime converter accepts zod schemas directly, and this
+ * returns the SAME schema object, so every call below exercises exactly
+ * the path an untyped caller would take.
+ */
+const zodLike = (schema: z.ZodType): ZodLikeSchema => {
+  if (!isZodSchema(schema)) throw new TypeError('test fixture is not a zod schema')
+  return schema
+}
 
 describe('defineOpenApi', () => {
   it('produces a 3.1.0 doc with sensible defaults', () => {
@@ -71,19 +88,19 @@ describe('defineOpenApi', () => {
 
 describe('zodToJsonSchema', () => {
   it('converts primitives', () => {
-    expect(zodToJsonSchema(z.string())).toMatchObject({ type: 'string' })
-    expect(zodToJsonSchema(z.number())).toMatchObject({ type: 'number' })
-    expect(zodToJsonSchema(z.boolean())).toMatchObject({ type: 'boolean' })
+    expect(zodToJsonSchema(zodLike(z.string()))).toMatchObject({ type: 'string' })
+    expect(zodToJsonSchema(zodLike(z.number()))).toMatchObject({ type: 'number' })
+    expect(zodToJsonSchema(zodLike(z.boolean()))).toMatchObject({ type: 'boolean' })
   })
 
   it('strips the JSON-Schema dialect tag from the result', () => {
-    const json = zodToJsonSchema(z.object({ a: z.string() }))
+    const json = zodToJsonSchema(zodLike(z.object({ a: z.string() })))
     expect(json).not.toHaveProperty('$schema')
   })
 
   it('converts objects with required + optional fields', () => {
     const schema = z.object({ id: z.string().uuid(), nick: z.string().optional() })
-    const json = zodToJsonSchema(schema)
+    const json = zodToJsonSchema(zodLike(schema))
     expect(json.type).toBe('object')
     expect(Object.keys(json.properties ?? {})).toEqual(['id', 'nick'])
     expect(json.required).toEqual(['id'])
@@ -91,18 +108,20 @@ describe('zodToJsonSchema', () => {
   })
 
   it('converts arrays + enums + unions', () => {
-    expect(zodToJsonSchema(z.array(z.number()))).toMatchObject({
+    expect(zodToJsonSchema(zodLike(z.array(z.number())))).toMatchObject({
       type: 'array',
       items: { type: 'number' },
     })
-    expect(zodToJsonSchema(z.enum(['a', 'b', 'c']))).toMatchObject({ enum: ['a', 'b', 'c'] })
+    expect(zodToJsonSchema(zodLike(z.enum(['a', 'b', 'c'])))).toMatchObject({
+      enum: ['a', 'b', 'c'],
+    })
     // zod ≥4.6 collapses a union of primitives to a JSON-Schema type array
     // (`{"type":["string","number"]}`) instead of `anyOf` — equivalent and
     // valid OpenAPI 3.1; assert the semantics, not the pre-4.6 shape.
-    const union = zodToJsonSchema(z.union([z.string(), z.number()]))
+    const union = zodToJsonSchema(zodLike(z.union([z.string(), z.number()])))
     expect(JSON.stringify(union)).toBe('{"type":["string","number"]}')
     const complex = zodToJsonSchema(
-      z.union([z.object({ a: z.string() }), z.object({ b: z.number() })]),
+      zodLike(z.union([z.object({ a: z.string() }), z.object({ b: z.number() })])),
     )
     expect(complex.anyOf?.length).toBe(2)
   })
@@ -114,7 +133,7 @@ describe('zodToJsonSchema', () => {
 
   it('round-trips through OpenAPI doc components without losing data', () => {
     const userSchema = z.object({ id: z.string(), email: z.string().email() })
-    const json = zodToJsonSchema(userSchema)
+    const json = zodToJsonSchema(zodLike(userSchema))
     const doc = defineOpenApi({
       info: { title: 'A', version: '1' },
       components: { schemas: { User: json } },
@@ -142,9 +161,9 @@ describe('routeToOperation', () => {
       method: 'get',
       path: '/users/{id}',
       request: {
-        params: z.object({ id: z.string().uuid() }),
-        query: z.object({ include: z.string().optional() }),
-        headers: z.object({ 'x-trace': z.string() }),
+        params: zodLike(z.object({ id: z.string().uuid() })),
+        query: zodLike(z.object({ include: z.string().optional() })),
+        headers: zodLike(z.object({ 'x-trace': z.string() })),
       },
     })
     const params = op.parameters ?? []
@@ -159,7 +178,7 @@ describe('routeToOperation', () => {
       method: 'post',
       path: '/users',
       request: {
-        body: z.object({ email: z.string().email() }),
+        body: zodLike(z.object({ email: z.string().email() })),
         bodyDescription: 'New user',
       },
     })
@@ -201,9 +220,9 @@ describe('validateRequest (zod-backed)', () => {
     method: 'post',
     path: '/users/{id}',
     request: {
-      params: z.object({ id: z.string().uuid() }),
-      query: z.object({ verbose: z.string().optional() }),
-      body: z.object({ email: z.string().email(), age: z.number().int().min(0).max(120) }),
+      params: zodLike(z.object({ id: z.string().uuid() })),
+      query: zodLike(z.object({ verbose: z.string().optional() })),
+      body: zodLike(z.object({ email: z.string().email(), age: z.number().int().min(0).max(120) })),
     },
   }
   const op = annotateOperation(route, routeToOperation(route))

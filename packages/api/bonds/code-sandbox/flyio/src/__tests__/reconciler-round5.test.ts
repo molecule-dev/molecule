@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import type { Sandbox, SandboxConfig, SandboxProvider } from '@molecule/api-code-sandbox'
+
 import { encodePrivateRoutes } from '../flycast.js'
 import type {
   FlyCreateAddressIntent,
   FlyCreateAttempt,
   FlyCreateAttemptJournal,
+  FlyCreateAttemptProvider,
   FlyCreateAttemptState,
   FlyCreateVolumeIntent,
 } from '../lifecycle.js'
@@ -41,12 +44,7 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     if (!this.createAllowed) throw new Error('Fly unsafe-writer rollout fence is closed')
   }
 
-  async begin(
-    attempt: Pick<FlyCreateAttempt, 'attemptId' | 'projectId' | 'appName'> & {
-      state?: FlyCreateAttemptState
-      sandboxId?: string
-    },
-  ): Promise<void> {
+  async begin(attempt: Parameters<FlyCreateAttemptJournal['begin']>[0]): Promise<void> {
     this.attempts.set(attempt.attemptId, {
       ...attempt,
       state: attempt.state ?? 'creating',
@@ -285,11 +283,22 @@ class MemoryJournal implements FlyCreateAttemptJournal {
   }
 }
 
+/**
+ * The provider the tests drive. The Fly provider's `create` also accepts the
+ * caller's cancellation signal (its concrete class takes it; the shared
+ * `SandboxProvider` contract does not declare it), and the tests below cancel a
+ * create mid-flight through it.
+ */
+type FlyioTestProvider = SandboxProvider &
+  FlyCreateAttemptProvider & {
+    create(config: SandboxConfig, signal?: AbortSignal): Promise<Sandbox>
+  }
+
 function makeProvider(
   double: ReturnType<typeof createFetchDouble>,
   journal?: MemoryJournal,
   config: FlyioConfig = {},
-) {
+): FlyioTestProvider {
   const client = new FlyApiClient({
     token: () => 'tok',
     baseUrl: 'https://api.machines.dev/v1',
@@ -741,10 +750,11 @@ describe('round-six ownership races', () => {
     expect(journal.attempts.size).toBe(1)
   })
 
-  it.each([
+  const sweepCases: Array<[string, FlyioConfig]> = [
     ['per-project-app', {}],
     ['shared-app', { appPerProject: false, appName: APP }],
-  ])(
+  ]
+  it.each(sweepCases)(
     'sweeps a definite 412 Machine rejection in %s mode, then is idempotent',
     async (_mode, config) => {
       const journal = new MemoryJournal()

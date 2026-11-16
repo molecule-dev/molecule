@@ -30,10 +30,25 @@ const { FLY_EXEC_MAX_ARG_BYTES } = await import('../exec.js')
 const { createProvider, isTransientExecPrecondition } = await import('../provider.js')
 const { shellQuote } = await import('../utilities.js')
 
+import type { Sandbox } from '@molecule/api-code-sandbox'
+
 import type { FlyioConfig } from '../types.js'
 
 const PROJECT_ID = 'a3f1c0de-0000-4000-8000-000000000001'
 const APP = `mol-sandbox-${PROJECT_ID}`
+
+/**
+ * The Fly provider always implements `importFiles`, but the shared `Sandbox`
+ * contract declares it optional, so the helpers that hand a sandbox to the
+ * file-operation tests assert it once; afterwards the tests call the method
+ * with its real type instead of per-call non-null assertions.
+ * @param sandbox - The sandbox handle, or null when `get` found nothing.
+ */
+function expectsImportFiles(
+  sandbox: Sandbox | null,
+): asserts sandbox is Sandbox & { importFiles: NonNullable<Sandbox['importFiles']> } {
+  if (!sandbox?.importFiles) throw new Error('expected a sandbox that imports files')
+}
 
 /**
  * Builds a provider wired to a fetch double with retry sleeps collapsed.
@@ -737,7 +752,7 @@ describe('create — volumes', () => {
     const sandbox = await provider.create({
       projectId: PROJECT_ID,
       volumeName: 'mol-abc',
-      resources: { cpu: 2, memoryMB: 2048 },
+      resources: { cpu: 2, memoryMB: 2048, diskMB: 10240 },
     })
 
     expect(sandbox.id).toBe(`${APP}:m1`)
@@ -1350,7 +1365,7 @@ describe('file operations', () => {
       sleep: async () => {},
     })
     const sandbox = await createProvider({ orgSlug: 'acme' }, client).get(`${APP}:m1`)
-    if (!sandbox) throw new Error('expected a sandbox')
+    expectsImportFiles(sandbox)
     return { sandbox, scripts }
   }
 
@@ -1531,7 +1546,7 @@ describe('file operations', () => {
     })
     const store = createStoreDouble()
     const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
-    if (!sandbox) throw new Error('expected a sandbox')
+    if (!sandbox?.importFiles) throw new Error('expected a sandbox that imports files')
 
     const cancels = vi.fn().mockResolvedValue(undefined)
     const putFetch = vi.fn(
@@ -1584,7 +1599,7 @@ describe('file operations', () => {
     const store = createStoreDouble()
     const remove = vi.spyOn(store, 'remove')
     const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
-    if (!sandbox) throw new Error('expected a sandbox')
+    if (!sandbox?.importFiles) throw new Error('expected a sandbox that imports files')
 
     const putFetch = vi.fn(async () => ({ ok: true, status: 200 }) as unknown as Response)
     vi.stubGlobal('fetch', putFetch)
@@ -1645,7 +1660,7 @@ describe('file operations', () => {
     })
     const store = createStoreDouble()
     const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
-    if (!sandbox) throw new Error('expected a sandbox')
+    if (!sandbox?.importFiles) throw new Error('expected a sandbox that imports files')
 
     const putFetch = vi.fn(async () => ({ ok: true, status: 200 }) as unknown as Response)
     vi.stubGlobal('fetch', putFetch)
@@ -1706,7 +1721,7 @@ describe('file operations', () => {
     const remove = vi.spyOn(store, 'remove')
     if (removeImpl) remove.mockImplementation(removeImpl)
     const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
-    if (!sandbox) throw new Error('expected a sandbox')
+    expectsImportFiles(sandbox)
     return { sandbox, scripts, store, remove }
   }
 
@@ -1797,10 +1812,13 @@ describe('file operations', () => {
     })
     const store = createStoreDouble()
     const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
-    if (!sandbox) throw new Error('expected a sandbox')
+    if (!sandbox?.importFiles) throw new Error('expected a sandbox that imports files')
 
     // Global fetch is the control-plane presigned PUT (the upload).
-    const putFetch = vi.fn(async () => ({ ok: true, status: 200 }) as unknown as Response)
+    const putFetch = vi.fn(
+      async (_input: string | URL, _init?: RequestInit) =>
+        ({ ok: true, status: 200 }) as unknown as Response,
+    )
     vi.stubGlobal('fetch', putFetch)
     try {
       async function* arch() {

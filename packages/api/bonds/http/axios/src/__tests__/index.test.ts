@@ -6,7 +6,7 @@
  * @module
  */
 
-import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
@@ -611,9 +611,23 @@ describe('@molecule/api-http-axios', () => {
   })
 
   describe('create method', () => {
+    /**
+     * `HttpClient.create` is optional on the core contract because not every
+     * HTTP provider implements it. This bond always does, so the tests assert
+     * the capability before calling it through a narrowed reference.
+     */
+    const createWithDefaults = (
+      httpClient: HttpClient,
+      defaults: HttpRequestOptions,
+    ): HttpClient => {
+      expect(httpClient.create).toBeTypeOf('function')
+      if (!httpClient.create) throw new Error('HttpClient.create is not implemented')
+      return httpClient.create(defaults)
+    }
+
     it('should create a new client with defaults', () => {
       const httpClient = createClient({ baseURL: 'https://api.example.com' })
-      const newClient = httpClient.create({ timeout: 5000 })
+      const newClient = createWithDefaults(httpClient, { timeout: 5000 })
 
       expect(newClient).toBeDefined()
       expect(typeof newClient.request).toBe('function')
@@ -630,7 +644,7 @@ describe('@molecule/api-http-axios', () => {
         baseURL: 'https://api.example.com',
         timeout: 10000,
       })
-      httpClient.create({
+      createWithDefaults(httpClient, {
         baseURL: 'https://api2.example.com',
         timeout: 5000,
       })

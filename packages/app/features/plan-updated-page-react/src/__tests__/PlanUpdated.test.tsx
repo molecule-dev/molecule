@@ -2,6 +2,8 @@ import { createElement, type ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { PlanUpdatedProps } from '../PlanUpdated.js'
+
 const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
   mockUseAuth: vi.fn(),
   mockUseVerifyPaymentReturn: vi.fn(),
@@ -108,7 +110,7 @@ describe('PlanUpdated', () => {
   })
 
   it('skips verification when the app opts out', () => {
-    html(createElement(PlanUpdated, { verify: false }))
+    html(createElement<PlanUpdatedProps>(PlanUpdated, { verify: false }))
     expect(mockUseVerifyPaymentReturn).toHaveBeenCalledWith(
       expect.objectContaining({ enabled: false }),
     )

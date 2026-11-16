@@ -10,6 +10,8 @@
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { PaginationBarProps } from '../types.js'
+
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
 // so tests can assert which cm.* class was applied without a real bond — the
 // same mock the React package's own tests use.
@@ -64,7 +66,7 @@ afterEach(() => {
 })
 
 /** Render with Solid's browser renderer and dispose after the test. */
-function mount(props: Record<string, unknown>): HTMLElement {
+function mount(props: PaginationBarProps): HTMLElement {
   const container = document.createElement('div')
   document.body.appendChild(container)
   disposers.push(render(() => <PaginationBar {...props} />, container))

@@ -448,6 +448,10 @@ describe('@molecule/api-database-postgresql', () => {
       vi.resetModules()
       const { pool } = await import('../index.js')
 
+      // stats() is optional on the DatabasePool contract; this bond provides it,
+      // and the test proves it does before reading the numbers back.
+      expect(pool.stats).toBeDefined()
+      if (!pool.stats) throw new Error('postgresql pool must expose stats()')
       const stats = pool.stats()
       expect(stats.total).toBeDefined()
       expect(stats.idle).toBeDefined()

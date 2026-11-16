@@ -89,7 +89,7 @@ describe('round-five create safety regressions', () => {
       })
 
     await expect(
-      makeProvider(double, { appPrefix: prefix }).find({ projectId: PROJECT_ID }),
+      makeProvider(double, { appPrefix: prefix }).find!({ projectId: PROJECT_ID }),
     ).resolves.toMatchObject([{ id: `${app}:serving`, status: 'running' }])
   })
 

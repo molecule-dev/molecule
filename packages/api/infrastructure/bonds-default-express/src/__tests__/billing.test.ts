@@ -18,7 +18,13 @@ vi.mock(import('@molecule/api-bond'), async (importOriginal) => {
   return {
     ...actual,
     get: vi.fn(() => null),
-    getLogger: () => ({ info: vi.fn(), warn: warnMock, error: vi.fn(), debug: vi.fn() }),
+    getLogger: () => ({
+      trace: vi.fn(),
+      info: vi.fn(),
+      warn: warnMock,
+      error: vi.fn(),
+      debug: vi.fn(),
+    }),
   }
 })
 

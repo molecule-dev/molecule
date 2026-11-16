@@ -43,7 +43,7 @@ vi.mock('@molecule/app-ui-solid', () => ({
       {props.children}
     </button>
   ),
-  Card: (props: { children?: JSX.Element; style?: Record<string, unknown> }) => (
+  Card: (props: { children?: JSX.Element; style?: JSX.CSSProperties }) => (
     <div data-card="" style={props.style}>
       {props.children}
     </div>

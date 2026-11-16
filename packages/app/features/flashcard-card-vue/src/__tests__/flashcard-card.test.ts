@@ -63,6 +63,7 @@ vi.mock('@molecule/app-ui-vue', async () => {
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { FlashcardCard } from '../FlashcardCard.js'
+import type { FlashcardCardProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -76,10 +77,7 @@ afterEach(() => {
  * @param slots - Same-named slots, when the test mounts with slots.
  * @returns The markup.
  */
-const render = (
-  props: Record<string, unknown>,
-  slots?: Record<string, () => VNodeChild[]>,
-): string => {
+const render = (props: FlashcardCardProps, slots?: Record<string, () => VNodeChild[]>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(FlashcardCard, props, slots) }))

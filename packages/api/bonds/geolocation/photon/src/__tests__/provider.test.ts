@@ -208,7 +208,11 @@ describe('photon geolocation provider', () => {
       )
 
       const p = createProvider({ baseUrl: 'https://photon.example.com' })
-      const suggestions = await p.autocomplete('Peter-K', {
+      // `autocomplete` is an optional capability on GeolocationProvider — the
+      // Photon bond implements it, so narrow it here instead of asserting.
+      const { autocomplete } = p
+      if (!autocomplete) throw new Error('photon provider must implement autocomplete')
+      const suggestions = await autocomplete('Peter-K', {
         location: { lat: 47.14, lng: 9.52 },
         radius: 50_000,
       })

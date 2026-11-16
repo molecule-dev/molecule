@@ -33,12 +33,15 @@ const { mockJsonFactory, mockConnectBusboy, captured } = vi.hoisted(() => {
   const mockBusboyMiddleware = vi.fn(async (req: any, _res: any, next: (err?: unknown) => void) => {
     // Simulate what connect-busboy does: attach req.busboy then call next
     const { EventEmitter: EE } = await import('node:events')
-    const fakeBusboy = new EE()
-    // When req.pipe(req.busboy) is called, emit 'finish' on next tick
-    fakeBusboy.write = () => true
-    fakeBusboy.end = () => {
-      process.nextTick(() => fakeBusboy.emit('finish'))
-    }
+    // The busboy stand-in is an EventEmitter that also accepts the write/end
+    // calls `req.pipe()` makes on its destination stream, so it carries the
+    // pipe-destination shape as well as the emitter's.
+    const fakeBusboy = Object.assign(new EE(), {
+      write: () => true,
+      end: () => {
+        process.nextTick(() => fakeBusboy.emit('finish'))
+      },
+    })
     // Support req.pipe(busboy) — pipe calls write/end on the destination
     req.busboy = fakeBusboy
     req.pipe = (dest: typeof fakeBusboy) => {

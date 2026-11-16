@@ -19,10 +19,40 @@ import type { UpstreamBalancerProvider, UpstreamMember } from '../types.js'
 
 const member: UpstreamMember = { host: 'a.fly.dev', port: 443 }
 
+/**
+ * The selection fake answers with the host's primary member. It is a generic
+ * function rather than a `vi.fn` because Vitest's `Mock<T>` instantiates a
+ * generic function's parameters and return type at the constraint, so a mock
+ * cannot stand in for a generic method.
+ *
+ * @param _host - Unused public host.
+ * @param members - The host's upstreams.
+ * @returns The member the request would go to.
+ */
+const pickPrimary = <U extends UpstreamMember>(_host: string, members: readonly U[]): U => {
+  return members[0]
+}
+
+/**
+ * The retry fake answers with the host's primary member, like `pickPrimary`.
+ *
+ * @param _host - Unused public host.
+ * @param _avoid - Unused member the failed attempt addressed.
+ * @param members - The host's upstreams.
+ * @returns The member for the next attempt.
+ */
+const pickPrimaryRetry = <U extends UpstreamMember>(
+  _host: string,
+  _avoid: U,
+  members: readonly U[],
+): U => {
+  return members[0]
+}
+
 const fake = (): UpstreamBalancerProvider => ({
   name: 'fake',
-  pick: vi.fn(() => member),
-  pickRetry: vi.fn(() => member),
+  pick: pickPrimary,
+  pickRetry: pickPrimaryRetry,
   noteFailure: vi.fn(),
   noteSuccess: vi.fn(),
   isSuspect: vi.fn(() => true),

@@ -1,6 +1,8 @@
-import { createElement } from 'react'
+import { createElement, type ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
+
+import type { NotificationWrapperProps } from '../NotificationWrapper.js'
 
 // `getClassMap()` → a Proxy: `cn(...)` joins truthy strings, every other access
 // yields its key as a string token, so emitted classNames are inspectable.
@@ -28,6 +30,17 @@ const { NotificationDot } = await import('../NotificationDot.js')
 const { NotificationWrapper } = await import('../NotificationWrapper.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
+
+/**
+ * Render a `NotificationWrapper` element. Its props type declares `children` as a
+ * required prop, so the child is folded into the props object `createElement`
+ * type-checks — passing it as a third argument alone does not satisfy the type.
+ * @param props - Wrapper props other than `children`.
+ * @param children - The wrapped child node.
+ * @returns The rendered static markup.
+ */
+const wrapper = (props: Omit<NotificationWrapperProps, 'children'>, children: ReactNode): string =>
+  html(createElement(NotificationWrapper, { ...props, children }))
 
 describe('NotificationBadge', () => {
   it('renders the count', () => {
@@ -145,50 +158,40 @@ describe('NotificationDot', () => {
 
 describe('NotificationWrapper', () => {
   it('renders its child', () => {
-    const markup = html(
-      createElement(
-        NotificationWrapper,
-        { count: 3 },
-        createElement('button', { 'data-child': '' }, 'inbox'),
-      ),
-    )
+    const markup = wrapper({ count: 3 }, createElement('button', { 'data-child': '' }, 'inbox'))
     expect(markup).toContain('data-child=""')
     expect(markup).toContain('inbox')
   })
 
   it('renders the badge alongside the child when count > 0', () => {
-    const markup = html(createElement(NotificationWrapper, { count: 3 }, 'x'))
+    const markup = wrapper({ count: 3 }, 'x')
     expect(markup).toContain('>3<')
   })
 
   it('hides the badge when count is 0 (hideOnZero default) but still renders the child', () => {
-    const markup = html(createElement(NotificationWrapper, { count: 0 }, 'child-text'))
+    const markup = wrapper({ count: 0 }, 'child-text')
     expect(markup).toContain('child-text')
     expect(markup).not.toContain('aria-label="0"')
   })
 
   it('positions top-right by default (top + right offsets)', () => {
-    const markup = html(createElement(NotificationWrapper, { count: 1 }, 'x'))
+    const markup = wrapper({ count: 1 }, 'x')
     expect(markup).toContain('top:-4px')
     expect(markup).toContain('right:-4px')
   })
 
   it('positions bottom-left when placement="bottom-left"', () => {
-    const markup = html(
-      createElement(NotificationWrapper, { count: 1, placement: 'bottom-left' }, 'x'),
-    )
+    const markup = wrapper({ count: 1, placement: 'bottom-left' }, 'x')
     expect(markup).toContain('bottom:-4px')
     expect(markup).toContain('left:-4px')
   })
 
   it('forwards the variant down to the badge', () => {
-    const markup = html(createElement(NotificationWrapper, { count: 1, variant: 'info' }, 'x'))
+    const markup = wrapper({ count: 1, variant: 'info' }, 'x')
     expect(markup).toContain('bg-info')
   })
 
   it('forwards className onto the relative wrapper', () => {
-    expect(
-      html(createElement(NotificationWrapper, { count: 1, className: 'wrap-cls' }, 'x')),
-    ).toContain('wrap-cls')
+    expect(wrapper({ count: 1, className: 'wrap-cls' }, 'x')).toContain('wrap-cls')
   })
 })

@@ -499,7 +499,7 @@ describe('round-nineteen authority regressions', () => {
         }
         throw new Error(`Unexpected ${method} ${path}`)
       })
-      await makeProvider(double).verifyEgress()
+      await makeProvider(double).verifyEgress!()
       expect({ deletedApp, createdApps, retried: !appExisted || probedApps.size > 1 }).toEqual({
         deletedApp: !appExisted,
         createdApps: appExisted ? 0 : 1,
@@ -668,7 +668,7 @@ describe('round-nineteen authority boundaries', () => {
       }
       throw new Error(`Unexpected ${method} ${path}`)
     })
-    await makeProvider(double).verifyEgress()
+    await makeProvider(double).verifyEgress!()
     expect({ probedApps: probedApps.length, createdApp, deletedApp }).toEqual({
       probedApps: 2,
       createdApp: probedApps[1],

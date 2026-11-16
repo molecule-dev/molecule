@@ -634,7 +634,10 @@ describe('@molecule/api-resource-share — handlers', () => {
     })
 
     it('no route mounts a mutating handler', () => {
-      const routeHandlers = new Set(routes.map((r) => r.handler))
+      // Widened to `string` on purpose: the assertion asks whether any route
+      // names a mutating handler, and those names are deliberately outside the
+      // auto-mount union.
+      const routeHandlers = new Set<string>(routes.map((r) => r.handler))
       for (const name of MUTATING_HANDLERS) {
         expect(routeHandlers.has(name)).toBe(false)
       }

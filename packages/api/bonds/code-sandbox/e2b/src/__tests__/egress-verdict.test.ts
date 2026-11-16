@@ -8,6 +8,25 @@ import type { E2BSandboxClientLike, E2BSandboxLike } from '../types.js'
 // the policy, and must never read as open (2026-10-04: production refused to boot
 // on `host=000000, rawIP=000000, allowed=000`).
 
+/**
+ * A `files.read` fake: the SDK's two overloads — text, and bytes when asked for
+ * bytes — over one implementation. These tests never read a file.
+ *
+ * @param _path - The path the provider asked for.
+ * @returns Empty text, or empty bytes when `format: 'bytes'` was requested.
+ */
+async function readFile(_path: string): Promise<string>
+async function readFile(
+  _path: string,
+  opts: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<Uint8Array>
+async function readFile(
+  _path: string,
+  opts?: { format: 'bytes'; requestTimeoutMs?: number },
+): Promise<string | Uint8Array> {
+  return opts?.format === 'bytes' ? new Uint8Array() : ''
+}
+
 describe('classifyEgressProbe', () => {
   it('filtered: control host answered, both denied probes blocked', () => {
     expect(classifyEgressProbe({ allowed: '200', deniedHost: '000', deniedIp: '000' }).state).toBe(
@@ -51,16 +70,22 @@ describe('verifyEgress() end to end over a fake sandbox', () => {
     const sbx: E2BSandboxLike = {
       sandboxId: 'sbx-probe',
       commands: {
-        run: (async (cmd: string) => {
+        run: async (cmd: string) => {
           commands.push(cmd)
           const host = Object.keys(codes).find((h) => cmd.includes(`https://${h}/`))
           const result = { stdout: host ? codes[host] : '', stderr: '', exitCode: host ? 7 : 0 }
           // exec() starts in the background and awaits the handle.
-          return { ...result, pid: 1, wait: async () => result }
-        }) as E2BSandboxLike['commands']['run'],
+          return {
+            ...result,
+            pid: 1,
+            wait: async () => result,
+            sendStdin: async () => {},
+            kill: async () => true,
+          }
+        },
       },
       files: {
-        read: (async () => '') as E2BSandboxLike['files']['read'],
+        read: readFile,
         async write() {
           return {}
         },
@@ -72,6 +97,9 @@ describe('verifyEgress() end to end over a fake sandbox', () => {
       getHost: (port) => `${port}-sbx-probe.e2b.app`,
       async setTimeout() {},
       async kill() {},
+      async isRunning() {
+        return true
+      },
       async updateNetwork() {},
     }
     const client: E2BSandboxClientLike = {

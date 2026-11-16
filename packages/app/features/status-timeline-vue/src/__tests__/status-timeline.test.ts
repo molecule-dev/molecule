@@ -36,13 +36,14 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h } from 'vue'
 
 import { StatusTimeline } from '../StatusTimeline.js'
+import type { StatusTimelineProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
 })
 
 /** Renders a {@link StatusTimeline} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: StatusTimelineProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(StatusTimeline, props) }))

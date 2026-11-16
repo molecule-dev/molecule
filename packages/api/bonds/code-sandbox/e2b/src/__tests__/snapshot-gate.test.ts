@@ -23,6 +23,17 @@ import type {
 // its own snapshot of that sandbox to settle, and only that sandbox waits.
 // ---------------------------------------------------------------------------
 
+/**
+ * The bond's handle adds controls the core `Sandbox` contract does not name:
+ * `keepAlive` (heartbeat) and `applyNetwork` (egress). `get()` is declared
+ * against the core contract, so a caller feature-detects them — as the pool's
+ * keep-warm sweep does — and this test narrows to that surface explicitly.
+ */
+type E2BBondHandle = Sandbox & {
+  keepAlive?(ms: number): Promise<void>
+  applyNetwork?(allowOut: string[], options?: { open?: boolean }): Promise<void>
+}
+
 /** The SDK's refusal for a sandbox that is not running at that moment. */
 class FakeSandboxNotRunningError extends Error {
   constructor() {
@@ -212,10 +223,12 @@ function world() {
   }
 }
 
-async function handle(w: ReturnType<typeof world>, id: string) {
+async function handle(w: ReturnType<typeof world>, id: string): Promise<E2BBondHandle> {
   const sandbox = await w.provider.get(id)
   if (!sandbox) throw new Error('expected a sandbox handle')
-  return sandbox
+  // The runtime handle is the bond's own (see E2BBondHandle); `get()` types it
+  // as the core contract, which does not name the heartbeat/egress controls.
+  return sandbox as E2BBondHandle
 }
 
 describe('E2B snapshot gate', () => {
@@ -487,7 +500,7 @@ describe('snapshot wait bounds', () => {
 
 describe('all sandbox SDK entry points', () => {
   const routes: Array<
-    [string, (sandbox: Sandbox, w: ReturnType<typeof world>) => Promise<unknown>]
+    [string, (sandbox: E2BBondHandle, w: ReturnType<typeof world>) => Promise<unknown>]
   > = [
     ['exec', (sandbox) => sandbox.exec('echo ok')],
     ['spawn pipes', (sandbox) => sandbox.spawn!('server')],
@@ -512,13 +525,7 @@ describe('all sandbox SDK entry points', () => {
     ['keep alive', (sandbox) => sandbox.keepAlive!(60_000)],
     ['hibernate', (sandbox) => sandbox.hibernate!()],
     ['resume', (sandbox) => sandbox.resume!()],
-    [
-      'network',
-      (sandbox) =>
-        (sandbox as unknown as { applyNetwork(hosts: string[]): Promise<void> }).applyNetwork([
-          'registry.npmjs.org',
-        ]),
-    ],
+    ['network', (sandbox) => sandbox.applyNetwork!(['registry.npmjs.org'])],
     ['get', (_sandbox, w) => w.provider.get('sbx-a')],
     ['describe', (_sandbox, w) => w.provider.describe('sbx-a')],
     [

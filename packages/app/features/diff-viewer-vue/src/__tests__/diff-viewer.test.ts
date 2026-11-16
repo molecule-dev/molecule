@@ -36,13 +36,14 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h } from 'vue'
 
 import { DiffViewer } from '../DiffViewer.js'
+import type { DiffViewerProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
 })
 
 /** Renders a {@link DiffViewer} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: DiffViewerProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(DiffViewer, props) }))

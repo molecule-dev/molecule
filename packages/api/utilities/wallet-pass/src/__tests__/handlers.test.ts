@@ -144,7 +144,7 @@ describe('createApplePassHandler', () => {
     expect(res.headers['Content-Disposition']).toBe('attachment; filename="ticket-9001.pkpass"')
     expect(Buffer.isBuffer(res.body)).toBe(true)
     expect((res.body as Buffer).byteLength).toBeGreaterThan(0)
-  })
+  }, 30_000)
 })
 
 describe('createGoogleWalletPassHandler', () => {

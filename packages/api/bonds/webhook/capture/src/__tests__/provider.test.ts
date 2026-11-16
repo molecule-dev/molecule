@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { ActivityEvent } from '@molecule/api-activity'
 import type { WebhookDeliveryResult, WebhookProvider } from '@molecule/api-webhook'
 
-const record = vi.fn(() => Promise.resolve())
+// Typed with the real `record(event: ActivityEvent): Promise<void>` signature so
+// `record.mock.calls[n][0]` is an ActivityEvent, not an untyped empty tuple.
+const record = vi.fn<(event: ActivityEvent) => Promise<void>>(() => Promise.resolve())
 
 vi.mock('@molecule/api-activity', () => ({
-  record: (...args: unknown[]) => record(...args),
+  record: (event: ActivityEvent) => record(event),
 }))
 
 import { createWebhookCaptureProvider, provider } from '../provider.js'

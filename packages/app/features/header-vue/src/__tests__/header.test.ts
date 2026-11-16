@@ -82,6 +82,7 @@ import { UserMenu } from '@molecule/app-ui-vue'
 import { createRouterPlugin, I18nKey, ThemeKey } from '@molecule/app-vue'
 
 import { AppHeader } from '../AppHeader.js'
+import type { AppHeaderProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -116,7 +117,7 @@ const router = ((): Router => createMemoryRouter({ initialEntries: ['/settings']
  * @returns The markup.
  */
 const render = (
-  props: Record<string, unknown>,
+  props: AppHeaderProps,
   slots?: Record<string, () => VNodeChild[]>,
   providers: { theme?: boolean; i18n?: boolean; router?: boolean } = {},
 ): string => {

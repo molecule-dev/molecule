@@ -194,7 +194,7 @@ describe('@molecule/api-http exports', () => {
       expect(error.code).toBe('ETIMEDOUT')
     })
 
-    it('should export RequestInterceptor type', () => {
+    it('should export RequestInterceptor type', async () => {
       const interceptor: RequestInterceptor = (options) => {
         return {
           ...options,
@@ -204,7 +204,8 @@ describe('@molecule/api-http exports', () => {
           },
         }
       }
-      const result = interceptor({ url: 'https://api.example.com', headers: {} })
+      // The interceptor contract may return the options or a promise of them.
+      const result = await interceptor({ url: 'https://api.example.com', headers: {} })
       expect(result.headers).toHaveProperty('X-Request-ID', 'uuid-1234')
     })
 
@@ -224,14 +225,15 @@ describe('@molecule/api-http exports', () => {
       expect(result.headers).toHaveProperty('Authorization', 'Bearer async-token')
     })
 
-    it('should export ResponseInterceptor type', () => {
+    it('should export ResponseInterceptor type', async () => {
       const interceptor: ResponseInterceptor = (response) => {
         return {
           ...response,
           data: { ...(response.data as object), intercepted: true },
         }
       }
-      const result = interceptor({
+      // The interceptor contract may return the response or a promise of it.
+      const result = await interceptor({
         status: 200,
         statusText: 'OK',
         headers: {},
@@ -259,7 +261,7 @@ describe('@molecule/api-http exports', () => {
       expect(result.headers).toHaveProperty('X-Processed', 'true')
     })
 
-    it('should export ErrorInterceptor type', () => {
+    it('should export ErrorInterceptor type', async () => {
       const interceptor: ErrorInterceptor = (error) => {
         return Object.assign(error, {
           message: `Intercepted: ${error.message}`,
@@ -268,7 +270,8 @@ describe('@molecule/api-http exports', () => {
       const originalError: HttpError = Object.assign(new Error('Original error'), {
         request: { url: 'https://api.example.com' },
       })
-      const result = interceptor(originalError)
+      // The interceptor contract may return the error or a promise of it.
+      const result = await interceptor(originalError)
       expect(result.message).toBe('Intercepted: Original error')
     })
 

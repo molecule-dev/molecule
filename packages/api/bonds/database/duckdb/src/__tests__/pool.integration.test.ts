@@ -9,10 +9,45 @@ import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import type { DatabasePool, DatabaseTransaction } from '@molecule/api-database'
+
 import { closeDefaultPool, defaultPoolCreated, pool, store } from '../index.js'
 import { createPool } from '../pool.js'
+import type { DuckdbConfig } from '../types.js'
 
 let dir: string
+
+/**
+ * The interactive-transaction shape this bond's pool always provides. The core
+ * `DatabasePool` interface marks `transaction()` optional because not every
+ * bond supports it.
+ */
+type TransactionalPool = DatabasePool & { transaction(): Promise<DatabaseTransaction> }
+
+/**
+ * Checks a pool for the `transaction()` this bond's `createPool()` installs.
+ *
+ * @param candidate - The pool to check.
+ * @returns True when the pool provides interactive transactions.
+ */
+function hasTransactions(candidate: DatabasePool): candidate is TransactionalPool {
+  return typeof candidate.transaction === 'function'
+}
+
+/**
+ * Creates this bond's pool, checked for the interactive transactions these
+ * tests exercise.
+ *
+ * @param config - The pool configuration (path, resource limits, timeout).
+ * @returns The pool, typed with `transaction()` required.
+ */
+function createTransactionalPool(config?: DuckdbConfig): TransactionalPool {
+  const created = createPool(config)
+  if (!hasTransactions(created)) {
+    throw new Error('DuckDB createPool() did not provide transaction()')
+  }
+  return created
+}
 
 beforeEach(async () => {
   dir = await mkdtemp(join(tmpdir(), 'mol-duckdb-'))
@@ -125,7 +160,7 @@ describe('errors', () => {
 
 describe('transactions', () => {
   it('commits work and rolls back on rollback()', async () => {
-    const p = createPool({ path: ':memory:' })
+    const p = createTransactionalPool({ path: ':memory:' })
     await p.query('CREATE TABLE tx (a INT)')
 
     const committed = await p.transaction()
@@ -141,7 +176,7 @@ describe('transactions', () => {
   })
 
   it('rolls back when a statement inside fails', async () => {
-    const p = createPool({ path: ':memory:' })
+    const p = createTransactionalPool({ path: ':memory:' })
     await p.query('CREATE TABLE tx (a INT)')
     const tx = await p.transaction()
     await tx.query('INSERT INTO tx VALUES (1)')
@@ -152,7 +187,7 @@ describe('transactions', () => {
   })
 
   it('serializes a plain query behind an open transaction (FIFO)', async () => {
-    const p = createPool({ path: ':memory:' })
+    const p = createTransactionalPool({ path: ':memory:' })
     await p.query('CREATE TABLE tx (a INT)')
     const tx = await p.transaction()
     await tx.query('INSERT INTO tx VALUES (1)')
@@ -165,7 +200,7 @@ describe('transactions', () => {
   })
 
   it('fails a queued caller with an actionable error once the wait limit hits', async () => {
-    const p = createPool({ path: ':memory:', acquireTimeoutMillis: 150 })
+    const p = createTransactionalPool({ path: ':memory:', acquireTimeoutMillis: 150 })
     const tx = await p.transaction()
     await expect(p.query('SELECT 1')).rejects.toThrow(/waited 150 ms for the pool's single/)
     await tx.rollback()
@@ -173,7 +208,7 @@ describe('transactions', () => {
   })
 
   it('a bare release() rolls the transaction back', async () => {
-    const p = createPool({ path: ':memory:' })
+    const p = createTransactionalPool({ path: ':memory:' })
     await p.query('CREATE TABLE tx (a INT)')
     const tx = await p.transaction()
     await tx.query('INSERT INTO tx VALUES (1)')
@@ -261,7 +296,7 @@ describe('files and lifecycle', () => {
   })
 
   it('rejects queries and transactions after end()', async () => {
-    const p = createPool({ path: ':memory:' })
+    const p = createTransactionalPool({ path: ':memory:' })
     await p.query('SELECT 1')
     await p.end()
     await expect(p.query('SELECT 1')).rejects.toThrow(/pool has been ended/)

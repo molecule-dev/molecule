@@ -40,6 +40,11 @@ import type {
 import { errorMessages, getErrorMessage } from '../utilities.js'
 
 /**
+ * The `when()` handler registrar map, exactly as `IAPProvider` declares it
+ */
+type WhenHandlers = ReturnType<IAPProvider['when']>
+
+/**
  * Create a mock product for testing
  */
 function createMockProduct(overrides: Partial<Product> = {}): Product {
@@ -78,7 +83,10 @@ function createMockTransaction(overrides: Partial<Transaction> = {}): Transactio
 function createMockProvider(): IAPProvider {
   const products = new Map<string, Product>()
   const handlers = new Map<string, Set<IAPEventHandler>>()
-  const productHandlers = new Map<string, Map<string, Set<(...args: unknown[]) => void>>>()
+  const productHandlers = new Map<
+    string,
+    Map<keyof WhenHandlers, Set<ProductEventHandler | ErrorEventHandler>>
+  >()
 
   return {
     initialize: vi.fn().mockResolvedValue(undefined),

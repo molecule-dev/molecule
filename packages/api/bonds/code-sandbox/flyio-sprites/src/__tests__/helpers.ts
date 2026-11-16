@@ -48,7 +48,7 @@ export interface FakeSprite extends SpriteLike {
  * @returns The fake.
  */
 export function fakeSprite(options: FakeSpriteOptions = {}): FakeSprite {
-  const files: Record<string, string> = { ...(options.files ?? {}) }
+  const files: Record<string, string | Uint8Array> = { ...(options.files ?? {}) }
   const services: Record<string, { cmd: string; args: string[]; dir?: string }> = {
     ...(options.services ?? {}),
   }
@@ -75,8 +75,10 @@ export function fakeSprite(options: FakeSpriteOptions = {}): FakeSprite {
     }),
     filesystem: () => ({
       readFile: async (path: string) => {
-        if (!(path in files)) throw new Error(`ENOENT: no such file: ${path}`)
-        return files[path]
+        const content = files[path]
+        if (content === undefined) throw new Error(`ENOENT: no such file: ${path}`)
+        // The contract reads utf8: binary written by writeFile (a tarball) decodes here.
+        return typeof content === 'string' ? content : new TextDecoder().decode(content)
       },
       writeFile: async (path: string, data: string | Uint8Array) => {
         files[path] = data

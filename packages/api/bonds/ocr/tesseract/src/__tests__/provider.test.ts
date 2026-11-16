@@ -112,7 +112,11 @@ describe('api-ocr-tesseract', () => {
     const provider = createProvider()
     await provider.recognize(IMAGE)
     await provider.recognize(IMAGE, { language: 'deu' })
-    await provider.dispose()
+    // `dispose` is optional on OcrProvider: only a provider holding resources
+    // outside the JS heap implements it. Tesseract holds worker threads, so
+    // this bond must — assert it rather than assuming it.
+    expect(provider.dispose).toBeDefined()
+    await provider.dispose?.()
     expect(terminate).toHaveBeenCalledTimes(2)
   })
 })

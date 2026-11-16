@@ -1,43 +1,62 @@
+import type { Transporter } from 'nodemailer'
+import type SMTPTransport from 'nodemailer/lib/smtp-transport/index.js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { buildTransportOptions, connectSmtp } from '../connect.js'
 import { type SmtpConfig, SmtpError } from '../types.js'
 
 /**
- * Build a minimal fake nodemailer-like transporter. The real
- * `Transporter` interface is generic over many transports; for the
- * unit tests we only ever exercise `verify`, `sendMail`, and `close`.
+ * The transporter surface `connectSmtp` actually touches, exactly as its
+ * `ConnectSmtpInternals.createTransport` contract declares it. Building
+ * the fakes against the real `Transporter` types keeps them from drifting
+ * from the shape the production code calls.
+ */
+type TestTransport = Pick<
+  Transporter<SMTPTransport.SentMessageInfo>,
+  'verify' | 'sendMail' | 'close'
+>
+
+/**
+ * A complete, valid `SMTPTransport.SentMessageInfo` the fake transporter
+ * sends by default, so fixtures can spread and override single fields.
+ */
+const FULL_INFO: SMTPTransport.SentMessageInfo = {
+  envelope: { from: 'me@example.com', to: ['friend@example.com'] },
+  messageId: '<abc@test>',
+  accepted: ['friend@example.com'],
+  rejected: [],
+  response: '250 OK',
+  envelopeTime: 12,
+  messageTime: 34,
+  messageSize: 256,
+}
+
+/**
+ * Build a minimal fake nodemailer transporter, typed against the same
+ * `Transporter` contract `connectSmtp` declares. The unit tests only ever
+ * exercise `verify`, `sendMail`, and `close`.
  */
 function buildFakeTransport(
   overrides: {
-    verify?: () => Promise<true> | Promise<never>
-    sendMail?: (options: unknown) => Promise<unknown>
+    verify?: () => Promise<true>
+    sendMail?: (options: unknown) => Promise<SMTPTransport.SentMessageInfo>
     close?: () => void
   } = {},
 ): {
-  transport: {
-    verify: () => Promise<true>
-    sendMail: (options: unknown) => Promise<unknown>
-    close: () => void
-  }
+  transport: TestTransport
   calls: { sendMail: unknown[]; close: number; verify: number }
 } {
   const calls = { sendMail: [] as unknown[], close: 0, verify: 0 }
-  const transport = {
-    verify: vi.fn(async () => {
+  const transport: TestTransport = {
+    verify: vi.fn(async (): Promise<true> => {
       calls.verify += 1
       if (overrides.verify) return overrides.verify()
-      return true as const
+      return true
     }),
     sendMail: vi.fn(async (options: unknown) => {
       calls.sendMail.push(options)
       if (overrides.sendMail) return overrides.sendMail(options)
-      return {
-        messageId: '<abc@test>',
-        accepted: ['friend@example.com'],
-        rejected: [],
-        response: '250 OK',
-      }
+      return FULL_INFO
     }),
     close: vi.fn(() => {
       calls.close += 1
@@ -45,6 +64,14 @@ function buildFakeTransport(
     }),
   }
   return { transport, calls }
+}
+
+/**
+ * Build a nodemailer-shaped error: an `Error` carrying the `code` /
+ * `responseCode` fields nodemailer's SMTP errors really carry.
+ */
+function smtpError(message: string, fields: { code: string; responseCode?: number }): Error {
+  return Object.assign(new Error(message), fields)
 }
 
 const baseConfig: SmtpConfig = {
@@ -103,22 +130,24 @@ describe('buildTransportOptions', () => {
 
 describe('connectSmtp — config validation', () => {
   it('rejects a missing host', async () => {
-    await expect(connectSmtp({ ...baseConfig, host: '' } as SmtpConfig)).rejects.toMatchObject({
+    await expect(connectSmtp({ ...baseConfig, host: '' })).rejects.toMatchObject({
       code: 'invalid-config',
     })
   })
 
   it('rejects a non-numeric port', async () => {
-    await expect(connectSmtp({ ...baseConfig, port: 0 } as SmtpConfig)).rejects.toMatchObject({
+    await expect(connectSmtp({ ...baseConfig, port: 0 })).rejects.toMatchObject({
       code: 'invalid-config',
     })
   })
 
   it('rejects auth without pass or accessToken', async () => {
+    // Deliberately invalid config: an auth object carrying neither the
+    // required `pass` nor `accessToken`, to prove the validator rejects it.
     await expect(
       connectSmtp({
         ...baseConfig,
-        auth: { user: 'me@example.com' } as unknown as SmtpConfig['auth'],
+        auth: { user: 'me@example.com' } as SmtpConfig['auth'],
       }),
     ).rejects.toMatchObject({ code: 'invalid-config' })
   })
@@ -144,10 +173,7 @@ describe('connectSmtp — verify()', () => {
   it('translates EAUTH into auth-failed', async () => {
     const { transport } = buildFakeTransport({
       verify: async () => {
-        const err = new Error('Invalid login') as Error & { code: string; responseCode: number }
-        err.code = 'EAUTH'
-        err.responseCode = 535
-        throw err
+        throw smtpError('Invalid login', { code: 'EAUTH', responseCode: 535 })
       },
     })
     const client = await connectSmtp(baseConfig, { createTransport: () => transport })
@@ -158,9 +184,7 @@ describe('connectSmtp — verify()', () => {
   it('translates ECONNECTION into connection-failed', async () => {
     const { transport } = buildFakeTransport({
       verify: async () => {
-        const err = new Error('connect ECONNREFUSED 1.2.3.4:587') as Error & { code: string }
-        err.code = 'ECONNECTION'
-        throw err
+        throw smtpError('connect ECONNREFUSED 1.2.3.4:587', { code: 'ECONNECTION' })
       },
     })
     const client = await connectSmtp(baseConfig, { createTransport: () => transport })
@@ -170,9 +194,7 @@ describe('connectSmtp — verify()', () => {
   it('translates ETIMEDOUT into timeout', async () => {
     const { transport } = buildFakeTransport({
       verify: async () => {
-        const err = new Error('greeting timed out') as Error & { code: string }
-        err.code = 'ETIMEDOUT'
-        throw err
+        throw smtpError('greeting timed out', { code: 'ETIMEDOUT' })
       },
     })
     const client = await connectSmtp(baseConfig, { createTransport: () => transport })
@@ -193,12 +215,17 @@ describe('connectSmtp — verify()', () => {
 describe('connectSmtp — sendMail()', () => {
   it('forwards the normalized message and returns a SendResult', async () => {
     const { transport, calls } = buildFakeTransport({
-      sendMail: async () => ({
-        messageId: '<id-1@test>',
-        accepted: ['a@example.com', { address: 'b@example.com' }],
-        rejected: [{ address: 'c@example.com' }],
-        response: '250 2.0.0 OK',
-      }),
+      // Deliberately off-contract fixture: the nodemailer types type
+      // `accepted`/`rejected` as `string[]`, but the client also
+      // normalizes address objects — feed one of each in both fields.
+      sendMail: async () =>
+        ({
+          ...FULL_INFO,
+          messageId: '<id-1@test>',
+          accepted: ['a@example.com', { address: 'b@example.com' }],
+          rejected: [{ address: 'c@example.com' }, 'd@example.com'],
+          response: '250 2.0.0 OK',
+        }) as SMTPTransport.SentMessageInfo,
     })
     const client = await connectSmtp(baseConfig, { createTransport: () => transport })
 
@@ -217,7 +244,7 @@ describe('connectSmtp — sendMail()', () => {
 
     expect(result.messageId).toBe('<id-1@test>')
     expect(result.accepted).toEqual(['a@example.com', 'b@example.com'])
-    expect(result.rejected).toEqual(['c@example.com'])
+    expect(result.rejected).toEqual(['c@example.com', 'd@example.com'])
     expect(result.response).toBe('250 2.0.0 OK')
 
     expect(calls.sendMail).toHaveLength(1)
@@ -237,13 +264,7 @@ describe('connectSmtp — sendMail()', () => {
   it('translates send-time auth failures into auth-failed', async () => {
     const { transport } = buildFakeTransport({
       sendMail: async () => {
-        const err = new Error('535 Authentication failed') as Error & {
-          code: string
-          responseCode: number
-        }
-        err.code = 'EAUTH'
-        err.responseCode = 535
-        throw err
+        throw smtpError('535 Authentication failed', { code: 'EAUTH', responseCode: 535 })
       },
     })
     const client = await connectSmtp(baseConfig, { createTransport: () => transport })
@@ -276,7 +297,10 @@ describe('connectSmtp — sendMail()', () => {
 
   it('handles empty accepted/rejected/messageId/response from upstream', async () => {
     const { transport } = buildFakeTransport({
-      sendMail: async () => ({}),
+      // Deliberately invalid fixture: an upstream send result missing the
+      // fields the nodemailer contract requires, to prove the client
+      // normalizes them into empty defaults instead of crashing.
+      sendMail: async () => ({}) as SMTPTransport.SentMessageInfo,
     })
     const client = await connectSmtp(baseConfig, { createTransport: () => transport })
     const result = await client.sendMail({
@@ -298,17 +322,15 @@ describe('connectSmtp — disconnect()', () => {
   })
 
   it('is safe when the transport has no close method', async () => {
-    const transport = {
-      verify: vi.fn(async () => true as const),
-      sendMail: vi.fn(async () => ({})),
+    // Deliberately off-contract fixture: the nodemailer contract types
+    // `close` as always present, but `connectSmtp` guards with
+    // `close?.()` — hand it a transporter without one to prove the guard.
+    const transport: Omit<TestTransport, 'close'> & { close?: (() => void) | undefined } = {
+      verify: async (): Promise<true> => true,
+      sendMail: async (): Promise<SMTPTransport.SentMessageInfo> => ({ ...FULL_INFO }),
     }
     const client = await connectSmtp(baseConfig, {
-      createTransport: () =>
-        transport as unknown as Parameters<
-          NonNullable<Parameters<typeof connectSmtp>[1]['createTransport']>
-        >[0] extends infer _
-          ? ReturnType<NonNullable<Parameters<typeof connectSmtp>[1]['createTransport']>>
-          : never,
+      createTransport: () => transport as TestTransport,
     })
     await expect(client.disconnect()).resolves.toBeUndefined()
   })

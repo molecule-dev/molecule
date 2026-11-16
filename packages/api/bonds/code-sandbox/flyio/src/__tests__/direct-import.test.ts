@@ -28,6 +28,7 @@ async function fixture(withStore = true) {
   })
   const client = new FlyApiClient({
     token: () => 'test',
+    baseUrl: 'https://api.machines.dev/v1',
     fetchImpl: double.fetch,
     sleep: async () => {},
   })
