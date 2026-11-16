@@ -195,7 +195,8 @@ export const GROUPS = [
       return reference !== null && all.some((p) => p.pkg.name === reference)
     },
     reference: null,
-    referenceOf: (name, root) => featureReference(name, reactFeatureNames(featurePackages(root))),
+    referenceOf: (name, root, all = featurePackages(root)) =>
+      featureReference(name, reactFeatureNames(all)),
     exempt: {},
     entry: `${KIT}/features`,
     runner: 'runFeatureConformance',
@@ -345,9 +346,10 @@ export function routingPackages(root = ROOT) {
  * @param root - The molecule repository root.
  * @param bond - The bond's dir and package.json.
  * @param group - Its group from {@link GROUPS}.
+ * @param all - The group's packages, read once by the caller.
  * @returns One line per violation.
  */
-function bondViolations(root, { dir, pkg }, group) {
+function bondViolations(root, { dir, pkg }, group, all) {
   const out = []
   // A bond whose harness renders JSX (React Router, Next.js) names it conformance.test.tsx.
   const testName = TEST_FILE_NAMES.find((name) =>
@@ -363,7 +365,7 @@ function bondViolations(root, { dir, pkg }, group) {
       out.push(`${dir}: ${testName} does not import '${group.entry}'`)
     if (!new RegExp(`\\b${group.runner}\\s*\\(`).test(text))
       out.push(`${dir}: ${testName} does not call ${group.runner}(`)
-    const reference = group.referenceOf?.(pkg.name, root)
+    const reference = group.referenceOf?.(pkg.name, root, all)
     if (reference && !text.includes(`'${reference}'`))
       out.push(`${dir}: ${testName} must measure the package against '${reference}'`)
     if (group.casesEntry && reference) {
@@ -472,7 +474,7 @@ export function findConformanceViolations(root = ROOT) {
               ...new Set(
                 all
                   .filter((b) => b.pkg.name && group.member(b.pkg.name, all))
-                  .map((b) => group.referenceOf(b.pkg.name, root)),
+                  .map((b) => group.referenceOf(b.pkg.name, root, all)),
               ),
             ].sort()
           : []
@@ -499,7 +501,7 @@ export function findConformanceViolations(root = ROOT) {
       if (!bond.pkg.name || !group.member(bond.pkg.name, all) || group.exempt[bond.pkg.name])
         continue
       if (group.kind === 'feature bond') featureBonds.push(bond)
-      out.push(...bondViolations(root, bond, group))
+      out.push(...bondViolations(root, bond, group, all))
     }
   }
 
@@ -553,11 +555,23 @@ export const isReactPackage = (pkg) => {
 /**
  * The React packages among some packages.
  *
+ * Computed once per list: the feature group's `member` asks it for every one of
+ * ~900 packages, and rebuilding the set each time made the real-tree check
+ * quadratic (tens of seconds).
+ *
  * @param packages - Package dirs and package.jsons.
  * @returns Their React package names ({@link isReactPackage}).
  */
-const reactFeatureNames = (packages) =>
-  new Set(packages.filter((p) => isReactPackage(p.pkg)).map((p) => p.pkg.name))
+const reactFeatureNames = (packages) => {
+  let names = reactNamesByList.get(packages)
+  if (!names) {
+    names = new Set(packages.filter((p) => isReactPackage(p.pkg)).map((p) => p.pkg.name))
+    reactNamesByList.set(packages, names)
+  }
+  return names
+}
+/** {@link reactFeatureNames} per package list; a fresh list (a new scan) is computed anew. */
+const reactNamesByList = new WeakMap()
 
 /**
  * Finds React packages without every framework counterpart, ledger entries
