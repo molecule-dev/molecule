@@ -24,6 +24,33 @@
  * survive. Add `path` when changing path params, or `selections` when linking views.
  * It works under ordinary `BrowserRouter` without a data router or an extra provider.
  *
+ * **URL-selected tabs or filters? Render `ListRouteNav`.** Declare each view's label,
+ * path and query together. It renders every declared choice on every route, builds
+ * each destination through `useListRoute`, resets pagination on selection, and derives
+ * the active link from the URL. Keep this declaration shared by the related routes.
+ * Use the UI package's `Tabs` for panels whose selection is genuinely local state.
+ *
+ * @example
+ * ```tsx
+ * import { ListRouteNav } from '@molecule/app-routing-react-router'
+ * import { useTranslation } from '@molecule/app-react'
+ *
+ * function OrderViews() {
+ *   const { t } = useTranslation()
+ *   return (
+ *     <ListRouteNav
+ *       aria-label={t('orders.views', undefined, { defaultValue: 'Order views' })}
+ *       selections={{
+ *         all: { path: '/orders', query: { view: undefined },
+ *           label: t('orders.all', undefined, { defaultValue: 'All orders' }) },
+ *         open: { path: '/orders', query: { view: 'open' },
+ *           label: t('orders.open', undefined, { defaultValue: 'Open orders' }) },
+ *       }}
+ *     />
+ *   )
+ * }
+ * ```
+ *
  * @example
  * ```tsx
  * import { Routes, Route } from 'react-router'
@@ -188,6 +215,7 @@
 export * from './hooks.js'
 export * from './lazyPage.js'
 export * from './list-types.js'
+export * from './ListRouteNav.js'
 export * from './provider.js'
 export * from './routers.js'
 export type {
