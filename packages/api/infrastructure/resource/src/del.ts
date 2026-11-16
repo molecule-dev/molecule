@@ -40,7 +40,7 @@ import type * as types from './types.js'
 export const del =
   <
     Props extends types.Props = types.Props,
-    DeletedResource extends types.Resource<Props> = types.Resource<Props>,
+    DeletedResource extends types.Resource = types.Resource,
   >({
     name,
     tableName,

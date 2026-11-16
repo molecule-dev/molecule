@@ -8,7 +8,9 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 
-import type { DatabasePool, Props, Resource, Response, ZodResource } from '../types.js'
+import type { DatabasePool } from '@molecule/api-database'
+
+import type { Props, Resource, Response, ZodResource } from '../types.js'
 
 describe('Props interface', () => {
   it('should accept valid props object', () => {
@@ -71,7 +73,12 @@ describe('ZodResource interface', () => {
 describe('DatabasePool interface', () => {
   it('should accept a pool with query method', () => {
     const mockPool: DatabasePool = {
-      query: async () => ({ rows: [], rowCount: 0 }) as never,
+      query: async () => ({ rows: [], rowCount: 0 }),
+      connect: async () => ({
+        query: async () => ({ rows: [], rowCount: 0 }),
+        release: () => undefined,
+      }),
+      end: async () => undefined,
     }
 
     expect(mockPool.query).toBeDefined()

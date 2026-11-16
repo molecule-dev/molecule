@@ -37,7 +37,7 @@ import type * as types from './types.js'
 export const read =
   <
     ReadProps extends types.Props = types.Props,
-    ReadResource extends types.Resource<ReadProps> = types.Resource<ReadProps>,
+    ReadResource extends types.Resource = types.Resource,
   >({
     tableName,
   }: ReadResource) =>

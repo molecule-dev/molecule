@@ -74,9 +74,8 @@
  *
  * const createUser = create<UserProps>(userResource)
  * const updateUser = update<UserProps>(userResource)
- * // read/del type their descriptor with the concrete props — cast the shared one:
- * const readUser = read(userResource as types.Resource<UserProps>)
- * const deleteUser = del(userResource as types.Resource<UserProps>)
+ * const readUser = read<UserProps>(userResource)
+ * const deleteUser = del<UserProps>(userResource)
  *
  * // Operations do NOT take (req, res) directly — adapt each one by mapping
  * // request fields (req.body, req.params.id) to its arguments, then wrap
