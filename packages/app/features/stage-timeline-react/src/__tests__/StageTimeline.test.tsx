@@ -32,8 +32,9 @@ vi.mock('@molecule/app-react', () => ({
 }))
 
 import { StageTimeline, statusOf } from '../StageTimeline.js'
+import type { StageTimelineStage } from '../types.js'
 
-const STAGES = [
+const STAGES: StageTimelineStage[] = [
   { id: 'applied', label: 'Applied' },
   { id: 'screen', label: 'Phone Screen' },
   { id: 'onsite', label: 'On-site' },
