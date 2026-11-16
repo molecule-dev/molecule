@@ -4,7 +4,7 @@
  * @module
  */
 
-import { Component, computed, input, type OnInit } from '@angular/core'
+import { Component, computed, type OnInit } from '@angular/core'
 
 import { useTranslation } from '@molecule/app-angular'
 import { error as logError } from '@molecule/app-logger'
@@ -22,6 +22,7 @@ import { getClassMap } from '@molecule/app-ui'
 @Component({
   selector: 'div[mol-root-error-fallback]',
   standalone: true,
+  inputs: ['error'],
   host: {
     role: 'alert',
     // `[attr.class]`, not `[class]`: Angular's classMap applies a bound class
@@ -38,7 +39,7 @@ export class RootErrorFallback implements OnInit {
    * exactly once per caught error, so the report is logged once, before the
    * recovery surface shows.
    */
-  readonly error = input<unknown>(undefined)
+  error: unknown = undefined
 
   /** The i18n handle (locale-reactive), read in an injection context. */
   private readonly i18n = useTranslation()
@@ -47,7 +48,7 @@ export class RootErrorFallback implements OnInit {
    * Reports the caught render error through the bonded logger.
    */
   ngOnInit(): void {
-    const caught = this.error()
+    const caught = this.error
     if (caught !== undefined && caught !== null) {
       logError(caught instanceof Error ? caught : new Error(String(caught)), '')
     }

@@ -11,6 +11,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -18,7 +19,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `flex`),
@@ -46,6 +47,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type * as AppLogger from '@molecule/app-logger'
+import { error as logError } from '@molecule/app-logger'
 
 // The real i18n provider logs through the same package, so only the boundary's report is stubbed.
 vi.mock('@molecule/app-logger', async (importOriginal) => ({
@@ -149,6 +151,20 @@ describe('RootErrorBoundary', () => {
     )
     expect(m.host.innerHTML).not.toContain('never rendered')
     expect(m.host.querySelector('[role="alert"]')).not.toBeNull()
+  })
+
+  it('reports the caught render error through the logger once', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.mocked(logError).mockClear()
+    await mount(
+      `<mol-root-error-boundary [content]="contentTpl"><ng-template #contentTpl><mol-broken /></ng-template></mol-root-error-boundary>`,
+      RootErrorBoundary as Type<unknown>,
+      [Broken],
+    )
+    expect(vi.mocked(logError)).toHaveBeenCalledTimes(1)
+    const [reported] = vi.mocked(logError).mock.calls[0]!
+    expect(reported).toBeInstanceOf(Error)
+    expect((reported as Error).message).toBe('render failed')
   })
 
   it('renders the localized recovery alert once in the errored state', async () => {
