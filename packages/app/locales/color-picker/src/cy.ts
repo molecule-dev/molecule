@@ -7,4 +7,7 @@ export const cy: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Hue',
   'colorPicker.saturation': 'Dirlawnder',
   'colorPicker.value': 'Gwerth',
+  'colorPicker.r': 'Coch',
+  'colorPicker.g': 'Gwyrdd',
+  'colorPicker.b': 'Glas',
 }

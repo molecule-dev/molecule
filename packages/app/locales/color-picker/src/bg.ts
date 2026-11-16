@@ -7,4 +7,7 @@ export const bg: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Хюе',
   'colorPicker.saturation': 'Наситеност',
   'colorPicker.value': 'Стойност',
+  'colorPicker.r': 'Червено',
+  'colorPicker.g': 'Зелено',
+  'colorPicker.b': 'Синьо',
 }

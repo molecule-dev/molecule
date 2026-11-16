@@ -7,4 +7,7 @@ export const hu: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'HEX szín',
   'colorPicker.hue': 'Színárnyalat',
   'colorPicker.saturation': 'Telítettség',
+  'colorPicker.r': 'Piros',
+  'colorPicker.g': 'Zöld',
+  'colorPicker.b': 'Kék',
 }

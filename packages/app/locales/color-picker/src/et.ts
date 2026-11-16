@@ -7,4 +7,7 @@ export const et: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Värvitoon',
   'colorPicker.saturation': 'Küllastus',
   'colorPicker.value': 'Väärtus',
+  'colorPicker.r': 'Punane',
+  'colorPicker.g': 'Roheline',
+  'colorPicker.b': 'Sinine',
 }

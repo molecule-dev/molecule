@@ -7,4 +7,7 @@ export const fa: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'رنگ',
   'colorPicker.saturation': 'اشباع',
   'colorPicker.value': 'ارزش',
+  'colorPicker.r': 'قرمز',
+  'colorPicker.g': 'سبز',
+  'colorPicker.b': 'آبی',
 }

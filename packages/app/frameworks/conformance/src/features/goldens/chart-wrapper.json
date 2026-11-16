@@ -1,0 +1,195 @@
+{
+ "exports": [
+  "ChartCard",
+  "ChartLegend"
+ ],
+ "values": {},
+ "cases": {
+  "ChartCard": {
+   "title and chart only": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title as a node": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\n<strong>\nRevenue\n</strong>\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a description plus every other slot": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n<p class=\"c445db9b9\">\nLast 12 months\n</p>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button data-actions type=\"button\">\n30d\n</button>\n</div>\n</header>\n<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-summary>\nTotal 12,345\n</span>\n</div>\n<div style=\"min-height: 300px\">\n<div data-chart>\nplot\n</div>\n</div>\n<div>\n<small data-footer>\nSource: ledger\n</small>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node description, actions, summary and footer": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n<p class=\"c445db9b9\">\n<em>\nLast 12 months\n</em>\n</p>\n</div>\n<div class=\"c1e8176ab c42740ba6 c9566e21c cc2d72006 ccae02ff2 cd9b20003\">\n<button data-actions type=\"button\">\n30d\n</button>\n</div>\n</header>\n<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span data-summary>\nTotal 12,345\n</span>\n</div>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n<div>\n<small data-footer>\nSource: ledger\n</small>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty description renders no paragraph": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "default minimum chart height": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "custom minimum chart height": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 400px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "minimum chart height changes": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 320px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className and dataMolId passthrough": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cd75bbd18 cdccefb20\" data-mol-id=\"chart-x\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "description appears then disappears": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n<p class=\"c445db9b9\">\nLast 12 months\n</p>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title changes": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nExpenses\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "text children": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\nnothing to plot yet\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "title and chart only, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /",
+     "<div class=\"c1f523237 c311021b4 c4b92e3a8 c5e7000ad c99d61f16 cc26cbf54 cdccefb20\">\n<div class=\"c2cbb8333 c9366def6 cbaac6b89 ccae02ff2\">\n<header class=\"c42740ba6 c937ba156 c9566e21c ccae02ff2 cd9b20003 cf322c086\">\n<div class=\"c2cbb8333 c9866e6d5 cbaac6b89 ccae02ff2\">\n<h3 class=\"c504afaf4 c7f74399a\">\nRevenue\n</h3>\n</div>\n</header>\n<div style=\"min-height: 240px\">\n<div data-chart>\nplot\n</div>\n</div>\n</div>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  },
+  "ChartLegend": {
+   "labels and swatches": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a value of zero renders": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 0, 255); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nZ\n</span>\n<span class=\"c445db9b9\">\n0\n</span>\n</span>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "vertical layout": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cbaac6b89 cc2d72006 ccae02ff2 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "hidden series": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nVisible\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 0.3; width: 10px\">\n</span>\n<span class=\"c445db9b9\" style=\"opacity: 0.5\">\nHidden\n</span>\n</span>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "an empty list": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "node labels and values": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\n<strong>\nBold\n</strong>\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries\n</span>\n<span class=\"c445db9b9\">\n<code>\n42\n</code>\n</span>\n</span>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "className passthrough": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 ca8a1a576 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "toggle buttons call onToggle": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<button aria-pressed=\"true\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</button>\n<button aria-pressed=\"true\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<button aria-pressed=\"true\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</button>\n<button aria-pressed=\"true\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onToggle",
+      "args": [
+       "s1"
+      ]
+     }
+    ]
+   },
+   "toggle buttons reflect visibility": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<button aria-pressed=\"true\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nVisible\n</span>\n</span>\n</button>\n<button aria-pressed=\"false\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 0.3; width: 10px\">\n</span>\n<span class=\"c445db9b9\" style=\"opacity: 0.5\">\nHidden\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<button aria-pressed=\"true\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nVisible\n</span>\n</span>\n</button>\n<button aria-pressed=\"false\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 0.3; width: 10px\">\n</span>\n<span class=\"c445db9b9\" style=\"opacity: 0.5\">\nHidden\n</span>\n</span>\n</button>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<button aria-pressed=\"true\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nVisible\n</span>\n</span>\n</button>\n<button aria-pressed=\"false\" type=\"button\">\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 0.3; width: 10px\">\n</span>\n<span class=\"c445db9b9\" style=\"opacity: 0.5\">\nHidden\n</span>\n</span>\n</button>\n</div>\n@route /"
+    ],
+    "calls": [
+     {
+      "name": "onToggle",
+      "args": [
+       "s1"
+      ]
+     },
+     {
+      "name": "onToggle",
+      "args": [
+       "s2"
+      ]
+     }
+    ]
+   },
+   "layout changes": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9366def6 cbaac6b89 cc2d72006 ccae02ff2 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "a series is hidden then shown": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 0.3; width: 10px\">\n</span>\n<span class=\"c445db9b9\" style=\"opacity: 0.5\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   },
+   "labels and swatches, then a locale switch": {
+    "snapshots": [
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /",
+     "<div class=\"c1e8176ab c9366def6 cc2d72006 ccae02ff2 cd9b20003 ceacde2ad\">\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(255, 0, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 1\n</span>\n</span>\n</span>\n<span>\n<span class=\"c1e8176ab c42740ba6 c9866e6d5 cc2d72006 ccae02ff2 cd9b20003\">\n<span aria-hidden=\"true\" style=\"background: rgb(0, 255, 0); border-radius: 2px; display: inline-block; height: 10px; opacity: 1; width: 10px\">\n</span>\n<span class=\"c445db9b9\">\nSeries 2\n</span>\n<span class=\"c445db9b9\">\n42\n</span>\n</span>\n</span>\n</div>\n@route /"
+    ],
+    "calls": []
+   }
+  }
+ }
+}

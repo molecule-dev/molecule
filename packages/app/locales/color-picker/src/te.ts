@@ -7,4 +7,7 @@ export const te: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'హ్యూ',
   'colorPicker.saturation': 'సంతృప్తత',
   'colorPicker.value': 'విలువ',
+  'colorPicker.r': 'ఎరుపు',
+  'colorPicker.g': 'ఆకుపచ్చ',
+  'colorPicker.b': 'నీలం',
 }

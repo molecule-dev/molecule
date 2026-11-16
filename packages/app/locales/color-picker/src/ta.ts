@@ -7,4 +7,7 @@ export const ta: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'ஹியூ',
   'colorPicker.saturation': 'செறிவூட்டல்',
   'colorPicker.value': 'மதிப்பு',
+  'colorPicker.r': 'சிவப்பு',
+  'colorPicker.g': 'பச்சை',
+  'colorPicker.b': 'நீலம்',
 }

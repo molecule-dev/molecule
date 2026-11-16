@@ -7,4 +7,7 @@ export const ko: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'HEX 색상',
   'colorPicker.hue': '색조',
   'colorPicker.saturation': '포화',
+  'colorPicker.r': '빨간색',
+  'colorPicker.g': '초록색',
+  'colorPicker.b': '파란색',
 }

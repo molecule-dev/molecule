@@ -7,4 +7,7 @@ export const my: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'အရောင်',
   'colorPicker.saturation': 'ပြည့်ဝမှု',
   'colorPicker.value': 'တန်ဖိုး',
+  'colorPicker.r': 'အနီ',
+  'colorPicker.g': 'အစိမ်း',
+  'colorPicker.b': 'အပြာ',
 }

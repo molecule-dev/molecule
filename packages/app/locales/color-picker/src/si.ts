@@ -7,4 +7,7 @@ export const si: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'පැහැය',
   'colorPicker.saturation': 'සන්තෘප්තිය',
   'colorPicker.value': 'වටිනාකම',
+  'colorPicker.r': 'රතු',
+  'colorPicker.g': 'කොළ',
+  'colorPicker.b': 'නිල්',
 }

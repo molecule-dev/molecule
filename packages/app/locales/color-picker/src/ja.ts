@@ -7,4 +7,7 @@ export const ja: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'HEXカラー',
   'colorPicker.hue': '色相',
   'colorPicker.saturation': '飽和',
+  'colorPicker.r': '赤',
+  'colorPicker.g': '緑',
+  'colorPicker.b': '青',
 }

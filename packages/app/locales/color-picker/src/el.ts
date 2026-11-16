@@ -7,4 +7,7 @@ export const el: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'Δεκαεξαδικό χρώμα',
   'colorPicker.hue': 'Απόχρωση',
   'colorPicker.saturation': 'Κορεσμός',
+  'colorPicker.r': 'Κόκκινο',
+  'colorPicker.g': 'Πράσινο',
+  'colorPicker.b': 'Μπλε',
 }

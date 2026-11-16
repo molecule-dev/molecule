@@ -7,4 +7,7 @@ export const eu: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Tonua',
   'colorPicker.saturation': 'Saturazioa',
   'colorPicker.value': 'Balioa',
+  'colorPicker.r': 'Gorria',
+  'colorPicker.g': 'Berdea',
+  'colorPicker.b': 'Urdina',
 }

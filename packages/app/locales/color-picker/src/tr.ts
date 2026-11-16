@@ -7,4 +7,7 @@ export const tr: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'HEX rengi',
   'colorPicker.hue': 'Ton',
   'colorPicker.saturation': 'Doygunluk',
+  'colorPicker.r': 'Kırmızı',
+  'colorPicker.g': 'Yeşil',
+  'colorPicker.b': 'Mavi',
 }

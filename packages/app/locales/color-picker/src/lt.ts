@@ -7,4 +7,7 @@ export const lt: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Atspalvis',
   'colorPicker.saturation': 'Sotumas',
   'colorPicker.value': 'Vertė',
+  'colorPicker.r': 'Raudona',
+  'colorPicker.g': 'Žalia',
+  'colorPicker.b': 'Mėlyna',
 }

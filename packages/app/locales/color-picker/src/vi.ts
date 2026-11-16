@@ -7,4 +7,7 @@ export const vi: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'Màu HEX',
   'colorPicker.hue': 'Màu sắc',
   'colorPicker.saturation': 'Độ bão hòa',
+  'colorPicker.r': 'Đỏ',
+  'colorPicker.g': 'Xanh lá',
+  'colorPicker.b': 'Xanh dương',
 }

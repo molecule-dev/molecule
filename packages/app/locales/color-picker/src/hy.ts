@@ -7,4 +7,7 @@ export const hy: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Հիերանգ',
   'colorPicker.saturation': 'Հագեցածություն',
   'colorPicker.value': 'Արժեք',
+  'colorPicker.r': 'Կարմիր',
+  'colorPicker.g': 'Կանաչ',
+  'colorPicker.b': 'Կապույտ',
 }

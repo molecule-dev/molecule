@@ -7,4 +7,7 @@ export const fil: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'Kulay ng HEX',
   'colorPicker.hue': 'Kulay',
   'colorPicker.saturation': 'Saturasyon',
+  'colorPicker.r': 'Pula',
+  'colorPicker.g': 'Berde',
+  'colorPicker.b': 'Asul',
 }

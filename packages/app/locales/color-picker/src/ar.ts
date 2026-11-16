@@ -7,4 +7,7 @@ export const ar: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'لون سداسي عشري',
   'colorPicker.hue': 'لون',
   'colorPicker.saturation': 'التشبع',
+  'colorPicker.r': 'أحمر',
+  'colorPicker.g': 'أخضر',
+  'colorPicker.b': 'أزرق',
 }

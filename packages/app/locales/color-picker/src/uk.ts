@@ -7,4 +7,7 @@ export const uk: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'Шістнадцятковий колір',
   'colorPicker.hue': 'Хюе',
   'colorPicker.saturation': 'Насиченість',
+  'colorPicker.r': 'Червоний',
+  'colorPicker.g': 'Зелений',
+  'colorPicker.b': 'Синій',
 }

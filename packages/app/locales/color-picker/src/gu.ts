@@ -7,4 +7,7 @@ export const gu: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'રંગછટા',
   'colorPicker.saturation': 'સંતૃપ્તિ',
   'colorPicker.value': 'કિંમત',
+  'colorPicker.r': 'લાલ',
+  'colorPicker.g': 'લીલો',
+  'colorPicker.b': 'વાદળી',
 }

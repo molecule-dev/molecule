@@ -7,4 +7,7 @@ export const ga: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Lí',
   'colorPicker.saturation': 'Sáithiú',
   'colorPicker.value': 'Luach',
+  'colorPicker.r': 'Dearg',
+  'colorPicker.g': 'Glas',
+  'colorPicker.b': 'Gorm',
 }

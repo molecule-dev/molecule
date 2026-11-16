@@ -7,4 +7,7 @@ export const bs: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Nijansa',
   'colorPicker.saturation': 'Zasićenost',
   'colorPicker.value': 'Vrijednost',
+  'colorPicker.r': 'Crvena',
+  'colorPicker.g': 'Zelena',
+  'colorPicker.b': 'Plava',
 }

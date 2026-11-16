@@ -7,4 +7,7 @@ export const sq: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Nuancë',
   'colorPicker.saturation': 'Ngopja',
   'colorPicker.value': 'Vlerë',
+  'colorPicker.r': 'E kuqe',
+  'colorPicker.g': 'E gjelbër',
+  'colorPicker.b': 'E kaltër',
 }

@@ -7,4 +7,7 @@ export const pa: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'ਰੰਗ',
   'colorPicker.saturation': 'ਸੰਤ੍ਰਿਪਤਾ',
   'colorPicker.value': 'ਮੁੱਲ',
+  'colorPicker.r': 'ਲਾਲ',
+  'colorPicker.g': 'ਹਰਾ',
+  'colorPicker.b': 'ਨੀਲਾ',
 }

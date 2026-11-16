@@ -7,4 +7,7 @@ export const zhTW: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': '色調',
   'colorPicker.saturation': '飽和',
   'colorPicker.value': '價值',
+  'colorPicker.r': '紅色',
+  'colorPicker.g': '綠色',
+  'colorPicker.b': '藍色',
 }

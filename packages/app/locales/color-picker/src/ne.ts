@@ -7,4 +7,7 @@ export const ne: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'ह्यु',
   'colorPicker.saturation': 'संतृप्ति',
   'colorPicker.value': 'मूल्य',
+  'colorPicker.r': 'रातो',
+  'colorPicker.g': 'हरियो',
+  'colorPicker.b': 'नीलो',
 }

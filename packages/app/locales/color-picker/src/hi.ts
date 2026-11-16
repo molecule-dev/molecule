@@ -7,4 +7,7 @@ export const hi: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'हेक्स रंग',
   'colorPicker.hue': 'रंग',
   'colorPicker.saturation': 'परिपूर्णता',
+  'colorPicker.r': 'लाल',
+  'colorPicker.g': 'हरा',
+  'colorPicker.b': 'नीला',
 }

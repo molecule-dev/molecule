@@ -7,4 +7,7 @@ export const sk: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Odtieň',
   'colorPicker.saturation': 'Sýtosť',
   'colorPicker.value': 'Hodnota',
+  'colorPicker.r': 'Červená',
+  'colorPicker.g': 'Zelená',
+  'colorPicker.b': 'Modrá',
 }

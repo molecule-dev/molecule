@@ -7,4 +7,7 @@ export const ro: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'Culoare HEX',
   'colorPicker.hue': 'Nuanţă',
   'colorPicker.saturation': 'Saturaţie',
+  'colorPicker.r': 'Roșu',
+  'colorPicker.g': 'Verde',
+  'colorPicker.b': 'Albastru',
 }

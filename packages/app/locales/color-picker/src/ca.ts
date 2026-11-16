@@ -7,4 +7,7 @@ export const ca: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Tonalitat',
   'colorPicker.saturation': 'Saturació',
   'colorPicker.value': 'Valor',
+  'colorPicker.r': 'Vermell',
+  'colorPicker.g': 'Verd',
+  'colorPicker.b': 'Blau',
 }

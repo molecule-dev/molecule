@@ -74,8 +74,8 @@ export interface ReadingProgressBarProps {
   /**
    * CSS color for the filled portion of the bar. Defaults to
    * `'currentColor'` so the bar inherits whatever text color is in scope —
-   * letting the surrounding theme drive it. Pass an explicit color
-   * (`'#3b82f6'`, `'var(--brand)'`, etc.) to override.
+   * letting the surrounding theme drive it. Pass a theme-aware color
+   * (`'var(--brand)'`, etc.) to override.
    */
   color?: string
   /** Extra classes on the outer wrapper. */

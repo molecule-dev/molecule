@@ -7,4 +7,7 @@ export const zu: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Umbala oluhlaza okwesibhakabhaka',
   'colorPicker.saturation': 'Ukugcwala',
   'colorPicker.value': 'Inani',
+  'colorPicker.r': 'Obomvu',
+  'colorPicker.g': 'Oluhlaza okotshani',
+  'colorPicker.b': 'Oluhlaza okwesibhakabhaka',
 }

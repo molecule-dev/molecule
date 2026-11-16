@@ -7,4 +7,7 @@ export const en: ColorPickerTranslations = {
   'colorPicker.hue': 'Hue',
   'colorPicker.saturation': 'Saturation',
   'colorPicker.value': 'Value',
+  'colorPicker.r': 'Red',
+  'colorPicker.g': 'Green',
+  'colorPicker.b': 'Blue',
 }

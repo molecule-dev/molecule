@@ -7,4 +7,7 @@ export const az: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Rəng',
   'colorPicker.saturation': 'Doyma',
   'colorPicker.value': 'Dəyər',
+  'colorPicker.r': 'Qırmızı',
+  'colorPicker.g': 'Yaşıl',
+  'colorPicker.b': 'Göy',
 }

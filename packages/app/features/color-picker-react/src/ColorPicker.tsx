@@ -101,6 +101,14 @@ export function ColorPicker({
 
   const wrapperClass = cm.cn(cm.flex({ direction: 'col', gap: 'sm' }), className)
 
+  // Literal keys per channel — every key a `t` call can produce must be a
+  // literal the i18n gate can see, so the three channels are spelled out.
+  const channelLabels = {
+    r: t('colorPicker.r', {}, { defaultValue: 'Red' }),
+    g: t('colorPicker.g', {}, { defaultValue: 'Green' }),
+    b: t('colorPicker.b', {}, { defaultValue: 'Blue' }),
+  }
+
   return (
     <div
       className={wrapperClass}
@@ -180,13 +188,7 @@ export function ColorPicker({
             className={cm.cn(cm.textSize('xs'), cm.flex({ direction: 'col', gap: 'xs' }))}
             style={{ flex: 1 }}
           >
-            <span>
-              {t(
-                `colorPicker.${channel}`,
-                {},
-                { defaultValue: channel === 'r' ? 'Red' : channel === 'g' ? 'Green' : 'Blue' },
-              )}
-            </span>
+            <span>{channelLabels[channel]}</span>
             <input
               type="number"
               min={0}
@@ -194,11 +196,7 @@ export function ColorPicker({
               step={1}
               value={rgb[channel]}
               onChange={(e) => emitFromRgb({ [channel]: Number(e.target.value) })}
-              aria-label={t(
-                `colorPicker.${channel}`,
-                {},
-                { defaultValue: channel === 'r' ? 'Red' : channel === 'g' ? 'Green' : 'Blue' },
-              )}
+              aria-label={channelLabels[channel]}
               data-mol-id={`color-picker-${channel}`}
               style={{ padding: '0.3rem 0.5rem' }}
             />

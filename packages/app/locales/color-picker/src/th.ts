@@ -7,4 +7,7 @@ export const th: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'ฮิว',
   'colorPicker.saturation': 'ความอิ่มตัว',
   'colorPicker.value': 'ค่า',
+  'colorPicker.r': 'แดง',
+  'colorPicker.g': 'เขียว',
+  'colorPicker.b': 'น้ำเงิน',
 }

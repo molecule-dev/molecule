@@ -7,4 +7,7 @@ export const ig: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Hue',
   'colorPicker.saturation': 'Afọ ojuju',
   'colorPicker.value': 'Uru',
+  'colorPicker.r': 'Uhie',
+  'colorPicker.g': 'Akwụkwọ ndụ',
+  'colorPicker.b': 'Anụnụ',
 }

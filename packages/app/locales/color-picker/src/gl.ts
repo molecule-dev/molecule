@@ -7,4 +7,7 @@ export const gl: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Ton',
   'colorPicker.saturation': 'Saturación',
   'colorPicker.value': 'Valor',
+  'colorPicker.r': 'Vermello',
+  'colorPicker.g': 'Verde',
+  'colorPicker.b': 'Azul',
 }

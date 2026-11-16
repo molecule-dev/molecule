@@ -7,4 +7,7 @@ export const lo: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'ສີ',
   'colorPicker.saturation': 'ຄວາມອີ່ມຕົວ',
   'colorPicker.value': 'ມູນຄ່າ',
+  'colorPicker.r': 'ສີແດງ',
+  'colorPicker.g': 'ສີຂຽວ',
+  'colorPicker.b': 'ສີຟ້າ',
 }

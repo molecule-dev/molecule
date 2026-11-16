@@ -7,4 +7,7 @@ export const fi: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'HEX-väri',
   'colorPicker.hue': 'Värisävy',
   'colorPicker.saturation': 'Kylläisyys',
+  'colorPicker.r': 'Punainen',
+  'colorPicker.g': 'Vihreä',
+  'colorPicker.b': 'Sininen',
 }

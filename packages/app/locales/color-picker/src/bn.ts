@@ -7,4 +7,7 @@ export const bn: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'রঙ',
   'colorPicker.saturation': 'স্যাচুরেশন',
   'colorPicker.value': 'মূল্য',
+  'colorPicker.r': 'লাল',
+  'colorPicker.g': 'সবুজ',
+  'colorPicker.b': 'নীল',
 }

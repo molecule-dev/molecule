@@ -7,4 +7,7 @@ export const mn: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Өнгө',
   'colorPicker.saturation': 'Ханалт',
   'colorPicker.value': 'Үнэ цэнэ',
+  'colorPicker.r': 'Улаан',
+  'colorPicker.g': 'Ногоон',
+  'colorPicker.b': 'Цэнхэр',
 }

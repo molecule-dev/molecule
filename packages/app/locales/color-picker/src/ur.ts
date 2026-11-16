@@ -7,4 +7,7 @@ export const ur: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'رنگت',
   'colorPicker.saturation': 'سنترپتی',
   'colorPicker.value': 'قدر',
+  'colorPicker.r': 'سرخ',
+  'colorPicker.g': 'سبز',
+  'colorPicker.b': 'نیلا',
 }

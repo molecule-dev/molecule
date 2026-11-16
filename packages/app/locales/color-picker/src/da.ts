@@ -7,4 +7,7 @@ export const da: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'HEX-farve',
   'colorPicker.hue': 'Farvetone',
   'colorPicker.saturation': 'Mætning',
+  'colorPicker.r': 'Rød',
+  'colorPicker.g': 'Grøn',
+  'colorPicker.b': 'Blå',
 }

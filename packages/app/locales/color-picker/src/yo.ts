@@ -7,4 +7,7 @@ export const yo: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Àwọ̀',
   'colorPicker.saturation': 'Ìkún',
   'colorPicker.value': 'Iye',
+  'colorPicker.r': 'Pupa',
+  'colorPicker.g': 'Àwọ ewé',
+  'colorPicker.b': 'Búlúú',
 }

@@ -7,4 +7,7 @@ export const ka: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'ელფერი',
   'colorPicker.saturation': 'სატურაცია',
   'colorPicker.value': 'ღირებულება',
+  'colorPicker.r': 'წითელი',
+  'colorPicker.g': 'მწვანე',
+  'colorPicker.b': 'ლურჯი',
 }

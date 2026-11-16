@@ -7,4 +7,7 @@ export const sw: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Rangi ya hudhurungi',
   'colorPicker.saturation': 'Ujazo',
   'colorPicker.value': 'Thamani',
+  'colorPicker.r': 'Nyekundu',
+  'colorPicker.g': 'Kijani',
+  'colorPicker.b': 'Bluu',
 }

@@ -7,4 +7,7 @@ export const af: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Kleurtoon',
   'colorPicker.saturation': 'Versadiging',
   'colorPicker.value': 'Waarde',
+  'colorPicker.r': 'Rooi',
+  'colorPicker.g': 'Groen',
+  'colorPicker.b': 'Blou',
 }

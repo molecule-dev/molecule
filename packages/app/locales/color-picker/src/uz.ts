@@ -7,4 +7,7 @@ export const uz: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Rang',
   'colorPicker.saturation': "To'yinganlik",
   'colorPicker.value': 'Qiymat',
+  'colorPicker.r': 'Qizil',
+  'colorPicker.g': 'Yashil',
+  'colorPicker.b': "Ko'k",
 }

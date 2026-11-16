@@ -7,4 +7,7 @@ export const ms: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'Warna HEX',
   'colorPicker.hue': 'Warna',
   'colorPicker.saturation': 'Ketepuan',
+  'colorPicker.r': 'Merah',
+  'colorPicker.g': 'Hijau',
+  'colorPicker.b': 'Biru',
 }

@@ -7,4 +7,7 @@ export const kn: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'ವರ್ಣ',
   'colorPicker.saturation': 'ಶುದ್ಧತ್ವ',
   'colorPicker.value': 'ಮೌಲ್ಯ',
+  'colorPicker.r': 'ಕೆಂಪು',
+  'colorPicker.g': 'ಹಸಿರು',
+  'colorPicker.b': 'ನೀಲಿ',
 }

@@ -7,4 +7,7 @@ export const km: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'ពណ៌​ស្វាយ',
   'colorPicker.saturation': 'តិត្ថិភាព',
   'colorPicker.value': 'តម្លៃ',
+  'colorPicker.r': 'ក្រហម',
+  'colorPicker.g': 'បៃតង',
+  'colorPicker.b': 'ខៀវ',
 }

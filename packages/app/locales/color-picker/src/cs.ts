@@ -7,4 +7,7 @@ export const cs: Partial<ColorPickerTranslations> = {
   'colorPicker.hex': 'HEX barva',
   'colorPicker.hue': 'Odstín',
   'colorPicker.saturation': 'Nasycení',
+  'colorPicker.r': 'Červená',
+  'colorPicker.g': 'Zelená',
+  'colorPicker.b': 'Modrá',
 }

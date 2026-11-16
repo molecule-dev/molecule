@@ -7,4 +7,7 @@ export const ky: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'Түс',
   'colorPicker.saturation': 'Каныккандык',
   'colorPicker.value': 'Баалуулук',
+  'colorPicker.r': 'Кызыл',
+  'colorPicker.g': 'Жашыл',
+  'colorPicker.b': 'Көк',
 }

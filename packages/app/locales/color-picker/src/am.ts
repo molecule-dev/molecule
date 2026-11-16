@@ -7,4 +7,7 @@ export const am: Partial<ColorPickerTranslations> = {
   'colorPicker.hue': 'ሁዌ',
   'colorPicker.saturation': 'ሙሌት',
   'colorPicker.value': 'እሴት',
+  'colorPicker.r': 'ቀይ',
+  'colorPicker.g': 'አረንጓዴ',
+  'colorPicker.b': 'ሰማያዊ',
 }
