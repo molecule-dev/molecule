@@ -33,6 +33,9 @@ let warnedAboutFallback = false
  */
 let unbondedFallback: HttpClient | null = null
 
+/** Early module imports keep a live handle until the application bonds its transport. */
+let earlyClient: HttpClient | null = null
+
 /**
  * The auth client whose token every HTTP client the app bonds resolves on every request,
  * or null.
@@ -155,8 +158,8 @@ export const setClient = (client: HttpClient): void => {
 }
 
 /**
- * Retrieves the bonded HTTP client. If none is bonded, returns a module-level
- * fetch-based fallback — it is NOT bonded.
+ * Retrieves the bonded HTTP client. Before setup, returns a live handle which uses
+ * a fetch fallback until the application bonds its transport. It is NOT bonded.
  *
  * The fallback has NO `baseURL` — a core cannot know an app's API prefix. A relative
  * call then resolves against the page origin, where a dev server answers its own HTML
@@ -164,9 +167,11 @@ export const setClient = (client: HttpClient): void => {
  * as a crash three components later; a scaffold bonds the shared client with its API
  * prefix, so the fallback only runs in an app that never bonded one.
  *
- * Returning it WITHOUT bonding is what keeps a later `setClient()` authoritative: a
- * caller that captured this fallback early does not make it the app's client, so the
- * scaffold's client (and its token source) still takes effect for every later call.
+ * A service imported before setup may capture this handle, or one of its methods.
+ * Each invocation uses the current bonded transport, including its API prefix,
+ * interceptors and token source. Explicitly constructed clients remain independent.
+ * Subscriptions and configuration writes apply to the transport active when made;
+ * configure the application transport before registering interceptors on it.
  * The fallback follows a registered `setAuthTokenSource` source like a bonded client
  * does, so an app that bonds no client at all still sends the current session.
  *
@@ -179,6 +184,32 @@ export const getClient = (): HttpClient => {
     unbondedFallback = createFetchClient()
     if (authTokenSource) applyAuthTokenSource(unbondedFallback, authTokenSource, null)
   }
+  if (!earlyClient) {
+    const fallback = unbondedFallback
+    const active = (): HttpClient => {
+      const bonded = bondGet<HttpClient>(BOND_TYPE)
+      return bonded && bonded !== earlyClient ? bonded : fallback
+    }
+    const methods = new Map<PropertyKey, unknown>()
+    earlyClient = new Proxy(fallback, {
+      get(_target, property) {
+        const client = active()
+        const value = Reflect.get(client, property, client)
+        if (typeof value !== 'function') return value
+        if (!methods.has(property)) {
+          methods.set(property, (...args: unknown[]) => {
+            const current = active()
+            return Reflect.apply(Reflect.get(current, property, current), current, args)
+          })
+        }
+        return methods.get(property)
+      },
+      set(_target, property, value) {
+        const client = active()
+        return Reflect.set(client, property, value, client)
+      },
+    })
+  }
   if (!warnedAboutFallback) {
     warnedAboutFallback = true
     getLogger('http').warn(
@@ -186,7 +217,7 @@ export const getClient = (): HttpClient => {
         "Bond one: setClient(createFetchClient({ baseURL: '/api' })).",
     )
   }
-  return unbondedFallback
+  return earlyClient
 }
 
 /**

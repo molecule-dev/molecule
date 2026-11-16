@@ -62,11 +62,12 @@
  *   absolute dev URL like `'http://localhost:4000/api/…'`. A hardcoded `localhost`/host works on
  *   the author's machine, then fails cross-origin (CORS) in the preview and points at the wrong
  *   server in production. The base URL is configured ONCE (via `setClient`), not per call.
- * - **`getClient()` itself knows no baseURL.** The fallback client it mints when nothing is
+ * - **`getClient()` itself knows no baseURL.** Its same-origin fallback while nothing is
  *   bonded has `baseURL: ''`, so `getClient().get('/items')` requests the PAGE origin — in
  *   dev the Vite server answers its own `index.html` with a 200, and the HTML arrives as
  *   `data`, and the API then validates none of the fields it was sent. A scaffold bonds
- *   `'/api'`; an app that builds its own client must pass `{ baseURL }`.
+ *   `'/api'`. A handle captured before setup follows the client bonded later, including
+ *   extracted methods. An explicitly constructed client stays independent and must pass `{ baseURL }`.
  * - **The client is PUBLIC — never put a secret in it.** Anything the browser sends (an API
  *   key, a service-role / `sk_…` key, a signing secret) is visible to every user. Secrets
  *   stay in YOUR API; the browser calls your API and the API uses the secret server-side.
