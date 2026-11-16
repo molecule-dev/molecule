@@ -2,13 +2,15 @@ import { RestrictToHorizontalAxis, RestrictToVerticalAxis } from '@dnd-kit/abstr
 import type { DragEndEvent } from '@dnd-kit/dom'
 import { Accessibility, DragDropManager, KeyboardSensor, PointerSensor } from '@dnd-kit/dom'
 import { Sortable } from '@dnd-kit/dom/sortable'
-import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import {
-  dndKitAnnouncement,
+  DND_KIT_WAIT,
   installDndKitDom,
-  pressKey,
-  settleDndKit,
+  pickUpWithKey,
+  releaseWithKey,
+  waitForDndKitAnnouncement,
+  waitForSortableRows,
 } from '@molecule/app-framework-conformance/drag-drop'
 import { addTranslations, getLocale, setLocale } from '@molecule/app-i18n'
 
@@ -67,7 +69,7 @@ async function mountList(): Promise<{
   const sortables = items.map(
     (item, index) => new Sortable({ id: item.id, index, element: rows[index] }, manager),
   )
-  await settleDndKit()
+  await waitForSortableRows(rows)
   return { sortables, ends, rows }
 }
 
@@ -156,13 +158,14 @@ describe('sortableListPlugins', () => {
     })
     try {
       await setLocale('x-dnd-test')
-      await settleDndKit()
-      expect(rows.map((row) => row.getAttribute('aria-roledescription'))).toEqual([
-        'XX sortable',
-        'XX sortable',
-        'XX sortable',
-      ])
-      expect(instructions()).toBe('XX instructions')
+      await vi.waitFor(() => {
+        expect(rows.map((row) => row.getAttribute('aria-roledescription'))).toEqual([
+          'XX sortable',
+          'XX sortable',
+          'XX sortable',
+        ])
+        expect(instructions()).toBe('XX instructions')
+      }, DND_KIT_WAIT)
     } finally {
       await setLocale(start)
     }
@@ -186,26 +189,21 @@ describe('sortableListPlugins', () => {
 
   it('announces a keyboard pick-up and a cancel by label and position', async () => {
     const { rows } = await mountList()
-    rows[1].focus()
-    pressKey(rows[1], 'Space')
-    await settleDndKit()
-    expect(dndKitAnnouncement()).toBe('Picked up Beta, position 2 of 3.')
-    pressKey(rows[1], 'Escape')
-    await settleDndKit()
-    expect(dndKitAnnouncement()).toBe('Reordering cancelled. Beta is back at position 2 of 3.')
+    await pickUpWithKey(rows[1])
+    await waitForDndKitAnnouncement('Picked up Beta, position 2 of 3.')
+    await releaseWithKey(rows[1], 'Escape')
+    await waitForDndKitAnnouncement('Reordering cancelled. Beta is back at position 2 of 3.')
   })
 })
 
 describe('sortableListDrop', () => {
   it('moves the item to the place it was dropped and names the item it displaced', async () => {
     const { sortables, ends, rows } = await mountList()
-    rows[0].focus()
-    pressKey(rows[0], 'Space')
-    await settleDndKit()
+    await pickUpWithKey(rows[0])
     // jsdom has no layout, so stand in for the sortable plugin's move during the drag.
     sortables[0].index = 2
-    pressKey(rows[0], 'Space')
-    await settleDndKit()
+    await releaseWithKey(rows[0], 'Space')
+    await expect.poll(() => ends.length, DND_KIT_WAIT).toBe(1)
     const drop = sortableListDrop(items, ends[0])
     expect(drop.reordered?.map((item) => item.id)).toEqual(['b', 'c', 'a'])
     expect(drop.event).toMatchObject({ id: 'a', overId: 'c' })
@@ -213,21 +211,18 @@ describe('sortableListDrop', () => {
 
   it('keeps the order on a cancel, a disabled list, or a drop in place', async () => {
     const { sortables, ends, rows } = await mountList()
-    rows[0].focus()
-    pressKey(rows[0], 'Space')
-    await settleDndKit()
+    await pickUpWithKey(rows[0])
     sortables[0].index = 1
-    pressKey(rows[0], 'Escape')
-    await settleDndKit()
+    await releaseWithKey(rows[0], 'Escape')
+    await expect.poll(() => ends.length, DND_KIT_WAIT).toBe(1)
     expect(sortableListDrop(items, ends[0])).toMatchObject({
       event: { id: 'a', overId: undefined },
       reordered: null,
     })
 
-    pressKey(rows[1], 'Space')
-    await settleDndKit()
-    pressKey(rows[1], 'Space')
-    await settleDndKit()
+    await pickUpWithKey(rows[1])
+    await releaseWithKey(rows[1], 'Space')
+    await expect.poll(() => ends.length, DND_KIT_WAIT).toBe(2)
     expect(sortableListDrop(items, ends[1])).toMatchObject({
       event: { id: 'b', overId: 'b' },
       reordered: null,

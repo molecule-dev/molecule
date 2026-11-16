@@ -13,6 +13,8 @@
  * @module
  */
 
+import { expect, vi } from 'vitest'
+
 /**
  * A finished, inert `Animation`, which is all `@dnd-kit/dom`'s feedback waits on.
  * jsdom has no `Animation` class to construct, so this test double carries only
@@ -175,8 +177,13 @@ export function pressKey(element: Element, code: string): void {
 }
 
 /**
- * Waits for dnd-kit's scheduled work (effects, observers and announcements,
- * which it defers to timers).
+ * Waits a fixed time for dnd-kit's scheduled work. dnd-kit defers effects,
+ * observers and announcements to timers, which land hundreds of milliseconds
+ * late on a loaded machine, so a fixed wait before a positive expectation
+ * passes or fails with the load. Use it only after a press that must change
+ * nothing; wait for a state with {@link waitForSortableRows},
+ * {@link pickUpWithKey}, {@link releaseWithKey} or
+ * {@link waitForDndKitAnnouncement}.
  *
  * @param ms - How long to wait. Defaults to 50 ms.
  * @returns A promise that resolves after `ms`.
@@ -193,4 +200,69 @@ export function settleDndKit(ms = 50): Promise<void> {
 export function dndKitAnnouncement(): string {
   const region = document.querySelector('[role="status"][aria-live]')
   return region?.textContent?.trim() ?? ''
+}
+
+/**
+ * How long a wait for dnd-kit polls before it fails. A poll ends as soon as the
+ * state arrives, so the timeout only bounds a state that never comes.
+ */
+export const DND_KIT_WAIT = { timeout: 5000, interval: 10 }
+
+/**
+ * Waits until dnd-kit has made every row sortable. Its accessibility plugin adds
+ * the live region and each row's `tabindex`, `aria-describedby` and
+ * `aria-disabled` in one batch, and a pick-up pressed before that batch
+ * announces nothing.
+ *
+ * @param rows - The rows.
+ */
+export async function waitForSortableRows(rows: Iterable<Element>): Promise<void> {
+  const list = [...rows]
+  await vi.waitFor(() => {
+    for (const row of list) expect(row.hasAttribute('aria-disabled')).toBe(true)
+  }, DND_KIT_WAIT)
+}
+
+/**
+ * Whether dnd-kit marks a row as being dragged (`aria-pressed`).
+ *
+ * @param row - The row.
+ * @returns `true` while dragged.
+ */
+export function isDndKitDragging(row: Element): boolean {
+  return row.getAttribute('aria-pressed') === 'true'
+}
+
+/**
+ * Picks a row up with a key and waits until dnd-kit marks it dragged.
+ *
+ * @param row - The row.
+ * @param code - The key's `code`. Defaults to `'Space'`.
+ */
+export async function pickUpWithKey(row: HTMLElement, code = 'Space'): Promise<void> {
+  row.focus()
+  pressKey(row, code)
+  await vi.waitFor(() => expect(isDndKitDragging(row)).toBe(true), DND_KIT_WAIT)
+}
+
+/**
+ * Ends a drag with a key (`'Space'` drops, `'Escape'` cancels) and waits until
+ * dnd-kit no longer marks the row dragged.
+ *
+ * @param row - The row.
+ * @param code - The key's `code`.
+ */
+export async function releaseWithKey(row: HTMLElement, code: string): Promise<void> {
+  row.focus()
+  pressKey(row, code)
+  await vi.waitFor(() => expect(isDndKitDragging(row)).toBe(false), DND_KIT_WAIT)
+}
+
+/**
+ * Waits until dnd-kit's live region announces `text`.
+ *
+ * @param text - The expected announcement.
+ */
+export async function waitForDndKitAnnouncement(text: string): Promise<void> {
+  await expect.poll(dndKitAnnouncement, DND_KIT_WAIT).toBe(text)
 }

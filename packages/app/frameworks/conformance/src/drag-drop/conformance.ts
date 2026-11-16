@@ -18,7 +18,18 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { addTranslations, getLocale, setLocale } from '@molecule/app-i18n'
 
-import { dndKitAnnouncement, installDndKitDom, pressKey, settleDndKit } from './dom.js'
+import {
+  DND_KIT_WAIT,
+  dndKitAnnouncement,
+  installDndKitDom,
+  isDndKitDragging,
+  pickUpWithKey,
+  pressKey,
+  releaseWithKey,
+  settleDndKit,
+  waitForDndKitAnnouncement,
+  waitForSortableRows,
+} from './dom.js'
 
 /** An item of the conformance list. */
 export interface ConformanceItem {
@@ -102,13 +113,6 @@ const SWITCHED = {
 }
 
 /**
- * How long an expectation waits for dnd-kit. dnd-kit defers its work to timers,
- * which land hundreds of milliseconds late on a loaded machine, so a fixed wait
- * passes or fails with the load. A poll fails only when the state never comes.
- */
-const WAIT = { timeout: 5000, interval: 10 }
-
-/**
  * Runs the sortable-list conformance suite against one binding.
  *
  * @param framework - The framework's name, for the suite title.
@@ -149,11 +153,7 @@ export function describeSortableListConformance(
       ...overrides,
     })
     mounted = list
-    await vi.waitFor(() => {
-      for (const { id } of conformanceItems) {
-        expect(list.row(id).hasAttribute('aria-disabled')).toBe(true)
-      }
-    }, WAIT)
+    await waitForSortableRows(conformanceItems.map(({ id }) => list.row(id)))
     return { list, onReorder, onDragStart, onDragEnd }
   }
 
@@ -171,55 +171,13 @@ export function describeSortableListConformance(
   }
 
   /**
-   * Whether a row is being dragged, as dnd-kit marks it (`aria-pressed`).
-   *
-   * @param row - The row.
-   * @returns `true` while dragged.
-   */
-  const dragging = (row: HTMLElement): boolean => row.getAttribute('aria-pressed') === 'true'
-
-  /**
-   * Picks a row up with a key and waits until dnd-kit marks it dragged.
-   *
-   * @param row - The row.
-   * @param code - The key's `code`. Defaults to `'Space'`.
-   */
-  async function pickUp(row: HTMLElement, code = 'Space'): Promise<void> {
-    row.focus()
-    pressKey(row, code)
-    await vi.waitFor(() => expect(dragging(row)).toBe(true), WAIT)
-  }
-
-  /**
-   * Ends a drag with a key (`'Space'` drops, `'Escape'` cancels) and waits
-   * until dnd-kit no longer marks the row dragged.
-   *
-   * @param row - The row.
-   * @param code - The key's `code`.
-   */
-  async function release(row: HTMLElement, code: string): Promise<void> {
-    row.focus()
-    pressKey(row, code)
-    await vi.waitFor(() => expect(dragging(row)).toBe(false), WAIT)
-  }
-
-  /**
-   * Waits until dnd-kit's live region announces `text`.
-   *
-   * @param text - The expected announcement.
-   */
-  async function announced(text: string): Promise<void> {
-    await expect.poll(dndKitAnnouncement, WAIT).toBe(text)
-  }
-
-  /**
    * Waits until a callback has been called `times` times.
    *
    * @param callback - The mock.
    * @param times - The expected call count.
    */
   async function calledTimes(callback: ReturnType<typeof vi.fn>, times: number): Promise<void> {
-    await expect.poll(() => callback.mock.calls.length, WAIT).toBe(times)
+    await expect.poll(() => callback.mock.calls.length, DND_KIT_WAIT).toBe(times)
   }
 
   describe(`sortable list conformance (${framework})`, () => {
@@ -263,10 +221,10 @@ export function describeSortableListConformance(
               document.getElementById(row.getAttribute('aria-describedby') ?? '')?.textContent,
             ).toBe(SWITCHED['dragDrop.sortable.instructions'])
           }
-        }, WAIT)
-        await pickUp(list.row('a'))
-        await announced('XX Alpha 1/3')
-        await release(list.row('a'), 'Escape')
+        }, DND_KIT_WAIT)
+        await pickUpWithKey(list.row('a'))
+        await waitForDndKitAnnouncement('XX Alpha 1/3')
+        await releaseWithKey(list.row('a'), 'Escape')
       } finally {
         await setLocale(startLocale)
       }
@@ -276,32 +234,32 @@ export function describeSortableListConformance(
           document.getElementById(list.row('a').getAttribute('aria-describedby') ?? '')
             ?.textContent,
         ).toBe(INSTRUCTIONS)
-      }, WAIT)
+      }, DND_KIT_WAIT)
     })
 
     it('announces a pick-up by label and position, and reports it', async () => {
       const { list, onDragStart } = await mount()
       const row = list.row('b')
-      await pickUp(row)
-      await announced('Picked up Beta, position 2 of 3.')
+      await pickUpWithKey(row)
+      await waitForDndKitAnnouncement('Picked up Beta, position 2 of 3.')
       await calledTimes(onDragStart, 1)
       expect(onDragStart.mock.calls[0][0]).toMatchObject({ id: 'b' })
-      await release(row, 'Escape')
+      await releaseWithKey(row, 'Escape')
     })
 
     it('picks up with Enter as well as Space', async () => {
       const { list, onDragStart } = await mount()
-      await pickUp(list.row('a'), 'Enter')
+      await pickUpWithKey(list.row('a'), 'Enter')
       await calledTimes(onDragStart, 1)
-      await release(list.row('a'), 'Escape')
+      await releaseWithKey(list.row('a'), 'Escape')
     })
 
     it('cancels on Escape: announces it, reports no target, and keeps the order', async () => {
       const { list, onReorder, onDragEnd } = await mount()
       const row = list.row('b')
-      await pickUp(row)
-      await release(row, 'Escape')
-      await announced('Reordering cancelled. Beta is back at position 2 of 3.')
+      await pickUpWithKey(row)
+      await releaseWithKey(row, 'Escape')
+      await waitForDndKitAnnouncement('Reordering cancelled. Beta is back at position 2 of 3.')
       await calledTimes(onDragEnd, 1)
       expect(onDragEnd.mock.calls[0][0]).toMatchObject({ id: 'b', overId: undefined })
       expect(onReorder).not.toHaveBeenCalled()
@@ -310,9 +268,9 @@ export function describeSortableListConformance(
     it('a drop where the row started reports the row itself and keeps the order', async () => {
       const { list, onReorder, onDragEnd } = await mount()
       const row = list.row('b')
-      await pickUp(row)
-      await release(row, 'Space')
-      await announced('Dropped Beta at position 2 of 3.')
+      await pickUpWithKey(row)
+      await releaseWithKey(row, 'Space')
+      await waitForDndKitAnnouncement('Dropped Beta at position 2 of 3.')
       await calledTimes(onDragEnd, 1)
       expect(onDragEnd.mock.calls[0][0]).toMatchObject({ id: 'b', overId: 'b' })
       expect(onReorder).not.toHaveBeenCalled()
@@ -324,7 +282,7 @@ export function describeSortableListConformance(
       expect(row.getAttribute('aria-disabled')).toBe('true')
       await press(row, 'Space')
       expect(onDragStart).not.toHaveBeenCalled()
-      expect(dragging(row)).toBe(false)
+      expect(isDndKitDragging(row)).toBe(false)
       expect(dndKitAnnouncement()).toBe('')
     })
 
@@ -334,27 +292,27 @@ export function describeSortableListConformance(
       expect(list.row('a').getAttribute('aria-disabled')).toBe('false')
       await press(list.row('b'), 'Space')
       expect(onDragStart).not.toHaveBeenCalled()
-      await pickUp(list.row('a'))
+      await pickUpWithKey(list.row('a'))
       await calledTimes(onDragStart, 1)
-      await release(list.row('a'), 'Escape')
+      await releaseWithKey(list.row('a'), 'Escape')
     })
 
     it('with cancelOnEscape false, Escape does not end the drag', async () => {
       const { list, onDragEnd } = await mount({ config: { cancelOnEscape: false } })
       const row = list.row('b')
-      await pickUp(row)
+      await pickUpWithKey(row)
       await press(row, 'Escape')
       expect(onDragEnd).not.toHaveBeenCalled()
-      expect(dragging(row)).toBe(true)
-      await release(row, 'Space')
+      expect(isDndKitDragging(row)).toBe(true)
+      await releaseWithKey(row, 'Space')
       await calledTimes(onDragEnd, 1)
     })
 
     it('names a row by its id when the list has no getItemLabel', async () => {
       const { list } = await mount({ getItemLabel: undefined })
-      await pickUp(list.row('c'))
-      await announced('Picked up c, position 3 of 3.')
-      await release(list.row('c'), 'Escape')
+      await pickUpWithKey(list.row('c'))
+      await waitForDndKitAnnouncement('Picked up c, position 3 of 3.')
+      await releaseWithKey(list.row('c'), 'Escape')
     })
 
     it('unmounting removes the instructions and the live region', async () => {
@@ -365,7 +323,7 @@ export function describeSortableListConformance(
       await vi.waitFor(() => {
         expect(document.getElementById(describedBy)).toBeNull()
         expect(document.querySelector('[role="status"][aria-live]')).toBeNull()
-      }, WAIT)
+      }, DND_KIT_WAIT)
     })
 
     if (harness.mountRowOutsideList) {
