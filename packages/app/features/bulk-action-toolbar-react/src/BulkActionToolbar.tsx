@@ -43,6 +43,7 @@ export function BulkActionToolbar({
 }: BulkActionToolbarProps): ReactElement | null {
   const cm = getClassMap()
   const { t } = useTranslation()
+  const toolbarLabel = t('bulkActions.aria.toolbar', {}, { defaultValue: 'Bulk actions' })
   if (count <= 0) return null
   const stickyStyle: React.CSSProperties | undefined =
     position === 'sticky-bottom'
@@ -53,7 +54,7 @@ export function BulkActionToolbar({
   return (
     <div
       role="region"
-      aria-label="Bulk actions"
+      aria-label={toolbarLabel}
       className={cm.cn(
         cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
         cm.sp('px', 3),

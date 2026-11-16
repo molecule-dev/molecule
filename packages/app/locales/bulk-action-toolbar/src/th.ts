@@ -2,6 +2,7 @@ import type { BulkActionToolbarTranslations } from './types.js'
 
 /** BulkActionToolbar translations for th. */
 export const th: Partial<BulkActionToolbarTranslations> = {
+  'bulkActions.aria.toolbar': 'การดำเนินการจำนวนมาก',
   'bulkActions.clear': 'ชัดเจน',
   'bulkActions.selected': '{{count}} ที่เลือก',
 }

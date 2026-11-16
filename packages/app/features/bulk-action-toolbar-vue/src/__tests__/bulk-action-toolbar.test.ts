@@ -16,6 +16,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 
+import type { BulkActionToolbarProps } from '../types.js'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `link`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use, extended so `cm.button(…)`
@@ -61,7 +63,7 @@ const { BulkActionToolbar } = await import('../BulkActionToolbar.js')
 import { createApp, defineComponent, h } from 'vue'
 
 /** Renders a {@link BulkActionToolbar} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: BulkActionToolbarProps): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(BulkActionToolbar, props) }))

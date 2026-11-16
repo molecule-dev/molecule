@@ -2,6 +2,7 @@ import type { BulkActionToolbarTranslations } from './types.js'
 
 /** BulkActionToolbar translations for ru. */
 export const ru: Partial<BulkActionToolbarTranslations> = {
+  'bulkActions.aria.toolbar': 'Массовые действия',
   'bulkActions.clear': 'Прозрачный',
   'bulkActions.selected': '{{count}} выбрано',
 }

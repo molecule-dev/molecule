@@ -24,6 +24,10 @@
   const { t } = useTranslation()
   const cm = $derived(getClassMap())
 
+  // The toolbar's accessible name: `t()` with the English default
+  // `'Bulk actions'`, so a locale switch re-renders the label.
+  const toolbarLabel = $derived(t('bulkActions.aria.toolbar', {}, { defaultValue: 'Bulk actions' }))
+
   // React's sticky inline style for the current position — undefined for
   // `'inline'`, the way React leaves the style off.
   const stickyStyle = $derived(
@@ -38,7 +42,7 @@
 {#if count > 0}
   <div
     role="region"
-    aria-label="Bulk actions"
+    aria-label={toolbarLabel}
     class={cm.cn(
       cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
       cm.sp('px', 3),

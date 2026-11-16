@@ -2,6 +2,7 @@ import type { BulkActionToolbarTranslations } from './types.js'
 
 /** BulkActionToolbar translations for cs. */
 export const cs: Partial<BulkActionToolbarTranslations> = {
+  'bulkActions.aria.toolbar': 'Hromadné akce',
   'bulkActions.clear': 'Vymazat',
   'bulkActions.selected': 'Vybráno {{count}}',
 }

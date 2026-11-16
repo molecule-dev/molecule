@@ -77,7 +77,7 @@ export const BulkActionToolbar: Component<BulkActionToolbarProps> = (props) => {
     <Show when={props.count > 0}>
       <div
         role="region"
-        aria-label="Bulk actions"
+        aria-label={t('bulkActions.aria.toolbar', {}, { defaultValue: 'Bulk actions' })}
         class={cm.cn(
           cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
           cm.sp('px', 3),

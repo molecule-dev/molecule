@@ -2,6 +2,7 @@ import type { BulkActionToolbarTranslations } from './types.js'
 
 /** BulkActionToolbar translations for ar. */
 export const ar: Partial<BulkActionToolbarTranslations> = {
+  'bulkActions.aria.toolbar': 'إجراءات جماعية',
   'bulkActions.clear': 'مسح',
   'bulkActions.selected': 'تم تحديد {{count}}',
 }

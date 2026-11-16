@@ -23,8 +23,8 @@ import type { BulkAction } from './types.js'
  * way React's component does). `position` defaults to `'sticky-bottom'`
  * (16px inset, z-30); `'sticky-top'` and `'inline'` are also supported.
  * Destructive actions render as solid error-colored buttons. The count
- * label and Clear button are translated via `useTranslation()` with React's
- * exact keys and default values.
+ * label, the Clear button and the toolbar's own `aria-label` are translated
+ * via `useTranslation()` with React's exact keys and default values.
  *
  * @param props - Component props (see {@link BulkActionToolbarProps} in
  *   `./types.js`).
@@ -96,7 +96,7 @@ export const BulkActionToolbar = defineComponent({
         'div',
         {
           role: 'region',
-          'aria-label': 'Bulk actions',
+          'aria-label': t('bulkActions.aria.toolbar', {}, { defaultValue: 'Bulk actions' }),
           class: cm.cn(
             cm.flex({ align: 'center', justify: 'between', gap: 'md' }),
             cm.sp('px', 3),

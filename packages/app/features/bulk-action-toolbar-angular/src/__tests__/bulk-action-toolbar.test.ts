@@ -11,13 +11,14 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
   createComponent,
   provideZonelessChangeDetection,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
@@ -118,7 +119,7 @@ const mounted: Mounted[] = []
 
 /** The toolbar host element the component rendered (the region div). */
 const toolbarOf = (host: HTMLElement): HTMLElement => {
-  const el = host.querySelector('[role="region"]')
+  const el = host.querySelector<HTMLElement>('[role="region"]')
   if (!el) throw new Error('no toolbar rendered')
   return el
 }

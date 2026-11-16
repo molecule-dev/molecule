@@ -6,7 +6,14 @@
  * @module
  */
 
+import type { CaseA11y } from '../../ui/spec.js'
 import type { FeatureCases } from '../spec.js'
+
+/** The case passes an action with an empty or missing label. */
+const UNLABELLED_ACTION: CaseA11y = {
+  expect: ['button-name'],
+  reason: 'The case passes an action with an empty or missing label',
+}
 
 const archiveClick = { $callback: 'archiveClick' }
 const deleteClick = { $callback: 'deleteClick' }
@@ -41,12 +48,16 @@ export const bulkActionToolbarFeature: FeatureCases = {
     {
       component: 'BulkActionToolbar',
       cases: [
-        { name: 'count zero renders nothing', props: { count: 0, actions: [] } },
-        { name: 'negative count renders nothing', props: { count: -1, actions: [archive] } },
+        // The first case also runs again with a pseudo-locale switch
+        // ("…, then a locale switch"): the count label and the toolbar's
+        // `aria-label` must follow it. A rendering case leads, the way
+        // inbox-row and message-preview lead — the null-render checks follow.
         {
           name: 'two plain actions',
           props: { count: 2, actions: [archive, remove] },
         },
+        { name: 'count zero renders nothing', props: { count: 0, actions: [] } },
+        { name: 'negative count renders nothing', props: { count: -1, actions: [archive] } },
         {
           name: 'icons on the actions',
           props: { count: 3, actions: [archiveWithIcon, removeWithIcon] },
@@ -67,6 +78,7 @@ export const bulkActionToolbarFeature: FeatureCases = {
         },
         {
           name: 'an empty label renders the icon only',
+          a11y: UNLABELLED_ACTION,
           props: {
             count: 1,
             actions: [
@@ -81,6 +93,7 @@ export const bulkActionToolbarFeature: FeatureCases = {
         },
         {
           name: 'an icon-only action without a label',
+          a11y: UNLABELLED_ACTION,
           props: {
             count: 1,
             actions: [

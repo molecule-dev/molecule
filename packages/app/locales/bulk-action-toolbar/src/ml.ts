@@ -2,6 +2,7 @@ import type { BulkActionToolbarTranslations } from './types.js'
 
 /** BulkActionToolbar translations for ml. */
 export const ml: Partial<BulkActionToolbarTranslations> = {
+  'bulkActions.aria.toolbar': 'ബൾക്ക് പ്രവർത്തനങ്ങൾ',
   'bulkActions.clear': 'വ്യക്തം',
   'bulkActions.selected': '{{count}} തിരഞ്ഞെടുത്തു',
 }

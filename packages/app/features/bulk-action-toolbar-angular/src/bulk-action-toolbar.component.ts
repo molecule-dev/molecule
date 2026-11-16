@@ -55,7 +55,7 @@ const STICKY_TOP = { position: 'sticky', top: 16, zIndex: 30 } as const
   inputs: ['count', 'actions', 'onClearSelection', 'position', 'className'],
   host: {
     role: 'region',
-    'aria-label': 'Bulk actions',
+    '[attr.aria-label]': 'toolbarLabel()',
     '[class]': 'classes()',
     '[style]': 'inlineStyleText()',
   },
@@ -148,6 +148,15 @@ export class BulkActionToolbar implements AfterViewInit, DoCheck, OnDestroy {
    */
   rowClasses(): string {
     return this.cm().cn(this.cm().flex({ align: 'center', gap: 'sm' }))
+  }
+
+  /**
+   * The toolbar's accessible name (React's `aria-label`): prop-less `t()` with
+   * the English default `'Bulk actions'`, so a locale switch re-renders it.
+   * @returns The label text.
+   */
+  toolbarLabel(): string {
+    return this.i18n.t('bulkActions.aria.toolbar', {}, { defaultValue: 'Bulk actions' })
   }
 
   /**

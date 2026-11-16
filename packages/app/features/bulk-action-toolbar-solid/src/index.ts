@@ -24,10 +24,10 @@
  * it from selection state. `position` defaults to `'sticky-bottom'`
  * (16px inset, z-30); `'sticky-top'` and `'inline'` are also supported.
  * Destructive actions render as solid error-colored buttons. The count
- * label and Clear button are translated via `useTranslation()` (React's
- * exact keys and default values) and the companion
- * `@molecule/app-locales-bulk-action-toolbar` locale bond. An action's
- * node-valued fields (`label`, `icon`) are Solid JSX values.
+ * label, the Clear button and the toolbar's own `aria-label` are translated
+ * via `useTranslation()` (React's exact keys and default values) and the
+ * companion `@molecule/app-locales-bulk-action-toolbar` locale bond. An
+ * action's node-valued fields (`label`, `icon`) are Solid JSX values.
  *
  * @module
  */

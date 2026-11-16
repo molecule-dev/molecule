@@ -2,6 +2,7 @@ import type { BulkActionToolbarTranslations } from './types.js'
 
 /** BulkActionToolbar translations for ne. */
 export const ne: Partial<BulkActionToolbarTranslations> = {
+  'bulkActions.aria.toolbar': 'बल्क कार्यहरू',
   'bulkActions.clear': 'खाली गर्नुहोस्',
   'bulkActions.selected': '{{count}} चयन गरियो',
 }
