@@ -2,6 +2,8 @@
  * React tag-token input and tag-chip display.
  *
  * Exports:
+ * - `<TagList>` — read-only saved tags on detail/preview screens. Renders every
+ *   value in order; optional `itemClassName` and `renderTag` keep app-owned markup.
  * - `<TagChip>` — standalone labeled chip with optional remove button.
  * - `<TagInput>` — controlled tokenizer: Enter, comma, or Tab adds the
  *   draft; blur commits a non-empty draft; Backspace on an empty field
@@ -16,7 +18,7 @@
  * import { useState } from 'react'
  *
  * import { useTranslation } from '@molecule/app-react'
- * import { TagChip, TagInput, useTagInput } from '@molecule/app-tag-input-react'
+ * import { TagChip, TagInput, TagList, useTagInput } from '@molecule/app-tag-input-react'
  *
  * function TagEditor() {
  *   const [tags, setTags] = useState<string[]>(['react'])
@@ -26,6 +28,11 @@
  *       <TagChip onRemove={() => setTags(tags.filter((t) => t !== 'react'))}>react</TagChip>
  *     </>
  *   )
+ * }
+ *
+ * // Render the saved record's tags on the destination screen as well as in its editor.
+ * function RecordLabels({ record }: { record: { labels: string[] } }) {
+ *   return <TagList value={record.labels} />
  * }
  *
  * // App-owned markup: the input and the tag list are siblings.
@@ -76,4 +83,5 @@
 
 export * from './TagChip.js'
 export * from './TagInput.js'
+export * from './TagList.js'
 export * from './useTagInput.js'
