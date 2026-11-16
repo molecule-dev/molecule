@@ -19,4 +19,8 @@ export const th: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'ลิขสิทธิ์',
   'exifPanel.orientation': 'ปฐมนิเทศ',
   'exifPanel.mapLink': 'ดูบนแผนที่',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} ว.',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} มม.',
 }

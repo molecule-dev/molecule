@@ -19,4 +19,8 @@ export const hy: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Հեղինակային իրավունք',
   'exifPanel.orientation': 'Կողմնորոշում',
   'exifPanel.mapLink': 'Դիտել քարտեզի վրա',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} վ',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} մմ',
 }

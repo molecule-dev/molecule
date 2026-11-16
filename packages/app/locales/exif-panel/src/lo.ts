@@ -19,4 +19,8 @@ export const lo: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'ລິຂະສິດ',
   'exifPanel.orientation': 'ທິດທາງ',
   'exifPanel.mapLink': 'ເບິ່ງໃນແຜນທີ່',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} ວ',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} ມມ',
 }

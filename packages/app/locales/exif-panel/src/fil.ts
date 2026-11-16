@@ -19,4 +19,8 @@ export const fil: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Karapatang-ari',
   'exifPanel.orientation': 'Oryentasyon',
   'exifPanel.mapLink': 'Tingnan sa mapa',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

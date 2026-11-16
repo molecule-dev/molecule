@@ -19,4 +19,8 @@ export const af: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Kopiereg',
   'exifPanel.orientation': 'Oriëntasie',
   'exifPanel.mapLink': 'Bekyk op kaart',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

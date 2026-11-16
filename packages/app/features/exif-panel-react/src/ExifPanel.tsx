@@ -1,18 +1,15 @@
 import type { ReactElement, ReactNode } from 'react'
 
-import { useTranslation } from '@molecule/app-react'
+import { useLocale, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import { buildMapLink, formatCamera, formatGps, formatTimestamp } from './format.js'
 import {
-  buildMapLink,
-  formatAperture,
-  formatCamera,
-  formatFocalLength,
-  formatGps,
-  formatIso,
-  formatShutter,
-  formatTimestamp,
-} from './format.js'
+  formatApertureNumber,
+  formatFocalLengthNumber,
+  formatIsoNumber,
+  formatShutterNumber,
+} from './format-parts.js'
 import type { ExifPanelProps } from './types.js'
 
 /**
@@ -25,9 +22,12 @@ import type { ExifPanelProps } from './types.js'
  * normalized {@link ExifPanelProps.exif} object in. Empty / undefined
  * fields are silently skipped.
  *
- * All styling resolves through `getClassMap()` and all user-facing text
- * resolves through `useTranslation()` — no hardcoded UI strings or
- * styling-library class names.
+ * All styling resolves through `getClassMap()`. Every string the panel
+ * writes goes through `useTranslation()` — the exposure notations as
+ * `exifPanel.value.*` keys around their digits — and the capture
+ * timestamp formats in the app's active locale (`useLocale()`), so a
+ * locale switch re-words and re-formats the panel at once. No hardcoded
+ * UI strings or styling-library class names.
  *
  * @param props - {@link ExifPanelProps}.
  * @returns The rendered panel element.
@@ -36,18 +36,44 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
   const { exif, compact = false, showGps = true, heading, className } = props
   const cm = getClassMap()
   const { t } = useTranslation()
+  // Re-renders on a locale switch, so the timestamp re-formats at once.
+  const activeLocale = useLocale()
 
   const camera = formatCamera(exif.make, exif.model)
   const lens = exif.lensModel?.trim() || null
-  const aperture = formatAperture(exif.fNumber)
-  const shutter = formatShutter(exif.exposureTime)
-  const iso = formatIso(exif.iso)
-  const focal = formatFocalLength(exif.focalLength)
-  const focal35 = formatFocalLength(exif.focalLength35mm)
-  const exposureParts = [aperture, shutter, iso, focal].filter((v): v is string => v !== null)
+  const apertureDigits = formatApertureNumber(exif.fNumber)
+  const shutterDigits = formatShutterNumber(exif.exposureTime)
+  const isoDigits = formatIsoNumber(exif.iso)
+  const focalDigits = formatFocalLengthNumber(exif.focalLength)
+  const focal35Digits = formatFocalLengthNumber(exif.focalLength35mm)
+  // Each notation's digits render through t() (`exifPanel.value.*`), so a
+  // locale re-words the unit around them; the ` · ` join stays punctuation.
+  const apertureText =
+    apertureDigits === null
+      ? null
+      : t('exifPanel.value.aperture', { value: apertureDigits }, { defaultValue: 'f/{{value}}' })
+  const shutterText =
+    shutterDigits === null
+      ? null
+      : t('exifPanel.value.shutter', { value: shutterDigits }, { defaultValue: '{{value}} s' })
+  const isoText =
+    isoDigits === null
+      ? null
+      : t('exifPanel.value.iso', { value: isoDigits }, { defaultValue: 'ISO {{value}}' })
+  const focalText =
+    focalDigits === null
+      ? null
+      : t('exifPanel.value.focalLength', { value: focalDigits }, { defaultValue: '{{value}} mm' })
+  const focal35Text =
+    focal35Digits === null
+      ? null
+      : t('exifPanel.value.focalLength', { value: focal35Digits }, { defaultValue: '{{value}} mm' })
+  const exposureParts = [apertureText, shutterText, isoText, focalText].filter(
+    (v): v is string => v !== null,
+  )
   const gpsText = showGps ? formatGps(exif.gpsLatitude, exif.gpsLongitude) : null
   const mapHref = showGps ? buildMapLink(exif.gpsLatitude, exif.gpsLongitude) : null
-  const timestamp = formatTimestamp(exif.dateTimeOriginal)
+  const timestamp = formatTimestamp(exif.dateTimeOriginal, activeLocale)
   const software = exif.software?.trim() || null
   const copyright = exif.copyright?.trim() || null
 
@@ -136,11 +162,11 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
           exposureParts.length > 0 ? exposureParts.join(' · ') : null,
           'exif-panel-row-exposure',
         )}
-        {focal35 && focal35 !== focal
+        {focal35Text && focal35Text !== focalText
           ? renderRow(
               'focal35',
               t('exifPanel.focalLength35mm', {}, { defaultValue: '35 mm equivalent' }),
-              focal35,
+              focal35Text,
               'exif-panel-row-focal35',
             )
           : null}

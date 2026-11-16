@@ -19,4 +19,8 @@ export const km: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'សិទ្ធិអ្នកនិពន្ធ',
   'exifPanel.orientation': 'ការតំរង់ទិស',
   'exifPanel.mapLink': 'មើល​លើ​ផែនទី',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} វ',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} ម',
 }

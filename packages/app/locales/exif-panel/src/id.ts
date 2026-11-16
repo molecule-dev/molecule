@@ -19,4 +19,8 @@ export const id: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Hak cipta',
   'exifPanel.orientation': 'Orientasi',
   'exifPanel.mapLink': 'Lihat di peta',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} dtk',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

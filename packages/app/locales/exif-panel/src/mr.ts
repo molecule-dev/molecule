@@ -19,4 +19,8 @@ export const mr: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'कॉपीराइट',
   'exifPanel.orientation': 'अभिमुखता',
   'exifPanel.mapLink': 'नकाशावर पहा',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} से',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} मिमी',
 }

@@ -19,4 +19,8 @@ export const bs: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Autorska prava',
   'exifPanel.orientation': 'Orijentacija',
   'exifPanel.mapLink': 'Prikaži na mapi',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

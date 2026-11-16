@@ -19,4 +19,8 @@ export const vi: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Bản quyền',
   'exifPanel.orientation': 'Định hướng',
   'exifPanel.mapLink': 'Xem trên bản đồ',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

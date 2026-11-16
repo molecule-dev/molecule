@@ -19,4 +19,8 @@ export const zu: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Ilungelo lokushicilela',
   'exifPanel.orientation': 'Ukuqondiswa',
   'exifPanel.mapLink': 'Buka kumephu',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

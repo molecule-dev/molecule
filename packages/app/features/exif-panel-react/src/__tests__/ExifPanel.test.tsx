@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
 import { render } from '@testing-library/react'
-import type { ReactNode } from 'react'
 import React from 'react'
+import { act, type ReactNode } from 'react'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
@@ -47,6 +47,46 @@ function buildStubClassMap(): UIClassMap {
  */
 function Wrap({ children }: { children: ReactNode }): React.ReactElement {
   return <I18nProvider provider={createSimpleI18nProvider('en')}>{children}</I18nProvider>
+}
+
+/**
+ * An i18n provider whose translations mark each exposure-notation key, so a
+ * value that bypassed `t()` shows up as bare digits / plain English.
+ *
+ * @returns The provider.
+ */
+function markerProvider(): ReturnType<typeof createSimpleI18nProvider> {
+  return createSimpleI18nProvider('en', [
+    {
+      code: 'en',
+      name: 'English',
+      direction: 'ltr',
+      translations: {
+        'exifPanel.value.aperture': '«aperture {{value}}»',
+        'exifPanel.value.shutter': '«shutter {{value}}»',
+        'exifPanel.value.iso': '«iso {{value}}»',
+        'exifPanel.value.focalLength': '«focal {{value}}»',
+      },
+    },
+  ])
+}
+
+/**
+ * Wrap children in `I18nProvider` over an explicit provider.
+ *
+ * @param props - Wrapper props.
+ * @param props.provider - The provider to bond for the tree.
+ * @param props.children - Children to wrap.
+ * @returns The wrapped element tree.
+ */
+function WrapWith({
+  provider,
+  children,
+}: {
+  provider: ReturnType<typeof createSimpleI18nProvider>
+  children: ReactNode
+}): React.ReactElement {
+  return <I18nProvider provider={provider}>{children}</I18nProvider>
 }
 
 beforeEach(() => {
@@ -115,6 +155,47 @@ describe('<ExifPanel>', () => {
     expect(text).toContain('1/125 s')
     expect(text).toContain('ISO 800')
     expect(text).toContain('50 mm')
+  })
+
+  it('takes the exposure notations through i18n by default', () => {
+    const { container } = render(
+      <WrapWith provider={markerProvider()}>
+        <ExifPanel exif={fullExif} />
+      </WrapWith>,
+    )
+    const row = container.querySelector('[data-mol-id="exif-panel-row-exposure"] dd')
+    expect(row?.textContent).toBe('«aperture 2.8» · «shutter 1/125» · «iso 800» · «focal 50»')
+  })
+
+  it('takes the 35 mm-equivalent value through i18n by default', () => {
+    const { container } = render(
+      <WrapWith provider={markerProvider()}>
+        <ExifPanel exif={{ ...fullExif, focalLength: 35, focalLength35mm: 52 }} />
+      </WrapWith>,
+    )
+    const row = container.querySelector('[data-mol-id="exif-panel-row-focal35"]')
+    expect(row?.textContent).toContain('«focal 52»')
+  })
+
+  it('formats the captured timestamp in the active locale and re-formats on a switch', async () => {
+    const provider = createSimpleI18nProvider('en', [
+      { code: 'en', name: 'English', direction: 'ltr', translations: {} },
+      { code: 'de', name: 'Deutsch', direction: 'ltr', translations: {} },
+    ])
+    const { container } = render(
+      <WrapWith provider={provider}>
+        <ExifPanel exif={fullExif} />
+      </WrapWith>,
+    )
+    const row = (): string | undefined =>
+      container.querySelector('[data-mol-id="exif-panel-row-timestamp"]')?.textContent ?? undefined
+    expect(row()).toMatch(/[AP]M/)
+    await act(async () => {
+      await provider.setLocale('de')
+    })
+    const text = row() ?? ''
+    expect(text).toContain('15.6.2024')
+    expect(text).not.toMatch(/[AP]M/)
   })
 
   it('renders the GPS row as a map link by default', () => {

@@ -19,4 +19,8 @@ export const pt: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Direitos autorais',
   'exifPanel.orientation': 'Orientação',
   'exifPanel.mapLink': 'Ver no mapa',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

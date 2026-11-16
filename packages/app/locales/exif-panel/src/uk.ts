@@ -19,4 +19,8 @@ export const uk: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Авторське право',
   'exifPanel.orientation': 'Орієнтація',
   'exifPanel.mapLink': 'Переглянути на карті',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} с',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} мм',
 }

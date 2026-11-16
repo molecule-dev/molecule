@@ -19,4 +19,8 @@ export const bn: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'কপিরাইট',
   'exifPanel.orientation': 'অভিমুখীকরণ',
   'exifPanel.mapLink': 'মানচিত্রে দেখুন',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} সে',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} মিমি',
 }

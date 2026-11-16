@@ -19,4 +19,8 @@ export const zh: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': '版权',
   'exifPanel.orientation': '方向',
   'exifPanel.mapLink': '查看地图',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}}秒',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}}mm',
 }

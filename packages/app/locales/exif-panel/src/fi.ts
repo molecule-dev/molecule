@@ -19,4 +19,8 @@ export const fi: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Tekijänoikeus',
   'exifPanel.orientation': 'Suuntautuminen',
   'exifPanel.mapLink': 'Näytä kartalla',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

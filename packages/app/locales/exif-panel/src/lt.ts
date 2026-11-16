@@ -19,4 +19,8 @@ export const lt: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Autorių teisės',
   'exifPanel.orientation': 'Orientacija',
   'exifPanel.mapLink': 'Žiūrėti žemėlapyje',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

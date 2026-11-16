@@ -17,6 +17,10 @@ export type ExifPanelTranslationKey =
   | 'exifPanel.copyright'
   | 'exifPanel.orientation'
   | 'exifPanel.mapLink'
+  | 'exifPanel.value.aperture'
+  | 'exifPanel.value.shutter'
+  | 'exifPanel.value.iso'
+  | 'exifPanel.value.focalLength'
 
 /** Translation record mapping exif-panel keys to translated strings. */
 export type ExifPanelTranslations = Record<ExifPanelTranslationKey, string>

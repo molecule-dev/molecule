@@ -19,4 +19,8 @@ export const mn: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Зохиогчийн эрх',
   'exifPanel.orientation': 'Чиглэл',
   'exifPanel.mapLink': 'Газрын зураг дээр харах',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} с',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} мм',
 }

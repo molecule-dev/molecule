@@ -19,4 +19,8 @@ export const is: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Höfundarréttur',
   'exifPanel.orientation': 'Stefnumörkun',
   'exifPanel.mapLink': 'Skoða á korti',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

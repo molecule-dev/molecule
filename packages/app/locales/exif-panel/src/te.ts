@@ -19,4 +19,8 @@ export const te: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'కాపీరైట్',
   'exifPanel.orientation': 'దిశానిర్దేశం',
   'exifPanel.mapLink': 'మ్యాప్‌లో వీక్షించండి',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} సె',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} మిమీ',
 }

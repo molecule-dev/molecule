@@ -19,4 +19,8 @@ export const sq: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Të drejtat e autorit',
   'exifPanel.orientation': 'Orientimi',
   'exifPanel.mapLink': 'Shiko në hartë',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

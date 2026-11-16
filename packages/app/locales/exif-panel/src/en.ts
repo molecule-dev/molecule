@@ -19,4 +19,8 @@ export const en: ExifPanelTranslations = {
   'exifPanel.copyright': 'Copyright',
   'exifPanel.orientation': 'Orientation',
   'exifPanel.mapLink': 'View on map',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

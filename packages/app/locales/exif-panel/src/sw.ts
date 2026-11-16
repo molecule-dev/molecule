@@ -19,4 +19,8 @@ export const sw: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Hakimiliki',
   'exifPanel.orientation': 'Mwelekeo',
   'exifPanel.mapLink': 'Tazama kwenye ramani',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

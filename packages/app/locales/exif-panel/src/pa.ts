@@ -19,4 +19,8 @@ export const pa: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'ਕਾਪੀਰਾਈਟ',
   'exifPanel.orientation': 'ਦਿਸ਼ਾ-ਨਿਰਦੇਸ਼',
   'exifPanel.mapLink': "ਨਕਸ਼ੇ 'ਤੇ ਦੇਖੋ",
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} ਸੈ',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} ਮਿਮੀ',
 }

@@ -19,4 +19,8 @@ export const el: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Πνευματική ιδιοκτησία',
   'exifPanel.orientation': 'Προσανατολισμός',
   'exifPanel.mapLink': 'Προβολή στον χάρτη',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} δ',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} χιλ.',
 }

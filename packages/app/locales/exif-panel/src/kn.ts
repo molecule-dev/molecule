@@ -19,4 +19,8 @@ export const kn: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'ಕೃತಿಸ್ವಾಮ್ಯ',
   'exifPanel.orientation': 'ದೃಷ್ಟಿಕೋನ',
   'exifPanel.mapLink': 'ನಕ್ಷೆಯಲ್ಲಿ ವೀಕ್ಷಿಸಿ',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} ಸೆ',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} ಮಿಮೀ',
 }

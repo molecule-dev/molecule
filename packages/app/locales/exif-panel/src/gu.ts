@@ -19,4 +19,8 @@ export const gu: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'કૉપિરાઇટ',
   'exifPanel.orientation': 'ઓરિએન્ટેશન',
   'exifPanel.mapLink': 'નકશા પર જુઓ',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} સે',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} મીમી',
 }

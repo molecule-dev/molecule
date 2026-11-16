@@ -19,4 +19,8 @@ export const fa: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'حق نشر',
   'exifPanel.orientation': 'جهت گیری',
   'exifPanel.mapLink': 'مشاهده روی نقشه',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} ثانیه',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} میلی‌متر',
 }

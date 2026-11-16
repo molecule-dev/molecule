@@ -19,4 +19,8 @@ export const ta: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'பதிப்புரிமை',
   'exifPanel.orientation': 'நோக்குநிலை',
   'exifPanel.mapLink': 'வரைபடத்தில் காண்க',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} வி',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} மிமீ',
 }

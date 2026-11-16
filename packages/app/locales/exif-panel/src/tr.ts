@@ -19,4 +19,8 @@ export const tr: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Telif hakkı',
   'exifPanel.orientation': 'Oryantasyon',
   'exifPanel.mapLink': 'Haritada görüntüle',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} sn',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

@@ -19,4 +19,8 @@ export const ar: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'حقوق الطبع والنشر',
   'exifPanel.orientation': 'توجيه',
   'exifPanel.mapLink': 'عرض على الخريطة',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} ث',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} مم',
 }

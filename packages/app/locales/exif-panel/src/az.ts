@@ -19,4 +19,8 @@ export const az: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Müəllif hüquqları',
   'exifPanel.orientation': 'İstiqamət',
   'exifPanel.mapLink': 'Xəritədə baxın',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} san',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

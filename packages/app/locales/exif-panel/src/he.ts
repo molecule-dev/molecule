@@ -19,4 +19,8 @@ export const he: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'זְכוּת יְוֹצרִים',
   'exifPanel.orientation': 'הִתמַצְאוּת',
   'exifPanel.mapLink': 'הצג על המפה',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} שנ׳',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} מ״מ',
 }

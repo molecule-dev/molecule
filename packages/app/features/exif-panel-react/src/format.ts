@@ -8,6 +8,13 @@
  * @module
  */
 
+import {
+  formatApertureNumber,
+  formatFocalLengthNumber,
+  formatIsoNumber,
+  formatShutterNumber,
+} from './format-parts.js'
+
 /**
  * Format an aperture f-number as `f/N` with one decimal place dropped
  * when whole.
@@ -17,12 +24,8 @@
  *   the input is missing / invalid.
  */
 export function formatAperture(fNumber: number | undefined): string | null {
-  if (fNumber === undefined || fNumber === null) return null
-  if (!Number.isFinite(fNumber) || fNumber <= 0) return null
-  // Drop trailing ".0" for whole stops; otherwise keep one decimal.
-  const rounded = Math.round(fNumber * 10) / 10
-  const text = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1)
-  return `f/${text}`
+  const digits = formatApertureNumber(fNumber)
+  return digits === null ? null : `f/${digits}`
 }
 
 /**
@@ -35,16 +38,8 @@ export function formatAperture(fNumber: number | undefined): string | null {
  *   the input is missing / invalid.
  */
 export function formatShutter(seconds: number | undefined): string | null {
-  if (seconds === undefined || seconds === null) return null
-  if (!Number.isFinite(seconds) || seconds <= 0) return null
-  if (seconds >= 1) {
-    const rounded = Math.round(seconds * 10) / 10
-    const text = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1)
-    return `${text} s`
-  }
-  // Round the reciprocal denominator to nearest integer for sub-second.
-  const denom = Math.round(1 / seconds)
-  return `1/${denom} s`
+  const digits = formatShutterNumber(seconds)
+  return digits === null ? null : `${digits} s`
 }
 
 /**
@@ -54,9 +49,8 @@ export function formatShutter(seconds: number | undefined): string | null {
  * @returns A display string like `"ISO 1600"`, or `null` when missing.
  */
 export function formatIso(iso: number | undefined): string | null {
-  if (iso === undefined || iso === null) return null
-  if (!Number.isFinite(iso) || iso <= 0) return null
-  return `ISO ${Math.round(iso)}`
+  const digits = formatIsoNumber(iso)
+  return digits === null ? null : `ISO ${digits}`
 }
 
 /**
@@ -66,11 +60,8 @@ export function formatIso(iso: number | undefined): string | null {
  * @returns A display string like `"50 mm"`, or `null` when missing.
  */
 export function formatFocalLength(mm: number | undefined): string | null {
-  if (mm === undefined || mm === null) return null
-  if (!Number.isFinite(mm) || mm <= 0) return null
-  const rounded = Math.round(mm * 10) / 10
-  const text = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1)
-  return `${text} mm`
+  const digits = formatFocalLengthNumber(mm)
+  return digits === null ? null : `${digits} mm`
 }
 
 /**
@@ -136,13 +127,19 @@ export function buildMapLink(
 /**
  * Format an EXIF capture timestamp. Accepts `Date`, ISO string, or
  * epoch milliseconds and renders via `toLocaleString` so the result
- * respects the host environment's locale and timezone.
+ * respects the given locale and the host environment's timezone — pass
+ * the app's active locale so the text follows a locale switch.
  *
  * @param value - The timestamp value pulled from EXIF.
+ * @param locale - The locale to format in (an `Intl` locale code); the
+ *   host environment's locale when omitted.
  * @returns A locale-formatted date/time string, or `null` when missing
  *   or unparseable.
  */
-export function formatTimestamp(value: Date | string | number | undefined): string | null {
+export function formatTimestamp(
+  value: Date | string | number | undefined,
+  locale?: string,
+): string | null {
   if (value === undefined || value === null) return null
   let date: Date
   if (value instanceof Date) {
@@ -153,7 +150,7 @@ export function formatTimestamp(value: Date | string | number | undefined): stri
     date = new Date(value)
   }
   if (Number.isNaN(date.getTime())) return null
-  return date.toLocaleString()
+  return date.toLocaleString(locale)
 }
 
 /**

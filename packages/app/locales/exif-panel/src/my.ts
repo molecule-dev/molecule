@@ -19,4 +19,8 @@ export const my: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'မူပိုင်ခွင့်',
   'exifPanel.orientation': 'ဦးတည်ချက်',
   'exifPanel.mapLink': 'မြေပုံပေါ်တွင်ကြည့်ရန်',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} စက္ကန့်',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} မီလီမီတာ',
 }

@@ -19,4 +19,8 @@ export const mt: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Drittijiet tal-awtur',
   'exifPanel.orientation': 'Orjentazzjoni',
   'exifPanel.mapLink': 'Ara fuq il-mappa',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

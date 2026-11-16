@@ -19,4 +19,8 @@ export const ml: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'പകർപ്പവകാശം',
   'exifPanel.orientation': 'ഓറിയന്റേഷൻ',
   'exifPanel.mapLink': 'മാപ്പിൽ കാണുക',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} സെ',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} മിമീ',
 }

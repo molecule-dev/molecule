@@ -19,4 +19,8 @@ export const ur: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'کاپی رائٹ',
   'exifPanel.orientation': 'واقفیت',
   'exifPanel.mapLink': 'نقشے پر دیکھیں',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} س',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} مم',
 }

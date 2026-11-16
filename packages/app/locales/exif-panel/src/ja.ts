@@ -19,4 +19,8 @@ export const ja: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': '著作権',
   'exifPanel.orientation': 'オリエンテーション',
   'exifPanel.mapLink': '地図で表示',
+  'exifPanel.value.aperture': 'F{{value}}',
+  'exifPanel.value.shutter': '{{value}}秒',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}}mm',
 }

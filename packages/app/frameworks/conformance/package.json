@@ -113,6 +113,8 @@
     "@molecule/app-drawing-toolbar-react": "4.0.0",
     "@molecule/app-editor-layout-react": "4.0.0",
     "@molecule/app-editor-toolbar-react": "4.0.0",
+    "@molecule/app-empty-state-react": "4.1.0",
+    "@molecule/app-exif-panel-react": "4.0.0",
     "@molecule/app-feature-flag-row-react": "4.0.0",
     "@molecule/app-flashcard-card-react": "4.0.0",
     "@molecule/app-floating-action-button-react": "4.0.0",

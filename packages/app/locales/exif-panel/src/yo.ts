@@ -19,4 +19,8 @@ export const yo: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Ẹ̀tọ́ àdáwòkọ',
   'exifPanel.orientation': 'Ìtọ́sọ́nà',
   'exifPanel.mapLink': 'Wo lórí máàpù',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

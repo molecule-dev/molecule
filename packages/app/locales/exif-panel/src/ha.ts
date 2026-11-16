@@ -19,4 +19,8 @@ export const ha: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Hakkin mallaka',
   'exifPanel.orientation': 'Hanya',
   'exifPanel.mapLink': 'Duba a taswira',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

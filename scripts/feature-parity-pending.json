@@ -149,18 +149,6 @@
     "svelte",
     "angular"
   ],
-  "@molecule/app-empty-state-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
-  "@molecule/app-exif-panel-react": [
-    "vue",
-    "solid",
-    "svelte",
-    "angular"
-  ],
   "@molecule/app-faceted-search-react": [
     "vue",
     "solid",

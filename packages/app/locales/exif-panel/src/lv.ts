@@ -19,4 +19,8 @@ export const lv: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Autortiesības',
   'exifPanel.orientation': 'Orientācija',
   'exifPanel.mapLink': 'Skatīt kartē',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

@@ -19,4 +19,8 @@ export const si: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'හිමිකම',
   'exifPanel.orientation': 'දිශානතිය',
   'exifPanel.mapLink': 'සිතියමෙහි බලන්න',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} ත',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} මී',
 }

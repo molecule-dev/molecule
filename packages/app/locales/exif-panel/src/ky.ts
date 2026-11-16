@@ -19,4 +19,8 @@ export const ky: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Автордук укук',
   'exifPanel.orientation': 'Багыттоо',
   'exifPanel.mapLink': 'Картадан көрүү',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} с',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} мм',
 }

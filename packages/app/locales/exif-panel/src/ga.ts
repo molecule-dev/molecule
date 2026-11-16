@@ -19,4 +19,8 @@ export const ga: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Cóipcheart',
   'exifPanel.orientation': 'Treoshuíomh',
   'exifPanel.mapLink': 'Féach ar léarscáil',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

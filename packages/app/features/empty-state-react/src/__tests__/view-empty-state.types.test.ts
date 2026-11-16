@@ -1,5 +1,3 @@
-import { join } from 'node:path'
-
 import ts from 'typescript'
 import { beforeAll, describe, expect, it } from 'vitest'
 
@@ -21,7 +19,10 @@ const results = new Map<keyof typeof cases, string[]>()
 beforeAll(() => {
   const sources = new Map<string, { key: keyof typeof cases; source: string }>()
   for (const key of Object.keys(cases) as (keyof typeof cases)[]) {
-    const file = join(import.meta.dirname, `../../empty-state-contract-${key}.ts`)
+    // A sibling of the package's src/ directory, so the module's own './src/EmptyState.js'
+    // import resolves against the real source tree. Resolved from import.meta.url rather
+    // than node:path because this package's tsconfig does not load the node types.
+    const file = new URL(`../../empty-state-contract-${key}.ts`, import.meta.url).pathname
     sources.set(file, {
       key,
       source: [

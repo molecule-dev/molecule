@@ -19,4 +19,8 @@ export const sv: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Upphovsrätt',
   'exifPanel.orientation': 'Orientering',
   'exifPanel.mapLink': 'Visa på karta',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

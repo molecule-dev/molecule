@@ -19,4 +19,8 @@ export const ko: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': '저작권',
   'exifPanel.orientation': '정위',
   'exifPanel.mapLink': '지도에서 보기',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}}초',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}}mm',
 }

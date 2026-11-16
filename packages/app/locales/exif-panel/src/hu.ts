@@ -19,4 +19,8 @@ export const hu: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Szerzői jog',
   'exifPanel.orientation': 'Tájolás',
   'exifPanel.mapLink': 'Térképen való megtekintés',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} mp',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

@@ -19,4 +19,8 @@ export const gl: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'Dereitos de autor',
   'exifPanel.orientation': 'Orientación',
   'exifPanel.mapLink': 'Ver no mapa',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

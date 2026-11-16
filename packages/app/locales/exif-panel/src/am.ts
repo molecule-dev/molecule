@@ -19,4 +19,8 @@ export const am: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'የቅጂ መብት',
   'exifPanel.orientation': 'አቅጣጫ',
   'exifPanel.mapLink': 'በካርታው ላይ ይመልከቱ',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} s',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} mm',
 }

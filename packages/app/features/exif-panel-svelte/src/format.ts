@@ -1,0 +1,174 @@
+/**
+ * Pure string-formatting helpers for EXIF values.
+ *
+ * Kept separate from the React component so they can be unit-tested
+ * without a DOM and reused by callers that want the formatted strings
+ * for non-rendering purposes (alt text, share captions, etc.).
+ *
+ * @module
+ */
+
+import {
+  formatApertureNumber,
+  formatFocalLengthNumber,
+  formatIsoNumber,
+  formatShutterNumber,
+} from './format-parts.js'
+
+/**
+ * Format an aperture f-number as `f/N` with one decimal place dropped
+ * when whole.
+ *
+ * @param fNumber - The aperture value (e.g. `2.8`, `5.6`, `8`).
+ * @returns A display string like `"f/2.8"` or `"f/8"`, or `null` when
+ *   the input is missing / invalid.
+ */
+export function formatAperture(fNumber: number | undefined): string | null {
+  const digits = formatApertureNumber(fNumber)
+  return digits === null ? null : `f/${digits}`
+}
+
+/**
+ * Format a shutter / exposure time in seconds as a human-readable
+ * string. Sub-second times are rendered as a `1/x s` reciprocal with
+ * the denominator rounded; longer exposures stay in seconds.
+ *
+ * @param seconds - Exposure time in seconds.
+ * @returns A display string like `"1/125 s"` or `"2 s"`, or `null` when
+ *   the input is missing / invalid.
+ */
+export function formatShutter(seconds: number | undefined): string | null {
+  const digits = formatShutterNumber(seconds)
+  return digits === null ? null : `${digits} s`
+}
+
+/**
+ * Format an ISO sensitivity as `ISO N`.
+ *
+ * @param iso - The ISO value (e.g. `100`, `1600`).
+ * @returns A display string like `"ISO 1600"`, or `null` when missing.
+ */
+export function formatIso(iso: number | undefined): string | null {
+  const digits = formatIsoNumber(iso)
+  return digits === null ? null : `ISO ${digits}`
+}
+
+/**
+ * Format a focal length value as `N mm`.
+ *
+ * @param mm - Focal length in millimetres.
+ * @returns A display string like `"50 mm"`, or `null` when missing.
+ */
+export function formatFocalLength(mm: number | undefined): string | null {
+  const digits = formatFocalLengthNumber(mm)
+  return digits === null ? null : `${digits} mm`
+}
+
+/**
+ * Format a single GPS coordinate (latitude or longitude) as
+ * deg/min/sec with a hemisphere suffix.
+ *
+ * @param value - Signed decimal degrees.
+ * @param axis - Which axis the value represents — picks `N`/`S` vs `E`/`W`.
+ * @returns A string like `"37° 25' 19.07" N"`, or `null` when missing.
+ */
+export function formatDms(value: number | undefined, axis: 'lat' | 'lon'): string | null {
+  if (value === undefined || value === null) return null
+  if (!Number.isFinite(value)) return null
+  const positiveLabel = axis === 'lat' ? 'N' : 'E'
+  const negativeLabel = axis === 'lat' ? 'S' : 'W'
+  const hemisphere = value >= 0 ? positiveLabel : negativeLabel
+  const abs = Math.abs(value)
+  const deg = Math.floor(abs)
+  const minutesFloat = (abs - deg) * 60
+  const min = Math.floor(minutesFloat)
+  const seconds = (minutesFloat - min) * 60
+  const secText = (Math.round(seconds * 100) / 100).toFixed(2)
+  return `${deg}° ${min}' ${secText}" ${hemisphere}`
+}
+
+/**
+ * Format a GPS coordinate pair as a single deg/min/sec string.
+ *
+ * @param latitude - Latitude in signed decimal degrees.
+ * @param longitude - Longitude in signed decimal degrees.
+ * @returns A combined string like `"37° 25' 19.07" N, 122° 5' 4.16" W"`,
+ *   or `null` if either value is missing.
+ */
+export function formatGps(
+  latitude: number | undefined,
+  longitude: number | undefined,
+): string | null {
+  const lat = formatDms(latitude, 'lat')
+  const lon = formatDms(longitude, 'lon')
+  if (!lat || !lon) return null
+  return `${lat}, ${lon}`
+}
+
+/**
+ * Build an OpenStreetMap link URL for a GPS coordinate pair.
+ *
+ * @param latitude - Latitude in signed decimal degrees.
+ * @param longitude - Longitude in signed decimal degrees.
+ * @returns An `https://www.openstreetmap.org/?...` URL, or `null` when
+ *   either input is missing.
+ */
+export function buildMapLink(
+  latitude: number | undefined,
+  longitude: number | undefined,
+): string | null {
+  if (latitude === undefined || longitude === undefined) return null
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null
+  const lat = latitude.toFixed(6)
+  const lon = longitude.toFixed(6)
+  return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}`
+}
+
+/**
+ * Format an EXIF capture timestamp. Accepts `Date`, ISO string, or
+ * epoch milliseconds and renders via `toLocaleString` so the result
+ * respects the given locale and the host environment's timezone — pass
+ * the app's active locale so the text follows a locale switch.
+ *
+ * @param value - The timestamp value pulled from EXIF.
+ * @param locale - The locale to format in (an `Intl` locale code); the
+ *   host environment's locale when omitted.
+ * @returns A locale-formatted date/time string, or `null` when missing
+ *   or unparseable.
+ */
+export function formatTimestamp(
+  value: Date | string | number | undefined,
+  locale?: string,
+): string | null {
+  if (value === undefined || value === null) return null
+  let date: Date
+  if (value instanceof Date) {
+    date = value
+  } else if (typeof value === 'number') {
+    date = new Date(value)
+  } else {
+    date = new Date(value)
+  }
+  if (Number.isNaN(date.getTime())) return null
+  return date.toLocaleString(locale)
+}
+
+/**
+ * Compose camera make + model into a single `"Make Model"` string,
+ * collapsing duplication when the model already starts with the make
+ * (Sony often does this).
+ *
+ * @param make - Camera manufacturer.
+ * @param model - Camera model.
+ * @returns The combined label, or `null` when both inputs are missing.
+ */
+export function formatCamera(make: string | undefined, model: string | undefined): string | null {
+  const m = make?.trim()
+  const md = model?.trim()
+  if (!m && !md) return null
+  if (!md) return m ?? null
+  if (!m) return md
+  // Avoid "Sony Sony a7 III" when model already starts with make.
+  if (md.toLowerCase().startsWith(m.toLowerCase())) return md
+  return `${m} ${md}`
+}

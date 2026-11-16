@@ -11,6 +11,12 @@ import {
   formatShutter,
   formatTimestamp,
 } from '../format.js'
+import {
+  formatApertureNumber,
+  formatFocalLengthNumber,
+  formatIsoNumber,
+  formatShutterNumber,
+} from '../format-parts.js'
 
 describe('formatAperture', () => {
   it('renders whole stops without trailing zero', () => {
@@ -154,6 +160,66 @@ describe('buildMapLink', () => {
   })
 })
 
+describe('formatApertureNumber', () => {
+  it('returns the aperture number without the f/ prefix', () => {
+    expect(formatApertureNumber(2.8)).toBe('2.8')
+    expect(formatApertureNumber(8)).toBe('8')
+    expect(formatApertureNumber(2.85)).toBe('2.9')
+  })
+
+  it('returns null for missing / invalid values', () => {
+    expect(formatApertureNumber(undefined)).toBeNull()
+    expect(formatApertureNumber(0)).toBeNull()
+    expect(formatApertureNumber(-1)).toBeNull()
+    expect(formatApertureNumber(Number.NaN)).toBeNull()
+  })
+})
+
+describe('formatShutterNumber', () => {
+  it('returns sub-second shutter as the reciprocal digits', () => {
+    expect(formatShutterNumber(0.008)).toBe('1/125')
+    expect(formatShutterNumber(1 / 60)).toBe('1/60')
+  })
+
+  it('returns whole-second exposures as plain digits', () => {
+    expect(formatShutterNumber(1)).toBe('1')
+    expect(formatShutterNumber(2.5)).toBe('2.5')
+    expect(formatShutterNumber(30)).toBe('30')
+  })
+
+  it('returns null for missing / invalid values', () => {
+    expect(formatShutterNumber(undefined)).toBeNull()
+    expect(formatShutterNumber(0)).toBeNull()
+    expect(formatShutterNumber(Number.NaN)).toBeNull()
+  })
+})
+
+describe('formatIsoNumber', () => {
+  it('returns the ISO value rounded to integers', () => {
+    expect(formatIsoNumber(800)).toBe('800')
+    expect(formatIsoNumber(204.6)).toBe('205')
+  })
+
+  it('returns null for missing / invalid values', () => {
+    expect(formatIsoNumber(undefined)).toBeNull()
+    expect(formatIsoNumber(0)).toBeNull()
+    expect(formatIsoNumber(-100)).toBeNull()
+  })
+})
+
+describe('formatFocalLengthNumber', () => {
+  it('returns the focal length without the mm unit', () => {
+    expect(formatFocalLengthNumber(50)).toBe('50')
+    expect(formatFocalLengthNumber(35.5)).toBe('35.5')
+  })
+
+  it('returns null for missing / invalid values', () => {
+    expect(formatFocalLengthNumber(undefined)).toBeNull()
+    expect(formatFocalLengthNumber(0)).toBeNull()
+    expect(formatFocalLengthNumber(-50)).toBeNull()
+  })
+})
+
 describe('formatTimestamp', () => {
   it('formats Date instances', () => {
     const d = new Date(Date.UTC(2024, 5, 15, 12, 30, 45))
@@ -176,6 +242,18 @@ describe('formatTimestamp', () => {
   it('returns null for missing / invalid values', () => {
     expect(formatTimestamp(undefined)).toBeNull()
     expect(formatTimestamp('not-a-date')).toBeNull()
+  })
+
+  it('formats in the given locale when one is passed', () => {
+    const out = formatTimestamp('2024-06-15T12:30:45Z', 'de')
+    expect(out).toContain('15.6.2024')
+    expect(out).not.toMatch(/[AP]M/)
+  })
+
+  it('formats in the host locale when no locale is passed', () => {
+    expect(formatTimestamp('2024-06-15T12:30:45Z')).toBe(
+      new Date('2024-06-15T12:30:45Z').toLocaleString(),
+    )
   })
 })
 

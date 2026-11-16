@@ -19,4 +19,8 @@ export const ka: Partial<ExifPanelTranslations> = {
   'exifPanel.copyright': 'საავტორო უფლებები',
   'exifPanel.orientation': 'ორიენტაცია',
   'exifPanel.mapLink': 'რუკაზე ნახვა',
+  'exifPanel.value.aperture': 'f/{{value}}',
+  'exifPanel.value.shutter': '{{value}} წმ',
+  'exifPanel.value.iso': 'ISO {{value}}',
+  'exifPanel.value.focalLength': '{{value}} მმ',
 }
