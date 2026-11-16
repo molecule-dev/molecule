@@ -39071,7 +39071,9 @@
         "isSubmitting": false,
         "isValid": true,
         "submitCount": 0,
-        "touched": {},
+        "touched": {
+         "name": true
+        },
         "values": {
          "email": "srv@x.y",
          "name": "Bob"
@@ -39103,7 +39105,8 @@
         "isValid": true,
         "submitCount": 0,
         "touched": {
-         "email": true
+         "email": true,
+         "name": true
         },
         "values": {
          "email": "edit@x.y",

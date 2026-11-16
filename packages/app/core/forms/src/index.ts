@@ -34,6 +34,11 @@
  * Build forms with {@link createForm} (or the framework hook), not a direct react-hook-form /
  * formik import — that couples you to one library and breaks the swap.
  *
+ * - For independent loaded fields, call `updateValues({ email }, { keepDirtyValues: true,
+ *   keepOmittedValues: true })`. Omitted fields retain their latest clean baseline,
+ *   and edited values remain dirty. Framework `asState(field)` fill setters do this
+ *   automatically. Whole-form fills and ordinary `updateValues` replace the record
+ *   from its original defaults, so fields omitted by a new record cannot leak.
  * - **Client validation is UX, NOT a security boundary.** {@link validateValue} / client rules
  *   give instant feedback, but the SERVER must re-validate every field it receives — a request
  *   can skip the form entirely (curl, a tampered client). Never trust a value because the

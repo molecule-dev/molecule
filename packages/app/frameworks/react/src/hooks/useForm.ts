@@ -14,6 +14,7 @@ import type {
   FormOptions,
   FormResetOptions,
   FormState,
+  FormUpdateOptions,
   FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
@@ -101,7 +102,7 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
     onSubmit: (values: T) => void | Promise<void>,
   ) => (event?: React.FormEvent) => Promise<void>
   reset: (values?: Partial<T>) => void
-  updateValues: (values: Partial<T>, resetOptions?: FormResetOptions) => void
+  updateValues: (values: Partial<T>, resetOptions?: FormUpdateOptions) => void
   /** Whole-form state tuple: edits mark only changed fields dirty; fills preserve them. */
   asState(): readonly [
     T,
@@ -242,7 +243,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
   const reset = useCallback((values?: Partial<T>) => form.reset(values), [form])
 
   const updateValues = useCallback(
-    (newValues: Partial<T>, resetOptions?: FormResetOptions) =>
+    (newValues: Partial<T>, resetOptions?: FormUpdateOptions) =>
       form.updateValues(newValues, resetOptions),
     [form],
   )
@@ -295,7 +296,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
             : value
         form.updateValues(
           name === undefined ? (next as Partial<T>) : ({ [name]: next } as Partial<T>),
-          { keepDirtyValues: true },
+          { keepDirtyValues: true, keepOmittedValues: name !== undefined },
         )
       }
       stateTuples.set(name, [edit, fill])

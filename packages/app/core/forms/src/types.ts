@@ -418,9 +418,10 @@ export interface FormController<T extends FormValuesConstraint<T> = Record<strin
    * record, never a merge of earlier records. With `keepDirtyValues`, edited
    * fields retain their values while pristine fields take the loaded values.
    * A changed non-null `id` still replaces the record and cancels a pending
-   * submit. Equal-content baselines cause no update.
+   * submit. Equal-content baselines cause no update. `keepOmittedValues` opts
+   * into incremental top-level field fills using the current clean baseline.
    */
-  updateValues(values: Partial<T>, resetOptions?: FormResetOptions): void
+  updateValues(values: Partial<T>, resetOptions?: FormUpdateOptions): void
 
   /**
    * Handles form submission.
@@ -466,6 +467,16 @@ export interface FormResetOptions {
    * new record can replace edits from the previous record.
    */
   keepDirtyValues?: boolean
+}
+
+/** Options for applying a loaded record or incrementally loaded fields. */
+export interface FormUpdateOptions extends FormResetOptions {
+  /**
+   * Preserve the current clean baseline for omitted top-level fields. Used for
+   * independent field fills; false by default for whole-record replacements.
+   * A changed non-null record id always starts from the original defaults.
+   */
+  keepOmittedValues?: boolean
 }
 
 /**

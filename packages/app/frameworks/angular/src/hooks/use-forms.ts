@@ -14,6 +14,7 @@ import type {
   FormOptions,
   FormResetOptions,
   FormState,
+  FormUpdateOptions,
   FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
@@ -141,7 +142,7 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
    * @param values - The values to apply.
    * @param resetOptions - Whether edits survive.
    */
-  updateValues: (values: Partial<T>, resetOptions?: FormResetOptions) => void
+  updateValues: (values: Partial<T>, resetOptions?: FormUpdateOptions) => void
   /**
    * Whole-form state tuple: edits mark only changed fields dirty; fills
    * preserve them.
@@ -323,7 +324,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
 
   const reset = (resetValues?: Partial<T>): void => form.reset(resetValues)
 
-  const updateValues = (newValues: Partial<T>, resetOpts?: FormResetOptions): void =>
+  const updateValues = (newValues: Partial<T>, resetOpts?: FormUpdateOptions): void =>
     form.updateValues(newValues, resetOpts)
 
   // The implementation is widened to `unknown` and the object literal's cast
@@ -356,7 +357,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
           : value
       form.updateValues(
         name === undefined ? (next as Partial<T>) : ({ [name]: next } as Partial<T>),
-        { keepDirtyValues: true },
+        { keepDirtyValues: true, keepOmittedValues: name !== undefined },
       )
     }
     const visible = name === undefined ? form.getState().values : form.getValue(name)

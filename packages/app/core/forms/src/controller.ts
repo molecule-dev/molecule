@@ -13,8 +13,8 @@ import type {
   FormController,
   FormOptions,
   FormProvider,
-  FormResetOptions,
   FormState,
+  FormUpdateOptions,
   FormValuesConstraint,
   RegisterOptions,
   ValidationSchema,
@@ -176,10 +176,11 @@ export const createNativeFormProvider = (): FormProvider => {
       const reviseChangedValues = (
         previous: Record<string, unknown>,
         next: Record<string, unknown>,
-      ): void => {
+      ): string[] => {
         const names = new Set([...Object.keys(previous), ...Object.keys(next)])
         const changed = [...names].filter((name) => !formValuesEqual(previous[name], next[name]))
         if (changed.length > 0) advanceValueRevision(changed)
+        return changed
       }
       const recordIdentityChanged = (
         previous: Record<string, unknown>,
@@ -553,36 +554,49 @@ export const createNativeFormProvider = (): FormProvider => {
           return runFormValidation(true)
         },
 
-        updateValues(newValues: Partial<T>, resetOptions: FormResetOptions = {}): void {
-          const nextDefaultValues = snapshotFormValue({
-            ...originalDefaultValues,
+        updateValues(newValues: Partial<T>, resetOptions: FormUpdateOptions = {}): void {
+          let nextDefaultValues = snapshotFormValue({
+            ...(resetOptions.keepOmittedValues ? defaultValues : originalDefaultValues),
             ...(newValues as Record<string, unknown>),
           })
+          const changedRecord = recordIdentityChanged(defaultValues, nextDefaultValues)
+          if (resetOptions.keepOmittedValues && changedRecord)
+            nextDefaultValues = snapshotFormValue({
+              ...originalDefaultValues,
+              ...(newValues as Record<string, unknown>),
+            })
           if (formValuesEqual(nextDefaultValues, defaultValues)) return
 
           const currentValues = values
           const previousDefaultValues = defaultValues
-          if (recordIdentityChanged(previousDefaultValues, nextDefaultValues)) {
+          if (changedRecord) {
             submitError = undefined
           }
-          if (
-            resetOptions.keepDirtyValues !== true ||
-            recordIdentityChanged(previousDefaultValues, nextDefaultValues)
-          ) {
+          if (resetOptions.keepDirtyValues !== true || changedRecord) {
             submissionValidationVersion++
             replacementRevision++
           }
           // Dirty preservation follows plain-object leaves, so a nested edit
           // cannot prevent an untouched sibling from receiving its loaded value.
-          const nextValues = resetOptions.keepDirtyValues
-            ? preserveDirtyValues(currentValues, previousDefaultValues, nextDefaultValues)
-            : snapshotFormValue(nextDefaultValues)
-          reviseChangedValues(values, nextValues)
+          const nextValues =
+            resetOptions.keepDirtyValues && !changedRecord
+              ? preserveDirtyValues(currentValues, previousDefaultValues, nextDefaultValues)
+              : snapshotFormValue(nextDefaultValues)
+          const changedFields = reviseChangedValues(values, nextValues)
           defaultValues = nextDefaultValues
           values = nextValues
 
-          errors = {}
-          touched = {}
+          if (resetOptions.keepOmittedValues && !changedRecord) {
+            errors = { ...errors }
+            touched = { ...touched }
+            for (const name of changedFields) {
+              delete errors[name as keyof T]
+              delete touched[name as keyof T]
+            }
+          } else {
+            errors = {}
+            touched = {}
+          }
           notify()
         },
 
