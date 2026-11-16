@@ -1,6 +1,10 @@
-import { createElement } from 'react'
+// @vitest-environment jsdom
+import { act, createElement } from 'react'
+import { createRoot } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type { ContactDisplayProps } from '../ContactDisplay.js'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -36,6 +40,37 @@ vi.mock('@molecule/app-ui-react', () => ({
 const { ContactDisplay } = await import('../ContactDisplay.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
+
+/** Mounted roots, unmounted after each test. */
+const mounted: Array<() => void> = []
+
+afterEach(() => {
+  for (const unmount of mounted.splice(0)) unmount()
+})
+
+/**
+ * Mounts the component into the document (the string renderer cannot fire
+ * events) and returns its host element.
+ */
+const mount = (props: ContactDisplayProps): HTMLElement => {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const root = createRoot(host)
+  act(() => {
+    root.render(createElement(ContactDisplay, props))
+  })
+  mounted.push(() => {
+    act(() => {
+      root.unmount()
+    })
+    host.remove()
+  })
+  return host
+}
+
+/** The row's transparent open button. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('[data-mol-id="contact-display-open"]')!
 
 const contact = {
   name: 'Jane Doe',
@@ -79,9 +114,9 @@ describe('ContactDisplay', () => {
 
   it('marks the row clickable only when onClick is supplied', () => {
     const clickable = html(createElement(ContactDisplay, { contact, onClick: () => {} }))
-    expect(clickable).toContain('cursorPointer')
+    expect(clickable).toContain('position')
     const plain = html(createElement(ContactDisplay, { contact }))
-    expect(plain).not.toContain('cursorPointer')
+    expect(plain).not.toContain('position')
   })
 
   it('lays the card layout out as a column and row/compact as a row', () => {
@@ -110,5 +145,44 @@ describe('ContactDisplay', () => {
     )
     expect(markup).toContain('data-actions=""')
     expect(markup).toContain('cd-cls')
+  })
+
+  it('renders the open button only when onClick is supplied', () => {
+    const clickable = html(createElement(ContactDisplay, { contact, onClick: () => {} }))
+    expect(clickable).toContain('<button type="button"')
+    const plain = html(createElement(ContactDisplay, { contact }))
+    expect(plain).not.toContain('<button')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const host = mount({ contact, onClick })
+    openButton(host).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = mount({
+      contact,
+      onClick,
+      actions: createElement('button', { 'data-actions': '' }),
+    })
+    host
+      .querySelector('[data-actions]')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const host = mount({ contact, onClick: () => {} })
+    const namedBy = openButton(host).getAttribute('aria-labelledby')!
+    expect(document.getElementById(namedBy)?.textContent).toBe('Jane Doe')
+  })
+
+  it('without onClick there is no open button', () => {
+    const host = mount({ contact })
+    expect(host.querySelector('button')).toBeNull()
+    expect(host.querySelector('[data-mol-id="contact-display-open"]')).toBeNull()
   })
 })

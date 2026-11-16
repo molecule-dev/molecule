@@ -12,13 +12,14 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -51,7 +52,10 @@ vi.mock('@molecule/app-ui', () => ({
 }))
 
 vi.mock('@molecule/app-ui-angular', async () => {
-  const { Component: NgComponent, TemplateRef: NgTemplateRef } = await import('@angular/core')
+  const { Component: NgComponent } = await import('@angular/core')
+  // The real package's plain helpers (asTemplate, hasNodes, SlotWrapper), so
+  // the component's TemplateRef path and actions-slot detach keep working.
+  const actual = (await vi.importActual('@molecule/app-ui-angular')) as Record<string, unknown>
   // The same stub the React tests install for `@molecule/app-ui-react`:
   // an `<img data-avatar data-avatar-name>`. The `Component(...)` factory is
   // called as a plain function (no decorator syntax) so the hoisted mock
@@ -62,18 +66,14 @@ vi.mock('@molecule/app-ui-angular', async () => {
     inputs: ['src', 'name'],
     template: `<img [attr.data-avatar]="src || ''" [attr.data-avatar-name]="name || ''" />`,
   })(
-    class {
-      constructor() {
-        this.src = undefined
-        this.name = undefined
-      }
+    class AvatarStub {
+      /** The avatar image URL (React's `src` input). */
+      src: string | undefined = undefined
+      /** The contact name (React's `name` input). */
+      name: string | undefined = undefined
     },
   )
-  return {
-    Avatar,
-    // The real narrowing helper, so the component's TemplateRef path keeps working.
-    asTemplate: (value: unknown) => (value instanceof NgTemplateRef ? value : null),
-  }
+  return { ...actual, Avatar }
 })
 
 const { ContactDisplay } = await import('../contact-display.component.js')
@@ -145,6 +145,10 @@ const contact = {
   address: '123 Main St',
 }
 
+/** The row's transparent open button. */
+const openButton = (host: HTMLElement): HTMLButtonElement =>
+  host.querySelector('[data-mol-id="contact-display-open"]')!
+
 describe('ContactDisplay', () => {
   it('renders the name and role', async () => {
     const markup = (await render({ contact })).host.innerHTML
@@ -178,9 +182,9 @@ describe('ContactDisplay', () => {
 
   it('marks the row clickable only when onClick is supplied', async () => {
     const clickable = (await render({ contact, onClick: () => {} })).host.innerHTML
-    expect(clickable).toContain('cursorPointer')
+    expect(clickable).toContain('position')
     const plain = (await render({ contact })).host.innerHTML
-    expect(plain).not.toContain('cursorPointer')
+    expect(plain).not.toContain('position')
   })
 
   it('lays the card layout out as a column and row/compact as a row', async () => {
@@ -208,5 +212,43 @@ describe('ContactDisplay', () => {
     ).host.innerHTML
     expect(markup).toContain('data-actions=""')
     expect(markup).toContain('cd-cls')
+  })
+
+  it('renders the open button only when onClick is supplied', async () => {
+    const clickable = (await render({ contact, onClick: () => {} })).host.innerHTML
+    expect(clickable).toContain('<button type="button"')
+    const plain = (await render({ contact })).host.innerHTML
+    expect(plain).not.toContain('<button')
+  })
+
+  it('clicking the open button calls onClick', async () => {
+    const onClick = vi.fn()
+    const { host } = await render({ contact, onClick })
+    openButton(host).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', async () => {
+    const onClick = vi.fn()
+    const { host } = await render(
+      { contact, onClick },
+      '<ng-container ngProjectAs="[slot=actions]"><button data-actions=""></button></ng-container>',
+    )
+    host
+      .querySelector('[data-actions]')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', async () => {
+    const { host } = await render({ contact, onClick: () => {} })
+    const namedBy = openButton(host).getAttribute('aria-labelledby')!
+    expect(document.getElementById(namedBy)?.textContent).toBe('Jane Doe')
+  })
+
+  it('without onClick there is no open button', async () => {
+    const { host } = await render({ contact })
+    expect(host.querySelector('button')).toBeNull()
+    expect(host.querySelector('[data-mol-id="contact-display-open"]')).toBeNull()
   })
 })

@@ -57,14 +57,21 @@ afterEach(async () => {
   document.body.innerHTML = ''
 })
 
-/** Renders a {@link ContactDisplay} and returns the markup it produced. */
-const html = (props: Record<string, unknown>): string => {
+/** Renders a {@link ContactDisplay} and returns its target element. */
+const mountInto = (props: Record<string, unknown>): HTMLElement => {
   const target = document.createElement('div')
   document.body.appendChild(target)
   instances.push(mount(ContactDisplay, { target, props }))
   flushSync()
-  return target.innerHTML
+  return target
 }
+
+/** Renders a {@link ContactDisplay} and returns the markup it produced. */
+const html = (props: Record<string, unknown>): string => mountInto(props).innerHTML
+
+/** The row's transparent open button. */
+const openButton = (target: HTMLElement): HTMLButtonElement =>
+  target.querySelector('[data-mol-id="contact-display-open"]')!
 
 const contact = {
   name: 'Jane Doe',
@@ -108,9 +115,9 @@ describe('ContactDisplay', () => {
 
   it('marks the row clickable only when onClick is supplied', () => {
     const clickable = html({ contact, onClick: () => {} })
-    expect(clickable).toContain('cursorPointer')
+    expect(clickable).toContain('position')
     const plain = html({ contact })
-    expect(plain).not.toContain('cursorPointer')
+    expect(plain).not.toContain('position')
   })
 
   it('lays the card layout out as a column and row/compact as a row', () => {
@@ -137,5 +144,44 @@ describe('ContactDisplay', () => {
     })
     expect(markup).toContain('data-actions=""')
     expect(markup).toContain('cd-cls')
+  })
+
+  it('renders the open button only when onClick is supplied', () => {
+    const clickable = html({ contact, onClick: () => {} })
+    expect(clickable).toContain('<button type="button"')
+    const plain = html({ contact })
+    expect(plain).not.toContain('<button')
+  })
+
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const target = mountInto({ contact, onClick })
+    openButton(target).click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const target = mountInto({
+      contact,
+      onClick,
+      actions: raw('<button data-actions=""></button>'),
+    })
+    target
+      .querySelector('[data-actions]')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const target = mountInto({ contact, onClick: () => {} })
+    const namedBy = openButton(target).getAttribute('aria-labelledby')!
+    expect(document.getElementById(namedBy)?.textContent).toBe('Jane Doe')
+  })
+
+  it('without onClick there is no open button', () => {
+    const target = mountInto({ contact })
+    expect(target.querySelector('button')).toBeNull()
+    expect(target.querySelector('[data-mol-id="contact-display-open"]')).toBeNull()
   })
 })

@@ -6,7 +6,7 @@
  * @module
  */
 
-import { defineComponent, h, type PropType, type VNode, type VNodeChild } from 'vue'
+import { defineComponent, h, type PropType, useId, type VNode, type VNodeChild } from 'vue'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-vue'
@@ -52,41 +52,65 @@ export const ContactDisplay = defineComponent({
   },
   setup(props, { slots }) {
     const cm = getClassMap()
+    const nameId = useId()
 
     return (): VNode => {
       const { name, email, phone, role, avatarSrc, address, company } = props.contact
       const isCompact = props.layout === 'compact'
       const direction = props.layout === 'card' ? 'col' : 'row'
       const actions = slots.actions ? slots.actions() : nodeValue(props.actions)
+      const nameClass = cm.cn(cm.textSize(isCompact ? 'sm' : 'base'), cm.fontWeight('semibold'))
 
       /**
        * One detail line: the leading glyph plus its content.
        *
        * @param glyph - The marker glyph React renders.
        * @param content - The line's nodes.
+       * @param raised - Whether the line is a control's (mailto/tel) line,
+       *   which paints above the open button when one covers the row.
        * @returns The detail row.
        */
-      const detailRow = (glyph: string, content: VNodeChild[]): VNode =>
-        h('div', { class: cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.textSize('sm')) }, [
-          h('span', { 'aria-hidden': true }, glyph),
-          ...content,
-        ])
+      const detailRow = (glyph: string, content: VNodeChild[], raised: boolean): VNode =>
+        h(
+          'div',
+          {
+            class: cm.cn(
+              cm.flex({ align: 'center', gap: 'xs' }),
+              cm.textSize('sm'),
+              raised && props.onClick ? cm.position('relative') : undefined,
+            ),
+          },
+          [h('span', { 'aria-hidden': true }, glyph), ...content],
+        )
 
       return h(
         'div',
         {
-          onClick: props.onClick,
           class: cm.cn(
             cm.flex({
               align: props.layout === 'card' ? 'start' : 'center',
               gap: isCompact ? 'sm' : 'md',
               direction,
             }),
-            props.onClick ? cm.cursorPointer : undefined,
+            props.onClick ? cm.position('relative') : undefined,
             props.className,
           ),
         },
         [
+          // The row's open control: a transparent native button covering the
+          // row (Enter / Space activate it natively), named by the contact
+          // name. First child, and a sibling — not a wrapper — of the row's
+          // inner controls, so those stay reachable controls.
+          props.onClick
+            ? h('button', {
+                type: 'button',
+                'aria-labelledby': nameId,
+                'data-mol-id': 'contact-display-open',
+                onClick: () => props.onClick?.(),
+                class: cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer),
+                style: { background: 'transparent', border: 'none', padding: '0' },
+              })
+            : null,
           h('div', { class: cm.shrink0 }, [
             h(Avatar, {
               src: avatarSrc,
@@ -97,27 +121,23 @@ export const ContactDisplay = defineComponent({
           ]),
           h('div', { class: cm.cn(cm.flex1, cm.stack(1)) }, [
             h('div', { class: cm.flex({ align: 'baseline', gap: 'sm' }) }, [
-              h(
-                'span',
-                {
-                  class: cm.cn(cm.textSize(isCompact ? 'sm' : 'base'), cm.fontWeight('semibold')),
-                },
-                name,
-              ),
+              h('span', { id: props.onClick ? nameId : undefined, class: nameClass }, name),
               ...(role ? [h('span', { class: cm.textSize('xs') }, nodeValue(role))] : []),
             ]),
             ...(company ? [h('div', { class: cm.textSize('sm') }, nodeValue(company))] : []),
             ...(!isCompact && email
-              ? [detailRow('✉', [h('a', { href: `mailto:${email}`, class: cm.link }, email)])]
+              ? [detailRow('✉', [h('a', { href: `mailto:${email}`, class: cm.link }, email)], true)]
               : []),
             ...(!isCompact && phone
-              ? [detailRow('☎', [h('a', { href: `tel:${phone}`, class: cm.link }, phone)])]
+              ? [detailRow('☎', [h('a', { href: `tel:${phone}`, class: cm.link }, phone)], true)]
               : []),
             ...(!isCompact && address
-              ? [detailRow('⌂', [h('span', undefined, nodeValue(address))])]
+              ? [detailRow('⌂', [h('span', undefined, nodeValue(address))], false)]
               : []),
           ]),
-          ...actions,
+          ...(props.onClick && actions.length
+            ? [h('div', { class: cm.position('relative') }, actions)]
+            : actions),
         ],
       )
     }

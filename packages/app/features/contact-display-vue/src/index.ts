@@ -37,8 +37,9 @@
  * address markers are text glyphs (✉ ☎ ⌂), not themed SVG icons. `role`,
  * `address`, and `company` accept Vue nodes — pass translated strings via
  * `t()` where needed. When `onClick` is provided the whole row becomes
- * clickable; supply your own keyboard affordance (e.g. wrap in a button/link)
- * for accessibility-critical surfaces.
+ * clickable through a transparent native button covering it, named by the
+ * contact name (the name span); the mail/tel links and the `actions` slot sit
+ * above that button and keep their own clicks.
  *
  * @module
  */

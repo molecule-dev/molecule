@@ -5,20 +5,34 @@
  */
 
 import {
+  type AfterViewChecked,
   Component,
   Directive,
+  ElementRef,
   type EmbeddedViewRef,
   inject,
   Input,
+  Renderer2,
   type TemplateRef,
+  ViewChild,
   ViewContainerRef,
 } from '@angular/core'
 
 import type { UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-import { asTemplate, Avatar } from '@molecule/app-ui-angular'
+import { asTemplate, Avatar, hasNodes, SlotWrapper } from '@molecule/app-ui-angular'
 
 import type { ContactFields } from './types.js'
+
+/**
+ * Next value of the module-wide contact-name id counter.
+ *
+ * React derives the contact-name span's id from `useId()`, which numbers ids
+ * from one process-wide counter; the open button's `aria-labelledby` names the
+ * span by it, so the port generates ids from the same kind of counter — unique
+ * per instance.
+ */
+let nextNameId = 0
 
 /**
  * The text of a node-valued field (React renders a string, or a number, as
@@ -81,11 +95,15 @@ class ContactNodeOutlet {
  * Formatted contact display — avatar + name + role + email/phone with leading
  * glyphs + optional address and company. Three layouts for different
  * densities. The host IS the root `<div>` (`div[mol-contact-display]`),
- * matching React's root exactly. The optional right-side actions are projected
- * (`[slot=actions]`); the node-valued `contact.role`, `contact.address` and
- * `contact.company` arrive as `TemplateRef`s and render through
- * {@link ContactNodeOutlet}, or as text. Same props, same DOM as
- * `@molecule/app-contact-display-react`'s `ContactDisplay`.
+ * matching React's root exactly. With `onClick` a transparent native button
+ * covering the whole row is its first child (a click anywhere on it, Enter or
+ * Space activates the contact) and is named by the contact-name span; the
+ * mail/tel links and the `actions` slot sit above it and keep their own
+ * clicks. The optional right-side actions are projected (`[slot=actions]`);
+ * the node-valued `contact.role`, `contact.address` and `contact.company`
+ * arrive as `TemplateRef`s and render through {@link ContactNodeOutlet}, or as
+ * text. Same props, same DOM as `@molecule/app-contact-display-react`'s
+ * `ContactDisplay`.
  */
 @Component({
   selector: 'div[mol-contact-display]',
@@ -94,27 +112,50 @@ class ContactNodeOutlet {
   inputs: ['contact', 'layout', 'onClick', 'className'],
   host: {
     '[class]': 'classes()',
-    '(click)': 'handleClick($event)',
   },
   // prettier-ignore
-  template: `<div [class]="avatarWrapClass()"><div mol-avatar [src]="avatarSrc()" [alt]="contactName()" [name]="contactName()" [size]="avatarSize()"></div></div>
+  template: `@if (hasOnClick()) {<button type="button" [attr.aria-labelledby]="nameId" data-mol-id="contact-display-open" (click)="handleClick()" [class]="openButtonClass()" [style.background]="'transparent'" [style.border]="'none'" [style.padding]="'0'"></button>}<div [class]="avatarWrapClass()"><div mol-avatar [src]="avatarSrc()" [alt]="contactName()" [name]="contactName()" [size]="avatarSize()"></div></div>
     <div [class]="detailWrapClass()">
-      <div [class]="nameRowClass()"><span [class]="nameClass()">{{ contactName() }}</span>@if (hasRole()) {<span [class]="roleClass()">{{ roleText }}<ng-container [molContactNode]="roleTemplate()"></ng-container></span>}</div>
+      <div [class]="nameRowClass()"><span [attr.id]="hasOnClick() ? nameId : null" [class]="nameClass()">{{ contactName() }}</span>@if (hasRole()) {<span [class]="roleClass()">{{ roleText }}<ng-container [molContactNode]="roleTemplate()"></ng-container></span>}</div>
       @if (hasCompany()) {<div [class]="companyClass()">{{ companyText }}<ng-container [molContactNode]="companyTemplate()"></ng-container></div>}
-      @if (showEmail()) {<div [class]="detailRowClass()"><span aria-hidden="true">✉</span><a [attr.href]="'mailto:' + contactEmail()" [class]="linkClass()">{{ contactEmail() }}</a></div>}
-      @if (showPhone()) {<div [class]="detailRowClass()"><span aria-hidden="true">☎</span><a [attr.href]="'tel:' + contactPhone()" [class]="linkClass()">{{ contactPhone() }}</a></div>}
+      @if (showEmail()) {<div [class]="hasOnClick() ? raisedDetailRowClass() : detailRowClass()"><span aria-hidden="true">✉</span><a [attr.href]="'mailto:' + contactEmail()" [class]="linkClass()">{{ contactEmail() }}</a></div>}
+      @if (showPhone()) {<div [class]="hasOnClick() ? raisedDetailRowClass() : detailRowClass()"><span aria-hidden="true">☎</span><a [attr.href]="'tel:' + contactPhone()" [class]="linkClass()">{{ contactPhone() }}</a></div>}
       @if (showAddress()) {<div [class]="detailRowClass()"><span aria-hidden="true">⌂</span><span>{{ addressText }}<ng-container [molContactNode]="addressTemplate()"></ng-container></span></div>}
-    </div><ng-content select="[slot=actions]"></ng-content>`,
+    </div><div #actionsWrap [class]="actionsWrapClass()"><ng-content select="[slot=actions]"></ng-content></div>`,
 })
-export class ContactDisplay {
+export class ContactDisplay implements AfterViewChecked {
   /** The contact to display. */
   contact?: ContactFields
   /** Layout preset. Defaults to `'card'` at read time. */
   layout?: 'card' | 'row' | 'compact'
-  /** Click handler on the row, called with the native click event. */
-  onClick?: (event: MouseEvent) => void
+  /**
+   * Activates the contact: the whole row becomes clickable through a
+   * transparent native button covering it, named by the contact name (the
+   * name span), so Enter and Space activate it natively. The row's inner
+   * controls — the mail/tel links and the `actions` slot — sit above that
+   * button and keep their own clicks.
+   */
+  onClick?: () => void
   /** Extra classes on the outer wrapper. */
   className?: string
+
+  /** The actions slot's always-mounted wrapper (projection needs the capture point). */
+  @ViewChild('actionsWrap') private actionsWrapRef?: ElementRef<HTMLDivElement>
+
+  /** The host element (the root `<div>`). */
+  private readonly host = inject(ElementRef)
+  private readonly renderer = inject(Renderer2)
+  /** Detaches the actions wrapper where React would not render it. */
+  private readonly slotSync = new SlotWrapper(this.host, this.renderer)
+  /** The projected action nodes while they sit bare on the host (React's unwrapped render). */
+  private readonly bareActions: Node[] = []
+
+  /**
+   * The contact-name span's id, which the open button's `aria-labelledby`
+   * names (React derives it from `useId()`; a per-instance counter gives each
+   * instance its own).
+   */
+  readonly nameId = `contact-display-name-${nextNameId++}`
 
   /**
    * The current class map.
@@ -269,8 +310,8 @@ export class ContactDisplay {
   }
 
   /**
-   * Computes the root class list (`cm.flex(…)` + `cm.cursorPointer` only when
-   * clickable + `className`).
+   * Computes the root class list (`cm.flex(…)` + `className`; with `onClick`,
+   * `cm.position('relative')`, so the open button inside covers the row).
    * @returns The class string.
    */
   classes(): string {
@@ -280,9 +321,17 @@ export class ContactDisplay {
         gap: this.isCompact() ? 'sm' : 'md',
         direction: this.activeLayout() === 'card' ? 'col' : 'row',
       }),
-      this.onClick ? this.cm().cursorPointer : undefined,
+      this.hasOnClick() ? this.cm().position('relative') : undefined,
       this.className,
     )
+  }
+
+  /**
+   * Whether the open button renders (React's `onClick ? …`).
+   * @returns True when an `onClick` handler is set.
+   */
+  hasOnClick(): boolean {
+    return Boolean(this.onClick)
   }
 
   /**
@@ -346,6 +395,16 @@ export class ContactDisplay {
   }
 
   /**
+   * A control detail line's class (the detail line's class plus
+   * `cm.position('relative')`, so the mail/tel link paints above the open
+   * button and keeps its own clicks).
+   * @returns The class string.
+   */
+  raisedDetailRowClass(): string {
+    return this.cm().cn(this.detailRowClass(), this.cm().position('relative'))
+  }
+
+  /**
    * The mailto/tel link's class (`cm.link`).
    * @returns The class string.
    */
@@ -354,10 +413,67 @@ export class ContactDisplay {
   }
 
   /**
-   * Runs the click handler the way React forwards the DOM event.
-   * @param event - The native click event.
+   * The open button's class (`cm.position('absolute')` + `cm.inset0` +
+   * `cm.cursorPointer`).
+   * @returns The class string.
    */
-  handleClick(event: Event): void {
-    this.onClick?.(event as MouseEvent)
+  openButtonClass(): string {
+    return this.cm().cn(this.cm().position('absolute'), this.cm().inset0, this.cm().cursorPointer)
+  }
+
+  /**
+   * The actions slot wrapper's class (`cm.position('relative')` with
+   * `onClick`, so the projected controls paint above the open button and
+   * keep their own clicks; empty while the wrapper sits detached).
+   * @returns The class string.
+   */
+  actionsWrapClass(): string {
+    return this.hasOnClick() ? this.cm().position('relative') : ''
+  }
+
+  /**
+   * Wraps or unwraps the projected actions after every change detection
+   * cycle, the way React renders them: with `onClick` and projected actions
+   * content the actions sit in the `position: relative` wrapper; otherwise
+   * they render bare on the host (or not at all, when there is nothing
+   * projected).
+   */
+  ngAfterViewChecked(): void {
+    this.syncActionsSlot()
+  }
+
+  /**
+   * Applies the actions wrapper decision once, idempotently.
+   */
+  private syncActionsSlot(): void {
+    const wrapper = this.actionsWrapRef?.nativeElement
+    if (!wrapper) return
+    if (this.hasOnClick() && hasNodes(wrapper)) {
+      if (wrapper.isConnected) return
+      this.slotSync.sync(wrapper, true)
+      // Return the projected actions that sat bare on the host to the wrapper.
+      for (const node of this.bareActions.splice(0)) wrapper.appendChild(node)
+      return
+    }
+    if (!wrapper.isConnected) return
+    // No wrapper for React's render (no `onClick`, or nothing projected): move
+    // the projected nodes out to the host, then detach the empty wrapper where
+    // it sat.
+    const parent = wrapper.parentElement ?? this.host.nativeElement
+    while (wrapper.firstChild) {
+      const node = wrapper.firstChild
+      this.bareActions.push(node)
+      parent.insertBefore(node, wrapper)
+    }
+    this.slotSync.sync(wrapper, false)
+  }
+
+  /**
+   * Runs the click handler from the open button (a native button turns Enter
+   * and Space into this click itself; no event is forwarded, the way React
+   * calls `onClick()` with none).
+   */
+  handleClick(): void {
+    this.onClick?.()
   }
 }

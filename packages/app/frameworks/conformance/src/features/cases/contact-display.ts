@@ -79,13 +79,22 @@ export const contactDisplayFeature: FeatureCases = {
           name: 'clickable card calls onClick',
           props: { contact },
           callbacks: ['onClick'],
-          interactions: [{ type: 'click', selector: 'span' }],
+          interactions: [{ type: 'click', selector: '[data-mol-id="contact-display-open"]' }],
         },
         {
           name: 'clickable compact row calls onClick',
           props: { contact, layout: 'compact' },
           callbacks: ['onClick'],
-          interactions: [{ type: 'click', selector: 'span' }],
+          interactions: [{ type: 'click', selector: '[data-mol-id="contact-display-open"]' }],
+        },
+        {
+          name: 'clicking an inner control does not call onClick',
+          props: { contact },
+          callbacks: ['onClick'],
+          slots: {
+            actions: [{ tag: 'button', attrs: { 'data-actions': '' }, children: ['Open'] }],
+          },
+          interactions: [{ type: 'click', selector: '[data-actions]' }],
         },
         {
           name: 'layout changes through all three',

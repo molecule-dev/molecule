@@ -41,9 +41,10 @@
  * `address`, and `company` are node-valued in React: in Angular pass a
  * `TemplateRef` (rendered through the package's `[molContactNode]` outlet) or
  * plain text. The right-side actions are projected as `[slot=actions]`
- * content. When `onClick` is provided the whole row becomes clickable; supply
- * your own keyboard affordance (e.g. wrap in a button/link) for
- * accessibility-critical surfaces.
+ * content. When `onClick` is provided the whole row becomes clickable through
+ * a transparent native button covering it, named by the contact name (the
+ * name span); the mail/tel links and the `actions` slot sit above that button
+ * and keep their own clicks.
  *
  * @module
  */

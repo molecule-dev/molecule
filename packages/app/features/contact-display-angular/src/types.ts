@@ -38,8 +38,14 @@ export interface ContactDisplayProps {
   layout?: 'card' | 'row' | 'compact'
   /** Optional right-side actions, projected as `[slot=actions]` content. */
   actions?: unknown
-  /** Click handler on the row, called with the native click event. */
-  onClick?: (event: MouseEvent) => void
+  /**
+   * Activates the contact: the whole row becomes clickable through a
+   * transparent native button covering it, named by the contact name (the
+   * name span), so Enter and Space activate it natively. The row's inner
+   * controls — the mail/tel links and the `actions` slot — sit above that
+   * button and keep their own clicks.
+   */
+  onClick?: () => void
   /** Extra classes. */
   className?: string
 }
