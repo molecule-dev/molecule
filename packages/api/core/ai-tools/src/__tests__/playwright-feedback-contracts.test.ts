@@ -11,15 +11,19 @@ import { createLocalBackend } from '../backends/local.js'
 import { createPlaywrightFeedback, runPlaywrightFeedback } from '../playwright-feedback.js'
 import type { FeedbackSpec, PlaywrightFeedbackResult } from '../playwright-feedback-types.js'
 import { shellQuote } from '../utilities.js'
+import { keepHostPriority } from './fixtures/host-priority.js'
 
 let root: string
 let server: ReturnType<typeof createServer>
 let broken = true
 let specs: FeedbackSpec[]
 let backend: ReturnType<typeof createLocalBackend>
+let restorePriority: () => void
 
 beforeAll(async () => {
   root = await mkdtemp(join(tmpdir(), 'feedback-contracts-'))
+  // These cases check what a run reports, so they must not wait for a busy host's idle CPU.
+  restorePriority = await keepHostPriority(root)
   server = createServer((_request, response) => {
     response.setHeader('Content-Type', 'text/html')
     response.end(`<main>
@@ -84,6 +88,7 @@ await expect(region.getByRole('button',{name:'Remove alternate'})).toBeVisible()
 })
 
 afterAll(async () => {
+  restorePriority()
   await new Promise<void>((resolve) => server.close(() => resolve()))
   await rm(root, { recursive: true, force: true })
 })
@@ -114,7 +119,7 @@ it('reports numeric, asset, duplicate and element-contract failures from the rea
   expect(
     result.failures.every((failure) => failure.sourceFiles[0] === '/equipment/src/Directory.tsx'),
   ).toBe(true)
-}, 25_000)
+}, 60_000)
 
 it('leaves unvisited native files to an explicit checkpoint after repairing known failures and accepts alternate app designs silently', async () => {
   broken = true

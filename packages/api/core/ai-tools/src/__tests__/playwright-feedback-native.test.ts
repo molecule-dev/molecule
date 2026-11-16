@@ -13,6 +13,7 @@ import { createLocalBackend } from '../backends/local.js'
 import { createPlaywrightFeedback, runPlaywrightFeedback } from '../playwright-feedback.js'
 import type { FeedbackSpec, PlaywrightFeedbackResult } from '../playwright-feedback-types.js'
 import { shellQuote } from '../utilities.js'
+import { keepHostPriority } from './fixtures/host-priority.js'
 
 const require = createRequire(import.meta.url)
 let root: string
@@ -22,9 +23,17 @@ let specs: FeedbackSpec[]
 let cli: string
 let backend: ReturnType<typeof createLocalBackend>
 const controllers: Array<ReturnType<typeof createPlaywrightFeedback>> = []
+let restorePriority: () => void
+/**
+ * One native Playwright run on a busy host: 17–39 s measured at load 70–80 on 14 CPUs (2026-11-16),
+ * against about 9 s on an idle one. A case that starts several native runs gets this for each run.
+ */
+const NATIVE_RUN_BUDGET_MS = 60_000
 
 beforeAll(async () => {
   root = await mkdtemp(join(tmpdir(), 'native-feedback-'))
+  // These cases check what a run reports, so they must not wait for a busy host's idle CPU.
+  restorePriority = await keepHostPriority(root)
   // The supplied tests run against a real browser and real HTTP server. The
   // app state (including the edit route) is exercised by the supplied flow.
   server = createServer((req, res) => {
@@ -92,6 +101,7 @@ beforeAll(async () => {
   backend = createLocalBackend(root)
 })
 afterAll(async () => {
+  restorePriority()
   await new Promise<void>((resolve) => server.close(() => resolve()))
   await rm(root, { recursive: true, force: true })
 })
@@ -100,44 +110,48 @@ afterEach(async () => {
 }, 130_000)
 
 describe('native supplied-suite feedback before deploy', () => {
-  it('reports the real filtered-p locator, rendered body and component before the run exits', async () => {
-    broken = true
-    const early: PlaywrightFeedbackResult[] = []
-    let exited = false,
-      deliveredBeforeExit = false
-    const observing = {
-      ...backend,
-      run: async (...args: Parameters<typeof backend.run>) => {
-        const result = await backend.run(...args)
-        if (args[0].includes('MOL_TEST_FEEDBACK_EVENTS=')) exited = true
-        return result
-      },
-    }
-    const result = await runPlaywrightFeedback(
-      observing,
-      specs[0],
-      [join(root, 'src/NoteBody.tsx')],
-      1,
-      {
-        command: (flags) => `${specs[0].command} ${flags.join(' ')}`,
-        pollMs: 20,
-        emit: (r) => {
-          early.push(r)
-          deliveredBeforeExit ||= !exited
+  it(
+    'reports the real filtered-p locator, rendered body and component before the run exits',
+    async () => {
+      broken = true
+      const early: PlaywrightFeedbackResult[] = []
+      let exited = false,
+        deliveredBeforeExit = false
+      const observing = {
+        ...backend,
+        run: async (...args: Parameters<typeof backend.run>) => {
+          const result = await backend.run(...args)
+          if (args[0].includes('MOL_TEST_FEEDBACK_EVENTS=')) exited = true
+          return result
         },
-      },
-    )
-    expect(result.status).toBe('failed')
-    expect(early.length).toBeGreaterThan(0)
-    expect(deliveredBeforeExit).toBe(true)
-    expect(early).toHaveLength(1)
-    const failure = early[0].failures[0]
-    expect(failure.locator).toContain("locator('p').filter({ hasText: 'A long observation' })")
-    expect(failure.spec).toContain('body.spec.ts')
-    expect(failure.line).toBe(2)
-    expect(failure.rendered).toContain('A long observation')
-    expect(failure.sourceFiles).toEqual([join(root, 'src/NoteBody.tsx')])
-  }, 20_000)
+      }
+      const result = await runPlaywrightFeedback(
+        observing,
+        specs[0],
+        [join(root, 'src/NoteBody.tsx')],
+        1,
+        {
+          command: (flags) => `${specs[0].command} ${flags.join(' ')}`,
+          pollMs: 20,
+          emit: (r) => {
+            early.push(r)
+            deliveredBeforeExit ||= !exited
+          },
+        },
+      )
+      expect(result.status).toBe('failed')
+      expect(early.length).toBeGreaterThan(0)
+      expect(deliveredBeforeExit).toBe(true)
+      expect(early).toHaveLength(1)
+      const failure = early[0].failures[0]
+      expect(failure.locator).toContain("locator('p').filter({ hasText: 'A long observation' })")
+      expect(failure.spec).toContain('body.spec.ts')
+      expect(failure.line).toBe(2)
+      expect(failure.rendered).toContain('A long observation')
+      expect(failure.sourceFiles).toEqual([join(root, 'src/NoteBody.tsx')])
+    },
+    NATIVE_RUN_BUDGET_MS,
+  )
   it.each([
     [2, 'button.unselected', 'Save item'],
     [3, '.owner', 'Reader'],
@@ -158,7 +172,7 @@ describe('native supplied-suite feedback before deploy', () => {
       expect(result.failures[0].locator).toContain(locator)
       expect(result.failures[0].rendered).toContain(rendered)
     },
-    20_000,
+    NATIVE_RUN_BUDGET_MS,
   )
   // A previous background run that is still being torn down must not cancel the next one; real foreground
   // Playwright work in the project still does. Both use a process whose command line reads as the Playwright CLI.
@@ -204,7 +218,7 @@ describe('native supplied-suite feedback before deploy', () => {
         await once(lingering, 'exit')
       }
     },
-    20_000,
+    NATIVE_RUN_BUDGET_MS,
   )
   // What a process RUNS decides whether a background run stops beside it: a type-check or lint changes nothing
   // the run reads, while a build or a package install does. npm shows its command as the process title, so
@@ -248,7 +262,7 @@ describe('native supplied-suite feedback before deploy', () => {
         await once(titled, 'exit')
       }
     },
-    20_000,
+    NATIVE_RUN_BUDGET_MS,
   )
   // A background run beside a foreground command is the one the kernel kills when memory runs out; an explicit
   // checkpoint is the agent's own run and keeps the score it was started with.
@@ -289,101 +303,115 @@ describe('native supplied-suite feedback before deploy', () => {
         await rm(out, { force: true })
       }
     },
-    20_000,
+    NATIVE_RUN_BUDGET_MS,
   )
-  it('detects a label that exists only in the branch the edit test does not drive', async () => {
-    broken = true
-    const result = await runPlaywrightFeedback(
-      backend,
-      specs[1],
-      [join(root, 'src/Editor.tsx')],
-      1,
-      { command: (flags) => `${specs[1].command} ${flags.join(' ')}` },
-    )
-    expect(result.status).toBe('failed')
-    expect(result.failures[0].locator).toContain('Publish entry')
-    expect(result.failures[0].rendered).toContain('Update entry')
-  }, 20_000)
-  it('gives a corrected app no failure while running the same supplied tests', async () => {
-    broken = false
-    const results: PlaywrightFeedbackResult[] = []
-    const watcher = createPlaywrightFeedback({
-      load: async () => ({ sources: [], specs }),
-      run: (spec, files, revision, emit) =>
-        runPlaywrightFeedback(backend, spec, files, revision, {
-          command: (flags) => `${spec.command} ${flags.join(' ')}`,
-          pollMs: 20,
-          emit,
-        }),
-      onResult: (result) => results.push(result),
-    })
-    // A completed host run established these failures before the source write.
-    watcher.record(
-      specs.map(({ path }) => ({
-        spec: path,
-        revision: 0,
-        durationMs: 1,
-        status: 'failed',
-        failures: [],
-      })),
-      0,
-    )
+  it(
+    'detects a label that exists only in the branch the edit test does not drive',
+    async () => {
+      broken = true
+      const result = await runPlaywrightFeedback(
+        backend,
+        specs[1],
+        [join(root, 'src/Editor.tsx')],
+        1,
+        { command: (flags) => `${specs[1].command} ${flags.join(' ')}` },
+      )
+      expect(result.status).toBe('failed')
+      expect(result.failures[0].locator).toContain('Publish entry')
+      expect(result.failures[0].rendered).toContain('Update entry')
+    },
+    NATIVE_RUN_BUDGET_MS,
+  )
+  it(
+    'gives a corrected app no failure while running the same supplied tests',
+    async () => {
+      broken = false
+      const results: PlaywrightFeedbackResult[] = []
+      const watcher = createPlaywrightFeedback({
+        load: async () => ({ sources: [], specs }),
+        run: (spec, files, revision, emit) =>
+          runPlaywrightFeedback(backend, spec, files, revision, {
+            command: (flags) => `${spec.command} ${flags.join(' ')}`,
+            pollMs: 20,
+            emit,
+          }),
+        onResult: (result) => results.push(result),
+      })
+      // A completed host run established these failures before the source write.
+      watcher.record(
+        specs.map(({ path }) => ({
+          spec: path,
+          revision: 0,
+          durationMs: 1,
+          status: 'failed',
+          failures: [],
+        })),
+        0,
+      )
 
-    controllers.push(watcher)
-    watcher.changed([join(root, 'src/NoteBody.tsx')])
-    expect((await watcher.check()).map((r) => r.status)).toEqual(Array(specs.length).fill('passed'))
-    await watcher.close()
-    expect(results.map((r) => r.status)).toEqual(Array(specs.length).fill('passed'))
-    expect(results.every((r) => r.failures.length === 0)).toBe(true)
-    expect(results.reduce((sum, r) => sum + (r.nativeStats?.expected ?? 0), 0)).toBe(6)
-    // Five independent native runner startups share CPU with the package's other tests.
-    // Their own assertion budgets remain unchanged.
-  }, 60_000)
-  it('reports a spec whose every test skips itself in this mode as skipped, and walks past it', async () => {
-    const file = join(root, 'e2e', 'mocked-mode.spec.ts')
-    await writeFile(
-      file,
-      "import {test,expect} from '@playwright/test';\n" +
-        "test.beforeEach(({}, testInfo) => { testInfo.skip(!process.env.MOCKED_API, 'mocked-API mode only') });\n" +
-        "test('shows the mocked error', async ({page}) => { await page.goto('/notes'); await expect(page.getByText('Mocked')).toBeVisible() });\n" +
-        "test('shows the mocked retry', async ({page}) => { await page.goto('/notes') })\n",
-    )
-    const skipping: FeedbackSpec = {
-      path: file,
-      content: '',
-      cwd: root,
-      command: `node ${shellQuote(cli)} test --config playwright.config.mjs mocked-mode.spec.ts`,
-    }
-    broken = true
-    const watcher = createPlaywrightFeedback({
-      load: async () => ({ sources: [], specs: [skipping, specs[0]] }),
-      run: (spec, files, revision, emit, signal) =>
-        runPlaywrightFeedback(backend, spec, files, revision, {
-          command: (flags) => `${spec.command} ${flags.join(' ')}`,
-          emit,
-          signal,
-          foreground: true,
-        }),
-    })
-    // A completed host run established these failures before the source write.
-    watcher.record(
-      [skipping, specs[0]].map(({ path }) => ({
-        spec: path,
-        revision: 0,
-        durationMs: 1,
-        status: 'failed',
-        failures: [],
-      })),
-      0,
-    )
+      controllers.push(watcher)
+      watcher.changed([join(root, 'src/NoteBody.tsx')])
+      expect((await watcher.check()).map((r) => r.status)).toEqual(
+        Array(specs.length).fill('passed'),
+      )
+      await watcher.close()
+      expect(results.map((r) => r.status)).toEqual(Array(specs.length).fill('passed'))
+      expect(results.every((r) => r.failures.length === 0)).toBe(true)
+      expect(results.reduce((sum, r) => sum + (r.nativeStats?.expected ?? 0), 0)).toBe(6)
+      // Five independent native runner startups share CPU with the package's other tests.
+      // Their own assertion budgets remain unchanged.
+    },
+    5 * NATIVE_RUN_BUDGET_MS,
+  )
+  it(
+    'reports a spec whose every test skips itself in this mode as skipped, and walks past it',
+    async () => {
+      const file = join(root, 'e2e', 'mocked-mode.spec.ts')
+      await writeFile(
+        file,
+        "import {test,expect} from '@playwright/test';\n" +
+          "test.beforeEach(({}, testInfo) => { testInfo.skip(!process.env.MOCKED_API, 'mocked-API mode only') });\n" +
+          "test('shows the mocked error', async ({page}) => { await page.goto('/notes'); await expect(page.getByText('Mocked')).toBeVisible() });\n" +
+          "test('shows the mocked retry', async ({page}) => { await page.goto('/notes') })\n",
+      )
+      const skipping: FeedbackSpec = {
+        path: file,
+        content: '',
+        cwd: root,
+        command: `node ${shellQuote(cli)} test --config playwright.config.mjs mocked-mode.spec.ts`,
+      }
+      broken = true
+      const watcher = createPlaywrightFeedback({
+        load: async () => ({ sources: [], specs: [skipping, specs[0]] }),
+        run: (spec, files, revision, emit, signal) =>
+          runPlaywrightFeedback(backend, spec, files, revision, {
+            command: (flags) => `${spec.command} ${flags.join(' ')}`,
+            emit,
+            signal,
+            foreground: true,
+          }),
+      })
+      // A completed host run established these failures before the source write.
+      watcher.record(
+        [skipping, specs[0]].map(({ path }) => ({
+          spec: path,
+          revision: 0,
+          durationMs: 1,
+          status: 'failed',
+          failures: [],
+        })),
+        0,
+      )
 
-    controllers.push(watcher)
-    const results = await watcher.check()
-    expect(results.map((r) => r.status)).toEqual(['skipped', 'failed'])
-    expect(results[0]).toMatchObject({
-      nativeStats: { expected: 0, unexpected: 0, skipped: 2 },
-      reason: 'every selected test skipped itself (2 skipped)',
-    })
-    expect(watcher.failingSpecs()).toEqual([specs[0].path])
-  }, 60_000)
+      controllers.push(watcher)
+      const results = await watcher.check()
+      expect(results.map((r) => r.status)).toEqual(['skipped', 'failed'])
+      expect(results[0]).toMatchObject({
+        nativeStats: { expected: 0, unexpected: 0, skipped: 2 },
+        reason: 'every selected test skipped itself (2 skipped)',
+      })
+      expect(watcher.failingSpecs()).toEqual([specs[0].path])
+    },
+    2 * NATIVE_RUN_BUDGET_MS,
+  )
 })
