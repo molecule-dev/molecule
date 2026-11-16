@@ -146,8 +146,9 @@ export interface MoleculeProviderProps extends ProviderProps {
   auth?: AuthClient<unknown>
   /**
    * Render the app only once `auth` leaves its initial loading status ({@link SessionReadyProps}). Defaults to true.
-   * After a full page load a returning visitor's session is restored by one request, and until
-   * it answers `useAuth().user` is `null` on every page — a public page's signed-in action
+   * With the bundled JWT client, a stored token AND cached user restore synchronously without
+   * a request. Token-only and cookie-only sessions need an asynchronous current-user request;
+   * until it answers `useAuth().user` is `null` — a public page's signed-in action
    * (`if (!user) return`, a redirect to `/login`) then treats a signed-in visitor as signed out.
    * When restoration succeeds, every page's first render reads the restored user. An
    * `'unavailable'` session also renders, but remains unconfirmed and may have a null user.

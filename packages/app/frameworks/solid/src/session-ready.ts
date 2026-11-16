@@ -14,8 +14,10 @@ import type { SessionReadyProps } from './types.js'
  * is decided (signed in, signed out, or `'unavailable'`) — and `fallback` until then. It never
  * redirects. An unavailable session is unconfirmed and may still have a null user.
  *
- * After a full page load a returning visitor's session is restored by one request. Until it
- * answers, `createAuth().user()` is `null` everywhere, so a public page that renders a
+ * With the bundled JWT client, a stored token AND cached user restore synchronously without a
+ * request, so this boundary renders immediately. Token-only and cookie-only sessions need an
+ * asynchronous current-user request. Until it answers, `createAuth().user()` is `null`, so a
+ * public page that renders a
  * signed-in action at once lets that action run against "signed out": a Follow button whose
  * handler starts with `if (!user()) return` ignores the click, one that redirects to `/login`
  * signs the visitor out of the flow. Wrapping the routes (or passing `awaitSession` in the

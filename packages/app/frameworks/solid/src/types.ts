@@ -28,8 +28,9 @@ export interface MoleculeConfig {
   auth?: AuthClient<unknown>
   /**
    * Render the app only once `auth` has decided the session ({@link SessionReadyProps}).
-   * After a full page load a returning visitor's session is restored by one request, and
-   * until it answers `createAuth().user()` is `null` on every page — a public page's
+   * With the bundled JWT client, a stored token AND cached user restore synchronously without
+   * a request. Token-only and cookie-only sessions need an asynchronous current-user request;
+   * until it answers `createAuth().user()` is `null` — a public page's
    * signed-in action (`if (!user()) return`, a redirect to `/login`) then treats a
    * signed-in visitor as signed out. With this set, every page's first render reads the
    * restored user when restoration succeeds. `'unavailable'` is unconfirmed and may still

@@ -13,8 +13,10 @@ import { useAuth } from './composables/useAuth.js'
  * decided (signed in, signed out, or `'unavailable'`) — and its `fallback` slot until then.
  * It never redirects. An unavailable session is unconfirmed and may still have a null user.
  *
- * After a full page load a returning visitor's session is restored by one request. Until it
- * answers, `useAuth().user.value` is `null` everywhere, so a public page that renders a
+ * With the bundled JWT client, a stored token AND cached user restore synchronously without a
+ * request, so this boundary renders immediately. Token-only and cookie-only sessions need an
+ * asynchronous current-user request. Until it answers, `useAuth().user.value` is `null`, so a
+ * public page that renders a
  * signed-in action at once lets that action run against "signed out": a Follow button whose
  * handler starts with `if (!user) return` ignores the click, one that redirects to `/login`
  * signs the visitor out of the flow. Wrapping `<RouterView />` in `App.vue` makes every page's
