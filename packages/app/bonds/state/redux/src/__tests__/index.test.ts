@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import type { PayloadAction, StoreMiddleware, ThunkAPI } from '../index.js'
 import {
   createAsyncAction,
   createProvider,
@@ -179,30 +180,27 @@ describe('@molecule/app-state-redux', () => {
 
   describe('createStore with middleware', () => {
     it('should apply a single middleware', () => {
-      const middlewareFn = vi.fn(
-        (
-          set: (
+      // The spy records each partial the wrapped set applies; the middleware itself is a real
+      // StoreMiddleware, so its signature matches what createStore accepts.
+      const appliedPartials =
+        vi.fn<
+          (
             partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-          ) => void,
-          _get: () => CounterState,
-        ) => {
-          return (
-            partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-          ) => {
-            middlewareFn()
-            set(partial)
-          }
-        },
-      )
+          ) => void
+        >()
+      const middleware: StoreMiddleware<CounterState> = (set) => (partial) => {
+        appliedPartials(partial)
+        set(partial)
+      }
 
       const store = createStore<CounterState>({
         initialState: { count: 0 },
-        middleware: [middlewareFn],
+        middleware: [middleware],
       })
 
       store.setState({ count: 5 })
 
-      expect(middlewareFn).toHaveBeenCalled()
+      expect(appliedPartials).toHaveBeenCalled()
       expect(store.getState().count).toBe(5)
     })
 
@@ -274,25 +272,18 @@ describe('@molecule/app-state-redux', () => {
     })
 
     it('should allow middleware to access current state via get', () => {
-      type SetCounter = (
-        partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-      ) => void
-      type GetCounter = () => CounterState
-
-      const logMiddleware = vi.fn((set: SetCounter, get: GetCounter) => {
-        return (
-          partial: Partial<CounterState> | ((state: CounterState) => Partial<CounterState>),
-        ) => {
-          const prevState = get()
-          set(partial)
-          const nextState = get()
-          logMiddleware(prevState, nextState)
-        }
-      })
+      // One spy records the two state snapshots; the middleware is a real StoreMiddleware.
+      const logMiddleware = vi.fn<(prevState: CounterState, nextState: CounterState) => void>()
+      const loggingMiddleware: StoreMiddleware<CounterState> = (set, get) => (partial) => {
+        const prevState = get()
+        set(partial)
+        const nextState = get()
+        logMiddleware(prevState, nextState)
+      }
 
       const store = createStore<CounterState>({
         initialState: { count: 0 },
-        middleware: [logMiddleware],
+        middleware: [loggingMiddleware],
       })
 
       store.setState({ count: 5 })
@@ -363,7 +354,7 @@ describe('@molecule/app-state-redux', () => {
           increment: (state) => {
             state.count += 1
           },
-          setCount: (state, action: { type: string; payload: number }) => {
+          setCount: (state, action: PayloadAction<number>) => {
             state.count = action.payload
           },
         },
@@ -384,7 +375,7 @@ describe('@molecule/app-state-redux', () => {
           decrement: (state) => {
             state.count -= 1
           },
-          setCount: (state, action: { type: string; payload: number }) => {
+          setCount: (state, action: PayloadAction<number>) => {
             state.count = action.payload
           },
         },
@@ -417,10 +408,10 @@ describe('@molecule/app-state-redux', () => {
         name: 'user',
         initialState: { name: '', age: 0 } as UserSliceState,
         reducers: {
-          setName: (state, action: { type: string; payload: string }) => {
+          setName: (state, action: PayloadAction<string>) => {
             state.name = action.payload
           },
-          setAge: (state, action: { type: string; payload: number }) => {
+          setAge: (state, action: PayloadAction<number>) => {
             state.age = action.payload
           },
         },
@@ -470,7 +461,7 @@ describe('@molecule/app-state-redux', () => {
         name: 'user',
         initialState: { name: 'Guest' },
         reducers: {
-          setName: (state, action: { type: string; payload: string }) => {
+          setName: (state, action: PayloadAction<string>) => {
             state.name = action.payload
           },
         },
@@ -582,7 +573,7 @@ describe('@molecule/app-state-redux', () => {
       let computeCount = 0
       const selectDoubleCount = createSelector(
         (state: CounterState) => state.count,
-        (count) => {
+        (count: number) => {
           computeCount++
           return count * 2
         },
@@ -600,7 +591,7 @@ describe('@molecule/app-state-redux', () => {
       let computeCount = 0
       const selectDoubleCount = createSelector(
         (state: CounterState) => state.count,
-        (count) => {
+        (count: number) => {
           computeCount++
           return count * 2
         },
@@ -621,7 +612,7 @@ describe('@molecule/app-state-redux', () => {
       const selectMultiplied = createSelector(
         (state: CombinedState) => state.count,
         (state: CombinedState) => state.multiplier,
-        (count, multiplier) => count * multiplier,
+        (count: number, multiplier: number) => count * multiplier,
       )
 
       expect(selectMultiplied({ count: 5, multiplier: 3 })).toBe(15)
@@ -630,7 +621,7 @@ describe('@molecule/app-state-redux', () => {
     it('should work with complex derived state', () => {
       const selectCompletedTodos = createSelector(
         (state: TodoState) => state.todos,
-        (todos) => todos.filter((t) => t.completed),
+        (todos: TodoState['todos']) => todos.filter((t) => t.completed),
       )
 
       const state: TodoState = {
@@ -653,9 +644,9 @@ describe('@molecule/app-state-redux', () => {
 
       const selectSum = createSelector(
         (state: AppState) => state.items,
-        (items) => {
+        (items: number[]) => {
           computeCount++
-          return items.reduce((a, b) => a + b, 0)
+          return items.reduce((a: number, b: number) => a + b, 0)
         },
       )
 
@@ -743,19 +734,17 @@ describe('@molecule/app-state-redux', () => {
       const mockState = { user: { name: 'Test' } }
       const getState = (): typeof mockState => mockState
 
-      let receivedThunkAPI: {
-        dispatch: (action: unknown) => void
-        getState: () => unknown
-        signal: AbortSignal
-      }
+      const receivedThunkAPIs: ThunkAPI<unknown>[] = []
 
       const fetchData = createAsyncAction<string, void>('data/fetch', async (_, thunkAPI) => {
-        receivedThunkAPI = thunkAPI
+        receivedThunkAPIs.push(thunkAPI)
         return 'done'
       })
 
       await fetchData()(dispatch, getState)
 
+      const receivedThunkAPI = receivedThunkAPIs[0]
+      expect(receivedThunkAPI).toBeDefined()
       expect(receivedThunkAPI.dispatch).toBeDefined()
       expect(receivedThunkAPI.getState()).toBe(mockState)
       expect(receivedThunkAPI.signal).toBeInstanceOf(AbortSignal)
@@ -803,20 +792,20 @@ describe('@molecule/app-state-redux', () => {
           filter: 'all' as 'all' | 'completed' | 'active',
         },
         reducers: {
-          addTodo: (state, action: { type: string; payload: string }) => {
+          addTodo: (state, action: PayloadAction<string>) => {
             state.items.push({
               id: state.items.length + 1,
               text: action.payload,
               completed: false,
             })
           },
-          toggleTodo: (state, action: { type: string; payload: number }) => {
+          toggleTodo: (state, action: PayloadAction<number>) => {
             const todo = state.items.find((t) => t.id === action.payload)
             if (todo) {
               todo.completed = !todo.completed
             }
           },
-          setFilter: (state, action: { type: string; payload: 'all' | 'completed' | 'active' }) => {
+          setFilter: (state, action: PayloadAction<'all' | 'completed' | 'active'>) => {
             state.filter = action.payload
           },
         },
@@ -834,7 +823,10 @@ describe('@molecule/app-state-redux', () => {
       const selectFilteredTodos = createSelector(
         (state: { todos: typeof todoSlice.initialState }) => state.todos.items,
         (state: { todos: typeof todoSlice.initialState }) => state.todos.filter,
-        (items, filter) => {
+        (
+          items: typeof todoSlice.initialState.items,
+          filter: typeof todoSlice.initialState.filter,
+        ) => {
           switch (filter) {
             case 'completed':
               return items.filter((t) => t.completed)

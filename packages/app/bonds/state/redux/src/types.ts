@@ -4,7 +4,15 @@
  * @module
  */
 
-import type { ConfigureStoreOptions, EnhancedStore, PayloadAction } from '@reduxjs/toolkit'
+import type {
+  CaseReducerActions,
+  ConfigureStoreOptions,
+  EnhancedStore,
+  PayloadAction,
+  Reducer,
+  SliceCaseReducers,
+  ValidateSliceCaseReducers,
+} from '@reduxjs/toolkit'
 
 import type {
   GetState,
@@ -51,39 +59,36 @@ export interface ReduxStoreConfig<T> extends StoreConfig<T> {
 }
 
 /**
- * Redux slice configuration.
+ * Redux slice configuration. Each reducer takes the state and, when it reads one, a typed
+ * `PayloadAction<P>`, as with Redux Toolkit's own `createSlice`.
  */
 export interface SliceConfig<
-  T extends object,
-  Reducers extends Record<string, (state: T, action: PayloadAction<unknown>) => T | void>,
+  T,
+  Reducers extends SliceCaseReducers<T>,
+  Name extends string = string,
 > {
-  name: string
+  name: Name
   initialState: T
-  reducers: Reducers
+  reducers: ValidateSliceCaseReducers<T, Reducers>
 }
 
 /**
- * Slice type with actions.
+ * Slice type with actions: one action creator per reducer, taking that reducer's payload, or no
+ * argument for a reducer that reads none.
  */
-export interface Slice<
-  T extends object,
-  Reducers extends Record<string, (state: T, action: PayloadAction<unknown>) => T | void>,
-> {
-  name: string
+export interface Slice<T, Reducers extends SliceCaseReducers<T>, Name extends string = string> {
+  name: Name
   initialState: T
-  reducer: (state: T | undefined, action: { type: string; payload?: unknown }) => T
-  actions: {
-    [K in keyof Reducers]: Reducers[K] extends (state: T, action: PayloadAction<infer P>) => unknown
-      ? (payload: P) => PayloadAction<P>
-      : () => PayloadAction<void>
-  }
+  reducer: Reducer<T>
+  actions: CaseReducerActions<Reducers, Name>
 }
 
 /**
  * Redux store with slices configuration.
  */
 export interface ReduxStoreWithSlicesConfig {
-  slices: Array<{ name: string; reducer: (state: unknown, action: unknown) => unknown }>
+  /** Slices from `createSlice`, each mounted under its name. */
+  slices: ReadonlyArray<{ name: string; reducer: Reducer }>
   devTools?: boolean
   middleware?: ConfigureStoreOptions['middleware']
   preloadedState?: Record<string, unknown>

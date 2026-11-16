@@ -8,7 +8,8 @@ import {
   configureStore,
   createSlice as createReduxSlice,
   type EnhancedStore,
-  type PayloadAction,
+  type Reducer,
+  type SliceCaseReducers,
 } from '@reduxjs/toolkit'
 
 import type { ReduxStoreWithSlicesConfig, Slice, SliceConfig } from './types.js'
@@ -34,18 +35,17 @@ import type { ReduxStoreWithSlicesConfig, Slice, SliceConfig } from './types.js'
  * ```
  * @returns A `Slice` with `name`, `reducer`, `actions`, and `initialState`.
  */
-export const createSlice = <
-  T extends object,
-  Reducers extends Record<string, (state: T, action: PayloadAction<unknown>) => T | void>,
->(
-  config: SliceConfig<T, Reducers>,
-): Slice<T, Reducers> => {
-  const reduxSlice = createReduxSlice(config as Parameters<typeof createReduxSlice>[0])
+export const createSlice = <T, Reducers extends SliceCaseReducers<T>, Name extends string = string>(
+  config: SliceConfig<T, Reducers, Name>,
+): Slice<T, Reducers, Name> => {
+  const reduxSlice = createReduxSlice(config)
   // Redux Toolkit uses getInitialState(), so we expose initialState for convenience
   return {
-    ...reduxSlice,
+    name: reduxSlice.name,
+    reducer: reduxSlice.reducer,
+    actions: reduxSlice.actions,
     initialState: config.initialState,
-  } as unknown as Slice<T, Reducers>
+  }
 }
 
 /**
@@ -64,7 +64,7 @@ export const createSlice = <
 export const createReduxStore = (config: ReduxStoreWithSlicesConfig): EnhancedStore => {
   const { slices, devTools = true, middleware, preloadedState } = config
 
-  const reducer: Record<string, (state: unknown, action: unknown) => unknown> = {}
+  const reducer: Record<string, Reducer> = {}
   for (const slice of slices) {
     reducer[slice.name] = slice.reducer
   }
