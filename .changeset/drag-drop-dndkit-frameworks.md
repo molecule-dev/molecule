@@ -1,5 +1,4 @@
 ---
-'@molecule/app-drag-drop-dndkit': none
 '@molecule/app-drag-drop-dndkit-react': minor
 '@molecule/app-drag-drop-dndkit-vue': minor
 '@molecule/app-drag-drop-dndkit-solid': minor
