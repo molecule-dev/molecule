@@ -202,7 +202,7 @@
     "@molecule/app-ticker-row-react": "4.0.0",
     "@molecule/app-time-slot-picker-react": "4.0.0",
     "@molecule/app-top-nav-layout-react": "4.0.2",
-    "@molecule/app-trace-waterfall-react": "4.0.2",
+    "@molecule/app-trace-waterfall-react": "4.1.0",
     "@molecule/app-trend-chip-react": "4.0.1",
     "@molecule/app-typing-indicator-react": "4.0.1",
     "@molecule/app-ui": "1.4.0",

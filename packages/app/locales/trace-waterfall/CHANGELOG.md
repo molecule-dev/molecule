@@ -1,5 +1,11 @@
 # @molecule/app-locales-trace-waterfall
 
+## 1.0.5
+
+### Patch Changes
+
+- Add the duration unit translations in every language.
+
 ## 1.0.4
 
 ### Patch Changes

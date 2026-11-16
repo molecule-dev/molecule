@@ -1,5 +1,11 @@
 # @molecule/app-trace-waterfall-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Format span durations for the app's active locale in the axis ticks, row badges, row labels and total, and export `formatDurationParts` and `translateDuration` with their types.
+
 ## 4.0.2
 
 ### Patch Changes

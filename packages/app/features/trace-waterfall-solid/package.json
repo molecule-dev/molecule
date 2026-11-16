@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-trace-waterfall-solid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Distributed-trace span waterfall view (Datadog/Jaeger-style).",
   "homepage": "https://www.molecule.dev/packages/app-trace-waterfall-solid",
   "type": "module",
