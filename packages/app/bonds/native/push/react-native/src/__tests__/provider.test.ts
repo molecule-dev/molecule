@@ -436,7 +436,7 @@ describe('@molecule/app-push-react-native', () => {
           title: 'Full',
           body: 'Full body',
           extra: { key: 'val' },
-          sound: true,
+          sound: 'chime.wav',
           badge: 3,
         })
 
@@ -445,7 +445,7 @@ describe('@molecule/app-push-react-native', () => {
             title: 'Full',
             body: 'Full body',
             data: { key: 'val' },
-            sound: true,
+            sound: 'chime.wav',
             badge: 3,
           },
           trigger: null,

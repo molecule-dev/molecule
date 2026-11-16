@@ -116,7 +116,7 @@ declare module 'expo-notifications' {
       title: string
       body?: string
       data?: Record<string, unknown>
-      sound?: boolean
+      sound?: boolean | string
       badge?: number
     }
     trigger: NotificationTriggerInput

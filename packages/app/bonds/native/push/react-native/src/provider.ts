@@ -370,7 +370,9 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
           title: options.title,
           body: options.body,
           data: options.extra,
-          sound: options.sound ? true : undefined,
+          // Expo plays the named file (an iOS custom sound listed in the config
+          // plugin's `sounds`, or 'default'); `true` would drop the name.
+          sound: options.sound || undefined,
           badge: options.badge,
         },
         trigger,
