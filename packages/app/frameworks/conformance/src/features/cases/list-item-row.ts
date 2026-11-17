@@ -47,7 +47,7 @@ export const listItemRowFeature: FeatureCases = {
           name: 'clickable row calls onClick',
           props: { title: 'Project Alpha' },
           callbacks: ['onClick'],
-          interactions: [{ type: 'click', selector: 'div' }],
+          interactions: [{ type: 'click', selector: '[data-mol-id="list-item-row-open"]' }],
         },
         {
           name: 'disabled clickable row ignores clicks',
@@ -63,6 +63,18 @@ export const listItemRowFeature: FeatureCases = {
             actions: [{ tag: 'span', attrs: { 'data-actions': '' }, children: ['Menu'] }],
           },
           interactions: [{ type: 'click', selector: 'span' }],
+        },
+        {
+          name: 'open button activates a row with actions',
+          props: { title: 'T', leading: '…' },
+          callbacks: ['onClick'],
+          slots: {
+            actions: [{ tag: 'span', attrs: { 'data-actions': '' }, children: ['Menu'] }],
+          },
+          interactions: [
+            { type: 'click', selector: '[data-mol-id="list-item-row-open"]' },
+            { type: 'click', selector: 'span' },
+          ],
         },
         {
           name: 'density changes',

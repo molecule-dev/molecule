@@ -16,9 +16,14 @@ export interface ListItemRowProps {
   leading?: string | number
   /** Optional right-side actions (buttons, action menu; `[slot=actions]` content, or text). */
   actions?: string | number
-  /** Called when the row body is clicked; receives the DOM click event. */
-  onClick?: (event: Event) => void
-  /** When true, sets `aria-selected` on the row — no built-in visual highlight; style it via `className` or host CSS. */
+  /**
+   * Called when the row is activated (called bare, the way React forwards the
+   * open button's click). The whole row is clickable through a transparent
+   * native button over it, named by the title; the inner controls (the
+   * `actions` slot) sit above it and keep their own clicks.
+   */
+  onClick?: () => void
+  /** When true, sets `aria-current="true"` on the row — no built-in visual highlight; style it via `className` or host CSS. */
   selected?: boolean
   /** When true, renders in a disabled visual state. */
   disabled?: boolean

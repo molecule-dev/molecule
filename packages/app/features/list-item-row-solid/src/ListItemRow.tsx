@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { Component } from 'solid-js'
+import { type Component, createUniqueId } from 'solid-js'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -18,42 +18,70 @@ import type { ListItemRowProps } from './types.js'
  * lists, mobile menus, inbox-style threads, search results, picker dialogs,
  * bookmark lists, etc.
  *
- * Different from `<RowWithActions>` in `@molecule/app-data-table-ui-react`
- * in NOT being a `<tr>` — use this for non-table lists.
+ * With `onClick` the whole row is clickable through a transparent native
+ * button over it, named by the title (`aria-labelledby`); Enter / Space on
+ * that button run the same handler a click anywhere on the row runs, and the
+ * inner controls (the `actions` slot) sit above the button and keep their own
+ * clicks.
  *
  * @param props - Component props (see {@link ListItemRowProps}).
  * @returns The rendered list-item row.
  */
 export const ListItemRow: Component<ListItemRowProps> = (props) => {
   const cm = getClassMap()
-  const clickable = (): boolean => Boolean(props.onClick) && !props.disabled
+  const nameId = createUniqueId()
   const padY = (): 2 | 3 => (props.density === 'compact' ? 2 : 3)
+
   return (
     <div
-      role={props.onClick ? 'button' : undefined}
-      tabindex={clickable() ? 0 : undefined}
-      aria-selected={props.selected}
+      aria-current={props.selected ? 'true' : undefined}
       aria-disabled={props.disabled}
-      onClick={props.disabled ? undefined : props.onClick}
       class={cm.cn(
         cm.flex({ align: 'center', gap: 'sm' }),
         cm.sp('px', 3),
         cm.sp('py', padY()),
-        clickable() ? cm.cursorPointer : undefined,
+        props.onClick ? cm.position('relative') : undefined,
         props.className,
       )}
       style={props.disabled ? { opacity: 0.5 } : undefined}
     >
+      {props.onClick && (
+        <button
+          type="button"
+          aria-labelledby={nameId}
+          data-mol-id="list-item-row-open"
+          disabled={props.disabled}
+          onClick={() => {
+            if (!props.disabled) props.onClick?.()
+          }}
+          /* mol-bespoke-button: the whole row is the hit area, not a CTA — an
+             empty, transparent button over the row; the inline background/
+             border/padding are native resets. React writes the shorthand
+             `border: 'none'` and `padding: 0`, which the CSSOM serializes as
+             `border: medium` and `0px` — Solid writes the style attribute
+             directly, so the port writes that same serialized form (identical
+             computed style). */
+          class={cm.cn(
+            cm.position('absolute'),
+            cm.inset0,
+            props.disabled ? undefined : cm.cursorPointer,
+          )}
+          style={{ background: 'transparent', border: 'medium', padding: '0px' }}
+        />
+      )}
       {props.leading && <div class={cm.shrink0}>{props.leading}</div>}
       <div class={cm.cn(cm.flex1, cm.stack(0))}>
-        <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{props.title}</div>
+        <div
+          id={props.onClick ? nameId : undefined}
+          class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
+        >
+          {props.title}
+        </div>
         {props.subtitle && <div class={cm.textSize('sm')}>{props.subtitle}</div>}
         {props.metadata && <div class={cm.textSize('xs')}>{props.metadata}</div>}
       </div>
       {props.actions && (
-        <div class={cm.shrink0} onClick={(event) => event.stopPropagation()}>
-          {props.actions}
-        </div>
+        <div class={cm.cn(cm.shrink0, cm.position('relative'))}>{props.actions}</div>
       )}
     </div>
   )

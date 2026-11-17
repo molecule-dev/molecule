@@ -18,9 +18,13 @@ export interface ListItemRowProps {
   leading?: Snippet | string | number
   /** Optional right-side actions (buttons, action menu). A snippet renders inline. */
   actions?: Snippet | string | number
-  /** Called when the row body is clicked. */
+  /**
+   * Called when the row is activated. The whole row is clickable through a
+   * transparent native button over it, named by the title; the inner controls
+   * (the `actions` slot) sit above it and keep their own clicks.
+   */
   onClick?: () => void
-  /** When true, sets `aria-selected` on the row — no built-in visual highlight; style it via `className` or host CSS. */
+  /** When true, sets `aria-current="true"` on the row — no built-in visual highlight; style it via `className` or host CSS. */
   selected?: boolean
   /** When true, renders in a disabled visual state. */
   disabled?: boolean

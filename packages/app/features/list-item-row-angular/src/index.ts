@@ -26,22 +26,29 @@
  *       subtitle="Last edited 2 hours ago"
  *       metadata="3 collaborators · 12 files"
  *       [selected]="true"
- *       (click)="navigate('/projects/alpha')">
+ *       [onClick]="openProject">
  *       <img slot="leading" src="/icons/folder.svg" alt="" width="32" height="32" />
  *     </div>
  *   `,
  * })
- * export class ProjectList {}
+ * export class ProjectList {
+ *   openProject(): void {
+ *     // navigate('/projects/alpha')
+ *   }
+ * }
  * ```
  *
  * @remarks
- * - `selected` only sets the `aria-selected` attribute — no built-in highlight.
- *   Pass a highlight class via `className` (or target `[aria-selected="true"]` in
- *   host CSS) to make selection visible.
- * - Clicks inside the actions slot are stopPropagation'd automatically, so action
- *   buttons never trigger the row `onClick`.
- * - `disabled` halves the opacity and disables `onClick`; there is no
- *   `data-mol-id` input.
+ * - `selected` only sets the `aria-current="true"` attribute — no built-in
+ *   highlight. Pass a highlight class via `className` (or target
+ *   `[aria-current="true"]` in host CSS) to make selection visible.
+ * - With `onClick` the whole row is clickable through a transparent native
+ *   button over it, named by the title (`aria-labelledby`); Enter / Space on
+ *   that button run the same handler a click anywhere on the row runs, and the
+ *   inner controls (the `actions` slot) sit above the button and keep their
+ *   own clicks.
+ * - `disabled` halves the opacity and disables the open button (no pointer
+ *   cursor, no activation); there is no `data-mol-id` input.
  * - Styling resolves through `getClassMap()` — wire a ClassMap bond first.
  * - The host element IS React's root `<div>` (`div[mol-list-item-row]`); node
  *   props are projected slots (`[slot=title]`, `[slot=leading]`, …), and string

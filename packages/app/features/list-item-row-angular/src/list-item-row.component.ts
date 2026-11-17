@@ -28,13 +28,21 @@ import { hasNodes, SlotGuard } from './slot-dom.js'
  * matching React's root exactly; the disabled row's dimmed opacity is applied
  * inline through a host style binding (the CSSOM, as react-dom does).
  *
+ * The row's open action lives on a native open button — an empty, transparent
+ * `<button type="button">` stretched over the whole row
+ * (`data-mol-id="list-item-row-open"`, `aria-labelledby` the title), the way
+ * React renders it while the row has an `onClick`; Enter / Space on it run the
+ * same handler mouse clicks run. An `@if` in the template puts it in the DOM
+ * only while the row has an `onClick` (React renders no button at all
+ * otherwise), and the actions wrapper sits above it and keeps its own clicks.
+ * The projected body renders directly in the host, so the wrappers never move.
+ *
  * The node props are projected slots: `title` renders inside the title line,
  * `subtitle` inside its line, `metadata` inside its line, `leading` inside the
- * leading `<div>` and `actions` inside the right-side `<div>` (whose click is
- * stopPropagation'd, so action buttons never trigger the row `onClick`).
- * String inputs render as text instead — React's truthiness branch applies:
- * an empty string renders nothing. The conditionally-rendered wrappers
- * reconcile against that in {@link ListItemRow.ngAfterViewInit}.
+ * leading `<div>` and `actions` inside the right-side `<div>`. String inputs
+ * render as text instead — React's truthiness branch applies: an empty string
+ * renders nothing. The conditionally-rendered wrappers reconcile against that
+ * in {@link ListItemRow.ngAfterViewInit}.
  */
 @Component({
   selector: 'div[mol-list-item-row]',
@@ -53,21 +61,29 @@ import { hasNodes, SlotGuard } from './slot-dom.js'
   ],
   host: {
     '[class]': 'classes()',
-    '[attr.role]': "this.onClick ? 'button' : null",
-    '[attr.tabindex]': 'this.clickable() ? 0 : null',
-    '[attr.aria-selected]': 'this.selected ?? null',
+    '[attr.aria-current]': 'this.selected ? "true" : null',
     '[attr.aria-disabled]': 'this.disabled ?? null',
     '[style.opacity]': 'this.disabled ? 0.5 : null',
-    '(click)': 'handleClick($event)',
   },
-  template: `<div #leadingWrap [class]="leadingClass()">
+  template: `@if (onClick) {
+      <button
+        type="button"
+        [attr.aria-labelledby]="nameId"
+        [attr.disabled]="disabled ? '' : null"
+        data-mol-id="list-item-row-open"
+        (click)="handleClick()"
+        [class]="openButtonClasses()"
+        style="background: transparent; border: medium; padding: 0px"
+      ></button>
+    }
+    <div #leadingWrap [class]="leadingClass()">
       @if (leadingText()) {
         {{ leadingText() }}
       }
       <ng-content select="[slot=leading]"></ng-content>
     </div>
     <div [class]="stackClass()">
-      <div [class]="titleClass()">
+      <div [attr.id]="onClick ? nameId : null" [class]="titleClass()">
         @if (titleText()) {
           {{ titleText() }}
         }
@@ -86,7 +102,10 @@ import { hasNodes, SlotGuard } from './slot-dom.js'
         <ng-content select="[slot=metadata]"></ng-content>
       </div>
     </div>
-    <div #actionsWrap [class]="actionsClass()" (click)="stopPropagation($event)">
+    <div #actionsWrap [class]="actionsClass()">
+      @if (actionsText()) {
+        {{ actionsText() }}
+      }
       <ng-content select="[slot=actions]"></ng-content>
     </div>`,
 })
@@ -101,16 +120,26 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
   leading?: unknown
   /** Optional right-side actions (`[slot=actions]` content, or text). */
   actions?: unknown
-  /** Called when the row body is clicked; receives the DOM click event (React's `onClick`). */
-  onClick?: (event: Event) => void
-  /** When true, sets `aria-selected` on the row — no built-in visual highlight. */
+  /**
+   * Called when the row is activated (React's `onClick`, called bare). The
+   * whole row is clickable through a transparent native button over it, named
+   * by the title; the inner controls sit above it and keep their own clicks.
+   */
+  onClick?: () => void
+  /** When true, sets `aria-current="true"` on the row — no built-in visual highlight. */
   selected?: boolean
-  /** When true, renders in a disabled visual state and drops `onClick`. */
+  /** When true, renders in a disabled visual state and disables the open button. */
   disabled?: boolean
   /** Dense vs comfortable spacing. Defaults to `'comfortable'` at read time. */
   density?: 'comfortable' | 'compact'
   /** Extra classes. */
   className?: string
+
+  /** Next value of the module-wide instance counter (React `useId()`'s counterpart). */
+  private static nextNameId = 0
+
+  /** The title line's id — the open button's `aria-labelledby` (React's `useId`). */
+  readonly nameId = `list-item-row-title-${ListItemRow.nextNameId++}`
 
   /** The leading wrapper (detached when no leading value and the slot is empty). */
   @ViewChild('leadingWrap') leadingWrap?: ElementRef<HTMLElement>
@@ -144,8 +173,9 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
 
   /**
    * Computes the row's class list (`cm.flex({ align: 'center', gap: 'sm' })` +
-   * `cm.sp('px', 3)` + `cm.sp('py', padY)` + `cm.cursorPointer` only when
-   * clickable + `className`).
+   * `cm.sp('px', 3)` + `cm.sp('py', padY)` + `className` — plus
+   * `cm.position('relative')` while the row has an `onClick`, so the absolute
+   * open button anchors to the row like React's).
    * @returns The class string.
    */
   classes(): string {
@@ -153,8 +183,22 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
       this.cm().flex({ align: 'center', gap: 'sm' }),
       this.cm().sp('px', 3),
       this.cm().sp('py', this.padY()),
-      this.clickable() ? this.cm().cursorPointer : undefined,
+      this.hasOpenAction() ? this.cm().position('relative') : undefined,
       this.className,
+    )
+  }
+
+  /**
+   * Computes the open button's class (`cm.position('absolute')` + `cm.inset0`,
+   * plus `cm.cursorPointer` unless the row is disabled — the whole row is the
+   * hit area).
+   * @returns The class string.
+   */
+  openButtonClasses(): string {
+    return this.cm().cn(
+      this.cm().position('absolute'),
+      this.cm().inset0,
+      this.disabled ? undefined : this.cm().cursorPointer,
     )
   }
 
@@ -191,11 +235,12 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
   }
 
   /**
-   * The actions wrapper's class (`cm.shrink0`).
+   * The actions wrapper's class (`cm.shrink0` + `cm.position('relative')` —
+   * the actions sit above the open button and keep their own clicks).
    * @returns The class string.
    */
   actionsClass(): string {
-    return this.cm().cn(this.cm().shrink0)
+    return this.cm().cn(this.cm().shrink0, this.cm().position('relative'))
   }
 
   /**
@@ -207,12 +252,13 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
   }
 
   /**
-   * Whether the row is clickable: an `onClick` and not `disabled` (React's
-   * `onClick && !disabled`).
-   * @returns True when the row is clickable.
+   * Whether the row has an open action: an `onClick` (React renders the open
+   * button and the root's `position: relative` while it does — `disabled`
+   * only disables the button, it does not remove it).
+   * @returns True when the row renders the open button.
    */
-  clickable(): boolean {
-    return Boolean(this.onClick) && !this.disabled
+  hasOpenAction(): boolean {
+    return Boolean(this.onClick)
   }
 
   /**
@@ -275,18 +321,15 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
       : ''
   }
 
-  /** Runs the click handler the way React forwards the DOM event, unless disabled. */
-  handleClick(event: Event): void {
-    if (this.disabled) return
-    this.onClick?.(event)
-  }
-
   /**
-   * Keeps clicks inside the actions from reaching the row (React's
-   * stopPropagation on the actions `<div>`).
+   * Runs the row's open action, the way React forwards the open button's
+   * click (bare, no event). A disabled row never calls it: the button carries
+   * `disabled`, so browsers raise no click from it, and the guard holds for a
+   * synthetic one.
    */
-  stopPropagation(event: Event): void {
-    event.stopPropagation()
+  handleClick(): void {
+    if (this.disabled) return
+    this.onClick?.()
   }
 
   /** Reads slot presence (view queries resolve only at view init) and reconciles the wrappers. */
@@ -296,8 +339,8 @@ export class ListItemRow implements AfterViewInit, AfterViewChecked {
 
   /**
    * Re-reconciles after every view refresh (a props step may add or remove a
-   * value): the wrappers are toggled on the values the template just rendered,
-   * so a later props step lands in one pass.
+   * value): the wrappers are toggled on the values the template just
+   * rendered, so a later props step lands in one pass.
    */
   ngAfterViewChecked(): void {
     this.reconcile()

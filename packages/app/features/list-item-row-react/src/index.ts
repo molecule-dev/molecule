@@ -10,13 +10,16 @@
  * instead — this component is not a `<tr>`.
  *
  * @remarks
- * - `selected` only sets the `aria-selected` attribute — no built-in highlight.
- *   Pass a highlight class via `className` (or target `[aria-selected="true"]` in
- *   host CSS) to make selection visible.
- * - Clicks inside `actions` are stopPropagation'd automatically, so action buttons
- *   never trigger the row `onClick`.
- * - `disabled` halves the opacity and disables `onClick`; there is no
- *   `data-mol-id` prop.
+ * - `selected` only sets the `aria-current="true"` attribute — no built-in
+ *   highlight. Pass a highlight class via `className` (or target
+ *   `[aria-current="true"]` in host CSS) to make selection visible.
+ * - With `onClick` the whole row is clickable through a transparent native
+ *   button over it, named by the title (`aria-labelledby`); Enter / Space on
+ *   that button run the same handler a click anywhere on the row runs, and the
+ *   inner controls (the `actions` slot) sit above the button and keep their
+ *   own clicks.
+ * - `disabled` halves the opacity and disables the open button (no pointer
+ *   cursor, no activation); there is no `data-mol-id` prop.
  * - Styling resolves through `getClassMap()` — wire a ClassMap bond first.
  *
  * @example

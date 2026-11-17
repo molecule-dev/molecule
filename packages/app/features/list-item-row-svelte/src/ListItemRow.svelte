@@ -2,11 +2,9 @@
   ListItemRow: the Svelte counterpart of `@molecule/app-list-item-row-react`'s
   `ListItemRow` — generic "thumbnail + text + actions" row: leading slot, up to
   three text lines (title / subtitle / metadata), right-side actions. Same
-  props (React names), same DOM for the same input.
-
-  The `svelte-ignore` pairs below mark the trade-off React's package documents:
-  with `onClick` the row is a clickable div WITHOUT button semantics — wrap it
-  in your own button/link (or add key handling) where keyboard access matters.
+  props (React names), same DOM for the same input. With `onClick` the whole
+  row is clickable through a transparent native button over it, named by the
+  title, and the `actions` slot sits above it and keeps its own clicks.
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
@@ -27,33 +25,51 @@
   }: ListItemRowProps = $props()
 
   const cm = $derived(getClassMap())
-  const clickable = $derived(Boolean(onClick) && !disabled)
+  const nameId = $props.id()
   const padY = $derived(density === 'compact' ? 2 : 3)
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 <div
-  role={onClick ? 'button' : undefined}
-  tabindex={clickable ? 0 : undefined}
-  aria-selected={selected}
+  aria-current={selected ? 'true' : undefined}
   aria-disabled={disabled}
-  onclick={disabled ? undefined : onClick}
   class={cm.cn(
     cm.flex({ align: 'center', gap: 'sm' }),
     cm.sp('px', 3),
     cm.sp('py', padY),
-    clickable ? cm.cursorPointer : undefined,
+    onClick ? cm.position('relative') : undefined,
     className,
   )}
   style:opacity={disabled ? 0.5 : undefined}
 >
+  {#if onClick}
+    <!-- mol-bespoke-button: the whole row is the hit area, not a CTA — an
+       empty, transparent button over the row; the inline background/border/
+       padding are native resets. React writes the shorthand `border: 'none'`
+       and `padding: 0`, which the CSSOM serializes as `border: medium` and
+       `0px` — Svelte writes the style attribute directly, so the port writes
+       that same serialized form (identical computed style). -->
+    <button
+      type="button"
+      aria-labelledby={nameId}
+      data-mol-id="list-item-row-open"
+      {disabled}
+      onclick={() => {
+        if (!disabled) onClick?.()
+      }}
+      class={cm.cn(cm.position('absolute'), cm.inset0, disabled ? undefined : cm.cursorPointer)}
+      style="background: transparent; border: medium; padding: 0px"
+    ></button>
+  {/if}
   {#if leading}
     <div class={cm.shrink0}>
       {#if typeof leading === 'function'}{@render leading()}{:else}{leading}{/if}
     </div>
   {/if}
   <div class={cm.cn(cm.flex1, cm.stack(0))}>
-    <div class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>
+    <div
+      id={onClick ? nameId : undefined}
+      class={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
+    >
       {#if typeof title === 'function'}{@render title()}{:else}{title}{/if}
     </div>
     {#if subtitle}
@@ -68,8 +84,7 @@
     {/if}
   </div>
   {#if actions}
-    <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-    <div class={cm.shrink0} onclick={(event) => event.stopPropagation()}>
+    <div class={cm.cn(cm.shrink0, cm.position('relative'))}>
       {#if typeof actions === 'function'}{@render actions()}{:else}{actions}{/if}
     </div>
   {/if}

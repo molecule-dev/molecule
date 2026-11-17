@@ -1,6 +1,8 @@
-import { createElement } from 'react'
+// @vitest-environment jsdom
+import { act, createElement, type ReactNode } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -25,6 +27,44 @@ vi.mock('@molecule/app-ui', () => ({
 const { ListItemRow } = await import('../ListItemRow.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
+
+/** One mounted element: its container, and the root that unmounts it. */
+interface Mounted {
+  /** The container the component rendered into. */
+  container: HTMLElement
+  /** The React root, unmounted after the test. */
+  root: Root
+}
+
+const mounted: Mounted[] = []
+
+afterEach(() => {
+  for (const m of mounted.splice(0)) act(() => m.root.unmount())
+})
+
+/**
+ * Mounts the element into the document (real events work) and returns its
+ * container, unmounted again after the test.
+ * @param el - The element to render.
+ * @returns The container holding the rendered DOM.
+ */
+const mountEl = (el: ReactNode) => {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  const root = createRoot(container)
+  act(() => root.render(el))
+  mounted.push({ container, root })
+  return container
+}
+
+/** The open button a mounted clickable row produced. */
+const openButton = (container: HTMLElement): HTMLButtonElement => {
+  const button = container.querySelector<HTMLButtonElement>(
+    'button[data-mol-id="list-item-row-open"]',
+  )
+  expect(button, 'a clickable row renders the open button').not.toBeNull()
+  return button as HTMLButtonElement
+}
 
 describe('ListItemRow', () => {
   it('renders the title', () => {
@@ -55,17 +95,86 @@ describe('ListItemRow', () => {
     expect(markup).toContain('data-actions=""')
   })
 
-  it('exposes a button role and clickable cursor only when onClick is supplied', () => {
+  it('exposes a body button and clickable cursor only when onClick is supplied', () => {
     const clickable = html(createElement(ListItemRow, { title: 'T', onClick: () => {} }))
-    expect(clickable).toContain('role="button"')
+    expect(clickable).toContain('<button type="button"')
     expect(clickable).toContain('cursorPointer')
     const plain = html(createElement(ListItemRow, { title: 'T' }))
-    expect(plain).not.toContain('role="button"')
+    expect(plain).not.toContain('<button')
+    expect(plain).not.toContain('cursorPointer')
   })
 
-  it('reflects the selected state via aria-selected', () => {
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const container = mountEl(createElement(ListItemRow, { title: 'T', onClick }))
+    act(() => {
+      openButton(container).dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const container = mountEl(
+      createElement(ListItemRow, {
+        title: 'T',
+        onClick,
+        actions: createElement('span', { 'data-actions': '' }, 'Menu'),
+      }),
+    )
+    act(() => {
+      container
+        .querySelector('[data-actions]')
+        ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const container = mountEl(createElement(ListItemRow, { title: 'Inbox', onClick: () => {} }))
+    const button = openButton(container)
+    const labelId = button.getAttribute('aria-labelledby')
+    expect(labelId, 'the open button names its label').not.toBeNull()
+    const label = container.querySelector(`[id="${labelId}"]`)
+    expect(label?.textContent).toBe('Inbox')
+  })
+
+  it('without onClick there is no open button', () => {
+    const markup = html(createElement(ListItemRow, { title: 'T' }))
+    expect(markup).not.toContain('<button')
+    expect(markup).not.toContain('cursorPointer')
+    expect(markup).not.toContain('position')
+    expect(markup).not.toContain('aria-pressed')
+  })
+
+  it('a disabled clickable row renders a disabled open button', () => {
+    const onClick = vi.fn()
+    const container = mountEl(createElement(ListItemRow, { title: 'T', onClick, disabled: true }))
+    const button = openButton(container)
+    expect(button.hasAttribute('disabled')).toBe(true)
+    expect(button.className).not.toContain('cursorPointer')
+    const row = container.firstElementChild as HTMLElement
+    expect(row.hasAttribute('tabindex')).toBe(false)
+    expect(row.getAttribute('aria-disabled')).toBe('true')
+    act(() => {
+      button.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('reflects the selected state via aria-current', () => {
     const markup = html(createElement(ListItemRow, { title: 'T', selected: true }))
-    expect(markup).toContain('aria-selected="true"')
+    expect(markup).toContain('aria-current="true"')
+    expect(markup).not.toContain('aria-selected')
+    expect(markup).not.toContain('aria-pressed')
+    const clickable = html(
+      createElement(ListItemRow, { title: 'T', selected: true, onClick: () => {} }),
+    )
+    expect(clickable).toContain('aria-current="true"')
+    expect(clickable).not.toContain('aria-selected')
+    expect(clickable).not.toContain('aria-pressed')
+    const unselected = html(createElement(ListItemRow, { title: 'T', selected: false }))
+    expect(unselected).not.toContain('aria-current')
   })
 
   it('reflects the disabled state via aria-disabled and dimmed opacity', () => {

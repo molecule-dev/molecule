@@ -35,23 +35,43 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-import { createApp, defineComponent, h } from 'vue'
+import { type App, createApp, defineComponent, h } from 'vue'
 
 import { ListItemRow } from '../ListItemRow.js'
 
+const mounted: App[] = []
+
 afterEach(() => {
+  for (const app of mounted.splice(0)) app.unmount()
   document.body.innerHTML = ''
 })
 
-/** Renders a {@link ListItemRow} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+/** The open button a mounted clickable row produced. */
+const openButton = (host: HTMLElement): HTMLButtonElement => {
+  const button = host.querySelector<HTMLButtonElement>('button[data-mol-id="list-item-row-open"]')
+  expect(button, 'a clickable row renders the open button').not.toBeNull()
+  return button as HTMLButtonElement
+}
+
+/**
+ * Mounts the row and keeps it mounted until the test ends, so real events
+ * work; returns the host element holding the rendered DOM.
+ * @param props - The props to render.
+ * @returns The host element.
+ */
+const mountRow = (props: Record<string, unknown>): HTMLElement => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(ListItemRow, props) }))
   app.mount(host)
+  mounted.push(app)
+  return host
+}
+
+/** Renders a {@link ListItemRow} and returns the markup it produced. */
+const render = (props: Record<string, unknown>): string => {
+  const host = mountRow(props)
   const markup = host.innerHTML
-  app.unmount()
-  host.remove()
   return markup
 }
 
@@ -80,17 +100,74 @@ describe('ListItemRow', () => {
     expect(markup).toContain('data-actions=""')
   })
 
-  it('exposes a button role and clickable cursor only when onClick is supplied', () => {
+  it('exposes a body button and clickable cursor only when onClick is supplied', () => {
     const clickable = render({ title: 'T', onClick: () => {} })
-    expect(clickable).toContain('role="button"')
+    expect(clickable).toContain('<button type="button"')
     expect(clickable).toContain('cursorPointer')
     const plain = render({ title: 'T' })
-    expect(plain).not.toContain('role="button"')
+    expect(plain).not.toContain('<button')
+    expect(plain).not.toContain('cursorPointer')
   })
 
-  it('reflects the selected state via aria-selected', () => {
+  it('clicking the open button calls onClick', () => {
+    const onClick = vi.fn()
+    const host = mountRow({ title: 'T', onClick })
+    openButton(host).dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', () => {
+    const onClick = vi.fn()
+    const host = mountRow({
+      title: 'T',
+      onClick,
+      actions: h('span', { 'data-actions': '' }, 'Menu'),
+    })
+    host.querySelector('[data-actions]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', () => {
+    const host = mountRow({ title: 'Inbox', onClick: () => {} })
+    const button = openButton(host)
+    const labelId = button.getAttribute('aria-labelledby')
+    expect(labelId, 'the open button names its label').not.toBeNull()
+    const label = host.querySelector(`[id="${labelId}"]`)
+    expect(label?.textContent).toBe('Inbox')
+  })
+
+  it('without onClick there is no open button', () => {
+    const markup = render({ title: 'T' })
+    expect(markup).not.toContain('<button')
+    expect(markup).not.toContain('cursorPointer')
+    expect(markup).not.toContain('position')
+    expect(markup).not.toContain('aria-pressed')
+  })
+
+  it('a disabled clickable row renders a disabled open button', () => {
+    const onClick = vi.fn()
+    const host = mountRow({ title: 'T', onClick, disabled: true })
+    const button = openButton(host)
+    expect(button.hasAttribute('disabled')).toBe(true)
+    expect(button.className).not.toContain('cursorPointer')
+    const row = host.firstElementChild as HTMLElement
+    expect(row.hasAttribute('tabindex')).toBe(false)
+    expect(row.getAttribute('aria-disabled')).toBe('true')
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('reflects the selected state via aria-current', () => {
     const markup = render({ title: 'T', selected: true })
-    expect(markup).toContain('aria-selected="true"')
+    expect(markup).toContain('aria-current="true"')
+    expect(markup).not.toContain('aria-selected')
+    expect(markup).not.toContain('aria-pressed')
+    const clickable = render({ title: 'T', selected: true, onClick: () => {} })
+    expect(clickable).toContain('aria-current="true"')
+    expect(clickable).not.toContain('aria-selected')
+    expect(clickable).not.toContain('aria-pressed')
+    const unselected = render({ title: 'T', selected: false })
+    expect(unselected).not.toContain('aria-current')
   })
 
   it('reflects the disabled state via aria-disabled and dimmed opacity', () => {

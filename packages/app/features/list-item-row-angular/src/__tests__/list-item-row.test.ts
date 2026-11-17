@@ -15,6 +15,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -22,7 +23,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g.
@@ -123,6 +124,13 @@ afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
 })
 
+/** The open button a mounted clickable row produced. */
+const openButton = (m: Mounted): HTMLButtonElement => {
+  const button = m.host.querySelector<HTMLButtonElement>('button[data-mol-id="list-item-row-open"]')
+  expect(button, 'a clickable row renders the open button').not.toBeNull()
+  return button as HTMLButtonElement
+}
+
 describe('ListItemRow', () => {
   it('renders the title', async () => {
     const m = await render({ title: 'Inbox' })
@@ -150,17 +158,79 @@ describe('ListItemRow', () => {
     expect(markup).toContain('data-actions=""')
   })
 
-  it('exposes a button role and clickable cursor only when onClick is supplied', async () => {
+  it('exposes a body button and clickable cursor only when onClick is supplied', async () => {
     const clickable = await render({ title: 'T', onClick: () => {} })
-    expect(rowOf(clickable).getAttribute('role')).toBe('button')
-    expect(rowOf(clickable).getAttribute('class')).toContain('cursorPointer')
+    const button = clickable.host.querySelector('button')
+    expect(button, 'a clickable row renders the open button').not.toBeNull()
+    expect(button?.getAttribute('type')).toBe('button')
+    expect(button?.getAttribute('class')).toContain('cursorPointer')
     const plain = await render({ title: 'T' })
-    expect(plain.host.innerHTML).not.toContain('role="button"')
+    expect(plain.host.innerHTML).not.toContain('<button')
   })
 
-  it('reflects the selected state via aria-selected', async () => {
+  it('clicking the open button calls onClick', async () => {
+    const onClick = vi.fn()
+    const m = await render({ title: 'T', onClick })
+    openButton(m).dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('clicking an inner control does not call onClick', async () => {
+    const onClick = vi.fn()
+    const m = await mount(
+      `<div mol-list-item-row [title]="p['title']" [onClick]="p['onClick']"><span slot="actions" data-actions>Menu</span></div>`,
+      ListItemRow as Type<unknown>,
+      { title: 'T', onClick },
+    )
+    mounted.push(m)
+    m.host
+      .querySelector('[data-actions]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('the open button is named by the label', async () => {
+    const m = await render({ title: 'Inbox', onClick: () => {} })
+    const button = openButton(m)
+    const labelId = button.getAttribute('aria-labelledby')
+    expect(labelId, 'the open button names its label').not.toBeNull()
+    const label = m.host.querySelector(`[id="${labelId}"]`)
+    expect(label?.textContent?.trim()).toBe('Inbox')
+  })
+
+  it('without onClick there is no open button', async () => {
+    const m = await render({ title: 'T' })
+    expect(m.host.innerHTML).not.toContain('<button')
+    const row = rowOf(m)
+    expect(row.getAttribute('class')).not.toContain('position')
+    expect(row.getAttribute('class')).not.toContain('cursorPointer')
+    expect(row.querySelector('[aria-pressed]')).toBeNull()
+  })
+
+  it('a disabled clickable row renders a disabled open button', async () => {
+    const onClick = vi.fn()
+    const m = await render({ title: 'T', onClick, disabled: true })
+    const button = openButton(m)
+    expect(button.hasAttribute('disabled')).toBe(true)
+    expect(button.getAttribute('class')).not.toContain('cursorPointer')
+    const row = rowOf(m)
+    expect(row.hasAttribute('tabindex')).toBe(false)
+    expect(row.getAttribute('aria-disabled')).toBe('true')
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('reflects the selected state via aria-current', async () => {
     const m = await render({ title: 'T', selected: true })
-    expect(rowOf(m).getAttribute('aria-selected')).toBe('true')
+    expect(rowOf(m).getAttribute('aria-current')).toBe('true')
+    expect(rowOf(m).getAttribute('aria-selected')).toBeNull()
+    expect(rowOf(m).querySelector('[aria-pressed]')).toBeNull()
+    const clickable = await render({ title: 'T', selected: true, onClick: () => {} })
+    expect(rowOf(clickable).getAttribute('aria-current')).toBe('true')
+    expect(rowOf(clickable).getAttribute('aria-selected')).toBeNull()
+    expect(openButton(clickable).hasAttribute('aria-pressed')).toBe(false)
+    const unselected = await render({ title: 'T', selected: false })
+    expect(rowOf(unselected).getAttribute('aria-current')).toBeNull()
   })
 
   it('reflects the disabled state via aria-disabled and dimmed opacity', async () => {

@@ -1,4 +1,4 @@
-import type { JSX, ReactNode } from 'react'
+import { type JSX, type ReactNode, useId } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -14,11 +14,15 @@ export interface ListItemRowProps {
   leading?: ReactNode
   /** Optional right-side actions (buttons, action menu). */
   actions?: ReactNode
-  /** Called when the row body is clicked. */
+  /**
+   * Called when the row is activated. The whole row is clickable through a
+   * transparent native button over it, named by the title; the inner controls
+   * (the `actions` slot) sit above it and keep their own clicks.
+   */
   onClick?: () => void
-  /** When true, sets `aria-selected` on the row — no built-in visual highlight; style it via `className` or host CSS. */
+  /** When true, sets `aria-current="true"` on the row — no built-in visual highlight; style it via `className` or host CSS. */
   selected?: boolean
-  /** When true, renders in a disabled visual state. */
+  /** When true, renders in a disabled visual state and disables the open button. */
   disabled?: boolean
   /** Dense vs comfortable spacing. Defaults to `'comfortable'`. */
   density?: 'comfortable' | 'compact'
@@ -30,6 +34,15 @@ export interface ListItemRowProps {
  * Generic "thumbnail + text + actions" row — used everywhere:
  * navigation lists, mobile menus, inbox-style threads, search
  * results, picker dialogs, bookmark lists, etc.
+ *
+ * With `onClick` the whole row is clickable through a transparent native
+ * `<button type="button">` stretched over it — named by the title
+ * (`aria-labelledby`) — so mouse and keyboard users get the same action and
+ * the hit area is the whole row, not just the text. The `actions` slot sits above that button (a
+ * `position: relative` wrapper), so its clicks stay its own; everything else
+ * sits under it, so a click anywhere else on the row runs the handler.
+ * `disabled` disables the button and drops the pointer cursor.
+ * Unstyled apart from the transparent button, so the row looks as it did.
  *
  * Different from `<RowWithActions>` in `@molecule/app-data-table-ui-react`
  * in NOT being a `<tr>` — use this for non-table lists.
@@ -48,34 +61,54 @@ export function ListItemRow({
   className,
 }: ListItemRowProps): JSX.Element {
   const cm = getClassMap()
+  const nameId = useId()
   const padY = density === 'compact' ? 2 : 3
+
   return (
     <div
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick && !disabled ? 0 : undefined}
-      aria-selected={selected}
+      aria-current={selected ? 'true' : undefined}
       aria-disabled={disabled}
-      onClick={disabled ? undefined : onClick}
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'sm' }),
         cm.sp('px', 3),
         cm.sp('py', padY as 2 | 3),
-        onClick && !disabled ? cm.cursorPointer : undefined,
+        onClick ? cm.position('relative') : undefined,
         className,
       )}
       style={disabled ? { opacity: 0.5 } : undefined}
     >
+      {onClick && (
+        <button
+          type="button"
+          aria-labelledby={nameId}
+          data-mol-id="list-item-row-open"
+          disabled={disabled}
+          onClick={() => {
+            if (!disabled) onClick()
+          }}
+          /* mol-bespoke-button: the whole row is the hit area, not a CTA — an
+             empty, transparent button over the row; the inline background/
+             border/padding are native resets. */
+          className={cm.cn(
+            cm.position('absolute'),
+            cm.inset0,
+            disabled ? undefined : cm.cursorPointer,
+          )}
+          style={{ background: 'transparent', border: 'none', padding: 0 }}
+        />
+      )}
       {leading && <div className={cm.shrink0}>{leading}</div>}
       <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
-        <div className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{title}</div>
+        <div
+          id={onClick ? nameId : undefined}
+          className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}
+        >
+          {title}
+        </div>
         {subtitle && <div className={cm.textSize('sm')}>{subtitle}</div>}
         {metadata && <div className={cm.textSize('xs')}>{metadata}</div>}
       </div>
-      {actions && (
-        <div onClick={(e) => e.stopPropagation()} className={cm.shrink0}>
-          {actions}
-        </div>
-      )}
+      {actions && <div className={cm.cn(cm.shrink0, cm.position('relative'))}>{actions}</div>}
     </div>
   )
 }
