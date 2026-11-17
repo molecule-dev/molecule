@@ -34,6 +34,15 @@
       "severity": "moderate",
       "expires": "2026-11-29",
       "reason": "DoS through globparts amplification of a crafted PATTERN (advisory published 2026-10-30T23:09Z). Fixed only in minimatch 11.0.1+, a major released 2026-10-27 that removes makeRe(), Minimatch#regexp, the AST class and matchOne()/slashSplit(). Re-checked 2026-11-15: eslint was bumped to 10.15.0, which with @eslint/config-array 0.23.6 is on minimatch 11.0.8, and e2b 2.64.0 is on minimatch 11 too. The remaining consumers have no release that accepts 11 (all latest on 2026-11-15): typescript-estree 8.72.2 ^10.2.2, @ts-morph/common 0.29.0 ^10.0.1, casbin 5.51.1 ^10.2.1, mjml-cli 5.4.1 ^10.2.6, filelist 2.0.2 ^10.2.1, and js-beautify 2.0.3 pins editorconfig ^3.0.2 (editorconfig 4.0.1 is on minimatch 11 but js-beautify does not accept it). An overrides pin to 11 would break ts-morph, which calls makeRe() and reads .regexp. MITIGATED BY REACHABILITY: the attacker must control the glob pattern. At runtime casbin calls minimatch only in its globMatch builtin; the default model in @molecule/api-permissions-casbin matches with g() and == equality (re-verified 2026-11-15, provider.ts DEFAULT_MODEL) and never uses globMatch. editorconfig patterns come from .editorconfig files on disk, mjml-cli patterns from its command line, and glob's from the developer-supplied patterns above. The dev tooling only matches our own config globs. Residual risk: an app that writes a custom casbin model using globMatch over user-authored policy patterns. Re-check at expiry for consumer releases on minimatch 11, bump, and drop this entry."
+    },
+    {
+      "package": "picomatch <=4.0.7 (dev only: changesets, @manypkg/get-packages, rollup plugins, @ts-morph/common, typescript-eslint, vite, vitest, unplugin, @vue/language-core, @vue-macros/common, fast-glob, globby, micromatch, tinyglobby)",
+      "advisories": [
+        "GHSA-fc5q-39xc-vjpf"
+      ],
+      "severity": "high",
+      "expires": "2026-12-01",
+      "reason": "ReDoS through single-branch repeated extglobs such as +(*) (advisory published 2026-10-19, range widened to every release through 4.0.7 on 2026-11-17T15:56Z). NO fixed picomatch release exists (latest 4.0.7, 2026-08-24), so no consumer can move off it. MITIGATED BY REACHABILITY: every picomatch entry in package-lock.json is dev (checked 2026-11-17: 2.3.2 and 4.0.5/4.0.7 under vite, vitest, rollup pluginutils, tinyglobby, unplugin, @vue/language-core, vue-router), and `npm ls picomatch --omit=dev` finds no path, so no published @molecule package installs it at runtime. The dev tools match only our own config and file globs, never a user-supplied pattern. Re-check at expiry for a fixed picomatch, bump, and drop this entry."
     }
   ]
 }
