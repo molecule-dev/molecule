@@ -50,8 +50,14 @@ function dateRange(from: string, to: string): string[] {
  * 2026-09-23). Those windows are 09:00–12:00 and 14:00–18:00 Beijing time, so
  * the Beijing holiday date IS the UTC date of every window.
  *
- * Source — the State Council's notice for 2026 (国办发明电〔2025〕7号), read
- * 2026-09-23 at https://www.12371.gov.cn/web/article/web/content_1451614684968525824.html.
+ * Sources — the State Council's notices, 放假 ranges verbatim:
+ * - 2026 (国办发明电〔2025〕7号), read 2026-09-23 at
+ *   https://www.12371.gov.cn/web/article/web/content_1451614684968525824.html
+ * - 2027 (published 2026-11-05), read 2026-11-17 at
+ *   https://paper.people.com.cn/rmrb/pc/content/202611/06/content_30189674.html
+ *   (People's Daily reproduction of the 新华社 dispatch; cross-checked against
+ *   news.ifeng.com/c/8xoAMrtRK7T — all seven clauses and the 2026-11-05 date
+ *   identical, and every 放假 weekday annotation matches the 2027 calendar).
  * Make-up working days (调休 weekends) need no entry: the peak is Mon–Fri only.
  *
  * ADD NEXT YEAR'S DATES when the State Council publishes them (each November);
@@ -65,6 +71,13 @@ const CHINA_PUBLIC_HOLIDAYS = [
   ...dateRange('2026-06-19', '2026-06-21'), // 端午节
   ...dateRange('2026-09-25', '2026-09-27'), // 中秋节
   ...dateRange('2026-10-01', '2026-10-07'), // 国庆节
+  ...dateRange('2027-01-01', '2027-01-03'), // 元旦
+  ...dateRange('2027-02-05', '2027-02-13'), // 春节 (除夕 to 正月初八, 9 days)
+  ...dateRange('2027-04-03', '2027-04-05'), // 清明节
+  ...dateRange('2027-05-01', '2027-05-05'), // 劳动节
+  ...dateRange('2027-06-09', '2027-06-09'), // 端午节 (single day)
+  ...dateRange('2027-09-15', '2027-09-15'), // 中秋节 (single day)
+  ...dateRange('2027-10-01', '2027-10-07'), // 国庆节
 ]
 
 /**
@@ -314,11 +327,17 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   cataloged superseded by grok-4.7.
  *   grok-4.5 still served at $2/$6, cached $0.30; grok-4.3 still served at
  *   $1.25/$2.50 with the bigger 1M window; grok-code-fast-1 no longer listed)
- * - Chinese public holidays (DeepSeek's peak excludes them):
- *   https://www.12371.gov.cn/web/article/web/content_1451614684968525824.html
- *   (the State Council's 2026 notice; see CHINA_PUBLIC_HOLIDAYS)
+ * - Chinese public holidays (DeepSeek's peak excludes them): the State
+ *   Council's notices — 2026 at
+ *   https://www.12371.gov.cn/web/article/web/content_1451614684968525824.html,
+ *   2027 (published 2026-11-05, read 2026-11-17) at
+ *   https://paper.people.com.cn/rmrb/pc/content/202611/06/content_30189674.html
+ *   (see CHINA_PUBLIC_HOLIDAYS)
  * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing +
- *   /updates/ (verified 2026-10-20 — the whole rate card RE-READ, unchanged:
+ *   /updates/ (2026-11-17: the 2027 State Council holiday notice landed above —
+ *   no DeepSeek card change; this morning's freshness-gate chunk read found the
+ *   peak-rule sentence and every price unchanged, so the 2026-10-20
+ *   verification stands. Earlier, verified 2026-10-20 — the whole rate card RE-READ, unchanged:
  *   pro 0.66/1.98/0.022 off-peak ×2 peak, flash 0.15/0.6/0.003, peak windows
  *   and the Chinese-public-holidays exclusion verbatim as before. The page is
  *   now a client-rendered SPA — its HTML is an app shell and the card text
