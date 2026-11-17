@@ -5,4 +5,6 @@ export const ur: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'آپ کا ای میل',
   'newsletter.subscribing': 'سبسکرائب ہو رہا ہے…',
   'newsletter.subscribe': 'سبسکرائب کریں۔',
+  'newsletter.label.email': 'ای میل',
+  'newsletter.error.subscriptionFailed': 'سبسکرپشن ناکام رہا',
 }

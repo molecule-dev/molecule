@@ -32,7 +32,7 @@
  * Requires a wired ClassMap bond and `@molecule/app-solid`'s i18n provider
  * above it — `getClassMap()` and `useTranslation()` both throw before wiring.
  * Pair with `@molecule/app-locales-newsletter-signup` for the placeholder /
- * button strings in 79 languages.
+ * button / label / error strings in 79 languages.
  *
  * ALWAYS pass `successContent` — without it a successful submit only clears
  * the input and re-renders the empty form (no built-in "thanks" message).

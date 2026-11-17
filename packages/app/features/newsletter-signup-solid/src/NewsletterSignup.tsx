@@ -67,9 +67,11 @@ export const NewsletterSignup: Component<NewsletterSignupProps> = (props) => {
       setSubmitted(true)
       setEmail('')
     } catch (err: unknown) {
-      // React hardcodes this fallback (no i18n key), so the ports keep the
-      // same string for DOM parity.
-      setError(err instanceof Error ? err.message : 'Subscription failed')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('newsletter.error.subscriptionFailed', {}, { defaultValue: 'Subscription failed' }),
+      )
     } finally {
       setSubmitting(false)
     }
@@ -100,7 +102,7 @@ export const NewsletterSignup: Component<NewsletterSignupProps> = (props) => {
               props.placeholder ?? t('newsletter.placeholder', {}, { defaultValue: 'Your email' })
             }
             required
-            aria-label="Email"
+            aria-label={t('newsletter.label.email', {}, { defaultValue: 'Email' })}
             className={inline() ? cm.flex1 : undefined}
           />
           <Button type="submit" variant="solid" color="primary" disabled={submitting()}>

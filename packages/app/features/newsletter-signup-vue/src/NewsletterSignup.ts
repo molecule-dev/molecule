@@ -124,9 +124,10 @@ export const NewsletterSignup = defineComponent({
         submitted.value = true
         email.value = ''
       } catch (err: unknown) {
-        // React hardcodes this fallback (no i18n key), so the ports keep the
-        // same string for DOM parity.
-        error.value = err instanceof Error ? err.message : 'Subscription failed'
+        error.value =
+          err instanceof Error
+            ? err.message
+            : t('newsletter.error.subscriptionFailed', {}, { defaultValue: 'Subscription failed' })
       } finally {
         submitting.value = false
       }
@@ -157,7 +158,7 @@ export const NewsletterSignup = defineComponent({
             placeholder:
               props.placeholder ?? t('newsletter.placeholder', {}, { defaultValue: 'Your email' }),
             required: true,
-            'aria-label': 'Email',
+            'aria-label': t('newsletter.label.email', {}, { defaultValue: 'Email' }),
             className: inline ? cm.flex1 : undefined,
           }),
           h(

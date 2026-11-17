@@ -5,4 +5,6 @@ export const is: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Netfangið þitt',
   'newsletter.subscribing': 'Gerist áskrifandi…',
   'newsletter.subscribe': 'Gerast áskrifandi',
+  'newsletter.label.email': 'Netfang',
+  'newsletter.error.subscriptionFailed': 'Áskrift mistókst',
 }

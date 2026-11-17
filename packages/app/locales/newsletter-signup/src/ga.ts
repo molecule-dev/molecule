@@ -5,4 +5,6 @@ export const ga: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Do ríomhphost',
   'newsletter.subscribing': 'Ag síntiús…',
   'newsletter.subscribe': 'Liostáil',
+  'newsletter.label.email': 'Ríomhphost',
+  'newsletter.error.subscriptionFailed': 'Theip ar an liostáil',
 }

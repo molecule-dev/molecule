@@ -5,4 +5,6 @@ export const yo: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Imeeli rẹ',
   'newsletter.subscribing': 'N ṣe alabapin…',
   'newsletter.subscribe': 'Ṣe alabapin',
+  'newsletter.label.email': 'Imẹẹli',
+  'newsletter.error.subscriptionFailed': 'Ṣe alabapin kò ṣàṣeyọrí',
 }

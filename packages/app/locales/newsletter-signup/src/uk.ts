@@ -5,4 +5,6 @@ export const uk: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Ваша електронна адреса',
   'newsletter.subscribing': 'Підписка…',
   'newsletter.subscribe': 'Підписатися',
+  'newsletter.label.email': 'Електронна пошта',
+  'newsletter.error.subscriptionFailed': 'Не вдалося підписатися',
 }

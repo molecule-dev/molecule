@@ -5,4 +5,6 @@ export const ro: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Adresa dvs. de e-mail',
   'newsletter.subscribing': 'Se abonează…',
   'newsletter.subscribe': 'Abonează-te',
+  'newsletter.label.email': 'E-mail',
+  'newsletter.error.subscriptionFailed': 'Abonarea a eșuat',
 }

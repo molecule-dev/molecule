@@ -5,4 +5,6 @@ export const ja: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'メールアドレス',
   'newsletter.subscribing': '購読中…',
   'newsletter.subscribe': '登録する',
+  'newsletter.label.email': 'メールアドレス',
+  'newsletter.error.subscriptionFailed': '登録に失敗しました',
 }

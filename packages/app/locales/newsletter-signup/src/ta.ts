@@ -5,4 +5,6 @@ export const ta: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'உங்கள் மின்னஞ்சல்',
   'newsletter.subscribing': 'சந்தா செலுத்துதல்…',
   'newsletter.subscribe': 'சந்தா சேருங்கள்',
+  'newsletter.label.email': 'மின்னஞ்சல்',
+  'newsletter.error.subscriptionFailed': 'சந்தா சேர்க்க முடியவில்லை',
 }

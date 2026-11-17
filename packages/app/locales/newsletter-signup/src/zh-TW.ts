@@ -5,4 +5,6 @@ export const zhTW: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': '您的電子郵件',
   'newsletter.subscribing': '訂閱中…',
   'newsletter.subscribe': '訂閱',
+  'newsletter.label.email': '電子郵件',
+  'newsletter.error.subscriptionFailed': '訂閱失敗',
 }

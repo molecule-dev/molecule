@@ -43,6 +43,7 @@
     t('newsletter.subscribing', {}, { defaultValue: 'Subscribing…' }),
   )
   const subscribeText = $derived(t('newsletter.subscribe', {}, { defaultValue: 'Subscribe' }))
+  const emailLabelText = $derived(t('newsletter.label.email', {}, { defaultValue: 'Email' }))
 
   /**
    * Handles form submit: calls onSubscribe and tracks submitting/error/success
@@ -60,9 +61,10 @@
       submitted = true
       email = ''
     } catch (err: unknown) {
-      // React hardcodes this fallback (no i18n key), so the ports keep the
-      // same string for DOM parity.
-      error = err instanceof Error ? err.message : 'Subscription failed'
+      error =
+        err instanceof Error
+          ? err.message
+          : t('newsletter.error.subscriptionFailed', {}, { defaultValue: 'Subscription failed' })
     } finally {
       submitting = false
     }
@@ -92,7 +94,7 @@
         onChange={(event: Event) => (email = (event.target as HTMLInputElement).value)}
         placeholder={placeholderText}
         required
-        aria-label="Email"
+        aria-label={emailLabelText}
         className={inline ? cm.flex1 : undefined}
       />
       <Button type="submit" variant="solid" color="primary" disabled={submitting}>

@@ -5,4 +5,6 @@ export const mn: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Таны имэйл хаяг',
   'newsletter.subscribing': 'Захиалж байна…',
   'newsletter.subscribe': 'Захиалах',
+  'newsletter.label.email': 'Имэйл',
+  'newsletter.error.subscriptionFailed': 'Захиалга амжилтгүй боллоо',
 }

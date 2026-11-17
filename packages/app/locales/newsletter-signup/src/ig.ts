@@ -5,4 +5,6 @@ export const ig: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Ozi email gị',
   'newsletter.subscribing': 'Ịdenye aha…',
   'newsletter.subscribe': 'Idenye aha',
+  'newsletter.label.email': 'Imel',
+  'newsletter.error.subscriptionFailed': 'Idenye aha emezughị',
 }

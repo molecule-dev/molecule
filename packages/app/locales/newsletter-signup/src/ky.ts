@@ -5,4 +5,6 @@ export const ky: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Сиздин электрондук почтаңыз',
   'newsletter.subscribing': 'Жазылуу…',
   'newsletter.subscribe': 'Жазылуу',
+  'newsletter.label.email': 'Электрондук почта',
+  'newsletter.error.subscriptionFailed': 'Жазылуу ийгиликсиз болду',
 }

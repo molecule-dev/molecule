@@ -12,6 +12,7 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   type ComponentRef,
@@ -19,7 +20,7 @@ import {
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Proxy ClassMap echoing each accessed member back as its token (e.g. `stack`),
@@ -56,7 +57,7 @@ vi.mock('@molecule/app-angular', () => ({
 // The UI markers the React suite mocks `@molecule/app-ui-react` with: a
 // `data-button` button and a `data-input` field carrying the same attributes.
 vi.mock('@molecule/app-ui-angular', async () => {
-  const { Component } = await import('@angular/core')
+  const { Component, inject, ElementRef } = await import('@angular/core')
   return {
     Button: Component({
       selector: 'button[mol-button]',
@@ -89,7 +90,7 @@ vi.mock('@molecule/app-ui-angular', async () => {
         [attr.type]="type ?? 'text'"
         [attr.placeholder]="placeholder"
         [attr.required]="required ? '' : null"
-        aria-label="Email"
+        [attr.aria-label]="label"
       />`,
     })(
       class MockInput {
@@ -103,6 +104,15 @@ vi.mock('@molecule/app-ui-angular', async () => {
         required?: boolean
         /** Extra classes (unused by the marker). */
         className?: string
+        /** The accessible label the caller bound on the host (React's rest). */
+        label?: string
+
+        private readonly host = inject(ElementRef)
+
+        /** The real Input forwards the host's rest attributes onto the field; the mock mirrors the same aria-label each pass. */
+        ngDoCheck(): void {
+          this.label = this.host.nativeElement.getAttribute('aria-label') ?? undefined
+        }
       },
     ),
   }

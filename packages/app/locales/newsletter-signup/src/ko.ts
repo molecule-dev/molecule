@@ -5,4 +5,6 @@ export const ko: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': '이메일',
   'newsletter.subscribing': '구독 중…',
   'newsletter.subscribe': '구독하기',
+  'newsletter.label.email': '이메일',
+  'newsletter.error.subscriptionFailed': '구독 실패',
 }

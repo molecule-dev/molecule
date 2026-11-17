@@ -5,4 +5,6 @@ export const hy: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Ձեր էլ. փոստը',
   'newsletter.subscribing': 'Բաժանորդագրվում է…',
   'newsletter.subscribe': 'Բաժանորդագրվել',
+  'newsletter.label.email': 'Էլ. փոստ',
+  'newsletter.error.subscriptionFailed': 'Բաժանորդագրումը ձախողվեց',
 }

@@ -5,4 +5,6 @@ export const cy: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Eich e-bost',
   'newsletter.subscribing': 'Yn tanysgrifio…',
   'newsletter.subscribe': 'Tanysgrifiwch',
+  'newsletter.label.email': 'E-bost',
+  'newsletter.error.subscriptionFailed': 'Methodd y tanysgrifiad',
 }

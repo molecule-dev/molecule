@@ -46,7 +46,11 @@ vi.mock('@molecule/app-solid', () => ({
 // The UI markers the React suite mocks `@molecule/app-ui-react` with: a
 // `data-button` button and a `data-input` field.
 vi.mock('@molecule/app-ui-solid', () => ({
-  Button: (props: { children?: JSX.Element; disabled?: boolean; type?: string }) => (
+  Button: (props: {
+    children?: JSX.Element
+    disabled?: boolean
+    type?: JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
+  }) => (
     <button data-button="" type={props.type ?? 'button'} disabled={props.disabled}>
       {props.children}
     </button>

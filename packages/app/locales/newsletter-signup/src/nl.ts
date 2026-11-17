@@ -5,4 +5,6 @@ export const nl: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Uw e-mailadres',
   'newsletter.subscribing': 'Abonneren…',
   'newsletter.subscribe': 'Abonneren',
+  'newsletter.label.email': 'E-mail',
+  'newsletter.error.subscriptionFailed': 'Abonneren mislukt',
 }

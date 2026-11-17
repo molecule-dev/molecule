@@ -94,7 +94,7 @@ const textOf = (value: unknown): string =>
   // nodes inside inline / flex parents, so the DOM React renders is reproduced
   // by gluing the tags (see the ported unit tests).
   // prettier-ignore
-  template: `@if (submitted() && successContent !== undefined) {<div [class]="className ?? null">@if (successTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (successContent !== null) {<ng-container>{{ textOf(successContent) }}</ng-container>}</div>}@else {<form (submit)="handle($event)" [class]="formClasses()">@if (showTitle()) {<h4 #titleEl [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasTitleText()) {<ng-container>{{ textOf(title) }}</ng-container>}<ng-content select="[slot=title]"></ng-content></h4>}@if (showDescription()) {<p #descriptionEl [class]="messageClasses()">@if (descriptionTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasDescriptionText()) {<ng-container>{{ textOf(description) }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p>}<div [class]="rowClasses()"><div mol-input [type]="'email'" [value]="email()" (change)="onEmailChange($event)" [placeholder]="placeholderText()" [required]="true" aria-label="Email" [className]="inputClass()"></div><button mol-button [type]="'submit'" [variant]="'solid'" [color]="'primary'" [disabled]="submitting()">@if (submitting()) {<ng-container>{{ subscribingText() }}</ng-container>}@else if (buttonLabelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasButtonLabelText()) {<ng-container>{{ textOf(buttonLabel) }}</ng-container>}@else {<ng-container>{{ subscribeText() }}</ng-container>}</button></div>@if (error()) {<p [class]="messageClasses()">{{ error() }}</p>}</form>}`,
+  template: `@if (submitted() && successContent !== undefined) {<div [class]="className ?? null">@if (successTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (successContent !== null) {<ng-container>{{ textOf(successContent) }}</ng-container>}</div>}@else {<form (submit)="handle($event)" [class]="formClasses()">@if (showTitle()) {<h4 #titleEl [class]="titleClasses()">@if (titleTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasTitleText()) {<ng-container>{{ textOf(title) }}</ng-container>}<ng-content select="[slot=title]"></ng-content></h4>}@if (showDescription()) {<p #descriptionEl [class]="messageClasses()">@if (descriptionTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasDescriptionText()) {<ng-container>{{ textOf(description) }}</ng-container>}<ng-content select="[slot=description]"></ng-content></p>}<div [class]="rowClasses()"><div mol-input [type]="'email'" [value]="email()" (change)="onEmailChange($event)" [placeholder]="placeholderText()" [required]="true" [attr.aria-label]="emailLabelText()" [className]="inputClass()"></div><button mol-button [type]="'submit'" [variant]="'solid'" [color]="'primary'" [disabled]="submitting()">@if (submitting()) {<ng-container>{{ subscribingText() }}</ng-container>}@else if (buttonLabelTemplate(); as tpl) {<ng-container [ngTemplateOutlet]="tpl" />}@else if (hasButtonLabelText()) {<ng-container>{{ textOf(buttonLabel) }}</ng-container>}@else {<ng-container>{{ subscribeText() }}</ng-container>}</button></div>@if (error()) {<p [class]="messageClasses()">{{ error() }}</p>}</form>}`,
 })
 export class NewsletterSignup implements AfterViewInit {
   /** Called with the email on submit (React's `onSubscribe`). */
@@ -332,6 +332,14 @@ export class NewsletterSignup implements AfterViewInit {
   }
 
   /**
+   * The email field's accessible label (React's `newsletter.label.email`).
+   * @returns The text.
+   */
+  emailLabelText(): string {
+    return this.i18n.t('newsletter.label.email', {}, { defaultValue: 'Email' })
+  }
+
+  /**
    * Adopts the typed email (React's `onChange` on the controlled field).
    *
    * @param event - The native input event.
@@ -356,9 +364,17 @@ export class NewsletterSignup implements AfterViewInit {
       this.submitted.set(true)
       this.email.set('')
     } catch (err: unknown) {
-      // React hardcodes this fallback (no i18n key), so the ports keep the
-      // same string for DOM parity.
-      this.error.set(err instanceof Error ? err.message : 'Subscription failed')
+      this.error.set(
+        err instanceof Error
+          ? err.message
+          : this.i18n.t(
+              'newsletter.error.subscriptionFailed',
+              {},
+              {
+                defaultValue: 'Subscription failed',
+              },
+            ),
+      )
     } finally {
       this.submitting.set(false)
     }

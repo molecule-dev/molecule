@@ -5,4 +5,6 @@ export const ne: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'तपाईंको इमेल',
   'newsletter.subscribing': 'सदस्यता लिँदै...',
   'newsletter.subscribe': 'सदस्यता लिनुहोस्',
+  'newsletter.label.email': 'इमेल',
+  'newsletter.error.subscriptionFailed': 'सदस्यता असफल',
 }

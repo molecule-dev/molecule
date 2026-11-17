@@ -5,4 +5,6 @@ export const he: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'האימייל שלך',
   'newsletter.subscribing': 'מתבצעת הרשמה...',
   'newsletter.subscribe': 'הירשם',
+  'newsletter.label.email': 'אימייל',
+  'newsletter.error.subscriptionFailed': 'ההרשמה נכשלה',
 }

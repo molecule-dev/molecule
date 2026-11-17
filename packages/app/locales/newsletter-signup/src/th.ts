@@ -5,4 +5,6 @@ export const th: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'อีเมลของคุณ',
   'newsletter.subscribing': 'กำลังติดตาม…',
   'newsletter.subscribe': 'สมัครสมาชิก',
+  'newsletter.label.email': 'อีเมล',
+  'newsletter.error.subscriptionFailed': 'การสมัครสมาชิกล้มเหลว',
 }

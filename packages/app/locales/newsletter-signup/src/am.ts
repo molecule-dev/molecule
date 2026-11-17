@@ -5,4 +5,6 @@ export const am: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'የእርስዎ ኢሜይል',
   'newsletter.subscribing': 'በመመዝገብ ላይ…',
   'newsletter.subscribe': 'ሰብስክራይብ ያድርጉ',
+  'newsletter.label.email': 'ኢሜይል',
+  'newsletter.error.subscriptionFailed': 'ምዝገባው አልተሳካም',
 }

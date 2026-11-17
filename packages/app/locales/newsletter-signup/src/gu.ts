@@ -5,4 +5,6 @@ export const gu: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'તમારું ઇમેઇલ',
   'newsletter.subscribing': 'સબ્સ્ક્રાઇબ કરી રહ્યું છે...',
   'newsletter.subscribe': 'સબ્સ્ક્રાઇબ કરો',
+  'newsletter.label.email': 'ઈમેલ',
+  'newsletter.error.subscriptionFailed': 'સબ્સ્ક્રાઇબ નિષ્ફળ',
 }

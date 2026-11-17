@@ -4,5 +4,7 @@ import type { NewsletterSignupTranslations } from './types.js'
 export const el: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Το ηλεκτρονικό σας ταχυδρομείο',
   'newsletter.subscribing': 'Εγγραφή…',
-  'newsletter.subscribe': 'Συνεισφέρω',
+  'newsletter.subscribe': 'Εγγραφή',
+  'newsletter.label.email': 'Ηλεκτρονικό ταχυδρομείο',
+  'newsletter.error.subscriptionFailed': 'Η εγγραφή απέτυχε',
 }

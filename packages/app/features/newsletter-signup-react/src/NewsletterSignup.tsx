@@ -61,7 +61,11 @@ export function NewsletterSignup({
       setSubmitted(true)
       setEmail('')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Subscription failed')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('newsletter.error.subscriptionFailed', {}, { defaultValue: 'Subscription failed' }),
+      )
     } finally {
       setSubmitting(false)
     }
@@ -84,7 +88,7 @@ export function NewsletterSignup({
             placeholder ?? t('newsletter.placeholder', {}, { defaultValue: 'Your email' })
           }
           required
-          aria-label="Email"
+          aria-label={t('newsletter.label.email', {}, { defaultValue: 'Email' })}
           className={layout === 'inline' ? cm.flex1 : undefined}
         />
         <Button type="submit" variant="solid" color="primary" disabled={submitting}>

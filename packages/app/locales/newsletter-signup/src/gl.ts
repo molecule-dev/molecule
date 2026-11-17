@@ -5,4 +5,6 @@ export const gl: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'O teu correo electrónico',
   'newsletter.subscribing': 'Subscribíndose…',
   'newsletter.subscribe': 'Subscribirse',
+  'newsletter.label.email': 'Correo electrónico',
+  'newsletter.error.subscriptionFailed': 'Non se puido subscribir',
 }

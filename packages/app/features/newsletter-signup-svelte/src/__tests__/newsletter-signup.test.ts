@@ -50,7 +50,7 @@ import NewsletterSignup from '../NewsletterSignup.svelte'
 import type { NewsletterSignupProps } from '../types.js'
 
 interface Mounted {
-  component: ReturnType<typeof mount<NewsletterSignupProps, Record<string, never>>>
+  component: ReturnType<typeof mount>
   target: HTMLElement
 }
 
@@ -66,10 +66,10 @@ afterEach(() => {
 /**
  * Mounts `NewsletterSignup` with the given props.
  *
- * @param props - The component props, beyond the required `onSubscribe`.
+ * @param props - The component props; `onSubscribe` defaults to a no-op when omitted.
  * @returns The mounted instance and its target element.
  */
-function render(props: Omit<Partial<NewsletterSignupProps>, 'onSubscribe'> = {}): Mounted {
+function render(props: Partial<NewsletterSignupProps> = {}): Mounted {
   const target = document.createElement('div')
   document.body.appendChild(target)
   const fullProps: NewsletterSignupProps = { onSubscribe: () => {}, ...props }

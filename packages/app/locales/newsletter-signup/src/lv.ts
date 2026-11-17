@@ -5,4 +5,6 @@ export const lv: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Jūsu e-pasts',
   'newsletter.subscribing': 'Abonēšana…',
   'newsletter.subscribe': 'Abonēt',
+  'newsletter.label.email': 'E-pasts',
+  'newsletter.error.subscriptionFailed': 'Abonēšana neizdevās',
 }

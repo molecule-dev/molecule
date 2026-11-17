@@ -5,4 +5,6 @@ export const fa: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'ایمیل شما',
   'newsletter.subscribing': 'در حال عضویت…',
   'newsletter.subscribe': 'اشتراک',
+  'newsletter.label.email': 'ایمیل',
+  'newsletter.error.subscriptionFailed': 'اشتراک ناموفق بود',
 }

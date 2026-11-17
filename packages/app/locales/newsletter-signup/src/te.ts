@@ -5,4 +5,6 @@ export const te: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'మీ ఇమెయిల్',
   'newsletter.subscribing': 'సభ్యత్వం తీసుకుంటున్నాను…',
   'newsletter.subscribe': 'సబ్స్క్రయిబ్ చేసుకోండి',
+  'newsletter.label.email': 'ఇమెయిల్',
+  'newsletter.error.subscriptionFailed': 'సబ్స్క్రిప్షన్ విఫలమైంది',
 }
