@@ -14,7 +14,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-live-preview'
 
-import type { PreviewPanelPreview } from '../components/preview-panel-logic.js'
+import { createHeadlessHooksSession } from '../components/headless-hooks.js'
+import {
+  type PreviewPanelPreview,
+  usePreviewPanelLogic,
+} from '../components/preview-panel-logic.js'
 import {
   createPreviewPanelSession,
   type PreviewPanelSession,
@@ -180,6 +184,34 @@ describe('createPreviewPanelSession', () => {
     await settle()
     expect(provider.navigations).toEqual([[`${URL_A}about`, true]])
     expect(session.getState().currentLocation).toBe(`${URL_A}about`)
+    disconnect()
+    iframe.remove()
+  })
+
+  it('starts the overlay fade in the render that reveals the iframe', async () => {
+    // React commits every render pass before its effects run, so a fade set from an effect a
+    // render later would follow a committed render with the overlay already gone: the overlay
+    // would be removed and mounted again instead of fading out. Each pass is recorded here.
+    serverUp = true
+    const provider = fakeProvider()
+    provider.setUrl(URL_A)
+    const passes: Array<{ iframeReady: boolean; fadingOut: boolean }> = []
+    const session = createHeadlessHooksSession((hooks) => {
+      const logic = usePreviewPanelLogic(hooks, previewOf(provider), {})
+      passes.push({ iframeReady: logic.iframeReady, fadingOut: logic.fadingOut })
+      return logic
+    })
+    const stop = provider.subscribe(() => session.rerender())
+    const disconnect = session.connect()
+    await settle(100)
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    session.getState().iframeRef.current = iframe
+
+    post({ type: 'molecule:ready' }, iframe.contentWindow)
+    await settle()
+    expect(passes.find((pass) => pass.iframeReady)).toEqual({ iframeReady: true, fadingOut: true })
+    stop()
     disconnect()
     iframe.remove()
   })
