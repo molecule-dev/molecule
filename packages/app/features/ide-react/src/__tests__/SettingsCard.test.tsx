@@ -49,7 +49,9 @@ const SAMPLE_VALUES: SettingsDisplayValues = {
   autoFix: 'On',
   autoCommit: 'Every 60s',
   hooks: 'In project settings',
+  autoApproveCommands: 'Off',
   sounds: '3 of 9 events enabled',
+  timestamps: 'Off',
 }
 
 beforeEach(() => {

@@ -27,20 +27,35 @@ const LINE_ACTIVE_PX = 3
 /** Pixels moved per arrow-key press for keyboard resize. */
 const KEYBOARD_STEP_PX = 24
 
+/** Props for {@link ResizeHandle}: the shared contract plus the pane geometry. */
+export interface ResizeHandleComponentProps extends ResizeHandleProps {
+  /**
+   * The size, in percent, of the pane BEFORE the handle within the two panes it
+   * divides (`lead / (lead + trail) * 100`). A focusable `role="separator"` is
+   * the WAI-ARIA window-splitter pattern, which requires `aria-valuenow`; the
+   * host passes this live size, so a screen reader announces the split and its
+   * changes while the arrow keys move it.
+   */
+  value: number
+}
+
 /**
  * Draggable handle for resizing adjacent panels. Uses Pointer Events so it works
  * with mouse, touch, and pen (an iPad drag resizes just like a desktop drag); a
  * wide invisible grab zone wraps a thin visible line that brightens to the
  * primary color on hover/drag for a clear affordance. Arrow keys nudge the split
- * for keyboard users.
- * @param props - Component props.
+ * for keyboard users. The separator reports `value` (the leading pane's share of
+ * the two panes) through `aria-valuenow`, with the `0`–`100` range, which a
+ * focusable `role="separator"` requires.
+ * @param props - Component props (see {@link ResizeHandleComponentProps}).
  * @returns The rendered resize handle element.
  */
 export function ResizeHandle({
   onResize,
   direction = 'horizontal',
   className,
-}: ResizeHandleProps): JSX.Element {
+  value,
+}: ResizeHandleComponentProps): JSX.Element {
   const { t } = useTranslation()
   const cm = getClassMap()
   const startRef = useRef<number>(0)
@@ -113,6 +128,9 @@ export function ResizeHandle({
       role="separator"
       aria-orientation={isHorizontal ? 'vertical' : 'horizontal'}
       aria-label={t('ide.resizeHandle.label', undefined, { defaultValue: 'Resize panels' })}
+      aria-valuenow={Math.round(value)}
+      aria-valuemin={0}
+      aria-valuemax={100}
       tabIndex={0}
       className={cm.cn(
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),

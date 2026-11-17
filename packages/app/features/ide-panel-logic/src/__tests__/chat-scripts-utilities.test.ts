@@ -130,7 +130,9 @@ describe('missingRequiredParams', () => {
   })
 
   it('treats a script with no params as satisfied', () => {
-    expect(missingRequiredParams({ name: 'x', description: '', createdAt: '' }, {})).toEqual([])
+    expect(missingRequiredParams({ params: [] }, {})).toEqual([])
+    // A script may also omit the params field entirely (`ScriptInfo.params?`).
+    expect(missingRequiredParams({}, {})).toEqual([])
   })
 })
 

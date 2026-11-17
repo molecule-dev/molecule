@@ -147,6 +147,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.quickPicker.placeholder': 'Clóscríobh le cuardach a dhéanamh…',
   'ide.quickPicker.loading': 'Ag lódáil…',
   'ide.quickPicker.noResults': 'Gan aon torthaí comhoiriúnacha',
+  'ide.quickPicker.label': 'Roghnóir tapa',
   'ide.search.replaceInFile': 'Athsholáthair sa chomhad seo',
   'ide.search.toggleReplace': 'Athraigh an t-ionad',
   'ide.search.placeholder': 'Cuardaigh',
@@ -164,6 +165,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.sidebar.tabs': 'Sidebar',
   'ide.sidebar.files': 'Taiscéalaí',
   'ide.sidebar.search': 'Cuardaigh',
+  'ide.chat.tool.openFile': 'Oscail {{path}}',
   'ide.toolCall.noOutput': '(gan aschur)',
   'ide.toolCall.written': 'Scríofa',
   'ide.toolCall.statusUnchanged': 'Gan athrú',
@@ -233,6 +235,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.code.copied': '✓ Copied',
   'ide.chat.commit': 'Tiomantas',
   'ide.chat.committed': 'Tiomanta',
+  'ide.chat.removeAttachment': 'Bain {{name}}',
   'ide.chat.retryCommit': 'Déan iarracht eile',
   'ide.chat.loopLimitReached': 'Shroich an t-uasmhéid de {{max}} athrá uirlisí.',
   'ide.chat.maxLoopsSet': 'Uasmhéid athrá uirlisí socraithe go {{n}}',
@@ -814,4 +817,165 @@ export const ga: Partial<IdeTranslations> = {
     'Athsholáthar a dhéanamh {{count}} eachtraí i {{files}} comhaid?',
   'ide.chat.voice': 'Deachtaigh',
   'ide.chat.voiceStop': 'Stop an deachtú',
+  // Tool-call labels (ide.tool.*), the conversation switcher's fallback, the
+  // history dropdown's empty state and the exit-code line — English source in
+  // en.ts; the {{placeholders}} are data (file names, commands, model names) and
+  // must stay byte-identical.
+  'ide.chat.historyFallback': 'Stair comhrá',
+  'ide.chat.noConversations': 'Níl aon chomhráite fós',
+  'ide.toolCall.exitCode': 'cód scoir {{code}}',
+  'ide.tool.list': 'Liostaigh',
+  'ide.tool.read': 'Léigh',
+  'ide.tool.readMore': '+{{count}} eile',
+  'ide.tool.write': 'Scríobh',
+  'ide.tool.edit': 'Cuir in eagar',
+  'ide.tool.search': 'Cuardaigh',
+  'ide.tool.createDir': 'Cruthaigh fillteán',
+  'ide.tool.rename': 'Athainmnigh',
+  'ide.tool.delete': 'Scrios',
+  'ide.tool.find': 'Aimsigh',
+  'ide.tool.loadSkill': 'Luchtaigh scile',
+  'ide.tool.findPackage': 'Aimsigh pacáiste',
+  'ide.tool.readDocs': 'Léigh na doiciméid',
+  'ide.tool.fetchHost': 'Faigh {{host}}',
+  'ide.tool.descriptionBackground': '{{description}} (sa chúlra)',
+  'ide.tool.bash': 'Bash',
+  'ide.tool.bashBackground': 'Bash (sa chúlra)',
+  'ide.tool.goTo': 'Téigh go',
+  'ide.tool.open': 'Oscail',
+  'ide.tool.reloadPreview': 'Athluchtaigh an réamhamharc',
+  'ide.tool.restartPreviewServers': 'Atosaigh freastalaithe réamhamhairc',
+  'ide.tool.startPreviewServers': 'Tosaigh freastalaithe réamhamhairc',
+  'ide.tool.inspectPreview': 'Scrúdaigh an réamhamharc',
+  'ide.tool.click': 'Cliceáil',
+  'ide.tool.fill': 'Líon',
+  'ide.tool.select': 'Roghnaigh',
+  'ide.tool.waitFor': 'Fan le',
+  'ide.tool.interact': 'Idirghníomhaigh',
+  'ide.tool.checkIdeStatus': 'Seiceáil stádas na IDE',
+  'ide.tool.readSourceLogs': 'Léigh logaí {{source}}',
+  'ide.tool.readLogs': 'Léigh logaí',
+  'ide.tool.findExample': 'Aimsigh sampla',
+  'ide.tool.saveScript': 'Sábháil script',
+  'ide.tool.importRepository': 'Iompórtáil stór',
+  'ide.tool.searchWeb': 'Cuardaigh an ghréasán',
+  'ide.tool.savePlanNamed': 'Sábháil an plean `{{name}}`',
+  'ide.tool.savePlan': 'Sábháil plean',
+  'ide.tool.switchToMode': 'Athraigh go mód {{mode}}',
+  'ide.tool.switchMode': 'Athraigh an mód',
+  'ide.tool.question': 'Ceist',
+  'ide.tool.subagentJudge': 'Fo-ghníomhaire — breitheamh glactha',
+  'ide.tool.subagentJudgeOn': 'Fo-ghníomhaire — breitheamh glactha ar {{model}}',
+  'ide.tool.subagentBuild': 'Fo-ghníomhaire — tógáil',
+  'ide.tool.subagentBuildOn': 'Fo-ghníomhaire — tógáil ar {{model}}',
+  'ide.tool.subagentResearch': 'Fo-ghníomhaire — taighde',
+  'ide.tool.subagentResearchOn': 'Fo-ghníomhaire — taighde ar {{model}}',
+  'ide.tool.waitForTask': 'Fan le tasc sa chúlra',
+  'ide.tool.listSessions': 'Seisiúin eile ar an tionscadal seo',
+  'ide.tool.sendSessionMessage': 'Seol teachtaireacht chuig seisiún eile',
+  'ide.tool.workingPlanTasks': 'Plean oibre — {{count}} tasc',
+  'ide.tool.workingPlan': 'Plean oibre',
+  // Chat-panel labels: slash commands, categories, settings, share roles, plan review.
+  'ide.chat.cmd.clear.desc': 'Glan an comhrá',
+  'ide.chat.cmd.compact.desc': 'Comhbhrúigh an comhthéacs chun spás a shaoradh',
+  'ide.chat.cmd.cost.desc': 'Taispeáin úsáid na dtócan agus cuid an tionscnaimh den liannta AI',
+  'ide.chat.cmd.skills.desc': 'Brabhsáil agus luchtaigh scileanna an tionscnaimh',
+  'ide.chat.cmd.commit.desc': 'Déan commit ar na hathruithe reatha',
+  'ide.chat.cmd.explain.desc': 'Mínigh cód (m.sh. /explain @file)',
+  'ide.chat.cmd.lint.desc': 'Rith an linter agus deisigh fadhbanna',
+  'ide.chat.cmd.test.desc': 'Déan liosta de na tástálacha agus iad a rith',
+  'ide.chat.cmd.undo.desc': 'Cealaigh athruithe comhad an AI ón gcas deireanach',
+  'ide.chat.cmd.scripts.desc':
+    'Brabhsáil agus rith scripteanna sábháilte agus gníomhartha ionsuite',
+  'ide.chat.cmd.run.desc': 'Rith script sábháilte nó gníomh ionsuite de réir ainm',
+  'ide.chat.cmd.autocommit.desc':
+    'Uath-commit N soicind tar éis an athrú comhad deireanach (0 cealaíonn)',
+  'ide.chat.cmd.autofix.desc': 'Scoránaigh uathcheartú tar éis athruithe comhad AI',
+  'ide.chat.cmd.autoapprove.desc':
+    'Scoránaigh uathúdarú orduithe milleánacha (seachain an daingniú Lean ar aghaidh)',
+  'ide.chat.cmd.share.desc': 'Cruthaigh nasc poiblí roinnte don tionscnamh seo',
+  'ide.chat.cmd.model.desc':
+    'Athraigh an múnla le haghaidh aon mhód (plean, forghníomhú, teachtaireachtaí commit, comhbhrú)',
+  'ide.chat.cmd.plan.desc': 'Scoránaigh mód plean/forghníomhaithe',
+  'ide.chat.cmd.maxloops.desc': 'Socraigh an uasmhéid atriallacha uirlisí',
+  'ide.chat.cmd.effort.desc':
+    'Roghnaigh iarracht abaltais in aghaidh an mhóid ó leibhéil dhúchasacha an mhúnla',
+  'ide.chat.cmd.settings.desc': 'Amharc agus athraigh socruithe {{agentName}}',
+  'ide.chat.cmd.sounds.desc': 'Fuaimeanna fógartha',
+  'ide.chat.cmd.timestamps.desc':
+    'Taispeáin nó cuir ama in iúl ar theachtaireachtaí agus imeachtaí comhrá',
+  'ide.chat.cmd.mic.desc':
+    'Roghnaigh an t-inneall dictála (ar an ngléas / dúchasach sa bhrabhsálaí)',
+  'ide.chat.cmd.dictate.desc': 'Roghnaigh an t-inneall dictála (ailias ar /mic)',
+  'ide.chat.cmd.help.desc': 'Treoir oibritheach agus leideanna',
+  'ide.chat.cmd.report.desc': 'Tuairiscigh fabht nó seol aiseolas',
+  'ide.chat.cmd.bug.desc': 'Tuairiscigh fabht (ailias ar /report)',
+  'ide.chat.cmd.version.desc': 'Taispeáin leagan an app',
+  'ide.chat.help.category.context': 'Comhthéacs',
+  'ide.chat.help.category.code': 'Cód',
+  'ide.chat.help.category.collaborate': 'Comhoibriú',
+  'ide.chat.help.category.model': 'Múnla',
+  'ide.chat.help.category.settings': 'Socruithe',
+  'ide.chat.help.category.support': 'Tacaíocht',
+  'ide.chat.settings.model.label': 'Múnla réamhshocraithe',
+  'ide.chat.settings.planModel.label': 'Múnla an mhód plean',
+  'ide.chat.settings.executeModel.label': 'Múnla an mhód forghníomhaithe',
+  'ide.chat.settings.commitModel.label': 'Múnla teachtaireachtaí commit',
+  'ide.chat.settings.compactModel.label': 'Múnla comhbhrú',
+  'ide.chat.settings.mode.label': 'Mód',
+  'ide.chat.settings.maxLoops.label': 'Uas-atrialla uirlisí',
+  'ide.chat.settings.autoFix.label': 'Uathcheartú',
+  'ide.chat.settings.autoCommit.label': 'Uath-commit',
+  'ide.chat.settings.hooks.label': 'Caimiléirí',
+  'ide.chat.settings.autoApproveCommands.label': 'Cead a thabhairt d’orduithe go huathmhar',
+  'ide.chat.settings.sounds.label': 'Fuaimeanna fógartha',
+  'ide.chat.settings.timestamps.label': 'Stampaí ama',
+  'ide.chat.settings.model.desc':
+    'An múnla a úsáideann {{agentName}} nuair nach bhfuil múnla ar leith an mhóid socraithe.',
+  'ide.chat.settings.planModel.desc':
+    'An múnla a úsáidtear sa mhód plean. Titeann siar go dtí an múnla réamhshocraithe murar socraíodh é.',
+  'ide.chat.settings.executeModel.desc':
+    'An múnla a úsáidtear sa mhód forghníomhaithe. Titeann siar go dtí an múnla réamhshocraithe murar socraíodh é.',
+  'ide.chat.settings.commitModel.desc':
+    'An múnla a scríobhann teachtaireachtaí commit. Titeann siar siar go ceann tapa réamhshocraithe murar socraíodh é.',
+  'ide.chat.settings.compactModel.desc':
+    'An múnla a achoimríonn teachtaireachtaí níos sine nuair a thagann an comhrá chun a teorann comhthéacs. Titeann siar go ceann tapa réamhshocraithe murar socraíodh é.',
+  'ide.chat.settings.mode.desc':
+    'Déanann an mód plean taighde agus molann sé gan comhaid a chur in eagar; scríobhann an mód forghníomhaithe cód.',
+  'ide.chat.settings.maxLoops.desc':
+    'An t-uas-teorainn ar ghlaoigh uirlisí a dhéanann {{agentName}} in aon chas amháin sula stopann sé ar do shon.',
+  'ide.chat.settings.autoFix.desc':
+    'Tar éis eagarthóireachtaí AI, rith an seiceáil cló agus an linter arís agus beathaigh aon earráidí ar ais sa chaoi go gceartóidh {{agentName}} iad.',
+  'ide.chat.settings.autoCommit.desc':
+    'Déanann sé commit ar do chuid oibre go huathmhar roinnt soicind tar éis an athrú comhad deireanach — ar siúl de réir réamhshocraithe (5s; 0 = as), agus feiceann sé go dtí go gcríochnóidh {{agentName}} a chas sula ndéanfaidh sé commit. Atrosaíonn gach athrú an comhaireamh síos, agus ansin stadann sé tar éis commit ionnach ndéanfar crann glan a chomhadh dhá uair.',
+  'ide.chat.settings.hooks.desc':
+    'Orduithe sceallóga a ritheann roimh ghníomhartha uirlisí agus is féidir iad a chosc — mar shampla réamh-amharc athraithe sula mbráfaidh nó sula scriosfaidh {{agentName}} comhad. Cumraigh iad i gcomhad socruithe gníomhaire do thionscnaimh.',
+  'ide.chat.settings.autoApproveCommands.desc':
+    'Seachain an daingniú “Lean ar aghaidh?” sula ritheann {{agentName}} ordú ollmhór/milleánach (hard reset, scriosadh athchúrsach, eagarthóireacht ina áit). Leanann rochtain líonra ar liosta ceadanna an tionscnaimh fós murar bhfuil Rochtain Iomlán ar siúl.',
+  'ide.chat.settings.sounds.desc':
+    'Fuaimeanna fógartha in aghaidh gach imeachta le haghaidh freagraí, earráidí, athruithe comhad agus níos mó.',
+  'ide.chat.settings.timestamps.desc':
+    'Taispeáin an t-am ar gach teachtaireacht agus imeacht comhrá. As de réir réamhshocraithe; taispeánfaidh do theachtaireachtaí féin agus imeachtaí criticiúla é i gcónaí. Ar an ngléas seo amháin.',
+  'ide.chat.settings.effort.desc':
+    'Cá chomh crua agus a smaoiníonn {{agentName}}, socraithe in aghaidh an mhóid ó leibhéil dhúchasacha an mhúnla (m.sh. high/xhigh); scaileann sé buiséad lúb an ghníomhaire freisin.',
+  'ide.chat.share.role.viewer': 'Breathnadóir — breathnú amháin',
+  'ide.chat.share.role.commenter': 'Barraí — breathnú agus trácht',
+  'ide.chat.share.role.editor': 'Eagarthóir — breathnú agus eagarthóireacht',
+  'ide.chat.share.role.owner': 'Úinéir — rochtain iomlán',
+  'ide.chat.share.grants.viewer':
+    'Is féidir le duine ar bith a bhfuil an nasc seo acu feidhmiú mar {{role}}.',
+  'ide.chat.share.grants.commenter':
+    'Is féidir le duine ar bith a bhfuil an nasc seo acu feidhmiú mar {{role}}.',
+  'ide.chat.share.grants.editor':
+    'Is féidir le duine ar bith a bhfuil an nasc seo acu feidhmiú mar {{role}}.',
+  'ide.chat.share.grants.owner':
+    'Is féidir le duine ar bith a bhfuil an nasc seo acu feidhmiú mar {{role}}.',
+  'ide.chat.share.subheading.viewer':
+    'Cruthaigh nasc poiblí. Is féidir le duine ar bith a bhfuil an nasc acu feidhmiú mar {{role}}.',
+  'ide.chat.share.subheading.commenter':
+    'Cruthaigh nasc poiblí. Is féidir le duine ar bith a bhfuil an nasc acu feidhmiú mar {{role}}.',
+  'ide.chat.share.subheading.editor':
+    'Cruthaigh nasc poiblí. Is féidir le duine ar bith a bhfuil an nasc acu feidhmiú mar {{role}}.',
+  'ide.chat.share.subheading.owner':
+    'Cruthaigh nasc poiblí. Is féidir le duine ar bith a bhfuil an nasc acu feidhmiú mar {{role}}.',
 }

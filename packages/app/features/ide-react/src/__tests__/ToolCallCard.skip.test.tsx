@@ -15,60 +15,34 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import type { TranslateFunction } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { ToolCallCardProps } from '@molecule/app-ide-panel-logic'
 import { isSkippedByUser, toolSummary } from '@molecule/app-ide-panel-logic/panels'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ToolCallCard } from '../components/ToolCallCard.js'
+import { buildThemeProvider } from './theme-test-provider.js'
+
+/**
+ * English passthrough translator — the text the package's former static `t`
+ * returned for `en`, so these direct-call expectations stay plain English while
+ * following the caller-supplied-translate-function contract.
+ */
+const t: TranslateFunction = (key, values, opts) =>
+  opts?.defaultValue
+    ? Object.entries(values ?? {}).reduce(
+        (s, [k, v]) => s.replace(`{{${k}}}`, String(v)),
+        opts.defaultValue,
+      )
+    : key
 
 /** The output the API sends back for a call the person skipped. */
 const SKIPPED_OUTPUT = {
   status: 'skipped_by_user',
   message: 'This command did not run to completion — the person skipped it.',
-}
-
-/** A minimal light theme so `useThemeMode` resolves. */
-function buildThemeProvider(): ThemeProviderType {
-  const theme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
-  return {
-    getTheme: () => theme,
-    getThemeName: () => 'light',
-    getThemes: () => ['light', 'dark'],
-    setTheme: () => {},
-    toggleMode: () => {},
-    onThemeChange: () => () => {},
-  }
 }
 
 /**
@@ -228,10 +202,10 @@ describe('a skipped tool call reads as skipped', () => {
   })
 
   it('summarises as Skipped — not the empty summary that means it worked', () => {
-    expect(toolSummary('exec_command', SKIPPED_OUTPUT, 'done')).toBe('Skipped')
-    expect(toolSummary('write_file', SKIPPED_OUTPUT, 'done')).toBe('Skipped')
+    expect(toolSummary(t, 'exec_command', SKIPPED_OUTPUT, 'done')).toBe('Skipped')
+    expect(toolSummary(t, 'write_file', SKIPPED_OUTPUT, 'done')).toBe('Skipped')
     // A real success still summarises the way it always did.
-    expect(toolSummary('exec_command', { exitCode: 0 }, 'done')).not.toBe('Skipped')
+    expect(toolSummary(t, 'exec_command', { exitCode: 0 }, 'done')).not.toBe('Skipped')
   })
 
   it('shows Skipped on the row and does not colour it as a pass or a failure', () => {

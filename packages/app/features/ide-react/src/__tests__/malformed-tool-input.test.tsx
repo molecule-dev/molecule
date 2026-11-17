@@ -17,14 +17,28 @@ import { fireEvent, render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import type { TranslateFunction } from '@molecule/app-i18n'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { normalizeAskUserInput, toolLabel } from '@molecule/app-ide-panel-logic/panels'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ToolCallCard } from '../components/ToolCallCard.js'
+import { buildThemeProvider } from './theme-test-provider.js'
+
+/**
+ * English passthrough translator — the text the package's former static `t`
+ * returned for `en`, so these direct-call expectations stay plain English while
+ * following the caller-supplied-translate-function contract.
+ */
+const t: TranslateFunction = (key, values, opts) =>
+  opts?.defaultValue
+    ? Object.entries(values ?? {}).reduce(
+        (s, [k, v]) => s.replace(`{{${k}}}`, String(v)),
+        opts.defaultValue,
+      )
+    : key
 
 beforeAll(() => {
   setClassMap(classMap)
@@ -52,46 +66,6 @@ const HOSTILE_VALUES: readonly unknown[] = [
   null,
   undefined,
 ]
-
-/** A minimal light theme so `useThemeMode` resolves. */
-function buildThemeProvider(): ThemeProviderType {
-  const theme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
-  return {
-    getTheme: () => theme,
-    getThemeName: () => 'light',
-    getThemes: () => ['light', 'dark'],
-    setTheme: () => {},
-    toggleMode: () => {},
-    onThemeChange: () => () => {},
-  }
-}
 
 /** Wrap a card in the i18n + theme contexts it needs to mount. */
 function wrap(children: ReactNode): ReactElement {
@@ -261,6 +235,7 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
     const { container } = render(
       wrap(
         <ToolCallCard
+          id="tc-hostile-1"
           name="ask_user"
           input={{
             question: 'What should we build?',
@@ -281,6 +256,7 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
     const { container } = render(
       wrap(
         <ToolCallCard
+          id="tc-hostile-2"
           name="ask_user"
           input={{
             question: 'Ship it?',
@@ -301,6 +277,7 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
     const { container } = render(
       wrap(
         <ToolCallCard
+          id="tc-hostile-3"
           name="ask_user"
           input={{
             question: 'Ship it?',
@@ -321,6 +298,7 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
         render(
           wrap(
             <ToolCallCard
+              id="tc-hostile-loop"
               name="ask_user"
               input={{
                 question: value,
@@ -379,11 +357,19 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
           text: value,
           reason: value,
         }
-        expect(() => toolLabel(name, input)).not.toThrow()
-        expect(typeof toolLabel(name, input)).toBe('string')
+        expect(() => toolLabel(t, name, input)).not.toThrow()
+        expect(typeof toolLabel(t, name, input)).toBe('string')
         expect(() =>
           render(
-            wrap(<ToolCallCard name={name} input={input} output={undefined} status="running" />),
+            wrap(
+              <ToolCallCard
+                id="tc-label-loop"
+                name={name}
+                input={input}
+                output={undefined}
+                status="running"
+              />,
+            ),
           ),
         ).not.toThrow()
       }
@@ -439,7 +425,15 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
           exitCode: value,
         }
         const { container, unmount } = render(
-          wrap(<ToolCallCard name={name} input={input} output={output} status="done" />),
+          wrap(
+            <ToolCallCard
+              id="tc-output-loop"
+              name={name}
+              input={input}
+              output={output}
+              status="done"
+            />,
+          ),
         )
         const toggle = container.querySelector('button')
         if (toggle) {
@@ -456,6 +450,7 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
     const { container } = render(
       wrap(
         <ToolCallCard
+          id="tc-errored"
           name="exec_command"
           input={{ command: 'npm test' }}
           output={{ error: { label: 'boom', code: 1 } }}

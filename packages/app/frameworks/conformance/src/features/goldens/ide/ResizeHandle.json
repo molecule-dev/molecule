@@ -1,7 +1,154 @@
 {
  "a horizontal handle": {
   "snapshots": [
-   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     30
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     -12
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     -24
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     24
+    ]
+   }
+  ]
+ },
+ "a vertical handle with a className": {
+  "snapshots": [
+   "<div aria-label=\"Resize panels\" aria-orientation=\"horizontal\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: row-resize; height: 11px; margin-bottom: -5px; margin-top: -5px; position: relative; touch-action: none; width: 100%; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 1px; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 100%\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"horizontal\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: row-resize; height: 11px; margin-bottom: -5px; margin-top: -5px; position: relative; touch-action: none; width: 100%; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 3px; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 100%\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"horizontal\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: row-resize; height: 11px; margin-bottom: -5px; margin-top: -5px; position: relative; touch-action: none; width: 100%; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 3px; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 100%\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"horizontal\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: row-resize; height: 11px; margin-bottom: -5px; margin-top: -5px; position: relative; touch-action: none; width: 100%; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 3px; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 100%\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"horizontal\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: row-resize; height: 11px; margin-bottom: -5px; margin-top: -5px; position: relative; touch-action: none; width: 100%; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 3px; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 100%\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"horizontal\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: row-resize; height: 11px; margin-bottom: -5px; margin-top: -5px; position: relative; touch-action: none; width: 100%; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 1px; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 100%\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2 cd75bbd18\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"65\" class=\"c05db3ff0 c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     -24
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     24
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     24
+    ]
+   }
+  ]
+ },
+ "hover highlights the line until the pointer leaves": {
+  "snapshots": [
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"50\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     24
+    ]
+   }
+  ]
+ },
+ "a locale switch re-renders the aria-label": {
+  "snapshots": [
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"35\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Redimensionner les panneaux\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"35\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "fr"
+    ]
+   }
+  ]
+ },
+ "the reported value follows the prop": {
+  "snapshots": [
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"63\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -16,8 +163,21 @@
  },
  "a horizontal handle, then a locale switch": {
   "snapshots": [
-   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
-   "<div aria-label=\"⟦Resize panels⟧\" aria-orientation=\"vertical\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"c7f6faa75\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 3px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"Resize panels\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /",
+   "<div aria-label=\"⟦Resize panels⟧\" aria-orientation=\"vertical\" aria-valuemax=\"100\" aria-valuemin=\"0\" aria-valuenow=\"40\" class=\"c1e8176ab c42740ba6 c9773cd2b ca596e575 cbaac6b89 ccae02ff2\" data-mol-id=\"workspace-resize-handle\" role=\"separator\" style=\"cursor: col-resize; height: 100%; margin-left: -5px; margin-right: -5px; position: relative; touch-action: none; width: 11px; z-index: 1\" tabindex=\"0\">\n<div aria-hidden=\"true\" class=\"cfde19efb\" style=\"border-radius: 9999px; height: 100%; transition: background-color 150ms ease, width 150ms ease, height 150ms ease; width: 1px\">\n</div>\n</div>\n@route /"
   ],
   "calls": [
    {
@@ -26,6 +186,30 @@
      "i18n",
      "Locale changed",
      "en"
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     30
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     -12
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     -24
+    ]
+   },
+   {
+    "name": "onResize",
+    "args": [
+     24
     ]
    },
    {

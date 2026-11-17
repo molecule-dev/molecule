@@ -9,6 +9,7 @@
  */
 
 import type { AppModelDefinition } from '@molecule/app-ai-models'
+import type { TranslateFunction } from '@molecule/app-i18n'
 
 /**
  * Sortable columns in the `/models` table.
@@ -347,4 +348,30 @@ export function sortModels(
       ? compareModels(b, a, column, regionOf)
       : compareModels(a, b, column, regionOf),
   )
+}
+
+/**
+ * The localized display name of a processing region (the
+ * `ide.chat.model.region.<code>` keys), through the CALLER's translate
+ * function. {@link ModelProcessingRegion} is deliberately an OPEN union (the
+ * catalog can add a region without a contract change), so this is a switch
+ * over the regions the bond has keys for plus a fallback: a code with no key
+ * renders as its uppercase code, the same text the chat panel used to show as
+ * the untranslated `defaultValue` — a brand-new region degrades to `EU`, not
+ * to a missing-translation guess.
+ *
+ * @param t - The caller's translate function (React passes `useTranslation()`'s `t`).
+ * @param region - The region code (e.g. `'us'`, `'cn'`).
+ * @returns The localized region label.
+ */
+export function modelRegionLabel(t: TranslateFunction, region: ModelProcessingRegion): string {
+  switch (region) {
+    case 'us':
+      return t('ide.chat.model.region.us', undefined, { defaultValue: 'US' })
+    case 'cn':
+      return t('ide.chat.model.region.cn', undefined, { defaultValue: 'CN' })
+    default:
+      // No key for this code in the bond yet — show the raw code, as before.
+      return region.toUpperCase()
+  }
 }

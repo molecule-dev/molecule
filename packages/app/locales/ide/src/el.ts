@@ -200,6 +200,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.quickOpen.placeholder': 'Αναζήτηση αρχείων με βάση το όνομα…',
   'ide.quickPicker.placeholder': 'Πληκτρολογήστε για αναζήτηση…',
   'ide.quickPicker.noResults': 'Δεν υπάρχουν αντίστοιχα αποτελέσματα',
+  'ide.quickPicker.label': 'Γρήγορη επιλογή',
   'ide.search.replaceInFile': 'Αντικατάσταση σε αυτό το αρχείο',
   'ide.search.toggleReplace': 'Εναλλαγή αντικατάστασης',
   'ide.search.replacePlaceholder': 'Αντικαθιστώ',
@@ -213,6 +214,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.search.excludeFiles': 'Αρχεία προς εξαίρεση (π.χ. *.min.js)',
   'ide.sidebar.tabs': 'Sidebar',
   'ide.sidebar.files': 'Εξερευνητής',
+  'ide.chat.tool.openFile': 'Άνοιγμα {{path}}',
   'ide.toolCall.noOutput': '(καμία έξοδος)',
   'ide.toolCall.written': 'Γραπτός',
   'ide.toolCall.statusUnchanged': 'Αμετάβλητος',
@@ -240,6 +242,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.code.copied': '✓ Copied',
   'ide.chat.commit': 'Διαπράττω',
   'ide.chat.committed': 'Δεσμευμένος',
+  'ide.chat.removeAttachment': 'Αφαίρεση {{name}}',
   'ide.chat.loopLimitReached': 'Έφτασε στο μέγιστο των {{max}} επαναλήψεις εργαλείων.',
   'ide.chat.maxLoopsSet': 'Ο μέγιστος αριθμός επαναλήψεων εργαλείου έχει οριστεί σε {{n}}',
   'ide.chat.modelError': 'Αποτυχία ενημέρωσης μοντέλου συνομιλίας.',
@@ -822,4 +825,164 @@ export const el: Partial<IdeTranslations> = {
   'ide.search.replaceConfirmation': 'Αντικατάσταση {{count}} εμφανίσεων σε {{files}} αρχεία;',
   'ide.chat.voice': 'Υπαγόρευση',
   'ide.chat.voiceStop': 'Διακοπή υπαγόρευσης',
+  // Tool-call labels (ide.tool.*), the conversation switcher's fallback, the
+  // history dropdown's empty state and the exit-code line — English source in
+  // en.ts; the {{placeholders}} are data (file names, commands, model names) and
+  // must stay byte-identical.
+  'ide.chat.historyFallback': 'Ιστορικό συνομιλίας',
+  'ide.chat.noConversations': 'Δεν υπάρχουν συνομιλίες ακόμη',
+  'ide.toolCall.exitCode': 'κωδικός εξόδου {{code}}',
+  'ide.tool.list': 'Λίστα',
+  'ide.tool.read': 'Ανάγνωση',
+  'ide.tool.readMore': '+{{count}} ακόμη',
+  'ide.tool.write': 'Εγγραφή',
+  'ide.tool.edit': 'Επεξεργασία',
+  'ide.tool.search': 'Αναζήτηση',
+  'ide.tool.createDir': 'Δημιουργία φακέλου',
+  'ide.tool.rename': 'Μετονομασία',
+  'ide.tool.delete': 'Διαγραφή',
+  'ide.tool.find': 'Εύρεση',
+  'ide.tool.loadSkill': 'Φόρτωση δεξιότητας',
+  'ide.tool.findPackage': 'Εύρεση πακέτου',
+  'ide.tool.readDocs': 'Ανάγνωση τεκμηρίωσης',
+  'ide.tool.fetchHost': 'Ανάκτηση {{host}}',
+  'ide.tool.descriptionBackground': '{{description}} (παρασκήνιο)',
+  'ide.tool.bash': 'Bash',
+  'ide.tool.bashBackground': 'Bash (παρασκήνιο)',
+  'ide.tool.goTo': 'Μετάβαση σε',
+  'ide.tool.open': 'Άνοιγμα',
+  'ide.tool.reloadPreview': 'Επαναφόρτωση προεπισκόπησης',
+  'ide.tool.restartPreviewServers': 'Επανεκκίνηση διακομιστών προεπισκόπησης',
+  'ide.tool.startPreviewServers': 'Εκκίνηση διακομιστών προεπισκόπησης',
+  'ide.tool.inspectPreview': 'Επιθεώρηση προεπισκόπησης',
+  'ide.tool.click': 'Κλικ',
+  'ide.tool.fill': 'Συμπλήρωση',
+  'ide.tool.select': 'Επιλογή',
+  'ide.tool.waitFor': 'Αναμονή για',
+  'ide.tool.interact': 'Αλληλεπίδραση',
+  'ide.tool.checkIdeStatus': 'Έλεγχος κατάστασης IDE',
+  'ide.tool.readSourceLogs': 'Ανάγνωση αρχείων καταγραφής {{source}}',
+  'ide.tool.readLogs': 'Ανάγνωση αρχείων καταγραφής',
+  'ide.tool.findExample': 'Εύρεση παραδείγματος',
+  'ide.tool.saveScript': 'Αποθήκευση σεναρίου',
+  'ide.tool.importRepository': 'Εισαγωγή αποθετηρίου',
+  'ide.tool.searchWeb': 'Αναζήτηση στον ιστό',
+  'ide.tool.savePlanNamed': 'Αποθήκευση σχεδίου `{{name}}`',
+  'ide.tool.savePlan': 'Αποθήκευση σχεδίου',
+  'ide.tool.switchToMode': 'Εναλλαγή σε λειτουργία {{mode}}',
+  'ide.tool.switchMode': 'Εναλλαγή λειτουργίας',
+  'ide.tool.question': 'Ερώτηση',
+  'ide.tool.subagentJudge': 'Υποπράκτορας — κριτής αποδοχής',
+  'ide.tool.subagentJudgeOn': 'Υποπράκτορας — κριτής αποδοχής σε {{model}}',
+  'ide.tool.subagentBuild': 'Υποπράκτορας — δόμηση',
+  'ide.tool.subagentBuildOn': 'Υποπράκτορας — δόμηση σε {{model}}',
+  'ide.tool.subagentResearch': 'Υποπράκτορας — έρευνα',
+  'ide.tool.subagentResearchOn': 'Υποπράκτορας — έρευνα σε {{model}}',
+  'ide.tool.waitForTask': 'Αναμονή εργασίας παρασκηνίου',
+  'ide.tool.listSessions': 'Άλλες συνεδρίες αυτού του έργου',
+  'ide.tool.sendSessionMessage': 'Αποστολή μηνύματος σε άλλη συνεδρία',
+  'ide.tool.workingPlanTasks': 'Πλάνο εργασίας — {{count}} εργασίες',
+  'ide.tool.workingPlan': 'Πλάνο εργασίας',
+  // Chat-panel labels: slash commands, categories, settings, share roles, plan review.
+  'ide.chat.cmd.clear.desc': 'Καθαρισμός συνομιλίας',
+  'ide.chat.cmd.compact.desc': 'Συμπίεση του περιεχομένου για ελευθέρωση χώρου',
+  'ide.chat.cmd.cost.desc': 'Εμφάνιση χρήσης token και μεριδίου του έργου από το όριο AI',
+  'ide.chat.cmd.skills.desc': 'Περιήγηση και φόρτωση δεξιοτήτων του έργου',
+  'ide.chat.cmd.commit.desc': 'Υποβολή των τρεχουσών αλλαγών (commit)',
+  'ide.chat.cmd.explain.desc': 'Εξήγηση κώδικα (π.χ. /explain @file)',
+  'ide.chat.cmd.lint.desc': 'Εκτέλεση linter και διόρθωση προβλημάτων',
+  'ide.chat.cmd.test.desc': 'Απαρίθμηση και εκτέλεση των tests του έργου',
+  'ide.chat.cmd.undo.desc': 'Αναίρεση αλλαγών αρχείων του τελευταίου γύρου AI',
+  'ide.chat.cmd.scripts.desc':
+    'Περιήγηση και εκτέλεση αποθηκευμένων scripts και ενσωματωμένων ενεργειών',
+  'ide.chat.cmd.run.desc': 'Εκτέλεση αποθηκευμένου script ή ενσωματωμένης ενέργειας βάσει ονόματος',
+  'ide.chat.cmd.autocommit.desc':
+    'Αυτόματο commit N δευτερόλεπτα μετά την τελευταία αλλαγή αρχείου (0 ακυρώνει)',
+  'ide.chat.cmd.autofix.desc': 'Εναλλαγή αυτόματης διόρθωσης μετά από αλλαγές αρχείων AI',
+  'ide.chat.cmd.autoapprove.desc':
+    'Εναλλαγή αυτόματης έγκρισης καταστροφικών εντολών (παράλειψη της επιβεβαίωσης Συνέχεια)',
+  'ide.chat.cmd.share.desc': 'Δημιουργία δημόσιου συνδέσμου κοινής χρήσης για αυτό το έργο',
+  'ide.chat.cmd.model.desc':
+    'Εναλλαγή μοντέλου για κάθε λειτουργία (σχεδιασμός, εκτέλεση, μηνύματα commit, συμπίεση)',
+  'ide.chat.cmd.plan.desc': 'Εναλλαγή λειτουργίας σχεδιασμού/εκτέλεσης',
+  'ide.chat.cmd.maxloops.desc': 'Ορισμός μέγιστων επαναλήψεων εργαλείων',
+  'ide.chat.cmd.effort.desc':
+    'Επιλογή προσπάθειας συλλογισμού ανά λειτουργία από τα ιδιαίτερα επίπεδα του μοντέλου',
+  'ide.chat.cmd.settings.desc': 'Προβολή και αλλαγή ρυθμίσεων του {{agentName}}',
+  'ide.chat.cmd.sounds.desc': 'Ήχοι ειδοποιήσεων',
+  'ide.chat.cmd.timestamps.desc':
+    'Εμφάνιση ή απόκρυψη της ώρας στα μηνύματα και τα γεγονότα της συνομιλίας',
+  'ide.chat.cmd.mic.desc': 'Επιλογή μηχανής υπαγόρευσης (στη συσκευή / εγγενής στον περιηγητή)',
+  'ide.chat.cmd.dictate.desc': 'Επιλογή μηχανής υπαγόρευσης (alias του /mic)',
+  'ide.chat.cmd.help.desc': 'Οδηγός ροής εργασίας και συμβουλές',
+  'ide.chat.cmd.report.desc': 'Αναφορά σφάλματος ή αποστολή σχολίων',
+  'ide.chat.cmd.bug.desc': 'Αναφορά σφάλματος (alias του /report)',
+  'ide.chat.cmd.version.desc': 'Εμφάνιση έκδοσης της εφαρμογής',
+  'ide.chat.help.category.context': 'Περιεχόμενο',
+  'ide.chat.help.category.code': 'Κώδικας',
+  'ide.chat.help.category.collaborate': 'Συνεργασία',
+  'ide.chat.help.category.model': 'Μοντέλο',
+  'ide.chat.help.category.settings': 'Ρυθμίσεις',
+  'ide.chat.help.category.support': 'Υποστήριξη',
+  'ide.chat.settings.model.label': 'Προεπιλεγμένο μοντέλο',
+  'ide.chat.settings.planModel.label': 'Μοντέλο λειτουργίας σχεδιασμού',
+  'ide.chat.settings.executeModel.label': 'Μοντέλο λειτουργίας εκτέλεσης',
+  'ide.chat.settings.commitModel.label': 'Μοντέλο μηνυμάτων commit',
+  'ide.chat.settings.compactModel.label': 'Μοντέλο συμπίεσης',
+  'ide.chat.settings.mode.label': 'Λειτουργία',
+  'ide.chat.settings.maxLoops.label': 'Μέγιστες επαναλήψεις εργαλείων',
+  'ide.chat.settings.autoFix.label': 'Αυτόματη διόρθωση',
+  'ide.chat.settings.autoCommit.label': 'Αυτόματο commit',
+  'ide.chat.settings.hooks.label': 'Hooks',
+  'ide.chat.settings.autoApproveCommands.label': 'Αυτόματη έγκριση εντολών',
+  'ide.chat.settings.sounds.label': 'Ήχοι ειδοποιήσεων',
+  'ide.chat.settings.timestamps.label': 'Χρονικές σήμανσεις',
+  'ide.chat.settings.model.desc':
+    'Το μοντέλο που χρησιμοποιεί {{agentName}} όταν δεν έχει οριστεί μοντέλο συγκεκριμένης λειτουργίας.',
+  'ide.chat.settings.planModel.desc':
+    'Το μοντέλο που χρησιμοποιείται στη λειτουργία σχεδιασμού. Επιστρέφει στο προεπιλεγμένο αν δεν οριστεί.',
+  'ide.chat.settings.executeModel.desc':
+    'Το μοντέλο που χρησιμοποιείται στη λειτουργία εκτέλεσης. Επιστρέφει στο προεπιλεγμένο αν δεν οριστεί.',
+  'ide.chat.settings.commitModel.desc':
+    'Το μοντέλο που γράφει τα μηνύματα commit. Επιστρέφει σε ένα γρήγορο προεπιλεγμένο αν δεν οριστεί.',
+  'ide.chat.settings.compactModel.desc':
+    'Το μοντέλο που συνοψίζει παλαιότερα μηνύματα όταν η συνομιλία πλησιάζει το όριο περιεχομένου. Επιστρέφει σε γρήγορο προεπιλεγμένο αν δεν οριστεί.',
+  'ide.chat.settings.mode.desc':
+    'Η λειτουργία σχεδιασμού διερευνά και προτείνει χωρίς να επεξεργάζεται αρχεία· η λειτουργία εκτέλεσης γράφει κώδικα.',
+  'ide.chat.settings.maxLoops.desc':
+    'Ανώτατο όριο κλήσεων εργαλείων που κάνει {{agentName}} σε έναν γύρο πριν σταθεί για εσάς.',
+  'ide.chat.settings.autoFix.desc':
+    'Μετά από αλλαγές AI, εκτελεί ξανά έλεγχο τύπων και linter και τροφοδοτεί τα σφάλματα πίσω ώστε να τα διορθώσει {{agentName}}.',
+  'ide.chat.settings.autoCommit.desc':
+    'Υποβάλλει αυτόματα τη δουλειά σας σε commit μετά από ορισμένο αριθμό δευτερολέπτων από την τελευταία αλλαγή αρχείου — ενεργό από προεπιλογή (5δ; 0 = ανενεργό), και περιμένει να τελειώσει ο γύρος του {{agentName}} πριν κάνει commit. Κάθε αλλαγή επανεκκινεί την αντίστροφη μέτρηση και μετά σταματά μετά το commit, ώστε ένα καθαρό δέντρο να μην υποβάλλεται ξανά.',
+  'ide.chat.settings.hooks.desc':
+    'Εντολές shell που εκτελούνται πριν από ενέργειες εργαλείων και μπορούν να τις εμποδίσουν — π.χ. προεπισκόπηση αλλαγής πριν το {{agentName}} αντικαταστήσει ή διαγράψει αρχείο. Ρυθμίζονται στο αρχείο ρυθμίσεων πράκτορα του έργου σας.',
+  'ide.chat.settings.autoApproveCommands.desc':
+    'Παράλειψη της επιβεβαίωσης «Συνέχεια;» πριν εκτελέσει {{agentName}} μαζική/καταστροφική εντολή (hard reset, αναδρομική διαγραφή, επιτόπια επεξεργασία). Η πρόσβαση στο δίκτυο εξακολουθεί να ακολουθεί τη λίστα επιτρεπόμενων του έργου εκτός αν είναι ενεργή η Πλήρης πρόσβαση.',
+  'ide.chat.settings.sounds.desc':
+    'Ήχοι ειδοποιήσεων ανά γεγονός για απαντήσεις, σφάλματα, αλλαγές αρχείων και άλλα.',
+  'ide.chat.settings.timestamps.desc':
+    'Εμφάνιση της ώρας σε κάθε μήνυμα και γεγονός της συνομιλίας. Ανενεργό από προεπιλογή· τα δικά σας μηνύματα και τα κρίσιμα γεγονότα την εμφανίζουν πάντα. Μόνο σε αυτή τη συσκευή.',
+  'ide.chat.settings.effort.desc':
+    'Πόσο εντατικά σκέφτεται {{agentName}}, ορίζεται ανά λειτουργία από τα ιδιαίτερα επίπεδα του μοντέλου (π.χ. high/xhigh)· κλιμακώνει και τον προϋπολογισμό του βρόχου του πράκτορα.',
+  'ide.chat.share.role.viewer': 'Παρατηρητής — μόνο προβολή',
+  'ide.chat.share.role.commenter': 'Σχολιαστής — προβολή και σχόλια',
+  'ide.chat.share.role.editor': 'Συντάκτης — προβολή και επεξεργασία',
+  'ide.chat.share.role.owner': 'Κάτοχος — πλήρης πρόσβαση',
+  'ide.chat.share.grants.viewer':
+    'Οποιοσδήποτε με αυτόν τον σύνδεσμο μπορεί να ενεργεί ως {{role}}.',
+  'ide.chat.share.grants.commenter':
+    'Οποιοσδήποτε με αυτόν τον σύνδεσμο μπορεί να ενεργεί ως {{role}}.',
+  'ide.chat.share.grants.editor':
+    'Οποιοσδήποτε με αυτόν τον σύνδεσμο μπορεί να ενεργεί ως {{role}}.',
+  'ide.chat.share.grants.owner':
+    'Οποιοσδήποτε με αυτόν τον σύνδεσμο μπορεί να ενεργεί ως {{role}}.',
+  'ide.chat.share.subheading.viewer':
+    'Δημιουργήστε δημόσιο σύνδεσμο. Οποιοσδήποτε με τον σύνδεσμο μπορεί να ενεργεί ως {{role}}.',
+  'ide.chat.share.subheading.commenter':
+    'Δημιουργήστε δημόσιο σύνδεσμο. Οποιοσδήποτε με τον σύνδεσμο μπορεί να ενεργεί ως {{role}}.',
+  'ide.chat.share.subheading.editor':
+    'Δημιουργήστε δημόσιο σύνδεσμο. Οποιοσδήποτε με τον σύνδεσμο μπορεί να ενεργεί ως {{role}}.',
+  'ide.chat.share.subheading.owner':
+    'Δημιουργήστε δημόσιο σύνδεσμο. Οποιοσδήποτε με τον σύνδεσμο μπορεί να ενεργεί ως {{role}}.',
 }

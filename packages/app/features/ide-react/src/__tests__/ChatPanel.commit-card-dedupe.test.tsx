@@ -20,7 +20,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
-import type { HttpClient } from '@molecule/app-http'
+import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import { de, en } from '@molecule/app-locales-ide'
@@ -82,11 +82,20 @@ function buildChatProvider(loadHistory: () => void): ChatProvider {
 /** An HTTP client that serves git-status + commit and rejects everything else. */
 function buildHttpClient(): HttpClient {
   const reject = (): Promise<never> => Promise.reject(new Error('http disabled in test'))
-  const get = ((url: string) => {
+  const get = (url: string): Promise<HttpResponse<never>> => {
     if (url.endsWith('/git-status')) {
       gitStatusRequest(url)
-      const response = {
-        data: { files: committed ? [] : pendingPaths.map((path) => ({ path, status: 'M' })) },
+      // The payload stands in for the server's reply; the client contract is
+      // caller-generic, which no concrete payload can prove, so the stub types
+      // it never and the interface widens it to the caller's T.
+      const response: HttpResponse<never> = {
+        data: {
+          files: committed ? [] : pendingPaths.map((path) => ({ path, status: 'M' })),
+        } as never,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: { method: 'GET', url },
       }
       if (delayNextStatus) {
         delayNextStatus = false
@@ -97,10 +106,19 @@ function buildHttpClient(): HttpClient {
       return Promise.resolve(response)
     }
     if (url === '/projects/proj-commit')
-      return Promise.resolve({ data: { settings: { autoCommitSeconds } } })
+      return Promise.resolve({
+        data: { settings: { autoCommitSeconds } } as never,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: { method: 'GET', url },
+      })
     return reject()
-  }) as HttpClient['get']
-  const post = ((url: string) => {
+  }
+  // The stub payloads stand in for the server's replies; the client contract is
+  // caller-generic, which no concrete payload can prove, so the stubs type them
+  // never and the interface widens each to the caller's T.
+  const post = (url: string): Promise<HttpResponse<never>> => {
     if (!url.endsWith('/commit')) return reject()
     commitRequest(url)
     if (delayCommit)
@@ -113,7 +131,11 @@ function buildHttpClient(): HttpClient {
               message: commitOutcome === 'success' ? FULL_MESSAGE : 'No changes to commit',
               files: ['src/Login.tsx'],
               hash: HASH,
-            },
+            } as never,
+            status: 200,
+            statusText: 'OK',
+            headers: {},
+            config: { method: 'POST', url },
           })
       })
     if (commitOutcome !== 'success') {
@@ -123,7 +145,11 @@ function buildHttpClient(): HttpClient {
           ok: true,
           committed: false,
           message: commitOutcome === 'clean' ? 'No changes to commit' : 'A build is in progress',
-        },
+        } as never,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: { method: 'POST', url },
       })
     }
     committed = true
@@ -134,9 +160,13 @@ function buildHttpClient(): HttpClient {
         message: FULL_MESSAGE,
         files: ['src/Login.tsx'],
         hash: HASH,
-      },
+      } as never,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'POST', url },
     })
-  }) as HttpClient['post']
+  }
   return {
     baseURL: '',
     defaultHeaders: {},
@@ -170,7 +200,6 @@ function makeStorage(): Storage {
   }
 }
 
-/** A minimal light theme so `useThemeMode` resolves. */
 function buildThemeProvider(): ThemeProviderType {
   return {
     getTheme: () => lightTheme,

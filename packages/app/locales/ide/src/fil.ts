@@ -193,6 +193,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.quickOpen.placeholder': 'Maghanap ng mga file ayon sa pangalan...',
   'ide.quickPicker.placeholder': 'I-type para maghanap…',
   'ide.quickPicker.noResults': 'Walang tumutugmang resulta',
+  'ide.quickPicker.label': 'Mabilis na tagapili',
   'ide.search.replaceInFile': 'Palitan sa file na ito',
   'ide.search.toggleReplace': 'I-toggle ang Palitan',
   'ide.search.replacePlaceholder': 'Palitan',
@@ -206,6 +207,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.search.excludeFiles': 'Mga file na ibubukod (hal. *.min.js)',
   'ide.sidebar.tabs': 'Sidebar',
   'ide.sidebar.files': 'Manggagalugad',
+  'ide.chat.tool.openFile': 'Buksan ang {{path}}',
   'ide.toolCall.noOutput': '(walang labasan)',
   'ide.toolCall.written': 'Nakasulat',
   'ide.toolCall.statusUnchanged': 'Hindi nabago',
@@ -233,6 +235,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.code.copied': '✓ Copied',
   'ide.chat.commit': 'Mangako',
   'ide.chat.committed': 'Nakatuon',
+  'ide.chat.removeAttachment': 'Alisin {{name}}',
   'ide.chat.loopLimitReached': 'Naabot ang pinakamataas na {{max}} mga pag-ulit ng kagamitan.',
   'ide.chat.maxLoopsSet': 'Nakatakda ang maximum na mga iterasyon ng tool sa {{n}}',
   'ide.chat.modelError': 'Nabigong i-update ang modelo ng chat.',
@@ -814,4 +817,164 @@ export const fil: Partial<IdeTranslations> = {
   'ide.search.replaceConfirmation': 'Palitan ang {{count}} na paglitaw sa mga file na {{files}} ?',
   'ide.chat.voice': 'Magdikta',
   'ide.chat.voiceStop': 'Itigil ang pagdidikta',
+  // Tool-call labels (ide.tool.*), the conversation switcher's fallback, the
+  // history dropdown's empty state and the exit-code line — English source in
+  // en.ts; the {{placeholders}} are data (file names, commands, model names) and
+  // must stay byte-identical.
+  'ide.chat.historyFallback': 'Kasaysayan ng chat',
+  'ide.chat.noConversations': 'Wala pang mga pag-uusap',
+  'ide.toolCall.exitCode': 'exit code {{code}}',
+  'ide.tool.list': 'Listahin',
+  'ide.tool.read': 'Basahin',
+  'ide.tool.readMore': '+{{count}} pa',
+  'ide.tool.write': 'Isulat',
+  'ide.tool.edit': 'I-edit',
+  'ide.tool.search': 'Maghanap',
+  'ide.tool.createDir': 'Gumawa ng folder',
+  'ide.tool.rename': 'Palitan ang pangalan',
+  'ide.tool.delete': 'Burahin',
+  'ide.tool.find': 'Hanapin',
+  'ide.tool.loadSkill': 'I-load ang skill',
+  'ide.tool.findPackage': 'Hanapin ang package',
+  'ide.tool.readDocs': 'Basahin ang mga doc',
+  'ide.tool.fetchHost': 'Kunin ang {{host}}',
+  'ide.tool.descriptionBackground': '{{description}} (sa background)',
+  'ide.tool.bash': 'Bash',
+  'ide.tool.bashBackground': 'Bash (sa background)',
+  'ide.tool.goTo': 'Pumunta sa',
+  'ide.tool.open': 'Buksan',
+  'ide.tool.reloadPreview': 'I-reload ang preview',
+  'ide.tool.restartPreviewServers': 'I-restart ang mga preview server',
+  'ide.tool.startPreviewServers': 'I-start ang mga preview server',
+  'ide.tool.inspectPreview': 'Suriin ang preview',
+  'ide.tool.click': 'I-click',
+  'ide.tool.fill': 'Punan',
+  'ide.tool.select': 'Piliin',
+  'ide.tool.waitFor': 'Hintayin',
+  'ide.tool.interact': 'Makipag-ugnayan',
+  'ide.tool.checkIdeStatus': 'Tingnan ang status ng IDE',
+  'ide.tool.readSourceLogs': 'Basahin ang mga log ng {{source}}',
+  'ide.tool.readLogs': 'Basahin ang mga log',
+  'ide.tool.findExample': 'Hanapin ang halimbawa',
+  'ide.tool.saveScript': 'I-save ang script',
+  'ide.tool.importRepository': 'I-import ang repository',
+  'ide.tool.searchWeb': 'Maghanap sa web',
+  'ide.tool.savePlanNamed': 'I-save ang plano `{{name}}`',
+  'ide.tool.savePlan': 'I-save ang plano',
+  'ide.tool.switchToMode': 'Lumipat sa {{mode}} mode',
+  'ide.tool.switchMode': 'Palitan ang mode',
+  'ide.tool.question': 'Tanong',
+  'ide.tool.subagentJudge': 'Sub-agent — tagahatol ng acceptance',
+  'ide.tool.subagentJudgeOn': 'Sub-agent — tagahatol ng acceptance sa {{model}}',
+  'ide.tool.subagentBuild': 'Sub-agent — build',
+  'ide.tool.subagentBuildOn': 'Sub-agent — build sa {{model}}',
+  'ide.tool.subagentResearch': 'Sub-agent — research',
+  'ide.tool.subagentResearchOn': 'Sub-agent — research sa {{model}}',
+  'ide.tool.waitForTask': 'Hintayin ang background task',
+  'ide.tool.listSessions': 'Iba pang mga session sa proyektong ito',
+  'ide.tool.sendSessionMessage': 'Magpadala ng mensahe sa iba pang session',
+  'ide.tool.workingPlanTasks': 'Plano ng trabaho — {{count}} na gawain',
+  'ide.tool.workingPlan': 'Plano ng trabaho',
+  // Chat-panel labels: slash commands, categories, settings, share roles, plan review.
+  'ide.chat.cmd.clear.desc': 'Burahin ang pag-uusap',
+  'ide.chat.cmd.compact.desc': 'I-compress ang konteksto para makapagbakante ng espasyo',
+  'ide.chat.cmd.cost.desc': 'Ipakita ang paggamit ng token at bahagi ng proyekto sa AI allowance',
+  'ide.chat.cmd.skills.desc': 'I-browse at i-load ang mga kasanayan ng proyekto',
+  'ide.chat.cmd.commit.desc': 'I-commit ang mga kasalukuyang pagbabago',
+  'ide.chat.cmd.explain.desc': 'Ipaliwanag ang code (hal. /explain @file)',
+  'ide.chat.cmd.lint.desc': 'Patakbuhin ang linter at ayusin ang mga problema',
+  'ide.chat.cmd.test.desc': 'Ilista at patakbuhin ang mga test ng proyekto',
+  'ide.chat.cmd.undo.desc': 'Ibalik ang mga pagbabago sa file mula sa huling AI turn',
+  'ide.chat.cmd.scripts.desc':
+    'I-browse at patakbuhin ang mga naka-save na script at built-in na aksyon',
+  'ide.chat.cmd.run.desc':
+    'Patakbuhin ang naka-save na script o built-in na aksyon ayon sa pangalan',
+  'ide.chat.cmd.autocommit.desc':
+    'Awtomatikong i-commit pagkatapos ng N segundo mula sa huling pagbabago sa file (0 ay kumansela)',
+  'ide.chat.cmd.autofix.desc': 'I-toggle ang auto-fix pagkatapos ng mga pagbabago sa file ng AI',
+  'ide.chat.cmd.autoapprove.desc':
+    'I-toggle ang awtomatikong pag-apruba ng mga nakamamatay na utos (laktawan ang Proceed na kumpirmasyon)',
+  'ide.chat.cmd.share.desc': 'Gumawa ng pampublikong share link para sa proyektong ito',
+  'ide.chat.cmd.model.desc':
+    'Palitan ang modelo para sa anumang mode (plan, execute, mga commit message, compression)',
+  'ide.chat.cmd.plan.desc': 'I-toggle ang plan/execute mode',
+  'ide.chat.cmd.maxloops.desc': 'Itakda ang pinakamataas na tool iterations',
+  'ide.chat.cmd.effort.desc':
+    'Piliin ang reasoning effort bawat mode mula sa model-native na antas nito',
+  'ide.chat.cmd.settings.desc': 'Tingnan at baguhin ang mga setting ng {{agentName}}',
+  'ide.chat.cmd.sounds.desc': 'Mga tunog ng abiso',
+  'ide.chat.cmd.timestamps.desc': 'Ipakita o itago ang oras sa mga mensahe at kaganapan ng chat',
+  'ide.chat.cmd.mic.desc': 'Piliin ang dictation engine (sa device / native ng browser)',
+  'ide.chat.cmd.dictate.desc': 'Piliin ang dictation engine (alias ng /mic)',
+  'ide.chat.cmd.help.desc': 'Gabay sa workflow at mga tip',
+  'ide.chat.cmd.report.desc': 'I-ulat ang bug o magpadala ng feedback',
+  'ide.chat.cmd.bug.desc': 'I-ulat ang bug (alias ng /report)',
+  'ide.chat.cmd.version.desc': 'Ipakita ang bersyon ng app',
+  'ide.chat.help.category.context': 'Konteksto',
+  'ide.chat.help.category.code': 'Code',
+  'ide.chat.help.category.collaborate': 'Pakikipagtulungan',
+  'ide.chat.help.category.model': 'Modelo',
+  'ide.chat.help.category.settings': 'Mga setting',
+  'ide.chat.help.category.support': 'Suporta',
+  'ide.chat.settings.model.label': 'Default na modelo',
+  'ide.chat.settings.planModel.label': 'Plan-mode na modelo',
+  'ide.chat.settings.executeModel.label': 'Execute-mode na modelo',
+  'ide.chat.settings.commitModel.label': 'Commit-message na modelo',
+  'ide.chat.settings.compactModel.label': 'Compression na modelo',
+  'ide.chat.settings.mode.label': 'Mode',
+  'ide.chat.settings.maxLoops.label': 'Pinakamataas na tool iterations',
+  'ide.chat.settings.autoFix.label': 'Auto-fix',
+  'ide.chat.settings.autoCommit.label': 'Awtomatikong commit',
+  'ide.chat.settings.hooks.label': 'Mga hook',
+  'ide.chat.settings.autoApproveCommands.label': 'Awtomatikong aprubahan ang mga utos',
+  'ide.chat.settings.sounds.label': 'Mga tunog ng abiso',
+  'ide.chat.settings.timestamps.label': 'Mga timestamp',
+  'ide.chat.settings.model.desc':
+    'Ang modelong ginagamit ng {{agentName}} kapag walang mode-specific na modelong nakatakda.',
+  'ide.chat.settings.planModel.desc':
+    'Ang modelong ginamit sa plan mode. Bumabalik sa default na modelo kapag walang nakatakda.',
+  'ide.chat.settings.executeModel.desc':
+    'Ang modelong ginamit sa execute mode. Bumabalik sa default na modelo kapag walang nakatakda.',
+  'ide.chat.settings.commitModel.desc':
+    'Ang modelong sumusulat ng mga commit message. Bumabalik sa mabilis na default kapag walang nakatakda.',
+  'ide.chat.settings.compactModel.desc':
+    'Ang modelong bumubuod ng mas lumang mensahe kapag lumalapit ang usapan sa context limit. Bumabalik sa mabilis na default kapag walang nakatakda.',
+  'ide.chat.settings.mode.desc':
+    'Ang plan mode ay nagsasaliksik at nagmumungkahi nang hindi nag-eedit ng mga file; ang execute mode ay sumusulat ng code.',
+  'ide.chat.settings.maxLoops.desc':
+    'Ang pinakamataas na bilang ng mga tool call na ginagawa ng {{agentName}} sa isang turn bago ito huminto para sa iyo.',
+  'ide.chat.settings.autoFix.desc':
+    'Pagkatapos ng mga AI edit, patakbuhing muli ang type-check at linter at ibalik ang mga error para ayusin ng {{agentName}}.',
+  'ide.chat.settings.autoCommit.desc':
+    'Awtomatikong kinukumit ang iyong gawai ilang segundo pagkatapos ng huling pagbabago sa file — naka-on bilang default (5s; 0 = off), at naghihintay hanggang matapos ang turn ng {{agentName}} bago mag-commit. Bawat pagbabago ay nagrereset ng countdown, pagkatapos ay humihinto pagkatapos mag-commit para hindi maulit ang pag-commit ng malinis na tree.',
+  'ide.chat.settings.hooks.desc':
+    'Mga shell command na tumatakbo bago ang mga kilos ng tool at maaaring pumigil sa mga ito — halimbawa ang pag-preview ng pagbabago bago i-overwrite o burahin ng {{agentName}} ang isang file. I-configure ang mga ito sa agent settings file ng proyekto mo.',
+  'ide.chat.settings.autoApproveCommands.desc':
+    'Laktawan ang “Proceed?” na kumpirmasyon bago patakbuhin ng {{agentName}} ang mabulk/destructive na utos (hard reset, recursive na pagburahin, in-place na pag-edit). Ang network access ay sumusunod pa rin sa allowlist ng proyekto maliban kung naka-on ang Full access.',
+  'ide.chat.settings.sounds.desc':
+    'Mga tunog ng abiso kada kaganapan para sa mga tugon, error, pagbabago sa file at iba pa.',
+  'ide.chat.settings.timestamps.desc':
+    'Ipakita ang oras sa bawat mensahe at kaganapan ng chat. Naka-off bilang default; ang mga mensahe mo at mga kritikal na kaganapan ay laging nagpapakita nito. Sa device na ito lamang.',
+  'ide.chat.settings.effort.desc':
+    'Gaano kalalim nag-iisip ang {{agentName}}, itinatakda kada mode gamit ang model-native na antas nito (hal. high/xhigh); iskala rin nito ang badyet ng agent loop.',
+  'ide.chat.share.role.viewer': 'Nanood — tingin lamang',
+  'ide.chat.share.role.commenter': 'Komentarista — tingnan at magkomento',
+  'ide.chat.share.role.editor': 'Editor — tingnan at i-edit',
+  'ide.chat.share.role.owner': 'May-ari — buong access',
+  'ide.chat.share.grants.viewer':
+    'Ang sinumang may link na ito ay maaaring kumilos bilang {{role}}.',
+  'ide.chat.share.grants.commenter':
+    'Ang sinumang may link na ito ay maaaring kumilos bilang {{role}}.',
+  'ide.chat.share.grants.editor':
+    'Ang sinumang may link na ito ay maaaring kumilos bilang {{role}}.',
+  'ide.chat.share.grants.owner':
+    'Ang sinumang may link na ito ay maaaring kumilos bilang {{role}}.',
+  'ide.chat.share.subheading.viewer':
+    'Gumawa ng pampublikong link. Ang sinumang may link ay maaaring kumilos bilang {{role}}.',
+  'ide.chat.share.subheading.commenter':
+    'Gumawa ng pampublikong link. Ang sinumang may link ay maaaring kumilos bilang {{role}}.',
+  'ide.chat.share.subheading.editor':
+    'Gumawa ng pampublikong link. Ang sinumang may link ay maaaring kumilos bilang {{role}}.',
+  'ide.chat.share.subheading.owner':
+    'Gumawa ng pampublikong link. Ang sinumang may link ay maaaring kumilos bilang {{role}}.',
 }

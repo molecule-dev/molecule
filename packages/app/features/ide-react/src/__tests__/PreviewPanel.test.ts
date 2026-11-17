@@ -83,14 +83,26 @@ describe('PreviewPanel security', () => {
  * above — these assert the wiring against source to catch regressions, notably the
  * original bug where the heartbeat was collected but never read (dead detection).
  */
+/**
+ * The panel's whole source: the view, plus the behaviour it runs from
+ * `@molecule/app-ide-panel-logic` (`usePreviewPanelLogic`, shared with the other frameworks).
+ *
+ * @returns Both files' text.
+ */
+async function readPanelSource(): Promise<string> {
+  const fs = await import('node:fs/promises')
+  const files = [
+    new URL('../components/PreviewPanel.tsx', import.meta.url),
+    new URL('../../../ide-panel-logic/src/components/preview-panel-logic.ts', import.meta.url),
+  ]
+  return (await Promise.all(files.map((file) => fs.readFile(file, 'utf-8')))).join('\n')
+}
+
 describe('PreviewPanel freeze watchdog', () => {
   /** The scaffold's heartbeat cadence (index.html.tpl): `setInterval(post, 3000)`. */
   const SCAFFOLD_HEARTBEAT_MS = 3000
 
-  async function readSource(): Promise<string> {
-    const fs = await import('node:fs/promises')
-    return fs.readFile(new URL('../components/PreviewPanel.tsx', import.meta.url), 'utf-8')
-  }
+  const readSource = readPanelSource
 
   it('declares a freeze threshold longer than the scaffold heartbeat (no false positives)', async () => {
     const source = await readSource()
@@ -157,10 +169,7 @@ describe('PreviewPanel freeze watchdog', () => {
  * impractical to drive deterministically in node/jsdom — see that file).
  */
 describe('PreviewPanel structured stuck reasons', () => {
-  async function readSource(): Promise<string> {
-    const fs = await import('node:fs/promises')
-    return fs.readFile(new URL('../components/PreviewPanel.tsx', import.meta.url), 'utf-8')
-  }
+  const readSource = readPanelSource
 
   it('tags the loop-breaker (exhausted reloads) as reason: load-failed', async () => {
     const source = await readSource()
@@ -195,10 +204,7 @@ describe('PreviewPanel structured stuck reasons', () => {
  * package is node-env (no DOM), so these assert the wiring against source.
  */
 describe('PreviewPanel URL bar (current location)', () => {
-  async function readSource(): Promise<string> {
-    const fs = await import('node:fs/promises')
-    return fs.readFile(new URL('../components/PreviewPanel.tsx', import.meta.url), 'utf-8')
-  }
+  const readSource = readPanelSource
 
   it('handles the molecule:navigate message and forwards url + isReplace to recordNavigation', async () => {
     const source = await readSource()
@@ -262,10 +268,7 @@ describe('PreviewPanel URL bar (current location)', () => {
  * behavior is covered by PreviewPanel.navigation.test.tsx.
  */
 describe('PreviewPanel back/forward navigation', () => {
-  async function readSource(): Promise<string> {
-    const fs = await import('node:fs/promises')
-    return fs.readFile(new URL('../components/PreviewPanel.tsx', import.meta.url), 'utf-8')
-  }
+  const readSource = readPanelSource
 
   it('pulls back/forward off the preview hook', async () => {
     const source = await readSource()

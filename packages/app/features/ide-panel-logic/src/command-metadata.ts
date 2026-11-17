@@ -2,8 +2,9 @@
  * React-free slash-command metadata — the single source of truth for every
  * `/command` the user can run.
  *
- * This module deliberately imports **nothing** (no React, no app-ui, no i18n)
- * so it can be consumed on *either* side of the api/app boundary. The IDE chat
+ * This module deliberately imports **nothing at runtime** (no React, no
+ * app-ui; the i18n import is types-only, erased from the emitted JS) so it can
+ * be consumed on *either* side of the api/app boundary. The IDE chat
  * surfaces (command menu, keyboard dispatcher, `/help`, the `/settings` card)
  * all read from {@link COMMANDS} here, AND the molecule.dev API system prompt
  * can import the same array (via the package's `./command-metadata` subpath
@@ -16,6 +17,8 @@
  *
  * @module
  */
+
+import type { InterpolationValues, TranslateFunction } from '@molecule/app-i18n'
 
 /** Category keys used to group commands in the menu and in `/help`. */
 export type CommandCategoryKey =
@@ -65,7 +68,7 @@ export interface CommandDef {
    * e.g. `['t']` lets `/t <message>` invoke `/teamsay`. Matched by the chat
    * input's command dispatch alongside {@link id}.
    */
-  aliases?: string[]
+  aliases?: readonly string[]
   /**
    * True for a human-only side-channel command handled by the HOST's server
    * (e.g. a team-chat note the agent never sees): the raw `/command` text is
@@ -93,7 +96,7 @@ export interface CommandDef {
  * authoritative list — the menu, key handling, `/help`, AND the system prompt's
  * "Available Commands" section all read from it.
  */
-export const COMMANDS: readonly CommandDef[] = [
+export const COMMANDS = [
   // Context
   { id: 'clear', label: '/clear', description: 'Clear conversation', category: 'context' },
   {
@@ -295,7 +298,17 @@ export const COMMANDS: readonly CommandDef[] = [
     category: 'support',
     viewerSafe: true,
   },
-] as const
+] as const satisfies readonly CommandDef[]
+
+/**
+ * The literal id of every command in {@link COMMANDS} — the union the command
+ * label helpers switch over. Unlike {@link CommandId} (every `CommandDef` id,
+ * including host-added commands), this is closed over the shared registry:
+ * adding a command to {@link COMMANDS} extends it, so the label switches below
+ * fail to compile until the new command has its label — a command can no longer
+ * ship with no translation site.
+ */
+export type WrittenCommandId = (typeof COMMANDS)[number]['id']
 
 /** Union of all command ids (loosely `string`, since {@link CommandDef.id} is a string). */
 export type CommandId = CommandDef['id']
@@ -354,4 +367,172 @@ export function matchesSideChannelCommand(
   return !!defs?.some(
     (c) => c.sideChannel && (c.id.toLowerCase() === token || c.aliases?.includes(token)),
   )
+}
+
+/** The registry's own command ids, for {@link isRegistryCommandId}. */
+const REGISTRY_COMMAND_IDS: ReadonlySet<string> = new Set(COMMANDS.map((c) => c.id))
+
+/**
+ * Whether `id` is one of the shared registry's commands ({@link COMMANDS}).
+ *
+ * Host-provided commands (e.g. molecule.dev's `/deploy`, `/teamsay`) are NOT
+ * registry commands: they carry their own English description and have no key
+ * in the shared locale bond, so callers render {@link CommandDef.description}
+ * directly for them and route registry commands through
+ * {@link commandDescription}.
+ *
+ * @param id - The command id to test.
+ * @returns True when the id belongs to the shared registry.
+ */
+export function isRegistryCommandId(id: string): id is WrittenCommandId {
+  return REGISTRY_COMMAND_IDS.has(id)
+}
+
+/**
+ * The localized one-line description of a registry command (the
+ * `ide.chat.cmd.<id>.desc` keys), through the CALLER's translate function so a
+ * framework port and a live locale switch both get their own text. One literal
+ * `t()` call per registry id, chosen by a switch exhaustive over
+ * {@link WrittenCommandId}: adding a command to {@link COMMANDS} without adding
+ * its case here is a compile error, so a command can never ship untranslated.
+ * Each `defaultValue` is the same English the command's `description` field
+ * carries (the text the API system prompt renders), so the English output is
+ * identical either way.
+ *
+ * @param t - The caller's translate function (React passes `useTranslation()`'s `t`).
+ * @param id - The command id; MUST be a registry id — narrow a possibly
+ *   host-added id with {@link isRegistryCommandId} first.
+ * @param values - Interpolation values; the descriptions interpolate
+ *   `{{agentName}}` (and the caller's agent identity fills it in).
+ * @returns The localized description.
+ */
+export function commandDescription(
+  t: TranslateFunction,
+  id: WrittenCommandId,
+  values?: InterpolationValues,
+): string {
+  switch (id) {
+    case 'clear':
+      return t('ide.chat.cmd.clear.desc', values, { defaultValue: 'Clear conversation' })
+    case 'compact':
+      return t('ide.chat.cmd.compact.desc', values, {
+        defaultValue: 'Compress context to free space',
+      })
+    case 'cost':
+      return t('ide.chat.cmd.cost.desc', values, {
+        defaultValue: "Show token usage & share of the project's AI allowance",
+      })
+    case 'skills':
+      return t('ide.chat.cmd.skills.desc', values, { defaultValue: 'Browse & load project skills' })
+    case 'commit':
+      return t('ide.chat.cmd.commit.desc', values, { defaultValue: 'Commit current changes' })
+    case 'explain':
+      return t('ide.chat.cmd.explain.desc', values, {
+        defaultValue: 'Explain code (e.g. /explain @file)',
+      })
+    case 'lint':
+      return t('ide.chat.cmd.lint.desc', values, { defaultValue: 'Run linter and fix issues' })
+    case 'test':
+      return t('ide.chat.cmd.test.desc', values, {
+        defaultValue: "List and run the project's tests",
+      })
+    case 'undo':
+      return t('ide.chat.cmd.undo.desc', values, {
+        defaultValue: "Revert last AI turn's file changes",
+      })
+    case 'scripts':
+      return t('ide.chat.cmd.scripts.desc', values, {
+        defaultValue: 'Browse & run saved scripts and built-in actions',
+      })
+    case 'run':
+      return t('ide.chat.cmd.run.desc', values, {
+        defaultValue: 'Run a saved script or built-in by name',
+      })
+    case 'autocommit':
+      return t('ide.chat.cmd.autocommit.desc', values, {
+        defaultValue: 'Auto-commit N seconds after the last file change (0 cancels)',
+      })
+    case 'autofix':
+      return t('ide.chat.cmd.autofix.desc', values, {
+        defaultValue: 'Toggle auto-fix after AI file changes',
+      })
+    case 'autoapprove':
+      return t('ide.chat.cmd.autoapprove.desc', values, {
+        defaultValue: 'Toggle auto-approving destructive commands (skip the Proceed confirm)',
+      })
+    case 'share':
+      return t('ide.chat.cmd.share.desc', values, {
+        defaultValue: 'Create a public share link for this project',
+      })
+    case 'model':
+      return t('ide.chat.cmd.model.desc', values, {
+        defaultValue: 'Switch the model for any mode (plan, execute, commit messages, compaction)',
+      })
+    case 'plan':
+      return t('ide.chat.cmd.plan.desc', values, { defaultValue: 'Toggle plan/execute mode' })
+    case 'maxloops':
+      return t('ide.chat.cmd.maxloops.desc', values, { defaultValue: 'Set max tool iterations' })
+    case 'effort':
+      return t('ide.chat.cmd.effort.desc', values, {
+        defaultValue: "Pick reasoning effort per mode from the model's own levels",
+      })
+    case 'settings':
+      return t('ide.chat.cmd.settings.desc', values, {
+        defaultValue: "View & change {{agentName}}'s settings",
+      })
+    case 'sounds':
+      return t('ide.chat.cmd.sounds.desc', values, { defaultValue: 'Notification sounds' })
+    case 'timestamps':
+      return t('ide.chat.cmd.timestamps.desc', values, {
+        defaultValue: 'Show or hide the time on chat messages and events',
+      })
+    case 'mic':
+      return t('ide.chat.cmd.mic.desc', values, {
+        defaultValue: 'Choose the dictation engine (on-device / browser native)',
+      })
+    case 'dictate':
+      return t('ide.chat.cmd.dictate.desc', values, {
+        defaultValue: 'Choose the dictation engine (alias for /mic)',
+      })
+    case 'help':
+      return t('ide.chat.cmd.help.desc', values, { defaultValue: 'Workflow guide & tips' })
+    case 'report':
+      return t('ide.chat.cmd.report.desc', values, {
+        defaultValue: 'Report a bug or send feedback',
+      })
+    case 'bug':
+      return t('ide.chat.cmd.bug.desc', values, {
+        defaultValue: 'Report a bug (alias for /report)',
+      })
+    case 'version':
+      return t('ide.chat.cmd.version.desc', values, { defaultValue: 'Show the app version' })
+  }
+}
+
+/**
+ * The localized heading of a command category (the `ide.chat.help.category.<key>`
+ * keys), through the CALLER's translate function. One literal `t()` call per
+ * {@link CommandCategoryKey}, exhaustive: a new category key fails to compile
+ * until it has a heading. Each `defaultValue` equals the category's `label`
+ * field, so the English output is unchanged.
+ *
+ * @param t - The caller's translate function.
+ * @param key - The category key.
+ * @returns The localized category heading.
+ */
+export function commandCategoryLabel(t: TranslateFunction, key: CommandCategoryKey): string {
+  switch (key) {
+    case 'context':
+      return t('ide.chat.help.category.context', undefined, { defaultValue: 'Context' })
+    case 'code':
+      return t('ide.chat.help.category.code', undefined, { defaultValue: 'Code' })
+    case 'collaborate':
+      return t('ide.chat.help.category.collaborate', undefined, { defaultValue: 'Collaborate' })
+    case 'model':
+      return t('ide.chat.help.category.model', undefined, { defaultValue: 'Model' })
+    case 'settings':
+      return t('ide.chat.help.category.settings', undefined, { defaultValue: 'Settings' })
+    case 'support':
+      return t('ide.chat.help.category.support', undefined, { defaultValue: 'Support' })
+  }
 }

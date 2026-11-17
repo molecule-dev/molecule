@@ -99,7 +99,9 @@ describe('buildSettingsList', () => {
   })
 
   it('every edit command resolves to a real registered command', () => {
-    const ids = new Set(COMMANDS.map((c) => c.id))
+    // `CommandId` is loosely `string` (hosts add their own commands), so the
+    // registry set is checked as strings, not as the written-id union.
+    const ids = new Set<string>(COMMANDS.map((c) => c.id))
     for (const setting of settings) {
       if (setting.editCommand) expect(ids.has(setting.editCommand)).toBe(true)
     }

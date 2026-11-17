@@ -81,7 +81,11 @@ const q = (container: HTMLElement, molId: string): Element | null =>
  * @param ms - Fake-timer milliseconds to advance.
  * @returns Resolves once timers ran and React flushed.
  */
-const advance = (ms: number): Promise<void> => act(() => vi.advanceTimersByTimeAsync(ms))
+const advance = async (ms: number): Promise<void> => {
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(ms)
+  })
+}
 
 beforeEach(() => {
   setClassMap(classMap)

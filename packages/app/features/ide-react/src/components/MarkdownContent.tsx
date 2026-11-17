@@ -11,6 +11,7 @@
 import type { JSX, ReactNode } from 'react'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -364,9 +365,11 @@ function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.El
 
   /** Copies the code block content to clipboard and shows a brief confirmation. */
   function handleCopy(): void {
-    void navigator.clipboard.writeText(content)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    void copyTextWithFallback(content).then((copied) => {
+      if (!copied) return
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
   }
 
   return (

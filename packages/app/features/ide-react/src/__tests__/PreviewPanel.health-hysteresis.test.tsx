@@ -61,7 +61,11 @@ function postFromPreview(data: Record<string, unknown>): void {
   window.dispatchEvent(new MessageEvent('message', { data, origin: PREVIEW_ORIGIN, source }))
 }
 
-const advance = (ms: number): Promise<void> => act(() => vi.advanceTimersByTimeAsync(ms))
+const advance = async (ms: number): Promise<void> => {
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(ms)
+  })
+}
 
 /**
  * A scripted status endpoint: each entry is what the next status probe answers

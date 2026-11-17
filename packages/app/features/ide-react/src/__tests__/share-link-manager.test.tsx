@@ -16,14 +16,11 @@
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
-import { setIconSet } from '@molecule/app-icons'
-import type * as AppReact from '@molecule/app-react'
-import { setClassMap } from '@molecule/app-ui'
-import { classMap } from '@molecule/app-ui-tailwind'
-
 const httpMock = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), delete: vi.fn() }))
-const clipboardMock = vi.hoisted(() => ({ writeText: vi.fn() }))
+
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
 
 // Partial mock: the real module keeps `useTranslation` (the components read `t`
 // through the hook, which resolves the bonded provider set in `beforeEach`);
@@ -34,7 +31,16 @@ vi.mock('@molecule/app-react', async () => ({
   useThemeMode: () => 'dark',
 }))
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
+import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
+import { setIconSet } from '@molecule/app-icons'
+import type * as AppReact from '@molecule/app-react'
+import { setClassMap } from '@molecule/app-ui'
+import { classMap } from '@molecule/app-ui-tailwind'
+
 import { ShareLinkManager } from '../components/ShareLinkManager.js'
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
 
 const LINK = { id: 'l1', slug: 'abc123', role: 'viewer' as const }
 
@@ -45,8 +51,8 @@ beforeEach(() => {
   httpMock.get.mockReset().mockResolvedValue({ data: { data: [] } })
   httpMock.post.mockReset().mockResolvedValue({ data: LINK })
   httpMock.delete.mockReset().mockResolvedValue({ data: {} })
-  clipboardMock.writeText.mockReset().mockResolvedValue(undefined)
-  Object.assign(navigator, { clipboard: clipboardMock })
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
 })
 
 afterEach(() => {
@@ -82,11 +88,33 @@ describe('ShareLinkManager', () => {
       return el
     })
     fireEvent.click(field)
-    await waitFor(() => expect(clipboardMock.writeText).toHaveBeenCalledTimes(1))
-    expect(clipboardMock.writeText.mock.calls[0][0]).toMatch(/\/share\/abc123$/)
+    await waitFor(() => expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1))
+    expect(copyTextWithFallbackMock.mock.calls[0][0]).toMatch(/\/share\/abc123$/)
     // Visual confirmation: the copy control flips to "Copied".
     await waitFor(() =>
       expect(container.querySelector('[data-mol-id="share-link-copy"]')?.textContent).toContain(
+        'Copied',
+      ),
+    )
+  })
+
+  it('keeps the copied confirmation off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    httpMock.get.mockResolvedValue({ data: { data: [LINK] } })
+
+    const { container } = render(<ShareLinkManager projectId="p1" />)
+
+    const copy = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="share-link-copy"]')
+      expect(el).not.toBeNull()
+      return el as HTMLButtonElement
+    })
+    fireEvent.click(copy)
+    await waitFor(() => expect(copyTextWithFallbackMock).toHaveBeenCalledTimes(1))
+    expect(copyTextWithFallbackMock.mock.calls[0][0]).toMatch(/\/share\/abc123$/)
+    // No confirmation: the copy control still reads "Copy".
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="share-link-copy"]')?.textContent).not.toContain(
         'Copied',
       ),
     )

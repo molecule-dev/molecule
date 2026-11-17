@@ -244,9 +244,12 @@ export function DeviceFrameSelector({
       </Tooltip>
 
       {open && (
+        // tabIndex={-1}: the WAI-ARIA menu pattern keeps focus on the items,
+        // but the menu itself must be able to HOLD focus programmatically.
         <div
           role="menu"
           aria-label={selectLabel}
+          tabIndex={-1}
           onKeyDown={onMenuKeyDown}
           className={cm.cn(cm.surface, cm.borderAll, cm.shadowLifted, cm.textSize('xs'))}
           style={{

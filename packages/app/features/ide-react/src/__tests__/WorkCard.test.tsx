@@ -24,7 +24,6 @@ import { latestPlan, PlanCard } from '../components/PlanCard.js'
 import { TestStatusBar } from '../components/TestStatusBar.js'
 import { WorkCard } from '../components/WorkCard.js'
 
-/** A minimal light theme so `useThemeMode` resolves. */
 function buildThemeProvider(): ThemeProviderType {
   return {
     getTheme: () => lightTheme,
@@ -57,7 +56,7 @@ afterEach(() => {
 })
 
 describe('WorkCard', () => {
-  it('keeps keyboard events on an action from also toggling the file disclosure', () => {
+  it('keeps an action click from also toggling the file disclosure', () => {
     const onToggle = vi.fn()
     const { getByText, container } = render(
       <I18nProvider provider={createSimpleI18nProvider('en')}>
@@ -74,9 +73,10 @@ describe('WorkCard', () => {
         </ThemeProvider>
       </I18nProvider>,
     )
-    fireEvent.keyDown(getByText('Commit 2 files'), { key: 'Enter' })
+    // The action is the overlay button's sibling, so its click never toggles.
+    fireEvent.click(getByText('Commit 2 files'))
     expect(onToggle).not.toHaveBeenCalled()
-    fireEvent.keyDown(container.querySelector('[data-mol-id="files-toggle"]')!, { key: 'Enter' })
+    fireEvent.click(container.querySelector('[data-mol-id="files-toggle"]')!)
     expect(onToggle).toHaveBeenCalledTimes(1)
   })
 
@@ -97,14 +97,17 @@ describe('WorkCard', () => {
         </ThemeProvider>
       </I18nProvider>,
     )
-    const toggle = container.querySelector<HTMLElement>('[data-mol-id="info-toggle"]')!
+    const control = container.querySelector<HTMLElement>('[data-mol-id="info-toggle"]')!
+    // The standalone row's visual chrome is the overlay button's parent; the
+    // tray chip itself is the control.
+    const chrome = control.tagName === 'BUTTON' ? control.parentElement! : control
     const recipe = classMap.button({ variant: 'ghost', color: 'secondary', size: 'xs' })
     for (const token of recipe.split(/\s+/).filter(Boolean)) {
-      expect(toggle.classList.contains(token)).toBe(true)
+      expect(chrome.classList.contains(token)).toBe(true)
     }
     // Inline backgrounds would override the design system's hover background.
-    expect(toggle.style.background).toBe('')
-    expect(toggle.style.backgroundColor).toBe('')
+    expect(chrome.style.background).toBe('')
+    expect(chrome.style.backgroundColor).toBe('')
   })
 
   it('holds the plan and the background tasks in one frame', () => {

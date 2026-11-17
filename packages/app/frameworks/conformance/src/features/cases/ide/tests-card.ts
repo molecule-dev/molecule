@@ -303,6 +303,18 @@ export const testsCardCases: FeatureComponentCases = {
       callbacks: ['onRun', 'onCancel', 'onFix'],
       interactions: [{ type: 'click', selector: '[data-mol-id="tests-card-run-all"]' }],
     },
+    {
+      name: 'a viewer’s reason waits until the list stops loading',
+      props: {
+        ...listed,
+        status: 'loading',
+        run: EMPTY_RUN_STATE,
+        canRun: false,
+        fixDisabledReason: null,
+        isLight: false,
+      },
+      callbacks: ['onRun', 'onCancel', 'onFix'],
+    },
 
     // ── Dispatching runs ────────────────────────────────────────────────────
     {
@@ -449,6 +461,35 @@ export const testsCardCases: FeatureComponentCases = {
     {
       name: 'a file with no case events yet spins without inventing a name',
       props: { ...listed, run: liveRun(), fixDisabledReason: null, isLight: false },
+      callbacks: ['onRun', 'onCancel', 'onFix'],
+    },
+    {
+      name: 'the tally of decided tests stays up between a file’s tests',
+      props: {
+        ...listed,
+        run: runOf(
+          [
+            { type: 'start', runId: 'r1', ids: [HOME, ABOUT] },
+            {
+              type: 'case',
+              id: HOME,
+              title: 'shows the hero',
+              describe: 'home page',
+              status: 'passed',
+            },
+            {
+              type: 'case',
+              id: HOME,
+              title: 'links to pricing',
+              describe: 'home page',
+              status: 'passed',
+            },
+          ],
+          { skipUnavailable: false },
+        ),
+        fixDisabledReason: null,
+        isLight: false,
+      },
       callbacks: ['onRun', 'onCancel', 'onFix'],
     },
     {
@@ -697,6 +738,46 @@ export const testsCardCases: FeatureComponentCases = {
       interactions: [
         { type: 'click', selector: '[data-mol-id="tests-card-fix-all"]' },
         { type: 'click', selector: '[data-mol-id="tests-card-fix-my-app/app:e2e/about.spec.ts"]' },
+      ],
+    },
+    {
+      name: 'a failure without output keeps its fix but not a toggle',
+      props: {
+        ...listed,
+        run: runOf([
+          { type: 'start', runId: 'r1', ids: [HOME, ABOUT, 'my-app/api:src/routes.test.ts'] },
+          {
+            type: 'result',
+            id: ABOUT,
+            status: 'failed',
+            passed: 0,
+            failed: 1,
+            skipped: 0,
+            output: 'Error: expect(received).toBe(expected)',
+          },
+          {
+            type: 'result',
+            id: 'my-app/api:src/routes.test.ts',
+            status: 'failed',
+            passed: 0,
+            failed: 1,
+            skipped: 0,
+          },
+          {
+            type: 'done',
+            outcome: 'completed',
+            passed: 0,
+            failed: 2,
+            skipped: 0,
+            durationMs: 2_000,
+          },
+        ]),
+        fixDisabledReason: null,
+        isLight: false,
+      },
+      callbacks: ['onRun', 'onCancel', 'onFix'],
+      interactions: [
+        { type: 'click', selector: '[data-mol-id="tests-card-fix-my-app/api:src/routes.test.ts"]' },
       ],
     },
 

@@ -72,6 +72,8 @@
       "chatCardStyle",
       "clampPanelSize",
       "collectClientInfo",
+      "commandCategoryLabel",
+      "commandDescription",
       "countByKind",
       "currentRunRowId",
       "deviceIconName",
@@ -96,6 +98,7 @@
       "isDeviceRotatable",
       "isInputFocused",
       "isMonacoFocused",
+      "isRegistryCommandId",
       "isReportFormValid",
       "isRowRunning",
       "isShareRole",
@@ -119,6 +122,11 @@
       "resolveUserAvatar",
       "serializeEvent",
       "setChatTimestampsVisible",
+      "settingDescription",
+      "settingLabel",
+      "shareGrantsText",
+      "shareRoleLabel",
+      "shareSubheading",
       "summarizeResults",
       "testCaseLabel",
       "testRowLabel",
@@ -214,14 +222,18 @@
       "TimestampsCommand",
       "ToolCallCardProps",
       "UserAvatarProps",
-      "WorkspaceLayoutProps"
+      "WorkspaceLayoutProps",
+      "WrittenCommandId"
     ]
   },
   "./command-metadata": {
     "values": [
       "COMMANDS",
       "COMMAND_CATEGORIES",
+      "commandCategoryLabel",
+      "commandDescription",
       "groupCommandsByCategory",
+      "isRegistryCommandId",
       "matchesSideChannelCommand"
     ],
     "types": [
@@ -229,12 +241,15 @@
       "CommandCategoryKey",
       "CommandDef",
       "CommandGroup",
-      "CommandId"
+      "CommandId",
+      "WrittenCommandId"
     ]
   },
   "./settings-metadata": {
     "values": [
-      "SETTINGS"
+      "SETTINGS",
+      "settingDescription",
+      "settingLabel"
     ],
     "types": [
       "SettingKey",

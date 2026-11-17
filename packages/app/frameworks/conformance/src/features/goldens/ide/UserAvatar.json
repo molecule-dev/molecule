@@ -1,5 +1,80 @@
 {
- "initials from a name": {
+ "defaults render the generic user icon": {
+  "snapshots": [
+   "<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a renderable data-URI avatar renders an img": {
+  "snapshots": [
+   "<img alt=\"You\" data-mol-id=\"chat-user-avatar\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; flex-shrink: 0; height: 24px; object-fit: cover; width: 24px\">\n</img>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an http avatar URL renders an img too": {
+  "snapshots": [
+   "<img alt=\"You\" data-mol-id=\"chat-user-avatar\" src=\"https://cdn.example.com/me.png\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; flex-shrink: 0; height: 24px; object-fit: cover; width: 24px\">\n</img>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an avatar value with surrounding spaces renders trimmed": {
+  "snapshots": [
+   "<img alt=\"You\" data-mol-id=\"chat-user-avatar\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; flex-shrink: 0; height: 24px; object-fit: cover; width: 24px\">\n</img>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an unsafe scheme never becomes an img src": {
+  "snapshots": [
+   "<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a name shows the initial instead of the glyph": {
   "snapshots": [
    "<span aria-label=\"Ada Lovelace\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<span aria-hidden=\"true\" style=\"font-size: 11px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n@route /"
   ],
@@ -14,10 +89,232 @@
    }
   ]
  },
- "initials from a name, then a locale switch": {
+ "a name initials after trimming and keeps the raw label": {
   "snapshots": [
-   "<span aria-label=\"Ada Lovelace\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<span aria-hidden=\"true\" style=\"font-size: 11px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n@route /",
-   "<span aria-label=\"Ada Lovelace\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<span aria-hidden=\"true\" style=\"font-size: 11px; font-weight: 600; line-height: 1\">\nA\n</span>\n</span>\n@route /"
+   "<span aria-label=\"  grace  \" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<span aria-hidden=\"true\" style=\"font-size: 11px; font-weight: 600; line-height: 1\">\nG\n</span>\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a whitespace-only name keeps the glyph": {
+  "snapshots": [
+   "<span aria-label=\"   \" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a named author with a renderable avatar shows their picture": {
+  "snapshots": [
+   "<img alt=\"Test\" data-mol-id=\"chat-user-avatar\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; flex-shrink: 0; height: 24px; object-fit: cover; width: 24px\">\n</img>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a custom size sizes the tile and the initial": {
+  "snapshots": [
+   "<span aria-label=\"Bo\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 40px; justify-content: center; width: 40px\">\n<span aria-hidden=\"true\" style=\"font-size: 18px; font-weight: 600; line-height: 1\">\nB\n</span>\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a size scales the fallback glyph too": {
+  "snapshots": [
+   "<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 32px; justify-content: center; width: 32px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"19\" viewbox=\"0 0 16 16\" width=\"19\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "clicking the avatar opens the profile": {
+  "snapshots": [
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onClick",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "the icon fallback is clickable too": {
+  "snapshots": [
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Tess\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<span aria-hidden=\"true\" style=\"font-size: 11px; font-weight: 600; line-height: 1\">\nT\n</span>\n</span>\n</button>\n@route /",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Tess\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<span aria-hidden=\"true\" style=\"font-size: 11px; font-weight: 600; line-height: 1\">\nT\n</span>\n</span>\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onClick",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "hover draws the ring until the pointer leaves": {
+  "snapshots": [
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid var(--mol-color-primary, #6366f1); box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid var(--mol-color-primary, #6366f1); box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "keyboard focus draws the same ring": {
+  "snapshots": [
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid var(--mol-color-primary, #6366f1); box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /\n@focus body>div:0>div:0>button:0",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid var(--mol-color-primary, #6366f1); box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /\n@focus body>div:0>div:0>button:0"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "adding onClick re-renders the bare visual as a button": {
+  "snapshots": [
+   "<img alt=\"You\" data-mol-id=\"chat-user-avatar\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; flex-shrink: 0; height: 24px; object-fit: cover; width: 24px\">\n</img>\n@route /",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<img alt=\"You\" data-mol-id=\"chat-user-avatar\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; flex-shrink: 0; height: 24px; object-fit: cover; width: 24px\">\n</img>\n</button>\n@route /",
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<img alt=\"You\" data-mol-id=\"chat-user-avatar\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; flex-shrink: 0; height: 24px; object-fit: cover; width: 24px\">\n</img>\n</button>\n@route /",
+   "<img alt=\"You\" data-mol-id=\"chat-user-avatar\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; flex-shrink: 0; height: 24px; object-fit: cover; width: 24px\">\n</img>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onClick",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "a locale switch translates the fallback label and the button label": {
+  "snapshots": [
+   "<button aria-label=\"View profile\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /",
+   "<button aria-label=\"Voir le profil\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Vous\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /",
+   "<button aria-label=\"Voir le profil\" class=\"c8b4b949e cca586305\" data-mol-id=\"chat-user-avatar-button\" style=\"background: transparent; border-radius: 6px; border: 1px solid transparent; box-sizing: border-box; cursor: pointer; display: inline-flex; flex-shrink: 0; line-height: 0; margin: 0px; padding: 0px; transition: box-shadow 100ms\" type=\"button\">\n<span aria-label=\"Vous\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "fr"
+    ]
+   },
+   {
+    "name": "onClick",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "defaults render the generic user icon, then a locale switch": {
+  "snapshots": [
+   "<span aria-label=\"You\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n@route /",
+   "<span aria-label=\"⟦You⟧\" data-mol-id=\"chat-user-avatar\" role=\"img\" style=\"align-items: center; background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4)); border-radius: 6px; color: var(--mol-color-primary, #6366f1); display: inline-flex; flex-shrink: 0; height: 24px; justify-content: center; width: 24px\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"14\" viewbox=\"0 0 16 16\" width=\"14\">\n<path d=\"M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z\">\n</path>\n</svg>\n</span>\n@route /"
   ],
   "calls": [
    {

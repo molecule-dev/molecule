@@ -18,55 +18,15 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ToolCallCard } from '../components/ToolCallCard.js'
+import { buildThemeProvider } from './theme-test-provider.js'
 
 beforeAll(() => {
   setClassMap(classMap)
 })
-
-/** A minimal light theme so `useThemeMode` resolves (same as the hostile-input suite). */
-function buildThemeProvider(): ThemeProviderType {
-  const theme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
-  return {
-    getTheme: () => theme,
-    getThemeName: () => 'light',
-    getThemes: () => ['light', 'dark'],
-    setTheme: () => {},
-    toggleMode: () => {},
-    onThemeChange: () => () => {},
-  }
-}
 
 /** Wrap a card in the i18n + theme contexts it needs to mount. */
 function wrap(children: ReactNode): ReactElement {
@@ -83,6 +43,7 @@ describe('package-doc cards open the file on click', () => {
     const { container, getByText } = render(
       wrap(
         <ToolCallCard
+          id="tc-doc"
           name="read_molecule_doc"
           input={{ name: '@molecule/api-payments-stripe' }}
           output={{ package: '@molecule/api-payments-stripe', doc: '# docs' }}
@@ -91,8 +52,8 @@ describe('package-doc cards open the file on click', () => {
         />,
       ),
     )
-    // The clickable code span is the only <code> in the card label row.
-    const codeLinks = container.querySelectorAll('code[style*="cursor: pointer"]')
+    // The clickable button inside the card label's only <code> carries the action.
+    const codeLinks = container.querySelectorAll('code button[style*="cursor: pointer"]')
     expect(codeLinks.length).toBeGreaterThan(0)
     fireEvent.click(getByText('@molecule/api-payments-stripe'))
     expect(onFileOpen).toHaveBeenCalledWith(
@@ -105,6 +66,7 @@ describe('package-doc cards open the file on click', () => {
     const { container } = render(
       wrap(
         <ToolCallCard
+          id="tc-find"
           name="find_package"
           input={{ query: 'ui' }}
           output={{

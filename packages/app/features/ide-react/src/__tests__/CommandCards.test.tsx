@@ -14,52 +14,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { BackgroundTasksStrip } from '../components/BackgroundTasksStrip.js'
 import { ToolCallCard } from '../components/ToolCallCard.js'
-
-/** A minimal light theme so `useThemeMode` resolves. */
-function buildThemeProvider(): ThemeProviderType {
-  const theme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
-  return {
-    getTheme: () => theme,
-    getThemeName: () => 'light',
-    getThemes: () => ['light', 'dark'],
-    setTheme: () => {},
-    toggleMode: () => {},
-    onThemeChange: () => () => {},
-  }
-}
+import { buildThemeProvider } from './theme-test-provider.js'
 
 const COMMAND = 'npx vitest run --reporter=dot packages/api/src/auth.test.ts'
 
@@ -153,10 +113,12 @@ describe('BackgroundTasksStrip', () => {
   ]
 
   it('names each task by its purpose, falling back to the command', () => {
-    const { container, getByText } = render(inProviders(<BackgroundTasksStrip tasks={tasks} />))
+    const { container, getByRole } = render(inProviders(<BackgroundTasksStrip tasks={tasks} />))
     // collapsed: the task in flight is named
     expect(container.textContent).toContain('Run the auth tests')
-    fireEvent.click(getByText('1 task running in the background'))
+    // The disclosure is the overlay button named by the label span
+    // (aria-labelledby); a real click lands on the button, not the span.
+    fireEvent.click(getByRole('button', { name: '1 task running in the background' }))
     const rows = container.querySelectorAll('[data-mol-id="chat-background-task"]')
     expect(rows).toHaveLength(2)
     expect(rows[0].textContent).toContain('Run the auth tests')

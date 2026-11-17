@@ -158,7 +158,7 @@ export function StatusMark({
 export interface DockStripProps {
   /** `data-mol-id` of the strip root. */
   molId: string
-  /** `data-mol-id` of the clickable header row. */
+  /** `data-mol-id` of the header row's overlay disclosure button. */
   toggleMolId?: string
   /** Whether the detail is shown. */
   expanded: boolean
@@ -178,7 +178,7 @@ export interface DockStripProps {
   chipTitle?: string
   /** Quieter text after the label (the thing in flight). */
   hint?: ReactNode
-  /** Right-hand readout and action buttons; clicks must stop propagation. */
+  /** Right-hand readout and action buttons; they sit above the disclosure overlay and take their own clicks. */
   actions?: ReactNode
   /** Secondary actions: at the top of the open detail in the tray, beside `actions` when standalone. */
   detailActions?: ReactNode
@@ -190,6 +190,17 @@ export interface DockStripProps {
 
 /**
  * Shared chrome for the strips above the composer.
+ *
+ * A standalone strip's header row is shared chrome, not one control: its
+ * `actions` slot holds real buttons, and a button may not contain controls
+ * (`nested-interactive`). So the row is a plain container (its layout kept)
+ * whose FIRST child is an empty, transparent native button over the whole
+ * row — the disclosure control. Native buttons turn Enter and Space into a
+ * click themselves, so the row carries no keyboard handler; inner controls sit
+ * in a `position: relative` wrapper that paints above the overlay and takes
+ * its own clicks. The overlay carries the row's `data-mol-id`, so existing
+ * selectors keep working. Inside a work tray the chip is that same pattern's
+ * control without a sibling actions wrapper needing protection.
  * @param props - See {@link DockStripProps}.
  * @returns The strip.
  */
@@ -212,6 +223,8 @@ export function DockStrip({
 }: DockStripProps): JSX.Element | null {
   const cm = getClassMap()
   const tray = useContext(WorkTrayContext)
+  // Names the overlay disclosure button via `aria-labelledby` (its label span).
+  const labelId = useId()
   if (tray) {
     if (!tray.headerEl) return null
     const open = !onActivate && tray.openId === molId
@@ -300,26 +313,15 @@ export function DockStrip({
       style={{ borderTop: '1px solid rgba(128,128,128,0.15)', padding: '8px 8px 8px 10px' }}
     >
       <div
-        role="button"
-        tabIndex={0}
-        data-mol-id={toggleMolId}
-        aria-expanded={onActivate ? undefined : expanded}
-        aria-label={hideLabel && typeof label === 'string' ? label : undefined}
         className={cm.cn(
           cm.button({ variant: 'ghost', color: 'secondary', size: 'xs' }),
           cm.touchTargetCompact,
+          cm.position('relative'),
         )}
-        onClick={onActivate ?? onToggle}
-        onKeyDown={(e) => {
-          if (e.target !== e.currentTarget) return
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            if (onActivate) onActivate()
-            else onToggle()
-          }
-        }}
         /* mol-bespoke-button: the strip's HEADER ROW — chevron, label and
-           actions on one disclosure line; its real buttons are the actions. */
+           actions on one disclosure line. The disclosure control is the
+           transparent overlay button below it, so the row's real buttons paint
+           above that button and take their own clicks. */
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -328,6 +330,19 @@ export function DockStrip({
           cursor: 'pointer',
         }}
       >
+        <button
+          type="button"
+          data-mol-id={toggleMolId}
+          aria-expanded={onActivate ? undefined : expanded}
+          aria-labelledby={hideLabel ? undefined : labelId}
+          aria-label={hideLabel && typeof label === 'string' ? label : undefined}
+          onClick={onActivate ?? onToggle}
+          /* mol-bespoke-button: the whole row is the disclosure's hit area, not
+             a CTA — an empty, transparent button over the row; the inline
+             background/border/padding are native resets. */
+          className={cm.cn(cm.position('absolute'), cm.inset0, cm.cursorPointer)}
+          style={{ background: 'transparent', border: 'none', padding: 0 }}
+        />
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
           {!onActivate && (
             <svg
@@ -356,6 +371,7 @@ export function DockStrip({
           {icon}
           {!hideLabel && (
             <span
+              id={labelId}
               className={cm.cn(cm.textMuted, cm.textSize('xs'))}
               style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
             >
@@ -378,7 +394,10 @@ export function DockStrip({
           ) : null}
         </div>
         {actions || detailActions ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <div
+            className={cm.position('relative')}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}
+          >
             {actions}
             {detailActions}
           </div>

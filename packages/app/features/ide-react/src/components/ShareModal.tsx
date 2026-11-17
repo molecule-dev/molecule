@@ -28,6 +28,7 @@ import { useEffect } from 'react'
 
 import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
 import { DEFAULT_SHARE_ROLE } from '@molecule/app-ide-panel-logic'
+import { shareSubheading } from '@molecule/app-ide-panel-logic'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -103,7 +104,12 @@ export function ShareModal({
   return (
     <div
       data-mol-id="share-modal-backdrop"
-      onClick={onClose}
+      role="presentation"
+      onClick={(e) => {
+        // Only a click on the backdrop itself dismisses the dialog; a click
+        // inside the panel bubbles here otherwise.
+        if (e.target === e.currentTarget) onClose()
+      }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -122,7 +128,6 @@ export function ShareModal({
         role="dialog"
         aria-modal="true"
         aria-label={t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })}
-        onClick={(e) => e.stopPropagation()}
         className={cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))}
         style={{
           width: '100%',
@@ -148,14 +153,7 @@ export function ShareModal({
                     defaultValue:
                       'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
                   })
-                : t(
-                    `ide.chat.share.subheading.${offeredRoles[0]}`,
-                    { role: offeredRoles[0] },
-                    {
-                      defaultValue:
-                        'Create a public link. Anyone with the link can act as {{role}}.',
-                    },
-                  )}
+                : shareSubheading(t, offeredRoles[0])}
             </div>
 
             <ShareLinkManager

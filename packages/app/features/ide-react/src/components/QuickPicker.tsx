@@ -10,37 +10,12 @@
 import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { fuzzyScore } from '@molecule/app-ide-panel-logic/panels'
 import { useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { QuickPickerProps } from '../types.js'
-
-/**
- * Simple fuzzy match: characters of the query must appear in order in the
- * label. Returns a score (higher is better) or -1 for no match.
- * @param query - The search query string.
- * @param label - The label to match against.
- * @returns A match score (higher is better) or -1 for no match.
- */
-function fuzzyScore(query: string, label: string): number {
-  const q = query.toLowerCase()
-  const l = label.toLowerCase()
-  let qi = 0
-  let score = 0
-  let consecutive = 0
-
-  for (let li = 0; li < l.length && qi < q.length; li++) {
-    if (l[li] === q[qi]) {
-      qi++
-      consecutive++
-      score += consecutive + (li === 0 ? 5 : 0)
-    } else {
-      consecutive = 0
-    }
-  }
-  return qi === q.length ? score : -1
-}
 
 /**
  * Quick picker overlay with keyboard navigation.
@@ -82,10 +57,15 @@ export function QuickPicker({
     return scored.map((s) => s.item)
   }, [items, query])
 
-  // Reset selection when filtered list changes
-  useEffect(() => {
+  // Reset the selection when the filtered list changes, DURING the render that
+  // replaced it (React's "adjust state when a prop changes" pattern): an effect
+  // would run only after the replaced list has rendered, so one frame would
+  // paint the old index highlighted on the new list.
+  const [renderedFiltered, setRenderedFiltered] = useState(filtered)
+  if (renderedFiltered !== filtered) {
+    setRenderedFiltered(filtered)
     setSelectedIndex(0)
-  }, [filtered])
+  }
 
   // Scroll selected item into view
   useEffect(() => {
@@ -128,8 +108,11 @@ export function QuickPicker({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — role="presentation": a sibling click-away surface that
+          receives only its own clicks; Escape dismisses through the picker's
+          key handler. */}
       <div
+        role="presentation"
         onClick={onDismiss}
         style={{
           position: 'fixed',
@@ -142,8 +125,17 @@ export function QuickPicker({
           viewports (the picker autofocuses its input, so the on-screen keyboard
           appears immediately — a vertically-centered box would sit under it).
           The dvh cap keeps the results visible above the keyboard when the
-          browser resizes the viewport (interactive-widget=resizes-content). */}
+          browser resizes the viewport (interactive-widget=resizes-content).
+          The picker is a modal dialog: role="dialog" + aria-modal name it to
+          assistive tech. Its keyboard navigation rides the picker's own
+          interactive descendants (the input and the rows) — the WAI-ARIA dialog
+          keeps the keys inside the dialog, and attaching them to the focused
+          controls keeps them there without giving the container, which holds
+          controls, an interaction role. */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('ide.quickPicker.label', undefined, { defaultValue: 'Quick picker' })}
         className={cm.cn(className)}
         style={{
           position: 'fixed',
@@ -162,13 +154,13 @@ export function QuickPicker({
           background: isLight ? '#fff' : 'var(--mol-color-background, #1e1e1e)',
           border: '1px solid var(--color-border, #333)',
         }}
-        onKeyDown={handleKeyDown}
       >
         <input
           ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={
             placeholder ??
             t('ide.quickPicker.placeholder', undefined, { defaultValue: 'Type to search…' })
@@ -230,6 +222,7 @@ export function QuickPicker({
                 type="button"
                 data-mol-id={`quick-picker-item-${item.id}`}
                 onClick={() => onSelect(item)}
+                onKeyDown={handleKeyDown}
                 onMouseEnter={() => setSelectedIndex(i)}
                 className={cm.touchTargetCompact}
                 /* mol-bespoke-button: a picker ROW (icon + label + detail) with

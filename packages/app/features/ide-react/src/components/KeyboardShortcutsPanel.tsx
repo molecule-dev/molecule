@@ -144,8 +144,11 @@ export function KeyboardShortcutsPanel({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — role="presentation": a sibling click-away surface that
+          receives only its own clicks; Escape dismisses through the document
+          key handler above. */}
       <div
+        role="presentation"
         onClick={onDismiss}
         style={{
           position: 'fixed',

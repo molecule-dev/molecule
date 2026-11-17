@@ -16,7 +16,7 @@
  */
 
 import type { JSX } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { ReportFormState, ReportResult } from '@molecule/app-ide-panel-logic'
 import {
@@ -72,6 +72,7 @@ export function ReportModal({
   })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const titleRef = useRef<HTMLInputElement>(null)
 
   // Escape closes the modal.
   useEffect(() => {
@@ -81,6 +82,12 @@ export function ReportModal({
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
+
+  // The title field appears with the just-opened dialog — focus it from a ref
+  // once mounted (the no-autofocus pattern: no `autofocus` attribute).
+  useEffect(() => {
+    titleRef.current?.focus()
+  }, [])
 
   const isNarrow = useNarrowViewport()
   const isCoarse = useCoarsePointer()
@@ -125,9 +132,15 @@ export function ReportModal({
   }, [form, submitting, conversationId, projectId, http, onSubmitted, appVersion, isLight, t])
 
   return (
+    // The backdrop is the dialog's PARENT: role="presentation" and a close
+    // only when the click landed on the backdrop itself (a click inside the
+    // dialog bubbles here with a different target and must not close).
     <div
       data-mol-id="report-modal-backdrop"
-      onClick={onClose}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -146,7 +159,6 @@ export function ReportModal({
         role="dialog"
         aria-modal="true"
         aria-label={t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' })}
-        onClick={(e) => e.stopPropagation()}
         className={cm.cn(cm.surface, cm.borderAll, cm.textSize('sm'))}
         style={{
           width: '100%',
@@ -181,9 +193,9 @@ export function ReportModal({
               {t('ide.chat.report.titleLabel', undefined, { defaultValue: 'Title' })}
             </span>
             <input
+              ref={titleRef}
               value={form.title}
               data-mol-id="report-title"
-              autoFocus
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               placeholder={t('ide.chat.report.titlePlaceholder', undefined, {
                 defaultValue: 'Brief summary',

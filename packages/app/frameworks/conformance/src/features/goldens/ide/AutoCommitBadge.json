@@ -1,0 +1,248 @@
+{
+ "auto-commit off renders nothing": {
+  "snapshots": [
+   "\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "enabled but paused is a green Commit button, clickable now": {
+  "snapshots": [
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /",
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onCommitNow",
+    "args": []
+   }
+  ]
+ },
+ "the quiet phase keeps the plain Commit button": {
+  "snapshots": [
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /",
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onCommitNow",
+    "args": []
+   }
+  ]
+ },
+ "the final seconds morph into the live countdown, still clickable": {
+  "snapshots": [
+   "<button aria-label=\"Auto-commit in 2s — Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" title=\"Commit\" type=\"button\">\nAuto-commit in 2s\n</button>\n@route /",
+   "<button aria-label=\"Auto-commit in 2s — Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" title=\"Commit\" type=\"button\">\nAuto-commit in 2s\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onCommitNow",
+    "args": []
+   }
+  ]
+ },
+ "a cadence inside the visible window counts down for the whole run": {
+  "snapshots": [
+   "<button aria-label=\"Auto-commit in 3s — Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" title=\"Commit\" type=\"button\">\nAuto-commit in 3s\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a combined label prefixes the countdown and takes over the aria label": {
+  "snapshots": [
+   "<button aria-label=\"Commit 2 files in 2s\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit 2 files in 2s\n</button>\n@route /",
+   "<button aria-label=\"Commit 2 files in 2s\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit 2 files in 2s\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onCommitNow",
+    "args": []
+   }
+  ]
+ },
+ "a combined label renames the quiet button without a countdown": {
+  "snapshots": [
+   "<button aria-label=\"Commit 2 files\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit 2 files\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "inline sits in the commit bar slot instead of floating": {
+  "snapshots": [
+   "<button aria-label=\"Auto-commit in 2s — Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: relative\" title=\"Commit\" type=\"button\">\nAuto-commit in 2s\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "held while the agent works: muted, inert, and plain Commit": {
+  "snapshots": [
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" disabled style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /",
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" disabled style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a held button with a combined label keeps the plain label": {
+  "snapshots": [
+   "<button aria-label=\"Commit 2 files\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" disabled style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit 2 files\n</button>\n@route /",
+   "<button aria-label=\"Commit 2 files\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" disabled style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit 2 files\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "the countdown ticks down, pauses after a commit, and vanishes when switched off": {
+  "snapshots": [
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /",
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /",
+   "<button aria-label=\"Auto-commit in 2s — Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" title=\"Commit\" type=\"button\">\nAuto-commit in 2s\n</button>\n@route /",
+   "<button aria-label=\"Auto-commit in 2s — Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" title=\"Commit\" type=\"button\">\nAuto-commit in 2s\n</button>\n@route /",
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /",
+   "\n@route /",
+   "<button aria-label=\"Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nCommit\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onCommitNow",
+    "args": []
+   }
+  ]
+ },
+ "a locale switch re-renders the countdown and the combined label": {
+  "snapshots": [
+   "<button aria-label=\"Auto-commit in 2s — Commit\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" title=\"Commit\" type=\"button\">\nAuto-commit in 2s\n</button>\n@route /",
+   "<button aria-label=\"Auto-validation dans 2s — Valider\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" title=\"Valider\" type=\"button\">\nAuto-validation dans 2s\n</button>\n@route /",
+   "<button aria-label=\"Valider 2 fichiers dans 2s\" class=\"c0149ea0b c04c34dac c0e303770 c13d4ff0f c1e8176ab c1f523237 c2f011182 c45cfc6cf c46bbcd94 c47632ef5 c4b0fcccf c6c585441 c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cb8bb3124 cc06b624c cca586305 ccfd045bd cd6fe318b cdd2af26f cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"chat-autocommit-badge\" style=\"font-variant-numeric: tabular-nums; position: absolute; right: 8px; top: -10px; z-index: 50\" type=\"button\">\nValider 2 fichiers dans 2s\n</button>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "fr"
+    ]
+   }
+  ]
+ },
+ "auto-commit off renders nothing, then a locale switch": {
+  "snapshots": [
+   "\n@route /",
+   "\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

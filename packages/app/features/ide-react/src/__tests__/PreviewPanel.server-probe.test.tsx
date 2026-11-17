@@ -54,7 +54,11 @@ function providerAtUrl(): ReturnType<typeof createProvider> {
   return provider
 }
 
-const advance = (ms: number): Promise<void> => act(() => vi.advanceTimersByTimeAsync(ms))
+const advance = async (ms: number): Promise<void> => {
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(ms)
+  })
+}
 
 /** Mount the panel and let the server-up poll run for a while. */
 async function mountAndPoll(): Promise<HTMLElement> {

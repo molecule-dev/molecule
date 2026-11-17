@@ -47,7 +47,7 @@
  */
 
 import type { CSSProperties, JSX } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { chatCardStyle } from '@molecule/app-ide-panel-logic'
 import type { SkillInfo } from '@molecule/app-ide-panel-logic/panels'
@@ -152,6 +152,14 @@ export function SkillsCard({
   const [creating, setCreating] = useState(!!startCreating && !!onCreate)
   const [newName, setNewName] = useState('')
   const [busy, setBusy] = useState(false)
+  const newNameRef = useRef<HTMLInputElement>(null)
+
+  // The name field appears with the just-opened create form — focus it from a
+  // ref when the form opens (the no-autofocus pattern: no `autofocus`
+  // attribute). Covers the mount-time `startCreating` open too.
+  useEffect(() => {
+    if (creating) newNameRef.current?.focus()
+  }, [creating])
 
   useEffect(() => {
     let cancelled = false
@@ -322,7 +330,7 @@ export function SkillsCard({
           }}
         >
           <input
-            autoFocus
+            ref={newNameRef}
             value={newName}
             data-mol-id="skill-create-name"
             onChange={(e) => setNewName(e.target.value)}

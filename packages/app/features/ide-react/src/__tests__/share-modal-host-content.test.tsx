@@ -11,7 +11,7 @@
  * @module
  */
 
-import { cleanup, render, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
@@ -72,5 +72,19 @@ describe('ShareModal — host content', () => {
     expect(container.textContent).not.toContain('Create a public link')
     await new Promise((r) => setTimeout(r, 20))
     expect(httpMock.get).not.toHaveBeenCalled()
+  })
+
+  it('closes on a backdrop click, but never on a click inside the dialog', () => {
+    const onClose = vi.fn()
+    const { container } = render(<ShareModal projectId="p1" showLinks={false} onClose={onClose} />)
+    const dialog = container.querySelector('[data-mol-id="share-modal"]') as HTMLElement
+    expect(dialog.getAttribute('role')).toBe('dialog')
+
+    fireEvent.click(dialog)
+    expect(onClose).not.toHaveBeenCalled()
+
+    const backdrop = container.querySelector('[data-mol-id="share-modal-backdrop"]') as HTMLElement
+    fireEvent.click(backdrop)
+    expect(onClose).toHaveBeenCalledOnce()
   })
 })

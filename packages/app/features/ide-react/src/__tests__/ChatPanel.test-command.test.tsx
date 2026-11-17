@@ -169,7 +169,6 @@ function makeStorage(): Storage {
   }
 }
 
-/** A minimal light theme provider so `useThemeMode` resolves. */
 function buildThemeProvider(): ThemeProviderType {
   return {
     getTheme: () => lightTheme,
@@ -358,7 +357,7 @@ describe('the /test command', () => {
     // A viewer may read the listing; the card disables running for them.
     expect(defs[0]?.viewerSafe).toBe(true)
     // No second command was minted for the same job.
-    expect(COMMANDS.filter((c) => c.id === 'tests')).toHaveLength(0)
+    expect(COMMANDS.map((c) => c.id)).not.toContain('tests')
   })
 
   it('opens the tests browser and sends NOTHING to the agent', async () => {
@@ -963,7 +962,8 @@ describe('every test run in the project reaches the test view', () => {
     // The newest own run remains guarded against its delayed feed copy.
     feed.emit({ type: 'result', runId: 'own-32', id: HOME, status: 'failed', failed: 1 })
     expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Running…')
-  })
+    // 33 runs through the whole panel: 6.6 s measured under a loaded machine (load 75), past vitest's 5 s default.
+  }, 30_000)
 
   it('an agent run that starts during the person’s run waits for it, then takes the card', async () => {
     const feed = fakeFeed()

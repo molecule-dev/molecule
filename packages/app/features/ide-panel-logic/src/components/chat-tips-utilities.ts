@@ -19,14 +19,28 @@
  * @module
  */
 
+import type { InterpolationValues, TranslateFunction } from '@molecule/app-i18n'
+
+/**
+ * The stable id of every tip this module ships ({@link ENTRY_TIP}, the
+ * {@link CHAT_TIPS} rotation and {@link VIEWER_TIP}) — also each tip's i18n key
+ * suffix (`ide.chat.tip.<id>`). Derived from the tables below, so adding a tip
+ * extends the union and the {@link tipText} switch fails to compile until the
+ * new tip has its literal `t()` call — a tip can never ship with no
+ * translation site.
+ */
+export type TipId = (typeof ENTRY_TIP | typeof VIEWER_TIP | (typeof CHAT_TIPS)[number])['id']
+
 /** A single onboarding tip. */
 export interface TipDef {
-  /** Stable id (also used as the i18n key suffix). */
-  id: string
+  /** Stable id (also the i18n key suffix; one of {@link TipId}). */
+  id: TipId
   /**
-   * English default text, rendered via `t('ide.chat.tip.<id>', { agentName }, { defaultValue })`.
-   * May contain the `{{agentName}}` interpolation token, filled in by the caller
-   * from the host's agent identity (neutral default: "the assistant").
+   * English default text, rendered via {@link tipText} (the caller's `t` with
+   * the `ide.chat.tip.<id>` key). May contain the `{{agentName}}` interpolation
+   * token, filled in by the caller from the host's agent identity (neutral
+   * default: "the assistant"). Must equal that key's English text in the ide
+   * locale bond — the render's `defaultValue` is the bond's text, not this field.
    */
   text: string
 }
@@ -39,10 +53,10 @@ export interface TipDef {
  * Its `id` is also a locale key (`ide.chat.tip.getStarted`), like every entry in
  * {@link CHAT_TIPS}.
  */
-export const ENTRY_TIP: TipDef = {
+export const ENTRY_TIP = {
   id: 'getStarted',
   text: 'Tip: type / to see every command, or @ a filename to give {{agentName}} a file to work from.',
-}
+} as const
 
 /**
  * The idle-rotation tip pool. Each covers a real, shipped slash command or
@@ -53,7 +67,7 @@ export const ENTRY_TIP: TipDef = {
  * filling with hints. The {@link ENTRY_TIP} (`getStarted`) is shown separately at
  * onboarding and is intentionally NOT part of this rotation.
  */
-export const CHAT_TIPS: readonly TipDef[] = [
+export const CHAT_TIPS = [
   {
     id: 'mention',
     text: 'Tip: type @filename to attach a project file as context — {{agentName}} reads it directly.',
@@ -83,6 +97,84 @@ export const CHAT_TIPS: readonly TipDef[] = [
     text: 'Tip: something off? /report sends a bug or feedback to the team with your recent chat attached.',
   },
 ] as const
+
+/**
+ * The viewer orientation tip's definition, kept beside the other tips' so its
+ * sentence translates the same way — at render, from one key
+ * (`ide.chat.tip.viewerTeamOnly`) + the English default, via {@link tipText}.
+ * Its `id` is part of the {@link TipId} union, so the bond's key for it is
+ * gate-checked like every other tip's.
+ */
+export const VIEWER_TIP = {
+  id: 'viewerTeamOnly',
+  text: 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+} as const
+
+/**
+ * The localized sentence of a tip (the `ide.chat.tip.<id>` keys), through the
+ * CALLER's translate function so a framework port and a live locale switch
+ * both get their own text — the chat timeline stores the tip's identity and
+ * translates it AT RENDER, so a locale switch re-translates every visible tip.
+ * One literal `t()` call per {@link TipId}, chosen by a switch exhaustive over
+ * the union: adding a tip to {@link CHAT_TIPS} (or {@link ENTRY_TIP} /
+ * {@link VIEWER_TIP}) without adding its case here is a compile error, so a
+ * tip can never ship with a runtime-built key the i18n gate cannot check.
+ * Each `defaultValue` is the same English the tip's `text` field carries (and
+ * the ide bond's key holds), so the English output is identical either way.
+ *
+ * @param t - The caller's translate function (React passes `useTranslation()`'s `t`).
+ * @param tip - The tip to render (its `id` picks the case; `text` is not read).
+ * @param values - Interpolation values; the tips interpolate `{{agentName}}`.
+ * @returns The localized tip sentence.
+ */
+export function tipText(t: TranslateFunction, tip: TipDef, values?: InterpolationValues): string {
+  switch (tip.id) {
+    case 'getStarted':
+      return t('ide.chat.tip.getStarted', values, {
+        defaultValue:
+          'Tip: type / to see every command, or @ a filename to give {{agentName}} a file to work from.',
+      })
+    case 'mention':
+      return t('ide.chat.tip.mention', values, {
+        defaultValue:
+          'Tip: type @filename to attach a project file as context — {{agentName}} reads it directly.',
+      })
+    case 'slash':
+      return t('ide.chat.tip.slash', values, {
+        defaultValue: 'Tip: type / to browse every command (commit, model, and more).',
+      })
+    case 'plan':
+      return t('ide.chat.tip.plan', values, {
+        defaultValue:
+          'Tip: use /plan to have {{agentName}} research and propose a plan before it edits any files.',
+      })
+    case 'undo':
+      return t('ide.chat.tip.undo', values, {
+        defaultValue:
+          "Tip: use /undo to instantly revert the last AI turn's file changes if it went the wrong way.",
+      })
+    case 'compact':
+      return t('ide.chat.tip.compact', values, {
+        defaultValue:
+          'Tip: long conversation? /compact compresses the context so you keep room to work.',
+      })
+    case 'commit':
+      return t('ide.chat.tip.commit', values, {
+        defaultValue:
+          'Tip: use /commit to save your changes as a git commit you can always return to.',
+      })
+    case 'report':
+      return t('ide.chat.tip.report', values, {
+        defaultValue:
+          'Tip: something off? /report sends a bug or feedback to the team with your recent chat attached.',
+      })
+    case 'viewerTeamOnly':
+      return t('ide.chat.tip.viewerTeamOnly', values, {
+        defaultValue:
+          'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+      })
+  }
+}
 
 /**
  * How long the conversation must sit idle before a rotation tip may surface

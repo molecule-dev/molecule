@@ -122,10 +122,11 @@ describe('resolveModeModel — back-compat', () => {
   })
 })
 
-// Arbitrary ids on purpose: the clamp must never depend on a model's name.
-const paidA = model({ id: 'paid-a', provider: 'vendor-a', label: 'Paid A' })
-const paidB = model({ id: 'paid-b', provider: 'vendor-b', label: 'Paid B' })
-const freeModel = model({ id: 'free-x', provider: 'vendor-c', label: 'Free X', freeTier: true })
+// Arbitrary ids on purpose — real providers the clamp has no reason to
+// recognize: it must never depend on a model's provider or name.
+const paidA = model({ id: 'paid-a', provider: 'minimax', label: 'Paid A' })
+const paidB = model({ id: 'paid-b', provider: 'moonshot', label: 'Paid B' })
+const freeModel = model({ id: 'free-x', provider: 'alibaba', label: 'Free X', freeTier: true })
 const clampCatalog = [opus, sonnet, paidA, paidB, freeModel]
 // What the server sends a free user today: every mode on the free model.
 const freeDefaults = { plan: 'free-x', execute: 'free-x', commit: 'free-x', compact: 'free-x' }

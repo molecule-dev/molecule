@@ -14,51 +14,11 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { ToolCallCardProps } from '@molecule/app-ide-panel-logic'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ToolCallCard } from '../components/ToolCallCard.js'
-
-/** A minimal light theme so `useThemeMode` resolves. */
-function buildThemeProvider(): ThemeProviderType {
-  const theme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
-  return {
-    getTheme: () => theme,
-    getThemeName: () => 'light',
-    getThemes: () => ['light', 'dark'],
-    setTheme: () => {},
-    toggleMode: () => {},
-    onThemeChange: () => () => {},
-  }
-}
+import { buildThemeProvider } from './theme-test-provider.js'
 
 /**
  * Wrap a card in the contexts it mounts in.
@@ -113,7 +73,9 @@ describe('ToolCallCard — read_file', () => {
     expect(container.textContent).toContain('App.tsx')
     expect(container.textContent).toContain('Home.tsx')
     const codes = Array.from(container.querySelectorAll('code'))
-    const home = codes.find((c) => c.textContent === 'Home.tsx') as HTMLElement
+    const home = codes
+      .find((c) => c.textContent === 'Home.tsx')!
+      .querySelector('button') as HTMLElement
     fireEvent.click(home)
     expect(opened).toContain('my-app/app/src/pages/Home.tsx')
   })
@@ -140,7 +102,35 @@ describe('ToolCallCard — read_file', () => {
     const code = Array.from(container.querySelectorAll('code')).find(
       (c) => c.textContent === 'App.tsx',
     ) as HTMLElement
-    fireEvent.click(code)
+    fireEvent.click(code.querySelector('button') as HTMLElement)
+    expect(opened).toEqual(['my-app/app/src/App.tsx'])
+  })
+
+  it('puts the open action on a native button inside the code element', () => {
+    const opened: string[] = []
+    const doubleClicked: string[] = []
+    const container = renderRead({
+      onFileOpen: (p) => opened.push(p),
+      onFileDoubleClick: (p) => doubleClicked.push(p),
+    })
+    const button = Array.from(container.querySelectorAll('code button')).find(
+      (el) => el.textContent === 'App.tsx',
+    ) as HTMLButtonElement
+
+    // `code` is a semantic element and cannot be a button, so a real <button>
+    // carries the action. A native button is Enter/Space activated by the
+    // browser itself, which jsdom does not implement — it dispatches the click
+    // the browser would, through the same element.
+    expect(button.tagName).toBe('BUTTON')
+    expect(button.getAttribute('type')).toBe('button')
+    expect(button.getAttribute('aria-label')).toBe('Open my-app/app/src/App.tsx')
+
+    fireEvent.click(button)
+    expect(opened).toEqual(['my-app/app/src/App.tsx'])
+
+    fireEvent.doubleClick(button)
+    expect(doubleClicked).toEqual(['my-app/app/src/App.tsx'])
+    // Neither gesture bubbles to the row's own handler.
     expect(opened).toEqual(['my-app/app/src/App.tsx'])
   })
 })

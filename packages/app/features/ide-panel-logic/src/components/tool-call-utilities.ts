@@ -2,12 +2,16 @@
  * Pure utility functions for tool call display.
  *
  * Extracted from ToolCallCard for testability — these functions have no
- * React dependencies and can be unit-tested directly.
+ * React dependencies and can be unit-tested directly. Their translations go
+ * through the CALLER's translate function (first parameter, typed
+ * `TranslateFunction` from `@molecule/app-i18n` — a type-only import, erased
+ * at runtime), never the package-static `t`, so a framework port passes its
+ * own binding and a live locale switch re-renders.
  *
  * @module
  */
 
-import { t } from '@molecule/app-i18n'
+import type { TranslateFunction } from '@molecule/app-i18n'
 
 type Inp = Record<string, unknown>
 
@@ -128,11 +132,12 @@ export function readFileLabelEntries(input: unknown): Array<{ name: string; path
 
 /**
  * Human-readable label for a tool call (e.g. "Edit `ChatPanel.tsx`").
+ * @param t - The caller's translate function (React passes `useTranslation()`'s `t`).
  * @param name - The tool name (e.g. "write_file", "exec_command").
  * @param input - The raw tool input payload.
  * @returns A formatted label string with backtick-wrapped filenames.
  */
-export function toolLabel(name: string, input: unknown): string {
+export function toolLabel(t: TranslateFunction, name: string, input: unknown): string {
   const inp = (input ?? {}) as Inp
   const path = str(inp.path)
   const cmd = str(inp.command)
@@ -157,9 +162,14 @@ export function toolLabel(name: string, input: unknown): string {
   // span, in position) and every label this module emits is split-safe.
   const code = (value: string): string => (value ? ` \`${value.replace(/`/g, "'")}\`` : '')
 
+  // Every English word below goes through `t` (`ide.tool.*`, the ide locale bond) with
+  // the same English as `defaultValue`, so a non-English locale translates the label
+  // while the file names, commands and other data segments (the `` `backticks` ``) stay
+  // as they are — they are data the card's label renderer turns into code spans, and a
+  // translation moves them through its own `{{placeholder}}`s.
   switch (name) {
     case 'list_files':
-      return `List${code(basename(path) || 'project')}`
+      return `${t('ide.tool.list', undefined, { defaultValue: 'List' })}${code(basename(path) || 'project')}`
     case 'read_file': {
       // One call can read several files (`paths`): name the first few, count the rest.
       // A path with no basename (`src/`, `/`) names nothing, so it must not
@@ -173,55 +183,71 @@ export function toolLabel(name: string, input: unknown): string {
         .slice(0, MAX_LABEL_FILES)
         .map((entry) => code(entry.name).trim())
       const more = files.length - named.length
-      return `Read${named.length ? ` ${named.join(', ')}` : ''}${more > 0 ? ` +${more} more` : ''}`
+      return `${t('ide.tool.read', undefined, { defaultValue: 'Read' })}${named.length ? ` ${named.join(', ')}` : ''}${more > 0 ? ` ${t('ide.tool.readMore', { count: more }, { defaultValue: '+{{count}} more' })}` : ''}`
     }
     case 'write_file':
-      return `Write${code(basename(path))}`
+      return `${t('ide.tool.write', undefined, { defaultValue: 'Write' })}${code(basename(path))}`
     case 'edit_file':
-      return `Edit${code(basename(path))}`
+      return `${t('ide.tool.edit', undefined, { defaultValue: 'Edit' })}${code(basename(path))}`
     case 'search_files':
-      return `Search${code(pattern ?? '')}`
+      return `${t('ide.tool.search', undefined, { defaultValue: 'Search' })}${code(pattern ?? '')}`
     case 'create_directory':
-      return `Create dir${code(basename(path))}`
+      return `${t('ide.tool.createDir', undefined, { defaultValue: 'Create dir' })}${code(basename(path))}`
     case 'rename_file':
-      return `Rename${code(basename(str(inp.old_path)))}`
+      return `${t('ide.tool.rename', undefined, { defaultValue: 'Rename' })}${code(basename(str(inp.old_path)))}`
     case 'delete_file':
-      return `Delete${code(basename(path))}`
+      return `${t('ide.tool.delete', undefined, { defaultValue: 'Delete' })}${code(basename(path))}`
     case 'find_files':
-      return `Find${code(pattern ?? '')}`
+      return `${t('ide.tool.find', undefined, { defaultValue: 'Find' })}${code(pattern ?? '')}`
     case 'load_skill':
-      return `Load skill${code(str(inp.name) ?? '')}`
+      return `${t('ide.tool.loadSkill', undefined, { defaultValue: 'Load skill' })}${code(str(inp.name) ?? '')}`
     case 'find_package': {
       const query = str(inp.query) ?? str(inp.category)
-      return `Find package${code(query ?? '')}`
+      return `${t('ide.tool.findPackage', undefined, { defaultValue: 'Find package' })}${code(query ?? '')}`
     }
     case 'read_molecule_doc': {
       const pkg = str(inp.name)
         ?.trim()
         .replace(/^@molecule\//, '')
-      return `Read docs${code(pkg ? `@molecule/${pkg}` : '')}`
+      return `${t('ide.tool.readDocs', undefined, { defaultValue: 'Read docs' })}${code(pkg ? `@molecule/${pkg}` : '')}`
     }
     case 'web_fetch': {
       try {
-        return `Fetch ${new URL(url ?? '').hostname}`
+        return t(
+          'ide.tool.fetchHost',
+          { host: new URL(url ?? '').hostname },
+          {
+            defaultValue: 'Fetch {{host}}',
+          },
+        )
       } catch (_error) {
         // URL parsing failed (malformed/empty URL) — fall back to raw URL string, safe to ignore.
-        return `Fetch ${url ?? ''}`
+        return t('ide.tool.fetchHost', { host: url ?? '' }, { defaultValue: 'Fetch {{host}}' })
       }
     }
     case 'exec_command': {
       // A detached command has no result to show here — the card would read as
       // finished the moment it started. Say which it is.
       // The executor's own one-line reason, when it gave one, says more than the raw
-      // command (which the expanded card shows in full). Backticks are label markup.
+      // command (which the expanded card shows in full) — model-authored data, shown
+      // as is; only the "(background)" suffix around it is our text. Backticks are
+      // label markup.
       const why = str(inp.description)?.replace(/`/g, "'")
-      if (why)
+      if (why) {
+        const reason = truncate(why, 90)
         return inp.run_in_background === true
-          ? `${truncate(why, 90)} (background)`
-          : truncate(why, 90)
+          ? t(
+              'ide.tool.descriptionBackground',
+              { description: reason },
+              {
+                defaultValue: '{{description}} (background)',
+              },
+            )
+          : reason
+      }
       return inp.run_in_background === true
-        ? `Bash (background)${code(truncate(cmd ?? ''))}`
-        : `Bash${code(truncate(cmd ?? ''))}`
+        ? `${t('ide.tool.bashBackground', undefined, { defaultValue: 'Bash (background)' })}${code(truncate(cmd ?? ''))}`
+        : `${t('ide.tool.bash', undefined, { defaultValue: 'Bash' })}${code(truncate(cmd ?? ''))}`
     }
     case 'sandbox_fetch': {
       // The interesting part is WHICH endpoint (usually one the model just built) —
@@ -231,76 +257,143 @@ export function toolLabel(name: string, input: unknown): string {
       return `${method}${code(truncate(compact))}`
     }
     case 'navigate_preview':
-      return `Go to${code(str(inp.path) ?? '')}`
+      return `${t('ide.tool.goTo', undefined, { defaultValue: 'Go to' })}${code(str(inp.path) ?? '')}`
     case 'open_file':
-      return `Open${code(basename(path))}`
+      return `${t('ide.tool.open', undefined, { defaultValue: 'Open' })}${code(basename(path))}`
     case 'reload_preview':
-      return 'Reload preview'
+      return t('ide.tool.reloadPreview', undefined, { defaultValue: 'Reload preview' })
     case 'restart_preview':
-      return inp.restart === true ? 'Restart preview servers' : 'Start preview servers'
+      return inp.restart === true
+        ? t('ide.tool.restartPreviewServers', undefined, {
+            defaultValue: 'Restart preview servers',
+          })
+        : t('ide.tool.startPreviewServers', undefined, { defaultValue: 'Start preview servers' })
     case 'read_preview_ui':
-      return 'Inspect preview'
+      return t('ide.tool.inspectPreview', undefined, { defaultValue: 'Inspect preview' })
     case 'interact_preview': {
       // Target priority mirrors the tool's own: molId is canonical, text is the
       // visible name (usually the most readable), selector is the last resort.
       // Deliberately NEVER show `value` — fill routinely types credentials.
       const target = str(inp.text) ?? str(inp.molId) ?? str(inp.selector) ?? ''
-      const verb = { click: 'Click', fill: 'Fill', select: 'Select', waitFor: 'Wait for' }[
-        str(inp.action) ?? ''
-      ]
-      return verb ? `${verb}${code(truncate(target, 40))}` : `Interact${code(truncate(target, 40))}`
+      const verb = {
+        click: t('ide.tool.click', undefined, { defaultValue: 'Click' }),
+        fill: t('ide.tool.fill', undefined, { defaultValue: 'Fill' }),
+        select: t('ide.tool.select', undefined, { defaultValue: 'Select' }),
+        waitFor: t('ide.tool.waitFor', undefined, { defaultValue: 'Wait for' }),
+      }[str(inp.action) ?? '']
+      return verb
+        ? `${verb}${code(truncate(target, 40))}`
+        : `${t('ide.tool.interact', undefined, { defaultValue: 'Interact' })}${code(truncate(target, 40))}`
     }
     case 'get_ide_state':
-      return 'Check IDE status'
+      return t('ide.tool.checkIdeStatus', undefined, { defaultValue: 'Check IDE status' })
     case 'read_logs': {
       const source = str(inp.source) ?? ''
       const filter = str(inp.filter) ?? ''
-      const which = source && source !== 'all' ? `Read ${source} logs` : 'Read logs'
+      const which =
+        source && source !== 'all'
+          ? t('ide.tool.readSourceLogs', { source }, { defaultValue: 'Read {{source}} logs' })
+          : t('ide.tool.readLogs', undefined, { defaultValue: 'Read logs' })
       return `${which}${code(truncate(filter, 30))}`
     }
     case 'find_example':
-      return `Find example${code(truncate(str(inp.query) ?? '', 40))}`
+      return `${t('ide.tool.findExample', undefined, { defaultValue: 'Find example' })}${code(truncate(str(inp.query) ?? '', 40))}`
     case 'save_script':
-      return `Save script${code(str(inp.name) ?? '')}`
+      return `${t('ide.tool.saveScript', undefined, { defaultValue: 'Save script' })}${code(str(inp.name) ?? '')}`
     case 'request_repo_import':
-      return 'Import repository'
+      return t('ide.tool.importRepository', undefined, { defaultValue: 'Import repository' })
     case 'web_search':
-      return `Search web${code(truncate(str(inp.query) ?? '', 40))}`
+      return `${t('ide.tool.searchWeb', undefined, { defaultValue: 'Search web' })}${code(truncate(str(inp.query) ?? '', 40))}`
     case 'save_plan': {
       const planName = str(inp.name) ?? ''
       // Same split-safety as {@link code} above: the name is interpolated into
       // the label's backtick markup directly, so a backtick in it must be
       // substituted here too.
-      return planName ? `Save plan \`${planName.replace(/`/g, "'")}\`` : 'Save plan'
+      return planName
+        ? t(
+            'ide.tool.savePlanNamed',
+            { name: planName.replace(/`/g, "'") },
+            {
+              defaultValue: 'Save plan `{{name}}`',
+            },
+          )
+        : t('ide.tool.savePlan', undefined, { defaultValue: 'Save plan' })
     }
     case 'set_mode': {
       const targetMode = str(inp.mode) ?? ''
-      return targetMode ? `Switch to ${targetMode} mode` : 'Switch mode'
+      return targetMode
+        ? t(
+            'ide.tool.switchToMode',
+            { mode: targetMode },
+            {
+              defaultValue: 'Switch to {{mode}} mode',
+            },
+          )
+        : t('ide.tool.switchMode', undefined, { defaultValue: 'Switch mode' })
     }
     case 'ask_user':
-      return normalizeAskUserInput(inp).question || 'Question'
+      return (
+        normalizeAskUserInput(inp).question ||
+        t('ide.tool.question', undefined, { defaultValue: 'Question' })
+      )
     case 'spawn_agent': {
       const kind = str(inp.type) ?? ''
-      const on = str(inp.model) ? ` on ${str(inp.model)}` : ''
-      if (kind === 'judge') return `Subagent — acceptance judge${on}`
-      if (kind === 'build') return `Subagent — build${on}`
-      return `Subagent — research${on}`
+      const model = str(inp.model)
+      if (kind === 'judge')
+        return model
+          ? t(
+              'ide.tool.subagentJudgeOn',
+              { model },
+              {
+                defaultValue: 'Subagent — acceptance judge on {{model}}',
+              },
+            )
+          : t('ide.tool.subagentJudge', undefined, {
+              defaultValue: 'Subagent — acceptance judge',
+            })
+      if (kind === 'build')
+        return model
+          ? t(
+              'ide.tool.subagentBuildOn',
+              { model },
+              { defaultValue: 'Subagent — build on {{model}}' },
+            )
+          : t('ide.tool.subagentBuild', undefined, { defaultValue: 'Subagent — build' })
+      return model
+        ? t(
+            'ide.tool.subagentResearchOn',
+            { model },
+            {
+              defaultValue: 'Subagent — research on {{model}}',
+            },
+          )
+        : t('ide.tool.subagentResearch', undefined, { defaultValue: 'Subagent — research' })
     }
     case 'wait_for_task': {
       // `command` is not part of the tool's input: the card fills it in from the
       // exec_command that started the task, so the row says what is being waited on.
       const command = str(inp.command)
       return command
-        ? `Wait for${code(truncate(command, 80))}`
-        : `Wait for background task${code(truncate(str(inp.taskId) ?? ''))}`
+        ? `${t('ide.tool.waitFor', undefined, { defaultValue: 'Wait for' })}${code(truncate(command, 80))}`
+        : `${t('ide.tool.waitForTask', undefined, { defaultValue: 'Wait for background task' })}${code(truncate(str(inp.taskId) ?? ''))}`
     }
     case 'list_sessions':
-      return 'Other sessions on this project'
+      return t('ide.tool.listSessions', undefined, {
+        defaultValue: 'Other sessions on this project',
+      })
     case 'send_session_message':
-      return `Message another session${code(truncate(str(inp.message) ?? ''))}`
+      return `${t('ide.tool.sendSessionMessage', undefined, { defaultValue: 'Message another session' })}${code(truncate(str(inp.message) ?? ''))}`
     case 'update_task_list': {
       const rows = normalizeTaskListInput(inp)
-      return rows.length > 0 ? `Working plan — ${rows.length} tasks` : 'Working plan'
+      return rows.length > 0
+        ? t(
+            'ide.tool.workingPlanTasks',
+            { count: rows.length },
+            {
+              defaultValue: 'Working plan — {{count}} tasks',
+            },
+          )
+        : t('ide.tool.workingPlan', undefined, { defaultValue: 'Working plan' })
     }
     default: {
       const label = name.replace(/_/g, ' ')
@@ -352,9 +445,10 @@ export function isInterruptedByRestart(output: unknown): boolean {
 /**
  * The sentence a card shows for a call a restart interrupted.
  *
+ * @param t - The caller's translate function (React passes `useTranslation()`'s `t`).
  * @returns The localized sentence.
  */
-export function interruptedByRestartLine(): string {
+export function interruptedByRestartLine(t: TranslateFunction): string {
   return t('ide.toolCall.interruptedByRestart', undefined, {
     defaultValue: 'This step was interrupted by a restart; its effect is unknown.',
   })
@@ -373,11 +467,12 @@ const RAW_ERROR_TEXT = /^\s*[A-Za-z]*Error\b|fetch failed|\bE[A-Z]{3,}\b|\n\s+at
  * error text (`Error: fetch failed`) and a failure with no `error` at all
  * get the translated fallback instead.
  *
+ * @param t - The caller's translate function (React passes `useTranslation()`'s `t`).
  * @param error - The result's `error` field.
  * @param report - The result's `report` field (model-facing).
  * @returns The line to show, or '' for a run that did not fail.
  */
-export function subagentErrorLine(error: unknown, report: string): string {
+export function subagentErrorLine(t: TranslateFunction, error: unknown, report: string): string {
   const fallback = (): string =>
     t('ide.chat.subagent.failedFallback', undefined, {
       defaultValue: 'This subagent stopped before it finished.',
@@ -392,12 +487,18 @@ export function subagentErrorLine(error: unknown, report: string): string {
 
 /**
  * One-line result summary shown beneath the label.
+ * @param t - The caller's translate function (React passes `useTranslation()`'s `t`).
  * @param name - The tool name.
  * @param output - The raw tool output payload.
  * @param status - The execution status (pending, running, done, error).
  * @returns A brief summary string describing the result.
  */
-export function toolSummary(name: string, output: ToolOutput, status: string): string {
+export function toolSummary(
+  t: TranslateFunction,
+  name: string,
+  output: ToolOutput,
+  status: string,
+): string {
   if (status === 'pending') return ''
   if (status === 'running')
     return t('ide.toolCall.statusRunning', undefined, { defaultValue: 'Running…' })

@@ -19,28 +19,46 @@
 
 import type { FeatureCases } from '../spec.js'
 import { activityCardCases } from './ide/activity-card.js'
+import { autoCommitBadgeCases } from './ide/auto-commit-badge.js'
+import { backgroundTasksStripCases } from './ide/background-tasks-strip.js'
+import { chatItemBoundaryCases } from './ide/chat-item-boundary.js'
 import { chatPanelCases } from './ide/chat-panel.js'
 import { chatTimestampCases } from './ide/chat-timestamp.js'
 import { commandPaletteCases } from './ide/command-palette.js'
+import { contextSessionUsageCases } from './ide/context-session-usage.js'
+import { contextUsageIndicatorCases } from './ide/context-usage-indicator.js'
 import { deviceFrameSelectorCases } from './ide/device-frame-selector.js'
+import { dockStripCases } from './ide/dock-strip.js'
 import { editorPanelCases } from './ide/editor-panel.js'
 import { fileExplorerCases } from './ide/file-explorer.js'
+import { fileExplorerContextMenuCases } from './ide/file-explorer-context-menu.js'
+import { helpCardCases } from './ide/help-card.js'
 import { ideHookCases } from './ide/hooks.js'
 import { iconCases } from './ide/icon.js'
 import { keyboardShortcutsPanelCases } from './ide/keyboard-shortcuts-panel.js'
+import { markdownContentCases } from './ide/markdown-content.js'
+import { planCardCases } from './ide/plan-card.js'
 import { previewPanelCases } from './ide/preview-panel.js'
 import { quickOpenCases } from './ide/quick-open.js'
 import { quickPickerCases } from './ide/quick-picker.js'
+import { relevantSkillSuggestionCases } from './ide/relevant-skill-suggestion.js'
 import { reportModalCases } from './ide/report-modal.js'
 import { resizeHandleCases } from './ide/resize-handle.js'
+import { scriptsCardCases } from './ide/scripts-card.js'
 import { searchPanelCases } from './ide/search-panel.js'
+import { settingsCardCases } from './ide/settings-card.js'
 import { shareLinkManagerCases } from './ide/share-link-manager.js'
 import { shareModalCases } from './ide/share-modal.js'
 import { sidebarTabsCases } from './ide/sidebar-tabs.js'
+import { skillsCardCases } from './ide/skills-card.js'
+import { streamingIndicatorCases } from './ide/streaming-indicator.js'
 import { tabBarCases } from './ide/tab-bar.js'
+import { testStatusBarCases } from './ide/test-status-bar.js'
 import { testsCardCases } from './ide/tests-card.js'
+import { tipCardCases } from './ide/tip-card.js'
 import { toolCallCardCases } from './ide/tool-call-card.js'
 import { userAvatarCases } from './ide/user-avatar.js'
+import { workCardCases } from './ide/work-card.js'
 import { workspaceLayoutCases } from './ide/workspace-layout.js'
 
 /** `@molecule/app-ide-react`. */
@@ -49,29 +67,67 @@ export const ideFeature: FeatureCases = {
   composition: 'app',
   goldensPerComponent: true,
   hooks: ideHookCases,
+  parts: [
+    'AutoCommitBadge',
+    'BackgroundTasksStrip',
+    'ChatItemBoundary',
+    'ContextSessionUsage',
+    'ContextUsageIndicator',
+    'DockStrip',
+    'FileExplorerContextMenu',
+    'HelpCard',
+    'MarkdownContent',
+    'PlanCard',
+    'RelevantSkillSuggestion',
+    'ScriptsCard',
+    'SettingsCard',
+    'SkillsCard',
+    'StreamingIndicator',
+    'TestStatusBar',
+    'TipCard',
+    'WorkCard',
+  ],
   families: [
     activityCardCases,
+    autoCommitBadgeCases,
+    backgroundTasksStripCases,
+    chatItemBoundaryCases,
     chatPanelCases,
     chatTimestampCases,
     commandPaletteCases,
+    contextSessionUsageCases,
+    contextUsageIndicatorCases,
     deviceFrameSelectorCases,
+    dockStripCases,
     editorPanelCases,
     fileExplorerCases,
+    fileExplorerContextMenuCases,
+    helpCardCases,
     iconCases,
     keyboardShortcutsPanelCases,
+    markdownContentCases,
+    planCardCases,
     previewPanelCases,
     quickOpenCases,
     quickPickerCases,
+    relevantSkillSuggestionCases,
     reportModalCases,
     resizeHandleCases,
+    scriptsCardCases,
     searchPanelCases,
+    settingsCardCases,
     shareLinkManagerCases,
     shareModalCases,
     sidebarTabsCases,
+    skillsCardCases,
+    streamingIndicatorCases,
     tabBarCases,
     testsCardCases,
+    testStatusBarCases,
+    tipCardCases,
     toolCallCardCases,
     userAvatarCases,
+    workCardCases,
     workspaceLayoutCases,
   ],
   shared: {
@@ -101,6 +157,8 @@ export const ideFeature: FeatureCases = {
     clampPanelSize: '@molecule/app-ide-panel-logic',
     COARSE_POINTER_QUERY: '@molecule/app-ide-panel-logic',
     collectClientInfo: '@molecule/app-ide-panel-logic',
+    commandCategoryLabel: '@molecule/app-ide-panel-logic',
+    commandDescription: '@molecule/app-ide-panel-logic',
     COMMAND_CATEGORIES: '@molecule/app-ide-panel-logic',
     COMMANDS: '@molecule/app-ide-panel-logic',
     countByKind: '@molecule/app-ide-panel-logic',
@@ -136,6 +194,7 @@ export const ideFeature: FeatureCases = {
     isDeviceRotatable: '@molecule/app-ide-panel-logic',
     isInputFocused: '@molecule/app-ide-panel-logic',
     isMonacoFocused: '@molecule/app-ide-panel-logic',
+    isRegistryCommandId: '@molecule/app-ide-panel-logic',
     isReportFormValid: '@molecule/app-ide-panel-logic',
     isRowRunning: '@molecule/app-ide-panel-logic',
     isShareRole: '@molecule/app-ide-panel-logic',
@@ -166,9 +225,14 @@ export const ideFeature: FeatureCases = {
     resolveUserAvatar: '@molecule/app-ide-panel-logic',
     serializeEvent: '@molecule/app-ide-panel-logic',
     setChatTimestampsVisible: '@molecule/app-ide-panel-logic',
+    settingDescription: '@molecule/app-ide-panel-logic',
+    settingLabel: '@molecule/app-ide-panel-logic',
     SETTINGS: '@molecule/app-ide-panel-logic',
     SHARE_ROLE_LABELS: '@molecule/app-ide-panel-logic',
     SHARE_ROLES: '@molecule/app-ide-panel-logic',
+    shareGrantsText: '@molecule/app-ide-panel-logic',
+    shareRoleLabel: '@molecule/app-ide-panel-logic',
+    shareSubheading: '@molecule/app-ide-panel-logic',
     summarizeResults: '@molecule/app-ide-panel-logic',
     testCaseLabel: '@molecule/app-ide-panel-logic',
     testRowLabel: '@molecule/app-ide-panel-logic',

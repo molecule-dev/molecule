@@ -1,0 +1,143 @@
+{
+ "renders the timeline item untouched": {
+  "snapshots": [
+   "<span data-item>\ntimeline item\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "several nodes render one after another, and onError may be absent": {
+  "snapshots": [
+   "<header>\nAcme\n</header>\n<main>\nTimeline item\n</main>\n<footer>\nend\n</footer>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a plain text item renders as bare text": {
+  "snapshots": [
+   "plain item text\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an empty item renders nothing": {
+  "snapshots": [
+   "\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an equal re-render keeps the rendered item": {
+  "snapshots": [
+   "<main>\nTimeline item\n</main>\n@route /",
+   "<main data-conformance-mark=\"0\">\nTimeline item\n</main>\n@route /",
+   "<main data-conformance-mark=\"0\">\nTimeline item\n</main>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a new render prop renders the new item": {
+  "snapshots": [
+   "<main>\nFirst item\n</main>\n@route /",
+   "<main>\nSecond item\n</main>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a locale switch keeps the item": {
+  "snapshots": [
+   "<main>\nTimeline item\n</main>\n@route /",
+   "<main>\nTimeline item\n</main>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ },
+ "renders the timeline item untouched, then a locale switch": {
+  "snapshots": [
+   "<span data-item>\ntimeline item\n</span>\n@route /",
+   "<span data-item>\ntimeline item\n</span>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

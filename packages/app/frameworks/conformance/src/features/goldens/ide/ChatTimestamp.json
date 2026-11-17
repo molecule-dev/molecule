@@ -74,6 +74,36 @@
    }
   ]
  },
+ "an infinite time renders nothing too": {
+  "snapshots": [
+   "\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an inline time ignores the align prop": {
+  "snapshots": [
+   "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
  "the label advances with the minute clock": {
   "snapshots": [
    "<div class=\"c1b02b894\" role=\"presentation\">\n<time class=\"ce823b5bf\" data-mol-id=\"chat-timestamp\" datetime=\"2026-01-01T00:00:00.000Z\" style=\"cursor: default; font-size: 11px; white-space: nowrap\">\n5 minutes ago\n</time>\n</div>\n@route /",

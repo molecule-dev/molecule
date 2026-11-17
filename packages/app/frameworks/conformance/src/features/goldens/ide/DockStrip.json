@@ -1,0 +1,215 @@
+{
+ "a collapsed strip toggled by its overlay button": {
+  "snapshots": [
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onToggle",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   },
+   {
+    "name": "onToggle",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "an expanded strip shows its detail and folds it away": {
+  "snapshots": [
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"true\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n<span class=\"c4647f690 ce823b5bf\" style=\"min-width: 0px; opacity: 0.75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nupdating todos\n</span>\n</div>\n</div>\n<div style=\"margin-top: 6px; padding-left: 18px\">\n<div data-mol-id=\"plan-detail\">\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n<span class=\"c4647f690 ce823b5bf\" style=\"min-width: 0px; opacity: 0.75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nupdating todos\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"true\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(90deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n<span class=\"c4647f690 ce823b5bf\" style=\"min-width: 0px; opacity: 0.75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nupdating todos\n</span>\n</div>\n</div>\n<div style=\"margin-top: 6px; padding-left: 18px\">\n<div data-mol-id=\"plan-detail\">\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an activation opens elsewhere instead of disclosing": {
+  "snapshots": [
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nTests\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nTests\n</span>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onActivate",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "a hidden label names the row for the reader": {
+  "snapshots": [
+   "<div data-mol-id=\"files-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-label=\"Uncommitted files\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"files-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"files-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-label=\"Uncommitted files\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"files-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onToggle",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "a node label and a node hint render as nodes with no accessible name": {
+  "snapshots": [
+   "<div data-mol-id=\"files-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"files-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" style=\"min-width: 0px; opacity: 0.75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\n<em data-mol-id=\"hint-node\">\n</em>\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"files-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"files-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" style=\"min-width: 0px; opacity: 0.75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\n<em data-mol-id=\"hint-node\">\n</em>\n</span>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onToggle",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "actions and detail actions sit right of the label": {
+  "snapshots": [
+   "<div data-mol-id=\"files-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"files-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<i data-icon=\"commit\">\n</i>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nUncommitted files\n</span>\n</div>\n<div class=\"cfc82911d\" style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button data-mol-id=\"plan-action\" type=\"button\">\nCommit\n</button>\n<button data-mol-id=\"plan-detail-action\" type=\"button\">\nDiscard\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"files-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"files-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<i data-icon=\"commit\">\n</i>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nUncommitted files\n</span>\n</div>\n<div class=\"cfc82911d\" style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button data-mol-id=\"plan-action\" type=\"button\">\nCommit\n</button>\n<button data-mol-id=\"plan-detail-action\" type=\"button\">\nDiscard\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"files-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"files-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<i data-icon=\"commit\">\n</i>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nUncommitted files\n</span>\n</div>\n<div class=\"cfc82911d\" style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button data-mol-id=\"plan-action\" type=\"button\">\nCommit\n</button>\n<button data-mol-id=\"plan-detail-action\" type=\"button\">\nDiscard\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onToggle",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   }
+  ]
+ },
+ "the root carries the extra attributes it is given": {
+  "snapshots": [
+   "<div data-mol-id=\"plan-strip\" data-tone=\"running\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"plan-strip\" data-tone=\"failed\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a collapsed strip toggled by its overlay button, then a locale switch": {
+  "snapshots": [
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n</div>\n</div>\n</div>\n@route /",
+   "<div data-mol-id=\"plan-strip\" style=\"border-top: 1px solid rgba(128, 128, 128, 0.15); padding: 8px 8px 8px 10px\">\n<div class=\"c04c34dac c0d5bd177 c0e043e0a c0e303770 c13d4ff0f c1a0402c8 c1e8176ab c1f523237 c261c1213 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c63a60b6c c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 cc06b624c cca586305 cd6fe318b ced2a9c62 cee061da5 cf0915c40 cf9a2eaba cfc82911d\" style=\"align-items: center; cursor: pointer; display: flex; gap: 8px; justify-content: space-between\">\n<button aria-expanded=\"false\" aria-labelledby=\"#id0\" class=\"c0dd268bc c13d4ff0f c63a6bab3\" data-mol-id=\"plan-toggle\" style=\"background: transparent; border: medium; padding: 0px\" type=\"button\">\n</button>\n<div style=\"align-items: center; display: flex; gap: 6px; min-width: 0px\">\n<svg aria-hidden=\"true\" height=\"12\" style=\"flex-shrink: 0; opacity: 0.5; transform: rotate(0deg); transition: transform 120ms\" viewbox=\"0 0 16 16\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M6 4l4 4-4 4\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\">\n</path>\n</svg>\n<span class=\"c4647f690 ce823b5bf\" id=\"#id0\" style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap\">\nWorking plan\n</span>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "onToggle",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   },
+   {
+    "name": "onToggle",
+    "args": [
+     {
+      "event": "click",
+      "target": "button"
+     }
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

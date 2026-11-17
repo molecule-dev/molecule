@@ -40,7 +40,6 @@ import {
   resetChatStoresForTests,
   ThemeProvider,
 } from '@molecule/app-react'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
@@ -48,6 +47,7 @@ import { ChatPanel } from '../components/ChatPanel.js'
 import { MarkdownContent } from '../components/MarkdownContent.js'
 import { StreamingIndicator } from '../components/StreamingIndicator.js'
 import { ToolCallCard } from '../components/ToolCallCard.js'
+import { buildThemeProvider } from './theme-test-provider.js'
 
 /**
  * Stub `window.matchMedia` so exactly the given queries match. The viewport
@@ -125,46 +125,6 @@ function makeStorage(): Storage {
   }
 }
 
-/** A minimal light theme so `useThemeMode` resolves. */
-function buildThemeProvider(): ThemeProviderType {
-  const theme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
-  return {
-    getTheme: () => theme,
-    getThemeName: () => 'light',
-    getThemes: () => ['light', 'dark'],
-    setTheme: () => {},
-    toggleMode: () => {},
-    onThemeChange: () => () => {},
-  }
-}
-
 /** Wrap children with the i18n + theme (+ http/chat, when given) contexts. */
 function wrap(children: ReactNode, opts?: { chat?: ChatProvider }): ReactElement {
   const inner = opts?.chat ? (
@@ -203,7 +163,7 @@ function renderAskUser(): HTMLElement {
         name="ask_user"
         input={{ question: 'Which stack?', options: ['React', 'Vue'], allowFreeText: true }}
         output={{ status: 'awaiting_response' }}
-        status="success"
+        status="done"
         onAskUserResponse={() => {}}
       />,
     ),
@@ -219,7 +179,7 @@ function renderRevertibleEdit(): HTMLElement {
         name="edit_file"
         input={{ path: 'src/app.ts', replacements: [{ old_string: 'a', new_string: 'b' }] }}
         output={{ replacementsApplied: 1 }}
-        status="success"
+        status="done"
         fileDiff={{ original: 'a', modified: 'b' }}
         onFileRevert={async () => {}}
       />,

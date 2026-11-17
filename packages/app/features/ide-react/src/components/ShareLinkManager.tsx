@@ -27,13 +27,10 @@
 import type { JSX } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { ShareLinkResult, ShareRole } from '@molecule/app-ide-panel-logic'
-import {
-  buildSharePayload,
-  buildShareUrl,
-  DEFAULT_SHARE_ROLE,
-  SHARE_ROLE_LABELS,
-} from '@molecule/app-ide-panel-logic'
+import { buildSharePayload, buildShareUrl, DEFAULT_SHARE_ROLE } from '@molecule/app-ide-panel-logic'
+import { shareGrantsText, shareRoleLabel } from '@molecule/app-ide-panel-logic'
 import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -207,18 +204,12 @@ export function ShareLinkManager({
   )
 
   const handleCopy = useCallback((id: string, url: string) => {
-    void navigator.clipboard.writeText(url).then(
-      () => {
-        setCopiedId(id)
-        if (copyTimer.current) clearTimeout(copyTimer.current)
-        copyTimer.current = setTimeout(() => setCopiedId(null), 1500)
-      },
-      (err) => {
-        // Clipboard can be blocked (permissions / insecure context); the URL is
-        // still visible and the click selected it, so the user can copy by hand.
-        logger.warn('Clipboard write failed', { error: err })
-      },
-    )
+    void copyTextWithFallback(url).then((copied) => {
+      if (!copied) return
+      setCopiedId(id)
+      if (copyTimer.current) clearTimeout(copyTimer.current)
+      copyTimer.current = setTimeout(() => setCopiedId(null), 1500)
+    })
   }, [])
 
   const hasLink = links.length > 0
@@ -295,11 +286,7 @@ export function ShareLinkManager({
                   className={cm.cn(cm.textMuted, cm.textSize('xs'))}
                   style={{ lineHeight: 1.4 }}
                 >
-                  {t(
-                    `ide.chat.share.grants.${link.role}`,
-                    { role: link.role },
-                    { defaultValue: 'Anyone with this link can act as {{role}}.' },
-                  )}
+                  {shareGrantsText(t, link.role)}
                 </span>
                 {canRevoke && link.id && (
                   <button
@@ -345,9 +332,7 @@ export function ShareLinkManager({
               >
                 {offeredRoles.map((r) => (
                   <option key={r} value={r}>
-                    {t(`ide.chat.share.role.${r}`, undefined, {
-                      defaultValue: SHARE_ROLE_LABELS[r],
-                    })}
+                    {shareRoleLabel(t, r)}
                   </option>
                 ))}
               </select>

@@ -388,6 +388,8 @@ describe('Tests card i18n resolves through the locale bond (cross-cutting-i18n)'
         canRun={canRun}
         onRun={() => {}}
         onCancel={() => {}}
+        onFix={() => {}}
+        fixDisabledReason={null}
         isLight={false}
       />,
     ).container

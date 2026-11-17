@@ -1,7 +1,8 @@
 import { type JSX, useEffect, useState } from 'react'
 
-import type { ContextCategoryId, ContextCompaction, ContextUsage } from '@molecule/app-ai-chat'
+import type { ContextCompaction, ContextUsage } from '@molecule/app-ai-chat'
 import { formatTokenCount } from '@molecule/app-ai-models'
+import { contextCategoryLabel } from '@molecule/app-ide-panel-logic/panels'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Modal, Progress, Tooltip } from '@molecule/app-ui-react'
@@ -31,20 +32,10 @@ export function mergeContextHistory(
   return result.length > 128 ? [result[0], ...result.slice(-127)] : result
 }
 
-const categoryNames: Record<ContextCategoryId, string> = {
-  system: 'System instructions',
-  summary: 'Previous summary',
-  toolDefinitions: 'Tool definitions',
-  serverTools: 'Provider tools',
-  userText: 'User messages',
-  assistantText: 'Assistant messages',
-  reasoning: 'Reasoning',
-  toolCalls: 'Tool arguments',
-  toolResults: 'Tool results',
-  images: 'Images',
-  attachments: 'Attachments',
-  structuralOverhead: 'Request structure',
-}
+// The category display names live in @molecule/app-ide-panel-logic
+// (contextCategoryLabel): one literal `ide.chat.context.category.<id>` t()
+// call per ContextCategoryId, so the i18n gate can verify every key and every
+// framework's panel shares one table.
 
 interface ContextUsageIndicatorProps {
   usage: ContextUsage
@@ -154,9 +145,6 @@ function ContextUsageView({
         onMouseLeave={() => setPreview(false)}
         onFocus={(event) => setPreview(event.target.matches(':focus-visible'))}
         onBlur={() => setPreview(false)}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') setPreview(false)
-        }}
       >
         <Tooltip
           placement="top-end"
@@ -191,6 +179,12 @@ function ContextUsageView({
             onClick={() => {
               setPreview(false)
               setOpen(true)
+            }}
+            onKeyDown={(event) => {
+              // Escape is a keyboard event from the focused element, so it
+              // belongs on this trigger (the only focusable thing the preview
+              // wrapper holds), not on the wrapper div around it.
+              if (event.key === 'Escape') setPreview(false)
             }}
           >
             <span
@@ -362,9 +356,7 @@ function ContextUsageView({
                       .map((category) => (
                         <tr key={category.id} className={cm.tableRow}>
                           <th scope="row" className={cm.tableCell}>
-                            {t(`ide.chat.context.category.${category.id}`, undefined, {
-                              defaultValue: categoryNames[category.id],
-                            })}
+                            {contextCategoryLabel(t, category.id)}
                           </th>
                           <td className={cm.tableCell}>
                             {category.estimatedTokens?.toLocaleString() ?? '—'}

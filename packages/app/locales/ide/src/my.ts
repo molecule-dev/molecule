@@ -144,6 +144,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.quickPicker.placeholder': 'ရှာဖွေရန် ရိုက်ထည့်ပါ…',
   'ide.quickPicker.loading': 'တင်နေသည်…',
   'ide.quickPicker.noResults': 'ကိုက်ညီသောရလဒ်များ မရှိပါ',
+  'ide.quickPicker.label': 'အမြန်ရွေးချယ်မှု',
   'ide.search.replaceInFile': 'ဒီဖိုင်ထဲမှာ အစားထိုးပါ',
   'ide.search.toggleReplace': 'အစားထိုးရန် ခလုတ်',
   'ide.search.placeholder': 'ရှာဖွေရန်',
@@ -161,6 +162,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.sidebar.tabs': 'Sidebar',
   'ide.sidebar.files': 'စူးစမ်းရှာဖွေသူ',
   'ide.sidebar.search': 'ရှာဖွေရန်',
+  'ide.chat.tool.openFile': '{{path}} ကို ဖွင့်ပါ',
   'ide.toolCall.noOutput': '(အထွက်မရှိ)',
   'ide.toolCall.written': 'ရေးသားခဲ့သည်',
   'ide.toolCall.statusUnchanged': 'မပြောင်းလဲသော',
@@ -230,6 +232,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.code.copied': '✓ Copied',
   'ide.chat.commit': 'ကတိပြုပါ',
   'ide.chat.committed': 'ကတိကဝတ်ပြုထားသည်',
+  'ide.chat.removeAttachment': '{{name}} ဖယ်ရှားပါ',
   'ide.chat.retryCommit': 'ပြန်ကြိုးစားပါ',
   'ide.chat.loopLimitReached':
     'အများဆုံးအဆင့်ကို ရောက်ရှိပြီး {{max}} ကိရိယာထပ်ခါတလဲလဲလုပ်ဆောင်ခြင်း။',
@@ -814,4 +817,162 @@ export const my: Partial<IdeTranslations> = {
   'ide.search.replaceConfirmation': '{{files}} ဖိုင်များတွင် {{count}} ကြိမ် အစားထိုးလိုပါသလား။',
   'ide.chat.voice': 'နှုတ်တိုက်ရွတ်ဆိုပါ',
   'ide.chat.voiceStop': 'နှုတ်တိုက်ရွတ်ဆိုခြင်းကို ရပ်ပါ',
+  // Tool-call labels (ide.tool.*), the conversation switcher's fallback, the
+  // history dropdown's empty state and the exit-code line — English source in
+  // en.ts; the {{placeholders}} are data (file names, commands, model names) and
+  // must stay byte-identical.
+  'ide.chat.historyFallback': 'ချတ်မှတ်တမ်း',
+  'ide.chat.noConversations': 'စကားဝိုင်း မရှိသေးပါ',
+  'ide.toolCall.exitCode': 'ထွက်ကုဒ် {{code}}',
+  'ide.tool.list': 'စာရင်း',
+  'ide.tool.read': 'ဖတ်ရန်',
+  'ide.tool.readMore': '+{{count}} ခု ထပ်ပါ',
+  'ide.tool.write': 'ရေးရန်',
+  'ide.tool.edit': 'ပြင်ဆင်ရန်',
+  'ide.tool.search': 'ရှာဖွေရန်',
+  'ide.tool.createDir': 'ဖိုင်တွဲ ဖန်တီးရန်',
+  'ide.tool.rename': 'အမည်ပြောင်းရန်',
+  'ide.tool.delete': 'ဖျက်ရန်',
+  'ide.tool.find': 'ရှာတွေ့ရန်',
+  'ide.tool.loadSkill': 'ကျွမ်းကျင်မှု တင်ရန်',
+  'ide.tool.findPackage': 'ပက်ကေ့ဇ် ရှာရန်',
+  'ide.tool.readDocs': 'စာရွက်စာတမ်း ဖတ်ရန်',
+  'ide.tool.fetchHost': '{{host}} ရယူရန်',
+  'ide.tool.descriptionBackground': '{{description}} (နောက်ခံ)',
+  'ide.tool.bash': 'Bash',
+  'ide.tool.bashBackground': 'Bash (နောက်ခံ)',
+  'ide.tool.goTo': 'သွားရန်',
+  'ide.tool.open': 'ဖွင့်ရန်',
+  'ide.tool.reloadPreview': 'အစမ်းကြည့်ရှုမှု ပြန်တင်ရန်',
+  'ide.tool.restartPreviewServers': 'အစမ်းကြည့်ရှုဆာဗာများ ပြန်စရန်',
+  'ide.tool.startPreviewServers': 'အစမ်းကြည့်ရှုဆာဗာများ စရန်',
+  'ide.tool.inspectPreview': 'အစမ်းကြည့်ရှုမှု စစ်ဆေးရန်',
+  'ide.tool.click': 'နှိပ်ရန်',
+  'ide.tool.fill': 'ဖြည့်ရန်',
+  'ide.tool.select': 'ရွေးရန်',
+  'ide.tool.waitFor': 'စောင့်ရန်',
+  'ide.tool.interact': 'တုံ့ပြန်ရန်',
+  'ide.tool.checkIdeStatus': 'IDE အခြေအနေ စစ်ရန်',
+  'ide.tool.readSourceLogs': '{{source}} လော့ဂ်များ ဖတ်ရန်',
+  'ide.tool.readLogs': 'လော့ဂ်များ ဖတ်ရန်',
+  'ide.tool.findExample': 'ဥပမာ ရှာရန်',
+  'ide.tool.saveScript': 'စ်ကရစ်ပ့ သိမ်းရန်',
+  'ide.tool.importRepository': 'ရီပေါဇီတိုရီ တင်သွင်းရန်',
+  'ide.tool.searchWeb': 'ဝက်ဘ်တွင် ရှာရန်',
+  'ide.tool.savePlanNamed': 'အစီအစဉ် သိမ်းရန် `{{name}}`',
+  'ide.tool.savePlan': 'အစီအစဉ် သိမ်းရန်',
+  'ide.tool.switchToMode': '{{mode}} မုဒ်သို့ ပြောင်းရန်',
+  'ide.tool.switchMode': 'မုဒ် ပြောင်းရန်',
+  'ide.tool.question': 'မေးခွန်း',
+  'ide.tool.subagentJudge': 'စဘ်အေဂျင့် — လက်ခံသုံးသပ်သူ',
+  'ide.tool.subagentJudgeOn': 'စဘ်အေဂျင့် — လက်ခံသုံးသပ်သူ ({{model}})',
+  'ide.tool.subagentBuild': 'စဘ်အေဂျင့် — တည်ဆောက်ခြင်း',
+  'ide.tool.subagentBuildOn': 'စဘ်အေဂျင့် — တည်ဆောက်ခြင်း ({{model}})',
+  'ide.tool.subagentResearch': 'စဘ်အေဂျင့် — စူးစမ်းလေ့လာခြင်း',
+  'ide.tool.subagentResearchOn': 'စဘ်အေဂျင့် — စူးစမ်းလေ့လာခြင်း ({{model}})',
+  'ide.tool.waitForTask': 'နောက်ခံလုပ်ငန်း စောင့်ရန်',
+  'ide.tool.listSessions': 'ဤပရော်ဖက်တ်၏ အခြားဆက်ရှင်များ',
+  'ide.tool.sendSessionMessage': 'အခြားဆက်ရှင်သို့ စာပို့ရန်',
+  'ide.tool.workingPlanTasks': 'အလုပ်အစီအစဉ် — {{count}} လုပ်ငန်းများ',
+  'ide.tool.workingPlan': 'အလုပ်အစီအစဉ်',
+  // Chat-panel labels: slash commands, categories, settings, share roles, plan review.
+  'ide.chat.cmd.clear.desc': 'စကားဝိုင်းကို ရှင်းလင်းပါ',
+  'ide.chat.cmd.compact.desc': 'နေရာလွတ်ရန် အကြောင်းအရာကို ဖိကျဉ်ပါ',
+  'ide.chat.cmd.cost.desc':
+    'တိုကင်အသုံးပြုမှုနှင့် ပရောဂျက်၏ AI ခွင့်ပြုချက်အတွက် အစိတ်အပိုင်းကို ပြပါ',
+  'ide.chat.cmd.skills.desc': 'ပရောဂျက်စွမ်းရည်များကို ကြည့်ရှုပြီး တင်ပါ',
+  'ide.chat.cmd.commit.desc': 'လက်ရှိပြောင်းလဲမှုများကို commit လုပ်ပါ',
+  'ide.chat.cmd.explain.desc': 'ကုဒ်ကို ရှင်းပြပါ (ဥပမာ /explain @file)',
+  'ide.chat.cmd.lint.desc': 'လင်တာကို ပြေးပြီး ပြဿနာများကို ပြင်ပါ',
+  'ide.chat.cmd.test.desc': 'ပရောဂျက်စမ်းသပ်ချက်များကို စာရင်းပြုပြီး ပြေးပါ',
+  'ide.chat.cmd.undo.desc': 'နောက်ဆုံး AI အလှည့်၏ ဖိုင်ပြောင်းလဲမှုများကို ပြန်ဆယ်ပါ',
+  'ide.chat.cmd.scripts.desc':
+    'သိမ်းဆည်းထားသော စခရစ်များနှင့် တပါတည်းပါသော လုပ်ဆောင်ချက်များကို ကြည့်ရှုပြီး ပြေးပါ',
+  'ide.chat.cmd.run.desc':
+    'နာမည်ဖြင့် သိမ်းဆည်းထားသော စခရစ် သို့မဟုတ် တပါတည်းပါသော လုပ်ဆောင်ချက်ကို ပြေးပါ',
+  'ide.chat.cmd.autocommit.desc':
+    'နောက်ဆုံးဖိုင်ပြောင်းလဲမှုမှ စက္ကန့် N အကြာ အလိုအလျောက် commit လုပ်ပါ (0 ဖျက်သိမ်း)',
+  'ide.chat.cmd.autofix.desc': 'AI ဖိုင်ပြောင်းလဲမှုပြီးနောက် အလိုအလျောက်ပြင်ဆင်ခြင်းကို ပွေါင်းပါ',
+  'ide.chat.cmd.autoapprove.desc':
+    'ဖျက်ဆီးသော command များကို အလိုအလျောက်အတည်ပြုခြင်းကို ပွေါင်းပါ (ဆက်လက်ခွင့်ပြုချက်ကို ကျော်ပါ)',
+  'ide.chat.cmd.share.desc': 'ဤပရောဂျက်အတွက် အမျိုးသားမျှဝေလင့်ခ် တည်ဆောက်ပါ',
+  'ide.chat.cmd.model.desc':
+    'မည်သည့် mode အတွက်မဆို မော်ဒယ်ကို ပြောင်းပါ (plan, execute, commit စာ၊ ဖိကျဉ်ခြင်း)',
+  'ide.chat.cmd.plan.desc': 'plan/execute mode ကို ပွေါင်းပါ',
+  'ide.chat.cmd.maxloops.desc': 'ကိရိယာထပ်ခါထပ်ခါအရေအတွက် အမြင့်ဆုံးသတ်မှတ်ပါ',
+  'ide.chat.cmd.effort.desc':
+    'မော်ဒယ်၏ မူလအဆင့်များမှ mode တစ်ခုချင်းစီအတွက် ဆင်ခြေမှုကို ရွေးချယ်ပါ',
+  'ide.chat.cmd.settings.desc': '{{agentName}} ဆက်တင်များကို ကြည့်ပြီး ပြောင်းလဲပါ',
+  'ide.chat.cmd.sounds.desc': 'အသိပေးသံများ',
+  'ide.chat.cmd.timestamps.desc':
+    'ချက်စာပို့များနှင့် ဖြစ်ရပ်များပေါ်တွင် အချိန်ကို ပြပါ သို့မဟုတ် ဖျောက်ပါ',
+  'ide.chat.cmd.mic.desc': 'စာရွက်စာချုပ်အင်ဂျင်ကို ရွေးပါ (စက်ပေါ်တွင် / ဘရောက်ဆာမူလ)',
+  'ide.chat.cmd.dictate.desc': 'စာရွက်စာချုပ်အင်ဂျင်ကို ရွေးပါ (/mic အမည်ငယ်)',
+  'ide.chat.cmd.help.desc': 'အလုပ်စီးဆင်းမှုလမ်းညွှန်နှင့် အကြံပြုချက်များ',
+  'ide.chat.cmd.report.desc': 'ချို့ယွင်းချက် တင်ပြပါ သို့မဟုတ် တုံ့ပြန်ချက် ပေးပို့ပါ',
+  'ide.chat.cmd.bug.desc': 'ချို့ယွင်းချက် တင်ပြပါ (/report အမည်ငယ်)',
+  'ide.chat.cmd.version.desc': 'အက်ပလီကေးရှင်းဗားရှင်းကို ပြပါ',
+  'ide.chat.help.category.context': 'အကြောင်းအရာ',
+  'ide.chat.help.category.code': 'ကုဒ်',
+  'ide.chat.help.category.collaborate': 'ပူးပေါင်းဆောင်ရွက်မှု',
+  'ide.chat.help.category.model': 'မော်ဒယ်',
+  'ide.chat.help.category.settings': 'ဆက်တင်များ',
+  'ide.chat.help.category.support': 'ထောက်ပံ့မှု',
+  'ide.chat.settings.model.label': 'မူလမော်ဒယ်',
+  'ide.chat.settings.planModel.label': 'plan-mode မော်ဒယ်',
+  'ide.chat.settings.executeModel.label': 'execute-mode မော်ဒယ်',
+  'ide.chat.settings.commitModel.label': 'commit-စာ မော်ဒယ်',
+  'ide.chat.settings.compactModel.label': 'ဖိကျဉ်မော်ဒယ်',
+  'ide.chat.settings.mode.label': 'မုဒ်',
+  'ide.chat.settings.maxLoops.label': 'ကိရိယာထပ်ခါအမြင့်ဆုံး',
+  'ide.chat.settings.autoFix.label': 'အလိုအလျောက်ပြင်ဆင်',
+  'ide.chat.settings.autoCommit.label': 'အလိုအလျောက် commit',
+  'ide.chat.settings.hooks.label': 'ဟက်များ',
+  'ide.chat.settings.autoApproveCommands.label': 'Command များကို အလိုအလျောက်အတည်ပြု',
+  'ide.chat.settings.sounds.label': 'အသိပေးသံများ',
+  'ide.chat.settings.timestamps.label': 'အချိန်အမှတ်အသားများ',
+  'ide.chat.settings.model.desc':
+    'mode အထူးပြုမော်ဒယ် မသတ်မှတ်ရှိသောအခါ {{agentName}} က အသုံးပြုသော မော်ဒယ်။',
+  'ide.chat.settings.planModel.desc':
+    'plan mode တွင် အသုံးပြုသော မော်ဒယ်။ မသတ်မှတ်ရှိပါက မူလမော်ဒယ်သို့ ပြန်သွားသည်။',
+  'ide.chat.settings.executeModel.desc':
+    'execute mode တွင် အသုံးပြုသော မော်ဒယ်။ မသတ်မှတ်ရှိပါက မူလမော်ဒယ်သို့ ပြန်သွားသည်။',
+  'ide.chat.settings.commitModel.desc':
+    'commit စာများရေးသားသော မော်ဒယ်။ မသတ်မှတ်ရှိပါက မြန်ဆန်သော မူလသို့ ပြန်သွားသည်။',
+  'ide.chat.settings.compactModel.desc':
+    'စကားဝိုင်းသည် အကြောင်းအရာနယ်နိမိတ်နားသို့ ရောက်လာသည့်အခါ မူလစာများကို အနှစ်ချုပ်သော မော်ဒယ်။ မသတ်မှတ်ရှိပါက မြန်ဆန်သော မူလသို့ ပြန်သွားသည်။',
+  'ide.chat.settings.mode.desc':
+    'plan mode သည် ဖိုင်များကို မပြင်ဆင်ဘဲ စစ်ဆေးပြီး အကြံပြုသည်; execute mode သည် ကုဒ်ရေးသည်။',
+  'ide.chat.settings.maxLoops.desc':
+    'သင့်အတွက် ရပ်တန့်မတိုင်မီ {{agentName}} တစ်လှည့်တွင် ပြုလုပ်သော ကိရိယာခေါ်ဆိုမှုအမြင့်ဆုံးကန့်သတ်ချက်။',
+  'ide.chat.settings.autoFix.desc':
+    'AI ပြင်ဆင်မှုများပြီးနောက် type-check နှင့် linter ကို ထပ်မံပြေးပြီး အမှားများကို ပြန်ပေးပါ သို့မဟုတ် {{agentName}} မှ ပြင်ဆင်ပါလိမ့်မည်။',
+  'ide.chat.settings.autoCommit.desc':
+    'နောက်ဆုံးဖိုင်ပြောင်းလဲမှုမှ သတ်မှတ်စက္ကန့်အကြာ သင့်အလုပ်ကို အလိုအလျောက် commit လုပ်သည် — မူလအားဖြင့်ဖွင့်ထားသည် (5 စက္; 0 = ပိတ်)၊ မ.commit မလုပ်မီ {{agentName}} ၏ အလှည့်ပြီးစီးမှုကို စောင့်သည်။ ပြောင်းလဲမှုတိုင်း ရေတွက်ချက်ကို ပြန်စသည်၊ ပြီးလျှင် commit ပြီးနောက် ရပ်နားသည်၊ သန့်ရှင်းသော tree ကို ဒုတိယအကြိမ် commit မလုပ်စေရန်။',
+  'ide.chat.settings.hooks.desc':
+    'ကိရိယာလုပ်ဆောင်ချက်များမတိုင်မီ လည်ပတ်သော shell command များဖြစ်ပြီး တားဆီးနိုင်သည် — ဥပမာ {{agentName}} မှ ဖိုင်ကို အစားထိုးမတိုင်မီ ပြောင်းလဲမှုအစပြုကြည့်ခြင်း။ သင့်ပရောဂျက်၏ agent ဆက်တင်ဖိုင်တွင် ပြင်ဆင်ပါ။',
+  'ide.chat.settings.autoApproveCommands.desc':
+    '{{agentName}} မှ ကြီးမား/ဖျက်ဆီးသော command ပြေးမတိုင်မီ “ဆက်လက်?” အတည်ပြုချက်ကို ကျော်ပါ (hard reset, ထပ်ခါထပ်ခါဖျက်, နေရာတွင် ပြင်ဆင်)။ Full access ဖွင့်ထားခြင်းမရှိလျှင် နက်ဝွတ်ချိတ်ဆက်မှုသည် ပရောဂျက်ခွင့်ပြုစာရင်းကို လိုက်နာဆဲဖြစ်သည်။',
+  'ide.chat.settings.sounds.desc':
+    'တုံ့ပြန်ချက်၊ အမှား၊ ဖိုင်ပြောင်းလဲမှုနှင့် အခြားအတွက် ဖြစ်စဉ်အလိုက် အသိပေးသံများ။',
+  'ide.chat.settings.timestamps.desc':
+    'ချက်စာပို့နှင့် ဖြစ်ရပ်တိုင်းပေါ်တွင် အချိန်ကို ပြပါ။ မူလအားဖြင့်ပိတ်ထားသည်; သင့်ကိုယ်ပိုင်စာပို့များနှင့် အရေးကြီးဖြစ်ရပ်များက အမြဲပြသည်။ ဤစက်ပေါ်တွင်သာ။',
+  'ide.chat.settings.effort.desc':
+    '{{agentName}} မည်မျှစွမ်းအားဖြင့်တွေးသည်ကို mode တစ်ခုချင်းစီ၏ မော်ဒယ်မူလအဆင့်များဖြင့် သတ်မှတ်သည် (ဥပမာ high/xhigh); agent ကွင်းဆက်ဘတ်ဂျက်ကိုလည်း ချဲ့ထွင်သည်။',
+  'ide.chat.share.role.viewer': 'ကြည့်ရှုသူ — ကြည့်ရှုသာ',
+  'ide.chat.share.role.commenter': 'မှတ်ချက်ပေးသူ — ကြည့်ရှုခြင်းနှင့် မှတ်ချက်ပေးခြင်း',
+  'ide.chat.share.role.editor': 'တည်းဖြတ်သူ — ကြည့်ရှုခြင်းနှင့် တည်းဖြတ်ခြင်း',
+  'ide.chat.share.role.owner': 'ပိုင်ရှင် — အပြည့်အဝ ဝင်ရောက်ခွင့်',
+  'ide.chat.share.grants.viewer': 'ဤလင့်ခ်ရှိသူမည်သူမဆို {{role}} အဖြစ် ဆောင်ရွက်နိုင်သည်။',
+  'ide.chat.share.grants.commenter': 'ဤလင့်ခ်ရှိသူမည်သူမဆို {{role}} အဖြစ် ဆောင်ရွက်နိုင်သည်။',
+  'ide.chat.share.grants.editor': 'ဤလင့်ခ်ရှိသူမည်သူမဆို {{role}} အဖြစ် ဆောင်ရွက်နိုင်သည်။',
+  'ide.chat.share.grants.owner': 'ဤလင့်ခ်ရှိသူမည်သူမဆို {{role}} အဖြစ် ဆောင်ရွက်နိုင်သည်။',
+  'ide.chat.share.subheading.viewer':
+    'အမျိုးသားလင့်ခ် တည်ဆောက်ပါ။ လင့်ခ်ရှိသူမည်သူမဆို {{role}} အဖြစ် ဆောင်ရွက်နိုင်သည်။',
+  'ide.chat.share.subheading.commenter':
+    'အမျိုးသားလင့်ခ် တည်ဆောက်ပါ။ လင့်ခ်ရှိသူမည်သူမဆို {{role}} အဖြစ် ဆောင်ရွက်နိုင်သည်။',
+  'ide.chat.share.subheading.editor':
+    'အမျိုးသားလင့်ခ် တည်ဆောက်ပါ။ လင့်ခ်ရှိသူမည်သူမဆို {{role}} အဖြစ် ဆောင်ရွက်နိုင်သည်။',
+  'ide.chat.share.subheading.owner':
+    'အမျိုးသားလင့်ခ် တည်ဆောက်ပါ။ လင့်ခ်ရှိသူမည်သူမဆို {{role}} အဖြစ် ဆောင်ရွက်နိုင်သည်။',
 }

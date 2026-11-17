@@ -1,0 +1,2179 @@
+/**
+ * The live preview panel's behaviour, written once for every framework: server polling, stuck-load
+ * recovery, the `molecule:*` postMessage bridge, the health check, the freeze watchdog, the blank
+ * notice, wake patience, back/forward and the AI `uiCommand` relay.
+ *
+ * {@link usePreviewPanelLogic} is that behaviour as one hook-shaped function. It takes the four
+ * primitive hooks it needs ({@link PrimitiveHooks}) instead of importing a framework: the React
+ * panel passes React's own `useState`/`useRef`/`useEffect`/`useCallback`, so React runs exactly the
+ * code it always ran; the Vue, Svelte, Solid and Angular panels run the same function through
+ * `createPreviewPanelSession`, which supplies those hooks itself and exposes the result as a
+ * store (`getState`/`subscribe`). The panel's timing rules (which effect re-arms on what, what a
+ * render-time reset guarantees) are therefore defined in one place, and a port cannot drift from
+ * them.
+ *
+ * @module
+ */
+
+import type { DeviceFrame, PreviewState } from '@molecule/app-live-preview'
+import { withCacheBuster } from '@molecule/app-live-preview'
+import { get as storageGet, set as storageSet } from '@molecule/app-storage'
+
+import type {
+  PreviewRenderState,
+  PreviewStuckReport,
+  PreviewUiCommand,
+  PreviewUiResult,
+} from '../types.js'
+import { type DeviceOrientation, isDeviceRotatable } from './device-cycle.js'
+import type { PrimitiveHooks } from './headless-hooks.js'
+
+/**
+ * Storage key for the persisted preview orientation. The orientation is a global,
+ * cross-device preview preference (it applies to every rotatable device and
+ * survives reloads), persisted via the bonded `@molecule/app-storage` provider.
+ */
+const ORIENTATION_STORAGE_KEY = 'molecule.ide.preview.orientation'
+
+// --- Polling constants (exponential backoff, never gives up) ---
+
+/** Initial poll interval when waiting for the server. */
+const POLL_INITIAL_MS = 500
+
+/**
+ * How long the FIRST-mount server-up poll may run without the server answering
+ * before the panel surfaces the actionable "Preview can't load here" notice
+ * (ms). The poll itself keeps running underneath — the notice self-clears the
+ * moment a poll succeeds and mounts the iframe — so this is honesty, not a
+ * give-up: it hands the user Reload / Open-in-new-tab instead of an unbounded
+ * spinner. Before this existed the pre-mount poll was the one path with NO
+ * actionable escape at all: it "never gives up" by design, and the absolute
+ * ceiling that should have backstopped it fired once, stood down inside the
+ * wake window, and never re-checked — a viewer's fresh page load against a
+ * never-answering preview sat on "Loading preview…" indefinitely with no modal
+ * (observed 2026-08-31). Sized past a proxy cold-start + dev-server relaunch so
+ * a normal slow boot still resolves silently.
+ */
+const PREMOUNT_GIVEUP_MS = 45_000
+
+/** Re-check gap for the absolute readiness ceiling when it stands down for a benign hold (ms). */
+const ABSOLUTE_STUCK_RECHECK_MS = 10_000
+/** Maximum poll interval after backoff. */
+const POLL_MAX_MS = 5000
+/** Backoff multiplier applied after each failed poll. */
+const POLL_BACKOFF_FACTOR = 2
+
+// --- Stuck-load detection constants ---
+
+/**
+ * Base time to wait for the load to make progress after the iframe src is set
+ * before attempting recovery (ms). Raised from the old 5s — a cold/slow first
+ * Vite load after an idle (or a deps-cache wipe) routinely takes longer than 5s,
+ * and remounting mid-load (with a cache-buster that defeats Vite's transform
+ * cache) only made the next load slower. Recovery now also requires that the
+ * document has NOT loaded (see the stuck-detection effect), so a progressing-but-
+ * slow load is never interrupted.
+ *
+ * Raised again 8s → 15s: behind a preview proxy (e.g. a `*.mlcl.dev` edge that
+ * fronts a Fly Machine which Fly cold-starts on the first request), the initial
+ * load holds for the machine boot + dev-server start before the document even
+ * arrives — routinely longer than 8s. Remounting during that hold only restarts
+ * the clock and slows the boot.
+ */
+const STUCK_DETECT_MS = 15_000
+/** Exponential back-off applied to STUCK_DETECT_MS between recovery attempts. */
+const STUCK_BACKOFF_FACTOR = 1.6
+/**
+ * Max recovery cycles (reload + remount) before giving up. After this cap the
+ * panel STOPS retrying and shows a themed loop-breaker (Reload + Open in new tab)
+ * instead of remounting indefinitely — the old `longRetry()` looped forever.
+ */
+export const MAX_RECOVERY_CYCLES = 3
+
+/**
+ * Max probe-driven automatic recoveries per dead-end episode. Every actionable
+ * notice ("Preview can't load here", "the preview is blank") used to be a true
+ * dead end: all in-budget retries had already run, and only a human clicking
+ * Reload could try again. But the server those retries ran against may simply
+ * not be up YET — an E2B resume of a long-paused sandbox pulls its snapshot
+ * from cold storage and can take minutes, outliving wake patience AND every
+ * retry budget (observed 2026-08-31: a 24h-asleep sandbox woke fine, but the
+ * panel had given up and a manual "Reload preview" was needed — which worked,
+ * because by then the server was serving). So while a dead-end notice is up
+ * over a DEAD document, the panel keeps probing the preview URL and, the
+ * moment the server answers, runs exactly the manual-retry path itself. This
+ * cap bounds that per episode so a server that answers probes but serves a
+ * broken app cannot ping-pong give-up → auto-retry forever; a confirmed render
+ * (or a human retry) resets the budget.
+ */
+const MAX_DEAD_END_AUTO_RECOVERS = 3
+
+// --- Backend-restart escalation (see PreviewPanelProps.onRestartBackend) ---
+
+/**
+ * How long the app may sit with NO confirmed render before the panel may escalate
+ * to a backend dev-server restart (ms). Deliberately generous: it must outlast a
+ * heavy cold compile, wake patience, and multiple dead-end reload attempts, so a
+ * restart is only ever the answer when reloading has already been tried against a
+ * SERVING host and provably changed nothing (the poisoned-module-cache class —
+ * a document reload reuses the dev server's immutable `?v=` module URLs, so only
+ * a server restart, which mints a new version hash, can clear it).
+ */
+const BACKEND_RESTART_AFTER_MS = 180_000
+/** Cooldown between backend-restart escalations (ms) — one restart gets one full recovery cycle. */
+const BACKEND_RESTART_COOLDOWN_MS = 600_000
+/** Cadence of the escalation watchdog's cheap pre-checks (ms). */
+const BACKEND_RESTART_CHECK_MS = 10_000
+
+/**
+ * Absolute upper bound (ms) on how long the preview may sit on the loading overlay
+ * without ever CONFIRMING a render (`molecule:ready`), while not mid-build. A pure
+ * BACKSTOP: the targeted paths (onLoad grace, stuck-detection, blank-post-build) each
+ * resolve a specific failure faster, but a *combination* can still leave the overlay up
+ * forever — e.g. the document fired `onLoad` (so stuck-detection stands down) yet a
+ * crash/HMR-error storm keeps suppressing the onLoad grace, so `iframeReady` never flips
+ * and blank-post-build (which requires it) never fires. Past this ceiling the panel gives
+ * up to the actionable loop-breaker (Reload / open in tab) so the preview can NEVER be
+ * stuck on a spinner indefinitely. Self-correcting: a real render that lands later clears
+ * the loop-breaker (see the confirm effect), so an over-eager trip is harmless.
+ */
+const ABSOLUTE_STUCK_MS = 30_000
+
+/**
+ * How long a document may stay LOADED (onLoad fired) without confirming a render before
+ * we attempt a single auto-reload (ms). Targets the stale-document case: a Vite "server
+ * restarted" (or any dev-server bounce) drops every client's HMR connection mid-load, so
+ * an iframe that loaded just before the restart is left disconnected and never renders —
+ * recovered today only by a MANUAL reload. The post-ready health check never runs here
+ * (it requires a render first), and stuck-detection stands down once onLoad fired.
+ */
+const LOAD_RECOVER_AFTER_MS = 12_000
+/** Max auto-reloads of a loaded-but-unrendered document per load (then defer to the ceiling). */
+const MAX_LOAD_RECOVERS = 2
+
+// --- onLoad grace fallback ---
+
+/**
+ * After the iframe document fires `onLoad`, how long to wait for `molecule:ready`
+ * before treating the load as good anyway (ms). The handshake is the fast path;
+ * this is the safety net for a working app whose ready was dropped/suppressed.
+ */
+const ONLOAD_GRACE_MS = 2_500
+
+/**
+ * When a new document fires `onLoad`, how recently a `molecule:ready` must have arrived for the
+ * load to count as already-confirmed-rendered (ms). A working full-reload mounts React (→ ready)
+ * just before the load event, so its ready lands inside this window and confirmedContent is kept
+ * (no overlay flash). A reload that produced a blank app sends no ready, so the last ready is
+ * older than this → confirmedContent drops and the overlay re-covers the white iframe.
+ */
+const READY_FRESH_MS = 1_500
+
+// --- Last-good-frame snapshot (molecule:snapshot trust boundary) ---
+
+/**
+ * Bounds on a viewport an inbound `molecule:viewport` may request. A spec
+ * drives this, so it is clamped rather than trusted: below the lower bound the
+ * frame is unusable, and above the upper one it would escape the panel.
+ */
+const MIN_REQUESTED_PX = 120
+/** Upper bound of the same clamp — see {@link MIN_REQUESTED_PX}. */
+const MAX_REQUESTED_PX = 4000
+
+/**
+ * Max accepted size of an inbound `molecule:snapshot` data-URL (chars). The
+ * sandbox sender downscales + JPEG-compresses, so a legitimate frame is well
+ * under this; the cap defends the postMessage trust boundary against an oversized
+ * payload bloating React state.
+ */
+const MAX_SNAPSHOT_DATA_URL_LENGTH = 4_000_000
+
+// --- Freeze watchdog constants ---
+
+/**
+ * Heartbeat gap beyond which the preview's main thread is treated as frozen (ms).
+ * The scaffold posts `molecule:heartbeat` every ~3s; this tolerates two missed
+ * beats plus jitter before declaring a freeze, so brief synchronous work (a heavy
+ * one-off render) doesn't trip it.
+ */
+const FREEZE_THRESHOLD_MS = 8_000
+/** How often the watchdog compares `now` against the last heartbeat (ms). */
+const FREEZE_CHECK_INTERVAL_MS = 2_000
+
+/**
+ * Window within which an identical runtime-error signature (message+source+line+column)
+ * is treated as a duplicate and dropped before forwarding (ms). Both the centralized
+ * runtime bridge AND a template's baked sender can report the SAME uncaught error, and
+ * a render-looping app re-throws it continuously — de-duping by signature keeps one
+ * fault from flooding the agent with the same message over and over.
+ */
+const ERROR_DEDUP_WINDOW_MS = 4_000
+
+/**
+ * How long an ALREADY-rendered app that RELOADED to blank may stay loaded-but-unconfirmed
+ * (document loaded, no fresh `molecule:ready`) before the overlay's copy switches to the
+ * actionable "preview is blank — reload" notice (ms). This short window is ONLY used once the
+ * app has rendered at least once this session (`hasEverRendered`) — i.e. it WAS working and an
+ * edit reloaded it to blank — so a real regression surfaces quickly. It is NEVER used to accuse
+ * a first-cold-boot app that simply hasn't finished starting (see COLD_BOOT_PATIENCE_MS).
+ */
+const BLANK_CONFIRM_MS = 2_500
+
+/**
+ * How long a reported link-click intent stays valid for the document load that follows it.
+ * A click that never turns into a load (the SPA router handled it, the server was slow) must
+ * not certify some later, unrelated blank reload.
+ */
+const RAW_DOC_INTENT_MS = 30_000
+
+/**
+ * Extensions the browser shows with its own viewer rather than running an app: a feed, a
+ * provenance map, an llms.txt. Such a document carries no bridge, so it can never post
+ * `molecule:ready` — the silence is the document, not a blank app.
+ */
+const RAW_DOCUMENT_EXTENSIONS = new Set([
+  'json',
+  'xml',
+  'rss',
+  'atom',
+  'txt',
+  'md',
+  'markdown',
+  'csv',
+  'tsv',
+  'yaml',
+  'yml',
+  'svg',
+  'pdf',
+  'webmanifest',
+  'ics',
+  'log',
+])
+
+/**
+ * Whether a URL points at a raw document (see {@link RAW_DOCUMENT_EXTENSIONS}) rather than
+ * an app page. Decided from the path's extension alone — the panel cannot read a
+ * cross-origin frame's content type.
+ *
+ * @param url - The absolute URL the preview is navigating to.
+ * @returns `true` when the browser will show the document itself, with no bridge.
+ */
+export function isRawDocumentUrl(url: string): boolean {
+  let pathname: string
+  try {
+    pathname = new URL(url).pathname
+  } catch (_error) {
+    // Not a URL at all — then it is not a raw document either.
+    return false
+  }
+  const last = pathname.split('/').pop() ?? ''
+  const dot = last.lastIndexOf('.')
+  if (dot <= 0) return false
+  return RAW_DOCUMENT_EXTENSIONS.has(last.slice(dot + 1).toLowerCase())
+}
+
+/**
+ * For a NEVER-yet-rendered document, how long with NO liveness (no `molecule:heartbeat` for
+ * FREEZE_THRESHOLD_MS) before surfacing the actionable notice (ms). The scaffold's preview
+ * bridge is an INLINE script in `index.html`, so it runs (and starts heartbeating) the moment
+ * the HTML parses — even before the app's modules compile. So a loaded document that is NOT
+ * heartbeating at all means its inline bridge never ran: a broken/error page (or JS disabled),
+ * i.e. a genuine failure, not a cold boot in progress. The settle lets the first ~3s heartbeat
+ * arrive before we judge liveness.
+ *
+ * Raised 4s → 15s: behind a preview proxy fronting a Fly Machine, the first
+ * request COLD-STARTS the machine, and until the real app is served the proxy
+ * legitimately answers a bridge-less "starting"/transient page that never
+ * heartbeats — for as long as the cold-start takes (well past 4s). Accusing at 4s
+ * false-fired "The app loaded but didn't render anything" over a preview that was
+ * simply still booting. 15s clears a genuine bridge-less error page while giving a
+ * proxy cold-start room to serve the real (heartbeating) document; a still-dead
+ * doc is also auto-reloaded at LOAD_RECOVER_AFTER_MS and ceilinged at
+ * COLD_BOOT_PATIENCE_MS.
+ */
+const BLANK_DEAD_MS = 15_000
+
+/**
+ * Absolute patience (ms) for a first-cold-boot app that IS alive (heartbeating) but has not yet
+ * confirmed a render (`molecule:ready`). A cold Vite dev server on a fresh project legitimately
+ * takes many seconds to pre-bundle deps + compile the app before React mounts; during that whole
+ * window the honest "Starting your app…" overlay stays up and we must NOT accuse it of being
+ * blank or "unable to load" — that false accusation (with its "Open in new tab" button) was the
+ * whole "fresh project preview won't load until I open it in a new tab and refresh the IDE" bug.
+ * Only after this generous ceiling — alive the entire time yet still never mounted — do we treat
+ * it as genuinely stuck and surface the reload/open-in-tab notice. The scaffold's `molecule:ready`
+ * (reliable, fired the instant #root mounts) clears everything long before this on any real boot.
+ */
+const COLD_BOOT_PATIENCE_MS = 60_000
+
+/**
+ * How long after a detected wake (the preview's backing server/sandbox was just restarted) the
+ * panel stays in WAKE PATIENCE (ms). A wake is detected when the load target changes to a new
+ * preview URL — a wake always reassigns the sandbox's docker port, so a woken preview arrives on
+ * a fresh URL (the reliable signal) — or from the host's explicit `wakeAt` prop (a hint). A wake
+ * means the dev server behind the preview is restarting and cold-recompiling: the (re)loaded
+ * document legitimately shows nothing for a while — and behind a preview proxy the reload can even
+ * land on a transient error page that never runs the inline bridge. Both signatures are
+ * EXACTLY what the fast accusation windows (BLANK_CONFIRM_MS for an already-rendered app,
+ * BLANK_DEAD_MS for a bridge-less document) treat as a genuine failure — so right after a
+ * wake they false-fired a "preview is blank" notice over an app that rendered fine seconds
+ * later. During this window the panel re-enters the patient cold-boot regime (reveal on
+ * ready, honest starting status) and only the generous never-rendered ceiling may accuse.
+ * Sized to cover a fallback wake end-to-end: dev-server relaunch (~seconds) + the reload +
+ * a cold Vite recompile (up to tens of seconds). A real `molecule:ready` clears everything
+ * long before this on any healthy wake.
+ *
+ * Raised 45s → 90s for the Fly + proxy topology: a wake there is machine
+ * cold-start + dev-server relaunch + cold Vite recompile, ALL behind an extra
+ * proxy hop, and the mlcl.dev preview URL is STABLE (token-keyed), so the reliable
+ * load-target-change wake signal never fires — patience rests on the host `wakeAt`
+ * hint alone and must outlast the whole cold path. A real `molecule:ready` still
+ * clears it immediately, so the wider window only ever helps a genuinely slow boot.
+ */
+const WAKE_PATIENCE_MS = 90_000
+
+/**
+ * Duration of the overlay fade-out (ms) — kept in sync with the overlay's `transition:
+ * opacity` below. `fadingOut` is cleared on `onTransitionEnd`, but a timer matched to this
+ * is the robust fallback for when that event never fires (the overlay unmounts mid-fade,
+ * `prefers-reduced-motion` disables the transition, or a non-rendering env): a stuck
+ * `fadingOut` would pin the overlay at opacity 0 and block the post-build blank re-cover.
+ */
+const OVERLAY_FADE_MS = 500
+
+// --- Rate-limiting constants ---
+
+/** Minimum interval between acting on ready/error messages (ms). */
+const MSG_RATE_LIMIT_MS = 300
+
+/** Max ready↔error transitions before suppressing (per window). */
+const MAX_TRANSITIONS = 10
+/** Window duration for transition counting (ms). */
+const TRANSITION_WINDOW_MS = 5000
+
+/**
+ * The path a preview host may serve to report, in a form a cross-origin caller
+ * can actually READ, whether the app behind it is serving.
+ *
+ * A plain `no-cors` probe cannot tell up from down: the response is opaque, so
+ * it resolves for 200 and for an edge's "sandbox unavailable" error page alike,
+ * and the panel mounts the error page as though the app were ready — a page with
+ * no bridge in it, which can never self-heal. This path is answered by the
+ * preview edge with CORS headers, so `response.ok` is a real answer. A host that
+ * does not serve it (a plain dev server on localhost) falls back to the opaque
+ * probe below.
+ */
+const PREVIEW_STATUS_PATH = '/__mol/preview-status'
+
+/**
+ * How long one server-up probe may take before it counts as a miss (ms).
+ *
+ * This used to be 500ms, sized for a loopback dev server. Behind a preview
+ * edge the same probe is browser → edge → proxy → token resolve → a HEAD at
+ * the sandbox upstream, measured live at 250–470ms from a healthy app — so at
+ * 500ms a healthy preview tripped it every few polls, and each trip was a
+ * cache-busted iframe reload ("the preview keeps reloading with nobody touching
+ * it", 2026-08-18). Probes are sequential (never stacked), so a generous bound
+ * costs nothing while the app is up and only delays the down verdict slightly.
+ */
+const PROBE_TIMEOUT_MS = 5_000
+
+/**
+ * Consecutive failed probes before the steady-state health check treats the app
+ * as down (and reloads it once it answers again). One miss is noise — a slow edge
+ * hop, an aborted fetch on a tab switch — and a single miss used to force a full
+ * reload. Mirrors the server-side stream's PREVIEW_HEALTH_DOWN_CONFIRM.
+ */
+const HEALTH_DOWN_CONFIRM = 2
+
+/** Gap (ms) between the END of one steady-state health probe and the next. */
+const HEALTH_POLL_MS = 3_000
+
+/**
+ * Check whether the server at `url` is accepting connections.
+ *
+ * Asks {@link PREVIEW_STATUS_PATH} first, because that answer is readable; only
+ * a host that does not implement it falls back to the opaque `no-cors` probe,
+ * where "it responded at all" is the best available signal.
+ *
+ * Aborts after {@link PROBE_TIMEOUT_MS}. Every caller runs its probes one at a
+ * time (the next is scheduled only after the previous settles), so a slow probe
+ * never stacks up connections against the iframe. An optional `externalSignal`
+ * lets the caller abort the in-flight request on cleanup (e.g. when a poll chain
+ * is superseded), so a unmounting/restarting panel never leaves a fetch dangling.
+ * @param url - The URL to check.
+ * @param externalSignal - Optional signal; aborting it aborts this probe.
+ * @returns Whether the server responded within the timeout.
+ */
+async function isServerUp(url: string, externalSignal?: AbortSignal): Promise<boolean> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS)
+  const onExternalAbort = (): void => controller.abort()
+  if (externalSignal) {
+    if (externalSignal.aborted) controller.abort()
+    else externalSignal.addEventListener('abort', onExternalAbort)
+  }
+  try {
+    try {
+      const statusUrl = new URL(PREVIEW_STATUS_PATH, url).toString()
+      const status = await fetch(statusUrl, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-store',
+        signal: controller.signal,
+      })
+      // A host that serves this path has told us the truth either way.
+      if (status.status !== 404) return status.ok
+    } catch (_error) {
+      // No CORS status endpoint here (or it was blocked) — fall through to the
+      // opaque probe rather than reporting a healthy app as down.
+    }
+    if (controller.signal.aborted) return false
+    await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal })
+    return true
+  } catch (_error) {
+    // Fetch failure (or an abort) means the server is not usable right now —
+    // expected during polling / on cancellation. `false` is the correct result.
+    return false
+  } finally {
+    clearTimeout(timeout)
+    if (externalSignal) externalSignal.removeEventListener('abort', onExternalAbort)
+  }
+}
+
+/**
+ * The targetOrigin for an OUTBOUND postMessage into the preview iframe: the
+ * iframe's CURRENT src origin when that parses, `'*'` only when it doesn't.
+ *
+ * Why: the inbound side of this bridge is gated on window identity
+ * (`event.source === iframe.contentWindow`), but the outbound side grew six
+ * wildcard posts — commands that can drive the page (click/fill/navigate)
+ * deliverable to WHATEVER page ever ended up in this frame. Targeting the
+ * frame's current src origin pins delivery to the page the panel believes it
+ * is talking to. The fallback stays `'*'` (never break the bridge: a stranded
+ * command loop is the whole preview going dark), and an unparsable src is
+ * exactly the case where no origin is known anyway.
+ *
+ * @param iframe - The preview iframe element (may be null pre-mount).
+ * @returns The targetOrigin string for `postMessage`.
+ */
+export function previewTargetOrigin(iframe: HTMLIFrameElement | null): string {
+  const src = iframe?.getAttribute('src')
+  if (src) {
+    try {
+      return new URL(src).origin
+    } catch (_error) {
+      // Unparsable src — no known origin to target; keep the bridge alive.
+    }
+  }
+  return '*'
+}
+
+/** One runtime or pre-render error the preview forwards to the host. */
+export interface PreviewErrorReport {
+  /** The error message. */
+  message: string
+  /** Where it came from (a script URL, `pre-render`, `molecule:blank`). */
+  source?: string
+  /** 1-based line, when the sender knows it. */
+  line?: number
+  /** 1-based column, when the sender knows it. */
+  column?: number
+}
+
+/** The live-preview store's state and the actions the panel's behaviour calls on it. */
+export interface PreviewPanelPreview {
+  /** The live-preview state (load target, current location, device, history, `loadNonce`). */
+  state: PreviewState
+  /** Selects a device frame. */
+  setDevice: (device: DeviceFrame) => void
+  /** Records a navigation the previewed page reported (`isReplace` for `replaceState`). */
+  recordNavigation: (url: string, isReplace?: boolean) => void
+  /** Moves the history cursor back. */
+  back: () => void
+  /** Moves the history cursor forward. */
+  forward: () => void
+}
+
+/** The host-facing inputs of the preview panel's behaviour (every framework's panel takes these props). */
+export interface PreviewPanelLogicProps {
+  /**
+   * Called with batched errors from the preview iframe (pre-render errors, runtime errors, and a
+   * `molecule:blank` page), de-duplicated by signature.
+   */
+  onPreviewError?: (errors: PreviewErrorReport[]) => void
+  /** Called when the preview gives up loading, times out, or freezes. */
+  onPreviewStuck?: (report?: PreviewStuckReport) => void
+  /**
+   * Asked to restart the backend dev server when reloads provably cannot produce a render against
+   * a serving host. Return `false` to decline; nothing is spent and the panel may ask again later.
+   */
+  onRestartBackend?: () => Promise<boolean | void> | boolean | void
+  /** Called whenever the render verdict changes, with the preview's current location. */
+  onRenderState?: (state: PreviewRenderState, url?: string) => void
+  /** An AI-driven interaction to relay into the preview (a new `id` sends it). */
+  uiCommand?: PreviewUiCommand | null
+  /** Called with the bridge's answer to a {@link PreviewPanelLogicProps.uiCommand}. */
+  onUiResult?: (id: string, result: PreviewUiResult) => void
+  /** Bumped by the host on every file change; reloads a BROKEN preview after an edit. */
+  fileChangeTick?: number
+  /** Whether the agent is building right now. */
+  isBuilding?: boolean
+  /** When the backing preview server was last woken (ms epoch), for wake patience. */
+  wakeAt?: number
+}
+
+/** What a framework's preview panel renders from: the behaviour's state and its handlers. */
+export interface PreviewPanelLogic {
+  /** The box the view puts the preview `<iframe>` element in. */
+  iframeRef: { current: HTMLIFrameElement | null }
+  /** The global portrait/landscape preference for rotatable devices. */
+  orientation: DeviceOrientation
+  /** A viewport the previewed page asked for (`molecule:viewport`), overriding the device frame. */
+  requestedSize: { width: number; height: number } | null
+  /** Whether the selected device can rotate. */
+  canRotate: boolean
+  /** The preview's current location (the load target until the page reports one). */
+  currentLocation: string
+  /** Whether {@link PreviewPanelLogic.currentLocation} is served over https. */
+  isSecureLocation: boolean
+  /** Whether the server has ever answered for this load target. */
+  everLoaded: boolean
+  /** Whether the iframe is revealed (the ready handshake, or the onLoad grace on a reload). */
+  iframeReady: boolean
+  /** Whether the overlay is fading out. */
+  fadingOut: boolean
+  /** The iframe's `src` (empty until the server answers). */
+  iframeSrc: string
+  /** The iframe's remount key: a change mounts a fresh `<iframe>` element. */
+  iframeMountKey: number
+  /** Stuck-load recovery cycles run for this load. */
+  stuckRetryCount: number
+  /** Whether the panel stopped retrying and shows the "can't load here" notice. */
+  previewGaveUp: boolean
+  /** The last frame the app posted while it rendered fine, shown blurred while it rebuilds. */
+  lastGoodFrame: string | null
+  /** Whether the app confirmed it rendered content (`molecule:ready`). */
+  confirmedContent: boolean
+  /** Whether the overlay shows the actionable "preview is blank" notice. */
+  blankPostBuild: boolean
+  /** Whether the preview's main thread stopped heartbeating. */
+  previewFrozen: boolean
+  /** The URL bar's draft text. */
+  urlDraft: string
+  /** Whether the person is editing the URL bar. */
+  urlEditing: boolean
+  /** The single render verdict reported to the host. */
+  renderState: PreviewRenderState
+  /** Ends the overlay fade (the overlay's `transitionend`). */
+  setFadingOut: (value: boolean) => void
+  /** Sets the URL bar's draft. */
+  setUrlDraft: (value: string) => void
+  /** Marks the URL bar as being edited (focus) or not (blur). */
+  setUrlEditing: (value: boolean) => void
+  /** Selects a device frame (and drops a page-requested viewport). */
+  handleDeviceChange: (device: DeviceFrame) => void
+  /** Toggles portrait/landscape and persists it. */
+  handleRotate: () => void
+  /** The iframe's `load` event. */
+  handleIframeLoad: () => void
+  /** A person's Reload: a fresh episode with a full automatic-recovery budget. */
+  handleUserRetry: () => void
+  /** Reloads a frozen preview. */
+  handleReloadFrozen: () => void
+  /** Back: moves the history cursor and runs `history.back()` inside the preview. */
+  handleBack: () => void
+  /** Forward: moves the history cursor and runs `history.forward()` inside the preview. */
+  handleForward: () => void
+}
+
+/**
+ * The live preview panel's behaviour as one hook-shaped function (see the module docs). Call it
+ * once per render of the panel, at the top level, with the same `hooks` every time.
+ *
+ * @param hooks - The primitive hooks (React's own, or the headless session's).
+ * @param preview - The live-preview state and actions.
+ * @param props - The host's inputs.
+ * @returns The state the view renders and the handlers it wires.
+ */
+export function usePreviewPanelLogic(
+  hooks: PrimitiveHooks,
+  preview: PreviewPanelPreview,
+  props: PreviewPanelLogicProps,
+): PreviewPanelLogic {
+  const { useCallback, useEffect, useRef, useState } = hooks
+  const { state, setDevice, recordNavigation, back, forward } = preview
+  const {
+    onPreviewError,
+    onPreviewStuck,
+    onRestartBackend,
+    onRenderState,
+    uiCommand,
+    onUiResult,
+    fileChangeTick,
+    isBuilding,
+    wakeAt,
+  } = props
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+
+  // AI-driven live preview control: when the host sets a NEW `uiCommand` (keyed on `id`), relay
+  // it to the iframe's interaction bridge (`molecule:ui-command`); the bridge replies
+  // `molecule:ui-result`, handled in the message listener below → `onUiResult`. Lets Synthase
+  // drive + verify the app end-to-end in the preview the user is watching (no headless browser).
+  const lastUiCommandIdRef = useRef<string | null>(null)
+  // Ids the bridge has already answered — flipped by the message listener below so the retry
+  // loop stops. A ref (not state) so the interval sees the latest value without re-subscribing.
+  const uiResolvedRef = useRef<Set<string>>(new Set())
+  // The current unresolved command payload + its deadline, for EVENT-DRIVEN re-posts from the
+  // message listener (on the bridge's ready/heartbeat frames). In a hidden/backgrounded tab
+  // the retry interval below is throttled — Chrome's intensive throttling runs ONE tick per
+  // MINUTE — so a command posted while an iframe was mid-reload would never be re-sent in
+  // time; message events are NOT throttled, so the incoming bridge frames carry the retry.
+  const pendingUiPostRef = useRef<{ payload: Record<string, unknown>; deadline: number } | null>(
+    null,
+  )
+  useEffect(() => {
+    if (!uiCommand || uiCommand.id === lastUiCommandIdRef.current) return
+    lastUiCommandIdRef.current = uiCommand.id
+    const cmdId = uiCommand.id
+    const payload = {
+      type: 'molecule:ui-command',
+      id: cmdId,
+      action: uiCommand.action,
+      molId: uiCommand.molId,
+      selector: uiCommand.selector,
+      text: uiCommand.text,
+      value: uiCommand.value,
+      // Navigation only: only a document that loaded at or after this may answer, so the
+      // OUTGOING page can't reply with a pre-navigation snapshot.
+      minLoadedAt: uiCommand.minLoadedAt,
+    }
+    // Post repeatedly until the bridge replies (or ~40s, under the navigate tool's 45s wait). A
+    // single post races iframe/bridge readiness: the preview may be mid-mount (the view just
+    // switched to it) or mid-reload (navigate_preview reloads the iframe), so the first postMessage
+    // is silently dropped. The bridge dedups by command id, so re-sending a click/fill still
+    // executes it once. The window must outlast a slow dev server's COLD ROUTE COMPILE — a first
+    // hit to a Next.js/Nuxt/SvelteKit route commonly takes 10-30s (and an auth redirect compiles a
+    // SECOND route), so a 12s window timed out navigate_preview on every imported meta-framework app.
+    const post = (): void => {
+      iframeRef.current?.contentWindow?.postMessage(payload, previewTargetOrigin(iframeRef.current))
+    }
+    post()
+    const deadline = Date.now() + 40_000
+    pendingUiPostRef.current = { payload, deadline }
+    const interval = window.setInterval(() => {
+      if (uiResolvedRef.current.has(cmdId) || Date.now() > deadline) {
+        window.clearInterval(interval)
+        uiResolvedRef.current.delete(cmdId)
+        if (pendingUiPostRef.current?.payload.id === cmdId) pendingUiPostRef.current = null
+        return
+      }
+      post()
+    }, 350)
+    return () => window.clearInterval(interval)
+  }, [uiCommand])
+
+  // Preview-only iframe orientation (portrait ⇄ landscape) for fixed-frame
+  // devices. A purely visual preview concern, so it lives here rather than in the
+  // live-preview core state — but it is GLOBAL (one orientation for every
+  // rotatable device, never reset on a device switch) and PERSISTED across reloads
+  // via the bonded storage provider, so a chosen landscape carries everywhere.
+  const [orientation, setOrientation] = useState<DeviceOrientation>('portrait')
+  // A size the PREVIEWED PAGE asked for (`molecule:viewport`, posted by an e2e run's
+  // page.setViewportSize inside the preview). Overrides the device frame until the
+  // person picks a device again or the page asks for `width: null`.
+  const [requestedSize, setRequestedSize] = useState<{ width: number; height: number } | null>(null)
+  // Restore the persisted orientation once on mount. Best-effort: if no storage
+  // provider is bonded (tests / an app that didn't wire one) it just won't persist.
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const stored = await storageGet<DeviceOrientation>(ORIENTATION_STORAGE_KEY)
+        if (mounted && (stored === 'portrait' || stored === 'landscape')) {
+          setOrientation(stored)
+        }
+      } catch (_error) {
+        // No storage provider bonded / read failed — orientation simply won't persist.
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+  // Device switching does NOT reset the orientation — it's a global preference, so
+  // a landscape choice applies to whichever rotatable device is selected next.
+  const handleDeviceChange = useCallback(
+    (device: typeof state.device) => {
+      setRequestedSize(null)
+      setDevice(device)
+    },
+    [setDevice],
+  )
+  const handleRotate = useCallback(() => {
+    const next: DeviceOrientation = orientation === 'portrait' ? 'landscape' : 'portrait'
+    setOrientation(next)
+    void storageSet(ORIENTATION_STORAGE_KEY, next).catch((_error) => {
+      // Best-effort persist — no storage provider bonded; the in-memory value still applies.
+    })
+  }, [orientation])
+  const canRotate = isDeviceRotatable(state.device)
+
+  // The preview's actual current location (updated by the scaffold's
+  // `molecule:navigate` message), falling back to the load target before the
+  // preview has reported a location.
+  const currentLocation = state.currentUrl || state.url
+
+  // Whether the current location is served over a secure (https) origin. Drives
+  // the address bar's leading site-info glyph — a lock when secure, a globe
+  // otherwise — exactly like a real browser omnibox.
+  const isSecureLocation = /^https:/i.test(currentLocation)
+
+  // Has the server ever responded successfully?
+  const [everLoaded, setEverLoaded] = useState(false)
+  // Mirror everLoaded to a ref so the message handler (which is NOT re-subscribed
+  // when everLoaded changes) reads the live value, not a stale closure.
+  const everLoadedRef = useRef(everLoaded)
+  everLoadedRef.current = everLoaded
+  // Is the iframe content ready to show?
+  const [iframeReady, setIframeReady] = useState(false)
+  // Fade-out transition in progress
+  const [fadingOut, setFadingOut] = useState(false)
+
+  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Generation token: bumped on every clearPoll so a superseded poll() chain bails
+  // on its next guard instead of re-arming — guarantees only ONE live poll chain.
+  const pollEpochRef = useRef(0)
+  // AbortController for the in-flight server-up probe, so cleanup can cancel it.
+  const pollAbortRef = useRef<AbortController | null>(null)
+  // Deadline for the first-mount poll to surface the actionable notice while it
+  // keeps polling (see PREMOUNT_GIVEUP_MS). Cleared with the poll chain.
+  const pollGiveUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const urlRef = useRef(state.url)
+  urlRef.current = state.url
+  // The preview's live location (client-side route included), read by the stuck/freeze
+  // callbacks so a failure report names the route the user is actually on, not the
+  // initial load target.
+  const currentLocationRef = useRef(currentLocation)
+  currentLocationRef.current = currentLocation
+  // De-dup ledger for forwarded runtime errors: signature → last-forwarded timestamp.
+  // Persists across message-handler re-subscriptions so a duplicate from the baked +
+  // centralized senders (or a re-throwing render loop) is dropped within the window.
+  const recentErrorSigRef = useRef<Map<string, number>>(new Map())
+  // Tracks the iframe src to force reload when server recovers
+  const [iframeSrc, setIframeSrc] = useState('')
+
+  // --- Stuck-load detection state ---
+  const [stuckRetryCount, setStuckRetryCount] = useState(0)
+  const stuckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [iframeMountKey, setIframeMountKey] = useState(0)
+  // Auto-reloads attempted for a loaded-but-unrendered document THIS load (stale-document
+  // recovery, e.g. after a Vite server restart) — bounded by MAX_LOAD_RECOVERS, reset per load.
+  const loadRecoverCountRef = useRef(0)
+  // True once the cap of recovery cycles is hit — stops the loop and shows the
+  // themed "Preview can't load here" panel (loop breaker) instead of thrashing.
+  const [previewGaveUp, setPreviewGaveUp] = useState(false)
+  // Probe-driven automatic recoveries fired this dead-end episode (see
+  // MAX_DEAD_END_AUTO_RECOVERS) — reset on a confirmed render or a manual retry.
+  const deadEndAutoRecoversRef = useRef(0)
+  // --- Backend-restart escalation state (see the escalation watchdog effect) ---
+  // When the current "no confirmed render" stretch began. Pushed forward by any
+  // confirm-state change, a new load target, and a wake — so the escalation clock
+  // only measures genuinely-stuck time, never healthy time or granted patience.
+  const notConfirmedSinceRef = useRef(Date.now())
+  // One escalation per broken episode; re-armed only by a confirmed render.
+  const backendRestartUsedRef = useRef(false)
+  const lastBackendRestartAtRef = useRef(0)
+  // Mirror iframeReady to a ref so timer callbacks read current value
+  const iframeReadyRef = useRef(iframeReady)
+  iframeReadyRef.current = iframeReady
+  // Whether the CURRENT iframe document has fired `onLoad`. When it has, the load
+  // reached the document and only the handshake is missing — the onLoad grace
+  // fallback (not a remount) clears the overlay, so the stuck-detector stands down.
+  const iframeLoadedRef = useRef(false)
+  // Pending onLoad grace timer (cleared on a new load / unmount).
+  const onLoadGraceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Timestamp of the last crash message — the onLoad fallback refuses to mask a
+  // load that just crashed (a crash within the grace window suppresses it).
+  const lastCrashAtRef = useRef(0)
+
+  // --- Last-good-frame (molecule:snapshot) ---
+  // The most recent rasterized frame the sandbox app posted while it was rendering
+  // fine. Shown BLURRED behind the overlay while the app is rebuilding or blank,
+  // so the user sees the last working UI instead of a white iframe.
+  const [lastGoodFrame, setLastGoodFrame] = useState<string | null>(null)
+
+  // --- Content confirmation ---
+  // `iframeReady` only means the iframe was REVEALED (handshake OR the onLoad grace
+  // fallback) — it is true even for a blank/white app the grace path optimistically
+  // unmasked. `confirmedContent` is the stronger signal: the app actually reported it
+  // rendered visible content (molecule:ready, which a healthy app re-sends ~every 4s).
+  // The overlay keeps a status up until content is confirmed, so a half-built / blank /
+  // white iframe never shows as a bare white screen. Reset on a crash/blank/new load.
+  const [confirmedContent, setConfirmedContent] = useState(false)
+  const confirmedContentRef = useRef(false)
+  confirmedContentRef.current = confirmedContent
+  // Timestamp of the last molecule:ready. When a NEW document loads (initial load, or a Vite
+  // full-reload that an edit triggers), we keep confirmedContent only if a ready landed in the
+  // moment before — otherwise the (re)loaded document has NOT shown content for THIS load and
+  // confirmedContent is dropped so the overlay re-covers a blank reload. This is what catches
+  // "the app rendered, then a reload left it blank."
+  const lastReadyAtRef = useRef(0)
+  // Settle-gated post-build blank: the build is not running, the document loaded, yet no content
+  // was ever confirmed — the app rendered nothing. Switches the overlay's copy to an ACTIONABLE
+  // notice (reload / open in tab) instead of the generic spinner.
+  const [blankPostBuild, setBlankPostBuild] = useState(false)
+  // Mirror blankPostBuild to a ref so the absolute-ceiling timer can tell "still on a
+  // bare spinner" (fire) from "already showing the actionable blank notice" (a way out
+  // exists — stand down).
+  const blankPostBuildRef = useRef(blankPostBuild)
+  blankPostBuildRef.current = blankPostBuild
+  // Mirror isBuilding into a ref so timers/handlers read the current value.
+  const isBuildingRef = useRef(isBuilding)
+  isBuildingRef.current = isBuilding
+
+  // Has the app at the CURRENT load target confirmed a render (`molecule:ready`) at least once
+  // this session? Set on the first ready, reset only on a genuinely NEW load target (url /
+  // loadNonce change), NOT on a plain Vite HMR full-reload of the same src. It is the switch
+  // between two regimes: a NEVER-yet-rendered app is treated as a patient cold boot (reveal only
+  // on ready, honest "Starting…" status, no false "blank"/"can't load"); an app that HAS rendered
+  // and then reloaded blank is a real regression (short blank-confirm window, fast onLoad-grace
+  // reveal). Conflating the two is what surfaced a false "blank" over a still-compiling fresh app.
+  const hasEverRenderedRef = useRef(false)
+  // Timestamp of the current document's last `onLoad` (0 = not loaded this target). Drives the
+  // elapsed-since-load math in the cold-boot evaluator without racing a stale closure.
+  const lastLoadAtRef = useRef(0)
+  // The raw document a link click inside the preview is about to load (reported by the bridge
+  // as a `molecule:navigate` intent, see {@link isRawDocumentUrl}), until its `onLoad` consumes
+  // it. That load is content by definition: the browser's own viewer, no bridge, no ready.
+  const rawDocIntentRef = useRef<{ url: string; at: number } | null>(null)
+  // Bumped on every iframe `onLoad` so the cold-boot evaluator effect re-runs when a fresh
+  // document loads (the reveal no longer flips `iframeReady` on the grace during a cold boot, so
+  // that flag can't be the trigger anymore).
+  const [docLoadedTick, setDocLoadedTick] = useState(0)
+
+  // --- Wake patience (see WAKE_PATIENCE_MS) ---
+  // Mirror the wakeAt prop into a ref so interval/timeout callbacks (the blank evaluator,
+  // the absolute ceiling) read the live value without re-subscribing.
+  const wakeAtRef = useRef(wakeAt ?? 0)
+  wakeAtRef.current = wakeAt ?? 0
+  // THE reliable, self-contained wake signal: the load target (`state.url`) changed to a
+  // DIFFERENT non-empty preview URL. The only thing that repoints the preview at a new URL is the
+  // sandbox's dev server being (re)started — a wake reassigns the container's docker port EVERY
+  // time (the port binding uses an empty HostPort, so Docker hands out a fresh ephemeral port on
+  // each start), so a woken preview always arrives on a new `http://127.0.0.1:<newport>` URL.
+  // In-app navigation never changes `state.url` (it moves `currentUrl` via recordNavigation), so
+  // a change here is unambiguously "the preview server just restarted." This is far more reliable
+  // than the host's sandbox-status signal (stop/hibernate broadcasts are easily missed and the
+  // status can desync), so it — not the `wakeAt` prop — is the primary trigger for wake patience.
+  const prevUrlRef = useRef('')
+  const urlWakeAtRef = useRef(0)
+  if (state.url && prevUrlRef.current && state.url !== prevUrlRef.current) {
+    urlWakeAtRef.current = Date.now()
+  }
+  if (state.url) prevUrlRef.current = state.url
+  /**
+   * Whether the backing preview server was woken/restarted recently enough to owe patience —
+   * true within WAKE_PATIENCE_MS of EITHER a load-target change (the reliable signal) OR the
+   * host's explicit `wakeAt` prop (a secondary hint).
+   */
+  const inWakeWindow = useCallback((): boolean => {
+    const wokeAt = Math.max(wakeAtRef.current, urlWakeAtRef.current)
+    return wokeAt > 0 && Date.now() - wokeAt < WAKE_PATIENCE_MS
+  }, [])
+  // A fresh wake re-enters the patient cold-boot regime for the CURRENT load target: the
+  // restarting dev server is about to reload the document (or already did) into a state
+  // that legitimately renders nothing for a while, so the "already rendered → any reload
+  // that doesn't re-confirm fast is a regression" contract no longer holds. Dropping
+  // hasEverRendered routes everything through the proven patient paths (reveal only on
+  // `molecule:ready`, no grace-unmasking of an unconfirmed reload, no BLANK_CONFIRM_MS
+  // fast accusation); the first ready after the wake restores the normal regime. Also
+  // withdraw any already-showing accusation (it described the pre-wake world) and grant a
+  // fresh stale-document recovery budget — those auto-reloads are the recovery engine for
+  // a wake that landed on a transient bridge-less error page. Runs on mount too, so a
+  // panel that remounts right after a wake (the sleeping-screen → running flow) inherits
+  // the same patience.
+  useEffect(() => {
+    if (!wakeAt || Date.now() - wakeAt >= WAKE_PATIENCE_MS) return
+    // FIRST-BOOT RELOAD. The load-target-change wake signal can never fire on
+    // a first boot: the URL is set once — before the server answers — and
+    // never changes, so the iframe keeps the stale pre-wake document (behind
+    // the preview proxy that is its "target unavailable" error page, which has
+    // no bridge and can never self-heal). If nothing has EVER rendered on this
+    // load target, a wake means "the app is up now — the current document is
+    // provably stale": reload it cache-busted immediately. Patience alone left
+    // that error page up until the slow stuck-retry cycle (observed live:
+    // served at 13:17:36, painted at 13:19:57). An already-rendered app keeps
+    // the old behavior — patience without a disruptive reload.
+    const neverRendered = !hasEverRenderedRef.current
+    hasEverRenderedRef.current = false
+    loadRecoverCountRef.current = 0
+    setBlankPostBuild(false)
+    setPreviewGaveUp(false)
+    setStuckRetryCount(0)
+    // A wake grants a fresh escalation clock too — the relaunching server owes
+    // no restart while its own cold path plays out.
+    notConfirmedSinceRef.current = Date.now()
+    if (neverRendered && urlRef.current) {
+      setIframeSrc(withCacheBuster(urlRef.current))
+    }
+  }, [wakeAt])
+
+  // --- Heartbeat tracking ---
+  const lastHeartbeatRef = useRef<number>(0)
+  // True when heartbeats have stopped for FREEZE_THRESHOLD_MS while the app is up.
+  const [previewFrozen, setPreviewFrozen] = useState(false)
+  // Guards the freeze report so a single freeze episode notifies the host ONCE, not on
+  // every watchdog tick; reset when heartbeats resume so a later freeze re-reports.
+  const frozenReportedRef = useRef(false)
+
+  // --- Cycle detection: catch rapid ready↔error oscillations ---
+  const transitionTimesRef = useRef<number[]>([])
+  const suppressedRef = useRef(false)
+
+  // --- URL bar (browser-style: reflects the preview's CURRENT location) ---
+  // A local draft so the user can type freely; it's committed on Enter (a real
+  // load) and resynced to the live location whenever the preview navigates and
+  // the user isn't mid-edit. Editing never reloads per-keystroke.
+  const [urlDraft, setUrlDraft] = useState(currentLocation)
+  const [urlEditing, setUrlEditing] = useState(false)
+  useEffect(() => {
+    if (!urlEditing) setUrlDraft(currentLocation)
+  }, [currentLocation, urlEditing])
+
+  // --- Clear poll timer ---
+  // Also invalidates any in-flight poll chain: bumping the epoch makes a poll()
+  // that is mid-await bail on its next guard instead of re-arming a new timer, and
+  // aborting the controller releases the in-flight HEAD probe so it stops holding a
+  // per-origin connection (the leak the file's own comment warns about).
+  const clearPoll = useCallback(() => {
+    if (pollRef.current) {
+      clearTimeout(pollRef.current)
+      pollRef.current = null
+    }
+    pollEpochRef.current += 1
+    if (pollAbortRef.current) {
+      pollAbortRef.current.abort()
+      pollAbortRef.current = null
+    }
+    if (pollGiveUpTimerRef.current) {
+      clearTimeout(pollGiveUpTimerRef.current)
+      pollGiveUpTimerRef.current = null
+    }
+  }, [])
+
+  // --- Clear stuck timer ---
+  const clearStuckTimer = useCallback(() => {
+    if (stuckTimerRef.current) {
+      clearTimeout(stuckTimerRef.current)
+      stuckTimerRef.current = null
+    }
+  }, [])
+
+  // --- Poll until server is up, then mount the iframe ---
+  // Uses exponential backoff: POLL_INITIAL_MS → POLL_MAX_MS. The poll itself never
+  // stops, but past PREMOUNT_GIVEUP_MS it surfaces the actionable notice while it
+  // keeps polling — the user always has a way out (Reload / Open in new tab), and a
+  // late success still mounts + withdraws the notice by itself.
+  const startPolling = useCallback(
+    (url: string): void => {
+      // clearPoll() bumps the epoch + aborts the prior chain; capture the fresh
+      // epoch + a new AbortController so THIS chain is the only live one. Any older
+      // poll() awaiting a fetch now sees a stale epoch and bails.
+      clearPoll()
+      const epoch = pollEpochRef.current
+      const abort = new AbortController()
+      pollAbortRef.current = abort
+      setIframeReady(false)
+      setFadingOut(false)
+      setPreviewGaveUp(false)
+      // A (re)load hasn't confirmed content yet — the overlay governs until it does.
+      setConfirmedContent(false)
+      setBlankPostBuild(false)
+
+      // The poll never stops on its own, so past this deadline it surfaces the
+      // actionable notice (Reload / Open in new tab) INSTEAD of an unbounded
+      // spinner — and keeps polling underneath; a later success mounts the
+      // iframe and withdraws the notice. This was the one preview path with no
+      // escape hatch at all (see PREMOUNT_GIVEUP_MS).
+      pollGiveUpTimerRef.current = setTimeout(() => {
+        pollGiveUpTimerRef.current = null
+        if (pollEpochRef.current !== epoch) return
+        // Deliberate breadcrumb: this state means the preview host never answered a
+        // probe for the whole deadline — the console line is the forensic trail for
+        // the next live debug of a "stuck on Loading preview" report.
+        console.warn(
+          `[preview] server at ${url} has not answered for ${Math.round(PREMOUNT_GIVEUP_MS / 1000)}s — showing the reload notice, still polling`,
+        )
+        setPreviewGaveUp(true)
+      }, PREMOUNT_GIVEUP_MS)
+
+      let interval = POLL_INITIAL_MS
+      const poll = async (): Promise<void> => {
+        if (pollEpochRef.current !== epoch || urlRef.current !== url) return
+        const up = await isServerUp(url, abort.signal)
+        if (pollEpochRef.current !== epoch || urlRef.current !== url) return
+
+        if (up) {
+          if (pollGiveUpTimerRef.current) {
+            clearTimeout(pollGiveUpTimerRef.current)
+            pollGiveUpTimerRef.current = null
+          }
+          setPreviewGaveUp(false)
+          setEverLoaded(true)
+          // Atomic remount (fresh <iframe> element + src in one commit), like the
+          // proven manual-reload/navigation paths: if `setUrl` was called more than
+          // once for this load target before the server came up (e.g. a sandbox-boot
+          // host reporting its preview URL from more than one code path), an earlier
+          // poll chain may already have raced partway through mounting an iframe for
+          // this exact url before being superseded — bumping the mount key here
+          // guarantees this success always creates a genuinely fresh OOPIF rather
+          // than reusing/navigating one a superseded chain may have touched.
+          setIframeMountKey((k) => k + 1)
+          setIframeSrc(url)
+          pollRef.current = null
+        } else {
+          pollRef.current = setTimeout(poll, interval)
+          interval = Math.min(interval * POLL_BACKOFF_FACTOR, POLL_MAX_MS)
+        }
+      }
+
+      void poll()
+    },
+    [clearPoll],
+  )
+
+  // --- When URL changes, reset and start polling ---
+  useEffect(() => {
+    if (!state.url) {
+      clearPoll()
+      clearStuckTimer()
+      setEverLoaded(false)
+      setIframeReady(false)
+      setFadingOut(false)
+      setIframeSrc('')
+      setStuckRetryCount(0)
+      setPreviewGaveUp(false)
+      setLastGoodFrame(null)
+      setConfirmedContent(false)
+      setBlankPostBuild(false)
+      hasEverRenderedRef.current = false
+      lastLoadAtRef.current = 0
+      return
+    }
+
+    setStuckRetryCount(0)
+    setPreviewGaveUp(false)
+    loadRecoverCountRef.current = 0 // fresh stale-document recovery budget for this load
+    // A brand-new load target starts a fresh cold-boot regime: it has not rendered yet, so treat
+    // it patiently (reveal on ready, no premature blank/give-up) until ITS first molecule:ready.
+    hasEverRenderedRef.current = false
+    lastLoadAtRef.current = 0
+    // Fresh escalation clock for the new target.
+    notConfirmedSinceRef.current = Date.now()
+    // A new load target hasn't confirmed content yet.
+    setConfirmedContent(false)
+    setBlankPostBuild(false)
+    // A brand-new load target is a different app — drop the previous app's frame
+    // so a blank in the NEW app never flashes the OLD app's last-good frame.
+    setLastGoodFrame(null)
+
+    if (everLoadedRef.current) {
+      // NAVIGATION / refresh of an already-running preview (a chat-link route, the URL
+      // bar, Back/Forward, or a loadNonce refresh). The dev server is already up, so do an
+      // ATOMIC remount to the new target — bump the mount key (fresh <iframe> element) and
+      // set the src in ONE commit — EXACTLY like the manual-reload path (handleManualRetry),
+      // which is known to work. The OLD path blanked the live iframe (setIframeSrc('')) then
+      // re-added it after an async probe; that two-phase teardown→rebuild wedged the live
+      // sandboxed cross-origin (OOPIF) frame so the route "navigated but never loaded".
+      //
+      // CRUCIALLY use the cache-buster, like refresh does: navigating a cross-origin iframe
+      // to a URL it already treats as its CURRENT location (the app's own client-side router
+      // may have moved the iframe's location to this route already, or a bfcache entry
+      // exists) is a same-document no-op that never reloads — which is why a chat-link nav
+      // hung while the refresh button (cache-busted) worked. The `_r=<ts>` makes every nav a
+      // novel URL that forces a real document load; recordNavigation strips `_r` so the URL
+      // bar stays clean.
+      clearPoll()
+      setIframeMountKey((k) => k + 1)
+      setIframeSrc(withCacheBuster(state.url))
+    } else {
+      // COLD / first load: the dev server may still be starting, so keep the empty state
+      // and poll until it answers, then mount.
+      setEverLoaded(false)
+      setIframeSrc('')
+      startPolling(state.url)
+    }
+
+    return () => {
+      clearPoll()
+      clearStuckTimer()
+    }
+    // state.loadNonce forces a reload even when the URL string is unchanged
+    // (refresh, or back/forward to the same load target). recordNavigation does
+    // NOT bump loadNonce, so an in-app navigation updates the URL bar without
+    // reloading here.
+  }, [state.url, state.loadNonce, startPolling, clearPoll, clearStuckTimer])
+
+  // --- A new document is loading → reset per-load onLoad tracking ---
+  // Whenever the iframe gets a fresh src or is remounted, the onLoad flag and any
+  // pending grace timer belong to the PREVIOUS load — clear them so the new load's
+  // own onLoad drives the fallback.
+  //
+  // Reset DURING RENDER (the same ref-sync shape used for `wakeAt`/`prevUrl` above), NOT in a
+  // passive effect: these fields describe the CURRENT document, so they must flip in the same
+  // commit that changes the document. A passive effect is scheduled on a later task than the
+  // commit, so the new document's `onLoad` can be handled BEFORE the reset runs and then be
+  // silently discarded — after which the cold-boot evaluator never arms (it requires
+  // `iframeLoadedRef`) and a genuinely dead document is never accused, while the stuck detector
+  // "retries" a load that had already succeeded (CI flake 2026-10-18, run 39098572320: the
+  // "clears the blank notice once the app confirms it rendered" wait timed out at 60s with
+  // "Retry attempt 1" on screen). A test that delivers onLoad before the mount's passive effects
+  // flush reproduces it deterministically.
+  const loadedForSrcRef = useRef(iframeSrc)
+  const loadedForMountKeyRef = useRef(iframeMountKey)
+  if (loadedForSrcRef.current !== iframeSrc || loadedForMountKeyRef.current !== iframeMountKey) {
+    loadedForSrcRef.current = iframeSrc
+    loadedForMountKeyRef.current = iframeMountKey
+    iframeLoadedRef.current = false
+    if (onLoadGraceRef.current) {
+      clearTimeout(onLoadGraceRef.current)
+      onLoadGraceRef.current = null
+    }
+  }
+  // The per-document fields are reset synchronously above; this is only the unmount cleanup.
+  useEffect(
+    () => () => {
+      if (onLoadGraceRef.current) {
+        clearTimeout(onLoadGraceRef.current)
+        onLoadGraceRef.current = null
+      }
+    },
+    [],
+  )
+
+  // --- When the preview is ready to SHOW, trigger fade-out ---
+  // Reveal is driven by `iframeReady`, set by the `molecule:ready` handshake (always) OR the
+  // `onLoad` grace — but the grace flips it ONLY for a RELOAD of an app that already rendered
+  // (`hasEverRendered`), NOT on a first cold boot (see handleIframeLoad). So:
+  //   • first cold boot → reveal only on `molecule:ready` (the honest "Starting…" overlay stays
+  //     up over the still-compiling app; no white flash, no false "blank"). The bridge reliably
+  //     posts ready the instant #root mounts — verified to fire even under occlusion, so this
+  //     does NOT deadlock (the old "overlay covers iframe → rAF frozen → ready never posts" stall
+  //     was actually the overlay's `backdrop-filter` freezing the whole renderer, since removed).
+  //   • reload of an already-rendered app → reveal on the onLoad grace (fast, flash-free), with
+  //     ready faster still.
+  // A genuinely blank/crashed app is RE-COVERED by the explicit `molecule:blank`/crash handlers
+  // (which lower `iframeReady`). `confirmedContent` stays the diagnostic render-verdict signal.
+  useEffect(() => {
+    if (iframeReady) {
+      setFadingOut(true)
+      // Content is showing again — tear down the loop-breaker panel so a later good render
+      // always clears it, and refund the dead-end auto-recovery budget (the episode ended
+      // in a working preview, so the next outage starts with a full budget).
+      setPreviewGaveUp(false)
+      deadEndAutoRecoversRef.current = 0
+      // Clear fadingOut when the fade finishes. The overlay's onTransitionEnd is the primary
+      // trigger, but it never fires if the overlay unmounts mid-fade, the transition is disabled
+      // (prefers-reduced-motion), or in a non-rendering env — so a timer matched to the fade is
+      // the robust fallback. A stuck fadingOut pins the overlay at opacity 0 AND blocks the
+      // post-build blank re-cover (which is gated on !fadingOut).
+      const t = setTimeout(() => setFadingOut(false), OVERLAY_FADE_MS + 50)
+      return () => clearTimeout(t)
+    }
+    return undefined
+  }, [iframeReady])
+
+  // --- Stuck-load detection: recover ONLY when the load is genuinely stuck ---
+  // "Stuck" now means: we have a src, the iframe hasn't reported ready, AND we've
+  // given up (panel shown) is not the case. Critically, recovery is gated on the
+  // document NOT having fired `onLoad` — if the document loaded, the handshake (not
+  // the load) is what's missing and the onLoad grace fallback handles it, so we do
+  // NOT remount (remounting would interrupt a progressing load and bust Vite's
+  // cache). Delays back off, and after MAX_RECOVERY_CYCLES we STOP and show the
+  // themed loop-breaker panel instead of remounting forever.
+  useEffect(() => {
+    if (!iframeSrc || iframeReady || previewGaveUp) {
+      clearStuckTimer()
+      return
+    }
+
+    let cycleCount = 0
+
+    const scheduleNext = (): void => {
+      const delay = STUCK_DETECT_MS * Math.pow(STUCK_BACKOFF_FACTOR, cycleCount)
+      stuckTimerRef.current = setTimeout(() => {
+        stuckTimerRef.current = null
+        // Read refs, not stale closures.
+        if (iframeReadyRef.current) return
+        // The document loaded but ready never came → defer to the onLoad grace
+        // fallback; do not interrupt a progressing load with a remount.
+        if (iframeLoadedRef.current) return
+        // A heartbeating document is ALIVE and MID-LOAD: the inline bridge runs
+        // from HTML parse, long before a large module graph finishes (a
+        // multi-repo import behind a microVM edge takes ~30s for ~250 modules —
+        // observed live 2026-08-31). Reloading it aborts every in-flight module
+        // fetch, and the next document races onto the aborted entries and
+        // memoizes spurious failures — the recovery loop MURDERS the loads it
+        // guards ("stuck on Loading preview" while a fresh tab loads fine).
+        // Keep watching instead; a dead doc (no heartbeat) still recovers, and
+        // window `load` never firing at all is bounded by the ceilings.
+        if (Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS) {
+          scheduleNext()
+          return
+        }
+
+        cycleCount += 1
+        setStuckRetryCount(cycleCount)
+
+        if (cycleCount <= MAX_RECOVERY_CYCLES) {
+          if (cycleCount % 2 === 1) {
+            // Odd cycles: force-reload iframe with cache buster
+            setIframeSrc(withCacheBuster(urlRef.current))
+          } else {
+            // Even cycles: full iframe remount (unmount + remount)
+            setIframeMountKey((k) => k + 1)
+          }
+          scheduleNext()
+        } else {
+          // Cap reached — HARD STOP. Never loop forever (the old longRetry()
+          // remounted every 10s indefinitely, compounding the thrash). Notify the
+          // host once, then surface the loop-breaker panel (Reload + open in tab).
+          onPreviewStuck?.({ reason: 'load-failed', url: currentLocationRef.current })
+          setPreviewGaveUp(true)
+        }
+      }, delay)
+    }
+
+    scheduleNext()
+
+    return () => clearStuckTimer()
+  }, [iframeSrc, iframeReady, previewGaveUp, onPreviewStuck, clearStuckTimer])
+
+  // --- Absolute readiness ceiling (backstop: never stuck on the overlay forever) ---
+  // Independent of every intermediate flag (onLoad / iframeReady / stuck cycles): anchored
+  // to the load, it first checks at ABSOLUTE_STUCK_MS and — if the app still hasn't
+  // confirmed a render and no benign hold applies — surfaces the actionable loop-breaker
+  // panel; a benign hold defers the CHECK, never disarms it. This is the guarantee that no
+  // combination of failed sub-paths can leave the preview spinning forever. Read live refs
+  // (not stale closures); a `molecule:ready` that lands later clears `previewGaveUp` via
+  // the confirm effect, so an early trip is harmless.
+  useEffect(() => {
+    if (!state.url) return
+    let timer: ReturnType<typeof setTimeout> | null = null
+    const arm = (delay: number): void => {
+      timer = setTimeout(() => {
+        // A revealed or confirmed preview is healthy — this load needs no ceiling.
+        if (confirmedContentRef.current || iframeReadyRef.current) return
+        // Fire ONLY when still on a bare spinner. iframeReady above is the key gate: the
+        // onLoad grace already revealed a loaded document, so the give-up panel must never
+        // cover it — the panel is reserved for a preview that genuinely never loaded.
+        // A benign hold — an active build, the actionable blank notice already showing, an
+        // ALIVE (heartbeating) cold boot, or a just-woken server's patience window — does
+        // NOT disarm the ceiling: it RE-CHECKS after a beat. The old one-shot timer stood
+        // down permanently on any of these, so a wake window that swallowed the single
+        // firing left a never-answering preview on the spinner forever with no notice
+        // (the "no reload modal ever popped up" report, 2026-08-31).
+        if (
+          isBuildingRef.current ||
+          blankPostBuildRef.current ||
+          Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS ||
+          inWakeWindow()
+        ) {
+          arm(ABSOLUTE_STUCK_RECHECK_MS)
+          return
+        }
+        onPreviewStuck?.({ reason: 'load-timeout', url: currentLocationRef.current })
+        setPreviewGaveUp(true)
+      }, delay)
+    }
+    arm(ABSOLUTE_STUCK_MS)
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
+    // Re-armed per load (url change or refresh/back-forward via loadNonce); a successful
+    // render before the ceiling is honored by the live-ref check in the callback.
+  }, [state.url, state.loadNonce, onPreviewStuck, inWakeWindow])
+
+  // --- Stale-document auto-recovery (loaded but never rendered → reload once) ---
+  // The post-ready health check (below) only recovers a server drop AFTER a render; a Vite
+  // "server restarted" mid-load drops the HMR connection and leaves the just-loaded iframe
+  // disconnected, so it never renders and nothing reloads it (today only a MANUAL reload
+  // recovers — the "loads in a new tab, then works on reload" symptom). Here: once the
+  // document has fired onLoad (so it's a stale/blank LOADED doc, NOT a still-optimizing
+  // pre-onLoad load we'd interrupt) and still hasn't confirmed a render, do a SINGLE
+  // server-up check (not continuous polling — that competes for the load's connections) and,
+  // if the server is up, reload ONCE. Bounded by MAX_LOAD_RECOVERS; defers to the ceiling.
+  useEffect(() => {
+    if (!iframeSrc || iframeReady || confirmedContent || previewGaveUp) return
+    if (loadRecoverCountRef.current >= MAX_LOAD_RECOVERS) return
+    const timer = setTimeout(() => {
+      void (async () => {
+        // Re-check live state — a render/build/give-up since scheduling cancels recovery.
+        if (iframeReadyRef.current || confirmedContentRef.current || isBuildingRef.current) return
+        // Only act on a LOADED document; a still-loading one is progressing (slow optimize).
+        if (!iframeLoadedRef.current) return
+        // A heartbeating document is ALIVE and still coming up on a cold boot — reloading it only
+        // restarts the load and thrashes Vite's cold optimize (making the fresh-project first load
+        // WORSE). Only recover a genuinely STALE doc — no heartbeat for FREEZE_THRESHOLD_MS, i.e.
+        // its bridge is dead (a Vite "server restarted" dropped it mid-load) — the exact case this
+        // recovery exists for.
+        if (Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS) return
+        const up = await isServerUp(urlRef.current)
+        if (!up || iframeReadyRef.current || confirmedContentRef.current) return
+        loadRecoverCountRef.current += 1
+        setIframeSrc(withCacheBuster(urlRef.current))
+      })()
+    }, LOAD_RECOVER_AFTER_MS)
+    return () => clearTimeout(timer)
+  }, [iframeSrc, iframeReady, confirmedContent, previewGaveUp, iframeMountKey])
+
+  // --- Listen for postMessage from scaffold template ---
+  // molecule:ready       = #root got children (app rendered)  → hide overlay
+  // molecule:error       = pre-render error OR crash           → forward/show overlay
+  // molecule:runtime-error = JS runtime error in the iframe   → forward to chat
+  // molecule:heartbeat   = scaffold alive signal
+  // molecule:blank       = page rendered but appears empty
+  // molecule:navigate    = preview's client-side location changed → update URL bar
+  useEffect(() => {
+    // Debounce runtime errors — HMR triggers rapid error/recovery cycles
+    let errorBatch: Array<{ message: string; source?: string; line?: number; column?: number }> = []
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
+    const MAX_ERRORS_PER_BATCH = 5
+
+    // Rate-limit ready/error to prevent rapid state oscillation
+    let lastMsgTime = 0
+    let lastMsgType = ''
+    let pendingMsg: ReturnType<typeof setTimeout> | null = null
+
+    const flushErrors = (): void => {
+      if (errorBatch.length > 0 && onPreviewError) {
+        onPreviewError(errorBatch)
+        errorBatch = []
+      }
+      debounceTimer = null
+    }
+
+    const queueError = (err: {
+      message: string
+      source?: string
+      line?: number
+      column?: number
+    }): void => {
+      // Drop a signature already forwarded within the window — the baked sender and the
+      // centralized runtime bridge can each report the SAME uncaught error, and a
+      // render-looping app re-throws it endlessly; either way the agent needs it once.
+      const signature = `${err.message}|${err.source ?? ''}|${err.line ?? ''}|${err.column ?? ''}`
+      const now = Date.now()
+      const ledger = recentErrorSigRef.current
+      const lastSeen = ledger.get(signature)
+      if (lastSeen !== undefined && now - lastSeen < ERROR_DEDUP_WINDOW_MS) return
+      ledger.set(signature, now)
+      // Bound the ledger: evict entries older than the window so it can't grow unbounded
+      // over a long session (a steady stream of distinct errors would otherwise leak).
+      for (const [sig, ts] of ledger) {
+        if (now - ts >= ERROR_DEDUP_WINDOW_MS) ledger.delete(sig)
+      }
+      if (errorBatch.length < MAX_ERRORS_PER_BATCH) {
+        errorBatch.push(err)
+      }
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(flushErrors, 2000)
+    }
+
+    const handler = (event: MessageEvent): void => {
+      // Trust boundary: accept molecule:* messages ONLY from the preview iframe's OWN window.
+      // We compare the SOURCE WINDOW IDENTITY (event.source === the iframe's contentWindow), NOT
+      // a fragile origin STRING match. event.origin can legitimately fail to byte-equal
+      // new URL(state.url).origin — Origin-Agent-Cluster isolation, a host:port vs 127.0.0.1 vs
+      // IP-literal preview URL, the load's cache-buster, or a redirect-on-load all diverge the
+      // strings — and an origin-only gate then silently DROPS the real handshake (the
+      // molecule:ready that lifts the overlay) and every nav/error report. Window identity is
+      // both more robust AND strictly more secure: no other window (a malicious sub-iframe the
+      // preview embeds, another tab/opener) can forge the source reference, and it needs no
+      // cross-origin read. The iframe is always mounted before it can post, so contentWindow is
+      // set by the time any message arrives.
+      const previewWindow = iframeRef.current?.contentWindow
+      if (!previewWindow || event.source !== previewWindow) return
+
+      // Event-driven re-post of the pending ui-command: any frame from the preview iframe
+      // (ready, heartbeat, nav) proves its bridge is alive, so re-send an unanswered command
+      // now. This is what delivers commands while the IDE tab is hidden — the 350ms retry
+      // interval above is throttled there (to one tick per MINUTE under Chrome's intensive
+      // throttling), but message events are not. The bridge dedups by id; harmless when the
+      // command already arrived.
+      const pendingUi = pendingUiPostRef.current
+      if (
+        pendingUi &&
+        event.data?.type !== 'molecule:ui-result' &&
+        Date.now() <= pendingUi.deadline &&
+        !uiResolvedRef.current.has(pendingUi.payload.id as string)
+      ) {
+        previewWindow.postMessage(pendingUi.payload, previewTargetOrigin(iframeRef.current))
+      }
+
+      // A spec asked for a viewport. The e2e preview client posts this and then
+      // polls its own innerWidth until the host honours it (up to 4s), so all
+      // this has to do is resize the frame — there is no reply to send.
+      //
+      // The state and the iframe's use of it already existed; nothing ever set
+      // it, so every `page.setViewportSize` was answered with the unchanged
+      // size and the bond warned "the preview host kept its own size". That is
+      // why a phone layout could not be verified from a build: three of the
+      // seven first-contact failures in X0 R83 were phone/geometry facts the
+      // executor had no way to observe.
+      if (event.data?.type === 'molecule:viewport') {
+        const width = Number(event.data.width)
+        const height = Number(event.data.height)
+        if (Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0) {
+          setRequestedSize({
+            width: Math.min(Math.max(Math.round(width), MIN_REQUESTED_PX), MAX_REQUESTED_PX),
+            height: Math.min(Math.max(Math.round(height), MIN_REQUESTED_PX), MAX_REQUESTED_PX),
+          })
+        } else {
+          // A zero/NaN size means "stop overriding" — hand the frame back to
+          // the device selector rather than pinning it at a nonsense width.
+          setRequestedSize(null)
+        }
+        return
+      }
+
+      if (event.data?.type === 'molecule:ready') {
+        const now = Date.now()
+
+        // Track transitions for cycle detection
+        const times = transitionTimesRef.current
+        times.push(now)
+        // Trim old entries
+        while (times.length > 0 && now - times[0] > TRANSITION_WINDOW_MS) times.shift()
+        if (times.length >= MAX_TRANSITIONS && !suppressedRef.current) {
+          suppressedRef.current = true
+          console.warn(
+            '[PreviewPanel] Rapid ready/error cycle detected (%d transitions in %dms) — suppressing further toggles. This indicates a render loop in the preview iframe.',
+            times.length,
+            TRANSITION_WINDOW_MS,
+          )
+          // Auto-recover after the storm passes
+          setTimeout(() => {
+            suppressedRef.current = false
+            transitionTimesRef.current = []
+          }, TRANSITION_WINDOW_MS)
+          return
+        }
+        if (suppressedRef.current) return
+
+        // Rate-limit: ignore duplicate ready within MSG_RATE_LIMIT_MS
+        if (lastMsgType === 'molecule:ready' && now - lastMsgTime < MSG_RATE_LIMIT_MS) return
+        lastMsgTime = now
+        lastMsgType = 'molecule:ready'
+        if (pendingMsg) clearTimeout(pendingMsg)
+
+        clearPoll()
+        setEverLoaded(true)
+        setIframeReady(true)
+        setStuckRetryCount(0)
+        // The app CONFIRMED it rendered visible content — the strong signal that clears the
+        // status overlay (vs. the onLoad grace which only reveals the iframe). Also tears down
+        // any post-build "blank" notice: a real render means it isn't blank anymore.
+        setConfirmedContent(true)
+        // This load target has now rendered at least once — leave cold-boot patience mode. A
+        // subsequent reload that goes blank is a real regression handled by the short window.
+        hasEverRenderedRef.current = true
+        lastReadyAtRef.current = now
+        setBlankPostBuild(false)
+        // Handshake arrived (the fast path) — cancel any pending onLoad grace
+        // fallback and clear the crash marker so a future onLoad isn't suppressed.
+        if (onLoadGraceRef.current) {
+          clearTimeout(onLoadGraceRef.current)
+          onLoadGraceRef.current = null
+        }
+        lastCrashAtRef.current = 0
+      } else if (event.data?.type === 'molecule:error' && event.data.crash) {
+        const now = Date.now()
+
+        // Track transitions
+        const times = transitionTimesRef.current
+        times.push(now)
+        while (times.length > 0 && now - times[0] > TRANSITION_WINDOW_MS) times.shift()
+        if (times.length >= MAX_TRANSITIONS && !suppressedRef.current) {
+          suppressedRef.current = true
+          console.warn(
+            '[PreviewPanel] Rapid ready/error cycle detected (%d transitions in %dms) — suppressing further toggles.',
+            times.length,
+            TRANSITION_WINDOW_MS,
+          )
+          setTimeout(() => {
+            suppressedRef.current = false
+            transitionTimesRef.current = []
+          }, TRANSITION_WINDOW_MS)
+          return
+        }
+        if (suppressedRef.current) return
+
+        // Rate-limit: debounce crash to let HMR settle
+        if (lastMsgType === 'molecule:error' && now - lastMsgTime < MSG_RATE_LIMIT_MS) return
+        lastMsgTime = now
+        lastMsgType = 'molecule:error'
+        if (pendingMsg) clearTimeout(pendingMsg)
+
+        // Debounce crash — if a ready arrives within 300ms, skip the crash entirely
+        pendingMsg = setTimeout(() => {
+          pendingMsg = null
+          setIframeReady(false)
+          setFadingOut(false)
+          // The app crashed — it is no longer showing confirmed content, so the status
+          // overlay must come back.
+          setConfirmedContent(false)
+          // Mark the crash so the onLoad grace fallback won't mask it as a good
+          // load (a crash within the grace window suppresses the fallback).
+          lastCrashAtRef.current = Date.now()
+        }, MSG_RATE_LIMIT_MS)
+      } else if (event.data?.type === 'molecule:error' && !event.data.crash && event.data.message) {
+        // Pre-render error — app failed to mount (e.g., module export missing, import error).
+        // Forward to the agent so it can fix the issue.
+        queueError({
+          message: String(event.data.message),
+          source: event.data.source ? String(event.data.source) : 'pre-render',
+          line: event.data.line ?? undefined,
+          column: event.data.column ?? undefined,
+        })
+      } else if (event.data?.type === 'molecule:runtime-error') {
+        queueError({
+          message: String(event.data.message ?? 'Unknown error'),
+          source: event.data.source ?? undefined,
+          line: event.data.line ?? undefined,
+          column: event.data.column ?? undefined,
+        })
+      } else if (event.data?.type === 'molecule:viewport') {
+        // The previewed page asked for a viewport (an e2e spec's page.setViewportSize, relayed
+        // by the preview e2e client). Size the frame to it — the same mechanism as a device
+        // preset — and confirm; `width: null` returns to the selected device frame.
+        const width = Number(event.data.width)
+        const height = Number(event.data.height)
+        if (Number.isFinite(width) && width > 0) {
+          const next = {
+            width: Math.round(width),
+            height: Number.isFinite(height) && height > 0 ? Math.round(height) : 844,
+          }
+          setRequestedSize(next)
+          previewWindow.postMessage(
+            { type: 'molecule:viewport-result', id: event.data.id, ...next },
+            previewTargetOrigin(iframeRef.current),
+          )
+        } else {
+          setRequestedSize(null)
+          previewWindow.postMessage(
+            { type: 'molecule:viewport-result', id: event.data.id, width: null, height: null },
+            previewTargetOrigin(iframeRef.current),
+          )
+        }
+      } else if (event.data?.type === 'molecule:heartbeat') {
+        lastHeartbeatRef.current = Date.now()
+      } else if (event.data?.type === 'molecule:ui-result') {
+        // AI-driven preview interaction result — forward to the host, keyed by the command `id`
+        // it round-trips on (see the uiCommand effect / onUiResult). The panel only relays it.
+        if (typeof event.data.id === 'string') {
+          // Mark resolved so the uiCommand retry loop stops re-sending this command.
+          uiResolvedRef.current.add(event.data.id)
+          if (pendingUiPostRef.current?.payload.id === event.data.id) {
+            pendingUiPostRef.current = null
+          }
+          if (onUiResult) onUiResult(event.data.id, event.data as PreviewUiResult)
+        }
+      } else if (event.data?.type === 'molecule:navigate') {
+        // The preview reported a client-side navigation (see the scaffold-injected
+        // sender). recordNavigation validates the URL and updates the URL bar
+        // (state.currentUrl) without reloading the iframe. `isReplace` (set by the
+        // sender for replaceState) preserves the Forward stack on a redirect-on-load
+        // instead of truncating it; a missing/garbage value coerces to false (push).
+        if (typeof event.data.url === 'string') {
+          // A click intent for a raw document (feed.xml, provenance.json): remember it so the
+          // load that follows is taken for what it is. Any other intent clears a stale one.
+          if (event.data.isIntent === true) {
+            rawDocIntentRef.current = isRawDocumentUrl(event.data.url)
+              ? { url: event.data.url, at: Date.now() }
+              : null
+          }
+          recordNavigation(event.data.url, event.data.isReplace === true)
+        }
+      } else if (event.data?.type === 'molecule:blank') {
+        // Page rendered but appears blank — re-cover it. Reveal is gated on `iframeReady`, so
+        // dropping `confirmedContent` alone no longer re-covers; lower `iframeReady` too. The
+        // onLoad grace already fired and won't re-arm, so the overlay stays (showing the
+        // last-good frame) until a real `molecule:ready` re-reveals a non-blank render.
+        setConfirmedContent(false)
+        setIframeReady(false)
+        setFadingOut(false)
+        // Notify the agent
+        if (onPreviewError) {
+          onPreviewError([
+            {
+              message: String(
+                event.data.message ?? 'Page appears blank — rendered but no visible content',
+              ),
+              source: 'molecule:blank',
+            },
+          ])
+        }
+        // Marking content unconfirmed (above) already raises the overlay, and the blurred
+        // last-good frame stands in behind it (it renders whenever a frame was captured) — so
+        // a blanked app shows the last working UI instead of an empty white iframe.
+      } else if (event.data?.type === 'molecule:snapshot') {
+        // The sandbox app self-rasterized a stable render and posted it. Validate
+        // defensively (postMessage trust boundary): a data:image/ URL within a sane
+        // size cap. Stored as the blurred last-good placeholder shown during a
+        // rebuild/blank window.
+        const dataUrl: unknown = event.data.dataUrl
+        if (
+          typeof dataUrl === 'string' &&
+          dataUrl.startsWith('data:image/') &&
+          dataUrl.length <= MAX_SNAPSHOT_DATA_URL_LENGTH
+        ) {
+          setLastGoodFrame(dataUrl)
+        }
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => {
+      window.removeEventListener('message', handler)
+      if (debounceTimer) clearTimeout(debounceTimer)
+      if (pendingMsg) clearTimeout(pendingMsg)
+    }
+  }, [clearPoll, onPreviewError, recordNavigation, onUiResult])
+
+  // --- iframe onLoad: grace fallback when molecule:ready never arrives ---
+  // The document finished loading. `molecule:ready` is the fast path that clears
+  // the overlay immediately; but if that handshake is dropped/suppressed/starved,
+  // a perfectly good app would otherwise stay hidden behind the overlay forever
+  // (the single point of failure that made the preview get permanently stuck). So
+  // after a short grace, if no ready arrived AND no crash just fired, treat the
+  // load as good and clear the overlay anyway.
+  const handleIframeLoad = useCallback(() => {
+    if (!urlRef.current) return
+    iframeLoadedRef.current = true
+    lastLoadAtRef.current = Date.now()
+    // A pending ui-command (navigate) is answered by the document that loaded AT OR
+    // AFTER its minLoadedAt; the load event is the one UNTHROTTLED signal that this
+    // document now exists, so re-post here rather than waiting for its bridge's next
+    // frame — in a hidden tab those frames are timer-scheduled and Chrome throttles
+    // them to ~one per minute, which is how a navigate could outlive its 45s window
+    // with the bridge alive the whole time (X0 rehearsal 28, G46).
+    const pending = pendingUiPostRef.current
+    if (pending && Date.now() <= pending.deadline) {
+      iframeRef.current?.contentWindow?.postMessage(
+        pending.payload,
+        previewTargetOrigin(iframeRef.current),
+      )
+    }
+    // The document that just loaded is the raw file a link click announced (feed.xml,
+    // provenance.json, llms.txt): the browser shows it with its own viewer and no bridge will
+    // ever post `molecule:ready` for it. It IS the content — reveal it and never accuse it of
+    // being a blank app (the notice used to land on every feed and JSON link in a static site).
+    const rawIntent = rawDocIntentRef.current
+    if (rawIntent && Date.now() - rawIntent.at < RAW_DOC_INTENT_MS) {
+      rawDocIntentRef.current = null
+      if (onLoadGraceRef.current) {
+        clearTimeout(onLoadGraceRef.current)
+        onLoadGraceRef.current = null
+      }
+      lastReadyAtRef.current = Date.now()
+      setEverLoaded(true)
+      setIframeReady(true)
+      setConfirmedContent(true)
+      setFadingOut(false)
+      setBlankPostBuild(false)
+      setStuckRetryCount(0)
+      setDocLoadedTick((k) => k + 1)
+      return
+    }
+    // Re-trigger the cold-boot evaluator effect: during a first cold boot the reveal no longer
+    // flips `iframeReady` on the grace, so this document-load tick is the effect's trigger.
+    setDocLoadedTick((k) => k + 1)
+    // A NEW document is now displayed — the initial load OR a Vite full-reload that an edit
+    // (Synthase's or the user's) triggered, which reloads the SAME iframe src without remounting
+    // it or changing state.url, so no other reset path runs. If this load did NOT just confirm a
+    // render (no molecule:ready landed in the moment before — i.e. the reloaded app rendered
+    // nothing), drop confirmedContent so the overlay re-covers the now-blank iframe instead of
+    // leaving the stale "it rendered" state masking a white screen. A working full-reload mounts
+    // React (→ molecule:ready) just before the load event, so its ready is fresh and
+    // confirmedContent is KEPT (no flash); a slow/async render re-confirms via the ready that
+    // follows (the bridge re-sends ready ~every 4s while content is visible).
+    if (Date.now() - lastReadyAtRef.current > READY_FRESH_MS) {
+      setConfirmedContent(false)
+      // Re-cover the freshly (re)loaded document until ITS OWN onLoad grace re-reveals it (or a
+      // fresh molecule:ready confirms sooner). Reveal is gated on `iframeReady`, so a full-reload
+      // that an edit triggers must lower it — otherwise the previous load's reveal leaks through
+      // and flashes the new, possibly-blank document uncovered. The grace timer armed just below
+      // re-reveals it.
+      setIframeReady(false)
+      // Bring the overlay back SOLID over the blank reload — not mid-fade from the previous
+      // app's confirmation (whose fade-out may still be in flight).
+      setFadingOut(false)
+    }
+    if (onLoadGraceRef.current) clearTimeout(onLoadGraceRef.current)
+    onLoadGraceRef.current = setTimeout(() => {
+      onLoadGraceRef.current = null
+      if (iframeReadyRef.current) return
+      // A crash within the grace window means the load is NOT good — don't mask it.
+      if (Date.now() - lastCrashAtRef.current < ONLOAD_GRACE_MS) return
+      // FIRST cold boot (this target has NEVER rendered): do NOT reveal on the grace. The
+      // scaffold's inline bridge posts `molecule:ready` the instant #root mounts (reliable), so
+      // we keep the honest "Starting your app…" overlay up until that REAL signal instead of
+      // flashing a white, still-compiling iframe and then falsely accusing it of being blank —
+      // the fresh-project "won't load until I open a new tab" bug. The grace reveal is purely a
+      // flash-avoidance shortcut for RELOADS of an app that already rendered once; a genuinely
+      // never-mounting app is surfaced honestly by the cold-boot evaluator (dead / 60s ceiling).
+      //
+      // A fresh wake is the SAME cold-boot regime even when the app already rendered pre-wake
+      // (hasEverRendered stays true): the woken Vite mounts once then full-reloads mid-optimize,
+      // and revealing that blank reload on the grace would flash a bare white iframe instead of
+      // the honest "Starting…" spinner. Keep the overlay up until a REAL molecule:ready (which a
+      // healthy wake posts within seconds); only that reveals during the wake window.
+      if (!hasEverRenderedRef.current || inWakeWindow()) return
+      setEverLoaded(true)
+      setIframeReady(true)
+      setStuckRetryCount(0)
+    }, ONLOAD_GRACE_MS)
+  }, [inWakeWindow])
+
+  // --- Health check: periodically verify server is still up ---
+  useEffect(() => {
+    // Only run health checks after overlay is fully gone
+    if (!iframeReady || fadingOut || !state.url) return
+
+    const url = state.url
+    // Cancellation flag — prevents orphaned closures from running after this
+    // effect cleans up.
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | null = null
+    // Consecutive misses. Self-scheduled (next probe only after this one
+    // settles) so a slow edge never stacks probes, and a single miss is only a
+    // strike — HEALTH_DOWN_CONFIRM in a row is the down verdict.
+    let misses = 0
+
+    const check = async (): Promise<void> => {
+      if (cancelled) return
+      const up = await isServerUp(url)
+      if (cancelled || urlRef.current !== url) return
+      // A document that is still heartbeating is ALIVE whatever the probe says. A
+      // sandbox busy with a build (vite build, a prerender, a test run) answers the
+      // status probe late — past PROBE_TIMEOUT_MS — while the page in the frame runs
+      // on untouched; two such misses used to be the down verdict, and the reload
+      // when the probe came back tore the app down and remounted it: "[vite]
+      // connecting… connected." every 3–15 seconds for as long as the build ran, the
+      // stuck-preview detector firing on the churn (X0 R78/R79, 2026-09-14). A server
+      // that really went away drops the document's heartbeat (and its Vite client
+      // reloads it itself once the server is back), so the down verdict is gated on
+      // the heartbeat the freeze watchdog already trusts.
+      const documentAlive = Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS
+      if (up || documentAlive) {
+        misses = 0
+        timer = setTimeout(() => void check(), HEALTH_POLL_MS)
+        return
+      }
+      misses += 1
+      if (misses < HEALTH_DOWN_CONFIRM) {
+        timer = setTimeout(() => void check(), HEALTH_POLL_MS)
+        return
+      }
+      // Server went down — show overlay, poll, reload when back
+      setIframeReady(false)
+      setFadingOut(false)
+
+      let interval = POLL_INITIAL_MS
+      const poll = async (): Promise<void> => {
+        if (cancelled || urlRef.current !== url) return
+        const back = await isServerUp(url)
+        if (cancelled || urlRef.current !== url) return
+        if (back) {
+          // Force-reload iframe with cache buster
+          setIframeSrc(withCacheBuster(url))
+        } else {
+          timer = setTimeout(poll, interval)
+          interval = Math.min(interval * POLL_BACKOFF_FACTOR, POLL_MAX_MS)
+        }
+      }
+      void poll()
+    }
+    timer = setTimeout(() => void check(), HEALTH_POLL_MS)
+
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+    }
+  }, [iframeReady, fadingOut, state.url])
+
+  // --- Freeze watchdog ---
+  // The scaffold's main thread posts `molecule:heartbeat` every ~3s. If that thread
+  // locks up (an infinite loop or runaway render in the in-progress app), the beats
+  // stop. Origin-Agent-Cluster isolation keeps that freeze off the IDE's thread, so
+  // the IDE can notice the silence and offer a reload — a frozen frame can't recover
+  // on its own. Auto-clears if heartbeats resume (transient jank, not a hard lock).
+  //
+  // VISIBILITY-AWARE, deliberately: in a hidden tab the browser throttles BOTH
+  // sides — the iframe's heartbeats stop being delivered AND this interval only
+  // wakes about once a minute — so every throttle wake used to read as an
+  // 18–58s "freeze": the banner popped and the frozen report (with its alert
+  // tone) fired once per minute for as long as the tab stayed backgrounded
+  // (observed live 2026-08-29; forensics showed heap flat + thread idle, i.e.
+  // pure throttling, no real freeze). A hidden tab renders nothing, so there is
+  // nothing to accuse: skip checks while hidden and re-baseline on return to
+  // the foreground so the hidden gap can never count against the app.
+  useEffect(() => {
+    if (!iframeReady || fadingOut || !state.url) {
+      setPreviewFrozen(false)
+      return
+    }
+    // Baseline so a stale value from a prior load can't trip us immediately.
+    lastHeartbeatRef.current = Date.now()
+    const timer = setInterval(() => {
+      if (document.visibilityState === 'hidden') return
+      // "Frozen" means a document that RENDERED and then stopped beating. A document
+      // that was just (re)loaded — a navigation, a reload, an HMR full reload — has
+      // not beaten yet, and on a sandbox busy with a build its first beat can take
+      // longer than the freeze window; that gap is a load in progress, not a blocked
+      // thread. Only a gap AFTER the current document's own beat counts (X0 R78/R79,
+      // 2026-09-14: the frozen report fired within two minutes of a handoff, while the
+      // harness's post-turn verification was loading the sandbox, and cost a turn).
+      const beatSinceLoad = lastHeartbeatRef.current >= lastLoadAtRef.current
+      setPreviewFrozen(beatSinceLoad && Date.now() - lastHeartbeatRef.current > FREEZE_THRESHOLD_MS)
+    }, FREEZE_CHECK_INTERVAL_MS)
+    const onVisibility = (): void => {
+      if (document.visibilityState !== 'visible') return
+      // Fresh grace window: heartbeats resume with the foreground; the gap that
+      // accumulated while hidden was throttling, not the app.
+      lastHeartbeatRef.current = Date.now()
+      setPreviewFrozen(false)
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [iframeReady, fadingOut, state.url])
+
+  // --- Freeze → host report ---
+  // A frozen preview is the worst case the iframe CANNOT self-report (its thread is
+  // locked, so no molecule:error/runtime-error can ever be posted) — the banner alone
+  // gives the user a reload but never tells the agent. Bridge that gap: on the
+  // false→true freeze transition, hand the host a structured `frozen` report (with the
+  // route) so it can, gated on the autofix setting, ask the agent to find and fix the
+  // infinite loop / runaway render. Fires once per episode; re-arms when beats resume.
+  useEffect(() => {
+    if (previewFrozen && !frozenReportedRef.current) {
+      frozenReportedRef.current = true
+      onPreviewStuck?.({ reason: 'frozen', url: currentLocationRef.current })
+    } else if (!previewFrozen) {
+      frozenReportedRef.current = false
+    }
+  }, [previewFrozen, onPreviewStuck])
+
+  // --- Render verdict → host (→ server) ---
+  // Collapse the panel's internal flags into the single render verdict the server needs:
+  // did the app actually draw content, or is it blank/frozen/still loading? The host
+  // forwards it so Synthase's post-loop verification can confirm a REAL render (not just
+  // that the bundle compiled + served). Emit only on change, with the live route.
+  const renderState: PreviewRenderState = previewFrozen
+    ? 'frozen'
+    : previewGaveUp || blankPostBuild
+      ? 'blank'
+      : confirmedContent
+        ? 'rendered'
+        : 'loading'
+  const lastRenderStateRef = useRef<PreviewRenderState | null>(null)
+  useEffect(() => {
+    if (!state.url) return
+    if (lastRenderStateRef.current === renderState) return
+    lastRenderStateRef.current = renderState
+    onRenderState?.(renderState, currentLocationRef.current)
+  }, [renderState, state.url, onRenderState])
+
+  // --- "Preview is in trouble" detection (signal-driven, NOT a naive timer) ---
+  // Decides whether to swap the honest "Starting/Building…" status for the ACTIONABLE
+  // "preview is blank — reload / open in new tab" notice. Driven by the scaffold bridge's OWN
+  // signals — `molecule:ready` (rendered), `molecule:heartbeat` (alive) — instead of the old
+  // "loaded + 2.5s + no ready ⇒ blank" guess, which FALSE-fired over a fresh project whose cold
+  // Vite server was still pre-bundling/compiling the just-written app (the app WAS coming up and
+  // would render seconds later). The regimes:
+  //   • confirmed / actively building / mid-fade / no document yet → never a problem.
+  //   • already rendered once, then reloaded blank (`hasEverRendered`) → real regression, surface
+  //     after the short BLANK_CONFIRM_MS.
+  //   • never rendered yet AND not alive (no heartbeat for FREEZE_THRESHOLD_MS after a settle) →
+  //     the inline bridge never ran ⇒ broken/error page ⇒ surface after BLANK_DEAD_MS.
+  //   • never rendered yet BUT alive (heartbeating) → a cold boot in progress → keep the honest
+  //     "Starting…" overlay; only surface after the generous COLD_BOOT_PATIENCE_MS ceiling
+  //     (alive the whole time yet never mounted ⇒ genuinely stuck).
+  // Re-evaluated on an interval because liveness + elapsed-since-load change over time. An
+  // explicit `molecule:blank` also raises the notice directly via its handler (setBlankPostBuild).
+  useEffect(() => {
+    if (!state.url || !iframeLoadedRef.current || confirmedContent || isBuilding || fadingOut) {
+      setBlankPostBuild(false)
+      return
+    }
+    const evaluate = (): boolean => {
+      if (confirmedContentRef.current || isBuildingRef.current) {
+        setBlankPostBuild(false)
+        return true
+      }
+      const now = Date.now()
+      const sinceLoad = now - (lastLoadAtRef.current || now)
+      const aliveRecently = now - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS
+      // Right after a wake, NEITHER fast accusation window may fire — only the generous
+      // never-rendered ceiling. A wake relaunches the dev server, and cold Vite routinely
+      // mounts the app once (→ molecule:ready, so hasEverRendered flips true) and THEN does a
+      // full HMR reload while it finishes pre-bundling deps; that reload renders nothing for a
+      // beat and would trip the already-rendered BLANK_CONFIRM_MS path. It can equally land on
+      // a transient bridge-less error page the restarting proxy serves (the never-rendered
+      // BLANK_DEAD_MS path). Both are EXPECTED during a restart, so the wake window overrides
+      // both — matching the intent: accuse only when we're certain nothing ever rendered
+      // (COLD_BOOT_PATIENCE_MS elapsed while alive-but-unmounted). The stale-document
+      // auto-reloads still recover a genuinely dead doc in the meantime.
+      // Inside the wake window: NEVER accuse. The old in-window ceiling used
+      // `sinceLoad >= COLD_BOOT_PATIENCE_MS`, but on a wake `lastLoadAt` is the
+      // PRE-HIBERNATION load — minutes-to-hours old — so the "generous ceiling"
+      // tripped the instant the sleeping screen lifted and only cleared when the
+      // wake reload reset the anchor (the observed blank-notice flash over a
+      // 13-second relaunch). The window itself (WAKE_PATIENCE_MS) is shorter
+      // than the ceiling anyway, so an in-window `sinceLoad` accusation could
+      // ONLY ever fire off that stale anchor; a wake that genuinely never comes
+      // up is accused by the normal branches the moment the window expires.
+      const introuble = inWakeWindow()
+        ? false
+        : hasEverRenderedRef.current
+          ? sinceLoad >= BLANK_CONFIRM_MS
+          : (!aliveRecently && sinceLoad >= BLANK_DEAD_MS) || sinceLoad >= COLD_BOOT_PATIENCE_MS
+      setBlankPostBuild(introuble)
+      return introuble
+    }
+    if (evaluate()) return
+    const id = setInterval(() => {
+      if (evaluate()) clearInterval(id)
+    }, 500)
+    return () => clearInterval(id)
+    // docLoadedTick re-arms this when a fresh document loads (iframeReady no longer flips on the
+    // cold-boot grace, so it can't be the trigger). iframeReady is still a dep so a real reveal
+    // re-evaluates (and clears) immediately.
+  }, [state.url, docLoadedTick, iframeReady, confirmedContent, isBuilding, fadingOut, inWakeWindow])
+
+  // --- Auto-reload when AI edits files — ONLY while the preview is broken ---
+  // A healthy preview needs nothing from us: Vite HMR applies every edit live,
+  // and Vite itself broadcasts a full reload when a change can't hot-apply. The
+  // old "safety net" (force-reload 3s after EVERY edit even when healthy) made
+  // each HMR-applied change get wiped by a redundant full reload moments later —
+  // the "theme updated, then the whole preview reloaded anyway" flash. When the
+  // preview IS broken (crashed / failed to mount), the document may be an error
+  // page without a live Vite client, so HMR can't deliver the fix — there a
+  // debounced reload after the next edit is the genuine recovery path.
+  const fileChangTickRef = useRef(fileChangeTick)
+  useEffect(() => {
+    if (fileChangTickRef.current === fileChangeTick) return
+    fileChangTickRef.current = fileChangeTick
+    if (!everLoaded || !state.url) return
+    if (iframeReady) return // healthy — trust HMR / Vite's own full-reload
+    const timer = setTimeout(() => {
+      setIframeSrc(withCacheBuster(state.url))
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [fileChangeTick, iframeReady, everLoaded, state.url])
+
+  // --- Manual retry handler ---
+  const handleManualRetry = useCallback(() => {
+    // Clear the loop-breaker so a fresh attempt starts clean.
+    setPreviewGaveUp(false)
+    setIframeMountKey((k) => k + 1)
+    setStuckRetryCount(0)
+    if (state.url) {
+      setIframeSrc(withCacheBuster(state.url))
+    }
+  }, [state.url])
+
+  // A HUMAN retry is a fresh episode — refund the probe-driven budget so the
+  // panel keeps auto-recovering alongside them.
+  const handleUserRetry = useCallback(() => {
+    deadEndAutoRecoversRef.current = 0
+    handleManualRetry()
+  }, [handleManualRetry])
+
+  // --- Dead-end auto-recovery: probe while an actionable notice is up, retry when the server answers ---
+  // Both dead-end notices (the give-up loop-breaker and the blank notice) mean every
+  // in-budget retry already ran — against a server that may simply not have been up YET
+  // (the motivating case: an E2B resume pulling a long-paused snapshot from cold storage
+  // takes minutes; see MAX_DEAD_END_AUTO_RECOVERS). So instead of waiting for a human to
+  // click Reload, keep asking the preview host whether it is serving — sequentially, one
+  // probe at a time, exactly like the steady-state health check — and when it finally
+  // answers, run the manual-retry path automatically. Gated on the document being DEAD
+  // (no recent heartbeat): a heartbeating app behind the blank notice is an app that runs
+  // but renders nothing — an app bug a reload cannot fix, and auto-reloading it would
+  // just flicker the actionable notice the user is reading. isServerUp prefers the
+  // readable /__mol/preview-status (the mlcl.dev proxy reports the UPSTREAM truthfully,
+  // so an edge answering FOR a down sandbox does not read as "up").
+  useEffect(() => {
+    if (!state.url || confirmedContent) return undefined
+    if (!previewGaveUp && !blankPostBuild) return undefined
+    const aborter = new AbortController()
+    let timer: ReturnType<typeof setTimeout> | null = null
+    const tick = async (): Promise<void> => {
+      if (aborter.signal.aborted) return
+      if (deadEndAutoRecoversRef.current >= MAX_DEAD_END_AUTO_RECOVERS) return
+      if (Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS) {
+        // Alive behind the notice — not our case; re-check later in case it dies.
+        timer = setTimeout(() => void tick(), HEALTH_POLL_MS)
+        return
+      }
+      const up = await isServerUp(urlRef.current, aborter.signal)
+      if (aborter.signal.aborted) return
+      if (up) {
+        deadEndAutoRecoversRef.current += 1
+        handleManualRetry()
+        return
+      }
+      timer = setTimeout(() => void tick(), HEALTH_POLL_MS)
+    }
+    timer = setTimeout(() => void tick(), HEALTH_POLL_MS)
+    return () => {
+      aborter.abort()
+      if (timer) clearTimeout(timer)
+    }
+  }, [previewGaveUp, blankPostBuild, confirmedContent, state.url, handleManualRetry])
+
+  // The escalation clock measures CONTINUOUS unconfirmed time: any change of the
+  // confirm verdict (healthy→broken or broken→healthy) restarts it, so a stretch
+  // of healthy rendering can never count toward a restart, and a confirmed render
+  // re-arms the once-per-episode escalation budget.
+  useEffect(() => {
+    notConfirmedSinceRef.current = Date.now()
+    if (confirmedContent) backendRestartUsedRef.current = false
+  }, [confirmedContent])
+
+  // --- Backend-restart escalation watchdog (see PreviewPanelProps.onRestartBackend) ---
+  // The one recovery a document reload can NEVER perform: when the dev server's
+  // module state is poisoned (observed live 2026-08-31: module failures memoized
+  // against vite's immutable `?v=`-hashed URLs — every reload, manual and
+  // automatic, rebuilt the same broken graph with zero errors anywhere), only a
+  // SERVER restart mints new module URLs. Escalates at most once per broken
+  // episode, and only when every cheaper explanation is exhausted:
+  //   • the app has confirmed nothing for BACKEND_RESTART_AFTER_MS straight
+  //     (clock reset by confirms, new targets, and wakes — patience is honored),
+  //   • at least one dead-end auto-reload already ran (so a plain cold boot,
+  //     which never engages the dead-end machinery, can never trip this),
+  //   • the server answers probes RIGHT NOW (a down server needs waking/time,
+  //     not a restart — the dead-end probe loop owns that case),
+  //   • no build is running (the executor owns the sandbox during a turn).
+  // The host may DECLINE (return false: wrong role, hidden tab, sandbox not
+  // running) — nothing is burned and the watchdog may ask again later.
+  useEffect(() => {
+    if (!state.url || !onRestartBackend) return undefined
+    const aborter = new AbortController()
+    let inFlight = false
+    const interval = setInterval(() => {
+      if (inFlight) return
+      inFlight = true
+      void (async () => {
+        try {
+          if (confirmedContentRef.current || isBuildingRef.current) return
+          if (deadEndAutoRecoversRef.current < 1) return
+          if (backendRestartUsedRef.current) return
+          const now = Date.now()
+          if (now - notConfirmedSinceRef.current < BACKEND_RESTART_AFTER_MS) return
+          if (now - lastBackendRestartAtRef.current < BACKEND_RESTART_COOLDOWN_MS) return
+          const up = await isServerUp(urlRef.current, aborter.signal)
+          if (aborter.signal.aborted || !up) return
+          // Re-check the fast-moving gates after the await.
+          if (confirmedContentRef.current || isBuildingRef.current) return
+          const outcome = await onRestartBackend()
+          if (aborter.signal.aborted || outcome === false) return
+          backendRestartUsedRef.current = true
+          lastBackendRestartAtRef.current = Date.now()
+          notConfirmedSinceRef.current = Date.now()
+          // The restarted server deserves a fresh reload budget so the dead-end
+          // probe (or the wake reload) can bring the recovered app in.
+          deadEndAutoRecoversRef.current = 0
+          // Deliberate breadcrumb — names the escalation in the console so a
+          // "the preview restarted itself" report is traceable.
+          console.warn(
+            '[preview] escalated to a backend dev-server restart — reloads could not produce a render against a serving host',
+          )
+        } catch (_error) {
+          // Escalation is strictly best-effort: a failed probe or a host error
+          // must never break the panel; the next check re-evaluates.
+        } finally {
+          inFlight = false
+        }
+      })()
+    }, BACKEND_RESTART_CHECK_MS)
+    return () => {
+      aborter.abort()
+      clearInterval(interval)
+    }
+  }, [state.url, onRestartBackend])
+
+  // --- Reload a frozen preview ---
+  // Remounts the iframe (fresh load re-runs the app, clearing the locked thread).
+  const handleReloadFrozen = useCallback(() => {
+    setPreviewFrozen(false)
+    lastHeartbeatRef.current = Date.now()
+    handleManualRetry()
+  }, [handleManualRetry])
+
+  // --- Back / Forward: client-side history, NOT a cold reload ---
+  // Browser-grade Back/Forward must preserve scroll position + SPA state, so we
+  // do NOT bump loadNonce (which would re-mount the iframe and re-run the app).
+  // Instead we (1) move the host's history cursor via the provider — updating the
+  // URL bar + button gating with NO reload — and (2) post a `molecule:nav-command`
+  // to the iframe, whose scaffold-injected receiver runs `history.back()`/
+  // `forward()` inside the preview. The resulting `molecule:navigate` dedupes
+  // against the cursor we just moved, so the forward stack survives.
+  //
+  // Order matters: move the cursor FIRST (synchronously sets currentUrl) so the
+  // reported navigation dedupes; posting first would let recordNavigation push a
+  // fresh entry and truncate the forward stack. Back/Forward are only enabled once
+  // the preview has reported navigations (history is built from them), so the
+  // scaffold nav-bridge receiver is always present when these fire.
+  const postNavCommand = useCallback((action: 'back' | 'forward'): void => {
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: 'molecule:nav-command', action },
+      previewTargetOrigin(iframeRef.current),
+    )
+  }, [])
+  const handleBack = useCallback(() => {
+    back()
+    postNavCommand('back')
+  }, [back, postNavCommand])
+  const handleForward = useCallback(() => {
+    forward()
+    postNavCommand('forward')
+  }, [forward, postNavCommand])
+
+  return {
+    iframeRef,
+    orientation,
+    requestedSize,
+    canRotate,
+    currentLocation,
+    isSecureLocation,
+    everLoaded,
+    iframeReady,
+    fadingOut,
+    iframeSrc,
+    iframeMountKey,
+    stuckRetryCount,
+    previewGaveUp,
+    lastGoodFrame,
+    confirmedContent,
+    blankPostBuild,
+    previewFrozen,
+    urlDraft,
+    urlEditing,
+    renderState,
+    setFadingOut,
+    setUrlDraft,
+    setUrlEditing,
+    handleDeviceChange,
+    handleRotate,
+    handleIframeLoad,
+    handleUserRetry,
+    handleReloadFrozen,
+    handleBack,
+    handleForward,
+  }
+}

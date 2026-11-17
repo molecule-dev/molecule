@@ -531,24 +531,27 @@ describe('runs this panel did not start (the project run feed)', () => {
 
   const FILE = 'api:src/routes.test.ts'
   const OTHER = 'app:e2e/home.spec.ts'
-  const start = (runId: string, ids: string[], second = 0): TestRunFeedEvent => ({
+  // The variant each builder below constructs — typed precisely so that
+  // spreading one (to add `command`, override `status`, …) stays a known event
+  // shape instead of degrading to the whole `TestRunFeedEvent` union.
+  type StartEvent = Extract<TestRunFeedEvent, { type: 'start' }>
+  type ResultEvent = Extract<TestRunFeedEvent, { type: 'result' }>
+  type DoneEvent = Extract<TestRunFeedEvent, { type: 'done' }>
+  const start = (runId: string, ids: string[], second = 0): StartEvent => ({
     type: 'start',
     runId,
     ids,
     startedAt: `2026-10-30T19:00:${String(second).padStart(2, '0')}.000Z`,
     source: 'agent',
   })
-  const pass = (runId: string, id = FILE): TestRunFeedEvent => ({
+  const pass = (runId: string, id = FILE): ResultEvent => ({
     type: 'result',
     runId,
     id,
     status: 'passed',
     passed: 1,
   })
-  const done = (
-    runId: string,
-    outcome: 'completed' | 'cancelled' = 'completed',
-  ): TestRunFeedEvent => ({
+  const done = (runId: string, outcome: 'completed' | 'cancelled' = 'completed'): DoneEvent => ({
     type: 'done',
     runId,
     outcome,

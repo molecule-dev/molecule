@@ -208,6 +208,7 @@ export const fr: Partial<IdeTranslations> = {
   'ide.quickOpen.placeholder': 'Rechercher des fichiers par nom…',
   'ide.quickPicker.placeholder': 'Saisissez votre recherche…',
   'ide.quickPicker.noResults': 'Aucun résultat correspondant',
+  'ide.quickPicker.label': 'Sélecteur rapide',
   'ide.search.replaceInFile': 'Remplacer dans ce fichier',
   'ide.search.toggleReplace': 'Basculer le remplacement',
   'ide.search.replacePlaceholder': 'Remplacer',
@@ -220,6 +221,7 @@ export const fr: Partial<IdeTranslations> = {
   'ide.search.excludeFiles': 'Fichiers à exclure (ex. *.min.js)',
   'ide.sidebar.tabs': 'Sidebar',
   'ide.sidebar.files': 'Explorateur',
+  'ide.chat.tool.openFile': 'Ouvrir {{path}}',
   'ide.toolCall.noOutput': '(aucune sortie)',
   'ide.toolCall.written': 'Écrit',
   'ide.toolCall.statusUnchanged': 'Inchangé',
@@ -244,6 +246,7 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.code.copied': '✓ Copied',
   'ide.chat.commit': 'Commettre',
   'ide.chat.committed': 'Engagé',
+  'ide.chat.removeAttachment': 'Supprimer {{name}}',
   'ide.chat.loopLimitReached': "A atteint le maximum de {{max}} itérations de l'outil.",
   'ide.chat.maxLoopsSet': "Nombre maximal d'itérations de l'outil défini sur {{n}}",
   'ide.chat.modelError': 'Échec de la mise à jour du modèle de chat.',
@@ -816,4 +819,166 @@ export const fr: Partial<IdeTranslations> = {
   'ide.search.replaceConfirmation': 'Remplacer {{count}} occurrences dans les fichiers {{files}} ?',
   'ide.chat.voice': 'Dicter',
   'ide.chat.voiceStop': 'Arrêtez la dictée',
+  // Tool-call labels (ide.tool.*), the conversation switcher's fallback, the
+  // history dropdown's empty state and the exit-code line — English source in
+  // en.ts; the {{placeholders}} are data (file names, commands, model names) and
+  // must stay byte-identical.
+  'ide.chat.historyFallback': 'Historique des discussions',
+  'ide.chat.noConversations': 'Aucune discussion pour le moment',
+  'ide.toolCall.exitCode': 'code de sortie {{code}}',
+  'ide.tool.list': 'Lister',
+  'ide.tool.read': 'Lire',
+  'ide.tool.readMore': '+{{count}} de plus',
+  'ide.tool.write': 'Écrire',
+  'ide.tool.edit': 'Modifier',
+  'ide.tool.search': 'Rechercher',
+  'ide.tool.createDir': 'Créer un dossier',
+  'ide.tool.rename': 'Renommer',
+  'ide.tool.delete': 'Supprimer',
+  'ide.tool.find': 'Trouver',
+  'ide.tool.loadSkill': 'Charger la compétence',
+  'ide.tool.findPackage': 'Trouver un paquet',
+  'ide.tool.readDocs': 'Lire la documentation',
+  'ide.tool.fetchHost': 'Récupérer {{host}}',
+  'ide.tool.descriptionBackground': '{{description}} (en arrière-plan)',
+  'ide.tool.bash': 'Bash',
+  'ide.tool.bashBackground': 'Bash (en arrière-plan)',
+  'ide.tool.goTo': 'Aller à',
+  'ide.tool.open': 'Ouvrir',
+  'ide.tool.reloadPreview': "Recharger l'aperçu",
+  'ide.tool.restartPreviewServers': "Redémarrer les serveurs d'aperçu",
+  'ide.tool.startPreviewServers': "Démarrer les serveurs d'aperçu",
+  'ide.tool.inspectPreview': "Inspecter l'aperçu",
+  'ide.tool.click': 'Cliquer',
+  'ide.tool.fill': 'Remplir',
+  'ide.tool.select': 'Sélectionner',
+  'ide.tool.waitFor': 'Attendre',
+  'ide.tool.interact': 'Interagir',
+  'ide.tool.checkIdeStatus': "Vérifier l'état de l'IDE",
+  'ide.tool.readSourceLogs': 'Lire les journaux de {{source}}',
+  'ide.tool.readLogs': 'Lire les journaux',
+  'ide.tool.findExample': 'Trouver un exemple',
+  'ide.tool.saveScript': 'Enregistrer le script',
+  'ide.tool.importRepository': 'Importer le dépôt',
+  'ide.tool.searchWeb': 'Rechercher sur le web',
+  'ide.tool.savePlanNamed': 'Enregistrer le plan `{{name}}`',
+  'ide.tool.savePlan': 'Enregistrer le plan',
+  'ide.tool.switchToMode': 'Passer en mode {{mode}}',
+  'ide.tool.switchMode': 'Changer de mode',
+  'ide.tool.question': 'Question',
+  'ide.tool.subagentJudge': "Sous-agent — juge d'acceptation",
+  'ide.tool.subagentJudgeOn': "Sous-agent — juge d'acceptation sur {{model}}",
+  'ide.tool.subagentBuild': 'Sous-agent — construction',
+  'ide.tool.subagentBuildOn': 'Sous-agent — construction sur {{model}}',
+  'ide.tool.subagentResearch': 'Sous-agent — recherche',
+  'ide.tool.subagentResearchOn': 'Sous-agent — recherche sur {{model}}',
+  'ide.tool.waitForTask': "Attendre la tâche d'arrière-plan",
+  'ide.tool.listSessions': 'Autres sessions sur ce projet',
+  'ide.tool.sendSessionMessage': 'Envoyer un message à une autre session',
+  'ide.tool.workingPlanTasks': 'Plan de travail — {{count}} tâches',
+  'ide.tool.workingPlan': 'Plan de travail',
+  // Chat-panel labels: slash commands, categories, settings, share roles, plan review.
+  'ide.chat.cmd.clear.desc': 'Effacer la conversation',
+  'ide.chat.cmd.compact.desc': "Compresser le contexte pour libérer de l'espace",
+  'ide.chat.cmd.cost.desc':
+    "Afficher l'utilisation de tokens et la part du projet dans l'allocation d'IA",
+  'ide.chat.cmd.skills.desc': 'Parcourir et charger les compétences du projet',
+  'ide.chat.cmd.commit.desc': 'Committer les changements actuels',
+  'ide.chat.cmd.explain.desc': 'Expliquer le code (p. ex. /explain @file)',
+  'ide.chat.cmd.lint.desc': 'Exécuter le linter et corriger les problèmes',
+  'ide.chat.cmd.test.desc': 'Lister et exécuter les tests du projet',
+  'ide.chat.cmd.undo.desc': "Annuler les modifications de fichiers du dernier tour d'IA",
+  'ide.chat.cmd.scripts.desc':
+    'Parcourir et exécuter les scripts enregistrés et les actions intégrées',
+  'ide.chat.cmd.run.desc': 'Exécuter un script enregistré ou une action intégrée par son nom',
+  'ide.chat.cmd.autocommit.desc':
+    'Commit automatique N secondes après le dernier changement de fichier (0 annule)',
+  'ide.chat.cmd.autofix.desc':
+    "Activer/désactiver l'autocorrection après les modifications de fichiers par l'IA",
+  'ide.chat.cmd.autoapprove.desc':
+    "Activer/désactiver l'approbation automatique des commandes destructrices (saute la confirmation Continuer)",
+  'ide.chat.cmd.share.desc': 'Créer un lien de partage public pour ce projet',
+  'ide.chat.cmd.model.desc':
+    "Changer de modèle pour n'importe quel mode (plan, exécution, messages de commit, compression)",
+  'ide.chat.cmd.plan.desc': 'Basculer entre mode plan/exécution',
+  'ide.chat.cmd.maxloops.desc': "Définir le nombre maximum d'itérations d'outils",
+  'ide.chat.cmd.effort.desc':
+    "Choisir l'effort de raisonnement par mode parmi les niveaux natifs du modèle",
+  'ide.chat.cmd.settings.desc': 'Voir et modifier les paramètres de {{agentName}}',
+  'ide.chat.cmd.sounds.desc': 'Sons de notification',
+  'ide.chat.cmd.timestamps.desc':
+    "Afficher ou masquer l'heure sur les messages et événements du chat",
+  'ide.chat.cmd.mic.desc': "Choisir le moteur de dictée (sur l'appareil / natif du navigateur)",
+  'ide.chat.cmd.dictate.desc': 'Choisir le moteur de dictée (alias de /mic)',
+  'ide.chat.cmd.help.desc': 'Guide du flux de travail et astuces',
+  'ide.chat.cmd.report.desc': 'Signaler un bug ou envoyer un commentaire',
+  'ide.chat.cmd.bug.desc': 'Signaler un bug (alias de /report)',
+  'ide.chat.cmd.version.desc': "Afficher la version de l'appli",
+  'ide.chat.help.category.context': 'Contexte',
+  'ide.chat.help.category.code': 'Code',
+  'ide.chat.help.category.collaborate': 'Collaboration',
+  'ide.chat.help.category.model': 'Modèle',
+  'ide.chat.help.category.settings': 'Paramètres',
+  'ide.chat.help.category.support': 'Support',
+  'ide.chat.settings.model.label': 'Modèle par défaut',
+  'ide.chat.settings.planModel.label': 'Modèle du mode plan',
+  'ide.chat.settings.executeModel.label': "Modèle du mode d'exécution",
+  'ide.chat.settings.commitModel.label': 'Modèle des messages de commit',
+  'ide.chat.settings.compactModel.label': 'Modèle de compression',
+  'ide.chat.settings.mode.label': 'Mode',
+  'ide.chat.settings.maxLoops.label': "Nombre max d'itérations d'outils",
+  'ide.chat.settings.autoFix.label': 'Autocorrection',
+  'ide.chat.settings.autoCommit.label': 'Commit automatique',
+  'ide.chat.settings.hooks.label': 'Hooks',
+  'ide.chat.settings.autoApproveCommands.label': 'Approuver les commandes automatiquement',
+  'ide.chat.settings.sounds.label': 'Sons de notification',
+  'ide.chat.settings.timestamps.label': 'Horodatages',
+  'ide.chat.settings.model.desc':
+    "Le modèle qu'utilise {{agentName}} lorsqu'aucun modèle propre à un mode n'est défini.",
+  'ide.chat.settings.planModel.desc':
+    "Le modèle utilisé en mode plan. Retombe sur le modèle par défaut s'il n'est pas défini.",
+  'ide.chat.settings.executeModel.desc':
+    "Le modèle utilisé en mode exécution. Retombe sur le modèle par défaut s'il n'est pas défini.",
+  'ide.chat.settings.commitModel.desc':
+    "Le modèle qui rédige les messages de commit. Retombe sur un modèle rapide par défaut s'il n'est pas défini.",
+  'ide.chat.settings.compactModel.desc':
+    "Le modèle qui résume les messages plus anciens quand la conversation approche de sa limite de contexte. Retombe sur un modèle rapide par défaut s'il n'est pas défini.",
+  'ide.chat.settings.mode.desc':
+    'Le mode plan cherche et propose sans modifier de fichiers ; le mode exécution écrit du code.',
+  'ide.chat.settings.maxLoops.desc':
+    "Limite supérieure d'appels d'outils que {{agentName}} effectue en un tour avant de s'arrêter pour vous.",
+  'ide.chat.settings.autoFix.desc':
+    "Après les modifications de l'IA, relancer la vérification de types et le linter et renvoyer les erreurs pour que {{agentName}} les corrige.",
+  'ide.chat.settings.autoCommit.desc':
+    "Commet automatiquement votre travail un nombre de secondes défini après le dernier changement de fichier — activé par défaut (5 s ; 0 = désactivé), et attend que {{agentName}} termine son tour avant de committer. Chaque changement redémarre le compte à rebours, puis il se met en pause après le commit pour qu'un arbre propre ne soit jamais committé deux fois.",
+  'ide.chat.settings.hooks.desc':
+    "Commandes shell qui s'exécutent avant les actions d'outils et peuvent les bloquer — par exemple prévisualiser un changement avant que {{agentName}} écrase ou supprime un fichier. Configurez-les dans le fichier de paramètres d'agent de votre projet.",
+  'ide.chat.settings.autoApproveCommands.desc':
+    "Saute la confirmation « Continuer ? » avant que {{agentName}} exécute une commande massive/destructrice (un hard reset, une suppression récursive, une modification en place). L'accès réseau continue de suivre la liste d'autorisation du projet sauf si l'Accès complet est activé.",
+  'ide.chat.settings.sounds.desc':
+    'Sons de notification par événement pour les réponses, erreurs, modifications de fichiers et plus.',
+  'ide.chat.settings.timestamps.desc':
+    "Afficher l'heure sur chaque message et événement du chat. Désactivé par défaut ; vos propres messages et les événements critiques l'affichent toujours. Sur cet appareil uniquement.",
+  'ide.chat.settings.effort.desc':
+    "L'intensité de réflexion de {{agentName}}, définie par mode selon les niveaux natifs du modèle de chaque mode (p. ex. high/xhigh) ; calibre aussi le budget de la boucle de l'agent.",
+  'ide.chat.share.role.viewer': 'Spectateur — consultation seule',
+  'ide.chat.share.role.commenter': 'Commentateur — consultation et commentaires',
+  'ide.chat.share.role.editor': 'Éditeur — consultation et modification',
+  'ide.chat.share.role.owner': 'Propriétaire — accès complet',
+  'ide.chat.share.grants.viewer':
+    'Toute personne disposant de ce lien peut agir en tant que {{role}}.',
+  'ide.chat.share.grants.commenter':
+    'Toute personne disposant de ce lien peut agir en tant que {{role}}.',
+  'ide.chat.share.grants.editor':
+    'Toute personne disposant de ce lien peut agir en tant que {{role}}.',
+  'ide.chat.share.grants.owner':
+    'Toute personne disposant de ce lien peut agir en tant que {{role}}.',
+  'ide.chat.share.subheading.viewer':
+    'Créez un lien public. Toute personne disposant du lien peut agir en tant que {{role}}.',
+  'ide.chat.share.subheading.commenter':
+    'Créez un lien public. Toute personne disposant du lien peut agir en tant que {{role}}.',
+  'ide.chat.share.subheading.editor':
+    'Créez un lien public. Toute personne disposant du lien peut agir en tant que {{role}}.',
+  'ide.chat.share.subheading.owner':
+    'Créez un lien public. Toute personne disposant du lien peut agir en tant que {{role}}.',
 }

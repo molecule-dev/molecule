@@ -27,8 +27,14 @@
 import type { JSX } from 'react'
 
 import { chatCardStyle } from '@molecule/app-ide-panel-logic'
+import { settingDescription, settingLabel } from '@molecule/app-ide-panel-logic'
 import type { CommandId } from '@molecule/app-ide-panel-logic/panels'
 import type { SettingDescriptor } from '@molecule/app-ide-panel-logic/panels'
+import {
+  commandCategoryLabel,
+  commandDescription,
+  isRegistryCommandId,
+} from '@molecule/app-ide-panel-logic/panels'
 import { groupCommandsByCategory } from '@molecule/app-ide-panel-logic/panels'
 import { DEFAULT_AGENT_NAME, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -118,11 +124,7 @@ export function SettingsCard({
           >
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                <span className={cm.fontWeight('medium')}>
-                  {t(`ide.chat.settings.${setting.id}.label`, undefined, {
-                    defaultValue: setting.label,
-                  })}
-                </span>
+                <span className={cm.fontWeight('medium')}>{settingLabel(t, setting.id)}</span>
                 <span
                   className={cm.textMuted}
                   style={{
@@ -136,13 +138,7 @@ export function SettingsCard({
                 </span>
               </div>
               <div className={cm.textMuted} style={{ marginTop: 2, lineHeight: 1.4 }}>
-                {t(
-                  `ide.chat.settings.${setting.id}.desc`,
-                  { agentName },
-                  {
-                    defaultValue: setting.description,
-                  },
-                )}
+                {settingDescription(t, setting.id, { agentName })}
               </div>
             </div>
             {setting.editCommand && (
@@ -188,9 +184,7 @@ export function SettingsCard({
         {groups.map((group) => (
           <div key={group.category.key} style={{ marginBottom: 6 }}>
             <div className={cm.textMuted} style={{ fontSize: 11, marginBottom: 2 }}>
-              {t(`ide.chat.help.category.${group.category.key}`, undefined, {
-                defaultValue: group.category.label,
-              })}
+              {commandCategoryLabel(t, group.category.key)}
             </div>
             {group.commands.map((cmd) => (
               // Description BENEATH the command (mirrors the Settings section above),
@@ -210,11 +204,9 @@ export function SettingsCard({
                   {cmd.usage ?? cmd.label}
                 </code>
                 <div className={cm.textMuted} style={{ marginTop: 2, lineHeight: 1.4 }}>
-                  {t(
-                    `ide.chat.cmd.${cmd.id}.desc`,
-                    { agentName },
-                    { defaultValue: cmd.description },
-                  )}
+                  {isRegistryCommandId(cmd.id)
+                    ? commandDescription(t, cmd.id, { agentName })
+                    : cmd.description}
                 </div>
               </div>
             ))}

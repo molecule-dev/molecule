@@ -1,8 +1,22 @@
 import { describe, expect, it } from 'vitest'
 
+import type { TranslateFunction } from '@molecule/app-i18n'
 import { toolLabel } from '@molecule/app-ide-panel-logic/panels'
 
 import { backgroundTaskCommands } from '../components/background-task-context.js'
+
+/**
+ * English passthrough translator — the text the package's former static `t`
+ * returned for `en`, so these direct-call expectations stay plain English while
+ * following the caller-supplied-translate-function contract.
+ */
+const t: TranslateFunction = (key, values, opts) =>
+  opts?.defaultValue
+    ? Object.entries(values ?? {}).reduce(
+        (s, [k, v]) => s.replace(`{{${k}}}`, String(v)),
+        opts.defaultValue,
+      )
+    : key
 
 describe('backgroundTaskCommands', () => {
   it('maps a background exec_command task id to its command', () => {
@@ -26,13 +40,13 @@ describe('backgroundTaskCommands', () => {
 
 describe('toolLabel — wait_for_task', () => {
   it('names the command being waited on once the card knows it', () => {
-    expect(toolLabel('wait_for_task', { taskId: 'mol-bg-abc-123', command: 'npm run build' })).toBe(
-      'Wait for `npm run build`',
-    )
+    expect(
+      toolLabel(t, 'wait_for_task', { taskId: 'mol-bg-abc-123', command: 'npm run build' }),
+    ).toBe('Wait for `npm run build`')
   })
 
   it('falls back to the task id when the starting command is not in the transcript', () => {
-    expect(toolLabel('wait_for_task', { taskId: 'mol-bg-abc-123' })).toBe(
+    expect(toolLabel(t, 'wait_for_task', { taskId: 'mol-bg-abc-123' })).toBe(
       'Wait for background task `mol-bg-abc-123`',
     )
   })

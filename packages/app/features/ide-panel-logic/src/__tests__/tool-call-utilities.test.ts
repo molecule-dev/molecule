@@ -1,14 +1,6 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-vi.mock('@molecule/app-i18n', () => ({
-  t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue: string }) =>
-    opts?.defaultValue
-      ? Object.entries(values ?? {}).reduce(
-          (s, [k, v]) => s.replace(`{{${k}}}`, String(v)),
-          opts.defaultValue,
-        )
-      : key,
-}))
+import type { TranslateFunction } from '@molecule/app-i18n'
 
 import {
   basename,
@@ -22,6 +14,20 @@ import {
   toolLabel,
   toolSummary,
 } from '../components/tool-call-utilities.js'
+
+/**
+ * English passthrough translator — the same text the package's former static
+ * `t` returned for `en` (the key's `defaultValue`, placeholders filled), so
+ * the expectations below read as plain English while still exercising the
+ * caller-supplied-translate-function contract.
+ */
+const t: TranslateFunction = (key, values, opts) =>
+  opts?.defaultValue
+    ? Object.entries(values ?? {}).reduce(
+        (s, [k, v]) => s.replace(`{{${k}}}`, String(v)),
+        opts.defaultValue,
+      )
+    : key
 
 // ---------------------------------------------------------------------------
 // basename
@@ -55,42 +61,42 @@ describe('basename', () => {
 
 describe('toolLabel', () => {
   it('labels list_files with basename', () => {
-    expect(toolLabel('list_files', { path: 'src/components' })).toBe('List `components`')
+    expect(toolLabel(t, 'list_files', { path: 'src/components' })).toBe('List `components`')
   })
 
   it('labels list_files with "project" when no path', () => {
-    expect(toolLabel('list_files', {})).toBe('List `project`')
+    expect(toolLabel(t, 'list_files', {})).toBe('List `project`')
   })
 
   it('labels read_file with basename', () => {
-    expect(toolLabel('read_file', { path: 'src/index.ts' })).toBe('Read `index.ts`')
+    expect(toolLabel(t, 'read_file', { path: 'src/index.ts' })).toBe('Read `index.ts`')
   })
 
   it('labels a batch read_file with every file it read', () => {
-    expect(toolLabel('read_file', { paths: ['a/App.tsx', 'b/Home.tsx'] })).toBe(
+    expect(toolLabel(t, 'read_file', { paths: ['a/App.tsx', 'b/Home.tsx'] })).toBe(
       'Read `App.tsx`, `Home.tsx`',
     )
   })
 
   it('counts the files a long batch read_file does not spell out', () => {
-    expect(toolLabel('read_file', { paths: ['a.ts', 'b.ts', 'c.ts', 'd.ts', 'e.ts'] })).toBe(
+    expect(toolLabel(t, 'read_file', { paths: ['a.ts', 'b.ts', 'c.ts', 'd.ts', 'e.ts'] })).toBe(
       'Read `a.ts`, `b.ts`, `c.ts` +2 more',
     )
   })
 
   it('labels read_file with no backticks while its input is still streaming', () => {
-    expect(toolLabel('read_file', undefined)).toBe('Read')
-    expect(toolLabel('read_file', { paths: [] })).toBe('Read')
+    expect(toolLabel(t, 'read_file', undefined)).toBe('Read')
+    expect(toolLabel(t, 'read_file', { paths: [] })).toBe('Read')
   })
 
   it('never leaves a dangling comma for a path whose basename is empty', () => {
     // `src/` has no basename, so it names nothing — spending a named slot on it
     // rendered `Read , \`Home.tsx\``. It must not, and it still counts as a
     // file read in the "+N more" tally.
-    expect(toolLabel('read_file', { paths: ['src/', 'b/Home.tsx'] })).toBe(
+    expect(toolLabel(t, 'read_file', { paths: ['src/', 'b/Home.tsx'] })).toBe(
       'Read `Home.tsx` +1 more',
     )
-    expect(toolLabel('read_file', { paths: ['/'] })).toBe('Read +1 more')
+    expect(toolLabel(t, 'read_file', { paths: ['/'] })).toBe('Read +1 more')
   })
 
   it('keeps a backtick in a file name from breaking the label markup', () => {
@@ -103,7 +109,7 @@ describe('toolLabel', () => {
     // the markup is therefore backtick-substituted, so one span survives per
     // named file and the count of spans matches the entry list the click
     // targets index.
-    const label = toolLabel('read_file', { paths: ['a/`weird`.ts', 'b/real.ts'] })
+    const label = toolLabel(t, 'read_file', { paths: ['a/`weird`.ts', 'b/real.ts'] })
     expect(label).toBe("Read `'weird'.ts`, `real.ts`")
     // The property the click-target indexing rests on: splitting the label the
     // way the card does yields exactly one code segment per named entry, in
@@ -116,11 +122,13 @@ describe('toolLabel', () => {
     // Same split-safety for the shell text: command substitution in a command
     // shredded the Bash label into spans (harmless-looking, since no file is
     // clicked) and hid part of the command the user is being shown.
-    expect(toolLabel('exec_command', { command: 'echo `date`' })).toBe("Bash `echo 'date'`")
+    expect(toolLabel(t, 'exec_command', { command: 'echo `date`' })).toBe("Bash `echo 'date'`")
   })
 
   it('keeps a backtick in a plan name from breaking the label markup', () => {
-    expect(toolLabel('save_plan', { name: 'milestone `one`' })).toBe("Save plan `milestone 'one'`")
+    expect(toolLabel(t, 'save_plan', { name: 'milestone `one`' })).toBe(
+      "Save plan `milestone 'one'`",
+    )
   })
 
   it('opens the first file of a batch read_file', () => {
@@ -141,176 +149,184 @@ describe('toolLabel', () => {
   })
 
   it('labels write_file with basename', () => {
-    expect(toolLabel('write_file', { path: 'src/types.ts' })).toBe('Write `types.ts`')
+    expect(toolLabel(t, 'write_file', { path: 'src/types.ts' })).toBe('Write `types.ts`')
   })
 
   it('labels edit_file with basename', () => {
-    expect(toolLabel('edit_file', { path: 'a/b/c.tsx' })).toBe('Edit `c.tsx`')
+    expect(toolLabel(t, 'edit_file', { path: 'a/b/c.tsx' })).toBe('Edit `c.tsx`')
   })
 
   it('labels search_files with pattern', () => {
-    expect(toolLabel('search_files', { pattern: 'TODO' })).toBe('Search `TODO`')
+    expect(toolLabel(t, 'search_files', { pattern: 'TODO' })).toBe('Search `TODO`')
   })
 
   it('labels create_directory with basename', () => {
-    expect(toolLabel('create_directory', { path: 'src/utils' })).toBe('Create dir `utils`')
+    expect(toolLabel(t, 'create_directory', { path: 'src/utils' })).toBe('Create dir `utils`')
   })
 
   it('labels rename_file with old basename', () => {
-    expect(toolLabel('rename_file', { old_path: 'a/old.ts', new_path: 'a/new.ts' })).toBe(
+    expect(toolLabel(t, 'rename_file', { old_path: 'a/old.ts', new_path: 'a/new.ts' })).toBe(
       'Rename `old.ts`',
     )
   })
 
   it('labels delete_file with basename', () => {
-    expect(toolLabel('delete_file', { path: 'temp.log' })).toBe('Delete `temp.log`')
+    expect(toolLabel(t, 'delete_file', { path: 'temp.log' })).toBe('Delete `temp.log`')
   })
 
   it('labels find_files with pattern', () => {
-    expect(toolLabel('find_files', { pattern: '*.test.ts' })).toBe('Find `*.test.ts`')
+    expect(toolLabel(t, 'find_files', { pattern: '*.test.ts' })).toBe('Find `*.test.ts`')
   })
 
   it('labels web_fetch with hostname', () => {
-    expect(toolLabel('web_fetch', { url: 'https://example.com/api/data' })).toBe(
+    expect(toolLabel(t, 'web_fetch', { url: 'https://example.com/api/data' })).toBe(
       'Fetch example.com',
     )
   })
 
   it('labels web_fetch with raw URL on invalid URL', () => {
-    expect(toolLabel('web_fetch', { url: 'not-a-url' })).toBe('Fetch not-a-url')
+    expect(toolLabel(t, 'web_fetch', { url: 'not-a-url' })).toBe('Fetch not-a-url')
   })
 
   it('labels load_skill with the skill name', () => {
-    expect(toolLabel('load_skill', { name: 'styling' })).toBe('Load skill `styling`')
-    expect(toolLabel('load_skill', {})).toBe('Load skill')
+    expect(toolLabel(t, 'load_skill', { name: 'styling' })).toBe('Load skill `styling`')
+    expect(toolLabel(t, 'load_skill', {})).toBe('Load skill')
   })
 
   it('labels exec_command with truncated command', () => {
-    expect(toolLabel('exec_command', { command: 'npm test' })).toBe('Bash `npm test`')
+    expect(toolLabel(t, 'exec_command', { command: 'npm test' })).toBe('Bash `npm test`')
   })
 
   it('truncates exec_command at 60 chars with ellipsis', () => {
     const longCmd = 'a'.repeat(80)
-    const label = toolLabel('exec_command', { command: longCmd })
+    const label = toolLabel(t, 'exec_command', { command: longCmd })
     expect(label).toBe(`Bash \`${'a'.repeat(60)}…\``)
   })
 
   it('labels ask_user with question text', () => {
-    expect(toolLabel('ask_user', { question: 'Continue?' })).toBe('Continue?')
+    expect(toolLabel(t, 'ask_user', { question: 'Continue?' })).toBe('Continue?')
   })
 
   it('labels ask_user with "Question" when no question', () => {
-    expect(toolLabel('ask_user', {})).toBe('Question')
+    expect(toolLabel(t, 'ask_user', {})).toBe('Question')
   })
 
   it('falls back to formatted name for unknown tools', () => {
-    expect(toolLabel('custom_tool', {})).toBe('Custom tool')
+    expect(toolLabel(t, 'custom_tool', {})).toBe('Custom tool')
   })
 
   it('labels find_package with the query, falling back to category', () => {
-    expect(toolLabel('find_package', { query: 'send email' })).toBe('Find package `send email`')
-    expect(toolLabel('find_package', { category: 'payments' })).toBe('Find package `payments`')
-    expect(toolLabel('find_package', {})).toBe('Find package')
+    expect(toolLabel(t, 'find_package', { query: 'send email' })).toBe('Find package `send email`')
+    expect(toolLabel(t, 'find_package', { category: 'payments' })).toBe('Find package `payments`')
+    expect(toolLabel(t, 'find_package', {})).toBe('Find package')
   })
 
   it('labels read_molecule_doc with the normalized package name', () => {
-    expect(toolLabel('read_molecule_doc', { name: '@molecule/api-payments-stripe' })).toBe(
+    expect(toolLabel(t, 'read_molecule_doc', { name: '@molecule/api-payments-stripe' })).toBe(
       'Read docs `@molecule/api-payments-stripe`',
     )
-    expect(toolLabel('read_molecule_doc', { name: 'api-payments-stripe' })).toBe(
+    expect(toolLabel(t, 'read_molecule_doc', { name: 'api-payments-stripe' })).toBe(
       'Read docs `@molecule/api-payments-stripe`',
     )
-    expect(toolLabel('read_molecule_doc', {})).toBe('Read docs')
+    expect(toolLabel(t, 'read_molecule_doc', {})).toBe('Read docs')
   })
 
   it('handles null/empty input without flashing empty backticks', () => {
     // While a tool call streams, its input arrives a beat after the block is
     // created — the label must omit the backticks entirely (not render `Read ``)
     // until the path is known.
-    expect(toolLabel('read_file', null)).toBe('Read')
-    expect(toolLabel('read_file', {})).toBe('Read')
-    expect(toolLabel('search_files', {})).toBe('Search')
-    expect(toolLabel('exec_command', {})).toBe('Bash')
+    expect(toolLabel(t, 'read_file', null)).toBe('Read')
+    expect(toolLabel(t, 'read_file', {})).toBe('Read')
+    expect(toolLabel(t, 'search_files', {})).toBe('Search')
+    expect(toolLabel(t, 'exec_command', {})).toBe('Bash')
   })
 
   it('labels sandbox_fetch with method + protocol-stripped URL', () => {
-    expect(toolLabel('sandbox_fetch', { url: 'http://localhost:4000/api/todos' })).toBe(
+    expect(toolLabel(t, 'sandbox_fetch', { url: 'http://localhost:4000/api/todos' })).toBe(
       'GET `localhost:4000/api/todos`',
     )
     expect(
-      toolLabel('sandbox_fetch', { url: 'http://localhost:4000/api/todos', method: 'post' }),
+      toolLabel(t, 'sandbox_fetch', { url: 'http://localhost:4000/api/todos', method: 'post' }),
     ).toBe('POST `localhost:4000/api/todos`')
-    expect(toolLabel('sandbox_fetch', {})).toBe('GET')
+    expect(toolLabel(t, 'sandbox_fetch', {})).toBe('GET')
   })
 
   it('labels navigate_preview with the target path', () => {
-    expect(toolLabel('navigate_preview', { path: '/dashboard' })).toBe('Go to `/dashboard`')
-    expect(toolLabel('navigate_preview', {})).toBe('Go to')
+    expect(toolLabel(t, 'navigate_preview', { path: '/dashboard' })).toBe('Go to `/dashboard`')
+    expect(toolLabel(t, 'navigate_preview', {})).toBe('Go to')
   })
 
   it('labels open_file with basename', () => {
-    expect(toolLabel('open_file', { path: 'app/src/pages/Dashboard.tsx' })).toBe(
+    expect(toolLabel(t, 'open_file', { path: 'app/src/pages/Dashboard.tsx' })).toBe(
       'Open `Dashboard.tsx`',
     )
   })
 
   it('labels interact_preview by action verb + target, never the value', () => {
-    expect(toolLabel('interact_preview', { action: 'click', text: 'Sign up' })).toBe(
+    expect(toolLabel(t, 'interact_preview', { action: 'click', text: 'Sign up' })).toBe(
       'Click `Sign up`',
     )
     expect(
-      toolLabel('interact_preview', { action: 'fill', molId: 'password-input', value: 'hunter2' }),
+      toolLabel(t, 'interact_preview', {
+        action: 'fill',
+        molId: 'password-input',
+        value: 'hunter2',
+      }),
     ).toBe('Fill `password-input`')
-    expect(toolLabel('interact_preview', { action: 'select', text: 'Country' })).toBe(
+    expect(toolLabel(t, 'interact_preview', { action: 'select', text: 'Country' })).toBe(
       'Select `Country`',
     )
-    expect(toolLabel('interact_preview', { action: 'waitFor', selector: '.toast' })).toBe(
+    expect(toolLabel(t, 'interact_preview', { action: 'waitFor', selector: '.toast' })).toBe(
       'Wait for `.toast`',
     )
     // text beats molId (the visible name reads best), molId beats selector
     expect(
-      toolLabel('interact_preview', { action: 'click', text: 'Save', molId: 'save-btn' }),
+      toolLabel(t, 'interact_preview', { action: 'click', text: 'Save', molId: 'save-btn' }),
     ).toBe('Click `Save`')
     // Streaming: action not yet arrived → generic verb, no empty backticks
-    expect(toolLabel('interact_preview', {})).toBe('Interact')
+    expect(toolLabel(t, 'interact_preview', {})).toBe('Interact')
   })
 
   it('labels the preview/IDE state tools with plain verbs', () => {
-    expect(toolLabel('read_preview_ui', {})).toBe('Inspect preview')
-    expect(toolLabel('reload_preview', {})).toBe('Reload preview')
-    expect(toolLabel('restart_preview', {})).toBe('Start preview servers')
-    expect(toolLabel('restart_preview', { restart: true })).toBe('Restart preview servers')
-    expect(toolLabel('get_ide_state', {})).toBe('Check IDE status')
-    expect(toolLabel('request_repo_import', { reason: 'to add the feature' })).toBe(
+    expect(toolLabel(t, 'read_preview_ui', {})).toBe('Inspect preview')
+    expect(toolLabel(t, 'reload_preview', {})).toBe('Reload preview')
+    expect(toolLabel(t, 'restart_preview', {})).toBe('Start preview servers')
+    expect(toolLabel(t, 'restart_preview', { restart: true })).toBe('Restart preview servers')
+    expect(toolLabel(t, 'get_ide_state', {})).toBe('Check IDE status')
+    expect(toolLabel(t, 'request_repo_import', { reason: 'to add the feature' })).toBe(
       'Import repository',
     )
   })
 
   it('labels read_logs with source and optional filter', () => {
-    expect(toolLabel('read_logs', { source: 'api' })).toBe('Read api logs')
-    expect(toolLabel('read_logs', { source: 'all' })).toBe('Read logs')
-    expect(toolLabel('read_logs', { source: 'browser', filter: 'error' })).toBe(
+    expect(toolLabel(t, 'read_logs', { source: 'api' })).toBe('Read api logs')
+    expect(toolLabel(t, 'read_logs', { source: 'all' })).toBe('Read logs')
+    expect(toolLabel(t, 'read_logs', { source: 'browser', filter: 'error' })).toBe(
       'Read browser logs `error`',
     )
-    expect(toolLabel('read_logs', {})).toBe('Read logs')
+    expect(toolLabel(t, 'read_logs', {})).toBe('Read logs')
   })
 
   it('labels find_example, save_script and web_search with their key argument', () => {
-    expect(toolLabel('find_example', { query: 'reset password' })).toBe(
+    expect(toolLabel(t, 'find_example', { query: 'reset password' })).toBe(
       'Find example `reset password`',
     )
-    expect(toolLabel('save_script', { name: 'run-tests' })).toBe('Save script `run-tests`')
-    expect(toolLabel('web_search', { query: 'vite hmr websocket error' })).toBe(
+    expect(toolLabel(t, 'save_script', { name: 'run-tests' })).toBe('Save script `run-tests`')
+    expect(toolLabel(t, 'web_search', { query: 'vite hmr websocket error' })).toBe(
       'Search web `vite hmr websocket error`',
     )
   })
 
   it('falls back to the salient string argument for unknown tools', () => {
-    expect(toolLabel('mystery_tool', { path: 'src/thing.ts' })).toBe('Mystery tool `src/thing.ts`')
-    expect(toolLabel('mystery_tool', { query: 'how do I' })).toBe('Mystery tool `how do I`')
-    expect(toolLabel('mystery_tool', { count: 3 })).toBe('Mystery tool')
+    expect(toolLabel(t, 'mystery_tool', { path: 'src/thing.ts' })).toBe(
+      'Mystery tool `src/thing.ts`',
+    )
+    expect(toolLabel(t, 'mystery_tool', { query: 'how do I' })).toBe('Mystery tool `how do I`')
+    expect(toolLabel(t, 'mystery_tool', { count: 3 })).toBe('Mystery tool')
     const long = 'x'.repeat(80)
-    expect(toolLabel('mystery_tool', { query: long })).toBe(`Mystery tool \`${'x'.repeat(40)}…\``)
+    expect(toolLabel(t, 'mystery_tool', { query: long })).toBe(
+      `Mystery tool \`${'x'.repeat(40)}…\``,
+    )
   })
 })
 
@@ -320,48 +336,49 @@ describe('toolLabel', () => {
 
 describe('toolSummary', () => {
   it('returns empty for pending status', () => {
-    expect(toolSummary('read_file', null, 'pending')).toBe('')
+    expect(toolSummary(t, 'read_file', null, 'pending')).toBe('')
   })
 
   it('returns Running (no ellipsis) for running status', () => {
-    expect(toolSummary('read_file', null, 'running')).toBe('Running…')
+    expect(toolSummary(t, 'read_file', null, 'running')).toBe('Running…')
   })
 
   it('returns Not found for "not found" errors', () => {
-    expect(toolSummary('read_file', { error: 'File not found' }, 'done')).toBe('Not found')
+    expect(toolSummary(t, 'read_file', { error: 'File not found' }, 'done')).toBe('Not found')
   })
 
   it('returns Not found for "no such file" errors', () => {
-    expect(toolSummary('read_file', { error: 'ENOENT: no such file' }, 'done')).toBe('Not found')
+    expect(toolSummary(t, 'read_file', { error: 'ENOENT: no such file' }, 'done')).toBe('Not found')
   })
 
   it('returns Permission denied for permission errors', () => {
-    expect(toolSummary('write_file', { error: 'Permission denied' }, 'done')).toBe(
+    expect(toolSummary(t, 'write_file', { error: 'Permission denied' }, 'done')).toBe(
       'Permission denied',
     )
   })
 
   it('returns Permission denied for access denied errors', () => {
-    expect(toolSummary('read_file', { error: 'Access denied to path' }, 'done')).toBe(
+    expect(toolSummary(t, 'read_file', { error: 'Access denied to path' }, 'done')).toBe(
       'Permission denied',
     )
   })
 
   it('returns Failed for generic errors', () => {
-    expect(toolSummary('read_file', { error: 'Something went wrong' }, 'done')).toBe('Failed')
+    expect(toolSummary(t, 'read_file', { error: 'Something went wrong' }, 'done')).toBe('Failed')
   })
 
   it('returns Unchanged for write_file with unchanged diff', () => {
-    expect(toolSummary('write_file', { diff: { type: 'unchanged' } }, 'done')).toBe('Unchanged')
+    expect(toolSummary(t, 'write_file', { diff: { type: 'unchanged' } }, 'done')).toBe('Unchanged')
   })
 
   it('returns empty for write_file with no diff', () => {
-    expect(toolSummary('write_file', {}, 'done')).toBe('')
+    expect(toolSummary(t, 'write_file', {}, 'done')).toBe('')
   })
 
   it('returns empty for write_file with modified diff', () => {
     expect(
       toolSummary(
+        t,
         'write_file',
         { diff: { type: 'modified', linesAdded: 5, linesRemoved: 3 } },
         'done',
@@ -370,91 +387,92 @@ describe('toolSummary', () => {
   })
 
   it('returns entry count for list_files', () => {
-    expect(toolSummary('list_files', { entries: [1, 2, 3] }, 'done')).toBe('3 entries')
+    expect(toolSummary(t, 'list_files', { entries: [1, 2, 3] }, 'done')).toBe('3 entries')
   })
 
   it('returns empty for list_files with no entries', () => {
-    expect(toolSummary('list_files', {}, 'done')).toBe('')
+    expect(toolSummary(t, 'list_files', {}, 'done')).toBe('')
   })
 
   it('returns match count for search_files', () => {
-    expect(toolSummary('search_files', { matches: [1] }, 'done')).toBe('1 matches')
+    expect(toolSummary(t, 'search_files', { matches: [1] }, 'done')).toBe('1 matches')
   })
 
   it('returns file count for find_files', () => {
-    expect(toolSummary('find_files', { files: [1, 2] }, 'done')).toBe('2 files')
+    expect(toolSummary(t, 'find_files', { files: [1, 2] }, 'done')).toBe('2 files')
   })
 
   it('returns empty for edit_file', () => {
-    expect(toolSummary('edit_file', {}, 'done')).toBe('')
+    expect(toolSummary(t, 'edit_file', {}, 'done')).toBe('')
   })
 
   it('returns empty for read_file', () => {
-    expect(toolSummary('read_file', {}, 'done')).toBe('')
+    expect(toolSummary(t, 'read_file', {}, 'done')).toBe('')
   })
 
   it('returns Not found for web_fetch 404', () => {
-    expect(toolSummary('web_fetch', { status: 404 }, 'done')).toBe('Not found')
+    expect(toolSummary(t, 'web_fetch', { status: 404 }, 'done')).toBe('Not found')
   })
 
   it('returns Failed for web_fetch 4xx', () => {
-    expect(toolSummary('web_fetch', { status: 403 }, 'done')).toBe('Failed')
+    expect(toolSummary(t, 'web_fetch', { status: 403 }, 'done')).toBe('Failed')
   })
 
   it('returns Server error for web_fetch 5xx', () => {
-    expect(toolSummary('web_fetch', { status: 500 }, 'done')).toBe('Server error')
+    expect(toolSummary(t, 'web_fetch', { status: 500 }, 'done')).toBe('Server error')
   })
 
   it('returns empty for web_fetch 2xx', () => {
-    expect(toolSummary('web_fetch', { status: 200 }, 'done')).toBe('')
+    expect(toolSummary(t, 'web_fetch', { status: 200 }, 'done')).toBe('')
   })
 
   it('returns Failed for exec_command with non-zero exit code', () => {
-    expect(toolSummary('exec_command', { exitCode: 1 }, 'done')).toBe('Failed')
+    expect(toolSummary(t, 'exec_command', { exitCode: 1 }, 'done')).toBe('Failed')
   })
 
   it('returns empty for exec_command with zero exit code', () => {
-    expect(toolSummary('exec_command', { exitCode: 0 }, 'done')).toBe('')
+    expect(toolSummary(t, 'exec_command', { exitCode: 0 }, 'done')).toBe('')
   })
 
   it('returns response text for ask_user string output', () => {
     expect(
-      toolSummary('ask_user', 'user response' as unknown as Record<string, unknown>, 'done'),
+      toolSummary(t, 'ask_user', 'user response' as unknown as Record<string, unknown>, 'done'),
     ).toBe('user response')
   })
 
   it('returns empty for ask_user awaiting response', () => {
-    expect(toolSummary('ask_user', { status: 'awaiting_response' }, 'done')).toBe('')
+    expect(toolSummary(t, 'ask_user', { status: 'awaiting_response' }, 'done')).toBe('')
   })
 
   it('returns empty for unknown tools', () => {
-    expect(toolSummary('unknown_tool', {}, 'done')).toBe('')
+    expect(toolSummary(t, 'unknown_tool', {}, 'done')).toBe('')
   })
 
   it('returns package count for find_package', () => {
-    expect(toolSummary('find_package', { found: 3 }, 'done')).toBe('3 packages')
-    expect(toolSummary('find_package', { found: 0 }, 'done')).toBe('No matches')
-    expect(toolSummary('find_package', {}, 'done')).toBe('')
+    expect(toolSummary(t, 'find_package', { found: 3 }, 'done')).toBe('3 packages')
+    expect(toolSummary(t, 'find_package', { found: 0 }, 'done')).toBe('No matches')
+    expect(toolSummary(t, 'find_package', {}, 'done')).toBe('')
   })
 
   it('maps sandbox_fetch statuses like web_fetch', () => {
-    expect(toolSummary('sandbox_fetch', { status: 200 }, 'done')).toBe('')
-    expect(toolSummary('sandbox_fetch', { status: 404 }, 'done')).toBe('Not found')
-    expect(toolSummary('sandbox_fetch', { status: 422 }, 'done')).toBe('Failed')
-    expect(toolSummary('sandbox_fetch', { status: 500 }, 'done')).toBe('Server error')
-    expect(toolSummary('sandbox_fetch', {}, 'done')).toBe('')
+    expect(toolSummary(t, 'sandbox_fetch', { status: 200 }, 'done')).toBe('')
+    expect(toolSummary(t, 'sandbox_fetch', { status: 404 }, 'done')).toBe('Not found')
+    expect(toolSummary(t, 'sandbox_fetch', { status: 422 }, 'done')).toBe('Failed')
+    expect(toolSummary(t, 'sandbox_fetch', { status: 500 }, 'done')).toBe('Server error')
+    expect(toolSummary(t, 'sandbox_fetch', {}, 'done')).toBe('')
   })
 
   it('shows where the preview actually landed for navigate/interact', () => {
     expect(
       toolSummary(
+        t,
         'navigate_preview',
         { url: 'https://p-abc123.preview.molecule.dev/login?next=%2Fdashboard' },
         'done',
       ),
     ).toBe('/login?next=%2Fdashboard')
-    expect(toolSummary('interact_preview', { url: '/dashboard' }, 'done')).toBe('/dashboard')
-    expect(toolSummary('navigate_preview', {}, 'done')).toBe('')
+    expect(toolSummary(t, 'interact_preview', { url: '/dashboard' }, 'done')).toBe('/dashboard')
+    expect(toolSummary(t, 'navigate_preview', {}, 'done')).toBe('')
   })
 })
 

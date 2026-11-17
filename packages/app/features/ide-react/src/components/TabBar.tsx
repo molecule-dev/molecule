@@ -93,7 +93,7 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
 }
 
 // ---------------------------------------------------------------------------
-// Tab — individual tab with hover-gated close button
+// Tab — individual tab with hover- or focus-revealed close button
 // ---------------------------------------------------------------------------
 
 /** Props for a single editor tab. */
@@ -115,7 +115,29 @@ export interface TabItemProps {
 }
 
 /**
- * Individual tab item with hover-gated close button and status coloring.
+ * Individual tab item with hover- or focus-revealed close button and status
+ * coloring. The close control shows while the pointer is over the tab OR
+ * focus is anywhere inside it — a keyboard user who tabs to the tab (or on to
+ * the close control) sees the control they can act on, which a mouse-only
+ * reveal violates (WCAG 2.4.7 Focus Visible). The close control's tint lights
+ * on its own hover OR focus for the same reason.
+ *
+ * The wrapper is `role="presentation"` and owns the mouse behaviour (select,
+ * double-click, hover reveal) plus the tab's geometry; the `role="tab"` inside
+ * it carries the ARIA state and the keyboard path. A `tab`'s children are
+ * presentational, so the close control is its SIBLING, not a child — otherwise
+ * assistive technology drops the close button from the accessibility tree
+ * (axe `nested-interactive`).
+ *
+ * ARIA cannot expose a close control next to a `tab` either: the presentation
+ * wrapper is transparent in the accessibility tree, which makes any control
+ * inside it an owned child of the `tablist`, and a `tablist` may own only
+ * `tab`s (axe `aria-required-children`). The close action therefore lives on
+ * the tab itself — Delete closes the focused tab, announced through
+ * `aria-keyshortcuts="Delete"` — and the ✕ is the pointer-user affordance for
+ * that same action, so it is `aria-hidden` (a hidden duplicate; the tab's
+ * Delete key is the keyboard path). It stays clickable and out of the tab
+ * order (`tabIndex={-1}`), so a tab never contains a second focus stop.
  * @param props - Component props (see {@link TabItemProps}).
  * @returns The rendered tab item element.
  */
@@ -137,6 +159,10 @@ function TabItem({
   const cm = getClassMap()
   const { t } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
+  // The close control stays revealed while focus is anywhere inside the tab.
+  // React's synthetic onFocus/onBlur bubble, so a focus moving between the tab
+  // and its close control is one focused region, not a leave.
+  const [closeRevealed, setCloseRevealed] = useState(false)
   const fileName = path.split('/').pop() || path
   const fileColor = resolveFileColor(statusColors, diagnosticColors, diagnostics, gitStatus)
 
@@ -164,17 +190,17 @@ function TabItem({
 
   return (
     <div
-      role="tab"
-      title={path}
-      tabIndex={0}
-      aria-selected={isActive}
+      role="presentation"
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onSelect(path)
-      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onFocus={() => setCloseRevealed(true)}
+      onBlur={(e) => {
+        // A focus moving INSIDE the tab (tab ⇄ close control) is not a leave.
+        const next = e.relatedTarget
+        if (!(next instanceof Node && e.currentTarget.contains(next))) setCloseRevealed(false)
+      }}
       // 40px tall on touch-first devices — the WCAG-acceptable floor for a dense
       // toolbar row; 32px compact height on pointer devices (unchanged).
       style={{ userSelect: 'none', height: isCoarse ? '40px' : '32px' }}
@@ -189,20 +215,41 @@ function TabItem({
         isActive && cm.borderBPrimary,
       )}
     >
-      <FileTypeIcon name={fileName} />
-      <span
-        style={{
-          fontStyle: isPreview ? 'italic' : undefined,
-          color: fileColor,
-          textDecoration: gitStatus === 'deleted' ? 'line-through' : undefined,
+      <div
+        role="tab"
+        title={path}
+        tabIndex={0}
+        aria-selected={isActive}
+        // The close action's keyboard path; announced so it is discoverable.
+        aria-keyshortcuts="Delete"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') onSelect(path)
+          // The close control is a sibling, so Delete on the tab is the
+          // keyboard path to closing it (the button is out of the tab order).
+          else if (e.key === 'Delete') onClose(path)
         }}
+        className={cm.cn(cm.flex({ direction: 'row', align: 'center', gap: 'xs' }))}
       >
-        {fileName}
-        {isDirty && <span className={cm.textWarning}> {'\u2022'}</span>}
-      </span>
+        <FileTypeIcon name={fileName} />
+        <span
+          style={{
+            fontStyle: isPreview ? 'italic' : undefined,
+            color: fileColor,
+            textDecoration: gitStatus === 'deleted' ? 'line-through' : undefined,
+          }}
+        >
+          {fileName}
+          {isDirty && <span className={cm.textWarning}> {'\u2022'}</span>}
+        </span>
+      </div>
       <button
         type="button"
         data-mol-id="tab-close"
+        tabIndex={-1}
+        // The pointer-user duplicate of the tab's Delete action; hidden from
+        // the accessibility tree because a tablist may own only `tab`s, and
+        // the tab itself carries the (announced) keyboard path.
+        aria-hidden="true"
         onClick={(e) => {
           e.stopPropagation()
           onClose(path)
@@ -215,16 +262,24 @@ function TabItem({
           e.currentTarget.style.background = 'transparent'
           e.currentTarget.style.color = ''
         }}
+        onFocus={(e) => {
+          e.currentTarget.style.background = 'rgba(128,128,128,0.25)'
+          e.currentTarget.style.color = 'var(--color-foreground, #e0e0e0)'
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.background = 'transparent'
+          e.currentTarget.style.color = ''
+        }}
         className={cm.cn(cm.textMuted, cm.textSize('xs'), cm.cursorPointer, cm.touchTargetCompact)}
-        /* mol-bespoke-button: icon-only ✕ tab close, hover-revealed, 16px
+        /* mol-bespoke-button: icon-only ✕ tab close, hover/focus-revealed, 16px
            square so the mark sits dead-centre in a 32px tab. Its hit floor is
            the ClassMap's 36px (min-width/height beat the 16px width/height
            below) — it used to be a bespoke 32px. */
         style={{
           // Square button (equal width/height) with the glyph centered on both
           // axes — no asymmetric padding, so the ✕ sits dead-center in the tab.
-          // On touch-first devices hover-reveal doesn't exist, so the close is
-          // also always visible, dimmed.
+          // On touch-first devices neither hover nor the focus reveal applies,
+          // so the close is also always visible, dimmed.
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -238,10 +293,10 @@ function TabItem({
           borderRadius: '3px',
           marginLeft: '4px',
           marginRight: isCoarse ? '-8px' : '-4px',
-          opacity: isHovered ? 1 : isCoarse ? 0.6 : 0,
+          opacity: isHovered || closeRevealed ? 1 : isCoarse ? 0.6 : 0,
           transition: 'opacity 100ms, background 80ms, color 80ms',
         }}
-        aria-label={t('ide.tabs.close', { fileName })}
+        aria-label={t('ide.tabs.close', { fileName }, { defaultValue: 'Close {{fileName}}' })}
       >
         {/* SVG X (not a text \u2715 glyph, whose font metrics never center cleanly) so the
             mark sits dead-center in the square button \u2014 matches the tip/skill dismiss X. */}
@@ -264,7 +319,15 @@ function TabItem({
 
 /**
  * Horizontally scrollable tab bar for open editor files.
- * @param props - Component props (see {@link TabItemProps}).
+ *
+ * Every tab is a `role="presentation"` wrapper holding the `role="tab"` (its
+ * ARIA state and keyboard path) beside the close control. A tab's children are
+ * presentational, so the close button is its sibling, not a child
+ * (`nested-interactive`); and a `tablist` may own only `tab`s, so the button
+ * is the pointer-user duplicate of the tab's Delete action and is hidden from
+ * the accessibility tree. Enter/Space selects the focused tab, Delete closes
+ * it, and `aria-keyshortcuts` announces that.
+ * @param props - Component props (see {@link TabBarProps} and {@link TabItemProps}).
  * @returns The rendered tab bar element, or null if no tabs are open.
  */
 export function TabBar({

@@ -147,6 +147,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.quickPicker.placeholder': 'Thayipha ukuze useshe…',
   'ide.quickPicker.loading': 'Iyalayisha…',
   'ide.quickPicker.noResults': 'Ayikho imiphumela efanayo',
+  'ide.quickPicker.label': 'Isikhethi esisheshayo',
   'ide.search.replaceInFile': 'Faka esikhundleni saleli fayela',
   'ide.search.toggleReplace': 'Guqula ukufaka esikhundleni',
   'ide.search.placeholder': 'Sesha',
@@ -164,6 +165,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.sidebar.tabs': 'Sidebar',
   'ide.sidebar.files': 'Umhloli',
   'ide.sidebar.search': 'Sesha',
+  'ide.chat.tool.openFile': 'Vula {{path}}',
   'ide.toolCall.noOutput': '(akukho okukhiphayo)',
   'ide.toolCall.written': 'Kubhaliwe',
   'ide.toolCall.statusUnchanged': 'Akushintshiwe',
@@ -233,6 +235,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.code.copied': '✓ Copied',
   'ide.chat.commit': 'Ukuzibophezela',
   'ide.chat.committed': 'Ukuzinikela',
+  'ide.chat.removeAttachment': 'Susa {{name}}',
   'ide.chat.retryCommit': 'Zama futhi',
   'ide.chat.loopLimitReached': 'Kufinyelelwe esiphezulu se {{max}} ukuphindaphinda kwamathuluzi.',
   'ide.chat.maxLoopsSet': 'Ukuphindaphinda kwamathuluzi okuphezulu kusethwe ku- {{n}}',
@@ -811,4 +814,163 @@ export const zu: Partial<IdeTranslations> = {
     'Shintsha izenzakalo ezingu {{count}} kumafayela angu {{files}} ?',
   'ide.chat.voice': 'Bizela',
   'ide.chat.voiceStop': 'Misa ukubizela',
+  // Tool-call labels (ide.tool.*), the conversation switcher's fallback, the
+  // history dropdown's empty state and the exit-code line — English source in
+  // en.ts; the {{placeholders}} are data (file names, commands, model names) and
+  // must stay byte-identical.
+  'ide.chat.historyFallback': 'Umlando wengxoxo',
+  'ide.chat.noConversations': 'Akukho zingxoxo okwamanje',
+  'ide.toolCall.exitCode': 'ikhiye lokuphuma {{code}}',
+  'ide.tool.list': 'Uhlu',
+  'ide.tool.read': 'Funda',
+  'ide.tool.readMore': '+{{count}} okunye',
+  'ide.tool.write': 'Bhala',
+  'ide.tool.edit': 'Hlela',
+  'ide.tool.search': 'Sesha',
+  'ide.tool.createDir': 'Dala ifolda',
+  'ide.tool.rename': 'Qamba kabusha',
+  'ide.tool.delete': 'Susa',
+  'ide.tool.find': 'Thola',
+  'ide.tool.loadSkill': 'Layisha ikhono',
+  'ide.tool.findPackage': 'Thola iphakheji',
+  'ide.tool.readDocs': 'Funda imibhalo',
+  'ide.tool.fetchHost': 'Thola {{host}}',
+  'ide.tool.descriptionBackground': '{{description}} (yingasemuva)',
+  'ide.tool.bash': 'Bash',
+  'ide.tool.bashBackground': 'Bash (yingasemuva)',
+  'ide.tool.goTo': 'iya ku-',
+  'ide.tool.open': 'Vula',
+  'ide.tool.reloadPreview': 'Layisha kabusha ukubuka kuqala',
+  'ide.tool.restartPreviewServers': 'Qalisa kabusha amaseva okubuka kuqala',
+  'ide.tool.startPreviewServers': 'Qalisa amaseva okubuka kuqala',
+  'ide.tool.inspectPreview': 'Hlola ukubuka kuqala',
+  'ide.tool.click': 'Chofoza',
+  'ide.tool.fill': 'Gcwalisa',
+  'ide.tool.select': 'Khetha',
+  'ide.tool.waitFor': 'Linda',
+  'ide.tool.interact': 'Hlanganyela',
+  'ide.tool.checkIdeStatus': 'Hlola isimo se-IDE',
+  'ide.tool.readSourceLogs': 'Funda amalogu e-{{source}}',
+  'ide.tool.readLogs': 'Funda amalogu',
+  'ide.tool.findExample': 'Thola isibonelo',
+  'ide.tool.saveScript': 'Gcina iskripthi',
+  'ide.tool.importRepository': 'Genisa indawo egciniwe',
+  'ide.tool.searchWeb': 'Sesha kuwebhu',
+  'ide.tool.savePlanNamed': 'Gcina uhlelo `{{name}}`',
+  'ide.tool.savePlan': 'Gcina uhlelo',
+  'ide.tool.switchToMode': 'Guqulaele imodi ye-{{mode}}',
+  'ide.tool.switchMode': 'Guqula imodi',
+  'ide.tool.question': 'Imibuzo',
+  'ide.tool.subagentJudge': 'I-subagent — umhloli wokwamukelwa',
+  'ide.tool.subagentJudgeOn': 'I-subagent — umhloli wokwamukelwa ku-{{model}}',
+  'ide.tool.subagentBuild': 'I-subagent — ukwakha',
+  'ide.tool.subagentBuildOn': 'I-subagent — ukwakha ku-{{model}}',
+  'ide.tool.subagentResearch': 'I-subagent — ucwaningo',
+  'ide.tool.subagentResearchOn': 'I-subagent — ucwaningo ku-{{model}}',
+  'ide.tool.waitForTask': 'Linda umsebenzi wangasemuva',
+  'ide.tool.listSessions': 'Amanye amaseshoni kulo phrojekthi',
+  'ide.tool.sendSessionMessage': 'Thumela umyalezo kwenye iseshoni',
+  'ide.tool.workingPlanTasks': 'Uhlelo lomsebenzi — {{count}} imisebenzi',
+  'ide.tool.workingPlan': 'Uhlelo lomsebenzi',
+  // Chat-panel labels: slash commands, categories, settings, share roles, plan review.
+  'ide.chat.cmd.clear.desc': 'Sula ingxoxo',
+  'ide.chat.cmd.compact.desc': 'Nqandisa isimo ukuze ukhulule indawo',
+  'ide.chat.cmd.cost.desc':
+    'Khombisa ukusetshenziswa kwamathokheni kanye nesabelo sophrojekthi kusuka ku- AI quota',
+  'ide.chat.cmd.skills.desc': 'Phequlula futhi ulayishe amakhono ephrojekthi',
+  'ide.chat.cmd.commit.desc': 'Yenza commit ngezinguquko zamanje',
+  'ide.chat.cmd.explain.desc': 'Chaza ikhodi (isb. /explain @file)',
+  'ide.chat.cmd.lint.desc': 'Qalisa i-linter futhi ulungise izinkinga',
+  'ide.chat.cmd.test.desc': 'Faka ohlwini uphinde usebenzise ukuhlolwa kwephrojekthi',
+  'ide.chat.cmd.undo.desc': 'Buyisa izinguquko zefayela kwesikhathi sokugcina se- AI',
+  'ide.chat.cmd.scripts.desc':
+    'Phequlula futhi usebenzise amaskripthi agciniwe nokwenza okwakhelwe ngaphakathi',
+  'ide.chat.cmd.run.desc':
+    'Sebenzisa iskripthi esigciniwe noma isenzo esakhelwe ngaphakathi ngegama',
+  'ide.chat.cmd.autocommit.desc':
+    'Auto-commit emizuzwana eyi- N ngemuva kokuguqulwa kwefayela okokugcina (0 kukhansela)',
+  'ide.chat.cmd.autofix.desc':
+    'Guqula ukulungisa okuzenzekelayo ngemuva kwezinguquko zefayela ze- AI',
+  'ide.chat.cmd.autoapprove.desc':
+    'Guqula ukuvuma okuzenzekelayo kwemiyalo eyonakalisayo (yephula ukuqinisekiswa kokuqhubeka)',
+  'ide.chat.cmd.share.desc': 'Dala isixhumanisi sokwabelana esivulekile sale phrojekthi',
+  'ide.chat.cmd.model.desc':
+    'Shintsha imodeli kunoma yimuphi umodi (uhlelo, ukwenza, imilayezo ye-commit, ukucindezela)',
+  'ide.chat.cmd.plan.desc': 'Guqula phakathi kwemodi yokuhlela/ukwenza',
+  'ide.chat.cmd.maxloops.desc': 'Setha inani eliphezulu lezindinganiso zamathuluzi',
+  'ide.chat.cmd.effort.desc':
+    'Khetha umzamo wokucabanga ngemodi kusuka ezinkingeni zendabuka yemodeli',
+  'ide.chat.cmd.settings.desc': 'Buka futhi ushintshe izilungiselelo ze- {{agentName}}',
+  'ide.chat.cmd.sounds.desc': 'Amandla okwazisa',
+  'ide.chat.cmd.timestamps.desc': 'Khombisa noma fihla isikhathi kumilayezo nezezehlakalo zokuxoxa',
+  'ide.chat.cmd.mic.desc': 'Khetha injini yokucubungula (kwidivayisi / engumdabu wesiphequluli)',
+  'ide.chat.cmd.dictate.desc': 'Khetha injini yokucubungula (igama elithile le- /mic)',
+  'ide.chat.cmd.help.desc': 'Umhlahlandlela we- workflow namathiphu',
+  'ide.chat.cmd.report.desc': 'Bika iphutha noma uthumele impendulo',
+  'ide.chat.cmd.bug.desc': 'Bika iphutha (igama elithile le- /report)',
+  'ide.chat.cmd.version.desc': 'Khombisa inguqulo ye-app',
+  'ide.chat.help.category.context': 'Isimo',
+  'ide.chat.help.category.code': 'Ikhodi',
+  'ide.chat.help.category.collaborate': 'Ukusebenzisana',
+  'ide.chat.help.category.model': 'Imodeli',
+  'ide.chat.help.category.settings': 'Izilungiselelo',
+  'ide.chat.help.category.support': 'Usekelo',
+  'ide.chat.settings.model.label': 'Imodeli yedlanzakhuluma',
+  'ide.chat.settings.planModel.label': 'Imodeli yemodi yokuhlela',
+  'ide.chat.settings.executeModel.label': 'Imodeli yemodi yokwenza',
+  'ide.chat.settings.commitModel.label': 'Imodeli yomlayezo we-commit',
+  'ide.chat.settings.compactModel.label': 'Imodeli yokucindezela',
+  'ide.chat.settings.mode.label': 'Imodi',
+  'ide.chat.settings.maxLoops.label': 'Izindinganiso zamathuluzi eliphezulu',
+  'ide.chat.settings.autoFix.label': 'Ukulungisa okuzenzekelayo',
+  'ide.chat.settings.autoCommit.label': 'Auto-commit',
+  'ide.chat.settings.hooks.label': 'Amahaka',
+  'ide.chat.settings.autoApproveCommands.label': 'Vuma imiyalo ngokuzenzakalela',
+  'ide.chat.settings.sounds.label': 'Amandla okwazisa',
+  'ide.chat.settings.timestamps.label': 'Amathebhu esikhathi',
+  'ide.chat.settings.model.desc':
+    'Imodeli esetshenziswayo yi- {{agentName}} uma imodeli eyingqayizivele yemodi ingasetshwangelanga.',
+  'ide.chat.settings.planModel.desc':
+    'Imodeli esetshenziswayo kumodi yokuhlela. Iyabuyela kumodeli yedlanzakhuluma uma ingasetshwangelanga.',
+  'ide.chat.settings.executeModel.desc':
+    'Imodeli esetshenziswayo kumodi yokwenza. Iyabuyela kumodeli yedlanzakhuluma uma ingasetshwangelanga.',
+  'ide.chat.settings.commitModel.desc':
+    'Imodeli ebhala imilayezo ye-commit. Iyabuyela kwenye isilinganiso esisheshayo uma ingasetshwangelanga.',
+  'ide.chat.settings.compactModel.desc':
+    'Imodeli eqhiphisa imilayezo endala uma ingxoxo sondelela kuwo umkhawulo wesimo. Iyabuyela kwenye isilinganiso esisheshayo uma ingasetshwangelanga.',
+  'ide.chat.settings.mode.desc':
+    'Modi yokuhlela uyocubungula futhi akhomba ngaphandle kokuhlela amafayela; imodi yokwenza ibhala ikhodi.',
+  'ide.chat.settings.maxLoops.desc':
+    'Umkhawulo ophezulu wezibizo zamathuluzi umdala {{agentName}} awenza ohlwini one ngaphambi kokumisa ngenxa yakho.',
+  'ide.chat.settings.autoFix.desc':
+    'Ngemuva kwezinguquko ze- AI, phinda usebenzise ukuhlolwa kwetipi ne-linter bese ubuyisela amaphutha ukuze {{agentName}} awalungise.',
+  'ide.chat.settings.autoCommit.desc':
+    'Yenza commit umsebenzi wakho ngokuzenzakalela emizuzwana eyimikhawulo ngemuva kokuguqulwa kwefayela okokugcina — kuyavuleka ngokwendabuka (5s; 0 = kuvaliwe), futhi kulinda {{agentName}} aqedile isikhathi sakhe ngaphambi kwe-commit. Isinguquko ngasinye sisaqala i-countdown futhi, bese kumila ngemuva kwe-commit ukuze isihlahla esihlanke singalokhu kwenziwa i-commit ngokwesibili.',
+  'ide.chat.settings.hooks.desc':
+    'Imiyalo yesigqubuthelo eyenziwa ngaphambi kwesezinya zamathuluzi futhi ininga lezo zenzakalo — isb. ukubuka phambili kwezingqazikhombo zomhlahlandlela ngaphambi kokuthi {{agentName}} abhale ngaphezulu noma asuse ifayela. Hlela lezo kufayela lezilungiselelo ze-ejenti yephrojekthi yakho.',
+  'ide.chat.settings.autoApproveCommands.desc':
+    'Yephula ukuqinisekiswa “Uqhubeka?” ngaphambi kokuthi {{agentName}} yenze umyalo omkhulu/ononakalisa (hard reset, ukususwa okuyindinga, ukulungisa endaweni). Ukufinyelela ku-inthanethi kuhlala kulandelela uhlu lwamalungelo aphrojekthi ngaphandle kokuvinjwa kokufinyelela ngokuphelele.',
+  'ide.chat.settings.sounds.desc':
+    'Ukhwaphulendo lokuzwakalisa kwamandla kwesigaba kanye nokukhulula ukubamba, ukulahlekelwa ukunqamula, kanye nokungathandi.',
+  'ide.chat.settings.timestamps.desc':
+    'Khombisa isikhathi kumilayezo wonke nezezehlakalo zokuxoxa. Kuvaliwe ngokwendabuka; imilayezo yakho nezezehlakalo ezibucayi ihlala yikhombisa. Kule divayisi kuphela.',
+  'ide.chat.settings.effort.desc':
+    'Ukwazuzwa kwenkosi {{agentName}} ukucabanga, kunikezwa ngemodi kusuka ezinkundleni zendabuka yemodeli (isb. high/xhigh); futhi kukala nesabelo le- loop ye-ejenti.',
+  'ide.chat.share.role.viewer': 'Umthengi — ukubukela kuphela',
+  'ide.chat.share.role.commenter': 'Umphawuli — ukubukela kanye nokuphawula',
+  'ide.chat.share.role.editor': 'Umhleli — ukubukela kanye nokuhlela',
+  'ide.chat.share.role.owner': 'Umnikazi — ukufinyelela okugcwele',
+  'ide.chat.share.grants.viewer': 'Noma ngubani onalesi sixhumanisi angasebenza njengo {{role}}.',
+  'ide.chat.share.grants.commenter':
+    'Noma ngubani onalesi sixhumanisi angasebenza njengo {{role}}.',
+  'ide.chat.share.grants.editor': 'Noma ngubani onalesi sixhumanisi angasebenza njengo {{role}}.',
+  'ide.chat.share.grants.owner': 'Noma ngubani onalesi sixhumanisi angasebenza njengo {{role}}.',
+  'ide.chat.share.subheading.viewer':
+    'Dala isixhumanisi esivulekile. Noma ngubani onesixhumanisi angasebenza njengo {{role}}.',
+  'ide.chat.share.subheading.commenter':
+    'Dala isixhumanisi esivulekile. Noma ngubani onesixhumanisi angasebenza njengo {{role}}.',
+  'ide.chat.share.subheading.editor':
+    'Dala isixhumanisi esivulekile. Noma ngubani onesixhumanisi angasebenza njengo {{role}}.',
+  'ide.chat.share.subheading.owner':
+    'Dala isixhumanisi esivulekile. Noma ngubani onesixhumanisi angasebenza njengo {{role}}.',
 }

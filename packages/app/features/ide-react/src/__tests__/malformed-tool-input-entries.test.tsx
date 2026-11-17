@@ -27,52 +27,12 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { fileDiffStats } from '@molecule/app-ide-panel-logic/panels'
 import { I18nProvider, ThemeProvider } from '@molecule/app-react'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { streamingActivityLabel } from '../components/ChatPanel.js'
 import { ToolCallCard } from '../components/ToolCallCard.js'
-
-/** A minimal light theme so `useThemeMode` resolves. */
-function buildThemeProvider(): ThemeProviderType {
-  const theme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
-  return {
-    getTheme: () => theme,
-    getThemeName: () => 'light',
-    getThemes: () => ['light', 'dark'],
-    setTheme: () => {},
-    toggleMode: () => {},
-    onThemeChange: () => () => {},
-  }
-}
+import { buildThemeProvider } from './theme-test-provider.js'
 
 /**
  * Wrap a card in the i18n + theme contexts it needs to mount.
@@ -140,6 +100,7 @@ describe('an edit_file card whose replacements array holds a malformed entry', (
     const { container } = render(
       wrap(
         <ToolCallCard
+          id="tc-entries"
           name="edit_file"
           input={{
             path: 'src/a.ts',
@@ -170,7 +131,7 @@ describe('streamingActivityLabel reads model-authored fields as strings', () => 
   const t = createSimpleI18nProvider('en').t
 
   /**
-   * Build a streaming message whose last block is a tool_use.
+   * Build a streaming message whose last block is a tool call, as the chat session stores it.
    *
    * @param name - The tool name.
    * @param input - The tool's model-authored input.
@@ -178,7 +139,7 @@ describe('streamingActivityLabel reads model-authored fields as strings', () => 
    */
   function message(name: string, input: unknown): Parameters<typeof streamingActivityLabel>[1] {
     return {
-      blocks: [{ type: 'tool_use', id: 'call-1' }],
+      blocks: [{ type: 'tool_call', id: 'call-1' }],
       toolCalls: [{ id: 'call-1', name, input }],
     }
   }

@@ -63,7 +63,10 @@ const readSurface = (): Record<string, EntrySurface> => {
     for (const symbol of checker.getExportsOfModule(moduleSymbol)) {
       const target = symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
       // A value reached through `export type` is a type to the importer: it has no runtime binding.
-      const typeOnly = checker.getTypeOnlyAliasDeclaration(symbol) !== undefined
+      const typeOnly =
+        symbol.declarations?.some((declaration) =>
+          ts.isTypeOnlyImportOrExportDeclaration(declaration),
+        ) === true
       if (target.flags & ts.SymbolFlags.Value && !typeOnly) values.push(symbol.name)
       else types.push(symbol.name)
     }

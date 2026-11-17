@@ -8,6 +8,7 @@ import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import type { FileExplorerProps, FileNode } from '@molecule/app-ide-panel-logic'
 import {
   type ExpandState,
@@ -1044,34 +1045,32 @@ export function FileExplorer({
           break
         }
         case 'copyPath':
-          // OS-clipboard writes can reject (insecure context, permission); the
-          // in-app selection still works, so the failure is intentionally ignored.
-          if (node) navigator.clipboard.writeText(node.path).catch((_error) => {})
+          // A copy can fail (insecure context, permission); copyTextWithFallback
+          // resolves false instead of throwing, and the in-app selection still works.
+          if (node) void copyTextWithFallback(node.path)
           break
         case 'copyPaths': {
           const paths = Array.from(selectedPaths).join('\n')
-          navigator.clipboard.writeText(paths).catch((_error) => {})
+          void copyTextWithFallback(paths)
           break
         }
         case 'copyRelativePath':
           if (node) {
             const rel = node.path.replace(/^\/workspace\//, '')
-            navigator.clipboard.writeText(rel).catch((_error) => {})
+            void copyTextWithFallback(rel)
           }
           break
         case 'copyRelativePaths': {
           const rels = Array.from(selectedPaths)
             .map((p) => p.replace(/^\/workspace\//, ''))
             .join('\n')
-          navigator.clipboard.writeText(rels).catch((_error) => {})
+          void copyTextWithFallback(rels)
           break
         }
         case 'cut':
           if (selectedPaths.size > 0) {
             setClipboard({ paths: new Set(selectedPaths), operation: 'cut' })
-            navigator.clipboard
-              .writeText(Array.from(selectedPaths).join('\n'))
-              .catch((_error) => {})
+            void copyTextWithFallback(Array.from(selectedPaths).join('\n'))
           }
           break
         case 'paste': {
@@ -1248,7 +1247,7 @@ export function FileExplorer({
       if (isMod && e.key === 'c' && selectedPaths.size > 0) {
         e.preventDefault()
         const paths = Array.from(selectedPaths).join('\n')
-        navigator.clipboard.writeText(paths).catch((_error) => {})
+        void copyTextWithFallback(paths)
         setClipboard({ paths: new Set(selectedPaths), operation: 'copy' })
         return
       }
@@ -1257,7 +1256,7 @@ export function FileExplorer({
       if (isMod && e.key === 'x' && selectedPaths.size > 0) {
         e.preventDefault()
         setClipboard({ paths: new Set(selectedPaths), operation: 'cut' })
-        navigator.clipboard.writeText(Array.from(selectedPaths).join('\n')).catch((_error) => {})
+        void copyTextWithFallback(Array.from(selectedPaths).join('\n'))
         return
       }
 
@@ -1443,7 +1442,10 @@ export function FileExplorer({
       ref={containerRef}
       className={cm.cn(cm.sp('py', 1), cm.sp('pl', 1), className)}
       style={{ overflowY: 'auto', outline: 'none' }}
-      role="tree"
+      // An empty tree has no `treeitem` children, and `role="tree"` requires
+      // them (axe `aria-required-children`): with no items the container is
+      // plain chrome around the empty-state text.
+      role={files.length === 0 ? undefined : 'tree'}
       tabIndex={0}
       onKeyDown={handleTreeKeyDown}
       onContextMenu={handleBackgroundContextMenu}
@@ -1464,7 +1466,7 @@ export function FileExplorer({
     >
       {files.length === 0 && (
         <div className={cm.cn(cm.textMuted, cm.textSize('sm'), cm.sp('p', 3))}>
-          {t('ide.files.empty')}
+          {t('ide.files.empty', undefined, { defaultValue: 'No files' })}
         </div>
       )}
       {sortedFiles.map((node) => (

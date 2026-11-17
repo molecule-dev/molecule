@@ -16,22 +16,32 @@
  * @module
  */
 
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { copyTextWithFallback } from '@molecule/app-clipboard'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
+vi.mock('@molecule/app-clipboard', () => ({
+  copyTextWithFallback: vi.fn(async () => true),
+}))
+
 import { MarkdownContent } from '../components/MarkdownContent.js'
+
+const copyTextWithFallbackMock = vi.mocked(copyTextWithFallback)
 
 beforeEach(() => {
   setClassMap(classMap)
   setProvider(createSimpleI18nProvider('en'))
+  copyTextWithFallbackMock.mockReset()
+  copyTextWithFallbackMock.mockResolvedValue(true)
 })
 
 afterEach(() => {
   cleanup()
+  vi.useRealTimers()
 })
 
 describe('MarkdownContent links', () => {
@@ -244,5 +254,42 @@ describe('MarkdownContent streaming indicator', () => {
     )
     expect(container.querySelector('svg')).toBeNull()
     expect(container.textContent).not.toContain('Type-checking the app')
+  })
+})
+
+describe('MarkdownContent code blocks', () => {
+  it('copies the code block content and confirms, then clears the confirmation', async () => {
+    vi.useFakeTimers()
+    const { container } = render(<MarkdownContent text={'```ts\nconst a = 1\n```'} />)
+    const copy = container.querySelector('[data-mol-id="chat-code-copy"]') as HTMLElement | null
+    expect(copy).not.toBeNull()
+    expect(copy!.textContent).toBe('Copy')
+
+    fireEvent.click(copy!)
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('const a = 1')
+    // The confirmation appears once the copy resolves.
+    await act(async () => {
+      await Promise.resolve()
+    })
+    expect(copy!.textContent).toBe('✓ Copied')
+
+    act(() => {
+      vi.advanceTimersByTime(1500)
+    })
+    expect(copy!.textContent).toBe('Copy')
+  })
+
+  it('leaves the copy confirmation off when the copy reports failure', async () => {
+    copyTextWithFallbackMock.mockResolvedValue(false)
+    const { container } = render(<MarkdownContent text={'```ts\nconst a = 1\n```'} />)
+    const copy = container.querySelector('[data-mol-id="chat-code-copy"]') as HTMLElement | null
+    expect(copy).not.toBeNull()
+
+    fireEvent.click(copy!)
+    await act(async () => {
+      await Promise.resolve()
+    })
+    expect(copyTextWithFallbackMock).toHaveBeenCalledWith('const a = 1')
+    expect(copy!.textContent).toBe('Copy')
   })
 })

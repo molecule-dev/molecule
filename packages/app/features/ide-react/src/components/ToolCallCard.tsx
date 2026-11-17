@@ -84,17 +84,10 @@ function FileCodeLink({
   onFileDoubleClick?: (path: string) => void
   children: React.ReactNode
 }): JSX.Element {
+  const { t } = useTranslation()
   return (
     <code
-      style={{ ...CODE_STYLE, cursor: 'pointer', opacity: 0.75, transition: 'opacity 100ms' }}
-      onClick={(e) => {
-        e.stopPropagation()
-        onFileOpen(filePath)
-      }}
-      onDoubleClick={(e) => {
-        e.stopPropagation()
-        onFileDoubleClick?.(filePath)
-      }}
+      style={{ ...CODE_STYLE, opacity: 0.75, transition: 'opacity 100ms' }}
       onMouseEnter={(e) => {
         ;(e.currentTarget as HTMLElement).style.opacity = '1'
       }}
@@ -102,13 +95,44 @@ function FileCodeLink({
         ;(e.currentTarget as HTMLElement).style.opacity = '0.75'
       }}
     >
-      {children}
+      {/* `code` is a semantic element and cannot be a button, so the action
+          lives on a native button inside it. */}
+      <button
+        type="button"
+        aria-label={t(
+          'ide.chat.tool.openFile',
+          { path: filePath },
+          { defaultValue: 'Open {{path}}' },
+        )}
+        onClick={(e) => {
+          e.stopPropagation()
+          onFileOpen(filePath)
+        }}
+        onDoubleClick={(e) => {
+          e.stopPropagation()
+          onFileDoubleClick?.(filePath)
+        }}
+        /* mol-bespoke-button: the filename inside the tool-call label opens the
+           file — inline text, not a CTA; the inline reset keeps it looking
+           exactly like the code text it wraps. */
+        style={{
+          background: 'transparent',
+          border: 'none',
+          padding: 0,
+          font: 'inherit',
+          color: 'inherit',
+          cursor: 'pointer',
+        }}
+      >
+        {children}
+      </button>
     </code>
   )
 }
 
 /**
  * Renders a tool label with backtick segments converted to clickable code spans.
+ * @param t - The translation function from `useTranslation()`.
  * @param name - The tool name.
  * @param input - The raw tool input payload.
  * @param filePath - The primary file path for clickable code links, or null.
@@ -117,13 +141,14 @@ function FileCodeLink({
  * @returns A ReactNode with formatted label text and clickable file references.
  */
 function renderLabel(
+  t: UseTranslationResult['t'],
   name: string,
   input: unknown,
   filePath: string | null,
   onFileOpen?: (path: string) => void,
   onFileDoubleClick?: (path: string) => void,
 ): ReactNode {
-  const text = toolLabel(name, input)
+  const text = toolLabel(t, name, input)
   const parts = text.split(new RegExp('`([^`]+)`'))
   if (parts.length === 1) return text
   // A batch read names several files: each one opens ITS file, not the first.
@@ -426,7 +451,7 @@ function renderOut(t: UseTranslationResult['t'], name: string, output: unknown):
   // The result's `message` is written for the model ("Check the actual state
   // first…"); the person gets one plain sentence.
   if (isInterruptedByRestart(output)) {
-    return <span style={{ opacity: 0.7 }}>{interruptedByRestartLine()}</span>
+    return <span style={{ opacity: 0.7 }}>{interruptedByRestartLine(t)}</span>
   }
 
   if (typeof out === 'object' && out !== null && 'error' in out) {
@@ -450,7 +475,11 @@ function renderOut(t: UseTranslationResult['t'], name: string, output: unknown):
           )}
           {exitCode != null && exitCode !== 0 && (
             <div style={{ marginTop: '4px', color: '#f47067', fontSize: '10px' }}>
-              exit code {exitCode}
+              {t(
+                'ide.toolCall.exitCode',
+                { code: exitCode },
+                { defaultValue: 'exit code {{code}}' },
+              )}
             </div>
           )}
           {!stdout && !stderr && (
@@ -748,7 +777,7 @@ export const ToolCallCard = memo(function ToolCallCard({
           ? '#f04040'
           : '#3fb950'
 
-  const summary = toolSummary(name, output as Out, status)
+  const summary = toolSummary(t, name, output as Out, status)
 
   // A wait names the command it waits on, not just the task id it was handed.
   const waitedTaskId =
@@ -887,8 +916,8 @@ export const ToolCallCard = memo(function ToolCallCard({
     const rawReport = typeof out.report === 'string' ? out.report : ''
     const interrupted = isInterruptedByRestart(output)
     const errorText = interrupted
-      ? interruptedByRestartLine()
-      : subagentErrorLine(out.error, rawReport)
+      ? interruptedByRestartLine(t)
+      : subagentErrorLine(t, out.error, rawReport)
     const report = errorText ? '' : rawReport
     const verdict = kind === 'judge' ? parseJudgeVerdict(report) : null
     const [expanded, setExpanded] = useState(false)
@@ -1124,7 +1153,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {renderLabel(name, input, planPath, onFileOpen, onFileDoubleClick)}
+                {renderLabel(t, name, input, planPath, onFileOpen, onFileDoubleClick)}
               </span>
             </span>
           </span>
@@ -1911,7 +1940,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {renderLabel(name, labelInput, filePath, onFileOpen, onFileDoubleClick)}
+                {renderLabel(t, name, labelInput, filePath, onFileOpen, onFileDoubleClick)}
               </span>
               {/* One-line status ("Running…"/"Done"/error count), on the SAME row as the
                 label and pushed to the right edge by the label's flex:1. */}

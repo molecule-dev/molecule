@@ -1,0 +1,1170 @@
+{
+ "the listing arrives with names, descriptions and open actions": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/Caching/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "a skill without a description renders its row without one": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-bare\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-bare\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nbare\n</button>\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-bare\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/bare/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "a skill whose file cannot be read lists its path": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-bare\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-bare\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nbare\n</button>\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-bare\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/bare/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "the reply lands after the loading state": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nLoading skills…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "an empty listing keeps waiting for the sandbox through its retries": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   }
+  ]
+ },
+ "a reply during the waiting window promotes the card to ready": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nWaiting for the sandbox to finish starting…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "an unmount leaves the late reply unapplied": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nLoading skills…\n</div>\n</div>\n@route /",
+   "\n@route /",
+   "\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "a replaced projectId re-reads the list": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nLoading skills…\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-other\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-other\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nother\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nThe other project’s own skill.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-other\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p2/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p2/files/.agents/skills/other/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "clicking the name opens the skill": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/Caching/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "onLoad",
+    "args": [
+     {
+      "description": "Authentication, login, OAuth and sessions.",
+      "name": "auth",
+      "path": ".agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "Load loads a not-yet-loaded skill": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "onLoad",
+    "args": [
+     {
+      "description": "Authentication, login, OAuth and sessions.",
+      "name": "auth",
+      "path": ".agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "defaults show their badge, their filled star, and no Load": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n<span data-mol-id=\"skill-default-badge-auth\" style=\"background: color-mix(in srgb, var(--mol-color-success, #22c55e) 16%, transparent); border-radius: 999px; border: 1px solid color-mix(in srgb, var(--mol-color-success, #22c55e) 45%, transparent); color: var(--mol-color-success, #22c55e); flex-shrink: 0; font-size: 10px; font-weight: 600; line-height: 15px; padding: 0px 6px\">\nDefault\n</span>\n<span data-mol-id=\"skill-loaded-badge-auth\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent); border-radius: 999px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 45%, transparent); color: var(--mol-color-primary, #6366f1); flex-shrink: 0; font-size: 10px; font-weight: 600; line-height: 15px; padding: 0px 6px\">\nLoaded\n</span>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button aria-label=\"Stop loading by default\" aria-pressed=\"true\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n<span data-mol-id=\"skill-loaded-badge-Caching\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent); border-radius: 999px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 45%, transparent); color: var(--mol-color-primary, #6366f1); flex-shrink: 0; font-size: 10px; font-weight: 600; line-height: 15px; padding: 0px 6px\">\nLoaded\n</span>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button aria-label=\"Load by default\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-Caching\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/Caching/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "a loaded skill hides its Load and shows the Loaded pill with a hollow star": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n<span data-mol-id=\"skill-loaded-badge-auth\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent); border-radius: 999px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 45%, transparent); color: var(--mol-color-primary, #6366f1); flex-shrink: 0; font-size: 10px; font-weight: 600; line-height: 15px; padding: 0px 6px\">\nLoaded\n</span>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button aria-label=\"Load by default\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "the star toggles membership in the default set": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n<span data-mol-id=\"skill-default-badge-auth\" style=\"background: color-mix(in srgb, var(--mol-color-success, #22c55e) 16%, transparent); border-radius: 999px; border: 1px solid color-mix(in srgb, var(--mol-color-success, #22c55e) 45%, transparent); color: var(--mol-color-success, #22c55e); flex-shrink: 0; font-size: 10px; font-weight: 600; line-height: 15px; padding: 0px 6px\">\nDefault\n</span>\n<span data-mol-id=\"skill-loaded-badge-auth\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent); border-radius: 999px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 45%, transparent); color: var(--mol-color-primary, #6366f1); flex-shrink: 0; font-size: 10px; font-weight: 600; line-height: 15px; padding: 0px 6px\">\nLoaded\n</span>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button aria-label=\"Stop loading by default\" aria-pressed=\"true\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n<button aria-label=\"Load by default\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-Caching\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n<span data-mol-id=\"skill-default-badge-auth\" style=\"background: color-mix(in srgb, var(--mol-color-success, #22c55e) 16%, transparent); border-radius: 999px; border: 1px solid color-mix(in srgb, var(--mol-color-success, #22c55e) 45%, transparent); color: var(--mol-color-success, #22c55e); flex-shrink: 0; font-size: 10px; font-weight: 600; line-height: 15px; padding: 0px 6px\">\nDefault\n</span>\n<span data-mol-id=\"skill-loaded-badge-auth\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent); border-radius: 999px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 45%, transparent); color: var(--mol-color-primary, #6366f1); flex-shrink: 0; font-size: 10px; font-weight: 600; line-height: 15px; padding: 0px 6px\">\nLoaded\n</span>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button aria-label=\"Stop loading by default\" aria-pressed=\"true\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n<button aria-label=\"Load by default\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-Caching\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/Caching/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "onToggleDefault",
+    "args": [
+     {
+      "description": "When and how to cache.",
+      "name": "Caching",
+      "path": ".agents/skills/Caching/SKILL.md"
+     },
+     true
+    ]
+   }
+  ]
+ },
+ "an explicit default set offers the reset, and the reset calls back": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-reset-defaults\" type=\"button\">\nLoad all by default\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n<button aria-label=\"Load by default\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-reset-defaults\" type=\"button\">\nLoad all by default\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n<button aria-label=\"Load by default\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "onResetDefault",
+    "args": []
+   }
+  ]
+ },
+ "an implicit default set hides the reset": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n<button aria-label=\"Load by default\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "no reset callback hides the reset whatever the set says": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n<button aria-label=\"Load by default\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "typing filters the rows by name, description and path": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value=\"caching\" {value=\"caching\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value=\"oauth\" {value=\"oauth\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value=\"skills/Caching\" {value=\"skills/Caching\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/Caching/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "a query that matches nothing says so; a blank one matches everything again": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value=\"zzzz\" {value=\"zzzz\"}>\n</input>\n<div class=\"ce823b5bf\" style=\"padding: 6px 0px\">\nNo skills match “zzzz”.\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value=\"   \" {value=\"   \"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/Caching/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "initialQuery seeds the filter, and a later one never reseeds it": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value=\"auth\" {value=\"auth\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value=\"auth\" {value=\"auth\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/Caching/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "New skill opens the create form, and Cancel closes it": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n<div class=\"c1b02b894\" role=\"presentation\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-new\" type=\"button\">\nNew skill\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<form class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-create-form\" style=\"border-color: rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 8px 0px\">\n<input class=\"c4647f690\" data-mol-id=\"skill-create-name\" placeholder=\"New skill name…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div style=\"display: flex; gap: 6px; justify-content: flex-end\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-cancel\" type=\"button\">\nCancel\n</button>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-submit\" disabled type=\"submit\">\nCreate\n</button>\n</div>\n</form>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>form:1>input:0",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<form class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-create-form\" style=\"border-color: rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 8px 0px\">\n<input class=\"c4647f690\" data-mol-id=\"skill-create-name\" placeholder=\"New skill name…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; outline: none; padding: 0px 6px; width: 100%\" value=\"Docs\" {value=\"Docs\"}>\n</input>\n<div style=\"display: flex; gap: 6px; justify-content: flex-end\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-cancel\" type=\"button\">\nCancel\n</button>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-submit\" type=\"submit\">\nCreate\n</button>\n</div>\n</form>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>form:1>input:0",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n<div class=\"c1b02b894\" role=\"presentation\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-new\" type=\"button\">\nNew skill\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "Create hands the trimmed name to onCreate and lists the new skill": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n<div class=\"c1b02b894\" role=\"presentation\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-new\" type=\"button\">\nNew skill\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<form class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-create-form\" style=\"border-color: rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 8px 0px\">\n<input class=\"c4647f690\" data-mol-id=\"skill-create-name\" placeholder=\"New skill name…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div style=\"display: flex; gap: 6px; justify-content: flex-end\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-cancel\" type=\"button\">\nCancel\n</button>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-submit\" disabled type=\"submit\">\nCreate\n</button>\n</div>\n</form>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>form:1>input:0",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<form class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-create-form\" style=\"border-color: rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 8px 0px\">\n<input class=\"c4647f690\" data-mol-id=\"skill-create-name\" placeholder=\"New skill name…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; outline: none; padding: 0px 6px; width: 100%\" value=\"  Caching  \" {value=\"  Caching  \"}>\n</input>\n<div style=\"display: flex; gap: 6px; justify-content: flex-end\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-cancel\" type=\"button\">\nCancel\n</button>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-submit\" type=\"submit\">\nCreate\n</button>\n</div>\n</form>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>form:1>input:0",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n<div class=\"c1b02b894\" role=\"presentation\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-new\" type=\"button\">\nNew skill\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "onCreate",
+    "args": [
+     "Caching"
+    ]
+   }
+  ]
+ },
+ "the submit stays disabled until a name is typed": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n<div class=\"c1b02b894\" role=\"presentation\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-new\" type=\"button\">\nNew skill\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<form class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-create-form\" style=\"border-color: rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 8px 0px\">\n<input class=\"c4647f690\" data-mol-id=\"skill-create-name\" placeholder=\"New skill name…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div style=\"display: flex; gap: 6px; justify-content: flex-end\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-cancel\" type=\"button\">\nCancel\n</button>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-submit\" disabled type=\"submit\">\nCreate\n</button>\n</div>\n</form>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>form:1>input:0"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "a null reply from onCreate keeps the form open with the name": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n<div class=\"c1b02b894\" role=\"presentation\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-new\" type=\"button\">\nNew skill\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<form class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-create-form\" style=\"border-color: rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 8px 0px\">\n<input class=\"c4647f690\" data-mol-id=\"skill-create-name\" placeholder=\"New skill name…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div style=\"display: flex; gap: 6px; justify-content: flex-end\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-cancel\" type=\"button\">\nCancel\n</button>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-submit\" disabled type=\"submit\">\nCreate\n</button>\n</div>\n</form>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>form:1>input:0",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<form class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-create-form\" style=\"border-color: rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 8px 0px\">\n<input class=\"c4647f690\" data-mol-id=\"skill-create-name\" placeholder=\"New skill name…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; outline: none; padding: 0px 6px; width: 100%\" value=\"Docs\" {value=\"Docs\"}>\n</input>\n<div style=\"display: flex; gap: 6px; justify-content: flex-end\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-cancel\" type=\"button\">\nCancel\n</button>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-submit\" type=\"submit\">\nCreate\n</button>\n</div>\n</form>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>form:1>input:0",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<form class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-create-form\" style=\"border-color: rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 8px 0px\">\n<input class=\"c4647f690\" data-mol-id=\"skill-create-name\" placeholder=\"New skill name…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; outline: none; padding: 0px 6px; width: 100%\" value=\"Docs\" {value=\"Docs\"}>\n</input>\n<div style=\"display: flex; gap: 6px; justify-content: flex-end\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-cancel\" type=\"button\">\nCancel\n</button>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-submit\" type=\"submit\">\nCreate\n</button>\n</div>\n</form>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>form:1>input:0"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "onCreate",
+    "args": [
+     "Docs"
+    ]
+   }
+  ]
+ },
+ "startCreating opens the form straight away": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<form class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-create-form\" style=\"border-color: rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 8px 0px\">\n<input class=\"c4647f690\" data-mol-id=\"skill-create-name\" placeholder=\"New skill name…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div style=\"display: flex; gap: 6px; justify-content: flex-end\">\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-cancel\" type=\"button\">\nCancel\n</button>\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-create-submit\" disabled type=\"submit\">\nCreate\n</button>\n</div>\n</form>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /\n@focus body>div:0>div:0>div:0>form:1>input:0"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "without onCreate there is no New skill and no form": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "embedded drops the heading and the card chrome": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "the light theme swaps the borders and field inset": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(0, 0, 0, 0.05); border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(0, 0, 0, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   }
+  ]
+ },
+ "a locale switch re-renders every label": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-reset-defaults\" type=\"button\">\nLoad all by default\n</button>\n</div>\n<div class=\"c1b02b894\" role=\"presentation\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-new\" type=\"button\">\nNew skill\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n<button aria-label=\"Load by default\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nCompétences\n</div>\n<button class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-reset-defaults\" type=\"button\">\nTout charger par défaut\n</button>\n</div>\n<div class=\"c1b02b894\" role=\"presentation\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-new\" type=\"button\">\nNouvelle compétence\n</button>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filtrer les compétences…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nCharger\n</button>\n<button aria-label=\"Charger par défaut\" aria-pressed=\"false\" class=\"c04c34dac c0e303770 c107b4ecd c13d4ff0f c1e8176ab c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c7fa4cf55 c811bbdcb c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca596e575 cc06b624c cc26cbf54 cca586305 cd6fe318b cee061da5 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-default-auth\" style=\"align-items: center; display: inline-flex; justify-content: center\" type=\"button\">\n<svg aria-hidden=\"true\" fill=\"currentColor\" height=\"13\" style=\"color: var(--mol-color-primary, #6366f1)\" viewbox=\"0 0 16 16\" width=\"13\">\n<path d=\"M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z\">\n</path>\n</svg>\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "fr"
+    ]
+   }
+  ]
+ },
+ "the listing arrives with names, descriptions and open actions, then a locale switch": {
+  "snapshots": [
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\nSkills\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"Filter skills…\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\nLoad\n</button>\n</div>\n</div>\n</div>\n@route /",
+   "<div class=\"c4647f690\" data-mol-id=\"skills-card\" style=\"background: color-mix(in srgb, var(--mol-color-primary, #6366f1) 10%, transparent); border-radius: 8px; border: 1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 40%, transparent); margin-bottom: 16px; padding: 10px 12px\">\n<div style=\"align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 6px\">\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 8px\">\n<div class=\"c445db9b9 c80b1c428\" style=\"flex-shrink: 0\">\n⟦Skills⟧\n</div>\n</div>\n</div>\n<input class=\"c4647f690\" data-mol-id=\"skills-search\" placeholder=\"⟦Filter skills…⟧\" style=\"background: rgba(255, 255, 255, 0.06); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; height: 26px; margin-bottom: 6px; outline: none; padding: 0px 6px; width: 100%\" value {value=\"\"}>\n</input>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-auth\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-auth\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nauth\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nAuthentication, login, OAuth and sessions.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-auth\" type=\"button\">\n⟦Load⟧\n</button>\n</div>\n</div>\n<div class=\"c1af9479c cf0ca6c6e\" data-mol-id=\"skill-row-Caching\" style=\"align-items: flex-start; border-color: rgba(255, 255, 255, 0.08); display: flex; gap: 8px; padding: 6px 0px\">\n<div style=\"flex: 1 1 0%; min-width: 0px\">\n<div style=\"align-items: center; display: flex; flex-wrap: wrap; gap: 6px\">\n<button class=\"c80b1c428 c8b4b949e cca586305\" data-mol-id=\"skill-open-Caching\" style=\"background: transparent; border: medium; color: var(--mol-color-primary, #6366f1); cursor: pointer; font: inherit; margin: 0px; padding: 0px; text-align: left\" type=\"button\">\nCaching\n</button>\n</div>\n<div class=\"ce823b5bf\" style=\"line-height: 1.4; margin-top: 2px\">\nWhen and how to cache.\n</div>\n</div>\n<div style=\"align-items: center; display: flex; flex-shrink: 0; gap: 6px\">\n<button class=\"c04c34dac c0e303770 c13d4ff0f c1549f5b8 c1e8176ab c1f523237 c2f011182 c45cfc6cf c47632ef5 c4b0fcccf c677549bc c7fa4cf55 c8b197f7c c8b4b949e c9773cd2b c9866e6d5 ca3834f73 ca596e575 cc06b624c cca4f1386 cca586305 cd6fe318b cec55cd0a cee061da5 ceea44117 cf0915c40 cf9a2eaba\" data-mol-id=\"skill-load-Caching\" type=\"button\">\n⟦Load⟧\n</button>\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files-list"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/auth/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "http.get",
+    "args": [
+     {
+      "url": "/projects/p1/files/.agents/skills/Caching/SKILL.md"
+     }
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

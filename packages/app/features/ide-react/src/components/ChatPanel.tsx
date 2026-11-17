@@ -116,6 +116,9 @@ import type {
   SettingDescriptor,
   SkillInfo,
   SortDirection,
+  SoundEventType,
+  SoundMode,
+  TipDef,
 } from '@molecule/app-ide-panel-logic/panels'
 import {
   buildHelpText,
@@ -124,6 +127,7 @@ import {
   cachedPromptTokens,
   COMMAND_CATEGORIES,
   type CommandDef,
+  commandDescription,
   COMMANDS,
   defaultEffortForModel,
   effectiveModeModelId,
@@ -137,12 +141,14 @@ import {
   freeTierUsableMode,
   getTestsBarVisible,
   isModeModelLocked,
+  isRegistryCommandId,
   loadProjectSkills,
   matchesSideChannelCommand,
   missingRequiredParams,
   modelHasPeakPricing,
   modelPeakMultiplier,
   modelPeakWindowLabels,
+  modelRegionLabel,
   modelUsageRate,
   modeSettingKey,
   nativeEffortName,
@@ -164,12 +170,19 @@ import {
   shouldShowIdleTip,
   shouldShowTestsBar,
   sortModels,
+  SOUND_EVENTS,
+  SOUND_MODE_LABELS,
+  soundEventDescription,
+  soundEventLabel,
+  soundModeLabel,
   str,
   stripCommitCoauthorTrailer,
   summarizeSounds,
   timelineSortKey,
   TIP_IDLE_MS,
   TIP_MIN_MESSAGES,
+  tipText,
+  VIEWER_TIP,
 } from '@molecule/app-ide-panel-logic/panels'
 import { getLogger } from '@molecule/app-logger'
 import {
@@ -226,13 +239,14 @@ const logger = getLogger('chat-panel')
 type ModelRegion = string
 
 // Every region the picker can offer: the flag's country code (resolved via the
-// bonded @molecule/app-country-flags set) + the English fallback for its i18n
-// label (`ide.chat.model.region.<code>`). Adding a region here (plus a
+// bonded @molecule/app-country-flags set). The region's display NAME comes from
+// modelRegionLabel (@molecule/app-ide-panel-logic, the literal
+// `ide.chat.model.region.<code>` keys). Adding a region here (plus a
 // server-side provider registration) is ALL the UI needs — the region
 // control's menu lists whatever `availableModelRegions` returns.
-const MODEL_REGION_META: Record<string, { flagCode: string; defaultLabel: string }> = {
-  us: { flagCode: 'US', defaultLabel: 'US' },
-  cn: { flagCode: 'CN', defaultLabel: 'CN' },
+const MODEL_REGION_FLAGS: Record<string, string> = {
+  us: 'US',
+  cn: 'CN',
 }
 
 /**
@@ -280,7 +294,7 @@ function RegionFlag({ code, height }: { code: string; height: number }): JSX.Ele
  * list). A single-entry list is a pinned model (fixed, non-interactive flag);
  * omission means the US-only platform default. The control/menu UI renders
  * whatever this returns, so new regions only need catalog data + a
- * `MODEL_REGION_META` entry.
+ * `MODEL_REGION_FLAGS` entry.
  * @param model - The model to resolve regions for.
  * @returns Available region codes, default first.
  */
@@ -555,7 +569,14 @@ type AddSystemCardOptions = DistributiveOmit<SystemCard, 'id' | 'text' | 'timest
 /** A dismissable auto-tip entry in the chat timeline. */
 interface TipCardEntry {
   id: string
-  text: string
+  /**
+   * The tip's definition ({@link TipDef}), NOT the rendered sentence: the entry
+   * stores WHAT to say and the render translates it
+   * (`tipText(t, tip, { agentName })`), so a locale switch re-translates every
+   * visible tip instead of leaving the sentence the effect captured before the
+   * switch.
+   */
+  tip: TipDef
   /** Numeric timestamp for timeline ordering. */
   timestamp: number
   /**
@@ -615,61 +636,14 @@ interface EffortPicker {
 // ---------------------------------------------------------------------------
 // Sound types & playTone
 // ---------------------------------------------------------------------------
+// The sound vocabulary (SOUND_EVENTS, SoundEventType/SoundMode, the English
+// SOUND_MODE_LABELS and the soundEventLabel/soundEventDescription/
+// soundModeLabel translators) lives in @molecule/app-ide-panel-logic's
+// chat-settings-utilities, so every framework's panel shares one table and
+// every label is a literal t() call the i18n gate can verify.
 
-/** Possible modes for each notification sound event. */
-type SoundMode = 'off' | 'whenNotFocused' | 'always'
-
-/** All stream event types that can trigger a notification sound. */
-const SOUND_EVENTS = [
-  'message',
-  'done',
-  'error',
-  'tool_result',
-  'file_diff',
-  'commit_suggestion',
-  'mode',
-  'loop_limit_reached',
-  'verification_result',
-  'preview_error',
-] as const
-
-type SoundEventType = (typeof SOUND_EVENTS)[number]
-
-/** User-friendly labels for each sound event (used as i18n defaultValues). */
-const SOUND_EVENT_LABELS: Record<SoundEventType, string> = {
-  message: 'Team message',
-  done: 'Response complete',
-  error: 'Error',
-  tool_result: 'Tool finished',
-  file_diff: 'File changed',
-  commit_suggestion: 'Commit suggested',
-  mode: 'Mode changed',
-  loop_limit_reached: 'Loop limit reached',
-  verification_result: 'Verification result',
-  preview_error: 'Preview error',
-}
-
-/** Brief descriptions for each sound event. */
-const SOUND_EVENT_DESCRIPTIONS: Record<SoundEventType, string> = {
-  message: 'A teammate posted a team-only note',
-  done: '{{agentName}} finished responding',
-  error: 'Something went wrong during a response',
-  tool_result: 'A tool call (file read, command, etc.) completed',
-  file_diff: 'A file was created or modified',
-  commit_suggestion: '{{agentName}} is suggesting files to commit',
-  mode: 'Switched between plan mode and execute mode',
-  loop_limit_reached: 'Hit the max tool iterations limit',
-  verification_result: 'Lint or type-check finished running',
-  preview_error: 'The live preview encountered an error',
-}
-
-/** Mode cycle order and display labels. */
+/** Mode cycle order. */
 const SOUND_MODES: SoundMode[] = ['off', 'whenNotFocused', 'always']
-const SOUND_MODE_LABELS: Record<SoundMode, string> = {
-  off: 'off',
-  whenNotFocused: 'when not focused',
-  always: 'always',
-}
 
 type SoundsConfig = Record<SoundEventType, SoundMode>
 
@@ -909,6 +883,20 @@ function formatThinkingDuration(t: UseTranslationResult['t'], ms: number): strin
       )
 }
 
+/** The heading of the closeable panel overlay (/skills, /scripts, /settings) above the composer. */
+function panelOverlayHeading(
+  t: UseTranslationResult['t'],
+  overlay: 'skills' | 'scripts' | 'settings' | 'tests',
+): string {
+  return overlay === 'skills'
+    ? t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })
+    : overlay === 'scripts'
+      ? t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })
+      : overlay === 'tests'
+        ? t('ide.tests.heading', undefined, { defaultValue: 'Tests' })
+        : t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })
+}
+
 /**
  * Derive a real current-activity label for the streaming indicator from the
  * in-flight assistant message's latest block, so the user sees what's actually
@@ -918,15 +906,15 @@ function formatThinkingDuration(t: UseTranslationResult['t'], ms: number): strin
  *
  * @param t - The translation function from `useTranslation()`.
  * @param msg - The streaming assistant message.
- * @param msg.blocks - The ordered stream blocks (thinking / tool_use / text).
+ * @param msg.blocks - The message's ordered blocks (a tool call is a `tool_call` block naming its id).
  * @param msg.toolCalls - The message's tool calls, looked up by block id.
  * @returns A short activity label, or undefined.
  */
 export function streamingActivityLabel(
   t: UseTranslationResult['t'],
   msg: {
-    blocks?: Array<{ type: string; id?: string }>
-    toolCalls?: Array<{ id: string; name: string; input?: unknown }>
+    blocks?: ChatMessage['blocks']
+    toolCalls?: Array<Pick<NonNullable<ChatMessage['toolCalls']>[number], 'id' | 'name' | 'input'>>
   },
 ): string | undefined {
   const blocks = msg.blocks
@@ -934,7 +922,7 @@ export function streamingActivityLabel(
   const last = blocks[blocks.length - 1]
   if (last.type === 'thinking')
     return t('ide.chat.activity.thinking', undefined, { defaultValue: 'Synthesizing' })
-  if (last.type !== 'tool_use') return undefined
+  if (last.type !== 'tool_call') return undefined
   const tc = msg.toolCalls?.find((c) => c.id === last.id)
   if (!tc) return undefined
   // `tc.input` is model-authored, so each field is read through `str()` rather
@@ -4396,9 +4384,13 @@ function ChatInner({
     if (conversationId != null || messages.length > 0) return
     entryTipShownRef.current = true
     shownTipIdsRef.current = [...shownTipIdsRef.current, ENTRY_TIP.id]
-    const text = t(`ide.chat.tip.${ENTRY_TIP.id}`, { agentName }, { defaultValue: ENTRY_TIP.text })
-    setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
-  }, [conversationId, messages.length, agentName, discovery, transcriptOnly])
+    // The entry stores the tip's KEY + English default, not the sentence: the
+    // render translates it, so a locale switch re-translates this tip too.
+    setTipCards((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), tip: ENTRY_TIP, timestamp: Date.now() },
+    ])
+  }, [conversationId, messages.length, discovery, transcriptOnly])
 
   // Viewer orientation tip: a read-only member's explainer — GOLD like the
   // team-only messages and led by the same `people` icon it explains, so the
@@ -4410,25 +4402,19 @@ function ChatInner({
   useEffect(() => {
     if (transcriptOnly || canEdit !== false || discovery || viewerTipShownRef.current) return
     viewerTipShownRef.current = true
-    const text = t(
-      'ide.chat.tip.viewerTeamOnly',
-      { agentName },
-      {
-        defaultValue:
-          'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-      },
-    )
+    // Same as the entry tip: the entry carries the tip's definition and the
+    // render translates it, so a locale switch re-translates this tip too.
     setTipCards((prev) => [
       ...prev,
       {
         id: crypto.randomUUID(),
-        text,
+        tip: VIEWER_TIP,
         timestamp: Date.now(),
         accent: NOTICE_TONE.gold.accent,
         icon: 'people',
       },
     ])
-  }, [canEdit, discovery, agentName, transcriptOnly])
+  }, [canEdit, discovery, transcriptOnly])
 
   // Surface an occasional idle tip. This effect re-runs on every message change, so
   // the idle timer is continually reset by activity; it only fires once the
@@ -4457,8 +4443,8 @@ function ChatInner({
       const tip = pickIdleTip(shownTipIdsRef.current, Math.random())
       shownTipIdsRef.current = [...shownTipIdsRef.current, tip.id]
       lastTipAtRef.current = Date.now()
-      const text = t(`ide.chat.tip.${tip.id}`, { agentName }, { defaultValue: tip.text })
-      setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
+      // Same as the entry tip: key + English default now, sentence at render.
+      setTipCards((prev) => [...prev, { id: crypto.randomUUID(), tip, timestamp: Date.now() }])
     }, TIP_IDLE_MS)
     return () => clearTimeout(timer)
   }, [messages, discovery, transcriptOnly])
@@ -4518,6 +4504,18 @@ function ChatInner({
     'skills' | 'scripts' | 'settings' | 'tests' | null
   >(null)
   const [panelOverlayQuery, setPanelOverlayQuery] = useState('')
+  // Escape closes the overlay from anywhere inside it — including the embedded
+  // card's own search input — the way this package's modals (ShareModal,
+  // ReportModal) already do. A dialog is a WAI-ARIA widget, so its key listener
+  // lives here rather than as a handler on a static element.
+  useEffect(() => {
+    if (!panelOverlay) return
+    const handler = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') setPanelOverlay(null)
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [panelOverlay])
   const openPanelOverlay = useCallback(
     (variant: 'skills' | 'scripts' | 'settings' | 'tests', query = ''): void => {
       // Close any sibling popup so overlays never stack (matches how the model
@@ -5027,7 +5025,7 @@ function ChatInner({
         ) {
           const nextRegions: Record<string, ModelRegion> = {}
           for (const [id, raw] of Object.entries(s.modelRegions as Record<string, unknown>)) {
-            if (typeof raw === 'string' && raw in MODEL_REGION_META) nextRegions[id] = raw
+            if (typeof raw === 'string' && raw in MODEL_REGION_FLAGS) nextRegions[id] = raw
           }
           setModelRegions(nextRegions)
         }
@@ -5122,7 +5120,7 @@ function ChatInner({
         ) {
           const nextRegions: Record<string, ModelRegion> = {}
           for (const [id, raw] of Object.entries(s.modelRegions as Record<string, unknown>)) {
-            if (typeof raw === 'string' && raw in MODEL_REGION_META) nextRegions[id] = raw
+            if (typeof raw === 'string' && raw in MODEL_REGION_FLAGS) nextRegions[id] = raw
           }
           setModelRegions(nextRegions)
         }
@@ -5235,6 +5233,12 @@ function ChatInner({
   // ── Queued message editing ──────────────────────────────────────────────────
   const [editingQueuedId, setEditingQueuedId] = useState<string | null>(null)
   const [editingQueuedText, setEditingQueuedText] = useState('')
+  const queuedEditRef = useRef<HTMLTextAreaElement>(null)
+  // Opening the editor is a user action, so moving focus into it is the
+  // WAI-ARIA pattern — done here instead of with `autoFocus`.
+  useEffect(() => {
+    if (editingQueuedId) queuedEditRef.current?.focus()
+  }, [editingQueuedId])
 
   // ── Input focus ────────────────────────────────────────────────────────────
 
@@ -5655,7 +5659,8 @@ function ChatInner({
       if (scope !== gitScopeRef.current) return
       if (result.data.committed) {
         gitStatusRequestRef.current++
-        const msg = result.data.message ?? t('ide.chat.committed')
+        const msg =
+          result.data.message ?? t('ide.chat.committed', undefined, { defaultValue: 'Committed' })
         setCommitState({ status: 'committed', message: msg })
         setPendingFiles(null)
         setCommitBarExpanded(false)
@@ -6465,9 +6470,14 @@ function ChatInner({
   // before executeCommand since it lives in that callback's dependency list.
   const allCommands = useMemo<readonly CommandDef[]>(() => {
     const overridden = new Set((extraCommands ?? []).map((c) => c.id))
-    return [...COMMANDS.filter((c) => !overridden.has(c.id)), ...(extraCommands ?? [])].filter(
-      (command) => canSendTeamMessages !== false || !command.sideChannel,
-    )
+    // Widened to CommandDef on purpose: the menu renders registry commands AND
+    // host-added ones through one list, so the elements must read as plain
+    // CommandDefs, not the registry's literal row types.
+    const merged: CommandDef[] = [
+      ...COMMANDS.filter((c) => !overridden.has(c.id)),
+      ...(extraCommands ?? []),
+    ]
+    return merged.filter((command) => canSendTeamMessages !== false || !command.sideChannel)
   }, [extraCommands, canSendTeamMessages])
   const extraCommandIds = useMemo(
     () =>
@@ -8793,7 +8803,12 @@ function ChatInner({
                     return (
                       <TipCard
                         key={item.card.id}
-                        text={item.card.text}
+                        // Translated HERE, not when the tip was queued: a locale
+                        // switch re-renders this row and re-translates it, and
+                        // the `/` and `@` code segments render from the
+                        // translated sentence (TipCard splits the string on
+                        // them), so a translation can move them.
+                        text={tipText(t, item.card.tip, { agentName })}
                         accent={item.card.accent}
                         icon={item.card.icon}
                         onDismiss={() => dismissTip(item.card.id)}
@@ -9403,6 +9418,12 @@ function ChatInner({
                   <button
                     /* mol-bespoke-button: attachment chip remove — icon-only x inside a 2px-padded chip, 32px coarse hit box */
                     type="button"
+                    data-mol-id={`chat-attachment-remove-${key}`}
+                    aria-label={t(
+                      'ide.chat.removeAttachment',
+                      { name: (f.path ? f.path.split('/').pop() : f.filename) ?? f.filename },
+                      { defaultValue: 'Remove {{name}}' },
+                    )}
                     onClick={() => removeAttachment(key)}
                     style={{
                       background: 'none',
@@ -9574,13 +9595,9 @@ function ChatInner({
                               {cmd.label}
                             </span>
                             <span className={cm.textMuted} style={{ fontSize: '12px' }}>
-                              {t(
-                                `ide.chat.cmd.${cmd.id}.desc`,
-                                { agentName },
-                                {
-                                  defaultValue: cmd.description,
-                                },
-                              )}
+                              {isRegistryCommandId(cmd.id)
+                                ? commandDescription(t, cmd.id, { agentName })
+                                : cmd.description}
                               {suffix && (
                                 <span
                                   style={{
@@ -10456,14 +10473,7 @@ function ChatInner({
                               {showRegionPill &&
                                 (() => {
                                   const interactive = modelRegionOptions.length > 1
-                                  const meta = MODEL_REGION_META[modelRegion]
-                                  const regionLabel = t(
-                                    `ide.chat.model.region.${modelRegion}`,
-                                    undefined,
-                                    {
-                                      defaultValue: meta?.defaultLabel ?? modelRegion.toUpperCase(),
-                                    },
-                                  )
+                                  const regionLabel = modelRegionLabel(t, modelRegion)
                                   const hint = interactive
                                     ? t(
                                         'ide.chat.model.regionHint',
@@ -10549,7 +10559,7 @@ function ChatInner({
                                           set, sized to the capability pills'
                                           14px height. */}
                                       <RegionFlag
-                                        code={meta?.flagCode ?? modelRegion}
+                                        code={MODEL_REGION_FLAGS[modelRegion] ?? modelRegion}
                                         height={14}
                                       />
                                     </span>
@@ -10597,15 +10607,7 @@ function ChatInner({
                                           }}
                                         >
                                           {modelRegionOptions.map((r) => {
-                                            const rMeta = MODEL_REGION_META[r]
-                                            const rLabel = t(
-                                              `ide.chat.model.region.${r}`,
-                                              undefined,
-                                              {
-                                                defaultValue:
-                                                  rMeta?.defaultLabel ?? r.toUpperCase(),
-                                              },
-                                            )
+                                            const rLabel = modelRegionLabel(t, r)
                                             // Each option carries ITS region's
                                             // usage multiplier so the cost of a
                                             // switch is visible before making it.
@@ -10665,7 +10667,7 @@ function ChatInner({
                                                 }}
                                               >
                                                 <RegionFlag
-                                                  code={rMeta?.flagCode ?? r}
+                                                  code={MODEL_REGION_FLAGS[r] ?? r}
                                                   height={12}
                                                 />
                                                 <span>{rLabel}</span>
@@ -11054,9 +11056,7 @@ function ChatInner({
                       ? { bg: 'rgba(234,179,8,0.2)', fg: 'rgb(202,138,4)' }
                       : { bg: 'rgba(128,128,128,0.2)', fg: 'inherit' }
                 const modeLabel = allSame
-                  ? t(`ide.chat.soundMode.${allModes[0]}`, undefined, {
-                      defaultValue: SOUND_MODE_LABELS[allModes[0]],
-                    })
+                  ? soundModeLabel(t, allModes[0])
                   : t('ide.chat.soundMode.mixed', undefined, { defaultValue: 'mixed' })
                 return (
                   <button
@@ -11155,11 +11155,7 @@ function ChatInner({
                         justifyContent: 'space-between',
                       }}
                     >
-                      <span>
-                        {t(`ide.chat.soundEvent.${eventType}`, undefined, {
-                          defaultValue: SOUND_EVENT_LABELS[eventType],
-                        })}
-                      </span>
+                      <span>{soundEventLabel(t, eventType)}</span>
                       <span
                         style={{
                           fontSize: '11px',
@@ -11170,22 +11166,14 @@ function ChatInner({
                           flexShrink: 0,
                         }}
                       >
-                        {t(`ide.chat.soundMode.${mode}`, undefined, {
-                          defaultValue: SOUND_MODE_LABELS[mode],
-                        })}
+                        {soundModeLabel(t, mode)}
                       </span>
                     </div>
                     <div
                       className={cm.textMuted}
                       style={{ fontSize: '11px', marginTop: '2px', opacity: 0.7 }}
                     >
-                      {t(
-                        `ide.chat.soundEventDesc.${eventType}`,
-                        { agentName },
-                        {
-                          defaultValue: SOUND_EVENT_DESCRIPTIONS[eventType],
-                        },
-                      )}
+                      {soundEventDescription(t, eventType, { agentName })}
                     </div>
                   </button>
                 )
@@ -11204,6 +11192,11 @@ function ChatInner({
         {panelOverlay && (
           <div
             className={cm.cn(cm.surface, cm.borderAll)}
+            // A non-modal popover dialog above the composer: it carries the
+            // embedded card, closes on Escape, and takes a name from the same
+            // key its header title renders.
+            role="dialog"
+            aria-label={panelOverlayHeading(t, panelOverlay)}
             style={{
               position: 'absolute',
               bottom: '100%',
@@ -11216,14 +11209,6 @@ function ChatInner({
               display: 'flex',
               flexDirection: 'column',
               maxHeight: popupMaxHeight,
-            }}
-            // Esc closes it even when focus is inside the card's own search input
-            // (the textarea's native keydown listener only fires while it is focused).
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
-                e.stopPropagation()
-                setPanelOverlay(null)
-              }
             }}
           >
             {/* Header bar — title on the left, ✕ on the right (mirrors the /sounds
@@ -11241,13 +11226,7 @@ function ChatInner({
               }}
             >
               <span className={cm.fontWeight('medium')}>
-                {panelOverlay === 'skills'
-                  ? t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })
-                  : panelOverlay === 'scripts'
-                    ? t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })
-                    : panelOverlay === 'tests'
-                      ? t('ide.tests.heading', undefined, { defaultValue: 'Tests' })
-                      : t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })}
+                {panelOverlayHeading(t, panelOverlay)}
               </span>
               <button
                 /* mol-bespoke-button: icon-only overlay close — header x, no label */
@@ -11496,7 +11475,7 @@ function ChatInner({
                   editingQueuedId === qm.id ? (
                     <div key={qm.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       <textarea
-                        autoFocus
+                        ref={queuedEditRef}
                         defaultValue={editingQueuedText}
                         onChange={(e) => setEditingQueuedText(e.target.value)}
                         onKeyDown={(e) => {
@@ -11815,7 +11794,7 @@ function ChatInner({
                                   defaultValue: 'Committing...',
                                 })
                               : commitState?.status === 'committed'
-                                ? t('ide.chat.committed')
+                                ? t('ide.chat.committed', undefined, { defaultValue: 'Committed' })
                                 : t(
                                     'ide.chat.commitFileCount',
                                     { count: pendingFiles.length },
@@ -11979,6 +11958,9 @@ function ChatInner({
           className={cm.surfaceSecondary}
           hidden={transcriptOnly}
           data-mol-id="chat-composer"
+          // The container only moves focus to the textarea it holds; it is not
+          // a control, and a keyboard user reaches that textarea with Tab.
+          role="presentation"
           {...(canEdit === false ? { 'data-mol-viewer': '' } : {})}
           style={{
             // Round the TOP corners only (8px) so the composer reads as a self-contained
@@ -12015,7 +11997,7 @@ function ChatInner({
                 ? t('ide.chat.placeholderViewer', undefined, {
                     defaultValue: 'Message your team',
                   })
-                : t('ide.chat.placeholder')
+                : t('ide.chat.placeholder', undefined, { defaultValue: 'Send a message...' })
             }
             rows={1}
             className={cm.textSize('sm')}
@@ -12704,6 +12686,12 @@ export function ChatPanel({
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [convSearch, setConvSearch] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const convSearchRef = useRef<HTMLInputElement>(null)
+  // Opening the conversation dropdown is a user action; focus its search field
+  // from an effect rather than with `autoFocus`.
+  useEffect(() => {
+    if (showDropdown) convSearchRef.current?.focus()
+  }, [showDropdown])
   // Incremented by the header gear button to open the /settings view inside
   // ChatInner (which owns the slash-command dispatch + system-card timeline).
   // A host-supplied signal prop (headless mode) overrides the internal one.
@@ -12845,6 +12833,7 @@ export function ChatPanel({
           <button
             /* mol-bespoke-button: conversation picker — the header title row, a full-width disclosure for the history dropdown */
             type="button"
+            data-mol-id="chat-conversation-toggle"
             onClick={handleToggleDropdown}
             className={cm.cn(cm.textSize('xs'), cm.textMuted)}
             onMouseEnter={(e) => {
@@ -12900,7 +12889,8 @@ export function ChatPanel({
                 opacity: 0.7,
               }}
             >
-              {activeConv?.preview ?? 'Chat history'}
+              {activeConv?.preview ??
+                t('ide.chat.historyFallback', undefined, { defaultValue: 'Chat history' })}
             </span>
           </button>
 
@@ -12994,12 +12984,12 @@ export function ChatPanel({
                 className={cm.surface}
               >
                 <input
+                  ref={convSearchRef}
                   value={convSearch}
                   onChange={(e) => setConvSearch(e.target.value)}
                   placeholder={t('ide.chat.searchConversations', undefined, {
                     defaultValue: 'Search conversations…',
                   })}
-                  autoFocus
                   className={cm.textSize('xs')}
                   style={{
                     width: '100%',
@@ -13020,7 +13010,9 @@ export function ChatPanel({
                   className={cm.cn(cm.textMuted, cm.textSize('xs'))}
                   style={{ padding: '10px 12px' }}
                 >
-                  No conversations yet
+                  {t('ide.chat.noConversations', undefined, {
+                    defaultValue: 'No conversations yet',
+                  })}
                 </div>
               )}
               {filteredConvs.map((conv) => (
@@ -13028,6 +13020,7 @@ export function ChatPanel({
                   /* mol-bespoke-button: conversation row — full-width list item in the history dropdown */
                   key={conv.id}
                   type="button"
+                  data-mol-id={`chat-conversation-${conv.id}`}
                   onClick={() => handleSelectConversation(conv.id)}
                   className={cm.cn(
                     cm.w('full'),

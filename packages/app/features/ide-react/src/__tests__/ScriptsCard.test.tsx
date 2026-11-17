@@ -14,7 +14,7 @@ import { cleanup, fireEvent, render, waitFor, within } from '@testing-library/re
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { HttpClient } from '@molecule/app-http'
+import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import type { ScriptInfo } from '@molecule/app-ide-panel-logic/panels'
 import { HttpProvider, I18nProvider } from '@molecule/app-react'
@@ -45,7 +45,29 @@ const PLAIN_SCRIPT: ScriptInfo = {
   createdAt: '2026-06-01T00:00:00Z',
 }
 
-const post = vi.fn(async () => ({ data: { stdout: 'ok', stderr: '', exitCode: 0 } }))
+/**
+ * A full {@link HttpResponse} for a stub to resolve with.
+ *
+ * @param data - The response body.
+ * @returns The response.
+ */
+function responseOf(data: unknown): HttpResponse<never> {
+  // The payload stands in for the server's reply; the client contract is
+  // caller-generic, which no concrete payload can prove, so the stub types it
+  // never and the interface widens it to the caller's T.
+  return {
+    data: data as never,
+    status: 200,
+    statusText: '200',
+    headers: {},
+    config: { method: 'GET', url: '' },
+  }
+}
+
+/** The observable POST — the only write the card makes. */
+const post = vi.fn<
+  (url: string, data?: unknown, config?: RequestConfig) => Promise<HttpResponse<never>>
+>(async () => responseOf({ stdout: 'ok', stderr: '', exitCode: 0 }))
 
 /** An http client that lists the two scripts and records run POSTs. */
 function buildHttpClient(): HttpClient {
@@ -54,8 +76,9 @@ function buildHttpClient(): HttpClient {
     baseURL: '',
     defaultHeaders: {},
     request: reject,
-    get: (async () => ({ data: { scripts: [PARAM_SCRIPT, PLAIN_SCRIPT] } })) as HttpClient['get'],
-    post: post as unknown as HttpClient['post'],
+    get: async (): Promise<HttpResponse<never>> =>
+      responseOf({ scripts: [PARAM_SCRIPT, PLAIN_SCRIPT] }),
+    post,
     put: reject,
     patch: reject,
     delete: reject,

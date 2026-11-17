@@ -74,6 +74,10 @@ const ToggleButton = memo(function ToggleButton({
     <button
       type="button"
       title={title}
+      // The glyph (`Aa`, `ab`, `.*`, `⋯`) is NOT the name: a screen reader would
+      // announce "Aa, toggle button". The translated `title` is the accessible
+      // name; the glyph itself is decorative.
+      aria-label={title}
       aria-pressed={active}
       data-mol-id={molId}
       onClick={onClick}
@@ -99,7 +103,7 @@ const ToggleButton = memo(function ToggleButton({
         lineHeight: 1,
       }}
     >
-      {children}
+      <span aria-hidden="true">{children}</span>
     </button>
   )
 })
@@ -745,6 +749,9 @@ export function SearchPanel({
                 id="mol-search-excluded-dirs"
                 type="text"
                 data-mol-id="search-excluded-dirs"
+                // The placeholder is an EXAMPLE of the input (directory names) —
+                // the same in every language, never a sentence to translate.
+                translate="no"
                 value={excludedDirsDraft}
                 // Read-only viewers can see the set but not edit it — their edits
                 // would never persist (the host omits onExcludedDirsChange).

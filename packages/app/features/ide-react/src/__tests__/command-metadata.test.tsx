@@ -89,7 +89,9 @@ const SAMPLE_SETTINGS: SettingsDisplayValues = {
   autoFix: 'On',
   autoCommit: 'Every 60s',
   hooks: 'In project settings',
+  autoApproveCommands: 'Off',
   sounds: '3 of 9 events enabled',
+  timestamps: 'Off',
 }
 
 beforeEach(() => {
@@ -131,7 +133,7 @@ describe('the /settings command reference renders every authoritative command (S
       expect(row, `command "/${cmd.id}" should render in the /settings card`).not.toBeNull()
       // The card shows `usage ?? label` in its <code> element.
       const code = row?.querySelector('code')
-      expect(code?.textContent).toBe(cmd.usage ?? cmd.label)
+      expect(code?.textContent).toBe(('usage' in cmd ? cmd.usage : undefined) ?? cmd.label)
     }
 
     // …and nothing beyond the registry (catches inverse drift — a stray row).

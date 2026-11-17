@@ -30,11 +30,11 @@ import {
   resetChatStoresForTests,
   ThemeProvider,
 } from '@molecule/app-react'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ChatPanel } from '../components/ChatPanel.js'
+import { buildThemeProvider } from './theme-test-provider.js'
 
 /** History seeded with one system card message per registered custom-event name. */
 function buildChatProvider(cardNames: string[]): ChatProvider {
@@ -87,46 +87,6 @@ function makeStorage(): Storage {
     key: (i: number) => Array.from(store.keys())[i] ?? null,
     removeItem: (k: string) => void store.delete(k),
     setItem: (k: string, v: string) => void store.set(k, String(v)),
-  }
-}
-
-/** A minimal light theme so `useThemeMode` resolves. */
-function buildThemeProvider(): ThemeProviderType {
-  const theme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
-  return {
-    getTheme: () => theme,
-    getThemeName: () => 'light',
-    getThemes: () => ['light', 'dark'],
-    setTheme: () => {},
-    toggleMode: () => {},
-    onThemeChange: () => () => {},
   }
 }
 

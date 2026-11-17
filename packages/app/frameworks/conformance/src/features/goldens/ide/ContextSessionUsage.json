@@ -1,0 +1,309 @@
+{
+ "nothing loaded yet: both totals say Unavailable": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "loading replaces both totals with Loading…": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\nLoading…\n</strong>\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nLoading…\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a failed refresh states the error against Unavailable totals": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nUsage could not be refreshed. Open details to retry.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a failure keeps the error even with a stale payload, and drops its totals": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nUsage could not be refreshed. Open details to retry.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "session and allowance totals from a monthly-window payload": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~60% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects. Monthly allowance. Resets Nov 20, 02:45 AM.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a streaming session marks the detail line live": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output · Live\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~45% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a daily window says so, with its reset time": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n12.8K tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n800 input (incl. cache) · 12.0K output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~100% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects. Daily allowance. Resets Nov 20, 02:45 AM.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "zero usage renders zero totals on both rows": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n0 tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n0 input (incl. cache) · 0 output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a percent without a window or reset shows only the remaining line": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~60% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "an absent percent leaves the allowance unknown while the session still shows": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a non-finite percent also leaves the allowance unknown": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "unmetered reads Unmetered, with the window line but no reset time": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nUnmetered\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects. Monthly allowance.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a non-finite reset time claims no reset": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~60% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects. Daily allowance.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a reset time that is not a number is ignored too": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~60% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "the remaining percent clamps into 0–100 both ways": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong class=\"cab1062ad\">\n~0% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /",
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~100% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "the remaining figure turns red at ten and not eleven": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~11% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /",
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong class=\"cab1062ad\">\n~10% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "usage arriving: loading, then the totals, then a failed refresh": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\nLoading…\n</strong>\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nLoading…\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n</div>\n</div>\n</div>\n@route /",
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n7.0K tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n5.5K input (incl. cache) · 1.6K output\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~60% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects.\n</div>\n</div>\n</div>\n@route /",
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nUsage could not be refreshed. Open details to retry.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   }
+  ]
+ },
+ "a switch to French re-renders every label": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\n1.2M tokens\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K input (incl. cache) · 1.2M output · Live\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\n~60% remaining\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nShared across the project owner’s projects. Daily allowance. Resets Nov 20, 02:45 AM.\n</div>\n</div>\n</div>\n@route /",
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nSession actuelle\n</span>\n<strong>\n1.2M jetons\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n11.0K entrée (cache inclus) · 1.2M sortie · En direct\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nQuota global d’IA\n</span>\n<strong>\n~60% restant\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\nPartagé entre les projets du propriétaire. Quota quotidien. Réinitialisation Nov 20, 02:45 AM.\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "fr"
+    ]
+   }
+  ]
+ },
+ "nothing loaded yet: both totals say Unavailable, then a locale switch": {
+  "snapshots": [
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nCurrent session\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\nOverall AI allowance\n</span>\n<strong>\nUnavailable\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n</div>\n</div>\n</div>\n@route /",
+   "<div aria-live=\"polite\" class=\"c2cbb8333 c42740ba6 c9566e21c cbaac6b89 cc2d72006 ccae02ff2\">\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\n⟦Current session⟧\n</span>\n<strong>\n⟦Unavailable⟧\n</strong>\n</div>\n</div>\n<div>\n<div class=\"c42740ba6 c50554581 c9366def6 c937ba156 ccae02ff2 cd9b20003\">\n<span>\n⟦Overall AI allowance⟧\n</span>\n<strong>\n⟦Unavailable⟧\n</strong>\n</div>\n<div class=\"c4647f690 ce823b5bf\">\n</div>\n</div>\n</div>\n@route /"
+  ],
+  "calls": [
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en"
+    ]
+   },
+   {
+    "name": "logger.debug",
+    "args": [
+     "i18n",
+     "Locale changed",
+     "en-XA"
+    ]
+   }
+  ]
+ }
+}

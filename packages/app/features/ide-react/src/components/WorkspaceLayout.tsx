@@ -47,6 +47,19 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
     [layout, panelConfigs, resizePanel],
   )
 
+  /**
+   * The leading pane's share (percent) of the two panes a divider separates —
+   * the value the focusable separator reports as `aria-valuenow`.
+   * @param index - The divider's index (the pane before it).
+   * @returns The leading pane's share of the pair, `0`–`100`.
+   */
+  const leadingShare = (index: number): number => {
+    const lead = livePanelSize(layout, panelConfigs, index)
+    const trail = livePanelSize(layout, panelConfigs, index + 1)
+    const total = lead + trail
+    return total > 0 ? (lead / total) * 100 : 50
+  }
+
   return (
     <div
       data-workspace-layout=""
@@ -83,7 +96,11 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
                 direct flex-row sibling it spans the full height (a real vertical
                 divider) instead of being clipped inside a panel's column. */}
             {i < panels.length - 1 && (
-              <ResizeHandle direction="horizontal" onResize={(delta) => handleResize(i, delta)} />
+              <ResizeHandle
+                direction="horizontal"
+                value={leadingShare(i)}
+                onResize={(delta) => handleResize(i, delta)}
+              />
             )}
           </Fragment>
         )

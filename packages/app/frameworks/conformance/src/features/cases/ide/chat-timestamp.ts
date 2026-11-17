@@ -41,6 +41,16 @@ export const chatTimestampCases: FeatureComponentCases = {
       props: { timestamp: Number.NaN },
     },
     {
+      name: 'an infinite time renders nothing too',
+      now: AT,
+      props: { timestamp: Number.POSITIVE_INFINITY },
+    },
+    {
+      name: 'an inline time ignores the align prop',
+      now: AT + 5 * MINUTE,
+      props: { timestamp: AT, align: 'center' },
+    },
+    {
       name: 'the label advances with the minute clock',
       now: AT + 5 * MINUTE,
       fakeTimers: true,
