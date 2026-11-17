@@ -1,5 +1,11 @@
 # @molecule/app-i18n-default-react
 
+## 1.0.7
+
+### Patch Changes
+
+- Clarify that locale support probes fetch production chunks unless supported locales are provided.
+
 ## 1.0.6
 
 ### Patch Changes
