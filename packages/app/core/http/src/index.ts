@@ -34,7 +34,7 @@
  * ```tsx
  * // In a React component, get the configured client from context and call it.
  * // The hook is exported by the framework binding (@molecule/app-react), not
- * // this core package — never construct your own fetch/axios client.
+ * // this core package. Use the configured client for the visitor's session.
  * import { useHttpClient } from '@molecule/app-react'
  *
  * function Plants() {
@@ -90,6 +90,27 @@
  * spelling. Clear the token (and any token resolver) or use a separate client to send another
  * credential. The Axios bond retains Axios's precedence: explicit default/request headers and
  * request interceptors can override the client's token.
+ *
+ * **A different account does not require a hand-written transport.** For demo data,
+ * an operator action, or another tenant's token, construct a separate package client in
+ * the composition root and pass it to the helper as `HttpClient`. Leave it unbonded:
+ * `setAuthTokenSource` affects the bonded client, not an independent instance. Set the
+ * independent client's own token with `setAuthToken(accountToken)` (or a live
+ * `setAuthTokenResolver`). Do not call `setClient`, change the visitor's auth client,
+ * or override the visitor's resolver to act as another account. Each independent client
+ * needs its own `baseURL` and `authScheme`. This is package reuse, not another fetch wrapper.
+ * The global session-restore gate still applies. Use the request's `skipAuthGate: true`
+ * only when that request is independent of the visitor's restore.
+ *
+ * ```typescript
+ * // In the composition root. Pass this client to the account-specific helper.
+ * import { createFetchClient } from '@molecule/app-http'
+ *
+ * const scoped = createFetchClient({ baseURL: '/api', authScheme: 'Token' })
+ * scoped.setAuthToken(accountToken)
+ * const response = await scoped.post('/stock', { name: 'Paper' })
+ * // response.data is the parsed body. The visitor's client and session are unchanged.
+ * ```
  *
  * A request made while the session is still being restored WAITS for that restore, so a page
  * that fetches viewer-dependent data on mount (account settings, a dashboard, or a
