@@ -44,6 +44,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      filter: ${{ steps.test-scope.outputs.filter }}
     steps:
       # fetch-depth: 0 — the affected-projects test-scoping (below) diffs against
       # the push before-sha / PR merge-base, which a shallow clone would not
@@ -201,6 +203,44 @@ jobs:
       # build so it always describes output that actually exists.
       - name: Record dist manifest for the next run
         run: node scripts/dist-cache-manifest.mjs --write
+      # Save successful compilation even when a later test shard fails. The normal
+      # dist cache is saved when this build job finishes; the same-run artifact
+      # gives every test runner the exact outputs just built at this commit.
+      - name: Archive compiled packages
+        run: >-
+          find packages -type d -name node_modules -prune -o -type d -name dist -print0 -prune |
+          tar --null -T - -czf "$RUNNER_TEMP/molecule-dist.tgz" .dist-manifest.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: molecule-dist-${{ github.sha }}
+          path: ${{ runner.temp }}/molecule-dist.tgz
+          compression-level: 0
+          retention-days: 1
+
+  tests:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    env:
+      FILTER: ${{ needs.build.outputs.filter }}
+      MOL_VITEST_SHARD: ${{ matrix.shard }}/8
+      MOL_VITEST_FAIL_FAST: '1'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.23.4'
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v7
+        with:
+          name: molecule-dist-${{ github.sha }}
+          path: ${{ runner.temp }}
+      - name: Restore this commit's compiled packages
+        run: tar -xzf "$RUNNER_TEMP/molecule-dist.tgz"
       # @molecule/app-e2e-fixtures-default ships a REAL-DEPENDENCY integration
       # test that drives headless Chromium through the actual Playwright runner
       # — it is the gate proving a blank React mount cannot pass e2e green. Its
@@ -226,7 +266,7 @@ jobs:
         timeout-minutes: 10
         working-directory: packages/app/features/e2e-fixtures-default
         env:
-          FILTER: ${{ steps.test-scope.outputs.filter }}
+          FILTER: ${{ needs.build.outputs.filter }}
       # Scope tests to the packages this push/PR affects (changed + their
       # transitive dependents) instead of the whole ~914-package, 47k-test fleet.
       # Prints EMPTY → a full `vitest run` whenever the scope can't be trusted (a
@@ -236,7 +276,7 @@ jobs:
         shell: bash
         run: npm test -- $FILTER
         env:
-          FILTER: ${{ steps.test-scope.outputs.filter }}
+          FILTER: ${{ needs.build.outputs.filter }}
 
   lint:
     runs-on: ubuntu-latest

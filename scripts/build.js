@@ -20,9 +20,11 @@ import {
   statSync,
   writeFileSync,
 } from 'node:fs'
-import { createRequire } from 'node:module'
 import { availableParallelism } from 'node:os'
 import { dirname, join, relative, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import typescript from 'typescript'
 
 const MAX_CONCURRENCY = availableParallelism()
 
@@ -190,13 +192,12 @@ function tscPlan(pkgDir) {
       if (dirname(dir) === dir) return null
     }
     if (!batchCompiler) {
-      const require = createRequire(join(root, 'package.json'))
-      const file = require.resolve('typescript/package.json')
+      const file = fileURLToPath(import.meta.resolve('typescript/package.json'))
       const compiler = JSON.parse(readFileSync(file, 'utf8'))
       if (compiler.version !== '6.0.3') return null
       const bin = realpathSync(join(dirname(file), compiler.bin.tsc))
       if (realpathSync(join(root, 'node_modules/.bin/tsc')) !== bin) return null
-      batchCompiler = { ts: require('typescript'), bin }
+      batchCompiler = { ts: typescript, bin }
     }
     const { ts, bin } = batchCompiler
     const config = resolve(pkgDir, 'tsconfig.json')

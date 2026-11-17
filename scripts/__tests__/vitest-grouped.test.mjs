@@ -7,8 +7,10 @@ import { stripVTControlCharacters } from 'node:util'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { balancedGroups, runPool, selectProjects, workersPerGroup } from '../vitest-grouped.mjs'
+import * as grouped from '../vitest-grouped.mjs'
 import { vitestBin } from '../vitest-with-tmp-root.mjs'
+
+const { balancedGroups, runPool, selectProjects, shardProjects, workersPerGroup } = grouped
 
 const ROOT = path.resolve(import.meta.dirname, '../..')
 const scratch = path.resolve(ROOT, '../.experiments/vitest-grouped-tests')
@@ -54,7 +56,7 @@ function fixture({ red = [], slow = [] } = {}) {
   fs.symlinkSync(path.dirname(path.dirname(vitestBin(ROOT))), path.join(dir, 'node_modules'), 'dir')
   // Vitest colours its output in CI and turns colour off under an AI agent (std-env
   // `isAgent`), so the same run prints different bytes on each: match on the text only.
-  const run = (args, groupSize = 2, concurrency = 2) => {
+  const run = (args, groupSize = 2, concurrency = 2, extra = {}) => {
     const result = spawnSync(process.execPath, ['scripts/vitest-grouped.mjs', ...args], {
       cwd: dir,
       env: {
@@ -62,6 +64,7 @@ function fixture({ red = [], slow = [] } = {}) {
         TMPDIR: path.join(dir, 'tmp'),
         MOL_VITEST_GROUP_PROJECTS: String(groupSize),
         MOL_VITEST_GROUP_CONCURRENCY: String(concurrency),
+        ...extra,
       },
       encoding: 'utf8',
       timeout: 60000,
@@ -170,6 +173,46 @@ describe('grouped Vitest runs', () => {
     ).toEqual([1, 2, 3, 4])
   }, 60000)
 
+  it('runs disjoint native shards and preserves the failing shard exit', () => {
+    const f = fixture({ red: ['a'] })
+    const first = f.run([], 60, 1, { MOL_VITEST_SHARD: '1/2' })
+    const second = f.run([], 60, 1, { MOL_VITEST_SHARD: '2/2' })
+    expect(first.status, first.stdout + first.stderr).toBe(1)
+    expect(second.status, second.stdout + second.stderr).toBe(0)
+    expect(first.stderr).toContain('shard 1/2: 4/7 projects')
+    expect(second.stderr).toContain('shard 2/2: 3/7 projects')
+    expect(first.stdout).toMatch(/1 failed \| 3 passed/)
+    expect(second.stdout).toMatch(/Test Files {2}3 passed/)
+    const empty = f.run([], 60, 1, { MOL_VITEST_SHARD: '8/8' })
+    expect(empty.status).toBe(0)
+    expect(empty.stderr).toContain('shard 8/8: 0/7 projects')
+  }, 60000)
+
+  it('stops scheduling native groups after failure when fail-fast is selected', () => {
+    const result = fixture({ red: ['a'] }).run([], 1, 1, { MOL_VITEST_FAIL_FAST: '1' })
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('group 1/7 exited 1')
+    expect(result.stderr).not.toContain('group 2/7:')
+  }, 60000)
+
+  it('runs explicitly prioritized projects first without widening the selected scope', () => {
+    const result = fixture({ red: ['e'] }).run([], 1, 1, {
+      MOL_VITEST_FAIL_FAST: '1',
+      MOL_VITEST_PRIORITY: JSON.stringify(['packages/api/core/e']),
+    })
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain(
+      'group 1/7: 1 projects (packages/api/core/e … packages/api/core/e)',
+    )
+    expect(result.stderr).not.toContain('group 2/7:')
+  }, 60000)
+
+  it('refuses shard fallbacks that would duplicate the whole suite', () => {
+    const result = fixture().run(['--reporter=verbose'], 2, 1, { MOL_VITEST_SHARD: '1/8' })
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('sharding requires project path filters')
+  }, 60000)
+
   it('runs Vitest unchanged when a filter names no project path', () => {
     const result = fixture({ red: ['b'] }).run(['sample.test'])
     expect(result.status).toBe(1)
@@ -180,6 +223,15 @@ describe('grouped Vitest runs', () => {
 
 describe('selection and grouping rules', () => {
   const dirs = ['packages/api/core/a', 'packages/api/core/ab', 'packages/app/x', 'scripts']
+
+  it('partitions the selected projects exactly once, including empty valid shards', () => {
+    const parts = Array.from({ length: 8 }, (_, i) => shardProjects(dirs, `${i + 1}/8`))
+    expect(parts.flat().sort()).toEqual([...dirs].sort())
+    expect(new Set(parts.flat()).size).toBe(dirs.length)
+    expect(parts[7]).toEqual([])
+    for (const bad of ['0/8', '9/8', '1/0', '1', '1/2x'])
+      expect(() => shardProjects(dirs, bad)).toThrow(/shard/)
+  })
 
   it('selects a project, the projects under a directory, or the project holding a path', () => {
     expect([...selectProjects(dirs, ['packages/api/core/a']).keys()]).toEqual([

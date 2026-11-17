@@ -70,7 +70,12 @@ const packageDirOf = (file) => {
 // ── diff base ───────────────────────────────────────────────────────────────
 const event = process.env.GITHUB_EVENT_NAME ?? ''
 let base
-if (event === 'pull_request') {
+const providedChanges = process.argv.includes('--changed-files')
+if (providedChanges) {
+  // A committed export has no .git. Its pre-push caller supplies the diff ending
+  // at the exact exported commit; the selection rule below is identical to CI's.
+  base = null
+} else if (event === 'pull_request') {
   const baseRef = process.env.GITHUB_BASE_REF
   if (!baseRef) full('pull_request with no GITHUB_BASE_REF')
   try {
@@ -98,13 +103,18 @@ if (event === 'pull_request') {
 
 let changed
 try {
-  changed = git('diff', '--name-only', base, 'HEAD').split('\n').filter(Boolean)
+  changed = providedChanges
+    ? JSON.parse(readFileSync(0, 'utf8'))
+    : git('diff', '--name-only', base, 'HEAD').split('\n').filter(Boolean)
+  if (!Array.isArray(changed) || changed.some((file) => typeof file !== 'string'))
+    full('invalid changed-file inventory')
 } catch (_error) {
   // Base sha unreachable from this clone — cannot scope, run all.
   full(`cannot diff ${base}..HEAD`)
 }
 if (!changed.length) full('empty diff')
-if (changed.some((f) => GLOBAL.some((re) => re.test(f)))) full('a global build/test file changed')
+if (changed.some((f) => f === '.' || GLOBAL.some((re) => re.test(f))))
+  full('a global build/test file changed')
 
 // Trust publication metadata does not change package/runtime/test source. Keep repo-meta guards.
 if (changed.every((file) => file === '.trust-state.json')) {

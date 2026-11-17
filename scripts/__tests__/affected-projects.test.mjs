@@ -116,6 +116,25 @@ afterEach(() => {
 })
 
 describe('trust-only affected scope', () => {
+  it('uses the identical CI rule in a committed export with an explicit changed-file inventory', () => {
+    const f = fixture()
+    f.change({ 'packages/api/core/a/src/index.ts': 'export const changed = true\n' })
+    const expected = f.select().stdout
+    expect(expected).toContain('packages/api/core/a')
+    const actual = spawnSync(
+      process.execPath,
+      ['scripts/affected-projects.mjs', '--changed-files'],
+      {
+        cwd: f.dir,
+        input: JSON.stringify(['packages/api/core/a/src/index.ts']),
+        env: { ...process.env, GITHUB_EVENT_NAME: 'schedule' },
+        encoding: 'utf8',
+      },
+    )
+    expect(actual.status).toBe(0)
+    expect(actual.stdout).toBe(expected)
+  })
+
   it('runs real meta tests through the unchanged CI shell, without unrelated package tests', () => {
     const f = fixture()
     f.change({ '.trust-state.json': '["@molecule/a"]\n' })

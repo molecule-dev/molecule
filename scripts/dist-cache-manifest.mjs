@@ -77,8 +77,8 @@ function packagesAt(root) {
   return packages
 }
 
-/** Keep helper-owning builders conservative; the current builder uses only Node builtins. */
-function builderInputs(root, ts) {
+/** Keep helper-owning builders conservative; static imports of hashed build tools are verified. */
+function builderInputs(root, ts, tools) {
   const file = join(root, 'scripts/build.js')
   const text = readFileSync(file, 'utf8')
   const imports = ts.preProcessFile(text, true, true).importedFiles
@@ -95,15 +95,25 @@ function builderInputs(root, ts) {
     ts.forEachChild(node, visit)
   }
   visit(source)
-  // Do not invent a runtime resolver: TS can prefer .d.ts over the JS Node
+  // Do not invent a helper resolver: TS can prefer .d.ts over the JS Node
   // executes, and helpers may read their own assets. Keep the prior complete
   // scripts proof for any helper or createRequire-capable builder.
-  if (
-    dynamic ||
-    imports.some(
-      ({ fileName }) => !isBuiltin(fileName) || ['module', 'node:module'].includes(fileName),
-    )
-  ) {
+  const require = createRequire(join(root, 'package.json'))
+  const verifiedImport = (name) => {
+    if (isBuiltin(name)) return !['module', 'node:module'].includes(name)
+    if (name.startsWith('.') || name.startsWith('/')) return false
+    try {
+      const target = require.resolve(name)
+      return Object.keys(tools).some((path) => {
+        const rel = relative(realpathSync(join(root, path)), target)
+        return rel !== '..' && !rel.startsWith('../') && !rel.startsWith('/')
+      })
+    } catch (_error) {
+      // An unresolved program cannot be established as one of the hashed tools.
+      return false
+    }
+  }
+  if (dynamic || imports.some(({ fileName }) => !verifiedImport(fileName))) {
     return inventory(join(root, 'scripts'), new Set(['node_modules', '.git']))
   }
   return { 'build.js': [bytesHash(file), lstatSync(file).mode & 0o777] }
@@ -136,7 +146,9 @@ export function readCacheInputs(root) {
   const lock = JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8'))
   if (lock.lockfileVersion !== 3 || !lock.packages) throw new Error('expected npm lockfile v3')
   const external = Object.fromEntries(
-    Object.entries(lock.packages).filter(([path]) => !paths.has(path)),
+    Object.entries(lock.packages).filter(
+      ([path, entry]) => !paths.has(path) && !(entry.link && paths.has(entry.resolved)),
+    ),
   )
   const commands = new Set([...packages.values()].map((pkg) => pkg.manifest.scripts.build))
   const programs = new Set([...commands].flatMap(buildPrograms))
@@ -171,15 +183,28 @@ export function readCacheInputs(root) {
     '.npmrc',
     ...readdirSync(root).filter((name) => /^tsconfig.*\.json$/.test(name)),
   ]
+  // npm's unrelated commands do not participate in a package build. Preserve every other
+  // root field and the root build lifecycle, including hooks, as conservative inputs.
+  const rootManifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+  rootManifest.scripts = Object.fromEntries(
+    Object.entries(rootManifest.scripts ?? {}).filter(([name]) =>
+      ['prebuild', 'build', 'postbuild'].includes(name),
+    ),
+  )
   const context = hash({
     format: FORMAT,
     node: process.version,
     platform: process.platform,
     arch: process.arch,
-    root: Object.fromEntries(rootFiles.map((name) => [name, bytesHash(join(root, name))])),
-    lock: { ...lock, packages: external },
+    root: Object.fromEntries(
+      rootFiles.map((name) => [
+        name,
+        name === 'package.json' ? hash(rootManifest) : bytesHash(join(root, name)),
+      ]),
+    ),
+    lock: { ...lock, packages: { ...external, '': { ...external[''], scripts: undefined } } },
     tools,
-    builder: builderInputs(root, ts),
+    builder: builderInputs(root, ts, tools),
     cache: bytesHash(fileURLToPath(import.meta.url)),
   })
   // tsc does not consume package-root release/docs bodies. Parsed compiler

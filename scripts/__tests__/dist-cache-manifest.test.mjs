@@ -205,15 +205,39 @@ describe('CI dist proof', () => {
     expect(distCache(root, 'apply')).toEqual({ fresh: 0, rebuild: 3 })
   })
 
-  it('retains the whole script proof for the actual createRequire-capable builder', () => {
+  it('reuses the actual builder outputs when unrelated repository tooling changes', () => {
     const { root, write } = fixture()
     write('scripts/build.js', readFileSync(new URL('../build.js', import.meta.url), 'utf8'))
     expect(distCache(root, 'write')).toEqual({ written: 3 })
     write('packages/leaf/README.md', '# Updated booking API documentation\n')
     expect(distCache(root, 'apply')).toEqual({ fresh: 3, rebuild: 0 })
-    // An unrestricted module loader can consume other scripts/assets. The
-    // generic cache deliberately cannot certify this new file as independent.
+    // The static compiler import is covered by the verified build-tool inventory.
     write('scripts/doc-check.mjs', 'console.log("Unclassified script input")\n')
+    expect(distCache(root, 'apply')).toEqual({ fresh: 3, rebuild: 0 })
+  })
+
+  it('keeps existing dist when another workspace and its npm link are added', () => {
+    const { root, write, lock } = fixture()
+    mkdirSync(join(root, 'packages/new/src'), { recursive: true })
+    const pkg = { name: '@molecule/new', version: '1.0.0', scripts: { build: 'tsc' } }
+    write('packages/new/package.json', JSON.stringify(pkg))
+    write(
+      'packages/new/tsconfig.json',
+      '{"extends":"../../tsconfig.json","include":["src/**/*.ts"]}',
+    )
+    write('packages/new/src/index.ts', 'export const extra = true\n')
+    lock.packages['packages/new'] = pkg
+    lock.packages['node_modules/@molecule/new'] = { resolved: 'packages/new', link: true }
+    write('package-lock.json', JSON.stringify(lock))
+    expect(distCache(root, 'apply')).toEqual({ fresh: 3, rebuild: 1 })
+  })
+
+  it('ignores unrelated root commands but invalidates a changed build lifecycle', () => {
+    const { root, write } = fixture()
+    const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+    write('package.json', JSON.stringify({ ...manifest, scripts: { lint: 'eslint .' } }))
+    expect(distCache(root, 'apply')).toEqual({ fresh: 3, rebuild: 0 })
+    write('package.json', JSON.stringify({ ...manifest, scripts: { prebuild: 'node setup.mjs' } }))
     expect(distCache(root, 'apply')).toEqual({ fresh: 0, rebuild: 3 })
   })
 

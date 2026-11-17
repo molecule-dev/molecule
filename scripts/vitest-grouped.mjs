@@ -22,7 +22,10 @@
  *   - Anything else (a flag, or a filter that names no project path): one Vitest process
  *     with the arguments unchanged, as `npm test` ran before this runner existed.
  *
- * Every group runs even when an earlier one fails; the exit code is the lowest-numbered
+ * `MOL_VITEST_SHARD=i/n` assigns sorted project directories round-robin to disjoint runners.
+ * `MOL_VITEST_PRIORITY` is a JSON array of project directories to run first within that share.
+ * `MOL_VITEST_FAIL_FAST=1` stops scheduling groups after a failure and uses Vitest's --bail=1.
+ * By default every group runs even when an earlier one fails; the exit code is the lowest-numbered
  * failing group's. A signal stops the run: no further group starts. Groups are balanced (sizes
  * differ by at most one), so a run that fits in one group is exactly one Vitest run, as before.
  *
@@ -142,6 +145,17 @@ export function balancedGroups(items, max) {
   return groups
 }
 
+/** Select one deterministic, disjoint share of projects; i/n is one-based. */
+export function shardProjects(items, shard) {
+  if (!shard) return items
+  const match = String(shard).match(/^([1-9]\d*)\/([1-9]\d*)$/)
+  const index = Number(match?.[1])
+  const count = Number(match?.[2])
+  if (!match || !Number.isSafeInteger(count) || index > count)
+    throw new Error(`test shard must be i/n with 1 <= i <= n, got ${shard}`)
+  return items.filter((_item, position) => position % count === index - 1)
+}
+
 /**
  * Each concurrent group's share of Vitest's default worker count (CPUs − 1), rounded up so
  * the groups together use at least that many.
@@ -217,6 +231,9 @@ export async function runGrouped(args, options = {}) {
     max = Number(process.env.MOL_VITEST_GROUP_PROJECTS || DEFAULT_GROUP_PROJECTS),
     concurrency = Number(process.env.MOL_VITEST_GROUP_CONCURRENCY || DEFAULT_GROUP_CONCURRENCY),
     cpus = availableParallelism(),
+    shard = process.env.MOL_VITEST_SHARD || '',
+    failFast = process.env.MOL_VITEST_FAIL_FAST === '1',
+    priority = JSON.parse(process.env.MOL_VITEST_PRIORITY || '[]'),
     run = (vitestArgs, { output } = {}) =>
       runVitest(vitestArgs, {
         cwd: root,
@@ -229,7 +246,11 @@ export async function runGrouped(args, options = {}) {
   } = options
   if (!Number.isInteger(concurrency) || concurrency < 1)
     throw new Error(`group concurrency must be a positive integer, got ${concurrency}`)
-  const unchanged = () => run(['run', ...args])
+  const unchanged = () => {
+    if (shard)
+      throw new Error('test sharding requires project path filters, not flags or unknown paths')
+    return run(['run', ...args])
+  }
   if (args.some((arg) => arg.startsWith('-'))) return unchanged()
   const paths = args.map((arg) => repoPath(arg, root))
   if (paths.includes(null)) return unchanged()
@@ -240,7 +261,18 @@ export async function runGrouped(args, options = {}) {
     log('[vitest-grouped] a filter names no project path; running Vitest unchanged')
     return unchanged()
   }
-  const groups = balancedGroups([...selected.keys()], max)
+  if (!Array.isArray(priority) || priority.some((dir) => typeof dir !== 'string'))
+    throw new Error('test priority must be a JSON array of project directories')
+  const preferred = new Set(priority)
+  const projects = shardProjects([...selected.keys()], shard).sort(
+    (a, b) => Number(preferred.has(b)) - Number(preferred.has(a)),
+  )
+  if (shard) log(`[vitest-grouped] shard ${shard}: ${projects.length}/${selected.size} projects`)
+  if (!projects.length) {
+    if (!selected.size) throw new Error('no Vitest projects selected')
+    return 0 // A valid shard can be empty when there are fewer projects than runners.
+  }
+  const groups = balancedGroups(projects, max)
   const parallel = Math.min(concurrency, groups.length)
   const workers = parallel > 1 ? [`--maxWorkers=${workersPerGroup(cpus, parallel)}`] : []
   const scratch = fs.mkdtempSync(join(base, 'mol-vitest-groups-'))
@@ -269,7 +301,10 @@ export async function runGrouped(args, options = {}) {
             : undefined
         const started = Date.now()
         log(`[vitest-grouped] ${name}: ${group.length} projects (${group[0]} … ${group.at(-1)})`)
-        const code = await run(['run', '--config', config, ...workers, ...filters], { output })
+        const code = await run(
+          ['run', '--config', config, ...workers, ...(failFast ? ['--bail=1'] : []), ...filters],
+          { output },
+        )
         if (output)
           for (const stream of ['stdout', 'stderr'])
             if (fs.existsSync(output[stream])) print(stream, fs.readFileSync(output[stream]))
@@ -278,7 +313,7 @@ export async function runGrouped(args, options = {}) {
         )
         return code
       },
-      (code) => SIGNAL_CODES.has(code),
+      (code) => SIGNAL_CODES.has(code) || (failFast && code !== 0),
     )
     return codes.find((code) => code !== undefined && code !== 0) ?? 0
   } finally {
