@@ -221,13 +221,14 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      # Pushes fail promptly; the nightly backstop must finish every shard.
+      fail-fast: ${{ github.event_name != 'schedule' }}
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
       FILTER: ${{ needs.build.outputs.filter }}
       MOL_VITEST_SHARD: ${{ matrix.shard }}/8
-      MOL_VITEST_FAIL_FAST: '1'
+      MOL_VITEST_FAIL_FAST: ${{ github.event_name == 'schedule' && '0' || '1' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

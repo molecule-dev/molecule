@@ -18,10 +18,12 @@ describe('CI test sharding', () => {
     const { build, tests } = workflow.jobs
     expect(build.steps.some((step) => /npm test/.test(step.run ?? ''))).toBe(false)
     expect(tests.needs).toBe('build')
-    expect(tests.strategy['fail-fast']).toBe(true)
+    expect(tests.strategy['fail-fast']).toBe("${{ github.event_name != 'schedule' }}")
     expect(tests.strategy.matrix.shard).toEqual([1, 2, 3, 4, 5, 6, 7, 8])
     expect(tests.env.MOL_VITEST_SHARD).toBe('${{ matrix.shard }}/8')
-    expect(tests.env.MOL_VITEST_FAIL_FAST).toBe('1')
+    expect(tests.env.MOL_VITEST_FAIL_FAST).toBe(
+      "${{ github.event_name == 'schedule' && '0' || '1' }}",
+    )
     expect(build.outputs.filter).toBe('${{ steps.test-scope.outputs.filter }}')
     const upload = build.steps.find(
       (step) =>
