@@ -43,11 +43,12 @@ export function UserChip({
   ...rest
 }: UserChipProps): JSX.Element {
   const cm = getClassMap()
+  const avatar = <Avatar src={src} alt={name} name={name} size={size} />
   return (
     <div {...rest} className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>
-      <div aria-hidden={href === undefined ? undefined : true}>
-        <Avatar src={src} alt={name} name={name} size={size} />
-      </div>
+      {/* A linked chip hides the avatar from assistive tech so the link is the one name read
+          out; an unlinked chip keeps the plain avatar, the same DOM every framework port renders. */}
+      {href === undefined ? avatar : <div aria-hidden="true">{avatar}</div>}
       <div className={cm.cn(cm.flex1, cm.stack(0 as const))}>
         {href === undefined ? (
           <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>{name}</span>
