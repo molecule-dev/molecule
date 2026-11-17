@@ -1,5 +1,11 @@
 # @molecule/app-oauth-logos-react
 
+## 1.1.0
+
+### Minor Changes
+
+- Each logo's root SVG now carries `translate="no"`, so brand names in accessible labels and titles stay as written in every language. The Angular package also exports the `OAuthProviderLogoProps` type.
+
 ## 1.0.4
 
 ### Patch Changes
