@@ -1,6 +1,8 @@
 /**
  * A verb chosen at runtime (`client[verb](url)`) type-checks across every verb, while a
  * second argument, which is a body for post/put/patch but a config for get/delete, does not.
+ * A wrapper still implements every verb with a delegating arrow (2026-11-17: a URL-only overload
+ * with fewer parameters than the others broke exactly that).
  */
 import { fileURLToPath } from 'node:url'
 
@@ -65,6 +67,20 @@ add(
     const text: string = (await client.delete<Saved>('/projects/42', { responseType: 'text' })).data
     const saved: Saved = (await client.post<Saved>('/projects', { name: 'x' })).data
     void text; void saved
+  }`,
+)
+add(
+  'a wrapper implements every verb with a delegating arrow',
+  `{
+    const wrapped: Pick<HttpClient, 'get' | 'post' | 'put' | 'patch' | 'delete'> = {
+      get: (url, config) => client.get(url, config),
+      post: (url, data, config) => client.post(url, data, config),
+      put: (url, data, config) => client.put(url, data, config),
+      patch: (url, data, config) => client.patch(url, data, config),
+      delete: (url, config) => client.delete(url, config),
+    }
+    const text: string = (await wrapped.get('/projects/42', { responseType: 'text' })).data
+    void text
   }`,
 )
 lines.push('}', 'void check')

@@ -29,10 +29,11 @@ export type AuthTokenResolver = () => string | null | undefined
  * a JSON generic is supplied. Keep JSON as the default for mutations returning a
  * record. A successful DELETE with no body already resolves with null data.
  *
- * Every verb also takes a URL alone with the same signature, so a verb chosen at runtime
- * (`client[verb](url)`) type-checks. With a body or a config, choose the verb through
- * `request({ method, url, data })` instead: the second argument is the body for
- * post/put/patch but the config for get/delete, so one call cannot serve both.
+ * Every verb also takes a URL alone, through a signature with the same three parameters on every
+ * verb, so a verb chosen at runtime (`client[verb](url)`) type-checks and a wrapper can implement
+ * a verb with an arrow (`get: (url, config) => inner.get(url, config)`). With a body or a config,
+ * choose the verb through `request({ method, url, data })` instead: the second argument is the
+ * body for post/put/patch but the config for get/delete, so one call cannot serve both.
  */
 export interface HttpClient {
   /**
@@ -75,8 +76,7 @@ export interface HttpClient {
     url: string,
     config: RequestConfig & { responseType: 'arraybuffer' },
   ): Promise<HttpResponse<ArrayBuffer>>
-  // URL only, the same on every verb, so `client[verb](url)` type-checks (see above).
-  get<T = unknown>(url: string): Promise<HttpResponse<T>>
+  get<T = unknown>(url: string, config?: undefined, unused?: undefined): Promise<HttpResponse<T>>
   get<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
@@ -99,7 +99,7 @@ export interface HttpClient {
     data: unknown,
     config: RequestConfig & { responseType: 'arraybuffer' },
   ): Promise<HttpResponse<ArrayBuffer>>
-  post<T = unknown>(url: string): Promise<HttpResponse<T>>
+  post<T = unknown>(url: string, data?: undefined, config?: undefined): Promise<HttpResponse<T>>
   post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
@@ -121,7 +121,7 @@ export interface HttpClient {
     data: unknown,
     config: RequestConfig & { responseType: 'arraybuffer' },
   ): Promise<HttpResponse<ArrayBuffer>>
-  put<T = unknown>(url: string): Promise<HttpResponse<T>>
+  put<T = unknown>(url: string, data?: undefined, config?: undefined): Promise<HttpResponse<T>>
   put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
@@ -143,7 +143,7 @@ export interface HttpClient {
     data: unknown,
     config: RequestConfig & { responseType: 'arraybuffer' },
   ): Promise<HttpResponse<ArrayBuffer>>
-  patch<T = unknown>(url: string): Promise<HttpResponse<T>>
+  patch<T = unknown>(url: string, data?: undefined, config?: undefined): Promise<HttpResponse<T>>
   patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
@@ -161,7 +161,7 @@ export interface HttpClient {
     url: string,
     config: RequestConfig & { responseType: 'arraybuffer' },
   ): Promise<HttpResponse<ArrayBuffer>>
-  delete<T = unknown>(url: string): Promise<HttpResponse<T>>
+  delete<T = unknown>(url: string, config?: undefined, unused?: undefined): Promise<HttpResponse<T>>
   delete<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
