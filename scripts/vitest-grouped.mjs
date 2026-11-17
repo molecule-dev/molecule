@@ -25,6 +25,10 @@
  * `MOL_VITEST_SHARD=i/n` assigns sorted project directories round-robin to disjoint runners.
  * `MOL_VITEST_PRIORITY` is a JSON array of project directories to run first within that share.
  * `MOL_VITEST_FAIL_FAST=1` stops scheduling groups after a failure and uses Vitest's --bail=1.
+ * `MOL_VITEST_TEST_TIMEOUT_MS=<ms>` passes `--testTimeout=<ms>` to every Vitest run this starts.
+ * In projects mode Vitest copies that flag into each project, so it replaces each project's own
+ * `testTimeout` (a timeout written on the test itself still wins). It is for a machine that runs
+ * tests slower than CI, where CI stays the judge of test timing; CI does not set it.
  * By default every group runs even when an earlier one fails; the exit code is the lowest-numbered
  * failing group's. A signal stops the run: no further group starts. Groups are balanced (sizes
  * differ by at most one), so a run that fits in one group is exactly one Vitest run, as before.
@@ -169,6 +173,22 @@ export function workersPerGroup(cpus, concurrency) {
 }
 
 /**
+ * The Vitest arguments for `MOL_VITEST_TEST_TIMEOUT_MS`: none when it is unset or empty.
+ *
+ * @param value - The variable's value.
+ * @returns `['--testTimeout=<ms>']`, or `[]`.
+ */
+export function testTimeoutArgs(value) {
+  if (value === undefined || value === '') return []
+  const ms = Number(value)
+  if (!/^\d+$/.test(String(value)) || !Number.isSafeInteger(ms) || ms < 1)
+    throw new Error(
+      `MOL_VITEST_TEST_TIMEOUT_MS must be a positive integer of milliseconds, got ${value}`,
+    )
+  return [`--testTimeout=${ms}`]
+}
+
+/**
  * Run tasks with at most `limit` in flight, in order, until all have run or `stop()` says no
  * more may start.
  *
@@ -233,6 +253,7 @@ export async function runGrouped(args, options = {}) {
     cpus = availableParallelism(),
     shard = process.env.MOL_VITEST_SHARD || '',
     failFast = process.env.MOL_VITEST_FAIL_FAST === '1',
+    testTimeout = process.env.MOL_VITEST_TEST_TIMEOUT_MS,
     priority = JSON.parse(process.env.MOL_VITEST_PRIORITY || '[]'),
     run = (vitestArgs, { output } = {}) =>
       runVitest(vitestArgs, {
@@ -246,10 +267,11 @@ export async function runGrouped(args, options = {}) {
   } = options
   if (!Number.isInteger(concurrency) || concurrency < 1)
     throw new Error(`group concurrency must be a positive integer, got ${concurrency}`)
+  const timeoutArgs = testTimeoutArgs(testTimeout)
   const unchanged = () => {
     if (shard)
       throw new Error('test sharding requires project path filters, not flags or unknown paths')
-    return run(['run', ...args])
+    return run(['run', ...timeoutArgs, ...args])
   }
   if (args.some((arg) => arg.startsWith('-'))) return unchanged()
   const paths = args.map((arg) => repoPath(arg, root))
@@ -302,7 +324,15 @@ export async function runGrouped(args, options = {}) {
         const started = Date.now()
         log(`[vitest-grouped] ${name}: ${group.length} projects (${group[0]} … ${group.at(-1)})`)
         const code = await run(
-          ['run', '--config', config, ...workers, ...(failFast ? ['--bail=1'] : []), ...filters],
+          [
+            'run',
+            '--config',
+            config,
+            ...workers,
+            ...(failFast ? ['--bail=1'] : []),
+            ...timeoutArgs,
+            ...filters,
+          ],
           { output },
         )
         if (output)

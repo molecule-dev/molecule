@@ -10,7 +10,8 @@ import { afterEach, describe, expect, it } from 'vitest'
 import * as grouped from '../vitest-grouped.mjs'
 import { vitestBin } from '../vitest-with-tmp-root.mjs'
 
-const { balancedGroups, runPool, selectProjects, shardProjects, workersPerGroup } = grouped
+const { balancedGroups, runPool, selectProjects, shardProjects, testTimeoutArgs, workersPerGroup } =
+  grouped
 
 const ROOT = path.resolve(import.meta.dirname, '../..')
 const scratch = path.resolve(ROOT, '../.experiments/vitest-grouped-tests')
@@ -18,9 +19,10 @@ const fixtures = []
 
 /**
  * A repository with six packages (any red or slow when asked), the real runner and the real
- * root config.
+ * root config. A package named in `timed` sets `testTimeout: 50` in its own config and its test
+ * passes no limit of its own: `'sleep'` takes 200 ms, `'hang'` never settles.
  */
-function fixture({ red = [], slow = [] } = {}) {
+function fixture({ red = [], slow = [], timed = {} } = {}) {
   fs.mkdirSync(scratch, { recursive: true })
   const dir = fs.mkdtempSync(path.join(scratch, 'repo-'))
   fixtures.push(dir)
@@ -42,14 +44,22 @@ function fixture({ red = [], slow = [] } = {}) {
   )
   for (const name of ['a', 'b', 'c', 'd', 'e', 'testing']) {
     const pkg = name === 'testing' ? 'packages/api/testing' : `packages/api/core/${name}`
+    const timing = timed[name]
     write(
       `${pkg}/vitest.config.ts`,
-      `import {defineConfig} from 'vitest/config';export default defineConfig({test:{name:${JSON.stringify(name)},root:import.meta.dirname,include:['src/__tests__/*.test.ts'],environment:'node',maxWorkers:1}})\n`,
+      `import {defineConfig} from 'vitest/config';export default defineConfig({test:{name:${JSON.stringify(name)},root:import.meta.dirname,include:['src/__tests__/*.test.ts'],environment:'node',maxWorkers:1${timing ? ',testTimeout:50' : ''}}})\n`,
     )
-    const wait = slow.includes(name) ? 'await new Promise((r)=>setTimeout(r,12000));' : ''
+    const wait =
+      timing === 'hang'
+        ? 'await new Promise(()=>{});'
+        : timing === 'sleep'
+          ? 'await new Promise((r)=>setTimeout(r,200));'
+          : slow.includes(name)
+            ? 'await new Promise((r)=>setTimeout(r,12000));'
+            : ''
     write(
       `${pkg}/src/__tests__/sample.test.ts`,
-      `import {it,expect} from 'vitest';it('package ${name} test',async()=>{${wait}expect(1).toBe(${red.includes(name) ? 2 : 1})},20000)\n`,
+      `import {it,expect} from 'vitest';it('package ${name} test',async()=>{${wait}expect(1).toBe(${red.includes(name) ? 2 : 1})}${timing ? '' : ',20000'})\n`,
     )
   }
   fs.mkdirSync(path.join(dir, 'tmp'))
@@ -218,6 +228,54 @@ describe('grouped Vitest runs', () => {
     expect(result.stderr).toContain('sharding requires project path filters')
   }, 60000)
 
+  // 2026-11-17: a release's local pre-push run, at nice 10 on two shared cores, refused a wave on
+  // scripts/__tests__/check-locale-placeholders.test.ts at the 5 s default (6.2 s taken). CI ran
+  // it green. The variable lets that machine give tests longer while a wrong result or a hang
+  // still fails.
+  it('gives every project the MOL_VITEST_TEST_TIMEOUT_MS limit in place of its own', () => {
+    const f = fixture({ timed: { a: 'sleep', b: 'sleep' } })
+    const without = f.run(['packages/api/core/a', 'packages/api/core/b'], 1, 1)
+    expect(without.status).toBe(1)
+    expect(without.stdout + without.stderr).toContain('Test timed out in 50ms')
+    const longer = f.run(['packages/api/core/a', 'packages/api/core/b'], 1, 1, {
+      MOL_VITEST_TEST_TIMEOUT_MS: '300000',
+    })
+    expect(longer.status, longer.stdout + longer.stderr).toBe(0)
+    expect(longer.stderr).toContain('group 2/2 exited 0')
+  }, 60000)
+
+  it('still fails a wrong result under MOL_VITEST_TEST_TIMEOUT_MS', () => {
+    const result = fixture({ timed: { a: 'sleep' }, red: ['a'] }).run(
+      ['packages/api/core/a'],
+      2,
+      1,
+      {
+        MOL_VITEST_TEST_TIMEOUT_MS: '300000',
+      },
+    )
+    expect(result.status).toBe(1)
+    expect(result.stdout + result.stderr).toMatch(/expected 1 to be 2/)
+  }, 60000)
+
+  it('still fails a test that never settles, at the MOL_VITEST_TEST_TIMEOUT_MS limit', () => {
+    const result = fixture({ timed: { a: 'hang' } }).run(['packages/api/core/a'], 2, 1, {
+      MOL_VITEST_TEST_TIMEOUT_MS: '500',
+    })
+    expect(result.status).toBe(1)
+    expect(result.stdout + result.stderr).toContain('Test timed out in 500ms')
+  }, 60000)
+
+  it('passes MOL_VITEST_TEST_TIMEOUT_MS to an unchanged run too', () => {
+    const result = fixture({ timed: { a: 'sleep' } }).run(
+      ['--reporter=verbose', 'packages/api/core/a'],
+      2,
+      1,
+      { MOL_VITEST_TEST_TIMEOUT_MS: '300000' },
+    )
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+    expect(result.stderr).not.toContain('[vitest-grouped] group')
+  }, 60000)
+
   it('runs Vitest unchanged when a filter names no project path', () => {
     const result = fixture({ red: ['b'] }).run(['sample.test'])
     expect(result.status).toBe(1)
@@ -257,6 +315,14 @@ describe('selection and grouping rules', () => {
     expect(workersPerGroup(14, 2)).toBe(7)
     expect(workersPerGroup(2, 2)).toBe(1)
     expect(workersPerGroup(1, 4)).toBe(1)
+  })
+
+  it('reads MOL_VITEST_TEST_TIMEOUT_MS as a positive whole number of milliseconds', () => {
+    expect(testTimeoutArgs(undefined)).toEqual([])
+    expect(testTimeoutArgs('')).toEqual([])
+    expect(testTimeoutArgs('300000')).toEqual(['--testTimeout=300000'])
+    for (const bad of ['abc', '0', '-5', '1.5', '30s', ' 300'])
+      expect(() => testTimeoutArgs(bad)).toThrow(/positive integer of milliseconds/)
   })
 
   it('keeps at most the limit in flight and starts nothing after a stop', async () => {
