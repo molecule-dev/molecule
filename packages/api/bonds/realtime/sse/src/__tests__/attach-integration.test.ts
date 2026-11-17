@@ -20,6 +20,60 @@ import type { RealtimeProvider } from '@molecule/api-realtime'
 
 import { createProvider } from '../provider.js'
 
+/**
+ * A port nothing listens on: bind port 0, read the port the OS chose, release it. A hard-coded
+ * port can already be taken on a shared machine.
+ *
+ * @returns The free port.
+ */
+async function freePort(): Promise<number> {
+  const probe = net.createServer()
+  await new Promise<void>((resolve) => probe.listen(0, '127.0.0.1', resolve))
+  const address = probe.address()
+  const port = typeof address === 'object' && address ? address.port : 0
+  await new Promise<void>((resolve) => probe.close(() => resolve()))
+  return port
+}
+
+/**
+ * Wait until `check` holds, polling every 25 ms. A standalone provider binds its port
+ * asynchronously and reports a bind failure asynchronously, with no event to await, so the
+ * tests wait for the real condition instead of a fixed delay (20 ms was not enough on a
+ * loaded machine: ECONNREFUSED in the 2026-11-17 release run).
+ *
+ * @param check - Resolves true once the condition holds.
+ * @param what - What is awaited, for the timeout message.
+ * @param timeoutMs - How long to wait.
+ */
+async function until(
+  check: () => Promise<boolean> | boolean,
+  what: string,
+  timeoutMs = 10_000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs
+  while (!(await check())) {
+    if (Date.now() > deadline) throw new Error(`${what} did not happen within ${timeoutMs} ms`)
+    await new Promise((resolve) => setTimeout(resolve, 25))
+  }
+}
+
+/**
+ * Whether something accepts TCP connections on the port.
+ *
+ * @param port - Port on 127.0.0.1.
+ * @returns True when a connection is accepted.
+ */
+function accepting(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = net.connect(port, '127.0.0.1')
+    socket.once('connect', () => {
+      socket.destroy()
+      resolve(true)
+    })
+    socket.once('error', () => resolve(false))
+  })
+}
+
 describe('@molecule/api-realtime-sse — real port-binding + CORS-default contract', () => {
   let server: http.Server | undefined
   let provider: RealtimeProvider | undefined
@@ -120,9 +174,9 @@ describe('@molecule/api-realtime-sse — real port-binding + CORS-default contra
   })
 
   it('CONTRACT: an explicit port still opens a real listening socket (back-compat for standalone callers)', async () => {
-    const fixedPort = 58312
+    const fixedPort = await freePort()
     provider = createProvider({ port: fixedPort, path: '/sse' })
-    await new Promise((resolve) => setTimeout(resolve, 20))
+    await until(() => accepting(fixedPort), `a listener on port ${String(fixedPort)}`)
 
     const controller = new AbortController()
     try {
@@ -134,6 +188,37 @@ describe('@molecule/api-realtime-sse — real port-binding + CORS-default contra
       expect(response.headers.get('content-type')).toBe('text/event-stream')
     } finally {
       controller.abort()
+    }
+  })
+
+  it('CONTRACT: an explicit port serves once a slow bind completes (a loaded machine)', async () => {
+    // The standalone bind is asynchronous. Delay it well past the old fixed 20 ms wait: the
+    // contract is that the socket opens, not how fast.
+    const listen = http.Server.prototype.listen
+    const spy = vi.spyOn(http.Server.prototype, 'listen').mockImplementation(function (
+      this: http.Server,
+      ...args: unknown[]
+    ) {
+      setTimeout(() => listen.apply(this, args as Parameters<typeof listen>), 300)
+      return this
+    })
+    try {
+      const fixedPort = await freePort()
+      provider = createProvider({ port: fixedPort, path: '/sse' })
+      expect(await accepting(fixedPort)).toBe(false)
+      await until(() => accepting(fixedPort), `a listener on port ${String(fixedPort)}`)
+      const controller = new AbortController()
+      try {
+        const response = await fetch(`http://127.0.0.1:${String(fixedPort)}/sse`, {
+          headers: { Accept: 'text/event-stream' },
+          signal: controller.signal,
+        })
+        expect(response.status).toBe(200)
+      } finally {
+        controller.abort()
+      }
+    } finally {
+      spy.mockRestore()
     }
   })
 
@@ -159,20 +244,20 @@ describe('@molecule/api-realtime-sse — real port-binding + CORS-default contra
   })
 
   it('CONSUMER PROPERTY: a standalone bind failure (port already in use) is logged with the bond name and port, not an unattributed crash', async () => {
-    const fixedPort = 58311
+    const fixedPort = await freePort()
 
-    // Bind the first provider on a real, fixed port so a second standalone
+    // Bind the first provider on a real port so a second standalone
     // provider can deliberately collide on the SAME port (EADDRINUSE).
     provider = createProvider({ port: fixedPort })
-    await new Promise((resolve) => setTimeout(resolve, 20))
+    await until(() => accepting(fixedPort), `a listener on port ${String(fixedPort)}`)
 
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     try {
       secondProvider = createProvider({ port: fixedPort })
-      // Give the async EADDRINUSE 'error' event time to fire — with no
+      // Wait for the async EADDRINUSE 'error' event — with no
       // listener this would otherwise crash the process with a bare,
       // unattributed uncaught exception instead of a logged, actionable message.
-      await new Promise((resolve) => setTimeout(resolve, 150))
+      await until(() => errorSpy.mock.calls.length > 0, 'the bind failure log')
 
       expect(errorSpy).toHaveBeenCalled()
       const loggedMessages = errorSpy.mock.calls.map((call) => String(call[0]))
