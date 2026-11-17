@@ -42,10 +42,12 @@
  * - When `name` is not a plain string the avatar's accessible name falls back
  *   to the hardcoded English string 'Player' — pass a string `name` in
  *   localized apps.
- * - `onClick` gives the row a pointer cursor but no keyboard/role semantics
- *   (a documented gap of the React package the DOM must match); it is called
- *   with the native click event. The host IS the row's root `<div>`, so a
- *   click anywhere on the row fires it.
+ * - With `onClick` the row is promoted to a real button in the a11y tree —
+ *   `role="button"`, `tabindex="0"`, the pointer cursor — and Enter / Space
+ *   activate it (the click handler runs with no event), matching native
+ *   button keyboard semantics; on a click it is called with the native click
+ *   event. The host IS the row's root `<div>`, so a click anywhere on the row
+ *   fires it.
  * - Requires a wired ClassMap bond; `<Avatar>` comes from
  *   `@molecule/app-ui-angular`. Node props are projected content: `name`,
  *   `score` and `subtitle` are selected by `[slot=<name>]`, everything else

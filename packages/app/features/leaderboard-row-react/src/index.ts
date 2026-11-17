@@ -15,7 +15,11 @@
  *   that clashes with a dark theme.
  * - When `name` is not a plain string the avatar's accessible name falls back to
  *   the hardcoded English string 'Player' — pass a string `name` in localized apps.
- * - `onClick` gives the row a pointer cursor but no keyboard/role semantics.
+ * - With `onClick` the row is promoted to a real button in the a11y tree —
+ *   `role="button"`, `tabindex="0"`, the pointer cursor — and Enter / Space
+ *   activate it (the click handler runs with no event), matching native
+ *   button keyboard semantics. Without `onClick` the row renders none of
+ *   that.
  * - Requires a wired ClassMap bond; `<Avatar>` comes from `@molecule/app-ui-react`.
  *
  * @example

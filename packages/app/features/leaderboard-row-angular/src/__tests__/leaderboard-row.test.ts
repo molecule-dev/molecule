@@ -13,13 +13,14 @@
 
 import '@angular/compiler'
 import {
+  type ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   createComponent,
   provideZonelessChangeDetection,
   type Type,
 } from '@angular/core'
-import { type ApplicationRef, createApplication } from '@angular/platform-browser'
+import { createApplication } from '@angular/platform-browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
@@ -58,10 +59,10 @@ vi.mock('@molecule/app-ui-angular', async () => {
     template: `<img [attr.data-avatar]="src || ''" [attr.data-avatar-name]="name || ''" />`,
   })(
     class {
-      constructor() {
-        this.src = undefined
-        this.name = undefined
-      }
+      /** Avatar image URL, bound by the `src` input. */
+      src?: string
+      /** Accessible name, bound by the `name` input. */
+      name?: string
     },
   )
   return { Avatar }
@@ -122,6 +123,11 @@ afterEach(async () => {
   for (const m of mounted.splice(0)) await m.destroy()
 })
 
+/** Dispatches a keydown with the given key on the element. */
+const pressKey = (el: Element, key: string): void => {
+  el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
+}
+
 describe('LeaderboardRow', () => {
   it('renders the name, score, and avatar', async () => {
     const m = await render({ rank: 5, name: 'Zoe', score: '1,200' })
@@ -141,12 +147,10 @@ describe('LeaderboardRow', () => {
   it('renders an up/down arrow for a non-zero rankDelta', async () => {
     const up = await render({ rank: 4, name: 'A', score: '1', rankDelta: 2 })
     expect(up.host.innerHTML).toContain('▲')
-    // Inline colors go through CSSOM, so jsdom serializes the hex values as
-    // `rgb(...)` — the same values React's static markup writes as hex.
-    expect(up.host.innerHTML).toContain('color: rgb(34, 197, 94)')
+    expect(up.host.innerHTML).toContain('textTone')
     const down = await render({ rank: 4, name: 'A', score: '1', rankDelta: -3 })
     expect(down.host.innerHTML).toContain('▼')
-    expect(down.host.innerHTML).toContain('color: rgb(239, 68, 68)')
+    expect(down.host.innerHTML).toContain('textTone')
   })
 
   it('renders no delta indicator when rankDelta is 0 or absent', async () => {
@@ -163,9 +167,9 @@ describe('LeaderboardRow', () => {
 
   it('applies the highlight background when isMe is set', async () => {
     const me = await render({ rank: 4, name: 'A', score: '1', isMe: true })
-    expect(me.host.innerHTML).toContain('rgba(96, 165, 250, 0.1)')
+    expect(me.host.innerHTML).toContain('bgTone')
     const other = await render({ rank: 4, name: 'A', score: '1' })
-    expect(other.host.innerHTML).not.toContain('rgba(96, 165, 250, 0.1)')
+    expect(other.host.innerHTML).not.toContain('bgTone')
   })
 
   it('marks the row clickable only when onClick is supplied and forwards className', async () => {
@@ -174,5 +178,51 @@ describe('LeaderboardRow', () => {
     const plain = await render({ rank: 4, name: 'A', score: '1', className: 'lr-cls' })
     expect(plain.host.innerHTML).not.toContain('cursorPointer')
     expect(plain.host.innerHTML).toContain('lr-cls')
+  })
+
+  it('exposes an interactive row as a focusable button (role + tabindex) only when clickable', async () => {
+    const clickable = await render({ rank: 4, name: 'A', score: '1', onClick: () => {} })
+    const row = clickable.host.querySelector('div[mol-leaderboard-row]')
+    expect(row?.getAttribute('role')).toBe('button')
+    expect(row?.getAttribute('tabindex')).toBe('0')
+    const plain = await render({ rank: 4, name: 'A', score: '1' })
+    const plainRow = plain.host.querySelector('div[mol-leaderboard-row]')
+    expect(plainRow?.getAttribute('role')).toBeNull()
+    expect(plainRow?.getAttribute('tabindex')).toBeNull()
+  })
+
+  it('enter key activates the row', async () => {
+    const onClick = vi.fn()
+    const m = await render({ rank: 4, name: 'A', score: '1', onClick })
+    pressKey(m.host.querySelector('div[role="button"]')!, 'Enter')
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onClick).toHaveBeenCalledWith()
+  })
+
+  it('space key activates the row', async () => {
+    const onClick = vi.fn()
+    const m = await render({ rank: 4, name: 'A', score: '1', onClick })
+    pressKey(m.host.querySelector('div[role="button"]')!, ' ')
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onClick).toHaveBeenCalledWith()
+  })
+
+  it('other keys are ignored', async () => {
+    const onClick = vi.fn()
+    const m = await render({ rank: 4, name: 'A', score: '1', onClick })
+    const row = m.host.querySelector('div[role="button"]')!
+    pressKey(row, 'a')
+    pressKey(row, 'Tab')
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('a row without onClick has no keyboard path', async () => {
+    const onClick = vi.fn()
+    const m = await render({ rank: 4, name: 'A', score: '1' })
+    const row = m.host.querySelector('div[mol-leaderboard-row]')
+    expect(row?.getAttribute('role')).toBeNull()
+    expect(row?.getAttribute('tabindex')).toBeNull()
+    pressKey(row!, 'Enter')
+    expect(onClick).not.toHaveBeenCalled()
   })
 })

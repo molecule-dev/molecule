@@ -24,8 +24,8 @@ export interface LeaderboardRowProps {
   subtitle?: unknown
   /** Whether this row represents the current user (highlighted). */
   isMe?: boolean
-  /** Click handler (a native click on the row, with the DOM event). */
-  onClick?: (event: MouseEvent) => void
+  /** Click handler (a native click on the row, with the DOM event; also runs, with no event, on Enter / Space). */
+  onClick?: (event?: MouseEvent) => void
   /** Extra classes. */
   className?: string
 }

@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { KeyboardEvent, ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
@@ -19,7 +19,7 @@ export interface LeaderboardRowProps {
   subtitle?: ReactNode
   /** Whether this row represents the current user (highlighted). */
   isMe?: boolean
-  /** Click handler. */
+  /** Click handler. Also runs, with no event, on Enter / Space while set. */
   onClick?: () => void
   /** Extra classes. */
   className?: string
@@ -29,7 +29,8 @@ const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
 /**
  * Leaderboard row — rank + avatar + name + score + optional rank-delta
- * arrow. Top 3 ranks render a medal in place of the numeric rank.
+ * arrow. Top 3 ranks render a medal in place of the numeric rank. With
+ * `onClick` the row is a button in the a11y tree (Enter / Space activate it).
  * @param props - Component props (see {@link LeaderboardRowProps}).
  */
 export function LeaderboardRow({
@@ -45,17 +46,32 @@ export function LeaderboardRow({
 }: LeaderboardRowProps): ReactElement {
   const cm = getClassMap()
   const dispName = typeof name === 'string' ? name : 'Player'
+  // When the row is interactive, promote the <div> to a real button in the
+  // a11y tree: role/tabIndex make it focusable and Enter/Space activate it,
+  // matching native button keyboard semantics.
+  const handleKeyDown = onClick
+    ? (event: KeyboardEvent<HTMLDivElement>): void => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onClick()
+        }
+      }
+    : undefined
   return (
     <div
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
       className={cm.cn(
         cm.flex({ align: 'center', gap: 'sm' }),
         cm.sp('px', 3),
         cm.sp('py', 2),
         onClick ? cm.cursorPointer : undefined,
+        isMe ? cm.bgTone('info', { subtle: true }) : undefined,
         className,
       )}
-      style={isMe ? { background: 'rgba(96,165,250,0.1)', borderRadius: 8 } : undefined}
+      style={isMe ? { borderRadius: 8 } : undefined}
     >
       <span
         className={cm.cn(cm.shrink0, cm.fontWeight('bold'), cm.textCenter)}
@@ -70,8 +86,11 @@ export function LeaderboardRow({
       </div>
       {rankDelta !== undefined && rankDelta !== 0 && (
         <span
-          className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}
-          style={{ color: rankDelta > 0 ? '#22c55e' : '#ef4444' }}
+          className={cm.cn(
+            cm.textSize('xs'),
+            cm.fontWeight('semibold'),
+            cm.textTone(rankDelta > 0 ? 'success' : 'error'),
+          )}
         >
           {rankDelta > 0 ? '▲' : '▼'} {Math.abs(rankDelta)}
         </span>

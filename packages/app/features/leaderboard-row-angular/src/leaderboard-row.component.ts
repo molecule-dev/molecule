@@ -34,10 +34,11 @@ const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
  * Leaderboard row — rank + avatar + name + score + optional rank-delta
  * arrow. Top 3 ranks render a medal in place of the numeric rank. The host IS
  * the row's root `<div>` (`div[mol-leaderboard-row]`), matching React's root
- * exactly; `onClick` is a native click on the host with no keyboard handler
- * or role — a documented gap of the React package the DOM must match. When
- * `name` is not a plain string the Avatar alt falls back to hardcoded
- * 'Player'. Same props, same DOM as
+ * exactly. With `onClick` the row is promoted to a real button in the a11y
+ * tree — `role="button"`, `tabindex="0"`, the pointer cursor — and Enter /
+ * Space activate it (the click handler runs with no event), matching native
+ * button keyboard semantics. When `name` is not a plain string the Avatar alt
+ * falls back to hardcoded 'Player'. Same props, same DOM as
  * `@molecule/app-leaderboard-row-react`'s `LeaderboardRow`. Node-valued
  * `name`, `score` and `subtitle` content is projected (`[slot=<name>]`); a
  * string or number input renders as text. The optional subtitle span renders
@@ -62,15 +63,17 @@ const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
   ],
   host: {
     '[class]': 'classes()',
-    '[style.background]': "isMe ? 'rgba(96,165,250,0.1)' : ''",
     '[style.borderRadius]': "isMe ? '8px' : ''",
+    '[attr.role]': 'role()',
+    '[attr.tabindex]': 'tabindex()',
     '(click)': 'rowClick($event)',
+    '(keydown)': 'handleKeyDown($event)',
   },
   // prettier-ignore
   template: `<span [class]="rankClass()" style="min-width: 32px">{{ rankText() }}</span>
     <div mol-avatar [src]="avatarSrc" [alt]="displayName()" [name]="displayName()" [size]="'sm'"></div>
     <div [class]="nameColumnClass()"><span [class]="nameClass()">@if (hasName) {<ng-container>{{ name }}</ng-container>}<ng-content select="[slot=name]" /></span>@if (showSubtitle) {<span #subtitleEl [class]="subtitleClass()">@if (hasSubtitle) {<ng-container>{{ subtitle }}</ng-container>}<ng-content select="[slot=subtitle]" /></span>}</div>
-    @if (hasDelta) {<span [class]="deltaClass()" [style.color]="deltaColor()">{{ deltaArrow() + ' ' + deltaText() }}</span>}
+    @if (hasDelta) {<span [class]="deltaClass()">{{ deltaArrow() + ' ' + deltaText() }}</span>}
     <span [class]="scoreClass()">@if (hasScore) {<ng-container>{{ score }}</ng-container>}<ng-content select="[slot=score]" /></span>`,
 })
 export class LeaderboardRow implements AfterViewInit {
@@ -88,8 +91,8 @@ export class LeaderboardRow implements AfterViewInit {
   subtitle?: unknown
   /** Whether this row represents the current user (highlighted). */
   isMe?: boolean
-  /** Click handler, called with the native click event. */
-  onClick?: (event: MouseEvent) => void
+  /** Click handler, called with the native click event; also runs, with no event, on Enter / Space. */
+  onClick?: (event?: MouseEvent) => void
   /** Extra classes. */
   className?: string
 
@@ -113,12 +116,51 @@ export class LeaderboardRow implements AfterViewInit {
   }
 
   /**
+   * Whether the row is interactive (`onClick` supplied): React renders the
+   * button role, tab stop and pointer cursor only then.
+   * @returns True when clickable.
+   */
+  interactive(): boolean {
+    return typeof this.onClick === 'function'
+  }
+
+  /**
+   * The host element's `role` (a button only when clickable).
+   * @returns `'button'` or null for no attribute.
+   */
+  role(): string | null {
+    return this.interactive() ? 'button' : null
+  }
+
+  /**
+   * The host element's tab stop (only when clickable).
+   * @returns 0 or null for no attribute.
+   */
+  tabindex(): number | null {
+    return this.interactive() ? 0 : null
+  }
+
+  /**
    * Forwards a native click on the row to the `onClick` input (React calls
    * the handler with the event).
    * @param event - The native click event.
    */
   rowClick(event: MouseEvent): void {
     this.onClick?.(event)
+  }
+
+  /**
+   * Activates the row on Enter / Space (React's `handleKeyDown`):
+   * preventDefault, then the click handler with no event.
+   * @param event - The keydown.
+   */
+  handleKeyDown(event: KeyboardEvent): void {
+    const onClick = this.onClick
+    if (!onClick) return
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onClick()
+    }
   }
 
   /**
@@ -140,6 +182,7 @@ export class LeaderboardRow implements AfterViewInit {
       this.cm().sp('px', 3),
       this.cm().sp('py', 2),
       this.onClick ? this.cm().cursorPointer : undefined,
+      this.isMe ? this.cm().bgTone('info', { subtle: true }) : undefined,
       this.className,
     )
   }
@@ -237,19 +280,16 @@ export class LeaderboardRow implements AfterViewInit {
   }
 
   /**
-   * The delta chip's class.
+   * The delta chip's class: the text size and weight, plus the semantic tone
+   * (React's `cm.textTone(rankDelta > 0 ? 'success' : 'error')`).
    * @returns The class string.
    */
   deltaClass(): string {
-    return this.cm().cn(this.cm().textSize('xs'), this.cm().fontWeight('semibold'))
-  }
-
-  /**
-   * The delta arrow's color (React's hardcoded green/red hex).
-   * @returns The CSS color.
-   */
-  deltaColor(): string {
-    return (this.rankDelta as number) > 0 ? '#22c55e' : '#ef4444'
+    return this.cm().cn(
+      this.cm().textSize('xs'),
+      this.cm().fontWeight('semibold'),
+      this.cm().textTone((this.rankDelta as number) > 0 ? 'success' : 'error'),
+    )
   }
 
   /**

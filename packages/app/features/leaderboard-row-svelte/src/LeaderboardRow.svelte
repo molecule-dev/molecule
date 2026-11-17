@@ -4,7 +4,9 @@
   name + score with an optional rank-delta indicator, subtitle and
   current-user highlight. Same props (React names), same DOM for the same
   input; `name`, `score` and `subtitle` carry the React node props as
-  snippets or plain strings.
+  snippets or plain strings. With `onClick` the row is a focusable button in
+  the a11y tree and Enter / Space activate it, matching native button
+  keyboard semantics.
 -->
 <script lang="ts">
   import { getClassMap } from '@molecule/app-ui'
@@ -28,26 +30,48 @@
   const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
   const cm = $derived(getClassMap())
+  const clickable = $derived(typeof onClick === 'function')
   const displayName = $derived(typeof name === 'string' ? name : 'Player')
   const rankText = $derived(MEDAL[rank] ?? `#${rank}`)
-  const deltaColor = $derived(rankDelta !== undefined && rankDelta > 0 ? '#22c55e' : '#ef4444')
+  const deltaTone = $derived(rankDelta !== undefined && rankDelta > 0 ? 'success' : 'error')
+
+  // When the row is interactive, Enter / Space activate it (React's
+  // `handleKeyDown`): preventDefault, then the click handler with no event.
+
+  /**
+   * Keydown handler for the interactive row (React's `handleKeyDown`).
+   *
+   * @param event - The keydown.
+   */
+  function handleKeyDown(event: KeyboardEvent): void {
+    if (!onClick) return
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onClick()
+    }
+  }
 </script>
 
-<!-- React's row takes `onClick` with no keyboard handler or role (a
-  documented gap of the React package — see its module JSDoc); the DOM must
-  match, so the a11y warnings are carried knowingly. -->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- The row's `tabindex` is set only while `role="button"` is (React renders
+  both together, only for a clickable row) — the WAI-ARIA button pattern.
+  Svelte's a11y checker cannot see through the bound `role` expression and
+  evaluates the element as a non-interactive div, so it warns about the
+  tabindex it only carries as a button. -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   class={cm.cn(
     cm.flex({ align: 'center', gap: 'sm' }),
     cm.sp('px', 3),
     cm.sp('py', 2),
-    onClick ? cm.cursorPointer : undefined,
+    clickable ? cm.cursorPointer : undefined,
+    isMe ? cm.bgTone('info', { subtle: true }) : undefined,
     className,
   )}
-  style={isMe ? 'background: rgba(96,165,250,0.1); border-radius: 8px' : undefined}
+  style={isMe ? 'border-radius: 8px' : undefined}
+  role={clickable ? 'button' : undefined}
+  tabindex={clickable ? 0 : undefined}
   onclick={onClick}
+  onkeydown={handleKeyDown}
 >
   <span class={cm.cn(cm.shrink0, cm.fontWeight('bold'), cm.textCenter)} style="min-width: 32px"
     >{rankText}</span
@@ -66,7 +90,7 @@
   </div>
   <!-- React's `rankDelta !== undefined && rankDelta !== 0`: a zero delta renders nothing. -->
   {#if rankDelta !== undefined && rankDelta !== 0}
-    <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))} style={`color: ${deltaColor}`}
+    <span class={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), cm.textTone(deltaTone))}
       >{rankDelta > 0 ? '▲' : '▼'} {Math.abs(rankDelta)}</span
     >
   {/if}

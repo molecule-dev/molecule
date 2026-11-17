@@ -10,6 +10,8 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { LeaderboardRowProps } from '../types.js'
+
 // A ClassMap proxy echoing each accessed member back as its token (e.g.
 // `flex`), so tests can assert which cm.* class was applied without a real
 // bond — the same mock the React tests use.
@@ -55,20 +57,38 @@ import { createApp, defineComponent, h } from 'vue'
 
 const { LeaderboardRow } = await import('../LeaderboardRow.js')
 
+/** Dispatches a keydown with the given key on the element. */
+const pressKey = (el: Element, key: string): void => {
+  el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
+}
+
+/** The mounted apps, unmounted after each test. */
+const apps: Array<ReturnType<typeof createApp>> = []
+
 afterEach(() => {
+  for (const app of apps.splice(0)) app.unmount()
   document.body.innerHTML = ''
 })
 
 /** Renders a {@link LeaderboardRow} and returns the markup it produced. */
-const render = (props: Record<string, unknown>): string => {
+const render = (props: LeaderboardRowProps): string => {
+  const host = mountRow(props)
+  const markup = host.innerHTML
+  host.remove()
+  return markup
+}
+
+/**
+ * Mounts a {@link LeaderboardRow} and returns its host element (the string
+ * renderer cannot fire events).
+ */
+const mountRow = (props: LeaderboardRowProps): HTMLElement => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(LeaderboardRow, props) }))
   app.mount(host)
-  const markup = host.innerHTML
-  app.unmount()
-  host.remove()
-  return markup
+  apps.push(app)
+  return host
 }
 
 describe('LeaderboardRow', () => {
@@ -89,12 +109,10 @@ describe('LeaderboardRow', () => {
   it('renders an up/down arrow for a non-zero rankDelta', () => {
     const up = render({ rank: 4, name: 'A', score: '1', rankDelta: 2 })
     expect(up).toContain('▲')
-    // Inline colors go through CSSOM, so jsdom serializes the hex values as
-    // `rgb(...)` — the same values React's static markup writes as hex.
-    expect(up).toContain('color: rgb(34, 197, 94)')
+    expect(up).toContain('textTone')
     const down = render({ rank: 4, name: 'A', score: '1', rankDelta: -3 })
     expect(down).toContain('▼')
-    expect(down).toContain('color: rgb(239, 68, 68)')
+    expect(down).toContain('textTone')
   })
 
   it('renders no delta indicator when rankDelta is 0 or absent', () => {
@@ -109,9 +127,9 @@ describe('LeaderboardRow', () => {
 
   it('applies the highlight background when isMe is set', () => {
     const me = render({ rank: 4, name: 'A', score: '1', isMe: true })
-    expect(me).toContain('background: rgba(96, 165, 250, 0.1)')
+    expect(me).toContain('bgTone')
     const other = render({ rank: 4, name: 'A', score: '1' })
-    expect(other).not.toContain('rgba(96, 165, 250, 0.1)')
+    expect(other).not.toContain('bgTone')
   })
 
   it('marks the row clickable only when onClick is supplied and forwards className', () => {
@@ -120,5 +138,49 @@ describe('LeaderboardRow', () => {
     const plain = render({ rank: 4, name: 'A', score: '1', className: 'lr-cls' })
     expect(plain).not.toContain('cursorPointer')
     expect(plain).toContain('lr-cls')
+  })
+
+  it('exposes an interactive row as a focusable button (role + tabindex) only when clickable', () => {
+    const clickable = render({ rank: 4, name: 'A', score: '1', onClick: () => {} })
+    expect(clickable).toContain('role="button"')
+    expect(clickable).toContain('tabindex="0"')
+    const plain = render({ rank: 4, name: 'A', score: '1' })
+    expect(plain).not.toContain('role="button"')
+    expect(plain).not.toContain('tabindex')
+  })
+
+  it('enter key activates the row', () => {
+    const onClick = vi.fn()
+    const host = mountRow({ rank: 4, name: 'A', score: '1', onClick })
+    pressKey(host.querySelector('div[role="button"]')!, 'Enter')
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onClick).toHaveBeenCalledWith()
+  })
+
+  it('space key activates the row', () => {
+    const onClick = vi.fn()
+    const host = mountRow({ rank: 4, name: 'A', score: '1', onClick })
+    pressKey(host.querySelector('div[role="button"]')!, ' ')
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onClick).toHaveBeenCalledWith()
+  })
+
+  it('other keys are ignored', () => {
+    const onClick = vi.fn()
+    const host = mountRow({ rank: 4, name: 'A', score: '1', onClick })
+    const row = host.querySelector('div[role="button"]')!
+    pressKey(row, 'a')
+    pressKey(row, 'Tab')
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('a row without onClick has no keyboard path', () => {
+    const onClick = vi.fn()
+    const host = mountRow({ rank: 4, name: 'A', score: '1' })
+    const row = host.querySelector('div')
+    expect(row?.getAttribute('role')).toBeNull()
+    expect(row?.getAttribute('tabindex')).toBeNull()
+    pressKey(row!, 'Enter')
+    expect(onClick).not.toHaveBeenCalled()
   })
 })

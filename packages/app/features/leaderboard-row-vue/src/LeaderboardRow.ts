@@ -52,9 +52,10 @@ const hasNode = (
  * arrow. Top 3 ranks render a medal in place of the numeric rank. Ranks 1–3
  * render medal emoji instead of the rank number; there is no prop to disable
  * them. When `name` is not a plain string the Avatar's accessible name falls
- * back to 'Player'. `onClick` gives the row a pointer cursor but no keyboard
- * or role semantics. Node-valued props (`name`, `score`, `subtitle`) arrive
- * as a prop AND a same-named slot; the component accepts either.
+ * back to 'Player'. With `onClick` the row is a button in the a11y tree
+ * (Enter / Space activate it). Node-valued props (`name`, `score`,
+ * `subtitle`) arrive as a prop AND a same-named slot; the component accepts
+ * either.
  *
  * @param props - Component props (see {@link LeaderboardRowProps}).
  * @returns The leaderboard row component.
@@ -75,6 +76,16 @@ export const LeaderboardRow = defineComponent({
   setup(props, { slots }) {
     const cm = getClassMap()
 
+    // When the row is interactive, Enter / Space activate it (React's
+    // `handleKeyDown`): preventDefault, then the click handler with no event.
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (!props.onClick) return
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        props.onClick()
+      }
+    }
+
     return (): VNode => {
       const displayName = typeof props.name === 'string' ? props.name : 'Player'
       return h(
@@ -85,12 +96,14 @@ export const LeaderboardRow = defineComponent({
             cm.sp('px', 3),
             cm.sp('py', 2),
             props.onClick ? cm.cursorPointer : undefined,
+            props.isMe ? cm.bgTone('info', { subtle: true }) : undefined,
             props.className,
           ),
-          style: props.isMe
-            ? { background: 'rgba(96,165,250,0.1)', borderRadius: '8px' }
-            : undefined,
+          style: props.isMe ? { borderRadius: '8px' } : undefined,
           onClick: props.onClick,
+          onKeydown: handleKeyDown,
+          role: props.onClick ? 'button' : undefined,
+          tabindex: props.onClick ? 0 : undefined,
         },
         [
           h(
@@ -126,8 +139,11 @@ export const LeaderboardRow = defineComponent({
                 h(
                   'span',
                   {
-                    class: cm.cn(cm.textSize('xs'), cm.fontWeight('semibold')),
-                    style: { color: props.rankDelta > 0 ? '#22c55e' : '#ef4444' },
+                    class: cm.cn(
+                      cm.textSize('xs'),
+                      cm.fontWeight('semibold'),
+                      cm.textTone(props.rankDelta > 0 ? 'success' : 'error'),
+                    ),
                   },
                   [props.rankDelta > 0 ? '▲' : '▼', ' ', String(Math.abs(props.rankDelta))],
                 ),

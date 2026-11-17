@@ -7,6 +7,14 @@
 
 import type { FeatureCases } from '../spec.js'
 
+/**
+ * The row in its clickable form: React puts `role="button"` on it when
+ * `onClick` is given, and every framework does the same. (A positional
+ * `[data-parity-unwrap] > div` selector would hit each adapter's own mount
+ * wrapper rather than the row.)
+ */
+const clickableRowSelector = '[role="button"]'
+
 /** `@molecule/app-leaderboard-row-react`. */
 export const leaderboardRowFeature: FeatureCases = {
   package: '@molecule/app-leaderboard-row-react',
@@ -65,6 +73,27 @@ export const leaderboardRowFeature: FeatureCases = {
           props: { rank: 4, name: 'A', score: '9' },
           callbacks: ['onClick'],
           interactions: [{ type: 'click', selector: 'span' }],
+        },
+        {
+          name: 'enter key activates the row',
+          props: { rank: 4, name: 'A', score: '9' },
+          callbacks: ['onClick'],
+          interactions: [{ type: 'keydown', selector: clickableRowSelector, key: 'Enter' }],
+        },
+        {
+          name: 'space key activates the row',
+          props: { rank: 4, name: 'A', score: '9' },
+          callbacks: ['onClick'],
+          interactions: [{ type: 'keydown', selector: clickableRowSelector, key: ' ' }],
+        },
+        {
+          name: 'other keys are ignored',
+          props: { rank: 4, name: 'A', score: '9' },
+          callbacks: ['onClick'],
+          interactions: [
+            { type: 'keydown', selector: clickableRowSelector, key: 'a' },
+            { type: 'keydown', selector: clickableRowSelector, key: 'Tab' },
+          ],
         },
         {
           name: 'delta flips',
