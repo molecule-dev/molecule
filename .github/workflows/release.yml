@@ -57,6 +57,10 @@ on:
         description: 'Who dispatched (agent-presence session id). Tags the run-name so the dispatcher watches its OWN run — see run-name above.'
         required: false
         type: string
+      expected_sha:
+        description: 'Full commit SHA authorized by the guarded release runner. Blank preserves manual dispatches.'
+        required: false
+        type: string
       phase:
         description: 'all (default), or updates plus their new requirements. The release runner owns the later tail dispatch.'
         required: false
@@ -90,6 +94,14 @@ jobs:
       actions: read # the CI-green guard reads this commit's ci.yml runs
       id-token: write # npm provenance (signed attestations) + OIDC publish
     steps:
+      - name: Verify publication commit
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          if [[ -n "$EXPECTED_SHA" ]] && { [[ ! "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ "$GITHUB_SHA" != "$EXPECTED_SHA" ]]; }; then
+            echo "::error::The release ref does not match the authorized publication commit."
+            exit 1
+          fi
       # ---- 0. Fail fast if there is no way to publish -----------------------
       # Building the whole fleet only to fail auth at the publish step wastes ~15
       # min. Assert an auth path up front.
