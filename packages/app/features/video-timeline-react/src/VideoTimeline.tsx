@@ -281,8 +281,16 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
   const modeLabel = t('videoTimeline.aria.mode', {}, { defaultValue: 'Edit mode' })
   const rootLabel = t('videoTimeline.aria.root', {}, { defaultValue: 'Video timeline' })
 
-  const trackKindLabel = (kind: TrackKind, fallback: string): string =>
-    t(`videoTimeline.trackKind.${kind}`, {}, { defaultValue: fallback })
+  const trackKindLabel = (kind: TrackKind): string => {
+    switch (kind) {
+      case 'video':
+        return t('videoTimeline.trackKind.video', {}, { defaultValue: 'Video' })
+      case 'audio':
+        return t('videoTimeline.trackKind.audio', {}, { defaultValue: 'Audio' })
+      case 'subtitle':
+        return t('videoTimeline.trackKind.subtitle', {}, { defaultValue: 'Subtitle' })
+    }
+  }
 
   /**
    * Convert a pointer's clientX (relative to the ruler body) to a time
@@ -461,13 +469,9 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
         className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), cm.sp('p', 2))}
       >
         <span data-mol-id="video-timeline-mode" aria-label={modeLabel}>
-          {t(
-            `videoTimeline.mode.${mode}`,
-            {},
-            {
-              defaultValue: mode === 'ripple' ? 'Ripple' : 'Insert',
-            },
-          )}
+          {mode === 'ripple'
+            ? t('videoTimeline.mode.ripple', {}, { defaultValue: 'Ripple' })
+            : t('videoTimeline.mode.insert', {}, { defaultValue: 'Insert' })}
         </span>
         <button
           type="button"
@@ -559,8 +563,7 @@ export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
       <div data-mol-id="video-timeline-tracks" style={tracksScrollStyle} onWheel={onBodyWheel}>
         <div style={tracksInnerStyle}>
           {tracks.map((track) => {
-            const fallbackName =
-              track.name ?? trackKindLabel(track.kind, defaultKindName(track.kind))
+            const fallbackName = track.name ?? trackKindLabel(track.kind)
             return (
               <div
                 key={track.id}
@@ -606,17 +609,4 @@ export function formatTickTime(seconds: number): string {
   const m = Math.floor(seconds / 60)
   const s = Math.floor(seconds - m * 60)
   return `${m}:${s.toString().padStart(2, '0')}`
-}
-
-/**
- * Default English label for a track kind, used when a host app passes
- * neither a `name` nor a translation override for the kind.
- *
- * @param kind - Track kind.
- * @returns The English fallback label.
- */
-function defaultKindName(kind: TrackKind): string {
-  if (kind === 'video') return 'Video'
-  if (kind === 'audio') return 'Audio'
-  return 'Subtitle'
 }
