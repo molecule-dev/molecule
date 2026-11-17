@@ -47,6 +47,12 @@
  *   // with useOptimisticValue when the flag has a related count. A reload reads
  *   // the persisted server answer, so test both directions and revisit the page.
  *   ```
+ *   Resource mutations publish the saved detail and refresh that viewer's tracked
+ *   lists, including mounted observers. A raw HTTP write does not publish its
+ *   response into this cache. `invalidate(key)` only marks reads stale; it does
+ *   not refresh a page already on screen. Use the resource mutation, or explicitly
+ *   `set` its canonical response and `fetch` each affected query for a custom API.
+ *   A page-local `onChanged` callback is unnecessary when the resource owns the write.
  * - `createQueryResource().list()` owns a collection of records addressed by their URL id.
  *   It keeps the first occurrence of each identity on fetched and explicitly set lists;
  *   equal labels on different records and rows without an id remain intact. Resource writes
@@ -54,6 +60,10 @@
  *   appending its return value again. Ordinary queries and opaque `listPage()` envelopes
  *   preserve application-owned occurrence semantics. Query bonds apply `normalizeData`
  *   before publishing any fetched or explicitly set document.
+ *   A list used as a filter catalogue must keep every returned choice reachable.
+ *   Render its returned rows, or expose explicit pagination/More; silently slicing
+ *   the first few rows hides valid filters as the catalogue grows. Server-requested
+ *   limits and deliberately curated previews remain application choices.
  * - **Page data goes through a query, not a hand-written `useEffect` + `fetch`.** In React, use
  *   `useQuery` from `@molecule/app-query-react`: it keeps one request per key, stable across
  *   re-renders, and aborts it only when the key changes or the page unmounts. An effect that

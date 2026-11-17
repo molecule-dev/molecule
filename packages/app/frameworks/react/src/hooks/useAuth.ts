@@ -60,6 +60,9 @@ export function useAuthClient<
  * Save profile edits with `updateProfile(patch)`: it uses the configured auth
  * transport and publishes the saved user to every subscriber before resolving.
  * An app-owned mutation instead passes its canonical response to `setUser`.
+ * `setUser(null)` ends the session; it does not reload or refresh a saved
+ * profile. Do not clear the user after a successful save. Use `logout()` for
+ * the separate, intentional sign-out action.
  *
  * For a sign-in the app runs itself (an OAuth redirect, a custom endpoint that
  * already issued the token), call `setSession({ accessToken, user })`: it

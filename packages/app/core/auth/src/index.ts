@@ -403,9 +403,13 @@
  * if (isAuthenticated()) console.log(getUser()?.email)
  * ```
  *
- * An API that wraps the payload and registers extra fields: type those
- * fields with the factory's second generic, and `mapRequestBody` receives exactly what
- * the form passed — `{ user: { username, email, password } }` goes out as-is.
+ * An API that wraps login, registration and profile writes uses one
+ * `requestEnvelope`. Type extra registration fields with the factory's second
+ * generic: `{ user: { username, email, password } }` goes out as-is. Configure
+ * the profile route too; an account without `id` cannot use the default id-based route.
+ * `updateProfile` publishes its saved profile before resolving. A custom save
+ * uses `setUser(savedUser)`; calling `setUser(null)` afterwards signs out instead
+ * of refreshing the profile. Use `logout()` only for an intentional sign-out.
  *
  * ```typescript
  * import { createJWTAuthClient } from '@molecule/app-auth'
@@ -422,7 +426,10 @@
  * const accountAuth = createJWTAuthClient<AccountProfile, { username: string }>({
  *   baseURL: '/api',
  *   authScheme: 'Token',
- *   mapRequestBody: (payload) => ({ user: payload }),
+ *   currentUserEndpoint: '/user',
+ *   profileEndpoint: '/user',
+ *   profileUpdateMethod: 'PUT',
+ *   requestEnvelope: 'user',
  *   mapAuthResponse: (data) => {
  *     const { user: wire } = data as { user: { token: string } & AccountProfile }
  *     // Keep every wire field; the bearer stays out of the cached profile.

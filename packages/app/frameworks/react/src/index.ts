@@ -26,7 +26,8 @@
  * For an existing form, `useAuth<MyUser>().updateProfile(changes)` uses that same
  * transport and publishes the saved profile before resolving. If a mutation must
  * use an app-owned API adapter, call `useAuth<MyUser>().setUser(savedUser)` with
- * its canonical response before navigating. A one-time `useState(user?.field)`
+ * its canonical response before navigating. `setUser(null)` signs out and clears
+ * credentials; it does not refresh the saved profile. A one-time `useState(user?.field)`
  * seed does not follow asynchronous restoration; use `useProfileForm` to hydrate
  * pristine fields while preserving edits.
  *
