@@ -1,5 +1,13 @@
 # @molecule/app-ide-react
 
+## 4.1.1
+
+### Patch Changes
+
+- The tests bar's and tests card's labels (`runningLabel`, `testsBarLabel`, `testsChipLabel`) are exported from `@molecule/app-ide-panel-logic/panels`, so every framework's IDE shows the same text.
+- Updated dependencies
+  - @molecule/app-ide-panel-logic@1.2.0
+
 ## 4.1.0
 
 ### Minor Changes

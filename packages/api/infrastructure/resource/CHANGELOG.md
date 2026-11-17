@@ -1,5 +1,11 @@
 # @molecule/api-resource
 
+## 1.1.3
+
+### Patch Changes
+
+- `read` and `del` take the same resource descriptor as `create`, `update` and `query`, so `read<Props>(resource)` and `del<Props>(resource)` compile with a Zod schema and no cast.
+
 ## 1.1.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.7.2
+
+### Patch Changes
+
+- Retain coverage for late server boolean snapshots and reloaded server-backed controls.
+
 ## 4.7.1
 
 ### Patch Changes

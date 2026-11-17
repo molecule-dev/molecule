@@ -1,5 +1,11 @@
 # @molecule/app-job-listing-row-angular
 
+## 1.1.1
+
+### Patch Changes
+
+- `onClick` makes the whole row an accessible native button over the content, labelled by the row's title, so it can be activated with Enter or Space. Action and tag controls keep their own clicks.
+
 ## 1.1.0
 
 ### Minor Changes

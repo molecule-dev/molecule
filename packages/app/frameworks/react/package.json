@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-react",
-  "version": "4.7.1",
+  "version": "4.7.2",
   "description": "React framework bindings with hooks for auth, forms and server-backed toggles. Use useOptimisticToggle for a follow button, favorite button, star button or thread subscription with any markup: toggle() takes no state argument and commit(desired) returns the server-confirmed boolean. Use useOptimisticValue for flags with related counts.",
   "type": "module",
   "main": "dist/index.js",

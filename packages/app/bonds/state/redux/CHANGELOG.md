@@ -1,5 +1,11 @@
 # @molecule/app-state-redux
 
+## 1.0.6
+
+### Patch Changes
+
+- `createSlice` takes reducers typed as in Redux Toolkit (`(state, action: PayloadAction<number>) => …`), its action creators take each reducer's payload or no argument, and `createReduxStore({ slices })` accepts the slices it returns.
+
 ## 1.0.5
 
 ### Patch Changes

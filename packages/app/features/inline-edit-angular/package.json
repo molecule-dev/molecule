@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-inline-edit-angular",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Click-to-edit text + textarea + select with Save/Cancel",
   "homepage": "https://www.molecule.dev/packages/app-inline-edit-angular",
   "type": "module",
