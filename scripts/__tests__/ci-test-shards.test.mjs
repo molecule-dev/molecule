@@ -1,6 +1,15 @@
 /** The workflow must deliver this commit's build to disjoint, fail-fast test runners. */
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
@@ -47,6 +56,11 @@ describe('CI test sharding', () => {
       write('packages/api/core/example/dist/index.js', 'export const value = 42\n')
       write('packages/api/core/example/node_modules/vendor/dist/index.js', 'must stay local')
       write('.dist-manifest.json', '{"proof":"same-run"}')
+      // Built before the shard checks out: a restore that keeps this mtime makes the dist read
+      // as older than the shard's fresh sources, so a test that checks freshness by mtime
+      // (api-resource-user's assertDistIsCurrent) rejects the verified build.
+      const built = new Date('2020-01-01T00:00:00Z')
+      utimesSync(join(root, 'packages/api/core/example/dist/index.js'), built, built)
       const archive = workflow.jobs.build.steps.find(
         (step) => step.name === 'Archive compiled packages',
       )
@@ -56,7 +70,10 @@ describe('CI test sharding', () => {
         env: { ...process.env, RUNNER_TEMP: root },
       })
       const output = join(root, 'restored')
-      mkdirSync(output)
+      // The shard's checkout writes the sources first, then the restore runs.
+      const source = join(output, 'packages/api/core/example/src/index.ts')
+      mkdirSync(dirname(source), { recursive: true })
+      writeFileSync(source, 'export const value = 42\n')
       const restore = workflow.jobs.tests.steps.find(
         (step) => step.name === "Restore this commit's compiled packages",
       )
@@ -69,6 +86,10 @@ describe('CI test sharding', () => {
       ).toContain('42')
       expect(readFileSync(join(output, '.dist-manifest.json'), 'utf8')).toContain('same-run')
       expect(existsSync(join(output, 'packages/api/core/example/node_modules'))).toBe(false)
+      expect(
+        statSync(join(output, 'packages/api/core/example/dist/index.js')).mtimeMs,
+        'restored dist is at least as new as the checked-out sources',
+      ).toBeGreaterThanOrEqual(statSync(source).mtimeMs)
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

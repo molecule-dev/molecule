@@ -240,8 +240,12 @@ jobs:
         with:
           name: molecule-dist-${{ github.sha }}
           path: ${{ runner.temp }}
+      # -m: extracted files take the extraction time. The archive keeps the build's mtimes,
+      # which are older than this runner's fresh checkout, so a test that checks freshness
+      # by mtime (api-resource-user's assertDistIsCurrent) called this verified dist stale.
+      # The build job's manifest already proves the dist matches this commit.
       - name: Restore this commit's compiled packages
-        run: tar -xzf "$RUNNER_TEMP/molecule-dist.tgz"
+        run: tar -xzmf "$RUNNER_TEMP/molecule-dist.tgz"
       # @molecule/app-e2e-fixtures-default ships a REAL-DEPENDENCY integration
       # test that drives headless Chromium through the actual Playwright runner
       # — it is the gate proving a blank React mount cannot pass e2e green. Its
