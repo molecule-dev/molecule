@@ -263,6 +263,30 @@ describe('published-file changeset pre-commit gate', () => {
     expect(npm.requests).toBe(0)
   })
 
+  it('refuses a staged changeset naming a package no package.json declares', async () => {
+    const root = fixture()
+    stage(root, 'packages/a/src/index.ts', 'export const a = 2\n')
+    stage(
+      root,
+      '.changeset/calm-pandas.md',
+      "---\n'@molecule/a': patch\n'@molecule/a-react': patch\n---\n\nFix a.\n",
+    )
+    const result = await run(root)
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain(
+      '.changeset/calm-pandas.md names @molecule/a-react, which no package.json in this commit declares',
+    )
+    expect(result.stderr).not.toContain('@molecule/a:')
+  })
+
+  it('accepts a changeset naming a package staged in the same commit', async () => {
+    const root = fixture()
+    stage(root, 'packages/a-react/package.json', { name: '@molecule/a-react', version: '0.1.0' })
+    stage(root, 'packages/a-react/src/index.ts', 'export const b = 1\n')
+    stage(root, '.changeset/calm-pandas.md', "---\n'@molecule/a-react': minor\n---\n\nAdd b.\n")
+    expect((await run(root)).status).toBe(0)
+  })
+
   it('is wired into the real pre-commit hook before its non-deletion early exit', () => {
     const hook = readFileSync(HOOK, 'utf8')
     expect(hook).toContain('node scripts/precommit-changeset.mjs')

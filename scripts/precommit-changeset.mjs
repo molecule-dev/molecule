@@ -164,6 +164,10 @@ for (const name of missing) {
 // manifest that pins it (2026-11-16: one `@molecule/app-framework-conformance: patch`
 // line would have rewritten the devDependency of six packages held out of that release).
 const privateNamed = []
+// Nor one that no package in the tree being committed declares: `changeset version` stops on an
+// unknown name, which a release meets only after the commit is long in (2026-11-17: a changeset
+// named `@molecule/app-animation-canvas-react` for `@molecule/app-feature-animation-canvas-react`).
+const unknownNamed = []
 for (const file of changed.filter((path) => /^\.changeset\/[^/]+\.md$/.test(path))) {
   const frontmatter = (blob('', file) ?? '').match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? ''
   for (const line of frontmatter.split(/\r?\n/)) {
@@ -185,14 +189,21 @@ for (const file of changed.filter((path) => /^\.changeset\/[^/]+\.md$/.test(path
     )
       .split('\n')
       .filter(Boolean)
-    for (const owner of owners) {
-      const pkg = JSON.parse(blob('', owner) ?? '{}')
-      if (pkg.name === name && pkg.private) privateNamed.push({ file, name })
-    }
+    const declared = owners
+      .map((owner) => JSON.parse(blob('', owner) ?? '{}'))
+      .filter((pkg) => pkg.name === name)
+    if (!declared.length) unknownNamed.push({ file, name })
+    if (declared.some((pkg) => pkg.private)) privateNamed.push({ file, name })
   }
 }
 for (const { file, name } of privateNamed) {
   console.error(`✗ ${file} names ${name}, which is private and never published.`)
   console.error(`  Fix: delete the \`'${name}': …\` line from ${file}.`)
 }
-if (missing.length || privateNamed.length) process.exit(1)
+for (const { file, name } of unknownNamed) {
+  console.error(`✗ ${file} names ${name}, which no package.json in this commit declares.`)
+  console.error(
+    `  Fix: use the package's exact "name", or stage that package together with ${file}.`,
+  )
+}
+if (missing.length || privateNamed.length || unknownNamed.length) process.exit(1)
