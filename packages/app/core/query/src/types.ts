@@ -38,8 +38,12 @@ export type QueryOptions<T> = {
    * Resource row lists use this to keep one record per URL identity, including when a
    * caller inserts a mutation response which the resource has already refreshed.
    * Ordinary queries without a projection preserve their data, including duplicates.
+   *
+   * Declared as a method so options stay covariant in `T`: a `QueryOptions<A>` is still a
+   * `QueryOptions<A | B>`, as `fetch` alone makes it. The bond only ever passes it the
+   * documents of its own key.
    */
-  normalizeData?: (data: T) => T
+  normalizeData?(data: T): T
 
   /** How long a cached document is fresh (no refetch). Defaults to the client's, then 5 minutes. */
   staleMs?: number
