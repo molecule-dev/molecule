@@ -154,7 +154,7 @@
     "@molecule/app-kanban-board-react": "4.0.0",
     "@molecule/app-keyboard-shortcuts-react": "1.0.5",
     "@molecule/app-leaderboard-list-react": "4.0.0",
-    "@molecule/app-leaderboard-row-react": "4.0.1",
+    "@molecule/app-leaderboard-row-react": "4.0.2",
     "@molecule/app-lifecycle": "1.0.3",
     "@molecule/app-list-item-row-react": "4.0.0",
     "@molecule/app-listing-card-react": "4.0.0",

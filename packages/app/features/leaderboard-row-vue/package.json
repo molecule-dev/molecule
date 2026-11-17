@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-leaderboard-row-vue",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Leaderboard row — rank, avatar, name, score, optional change indicator",
   "homepage": "https://www.molecule.dev/packages/app-leaderboard-row-vue",
   "type": "module",

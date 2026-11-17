@@ -1,5 +1,11 @@
 # @molecule/app-leaderboard-row-solid
 
+## 1.1.2
+
+### Patch Changes
+
+- A row with `onClick` is now a focusable button in the accessibility tree, and Enter or Space activate it. The rank-delta arrow and the current-user highlight take their colours from the theme's success, error and info tones instead of fixed hex values.
+
 ## 1.1.1
 
 ### Patch Changes
