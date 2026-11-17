@@ -9,7 +9,11 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 const ROOT = path.resolve(import.meta.dirname, '../..')
 const workflow = load(fs.readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8'))
-const steps = workflow.jobs.build.steps
+// Steps are found in whichever job holds them: the affected tests run in their own sharded job,
+// fed by the build job's scope output.
+const steps = Object.values(workflow.jobs).flatMap((job) => job.steps ?? [])
+const jobOf = (step) =>
+  Object.entries(workflow.jobs).find(([, job]) => job.steps?.includes(step))?.[0]
 const scope = steps.find((step) => step.id === 'test-scope')
 const install = steps.find((step) => step.run?.includes('playwright@1.64.1 install'))
 const tests = steps.find((step) => step.run?.startsWith('npm test --'))
@@ -137,15 +141,29 @@ describe('CI Chromium follows the affected test scope', () => {
 
   it('reuses the one canonical scope for browser, native and Vitest steps', () => {
     expect(scope?.run).toContain('node scripts/affected-projects.mjs')
+    const scopeJob = jobOf(scope)
     const selected = '${{ steps.test-scope.outputs.filter }}'
-    expect(install.env.FILTER).toBe(selected)
-    expect(native.env.FILTER).toBe(selected)
-    expect(tests.env.FILTER).toBe(selected)
+    // A step in the scope's own job reads the step output. A step in a later job reads the job
+    // output that carries it, and that job waits for the scope's job.
+    for (const step of [install, native, tests]) {
+      const job = jobOf(step)
+      if (job === scopeJob) {
+        expect(step.env.FILTER).toBe(selected)
+        continue
+      }
+      expect(workflow.jobs[scopeJob].outputs?.filter).toBe(selected)
+      expect([].concat(workflow.jobs[job].needs ?? [])).toContain(scopeJob)
+      expect(step.env.FILTER).toBe(`\${{ needs.${scopeJob}.outputs.filter }}`)
+    }
     expect(install['timeout-minutes']).toBe(10)
     expect(install['working-directory']).toBe('packages/app/features/e2e-fixtures-default')
     expect(tests.run).toBe('npm test -- $FILTER')
+    // One scope computation feeds these steps (the lint job's own scope is outside them).
+    const testJobs = new Set([scope, install, native, tests].map(jobOf))
     expect(
-      steps.filter((step) => step.run?.includes('node scripts/affected-projects.mjs')),
+      [...testJobs]
+        .flatMap((job) => workflow.jobs[job].steps)
+        .filter((step) => step.run?.includes('node scripts/affected-projects.mjs')),
     ).toHaveLength(1)
   })
 })
