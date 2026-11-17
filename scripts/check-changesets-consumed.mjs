@@ -82,7 +82,9 @@ if (audit.unheld.length || audit.problems.length) {
     for (const file of audit.unheld) console.error(`    ${file}`)
     for (const problem of audit.problems) console.error(`    ${problem}`)
     console.error(
-      `\n  npm run version   # bump package.json + CHANGELOG, consume the changeset, refresh the lockfile\n  then commit the result with the change.`,
+      `\n  npm run version   # bump package.json + CHANGELOG, consume the changeset, refresh the lockfile\n  then commit the result with the change.` +
+        `\n  npm run version consumes every changeset in .changeset/, committed or not: first move` +
+        `\n  aside any uncommitted changeset that is not part of this release.`,
     )
   }
   process.exit(1)
