@@ -1,5 +1,11 @@
 # @molecule/app-ui-svelte
 
+## 1.1.6
+
+### Patch Changes
+
+- Importing the package before `setClassMap()` no longer throws: the class constants read at load are empty until a class map is bonded, and the class records (`cardPaddingMap`, `toastPositionClasses`, …) read the current class map on each access.
+
 ## 1.1.5
 
 ### Patch Changes

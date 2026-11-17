@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 4.1.5
+
+### Patch Changes
+
+- Document existing resource toggle direction and complete action labels with persistence regressions.
+
 ## 4.1.4
 
 ### Patch Changes

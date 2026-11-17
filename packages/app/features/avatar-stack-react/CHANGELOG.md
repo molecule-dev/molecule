@@ -1,5 +1,11 @@
 # @molecule/app-avatar-stack-react
 
+## 4.1.1
+
+### Patch Changes
+
+- UserChip without `href` renders the same DOM as before; only a linked chip wraps its avatar as decorative.
+
 ## 4.1.0
 
 ### Minor Changes

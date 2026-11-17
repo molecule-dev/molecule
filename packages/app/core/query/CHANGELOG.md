@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.3.1
+
+### Patch Changes
+
+- Document existing resource toggle direction and complete action labels with persistence regressions.
+
 ## 1.3.0
 
 ### Minor Changes

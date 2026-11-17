@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.3.0
+
+### Minor Changes
+
+- Expose uniqueArticleSlug for custom workflows using the article resource's slug policy.
+
 ## 1.2.7
 
 ### Patch Changes
