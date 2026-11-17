@@ -190,11 +190,29 @@ if (dryRun.error) {
 }
 
 if (dryRun.status !== 0) {
-  const detail = `${dryRun.stderr || ''}${dryRun.stdout || ''}`
+  const output = `${dryRun.stderr || ''}${dryRun.stdout || ''}`
+  const detail = output
     .split('\n')
     .filter((line) => /Missing:|Invalid:|can only install|EUSAGE/.test(line))
     .slice(0, 12)
     .join('\n')
+  // A signal or infrastructure failure did not establish that the lock differs.
+  // Keep the gate red without teaching its caller to rewrite a valid lock file.
+  if (
+    dryRun.signal ||
+    dryRun.status === null ||
+    !/Missing:|Invalid:|can only install/.test(output)
+  ) {
+    const reason = dryRun.signal
+      ? `terminated with signal ${dryRun.signal}`
+      : `exited with code ${dryRun.status ?? 'unknown'}`
+    console.error(
+      `\nCould not verify lock sync: \`npm ci --dry-run\` ${reason}.`,
+      `\n${output.trim().split('\n').slice(0, 12).join('\n') || 'The npm probe produced no diagnostic output.'}\n`,
+      '\nResolve the npm process failure and rerun the check. No lock-sync verdict was produced.',
+    )
+    process.exit(1)
+  }
   console.error(
     '\npackage-lock.json is OUT OF SYNC with package.json — `npm ci` refuses to install,',
     '\nso every CI job fails at its first step and Release can never publish.\n',
