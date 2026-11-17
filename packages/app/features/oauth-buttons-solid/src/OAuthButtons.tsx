@@ -98,7 +98,7 @@ export const OAuthButtons: Component<OAuthButtonsProps> = (props) => {
           {(provider) => {
             const label = getProviderLabel(provider)
             const localizedName = (): string =>
-              t(label.key, undefined, { defaultValue: label.default })
+              t(label.key, label.values, { defaultValue: label.default })
             return (
               <button
                 type="button"

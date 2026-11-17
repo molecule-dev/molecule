@@ -19,12 +19,13 @@ vi.mock('@molecule/app-ui', () => ({
   }),
 }))
 
-// Stub useTranslation so we don't need an i18n provider context.
-// Returns the defaultValue with {{provider}} interpolated, mirroring
-// real provider behavior for our purposes.
-vi.mock('@molecule/app-react', () => ({
-  useTranslation: () => ({
-    t: (
+// Stub useTranslation so we don't need an i18n provider context. `tMock`
+// returns the defaultValue with {{provider}} interpolated, mirroring real
+// provider behavior; one test swaps in a marker implementation so it can
+// prove an unknown provider's text arrives through the literal fallback key.
+const { tMock } = vi.hoisted(() => ({
+  tMock: vi.fn(
+    (
       _key: string,
       values?: Record<string, unknown>,
       options?: { defaultValue?: string },
@@ -37,7 +38,11 @@ vi.mock('@molecule/app-react', () => ({
       }
       return out
     },
-  }),
+  ),
+}))
+
+vi.mock('@molecule/app-react', () => ({
+  useTranslation: () => ({ t: tMock }),
 }))
 
 import { OAuthButtons } from '../OAuthButtons.js'
@@ -166,6 +171,24 @@ describe('<OAuthButtons />', () => {
   it('hides provider labels by default (icon-only row)', () => {
     render(<OAuthButtons providers={['google']} />)
     expect(screen.queryByText('Google')).toBeNull()
+  })
+
+  it('renders an unknown provider through the literal fallback key', () => {
+    const interpolate = tMock.getMockImplementation()
+    tMock.mockImplementation((key: string, values?: Record<string, unknown>): string =>
+      key === 'oauthButtons.provider.fallback' ? `marker:${String(values?.provider)}` : key,
+    )
+    try {
+      render(<OAuthButtons providers={['acme']} showLabels />)
+      expect(screen.getByText('marker:Acme')).toBeDefined()
+      expect(tMock).toHaveBeenCalledWith(
+        'oauthButtons.provider.fallback',
+        { provider: 'Acme' },
+        { defaultValue: '{{provider}}' },
+      )
+    } finally {
+      if (interpolate) tMock.mockImplementation(interpolate)
+    }
   })
 })
 

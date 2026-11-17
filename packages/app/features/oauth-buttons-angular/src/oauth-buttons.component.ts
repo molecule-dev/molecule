@@ -205,14 +205,14 @@ export class OAuthButtons implements OnDestroy {
   }
 
   /**
-   * The localized provider name (React's `t(label.key, undefined,
+   * The localized provider name (React's `t(label.key, label.values,
    * { defaultValue: label.default })`).
    * @param provider - The provider id.
    * @returns The localized name.
    */
   providerText(provider: string): string {
     const label = getProviderLabel(provider)
-    return this.i18n.t(label.key, undefined, { defaultValue: label.default })
+    return this.i18n.t(label.key, label.values, { defaultValue: label.default })
   }
 
   /**

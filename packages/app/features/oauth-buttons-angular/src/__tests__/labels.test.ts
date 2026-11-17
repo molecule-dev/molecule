@@ -37,16 +37,18 @@ describe('getProviderLabel', () => {
     })
   })
 
-  it('synthesizes a sane fallback for unknown providers', () => {
+  it('falls back to the literal fallback key for unknown providers', () => {
     const result = getProviderLabel('keycloak')
-    expect(result.key).toBe('oauthButtons.provider.keycloak')
-    expect(result.default).toBe('Keycloak')
+    expect(result.key).toBe('oauthButtons.provider.fallback')
+    expect(result.default).toBe('{{provider}}')
+    expect(result.values).toEqual({ provider: 'Keycloak' })
   })
 
   it('does not crash on empty string', () => {
     const result = getProviderLabel('')
-    expect(result.default).toBe('')
-    expect(result.key).toBe('oauthButtons.provider.')
+    expect(result.default).toBe('{{provider}}')
+    expect(result.key).toBe('oauthButtons.provider.fallback')
+    expect(result.values).toEqual({ provider: '' })
   })
 })
 

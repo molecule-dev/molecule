@@ -15,6 +15,11 @@ import '@angular/compiler'
 import '@molecule/app-framework-conformance/ui/setup'
 import { describe, expect, it, vi } from 'vitest'
 
+import {
+  getProvider,
+  type InterpolationValues,
+  setProvider as setI18nProvider,
+} from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 import { OAuthButtons, OAuthDivider } from '../index.js'
@@ -99,7 +104,7 @@ describe('OAuthButtons', () => {
       onSelect: () => Promise.resolve(undefined),
       onSuccess,
     })
-    fixture.host.querySelector('button[data-provider="github"]')!.click()
+    ;(fixture.host.querySelector('button[data-provider="github"]') as HTMLButtonElement).click()
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(onSuccess).toHaveBeenCalledExactlyOnceWith('github')
     await fixture.destroy()
@@ -111,7 +116,7 @@ describe('OAuthButtons', () => {
     const onSelect = vi.fn(() => undefined)
     const onSuccess = vi.fn()
     const fixture = await renderRow({ providers: ['github'], onSelect, onSuccess })
-    fixture.host.querySelector('button[data-provider="github"]')!.click()
+    ;(fixture.host.querySelector('button[data-provider="github"]') as HTMLButtonElement).click()
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(onSelect).toHaveBeenCalledExactlyOnceWith('github')
     expect(onSuccess).not.toHaveBeenCalled()
@@ -127,7 +132,7 @@ describe('OAuthButtons', () => {
       onSelect: () => Promise.reject(new Error('handshake failed')),
       onSuccess,
     })
-    fixture.host.querySelector('button[data-provider="github"]')!.click()
+    ;(fixture.host.querySelector('button[data-provider="github"]') as HTMLButtonElement).click()
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(onSuccess).not.toHaveBeenCalled()
     await fixture.destroy()
@@ -141,7 +146,7 @@ describe('OAuthButtons', () => {
 
   it('composes className onto the button-group element', async () => {
     const fixture = await renderRow({ providers: ['google'], className: 'extra-cls' })
-    const group = fixture.host.querySelector('[data-mol-id="oauth-buttons"]')!
+    const group = fixture.host.querySelector('[data-mol-id="oauth-buttons"]') as HTMLElement
     expect(group.classList.contains('extra-cls')).toBe(true)
     // A ClassMap token may expand to several classes; each must be present.
     const tokenClasses = cm().oauthButtonGroup.split(/\s+/)
@@ -153,7 +158,7 @@ describe('OAuthButtons', () => {
 
   it('renders horizontal layout by default (no inline grid override)', async () => {
     const fixture = await renderRow({ providers: ['google'] })
-    const group = fixture.host.querySelector('[data-mol-id="oauth-buttons"]')!
+    const group = fixture.host.querySelector('[data-mol-id="oauth-buttons"]') as HTMLElement
     expect(group.getAttribute('data-layout')).toBe('horizontal')
     expect(group.style.display).not.toBe('grid')
     await fixture.destroy()
@@ -164,7 +169,7 @@ describe('OAuthButtons', () => {
       providers: ['google', 'github', 'gitlab', 'twitter', 'apple'],
       layout: 'grid',
     })
-    const group = fixture.host.querySelector('[data-mol-id="oauth-buttons"]')!
+    const group = fixture.host.querySelector('[data-mol-id="oauth-buttons"]') as HTMLElement
     expect(group.style.display).toBe('grid')
     expect(group.style.gridTemplateColumns).toContain('repeat(2,')
     await fixture.destroy()
@@ -172,7 +177,7 @@ describe('OAuthButtons', () => {
 
   it('switches to column flex direction in vertical layout', async () => {
     const fixture = await renderRow({ providers: ['google', 'github'], layout: 'vertical' })
-    const group = fixture.host.querySelector('[data-mol-id="oauth-buttons"]')!
+    const group = fixture.host.querySelector('[data-mol-id="oauth-buttons"]') as HTMLElement
     expect(group.style.flexDirection).toBe('column')
     for (const btn of Array.from(fixture.host.querySelectorAll('button'))) {
       expect((btn as HTMLElement).style.width).toBe('100%')
@@ -207,6 +212,26 @@ describe('OAuthButtons', () => {
     const fixture = await renderRow({ providers: ['google'] })
     expect(fixture.host.textContent).not.toContain('Google')
     await fixture.destroy()
+  })
+
+  it('renders an unknown provider through the literal fallback key', async () => {
+    const previous = getProvider()
+    const marker = vi.fn((key: string, values?: InterpolationValues): string =>
+      key === 'oauthButtons.provider.fallback' ? `marker:${String(values?.provider)}` : key,
+    )
+    setI18nProvider({ ...previous, t: marker })
+    try {
+      const fixture = await renderRow({ providers: ['acme'], showLabels: true })
+      expect(fixture.host.textContent).toContain('marker:Acme')
+      expect(marker).toHaveBeenCalledWith(
+        'oauthButtons.provider.fallback',
+        { provider: 'Acme' },
+        { defaultValue: '{{provider}}' },
+      )
+      await fixture.destroy()
+    } finally {
+      setI18nProvider(previous)
+    }
   })
 })
 

@@ -32,7 +32,12 @@ vi.mock('@molecule/app-ui', () => ({
   }),
 }))
 
-import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
+import {
+  createSimpleI18nProvider,
+  getProvider,
+  type InterpolationValues,
+  setProvider as setI18nProvider,
+} from '@molecule/app-i18n'
 
 import OAuthButtons from '../OAuthButtons.svelte'
 import OAuthDivider from '../OAuthDivider.svelte'
@@ -205,6 +210,25 @@ describe('<OAuthButtons />', () => {
     const container = render(OAuthButtons, { providers: ['google'] })
     // aria-labels are attributes, not text: the only 'Google' text would be a label span.
     expect(container.textContent).not.toContain('Google')
+  })
+
+  it('renders an unknown provider through the literal fallback key', () => {
+    const previous = getProvider()
+    const marker = vi.fn((key: string, values?: InterpolationValues): string =>
+      key === 'oauthButtons.provider.fallback' ? `marker:${String(values?.provider)}` : key,
+    )
+    setI18nProvider({ ...previous, t: marker })
+    try {
+      const container = render(OAuthButtons, { providers: ['acme'], showLabels: true })
+      expect(container.textContent).toContain('marker:Acme')
+      expect(marker).toHaveBeenCalledWith(
+        'oauthButtons.provider.fallback',
+        { provider: 'Acme' },
+        { defaultValue: '{{provider}}' },
+      )
+    } finally {
+      setI18nProvider(previous)
+    }
   })
 })
 

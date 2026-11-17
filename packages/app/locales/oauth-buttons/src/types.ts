@@ -12,6 +12,7 @@ export type OAuthButtonsTranslationKey =
   | 'oauthButtons.provider.microsoft'
   | 'oauthButtons.provider.linkedin'
   | 'oauthButtons.provider.discord'
+  | 'oauthButtons.provider.fallback'
 
 /** Translation record mapping oauth-buttons keys to translated strings. */
 export type OAuthButtonsTranslations = Record<OAuthButtonsTranslationKey, string>

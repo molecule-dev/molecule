@@ -28,12 +28,13 @@ vi.mock('@molecule/app-ui', () => ({
   }),
 }))
 
-// Stub useTranslation so we don't need an i18n provider context.
-// Returns the defaultValue with {{provider}} interpolated, mirroring
-// real provider behavior for our purposes.
-vi.mock('@molecule/app-vue', () => ({
-  useTranslation: () => ({
-    t: (
+// Stub useTranslation so we don't need an i18n provider context. `tMock`
+// returns the defaultValue with {{provider}} interpolated, mirroring real
+// provider behavior; one test swaps in a marker implementation so it can
+// prove an unknown provider's text arrives through the literal fallback key.
+const { tMock } = vi.hoisted(() => ({
+  tMock: vi.fn(
+    (
       _key: string,
       values?: Record<string, unknown>,
       options?: { defaultValue?: string },
@@ -46,7 +47,11 @@ vi.mock('@molecule/app-vue', () => ({
       }
       return out
     },
-  }),
+  ),
+}))
+
+vi.mock('@molecule/app-vue', () => ({
+  useTranslation: () => ({ t: tMock }),
 }))
 
 import { createApp, defineComponent, h, nextTick } from 'vue'
@@ -229,6 +234,25 @@ describe('<OAuthButtons />', () => {
     const { host, unmount } = render(OAuthButtons, { providers: ['google'] })
     expect(host.textContent).not.toContain('Google')
     unmount()
+  })
+
+  it('renders an unknown provider through the literal fallback key', () => {
+    const interpolate = tMock.getMockImplementation()
+    tMock.mockImplementation((key: string, values?: Record<string, unknown>): string =>
+      key === 'oauthButtons.provider.fallback' ? `marker:${String(values?.provider)}` : key,
+    )
+    try {
+      const { host, unmount } = render(OAuthButtons, { providers: ['acme'], showLabels: true })
+      expect(host.textContent).toContain('marker:Acme')
+      expect(tMock).toHaveBeenCalledWith(
+        'oauthButtons.provider.fallback',
+        { provider: 'Acme' },
+        { defaultValue: '{{provider}}' },
+      )
+      unmount()
+    } finally {
+      if (interpolate) tMock.mockImplementation(interpolate)
+    }
   })
 })
 

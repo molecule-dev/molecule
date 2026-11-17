@@ -14,4 +14,5 @@ export const id: OAuthButtonsTranslations = {
   'oauthButtons.provider.microsoft': 'Microsoft',
   'oauthButtons.provider.linkedin': 'LinkedIn',
   'oauthButtons.provider.discord': 'Discord',
+  'oauthButtons.provider.fallback': '{{provider}}',
 }

@@ -30,19 +30,25 @@ export const PROVIDER_LABELS: Readonly<Record<OAuthProviderId, { key: string; de
 /**
  * Returns the i18n entry (key + English default) for a given provider id.
  *
- * Falls back to a synthesized entry for unknown ids so unrecognized
- * providers still render with a sensible English label rather than a
- * raw key string.
+ * Falls back to the bond's one literal fallback key for unknown ids so
+ * unrecognized providers still render with a sensible English label
+ * rather than a raw key string. The provider id travels as a
+ * `{{provider}}` interpolation value, never inside the key.
  *
  * @param provider - Canonical provider id (e.g. `'google'`).
- * @returns Translation key + English default for the provider.
+ * @returns Translation key, English default and optional interpolation values.
  */
-export function getProviderLabel(provider: string): { key: string; default: string } {
+export function getProviderLabel(provider: string): {
+  key: string
+  default: string
+  values?: Record<string, string>
+} {
   const entry = PROVIDER_LABELS[provider as OAuthProviderId]
   if (entry) return entry
   return {
-    key: `oauthButtons.provider.${provider}`,
-    default: provider.charAt(0).toUpperCase() + provider.slice(1),
+    key: 'oauthButtons.provider.fallback',
+    default: '{{provider}}',
+    values: { provider: provider.charAt(0).toUpperCase() + provider.slice(1) },
   }
 }
 

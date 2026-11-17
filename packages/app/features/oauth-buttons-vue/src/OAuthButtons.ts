@@ -130,7 +130,7 @@ export const OAuthButtons = defineComponent({
         },
         ordered.map((provider) => {
           const label = getProviderLabel(provider)
-          const localizedName = t(label.key, undefined, { defaultValue: label.default })
+          const localizedName = t(label.key, label.values, { defaultValue: label.default })
           const brandStyle = props.brandButtons ? getBrandStyle(provider) : {}
           const ariaLabel = t(
             'oauthButtons.continueWith',
