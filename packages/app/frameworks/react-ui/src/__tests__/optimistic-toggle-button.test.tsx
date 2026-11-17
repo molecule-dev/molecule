@@ -36,6 +36,35 @@ afterEach(() => {
 })
 
 describe('OptimisticToggleButton', () => {
+  it.each([
+    ['Favorite Article', 'Unfavorite Article'],
+    ['Watch equipment', 'Stop watching equipment'],
+  ])(
+    'keeps the complete %s action label through persistence and remount',
+    async (inactiveLabel, activeLabel) => {
+      let persisted = false
+      const commit = vi.fn(async (desired: boolean) => {
+        persisted = desired
+        return persisted
+      })
+      const props = { commit, inactiveLabel, activeLabel }
+      const view = render(<OptimisticToggleButton value={persisted} {...props} />)
+      await act(async () => fireEvent.click(view.getByRole('button', { name: inactiveLabel })))
+      expect(view.getByRole('button', { name: activeLabel }).getAttribute('aria-pressed')).toBe(
+        'true',
+      )
+      expect(commit).toHaveBeenCalledExactlyOnceWith(true)
+      view.unmount()
+
+      const reloaded = render(<OptimisticToggleButton value={persisted} {...props} />)
+      await act(async () => fireEvent.click(reloaded.getByRole('button', { name: activeLabel })))
+      expect(
+        reloaded.getByRole('button', { name: inactiveLabel }).getAttribute('aria-pressed'),
+      ).toBe('false')
+      expect(commit.mock.calls).toEqual([[true], [false]])
+    },
+  )
+
   it('flips Follow to Unfollow immediately through a save longer than the deployed wait', async () => {
     vi.useFakeTimers()
     const response = deferred<boolean>()

@@ -16,6 +16,13 @@
  * `inactiveLabel`. The label and pressed state change on the first tap; saves run in order
  * and the newest failure rolls back. Mount after the initial record loads, key by record,
  * and keep it mounted during refetches. Authorization and self-record checks stay in the app.
+ * Each label names the complete action, including its target when useful: for a document,
+ * `inactiveLabel="Favorite document"` and `activeLabel="Unfavorite document"`. A static
+ * target label such as `"document"` does not tell the person which action the button performs.
+ * Count-only/icon controls can pass their own React nodes and accessible labels. For a
+ * POST/DELETE relationship, `createQueryResource().toggle(viewer, id, action, desired)` from
+ * `@molecule/app-query` supplies the request direction; return the saved flag from `commit`.
+ * A local menu or panel uses `Button`/`Switch` with local state and no server commit.
  *
  * @example
  * ```tsx

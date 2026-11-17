@@ -32,6 +32,21 @@
  * ```
  *
  * @remarks
+ * - **A relationship modeled as POST to enable and DELETE to disable already has a client:**
+ *   `createQueryResource(config).toggle(viewer, id, action, desired)` sends POST for `true`
+ *   and DELETE for `false`, then returns the server's saved record. `desired` is the value
+ *   wanted AFTER the request. A boolean PUT/PATCH body or an API with different action
+ *   semantics uses `update()` or its own explicit adapter instead.
+ *   ```typescript
+ *   const members = createQueryResource<Member>({
+ *     name: 'members', path: '/members', id: 'username', http: getClient,
+ *     readOne: (response) => (response.data as { member: Member }).member,
+ *   })
+ *   const saved = await members.toggle(viewerId, username, 'watch', desired)
+ *   // Return saved.watching from a boolean control's commit; use the saved record
+ *   // with useOptimisticValue when the flag has a related count. A reload reads
+ *   // the persisted server answer, so test both directions and revisit the page.
+ *   ```
  * - `createQueryResource().list()` owns a collection of records addressed by their URL id.
  *   It keeps the first occurrence of each identity on fetched and explicitly set lists;
  *   equal labels on different records and rows without an id remain intact. Resource writes
