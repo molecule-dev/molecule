@@ -29,6 +29,7 @@ import type { ThemeProvider } from '@molecule/app-theme'
 
 import type { BindingServices } from '../bindings/spec.js'
 import {
+  type BindingCaseResets,
   buildAppServices,
   buildServices,
   callProbe,
@@ -43,6 +44,7 @@ import {
   type NodeSpec,
   type ProbeSpec,
   probeValue,
+  resetBindingForCase,
   type RunOptions,
   runSteps,
   settle,
@@ -76,7 +78,7 @@ export interface SolidBindingProps {
 }
 
 /** What the adapter needs from `@molecule/app-solid` (the package under test passes the module). */
-export interface SolidBinding {
+export interface SolidBinding extends BindingCaseResets {
   MoleculeProvider: Component<SolidBindingProps>
 }
 
@@ -223,6 +225,7 @@ export function createSolidAdapter({
     has: (component) => typeof exportsOf[component] !== 'undefined',
     exportNames: Object.keys(exportsOf),
     async run(component, testCase: UICase, options: RunOptions = {}) {
+      resetBindingForCase(binding)
       const Comp = exportsOf[component] as Component<Record<string, unknown>>
       const recorder = new CallRecorder(testCase.callbackResults)
       callbackSpy = (name) => recorder.spy(name)

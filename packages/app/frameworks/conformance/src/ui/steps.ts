@@ -11,13 +11,20 @@ import { getProvider as getI18nProvider, type I18nProvider } from '@molecule/app
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
 import type { ThemeProvider } from '@molecule/app-theme'
 
-import { freshContainer, performDomInteraction, setCaseTranslations } from './environment.js'
+import {
+  freshContainer,
+  performDomInteraction,
+  setCaseIcons,
+  setCaseTranslations,
+} from './environment.js'
 import { createFakeAuthClient, createFakeThemeProvider } from './fakes.js'
+import { installCaseGlobals } from './globals.js'
 import { normalizeArg, normalizeDom } from './normalize.js'
 import {
   applyLayout,
   installAudio,
   installLocalStorage,
+  installSessionStorage,
   layoutNote,
   pinCaseTimeZone,
 } from './page.js'
@@ -245,10 +252,12 @@ export function caseStrings(testCase: UICase): Set<string> {
 }
 
 /**
- * Puts the page into a case's {@link WindowContext}: URL, `sessionStorage`,
- * `localStorage` (the kit's in-memory one, for every case), a recording `fetch` and
- * a recording `AudioContext`. Every request is recorded as a `fetch` call; with
- * `fetch.defer` each one waits for {@link PageControls.answerFetch}.
+ * Puts the page into a case's {@link WindowContext}: URL, `sessionStorage` and
+ * `localStorage` (the kit's in-memory ones, for every case, so nothing one case writes
+ * reaches the next), a recording `fetch` and a recording `AudioContext`. With a
+ * `sessionStorage` or `localStorage` seed, the entries left when the case ends are
+ * recorded as a `sessionStorage` / `localStorage` call. Every request is recorded as a
+ * `fetch` call; with `fetch.defer` each one waits for {@link PageControls.answerFetch}.
  *
  * @param context - The case's window context.
  * @param recorder - The case's recorder.
@@ -268,21 +277,18 @@ export function applyWindowContext(
     next()
   }
   const local = installLocalStorage(context?.localStorage ?? {})
-  if (!context) return { restore: () => local.restore(), answerFetch }
+  const session = installSessionStorage(context?.sessionStorage ?? {})
+  const restoreStorages = (): void => {
+    local.restore()
+    session.restore()
+  }
+  if (!context) return { restore: restoreStorages, answerFetch }
   const audio = context.audio
     ? installAudio((name, args) => recorder.calls.push({ name, args }))
     : null
   const url = `${location.pathname}${location.search}${location.hash}`
-  const storage = Object.fromEntries(
-    Array.from({ length: sessionStorage.length }, (_v, i) => sessionStorage.key(i)!).map((k) => [
-      k,
-      sessionStorage.getItem(k)!,
-    ]),
-  )
   const realFetch = globalThis.fetch
   if (context.url !== undefined) history.replaceState(null, '', context.url)
-  for (const [key, value] of Object.entries(context.sessionStorage ?? {}))
-    sessionStorage.setItem(key, value)
   if (context.fetch) {
     const answer = context.fetch
     const record = recorder.spy('fetch')
@@ -325,11 +331,11 @@ export function applyWindowContext(
         })
       if (context.localStorage !== undefined)
         recorder.calls.push({ name: 'localStorage', args: [local.contents()] })
+      if (context.sessionStorage !== undefined)
+        recorder.calls.push({ name: 'sessionStorage', args: [session.contents()] })
       audio?.restore()
-      local.restore()
+      restoreStorages()
       globalThis.fetch = realFetch
-      sessionStorage.clear()
-      for (const [key, value] of Object.entries(storage)) sessionStorage.setItem(key, value)
       history.replaceState(null, '', url)
     },
   }
@@ -394,7 +400,11 @@ export async function runSteps(
   installCaseClock(testCase)
   // The case's translations first: they name the locales the case may start in.
   setCaseTranslations(testCase.context?.translations ?? null)
+  setCaseIcons(testCase.context?.icons ?? null)
   await getI18nProvider().setLocale(testCase.context?.locale ?? 'en')
+  const globals = installCaseGlobals(testCase, (name, args) => {
+    recorder.calls.push({ name, args: args.map(normalizeArg) })
+  })
   const page = applyWindowContext(testCase.context?.window, recorder)
   const container = freshContainer(testCase)
   const keepReferences = caseStrings(testCase)
@@ -406,8 +416,10 @@ export async function runSteps(
   try {
     mounted = await mount(container)
   } catch (error) {
+    globals.restore()
     page.restore()
     setCaseTranslations(null)
+    setCaseIcons(null)
     if (testCase.fakeTimers || testCase.now !== undefined) vi.useRealTimers()
     throw error
   }
@@ -446,8 +458,10 @@ export async function runSteps(
   } finally {
     if (!state.unmounted) await mounted.unmount()
     await mounted.dispose?.()
+    globals.restore()
     page.restore()
     setCaseTranslations(null)
+    setCaseIcons(null)
     if (testCase.fakeTimers || testCase.now !== undefined) vi.useRealTimers()
     document.body.innerHTML = ''
   }
@@ -494,6 +508,7 @@ const CASE_FIELDS: FieldsOf<UICase> = {
   context: 'optional',
   fakeTimers: 'optional',
   now: 'optional',
+  random: 'optional',
   viewportWidth: 'optional',
   pointer: 'optional',
   layout: 'optional',
@@ -512,6 +527,8 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   keydown: {
     selector: 'required',
     key: 'required',
+    isComposing: 'optional',
+    keyCode: 'optional',
     metaKey: 'optional',
     ctrlKey: 'optional',
     shiftKey: 'optional',
@@ -525,6 +542,7 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   settle: { callback: 'required', value: 'optional', error: 'optional' },
   navigate: { to: 'required' },
   event: { selector: 'required', event: 'required', bubbles: 'optional' },
+  resize: { selector: 'required', width: 'optional', height: 'optional' },
   cues: { selector: 'required', cues: 'required' },
   locale: { locale: 'required' },
   mark: { selector: 'required' },

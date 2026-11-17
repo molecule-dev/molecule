@@ -40,6 +40,7 @@ import type { ThemeProvider } from '@molecule/app-theme'
 
 import type { BindingServices } from '../bindings/index.js'
 import {
+  type BindingCaseResets,
   buildAppServices,
   buildServices,
   callProbe,
@@ -51,6 +52,7 @@ import {
   type NodeSpec,
   type ProbeSpec,
   probeValue,
+  resetBindingForCase,
   type RunOptions,
   runSteps,
   settle,
@@ -58,7 +60,7 @@ import {
 } from '../ui/index.js'
 
 /** What the adapter needs from `@molecule/app-vue` (the package under test passes the module). */
-export interface VueBinding {
+export interface VueBinding extends BindingCaseResets {
   createAuthPlugin(client: AuthClient<Record<string, unknown>>): Plugin
   createI18nPlugin(provider: I18nProvider): Plugin
   createRouterPlugin(router: Router): Plugin
@@ -163,6 +165,7 @@ export function createVueAdapter({
     has: (component) => typeof exportsOf[component] !== 'undefined',
     exportNames: Object.keys(exportsOf),
     async run(component, testCase: UICase, options: RunOptions = {}) {
+      resetBindingForCase(binding)
       const Comp = exportsOf[component] as Component
       const recorder = new CallRecorder(testCase.callbackResults)
       callbackSpy = (name) => recorder.spy(name)

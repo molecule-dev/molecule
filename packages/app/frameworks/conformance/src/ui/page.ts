@@ -38,7 +38,7 @@ pinCaseTimeZone()
 export type PageRecord = (name: string, args: unknown[]) => void
 
 /**
- * A `localStorage` held in memory. Node 26 defines its own global
+ * A `localStorage` or `sessionStorage` held in memory. Node 26 defines its own global
  * `localStorage`, which shadows jsdom's and is unusable without a file, so the kit
  * installs this one for every case: each framework then reads and writes the same
  * storage under every Node version.
@@ -118,7 +118,7 @@ class MemoryStorage {
   }
 }
 
-/** The page's `localStorage` for one case. */
+/** The page's `localStorage` or `sessionStorage` for one case. */
 export interface CaseLocalStorage {
   /**
    * Every entry now.
@@ -126,23 +126,27 @@ export interface CaseLocalStorage {
    * @returns The entries, sorted by key.
    */
   contents(): Record<string, string>
-  /** Puts back the `localStorage` the page had before. */
+  /** Puts back the storage the page had before. */
   restore(): void
 }
 
 /**
- * Replaces `localStorage` with an in-memory one for one case.
+ * Replaces one web storage with an in-memory one for one case.
  *
+ * @param name - `localStorage` or `sessionStorage`.
  * @param entries - The entries the case starts with.
  * @returns The storage's contents and what restores the previous one.
  */
-export function installLocalStorage(entries: Record<string, string>): CaseLocalStorage {
+function installMemoryStorage(
+  name: 'localStorage' | 'sessionStorage',
+  entries: Record<string, string>,
+): CaseLocalStorage {
   const storage = new MemoryStorage(entries)
   const targets: object[] = [globalThis]
   if (typeof window !== 'undefined' && window !== globalThis) targets.push(window)
-  const previous = targets.map((target) => Object.getOwnPropertyDescriptor(target, 'localStorage'))
+  const previous = targets.map((target) => Object.getOwnPropertyDescriptor(target, name))
   for (const target of targets)
-    Object.defineProperty(target, 'localStorage', {
+    Object.defineProperty(target, name, {
       configurable: true,
       enumerable: true,
       get: () => storage,
@@ -152,11 +156,33 @@ export function installLocalStorage(entries: Record<string, string>): CaseLocalS
     restore: () => {
       targets.forEach((target, index) => {
         const descriptor = previous[index]
-        if (descriptor) Object.defineProperty(target, 'localStorage', descriptor)
-        else Reflect.deleteProperty(target, 'localStorage')
+        if (descriptor) Object.defineProperty(target, name, descriptor)
+        else Reflect.deleteProperty(target, name)
       })
     },
   }
+}
+
+/**
+ * Replaces `localStorage` with an in-memory one for one case.
+ *
+ * @param entries - The entries the case starts with.
+ * @returns The storage's contents and what restores the previous one.
+ */
+export function installLocalStorage(entries: Record<string, string>): CaseLocalStorage {
+  return installMemoryStorage('localStorage', entries)
+}
+
+/**
+ * Replaces `sessionStorage` with an in-memory one for one case, empty unless the case
+ * seeds it (`WindowContext.sessionStorage`), so nothing an earlier case wrote
+ * reaches it.
+ *
+ * @param entries - The entries the case starts with.
+ * @returns The storage's contents and what restores the previous one.
+ */
+export function installSessionStorage(entries: Record<string, string>): CaseLocalStorage {
+  return installMemoryStorage('sessionStorage', entries)
 }
 
 /** Where the running case's audio calls go; null outside a case that asked for audio. */
@@ -513,9 +539,13 @@ export function createTransferData(
   data: Record<string, string>,
 ): TransferData {
   const store = new Map(Object.entries(data).map(([k, v]) => [transferFormat(k), v]))
-  const fileObjects = files.map(
-    (file) => new File([file.content], file.name, { type: file.type, lastModified: 0 }),
-  )
+  const fileObjects = files.map((file) => {
+    const object = new File([file.content], file.name, { type: file.type, lastModified: 0 })
+    // A size the entry names wins over the content's own, so a limit can be driven.
+    if (file.size !== undefined)
+      Object.defineProperty(object, 'size', { configurable: true, value: file.size })
+    return object
+  })
   const fileList = Object.assign([...fileObjects], {
     item: (index: number): File | null => fileObjects[index] ?? null,
   })

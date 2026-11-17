@@ -12,11 +12,12 @@ import {
   setProvider as setI18nProvider,
   type Translations,
 } from '@molecule/app-i18n'
-import { setIconSet } from '@molecule/app-icons'
+import { type IconSet, setIconSet } from '@molecule/app-icons'
 import { iconSet } from '@molecule/app-icons-molecule'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
+import { notifyResize } from './globals.js'
 import {
   createTransferData,
   installDomGaps,
@@ -65,6 +66,42 @@ export function setCaseTranslations(
   for (const code of Object.keys(caseTranslations))
     if (localeRegistry && !localeRegistry.getLocales().some((known) => known.code === code))
       localeRegistry.addLocale({ code, name: code, direction: 'ltr', translations: {} })
+}
+
+/** The glyphs the current case adds to the bonded icon set (`context.icons`). */
+let caseIcons: IconSet = {}
+
+/**
+ * Serves extra glyphs for one case (`context.icons`), looked up before the bonded set's own;
+ * `null` clears them.
+ *
+ * @param icons - Glyphs by name, or null.
+ */
+export function setCaseIcons(icons: IconSet | null): void {
+  caseIcons = icons ?? {}
+}
+
+/**
+ * The bonded icon set with the current case's glyphs in front of it.
+ *
+ * @returns The icon set the kit bonds.
+ */
+function createConformanceIconSet(): IconSet {
+  const current = (): IconSet => ({ ...iconSet, ...caseIcons })
+  return new Proxy<IconSet>(
+    {},
+    {
+      get: (_target, name) =>
+        Reflect.get(Object.hasOwn(caseIcons, name) ? caseIcons : iconSet, name),
+      has: (_target, name) => Reflect.has(current(), name),
+      ownKeys: () => Reflect.ownKeys(current()),
+      getOwnPropertyDescriptor: (_target, name) => {
+        const descriptor = Reflect.getOwnPropertyDescriptor(current(), name)
+        // The target is an empty, extensible object, so each glyph must be reported as configurable.
+        return descriptor && { ...descriptor, configurable: true }
+      },
+    },
+  )
 }
 
 /** The locales every case has: English and {@link PSEUDO_LOCALE}. */
@@ -122,7 +159,7 @@ export function installSharedBonds(): void {
   if (installed) return
   installed = true
   setClassMap(classMap)
-  setIconSet(iconSet)
+  setIconSet(createConformanceIconSet())
   setI18nProvider(createConformanceI18nProvider())
   installPseudoLocaleIntl(PSEUDO_LOCALE)
 }
@@ -333,6 +370,9 @@ export function performDomInteraction(step: Interaction): string | undefined {
       query(step.selector).dispatchEvent(
         new KeyboardEvent('keydown', {
           key: step.key,
+          // jsdom reports these defaults itself; a composing key (an IME's Enter) sets both.
+          isComposing: step.isComposing ?? false,
+          keyCode: step.keyCode ?? 0,
           shiftKey: step.shiftKey ?? false,
           metaKey: step.metaKey ?? false,
           ctrlKey: step.ctrlKey ?? false,
@@ -364,6 +404,12 @@ export function performDomInteraction(step: Interaction): string | undefined {
       eventTarget(step.selector).dispatchEvent(
         new Event(step.event, { bubbles: step.bubbles ?? false, cancelable: true }),
       )
+      return
+    }
+    case 'resize': {
+      const elements = Array.from(document.querySelectorAll(step.selector))
+      if (elements.length === 0) throw new Error(`resize: no element matches ${step.selector}`)
+      notifyResize(elements, step.width ?? 0, step.height ?? 0)
       return
     }
     case 'cues': {

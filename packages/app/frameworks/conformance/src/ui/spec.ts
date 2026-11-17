@@ -16,6 +16,7 @@
  */
 
 import type { Translations } from '@molecule/app-i18n'
+import type { IconSet } from '@molecule/app-icons'
 
 import type { BindingServices } from '../bindings/spec.js'
 
@@ -194,8 +195,21 @@ export type Interaction =
   | { type: 'mouseenter'; selector: string }
   | { type: 'mouseleave'; selector: string }
   | { type: 'pointerdown'; selector: string }
-  /** A key press on the element; it bubbles, so `document`/`window` shortcut listeners see it too. */
-  | ({ type: 'keydown'; selector: string; key: string } & ClickModifiers)
+  /**
+   * A key press on the element; it bubbles, so `document`/`window` shortcut listeners see it
+   * too. `isComposing` marks a key pressed while an input method editor is composing text (a
+   * browser reports the composition's keys with it set and `keyCode` 229); `keyCode` is the
+   * legacy numeric code (`13` for Enter) a shortcut handler still reads.
+   */
+  | ({
+      type: 'keydown'
+      selector: string
+      key: string
+      /** Whether an IME was composing when the key was pressed (default false). */
+      isComposing?: boolean
+      /** The legacy numeric key code (default 0, jsdom's own default). */
+      keyCode?: number
+    } & ClickModifiers)
   /** Sets `.value` (or `.checked` for checkbox/radio) and dispatches `input` + `change`. */
   | { type: 'input'; selector: string; value: string }
   | { type: 'check'; selector: string; checked: boolean }
@@ -213,6 +227,13 @@ export type Interaction =
    * `selector` may be `window` or `document`.
    */
   | { type: 'event'; selector: string; event: string; bubbles?: boolean }
+  /**
+   * Resizes every element `selector` matches: each recording `ResizeObserver` watching one
+   * of them fires its callback with one entry whose `contentRect` is `width` × `height`
+   * (a size the step omits is 0). A component that guards
+   * `typeof ResizeObserver === 'undefined'` runs its resize effect under the kit.
+   */
+  | { type: 'resize'; selector: string; width?: number; height?: number }
   /**
    * The `<track>` element `selector` matches reaches cues with this text (`[]`: none), as
    * a playing media element does when its position enters or leaves a cue: its text
@@ -337,6 +358,12 @@ export interface CaseContext {
   translations?: Partial<Record<string, Translations>>
   /** Browser state outside the router, for components that read the page itself. */
   window?: WindowContext
+  /**
+   * Glyphs this case adds to the kit's bonded icon set (`@molecule/app-icons-molecule`), by name;
+   * a name the set already has is replaced for this case only. For a renderer branch no bonded
+   * glyph reaches (the set has no stroked glyph, `IconData.stroke`).
+   */
+  icons?: IconSet
 }
 
 /**
@@ -346,7 +373,12 @@ export interface CaseContext {
 export interface WindowContext {
   /** `window.location` path and query (`/login?code=c1&state=s1`), set with `history.replaceState`. */
   url?: string
-  /** `sessionStorage` entries. */
+  /**
+   * `sessionStorage` entries. Every case runs on an in-memory `sessionStorage` of the kit's
+   * own, empty unless this seeds it, so nothing one case writes reaches the next and every
+   * framework sees the same storage under every Node version. With this set, the entries
+   * left when the case ends are recorded as a `sessionStorage` call.
+   */
   sessionStorage?: Record<string, string>
   /**
    * `localStorage` entries. Every case runs on an in-memory `localStorage` of the kit's own,
@@ -375,6 +407,11 @@ export interface TransferFile {
   type: string
   /** Its text content. */
   content: string
+  /**
+   * The byte size a component reads from `file.size` (default: the content's length). A
+   * component that rejects a file above a limit is driven with one.
+   */
+  size?: number
 }
 
 /**
@@ -450,6 +487,13 @@ export interface UICase {
    * ago`) renders the same text on every day the case runs.
    */
   now?: number
+  /**
+   * Pins `Math.random` for the case: it returns these values in order and then repeats the
+   * last one, and the real function is back after the case (also when the mount throws).
+   * A component that mints an id, adds jitter or shuffles a list then renders the same text
+   * on every run.
+   */
+  random?: number[]
   /**
    * Viewport width for `matchMedia('(min-width: …)')` queries (default 1280).
    * Responsive components (shells, drawers) are rendered at this width.
@@ -539,6 +583,28 @@ export interface CaseResult {
   pages?: string[]
   /** Callback and service calls, in order. */
   calls: RecordedCall[]
+}
+
+/**
+ * The per-case resets every framework binding exports (`@molecule/app-react`, `-vue`, `-svelte`,
+ * `-solid`, `-angular`): the chat stores and the AI-models cache are module-level, so without them
+ * a case would see the conversations and models an earlier case loaded.
+ */
+export interface BindingCaseResets {
+  /** Drops every chat store, so the next `useChat` starts empty. */
+  resetChatStoresForTests(): void
+  /** Forgets the loaded AI models, so the next `useAIModels` requests them again. */
+  resetAIModelsCache(): void
+}
+
+/**
+ * Runs a binding's per-case resets: every adapter calls it when a case starts.
+ *
+ * @param binding - The framework binding module.
+ */
+export function resetBindingForCase(binding: BindingCaseResets): void {
+  binding.resetChatStoresForTests()
+  binding.resetAIModelsCache()
 }
 
 /** The contract every framework adapter implements. */

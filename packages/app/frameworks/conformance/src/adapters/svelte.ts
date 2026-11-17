@@ -26,10 +26,12 @@ import type { ThemeProvider } from '@molecule/app-theme'
 
 import type { BindingServices } from '../bindings/spec.js'
 import {
+  type BindingCaseResets,
   buildAppServices,
   buildServices,
   CallRecorder,
   type FrameworkAdapter,
+  resetBindingForCase,
   type RunOptions,
   runSteps,
   settle,
@@ -51,7 +53,7 @@ export interface SvelteMoleculeConfig extends Partial<Omit<BindingServices, 'aut
 }
 
 /** What the adapter needs from `@molecule/app-svelte` (the package under test passes the module). */
-export interface SvelteBinding {
+export interface SvelteBinding extends BindingCaseResets {
   setMoleculeContext(config: SvelteMoleculeConfig): void
 }
 
@@ -87,6 +89,7 @@ export function createSvelteAdapter({
     has: (component) => typeof exportsOf[component] === 'function' && /^[A-Z]/.test(component),
     exportNames: Object.keys(exportsOf),
     async run(component, testCase: UICase, options: RunOptions = {}) {
+      resetBindingForCase(binding)
       const Target = exportsOf[component] as Component<Record<string, unknown>>
       const recorder = new CallRecorder(testCase.callbackResults)
       callbackSpy = (name) => recorder.spy(name)

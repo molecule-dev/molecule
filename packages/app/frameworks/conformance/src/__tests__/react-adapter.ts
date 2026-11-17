@@ -10,6 +10,7 @@ import { act, createElement, type ReactElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, type NavigateFunction, useLocation, useNavigate } from 'react-router'
 
+import * as ReactBinding from '@molecule/app-react'
 import { AuthProvider, I18nProvider, MoleculeProvider, ThemeProvider } from '@molecule/app-react'
 import * as ReactUI from '@molecule/app-ui-react'
 
@@ -25,6 +26,7 @@ import {
   type NodeSpec,
   type ProbeSpec,
   probeValue,
+  resetBindingForCase,
   type RunOptions,
   runSteps,
   settle,
@@ -150,6 +152,7 @@ async function runReactCase(
   testCase: UICase,
   options: RunOptions = {},
 ): ReturnType<FrameworkAdapter['run']> {
+  resetBindingForCase(ReactBinding)
   exportsOf = exportMap
   const Component = exportsOf[component] as Parameters<typeof createElement>[0]
   const recorder = new CallRecorder(testCase.callbackResults)

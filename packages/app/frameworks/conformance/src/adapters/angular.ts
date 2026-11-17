@@ -63,6 +63,7 @@ import type { ThemeProvider } from '@molecule/app-theme'
 
 import type { BindingServices } from '../bindings/spec.js'
 import {
+  type BindingCaseResets,
   buildAppServices,
   buildServices,
   callProbe,
@@ -76,6 +77,7 @@ import {
   type NodeSpec,
   type ProbeSpec,
   probeValue,
+  resetBindingForCase,
   type RunOptions,
   runSteps,
   settle,
@@ -208,7 +210,7 @@ const hasTemplates = (value: unknown): boolean => {
 }
 
 /** What the adapter needs from `@molecule/app-angular` (the package under test passes the module). */
-export interface AngularBinding {
+export interface AngularBinding extends BindingCaseResets {
   provideAuth(client: AuthClient<Record<string, unknown>>): EnvironmentProviders
   provideI18n(provider: I18nProvider): EnvironmentProviders
   provideRouter(router: Router): EnvironmentProviders
@@ -442,6 +444,7 @@ export function createAngularAdapter({
     has: (component) => isComponent(exportsOf[component]),
     exportNames: Object.keys(exportsOf),
     async run(component, testCase: UICase, options: RunOptions = {}) {
+      resetBindingForCase(binding)
       const recorder = new CallRecorder(testCase.callbackResults)
       callbackSpy = (name) => recorder.spy(name)
       const services = buildServices(testCase, recorder)
