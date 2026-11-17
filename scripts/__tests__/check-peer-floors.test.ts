@@ -312,6 +312,21 @@ describe('classMapReads', () => {
     expect([...classMapReads(tsx)].sort()).toEqual(['cn', 'flex', 'srOnly', 'textTone'])
   })
 
+  it('binds no type name when a field holds a value read off getClassMap()', () => {
+    // 2026-11-17: `emptyClass: string = getClassMap().cn(…)` bound `string`, so every
+    // `string[]` in the file read as a computed key and held the floor to every member.
+    const angular = [
+      'export class C {',
+      '  protected readonly emptyClass: string = getClassMap().cn(getClassMap().textMuted)',
+      '  private visibleItems(): string[] {',
+      '    const result: string[] = []',
+      '    return result',
+      '  }',
+      '}',
+    ].join('\n')
+    expect([...classMapReads(angular)].sort()).toEqual(['cn', 'textMuted'])
+  })
+
   it('reads an Angular template and a Svelte component markup', () => {
     const angular = [
       '@Component({ template: `<span [class]="cm.textTone(\'error\')"></span>` })',

@@ -296,7 +296,12 @@ export async function fetchPublishedVersions(names, concurrency = 16) {
 export function classMapReads(text) {
   const bound = new Set()
   const call = String.raw`(?:[\w$.]+\(\s*)?(?:\(\s*\)\s*(?::\s*UIClassMap\s*)?=>\s*)?getClassMap\(\)`
-  const assigned = new RegExp(String.raw`\b(\w+)\s*(?::\s*UIClassMap\b[^=,);]*)?=\s*${call}`, 'g')
+  // The value must be the ClassMap itself: `x: string = getClassMap().cn(…)` binds nothing (it
+  // would bind the type word `string`, and every `string[]` would then read as a computed key).
+  const assigned = new RegExp(
+    String.raw`\b(\w+)\s*(?::\s*UIClassMap\b[^=,);]*)?=\s*${call}(?!\s*[.[])`,
+    'g',
+  )
   for (const m of text.matchAll(assigned)) bound.add(m[1])
   for (const m of text.matchAll(/\b(\w+)\??\s*(?:\(\s*\))?\s*:\s*UIClassMap\b/g)) bound.add(m[1])
   const reads = new Set()
