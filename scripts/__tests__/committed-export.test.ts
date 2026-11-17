@@ -29,6 +29,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { createCommittedExport, missingInstalls } from '../lib/committed-export.mjs'
 
 const BUILD_JS = join(dirname(fileURLToPath(import.meta.url)), '..', 'build.js')
+/** This repo's TypeScript install, which `scripts/build.js` imports as it loads. */
+const TYPESCRIPT_DIR = dirname(
+  createRequireFrom(import.meta.url).resolve('typescript/package.json'),
+)
 
 /**
  * A package build that refuses a source holding the marker a broken edit writes, and records
@@ -112,6 +116,9 @@ function checkout(): string {
   )
   mkdirSync(join(root, 'node_modules', 'left-pad'))
   writeFileSync(join(root, 'node_modules', 'left-pad', 'index.js'), 'export default 1\n')
+  // The root install's TypeScript: `scripts/build.js` imports it as it loads, so a checkout
+  // without it fails before any package builds.
+  symlinkSync(TYPESCRIPT_DIR, join(root, 'node_modules', 'typescript'), 'dir')
   mkdirSync(join(root, 'packages', 'bonds', 'b', 'node_modules', 'local-only'), {
     recursive: true,
   })
