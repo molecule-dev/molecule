@@ -4,7 +4,9 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating radio classes.
@@ -81,9 +83,12 @@ export function getRadioOptionTextClass(): string {
 /**
  * Radio option text class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getRadioOptionTextClass() instead.
  */
-export const radioOptionTextClass = /* @__PURE__ */ getClassMap().controlText
+export const radioOptionTextClass = classAtLoad((cm: UIClassMap) => cm.controlText)
 
 /**
  * Error message class.

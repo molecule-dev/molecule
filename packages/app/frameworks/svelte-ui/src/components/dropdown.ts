@@ -4,7 +4,9 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Dropdown placement type.
@@ -148,27 +150,39 @@ export function getDropdownItemShortcutClass(): string {
 /**
  * The dropdown trigger class.
  *
+ *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
  */
-export const dropdownTriggerClass = /* @__PURE__ */ getClassMap().dropdownTrigger
+export const dropdownTriggerClass = classAtLoad((cm: UIClassMap) => cm.dropdownTrigger)
 
 /**
  * Dropdown item icon class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getDropdownItemIconClass() instead.
  */
-export const dropdownItemIconClass = /* @__PURE__ */ getClassMap().dropdownItemIcon
+export const dropdownItemIconClass = classAtLoad((cm: UIClassMap) => cm.dropdownItemIcon)
 
 /**
  * Dropdown item label class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getDropdownItemLabelClass() instead.
  */
-export const dropdownItemLabelClass = /* @__PURE__ */ getClassMap().dropdownItemLabel
+export const dropdownItemLabelClass = classAtLoad((cm: UIClassMap) => cm.dropdownItemLabel)
 
 /**
  * Dropdown item shortcut class constant.
+ *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
  */
-export const dropdownItemShortcutClass = /* @__PURE__ */ getClassMap().dropdownItemShortcut
+export const dropdownItemShortcutClass = classAtLoad((cm: UIClassMap) => cm.dropdownItemShortcut)
 
 /**
  * Calculate dropdown menu position based on trigger element and placement.

@@ -5,7 +5,9 @@
  */
 
 import type { Size } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating input classes.
@@ -121,36 +123,51 @@ export function getInputClearButtonClass(): string {
 /**
  * The input wrapper class.
  *
+ *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
  */
-export const inputWrapperClass = /* @__PURE__ */ getClassMap().inputWrapper
+export const inputWrapperClass = classAtLoad((cm: UIClassMap) => cm.inputWrapper)
 
 /**
  * Input relative class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getInputInnerClass() instead.
  */
-export const inputRelativeClass = /* @__PURE__ */ getClassMap().inputInner
+export const inputRelativeClass = classAtLoad((cm: UIClassMap) => cm.inputInner)
 
 /**
  * Input left element class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getInputLeftElementClass() instead.
  */
-export const inputLeftElementClass = /* @__PURE__ */ getClassMap().inputLeftElement
+export const inputLeftElementClass = classAtLoad((cm: UIClassMap) => cm.inputLeftElement)
 
 /**
  * Input right element class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getInputRightElementClass() instead.
  */
-export const inputRightElementClass = /* @__PURE__ */ getClassMap().inputRightElement
+export const inputRightElementClass = classAtLoad((cm: UIClassMap) => cm.inputRightElement)
 
 /**
  * Input clear button class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getInputClearButtonClass() instead.
  */
-export const inputClearButtonClass = /* @__PURE__ */ getClassMap().inputClearButton
+export const inputClearButtonClass = classAtLoad((cm: UIClassMap) => cm.inputClearButton)
 
 /**
  * Get the error message class string.

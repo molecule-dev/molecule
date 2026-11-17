@@ -5,7 +5,9 @@
  */
 
 import type { ColorVariant, Size } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad, liveClassRecord } from '../class-at-load.js'
 
 /**
  * Creates a size height map.
@@ -143,33 +145,44 @@ export function getProgressLabelTextClass(): string {
 /**
  * Progress wrapper class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getProgressWrapperClass() instead.
  */
-export const progressWrapperClass = getClassMap().progressWrapper
+export const progressWrapperClass = classAtLoad((cm: UIClassMap) => cm.progressWrapper)
 
 /**
  * The progress label container class.
  *
+ *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
  */
-export const progressLabelContainerClass = /* @__PURE__ */ getClassMap().progressLabelContainer
+export const progressLabelContainerClass = classAtLoad(
+  (cm: UIClassMap) => cm.progressLabelContainer,
+)
 
 /**
  * Progress label class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getProgressLabelTextClass() instead.
  */
-export const progressLabelClass = /* @__PURE__ */ getClassMap().progressLabelText
+export const progressLabelClass = classAtLoad((cm: UIClassMap) => cm.progressLabelText)
 
 /**
  * Progress size height map constant.
  *
  * @deprecated Use cm.progressHeight(size) instead.
  */
-export const progressSizeHeightMap: Record<Size, string> = /* @__PURE__ */ createSizeHeightMap()
+export const progressSizeHeightMap: Record<Size, string> = liveClassRecord(createSizeHeightMap)
 
 /**
  * Progress color map constant.
  *
  * @deprecated Use cm.progressColor(color) instead.
  */
-export const progressColorMap: Record<ColorVariant, string> = /* @__PURE__ */ createColorMap()
+export const progressColorMap: Record<ColorVariant, string> = liveClassRecord(createColorMap)

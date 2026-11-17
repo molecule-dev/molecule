@@ -5,7 +5,9 @@
  */
 
 import type { ModalSize } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating modal content classes.
@@ -145,6 +147,9 @@ export function getModalBodyClass(): string {
 
 /**
  * Modal body class.
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getModalBodyClass() instead.
  */
-export const modalBodyClass = /* @__PURE__ */ getClassMap().dialogBody
+export const modalBodyClass = classAtLoad((cm: UIClassMap) => cm.dialogBody)

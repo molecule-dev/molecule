@@ -7,7 +7,9 @@
 import type { IconData, IconName } from '@molecule/app-icons'
 import { getIcon } from '@molecule/app-icons'
 import type { ColorVariant } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Map ColorVariant to alert variants.
@@ -101,22 +103,31 @@ export function getAlertContentClass(): string {
 /**
  * Alert dismiss class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getAlertDismissClass() instead.
  */
-export const alertDismissClass = /* @__PURE__ */ getClassMap().alertDismiss
+export const alertDismissClass = classAtLoad((cm: UIClassMap) => cm.alertDismiss)
 
 /**
  * The alert icon class.
  *
+ *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
  */
-export const alertIconClass = /* @__PURE__ */ getClassMap().alertIconWrapper
+export const alertIconClass = classAtLoad((cm: UIClassMap) => cm.alertIconWrapper)
 
 /**
  * Alert content class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getAlertContentClass() instead.
  */
-export const alertContentClass = /* @__PURE__ */ getClassMap().alertContent
+export const alertContentClass = classAtLoad((cm: UIClassMap) => cm.alertContent)
 
 /**
  * Status icon name mapping.

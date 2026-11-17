@@ -5,7 +5,9 @@
  */
 
 import type { TooltipPlacement } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Absolute top/left pixel position for a tooltip element.
@@ -148,9 +150,12 @@ export function getTooltipTriggerClass(): string {
 /**
  * Tooltip trigger class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getTooltipTriggerClass() instead.
  */
-export const tooltipTriggerClass = /* @__PURE__ */ getClassMap().tooltipTrigger
+export const tooltipTriggerClass = classAtLoad((cm: UIClassMap) => cm.tooltipTrigger)
 
 /**
  * Calculate tooltip position based on trigger and tooltip element rects.

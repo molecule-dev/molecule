@@ -7,7 +7,9 @@
 import type { IconData, IconName } from '@molecule/app-icons'
 import { getIcon } from '@molecule/app-icons'
 import type { ColorVariant } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad, liveClassRecord } from '../class-at-load.js'
 
 /**
  * Map ColorVariant to toast variants.
@@ -127,16 +129,22 @@ export function getToastContentWrapperClass(): string {
 /**
  * Toast icon class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getToastIconWrapperClass() instead.
  */
-export const toastIconClass = getClassMap().toastIconWrapper
+export const toastIconClass = classAtLoad((cm: UIClassMap) => cm.toastIconWrapper)
 
 /**
  * The toast content class.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @returns The result.
  */
-export const toastContentClass = getClassMap().toastContentWrapper
+export const toastContentClass = classAtLoad((cm: UIClassMap) => cm.toastContentWrapper)
 
 /**
  * Creates a toast position classes.
@@ -159,8 +167,9 @@ function createToastPositionClasses(): Record<ToastPosition, string> {
  * The toast position classes.
  *
  */
-export const toastPositionClasses: Record<ToastPosition, string> =
-  /* @__PURE__ */ createToastPositionClasses()
+export const toastPositionClasses: Record<ToastPosition, string> = liveClassRecord(
+  createToastPositionClasses,
+)
 
 /**
  * Generate classes for the toast container.

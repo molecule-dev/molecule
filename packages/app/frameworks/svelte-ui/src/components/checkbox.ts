@@ -4,7 +4,9 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating checkbox classes.
@@ -51,9 +53,12 @@ export function getCheckboxLabelWrapperClass(): string {
 /**
  * Checkbox label wrapper class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getCheckboxLabelWrapperClass() instead.
  */
-export const checkboxLabelWrapperClass = /* @__PURE__ */ getClassMap().controlLabel
+export const checkboxLabelWrapperClass = classAtLoad((cm: UIClassMap) => cm.controlLabel)
 
 /**
  * Class for the checkbox label text.
@@ -68,8 +73,11 @@ export function getCheckboxLabelTextClass(disabled?: boolean): string {
 
 /**
  * Container class for the checkbox component.
+ *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
  */
-export const checkboxContainerClass = /* @__PURE__ */ getClassMap().controlContainer
+export const checkboxContainerClass = classAtLoad((cm: UIClassMap) => cm.controlContainer)
 
 /**
  * Error message class.

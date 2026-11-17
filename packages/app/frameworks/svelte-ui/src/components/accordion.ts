@@ -6,7 +6,9 @@
 
 import type { IconData } from '@molecule/app-icons'
 import { getIcon } from '@molecule/app-icons'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating accordion classes.
@@ -104,9 +106,12 @@ export function getAccordionChevronClass(): string {
 /**
  * Accordion chevron class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getAccordionChevronClass() instead.
  */
-export const accordionChevronClass = /* @__PURE__ */ getClassMap().accordionChevron
+export const accordionChevronClass = classAtLoad((cm: UIClassMap) => cm.accordionChevron)
 
 /**
  * Get icon data for the accordion chevron.

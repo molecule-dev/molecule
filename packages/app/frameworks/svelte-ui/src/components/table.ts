@@ -6,7 +6,9 @@
 
 import type { IconData } from '@molecule/app-icons'
 import { getIcon } from '@molecule/app-icons'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating table classes.
@@ -107,23 +109,32 @@ export function getTableEmptyCellClass(): string {
 /**
  * Table wrapper class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getTableWrapperClass() instead.
  */
-export const tableWrapperClass = getClassMap().tableWrapper
+export const tableWrapperClass = classAtLoad((cm: UIClassMap) => cm.tableWrapper)
 
 /**
  * The table loading overlay class.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @returns The result.
  */
-export const tableLoadingOverlayClass = /* @__PURE__ */ getClassMap().tableLoadingOverlay
+export const tableLoadingOverlayClass = classAtLoad((cm: UIClassMap) => cm.tableLoadingOverlay)
 
 /**
  * Table empty cell class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getTableEmptyCellClass() instead.
  */
-export const tableEmptyCellClass = /* @__PURE__ */ getClassMap().tableEmptyCell
+export const tableEmptyCellClass = classAtLoad((cm: UIClassMap) => cm.tableEmptyCell)
 
 /**
  * Generate classes for a table row.
@@ -228,16 +239,22 @@ export function getTableSortIconClass(): string {
 /**
  * Table sort indicator class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getTableSortWrapperClass() instead.
  */
-export const tableSortIndicatorClass = /* @__PURE__ */ getClassMap().tableSortWrapper
+export const tableSortIndicatorClass = classAtLoad((cm: UIClassMap) => cm.tableSortWrapper)
 
 /**
  * Table sort icon class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getTableSortIconClass() instead.
  */
-export const tableSortIconClass = /* @__PURE__ */ getClassMap().tableSortIcon
+export const tableSortIconClass = classAtLoad((cm: UIClassMap) => cm.tableSortIcon)
 
 /**
  * Get icon data for a table sort direction indicator.

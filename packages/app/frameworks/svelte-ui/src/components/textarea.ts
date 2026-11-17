@@ -4,7 +4,9 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating textarea classes.
@@ -64,9 +66,12 @@ export function getTextareaWrapperClass(): string {
 /**
  * Textarea wrapper class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getTextareaWrapperClass() instead.
  */
-export const textareaWrapperClass = /* @__PURE__ */ getClassMap().inputWrapper
+export const textareaWrapperClass = classAtLoad((cm: UIClassMap) => cm.inputWrapper)
 
 /**
  * Get the error message class string.

@@ -7,7 +7,9 @@
 import type { IconData } from '@molecule/app-icons'
 import { getIcon } from '@molecule/app-icons'
 import type { SelectOption, Size } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating select classes.
@@ -107,16 +109,22 @@ export function getSelectInnerClass(): string {
 /**
  * The select wrapper class.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @returns The result.
  */
-export const selectWrapperClass = /* @__PURE__ */ getClassMap().inputWrapper
+export const selectWrapperClass = classAtLoad((cm: UIClassMap) => cm.inputWrapper)
 
 /**
  * Select relative class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getSelectInnerClass() instead.
  */
-export const selectRelativeClass = /* @__PURE__ */ getClassMap().inputInner
+export const selectRelativeClass = classAtLoad((cm: UIClassMap) => cm.inputInner)
 
 /**
  * Get the error message class string.

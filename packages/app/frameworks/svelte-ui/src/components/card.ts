@@ -7,6 +7,8 @@
 import type { Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { liveClassRecord } from '../class-at-load.js'
+
 /**
  * Creates a padding map.
  *
@@ -132,4 +134,4 @@ export function getCardPaddingMap(): Record<Size | 'none', string> {
  * Map of card padding.
  *
  */
-export const cardPaddingMap: Record<Size | 'none', string> = /* @__PURE__ */ createPaddingMap()
+export const cardPaddingMap: Record<Size | 'none', string> = liveClassRecord(createPaddingMap)

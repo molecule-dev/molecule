@@ -4,7 +4,9 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating form field classes.
@@ -69,9 +71,12 @@ export function getFormFieldsetClass(): string {
 /**
  * Form fieldset class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getFormFieldsetClass() instead.
  */
-export const formFieldsetClass = /* @__PURE__ */ getClassMap().formFieldset
+export const formFieldsetClass = classAtLoad((cm: UIClassMap) => cm.formFieldset)
 
 /**
  * Get the form error message class string.

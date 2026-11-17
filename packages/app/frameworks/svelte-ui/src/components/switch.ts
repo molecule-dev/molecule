@@ -5,7 +5,9 @@
  */
 
 import type { Size } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating switch classes.
@@ -86,6 +88,9 @@ export function getSwitchLabelTextClass(): string {
 /**
  * Switch label text class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getSwitchLabelTextClass() instead.
  */
-export const switchLabelTextClass = /* @__PURE__ */ getClassMap().controlText
+export const switchLabelTextClass = classAtLoad((cm: UIClassMap) => cm.controlText)

@@ -5,8 +5,9 @@
  */
 
 import type { Size } from '@molecule/app-ui'
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
 
+import { classAtLoad } from '../class-at-load.js'
 import { getInitials } from '../utilities.js'
 
 /**
@@ -108,9 +109,12 @@ export function getAvatarFallbackIconClass(): string {
 /**
  * Avatar initials class constant.
  *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
+ *
  * @deprecated Use getAvatarInitialsClass() instead.
  */
-export const avatarInitialsClass = getClassMap().avatarInitials
+export const avatarInitialsClass = classAtLoad((cm: UIClassMap) => cm.avatarInitials)
 
 // Re-export getInitials for convenience
 export { getInitials }

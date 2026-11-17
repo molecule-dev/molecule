@@ -7,6 +7,8 @@
 import type { Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { liveClassRecord } from '../class-at-load.js'
+
 /**
  * Creates a spacer size map.
  *
@@ -91,4 +93,4 @@ export function getSpacerStyle(options: SpacerClassOptions = {}): string {
  * Map of spacer size.
  *
  */
-export const spacerSizeMap: Record<Size, string> = /* @__PURE__ */ createSpacerSizeMap()
+export const spacerSizeMap: Record<Size, string> = liveClassRecord(createSpacerSizeMap)

@@ -4,7 +4,9 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
+import { getClassMap, type UIClassMap } from '@molecule/app-ui'
+
+import { classAtLoad } from '../class-at-load.js'
 
 /**
  * Options for generating skeleton classes.
@@ -112,5 +114,8 @@ export function getSkeletonTextContainerClass(): string {
 /**
  * The skeleton text container class.
  *
+ *
+ * Read once, when this module loads: an empty string when no class map is set by then, so importing
+ * the package before `setClassMap()` is safe.
  */
-export const skeletonTextContainerClass = /* @__PURE__ */ getClassMap().skeletonTextContainer
+export const skeletonTextContainerClass = classAtLoad((cm: UIClassMap) => cm.skeletonTextContainer)
