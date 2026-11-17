@@ -35,3 +35,88 @@ it('selects a single view-specific empty branch rather than loaded content', () 
   expect(container.textContent).toBe('Clear filters')
   expect(seen).toEqual([])
 })
+
+const viewStates = [
+  {
+    name: 'previous empty page while the next view loads',
+    data: { rows: [] },
+    status: 'loading',
+    isPreviousData: true,
+    expected: 'Loading',
+  },
+  {
+    name: 'previous missing record while the next view loads',
+    data: null,
+    status: 'loading',
+    isPreviousData: true,
+    expected: 'Loading',
+  },
+  {
+    name: 'previous empty page after a failed next read',
+    data: { rows: [] },
+    status: 'error',
+    isPreviousData: true,
+    expected: 'Failed',
+  },
+  {
+    name: 'populated previous page stays visible',
+    data: { rows: ['Bolt'] },
+    status: 'loading',
+    isPreviousData: true,
+    expected: 'Bolt',
+  },
+  {
+    name: 'current empty page may offer its action during refresh',
+    data: { rows: [] },
+    status: 'loading',
+    isPreviousData: false,
+    expected: 'Add item',
+  },
+  {
+    name: 'current empty page stays visible after a failed refresh',
+    data: { rows: [] },
+    status: 'error',
+    isPreviousData: false,
+    expected: 'Add item',
+  },
+  {
+    name: 'current successful empty page may offer its action',
+    data: { rows: [] },
+    status: 'success',
+    isPreviousData: false,
+    expected: 'Add item',
+  },
+] as const
+
+it.each(viewStates)('renders the current view rather than $name', (state) => {
+  const text = (value: string): Snippet =>
+    createRawSnippet(() => ({ render: () => `<p>${value}</p>` }))
+  const children: Snippet<[unknown]> = createRawSnippet((getData) => ({
+    render: () => `<p>${(getData() as { rows: string[] }).rows.join(', ')}</p>`,
+  }))
+  const empty: Snippet<[unknown]> = createRawSnippet(() => ({
+    render: () => '<a href="/inventory/new">Add item</a>',
+  }))
+  const error: Snippet<[unknown]> = createRawSnippet(() => ({ render: () => '<p>Failed</p>' }))
+  const container = document.createElement('div')
+  document.body.append(container)
+  containers.push(container)
+  const instance = mount(QueryContent, {
+    target: container,
+    props: {
+      query: { ...state, error: new Error('Offline') },
+      children,
+      pending: text('Loading'),
+      missing: text('Missing'),
+      error,
+      empty: {
+        when: (data: unknown) => (data as { rows: string[] }).rows.length === 0,
+        render: empty,
+      },
+    },
+  })
+  flushSync()
+  instances.push(() => unmount(instance))
+  expect(container.textContent).toBe(state.expected)
+  expect(container.querySelectorAll('a')).toHaveLength(state.expected === 'Add item' ? 1 : 0)
+})

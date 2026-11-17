@@ -7,7 +7,8 @@
   refresh, including a failed refresh. Status fallbacks belong outside the
   list or record container rendered by `children`, and so does a refresh
   line; the default fallbacks render nothing. Headless: it owns no
-  translations and no styling.
+  translations and no styling. A previous key's empty or missing document
+  renders pending/error until the current key answers.
 -->
 <script lang="ts" generics="T">
   import { type Readable, readonly, writable } from 'svelte/store'
@@ -17,7 +18,7 @@
   import type { QueryContentProps } from './types.js'
 
   /** The part of a query state this component renders from. */
-  type QueryView = Pick<QueryState<T>, 'data' | 'status' | 'error'>
+  type QueryView = Pick<QueryState<T>, 'data' | 'status' | 'error' | 'isPreviousData'>
 
   let {
     query,
@@ -41,7 +42,7 @@
   )
 </script>
 
-{#if $view.data === undefined}
+{#if $view.data === undefined || ($view.isPreviousData && ($view.data === null || empty?.when($view.data)))}
   {#if $view.status === 'error' && error}
     {@render error($view.error)}
   {:else if pending}

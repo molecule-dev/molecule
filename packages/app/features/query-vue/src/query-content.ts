@@ -26,6 +26,7 @@ export interface QueryContentSlots<T> {
  * a failed refresh. Status fallbacks belong outside the list or record
  * container rendered by `children`, and so does a refresh line; the default
  * fallbacks render nothing.
+ * A previous key's empty or missing document renders pending/error until the current key answers.
  *
  * The loaded branch is the `children` render function, or the default slot
  * (which receives `{ data }`); `pending` and `missing` are node props or
@@ -66,7 +67,10 @@ export const QueryContent = Object.assign(
   ): VNodeChild {
     const query = props.query
     const data = query.data
-    if (data === undefined) {
+    if (
+      data === undefined ||
+      (query.isPreviousData && (data === null || props.empty?.when(data)))
+    ) {
       if (query.status === 'error' && props.error) return props.error(query.error)
       return props.pending ?? ctx.slots.pending?.() ?? null
     }

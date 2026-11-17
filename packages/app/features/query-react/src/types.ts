@@ -31,7 +31,8 @@ export interface QueryContentProps<T> {
   /**
    * One optional empty branch, exclusive with children. The pure predicate reads the
    * loaded document (an array or an application-owned envelope); render selects the
-   * current view's message and recovery action. Omit it to keep empty arrays as data.
+   * current view's message and recovery action. A previous key's empty document uses
+   * pending/error instead. Omit it to keep empty arrays as data.
    */
   empty?: {
     when: (data: NonNullable<T>) => boolean
@@ -39,7 +40,7 @@ export interface QueryContentProps<T> {
   }
 
   /** State from useQuery, or any compatible query observer. */
-  query: Pick<QueryState<T>, 'data' | 'status' | 'error'>
+  query: Pick<QueryState<T>, 'data' | 'status' | 'error' | 'isPreviousData'>
   /** Mounted only with a real document, including false, zero and an empty list. */
   children: (data: NonNullable<T>) => ReactNode
   /** Initial idle/loading content. Render a status node, never a fake item or action. */

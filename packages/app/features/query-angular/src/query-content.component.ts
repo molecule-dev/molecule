@@ -36,6 +36,7 @@ interface Branch {
  * a failed refresh. Status fallbacks belong outside the list or record
  * container rendered by `children`, and so does a refresh line; the default
  * fallbacks render nothing.
+ * A previous key's empty or missing document renders pending/error until the current key answers.
  *
  * The templates receive the render arguments as template context: `children`
  * gets the document as `$implicit` and `a0` (`let-data`), `error` gets the
@@ -92,6 +93,7 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
       void query?.data
       void query?.status
       void query?.error
+      void query?.isPreviousData
       untracked(() => {
         this.update()
         this.changeDetector.markForCheck()
@@ -105,7 +107,10 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
    */
   private branch(): Branch {
     const query = this.query
-    if (query?.data === undefined) {
+    if (
+      query?.data === undefined ||
+      (query.isPreviousData && (query.data === null || this.empty?.when(query.data)))
+    ) {
       return query?.status === 'error' && this.error
         ? {
             template: this.error,

@@ -15,6 +15,7 @@ import type { QueryContentProps } from './types.js'
  * Cached data remains mounted during refresh, including a failed refresh. Status fallbacks
  * belong outside the list or record container rendered by `children`, and so does a refresh
  * line; the default fallbacks render nothing.
+ * A previous key's empty or missing document renders pending/error until the current key answers.
  *
  * `children` runs ONCE per loaded stretch and receives the document as an accessor (Solid's
  * `<Show>` idiom), so a new document — a cache publication, a refresh, another key's record —
@@ -35,12 +36,18 @@ export function QueryContent<T>(props: QueryContentProps<T>): JSX.Element {
   const fallback = createMemo<JSX.Element>(() => {
     const query = props.query
     const data = query.data
+    if (
+      data === undefined ||
+      (query.isPreviousData && (data === null || props.empty?.when(data)))
+    ) {
+      return query.status === 'error' && props.error
+        ? props.error(query.error)
+        : (props.pending ?? null)
+    }
     if (data === null) return props.missing ?? null
     if (data !== undefined)
       return props.empty?.when(data) ? props.empty.render(() => props.query.data!) : null
-    return query.status === 'error' && props.error
-      ? props.error(query.error)
-      : (props.pending ?? null)
+    return null
   })
   return (
     <Show when={loaded()} fallback={fallback()}>
