@@ -220,8 +220,11 @@ describe('PreviewPanel URL bar (current location)', () => {
   it('subscribes recordNavigation as a dependency of the message listener', async () => {
     const source = await readSource()
     // The message effect must re-bind when recordNavigation (or onUiResult — the AI-driven
-    // ui-result handler) changes, so its closure is never stale.
-    expect(source).toMatch(/\}, \[clearPoll, onPreviewError, recordNavigation, onUiResult\]\)/)
+    // ui-result handler — or reveal, which starts the overlay fade) changes, so its closure is
+    // never stale.
+    expect(source).toMatch(
+      /\}, \[clearPoll, onPreviewError, recordNavigation, onUiResult, reveal\]\)/,
+    )
   })
 
   it('relays a uiCommand to the iframe and forwards the ui-result to the host (AI preview control)', async () => {

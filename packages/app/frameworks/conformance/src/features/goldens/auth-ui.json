@@ -110,6 +110,12 @@
       "args": [
        "/login"
       ]
+     },
+     {
+      "name": "sessionStorage",
+      "args": [
+       {}
+      ]
      }
     ]
    },
@@ -145,6 +151,12 @@
       "args": [
        "/login"
       ]
+     },
+     {
+      "name": "sessionStorage",
+      "args": [
+       {}
+      ]
      }
     ]
    },
@@ -179,6 +191,12 @@
       "name": "window.location",
       "args": [
        "/login"
+      ]
+     },
+     {
+      "name": "sessionStorage",
+      "args": [
+       {}
       ]
      }
     ]
@@ -226,6 +244,12 @@
       "args": [
        "/login"
       ]
+     },
+     {
+      "name": "sessionStorage",
+      "args": [
+       {}
+      ]
      }
     ]
    },
@@ -256,6 +280,12 @@
       "name": "window.location",
       "args": [
        "/login"
+      ]
+     },
+     {
+      "name": "sessionStorage",
+      "args": [
+       {}
       ]
      }
     ]
@@ -305,6 +335,12 @@
       "name": "window.location",
       "args": [
        "/login"
+      ]
+     },
+     {
+      "name": "sessionStorage",
+      "args": [
+       {}
       ]
      }
     ]
