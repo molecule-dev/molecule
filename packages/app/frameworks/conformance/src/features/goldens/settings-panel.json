@@ -1919,34 +1919,6 @@
        "Locale changed",
        "en"
       ]
-     },
-     {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     },
-     {
-      "name": "device.isOnline",
-      "args": []
      }
     ]
    },
@@ -1988,34 +1960,6 @@
        "Locale changed",
        "en"
       ]
-     },
-     {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     },
-     {
-      "name": "device.isOnline",
-      "args": []
      }
     ]
    },
@@ -2031,34 +1975,6 @@
        "Locale changed",
        "en"
       ]
-     },
-     {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     },
-     {
-      "name": "device.isOnline",
-      "args": []
      }
     ]
    },
@@ -2074,34 +1990,6 @@
        "Locale changed",
        "en"
       ]
-     },
-     {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     },
-     {
-      "name": "device.isOnline",
-      "args": []
      }
     ]
    },
@@ -2120,44 +2008,12 @@
       ]
      },
      {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     },
-     {
-      "name": "device.isOnline",
-      "args": []
-     },
-     {
       "name": "logger.debug",
       "args": [
        "i18n",
        "Locale changed",
        "en-XA"
       ]
-     },
-     {
-      "name": "device.isOnline",
-      "args": []
      }
     ]
    }

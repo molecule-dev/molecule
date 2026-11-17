@@ -253,8 +253,8 @@ function buildCoreStorage(
     },
     ...(seed.sync
       ? {
+          // A synchronous read: not recorded (see `CaseResult.calls`).
           getSync: <T = unknown>(key: string): T | null => {
-            record('storage.getSync', [key])
             return (values.has(key) ? values.get(key) : null) as T | null
           },
         }

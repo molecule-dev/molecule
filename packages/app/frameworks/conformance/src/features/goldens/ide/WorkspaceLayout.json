@@ -13,19 +13,7 @@
     ]
    },
    {
-    "name": "workspace.getLayout",
-    "args": []
-   },
-   {
-    "name": "workspace.getLayout",
-    "args": []
-   },
-   {
     "name": "workspace.subscribe",
-    "args": []
-   },
-   {
-    "name": "workspace.getLayout",
     "args": []
    }
   ]
@@ -45,19 +33,7 @@
     ]
    },
    {
-    "name": "workspace.getLayout",
-    "args": []
-   },
-   {
-    "name": "workspace.getLayout",
-    "args": []
-   },
-   {
     "name": "workspace.subscribe",
-    "args": []
-   },
-   {
-    "name": "workspace.getLayout",
     "args": []
    },
    {

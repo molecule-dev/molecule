@@ -370,8 +370,8 @@ export const createAuthFlowsFakes: AreaFakesFactory = (context, record) => {
     const store = {
       length: 0,
       key: (index: number): string | null => [...contents.keys()][index] ?? null,
+      // A synchronous read: not recorded (see `CaseResult.calls`).
       getItem: (key: string): string | null => {
-        record('sessionStorage.getItem', [key])
         return contents.get(key) ?? null
       },
       setItem: (key: string, value: string): void => {

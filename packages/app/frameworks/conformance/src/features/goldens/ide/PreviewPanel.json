@@ -13,19 +13,7 @@
     ]
    },
    {
-    "name": "preview.getState",
-    "args": []
-   },
-   {
-    "name": "preview.getState",
-    "args": []
-   },
-   {
     "name": "preview.subscribe",
-    "args": []
-   },
-   {
-    "name": "preview.getState",
     "args": []
    }
   ]
@@ -45,19 +33,7 @@
     ]
    },
    {
-    "name": "preview.getState",
-    "args": []
-   },
-   {
-    "name": "preview.getState",
-    "args": []
-   },
-   {
     "name": "preview.subscribe",
-    "args": []
-   },
-   {
-    "name": "preview.getState",
     "args": []
    },
    {
@@ -67,22 +43,6 @@
      "Locale changed",
      "en-XA"
     ]
-   },
-   {
-    "name": "preview.getState",
-    "args": []
-   },
-   {
-    "name": "preview.getState",
-    "args": []
-   },
-   {
-    "name": "preview.getState",
-    "args": []
-   },
-   {
-    "name": "preview.getState",
-    "args": []
    }
   ]
  }

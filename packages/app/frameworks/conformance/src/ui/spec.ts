@@ -581,7 +581,11 @@ export interface CaseResult {
    * `CONFORMANCE_PIXEL_DIR` is set (see `pixel-capture.ts`). Never compared here.
    */
   pages?: string[]
-  /** Callback and service calls, in order. */
+  /**
+   * Callback and service calls, in order: every operation (a change, a subscription, an
+   * async request, a log line). A fake's synchronous read of state it holds is not a call (a
+   * framework may read once per render); what it read shows in the snapshots or values.
+   */
   calls: RecordedCall[]
 }
 

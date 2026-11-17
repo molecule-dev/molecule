@@ -4,8 +4,13 @@
  * preview services for the IDE hooks.
  *
  * A case seeds this area through `context.areas.native`; `control` steps call
- * the controls registered here (named `native.<action>`). Every call a hook
- * makes on these fakes goes to `record`, so it is compared like any other call.
+ * the controls registered here (named `native.<action>`). Every operation a hook
+ * makes on these fakes (a change, a subscription, an async request) goes to
+ * `record`, so it is compared like any other call. A synchronous read of state a
+ * fake holds (`getState`, `getLayout`, `getTabs`, `isOnline` …) is not recorded:
+ * a framework may read once per render, and how often it renders is not
+ * behaviour another framework can match. What it read shows in the DOM or the
+ * hook's value.
  *
  * The factory is a NO-OP unless the case seeds `context.areas.native` — every
  * binding case in the kit runs every area's factory, and bonding a global (or
@@ -333,19 +338,15 @@ function createDeviceFake(
   const languages = seed.languages ?? ['en-US', 'fr']
   return {
     getDeviceInfo: () => {
-      record('device.getDeviceInfo', [])
       return deviceInfo
     },
     getScreenInfo: () => {
-      record('device.getScreenInfo', [])
       return screenInfo
     },
     getHardwareInfo: () => {
-      record('device.getHardwareInfo', [])
       return hardwareInfo
     },
     getFeatureSupport: () => {
-      record('device.getFeatureSupport', [])
       return featureSupport
     },
     supports: (feature) => {
@@ -353,27 +354,21 @@ function createDeviceFake(
       return featureSupport[feature]
     },
     getUserAgent: () => {
-      record('device.getUserAgent', [])
       return deviceInfo.userAgent
     },
     getPlatform: () => {
-      record('device.getPlatform', [])
       return 'Conformance64'
     },
     getLanguage: () => {
-      record('device.getLanguage', [])
       return language
     },
     getLanguages: () => {
-      record('device.getLanguages', [])
       return [...languages]
     },
     isOnline: () => {
-      record('device.isOnline', [])
       return seed.isOnline ?? true
     },
     isStandalone: () => {
-      record('device.isStandalone', [])
       return seed.isStandalone ?? false
     },
   }
@@ -700,7 +695,6 @@ function createVersionFake(
   }
   const provider: VersionProvider = {
     getState: () => {
-      record('version.getState', [])
       return { ...state }
     },
     setCurrentVersion: (info) => {
@@ -930,7 +924,6 @@ function createWorkspaceFake(
   const provider: WorkspaceProvider = {
     name: 'conformance-workspace',
     getLayout: () => {
-      record('workspace.getLayout', [])
       return layout
     },
     setLayout: (next) => {
@@ -994,7 +987,6 @@ function createWorkspaceFake(
     ...(seed.fullState
       ? {
           getState: (): WorkspaceState => {
-            record('workspace.getState', [])
             return stateOf()
           },
         }
@@ -1075,7 +1067,6 @@ function createEditorFake(
       if (wasActive && tabs.length > 0) activate(tabs[tabs.length - 1].path)
     },
     getContent: () => {
-      record('editor.getContent', [])
       const active = tabs.find((tab) => tab.isActive)
       return active ? (contents.get(active.path) ?? null) : null
     },
@@ -1102,7 +1093,6 @@ function createEditorFake(
       }
     },
     getTabs: () => {
-      record('editor.getTabs', [])
       return tabs.map((tab) => ({ ...tab }))
     },
     setActiveTab: (path) => {
@@ -1225,7 +1215,6 @@ function createPreviewFake(
       emit()
     },
     getUrl: () => {
-      record('preview.getUrl', [])
       return state.url
     },
     refresh: () => {
@@ -1239,7 +1228,6 @@ function createPreviewFake(
       emit()
     },
     getState: () => {
-      record('preview.getState', [])
       return { ...state }
     },
     navigateTo: (path) => {
@@ -1275,11 +1263,9 @@ function createPreviewFake(
       emit()
     },
     canGoBack: () => {
-      record('preview.canGoBack', [])
       return state.canGoBack
     },
     canGoForward: () => {
-      record('preview.canGoForward', [])
       return state.canGoForward
     },
     subscribe: (callback) => {

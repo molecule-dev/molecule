@@ -13,15 +13,7 @@
     ]
    },
    {
-    "name": "editor.getTabs",
-    "args": []
-   },
-   {
     "name": "editor.onChange",
-    "args": []
-   },
-   {
-    "name": "editor.getTabs",
     "args": []
    },
    {
@@ -72,15 +64,7 @@
     ]
    },
    {
-    "name": "editor.getTabs",
-    "args": []
-   },
-   {
     "name": "editor.onChange",
-    "args": []
-   },
-   {
-    "name": "editor.getTabs",
     "args": []
    },
    {

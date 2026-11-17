@@ -32051,32 +32051,7 @@
       "route": "/"
      }
     ],
-    "calls": [
-     {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     }
-    ],
+    "calls": [],
     "listenersAfterUnmount": {
      "auth": 0,
      "i18n": 0,
@@ -32492,32 +32467,7 @@
       "route": "/"
      }
     ],
-    "calls": [
-     {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     }
-    ],
+    "calls": [],
     "listenersAfterUnmount": {
      "auth": 0,
      "i18n": 0,
@@ -32836,30 +32786,6 @@
     ],
     "calls": [
      {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     },
-     {
       "name": "device.supports",
       "args": [
        "geolocation"
@@ -33147,44 +33073,12 @@
     ],
     "calls": [
      {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     },
-     {
-      "name": "device.isOnline",
-      "args": []
-     },
-     {
       "name": "=> isOnline",
       "args": [
        {
         "returned": false
        }
       ]
-     },
-     {
-      "name": "device.isStandalone",
-      "args": []
      },
      {
       "name": "=> isStandalone",
@@ -33428,44 +33322,12 @@
     ],
     "calls": [
      {
-      "name": "device.getDeviceInfo",
-      "args": []
-     },
-     {
-      "name": "device.getScreenInfo",
-      "args": []
-     },
-     {
-      "name": "device.getHardwareInfo",
-      "args": []
-     },
-     {
-      "name": "device.getFeatureSupport",
-      "args": []
-     },
-     {
-      "name": "device.getLanguage",
-      "args": []
-     },
-     {
-      "name": "device.getLanguages",
-      "args": []
-     },
-     {
-      "name": "device.isOnline",
-      "args": []
-     },
-     {
       "name": "=> isOnline",
       "args": [
        {
         "returned": true
        }
       ]
-     },
-     {
-      "name": "device.isStandalone",
-      "args": []
      },
      {
       "name": "=> isStandalone",
@@ -33734,19 +33596,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
-      "name": "editor.getContent",
       "args": []
      },
      {
@@ -33852,19 +33702,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      }
     ],
@@ -33982,15 +33820,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -34001,10 +33831,6 @@
         "path": "src/app.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -34023,10 +33849,6 @@
         "path": "src/lib.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -34145,15 +33967,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -34164,10 +33978,6 @@
         "path": "src/app.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -34186,10 +33996,6 @@
         "path": "src/app.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -34341,15 +34147,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -34360,10 +34158,6 @@
         "path": "src/a.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -34383,10 +34177,6 @@
       ]
      },
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "=> openFile",
       "args": [
        {
@@ -34399,10 +34189,6 @@
       "args": [
        "src/b.ts"
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> closeFile",
@@ -34514,15 +34300,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -34533,10 +34311,6 @@
         "path": "src/a.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -34551,10 +34325,6 @@
       "args": [
        "src/a.ts"
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> closeFile",
@@ -34673,15 +34443,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -34694,20 +34456,12 @@
       ]
      },
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "=> openFile",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "editor.getContent",
-      "args": []
      },
      {
       "name": "=> getContent",
@@ -34853,15 +34607,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -34872,10 +34618,6 @@
         "path": "src/app.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -34893,20 +34635,12 @@
       ]
      },
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "=> setContent",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "editor.getContent",
-      "args": []
      },
      {
       "name": "=> getContent",
@@ -35097,15 +34831,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -35116,10 +34842,6 @@
         "path": "src/a.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -35139,10 +34861,6 @@
       ]
      },
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "=> openFile",
       "args": [
        {
@@ -35157,20 +34875,12 @@
       ]
      },
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "=> setActiveTab",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "editor.getContent",
-      "args": []
      },
      {
       "name": "=> getContent",
@@ -35255,15 +34965,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -35271,10 +34973,6 @@
       "args": [
        "src/ghost.ts"
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> setActiveTab",
@@ -35366,19 +35064,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      }
     ],
@@ -35524,15 +35210,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -35543,10 +35221,6 @@
         "path": "src/b.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -35567,10 +35241,6 @@
       ]
      },
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "=> openDiff",
       "args": [
        {
@@ -35580,10 +35250,6 @@
      },
      {
       "name": "editor.closeDiff",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -35705,15 +35371,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -35725,10 +35383,6 @@
         "path": "src/peek.ts"
        }
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> openFile",
@@ -35743,10 +35397,6 @@
       "args": [
        "src/peek.ts"
       ]
-     },
-     {
-      "name": "editor.getTabs",
-      "args": []
      },
      {
       "name": "=> pinTab",
@@ -35871,15 +35521,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -35999,15 +35641,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -36120,15 +35754,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      },
      {
@@ -36211,15 +35837,7 @@
     ],
     "calls": [
      {
-      "name": "editor.getTabs",
-      "args": []
-     },
-     {
       "name": "editor.onChange",
-      "args": []
-     },
-     {
-      "name": "editor.getTabs",
       "args": []
      }
     ],
@@ -47932,14 +47550,7 @@
       "route": "/"
      }
     ],
-    "calls": [
-     {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     }
-    ],
+    "calls": [],
     "listenersAfterUnmount": {
      "auth": 0,
      "i18n": 0,
@@ -47978,12 +47589,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     },
      {
       "name": "history.replaceState",
       "args": [
@@ -48060,12 +47665,6 @@
     ],
     "calls": [
      {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     },
-     {
       "name": "history.replaceState",
       "args": [
        "http://localhost:3000/oauth/callback"
@@ -48127,12 +47726,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     },
      {
       "name": "history.replaceState",
       "args": [
@@ -48196,12 +47789,6 @@
     ],
     "calls": [
      {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     },
-     {
       "name": "history.replaceState",
       "args": [
        "http://localhost:3000/oauth/callback"
@@ -48263,12 +47850,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     },
      {
       "name": "history.replaceState",
       "args": [
@@ -48343,12 +47924,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     },
      {
       "name": "history.replaceState",
       "args": [
@@ -48425,12 +48000,6 @@
     ],
     "calls": [
      {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     },
-     {
       "name": "history.replaceState",
       "args": [
        "http://localhost:3000/oauth/callback"
@@ -48492,12 +48061,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     },
      {
       "name": "history.replaceState",
       "args": [
@@ -48572,12 +48135,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "sessionStorage.getItem",
-      "args": [
-       "oauth_provider"
-      ]
-     },
      {
       "name": "history.replaceState",
       "args": [
@@ -53239,19 +52796,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      }
     ],
@@ -53304,19 +52849,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      }
     ],
@@ -53415,19 +52948,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -53435,10 +52956,6 @@
       "args": [
        "http://preview.local/next"
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      },
      {
       "name": "=> setUrl",
@@ -53449,26 +52966,10 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.setUrl",
       "args": [
        "http://preview.local/next"
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      },
      {
       "name": "=> setUrl",
@@ -53574,27 +53075,11 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
       "args": []
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.refresh",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -53606,23 +53091,7 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.refresh",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -53632,18 +53101,6 @@
         "returned": null
        }
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -53741,19 +53198,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -53763,28 +53208,12 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "=> setDevice",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      },
      {
       "name": "preview.setDevice",
@@ -53793,28 +53222,12 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "=> setDevice",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -53912,19 +53325,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -53935,28 +53336,12 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "=> recordNavigation",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      },
      {
       "name": "preview.recordNavigation",
@@ -53966,28 +53351,12 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "=> recordNavigation",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -54154,19 +53523,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -54176,28 +53533,12 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "=> setUrl",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      },
      {
       "name": "preview.setUrl",
@@ -54206,10 +53547,6 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "=> setUrl",
       "args": [
        {
@@ -54218,23 +53555,7 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.back",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -54246,23 +53567,7 @@
       ]
      },
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.back",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -54272,25 +53577,9 @@
         "returned": null
        }
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      },
      {
       "name": "preview.forward",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -54300,18 +53589,6 @@
         "returned": null
        }
       ]
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -54386,19 +53663,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -54486,19 +53751,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      },
      {
@@ -54609,51 +53862,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      }
     ],
@@ -54752,51 +53961,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      }
     ],
@@ -54895,51 +54060,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      }
     ],
@@ -54993,19 +54114,7 @@
     ],
     "calls": [
      {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
-      "args": []
-     },
-     {
       "name": "preview.subscribe",
-      "args": []
-     },
-     {
-      "name": "preview.getState",
       "args": []
      }
     ],
@@ -64915,12 +64024,6 @@
     ],
     "calls": [
      {
-      "name": "storage.getSync",
-      "args": [
-       "width"
-      ]
-     },
-     {
       "name": "storage.subscribe",
       "args": [
        "width"
@@ -64958,12 +64061,6 @@
     ],
     "calls": [
      {
-      "name": "storage.getSync",
-      "args": [
-       "width"
-      ]
-     },
-     {
       "name": "storage.subscribe",
       "args": [
        "width"
@@ -65000,12 +64097,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "storage.getSync",
-      "args": [
-       "width"
-      ]
-     },
      {
       "name": "storage.subscribe",
       "args": [
@@ -65061,12 +64152,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "storage.getSync",
-      "args": [
-       "width"
-      ]
-     },
      {
       "name": "storage.subscribe",
       "args": [
@@ -65143,12 +64228,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "storage.getSync",
-      "args": [
-       "width"
-      ]
-     },
      {
       "name": "storage.subscribe",
       "args": [
@@ -65390,12 +64469,6 @@
     ],
     "calls": [
      {
-      "name": "storage.getSync",
-      "args": [
-       "width"
-      ]
-     },
-     {
       "name": "storage.subscribe",
       "args": [
        "width"
@@ -65441,12 +64514,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "storage.getSync",
-      "args": [
-       "width"
-      ]
-     },
      {
       "name": "storage.subscribe",
       "args": [
@@ -65573,21 +64640,9 @@
     ],
     "calls": [
      {
-      "name": "storage.getSync",
-      "args": [
-       "width"
-      ]
-     },
-     {
       "name": "storage.subscribe",
       "args": [
        "width"
-      ]
-     },
-     {
-      "name": "storage.getSync",
-      "args": [
-       "density"
       ]
      },
      {
@@ -65627,12 +64682,6 @@
      }
     ],
     "calls": [
-     {
-      "name": "storage.getSync",
-      "args": [
-       "width"
-      ]
-     },
      {
       "name": "storage.subscribe",
       "args": [
@@ -77244,14 +76293,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -77286,10 +76327,6 @@
       "args": [
        "check-error"
       ]
-     },
-     {
-      "name": "version.getState",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -77389,14 +76426,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -77431,10 +76460,6 @@
       "args": [
        "check-error"
       ]
-     },
-     {
-      "name": "version.getState",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -77507,14 +76532,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -77551,31 +76568,7 @@
       ]
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.checkForUpdates",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
       "args": []
      },
      {
@@ -77659,14 +76652,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -77703,35 +76688,7 @@
       ]
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.checkForUpdates",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
       "args": []
      },
      {
@@ -77836,14 +76793,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -77880,47 +76829,7 @@
       ]
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.checkForUpdates",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
       "args": []
      },
      {
@@ -78002,14 +76911,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -78046,31 +76947,7 @@
       ]
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.checkForUpdates",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
       "args": []
      },
      {
@@ -78177,14 +77054,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -78221,35 +77090,7 @@
       ]
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.checkForUpdates",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
       "args": []
      },
      {
@@ -78345,14 +77186,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -78387,26 +77220,6 @@
       "args": [
        "check-error"
       ]
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -78500,14 +77313,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -78542,42 +77347,6 @@
       "args": [
        "check-error"
       ]
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -78671,14 +77440,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -78713,10 +77474,6 @@
       "args": [
        "check-error"
       ]
-     },
-     {
-      "name": "version.getState",
-      "args": []
      },
      {
       "name": "version.applyUpdate",
@@ -78903,14 +77660,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -78947,10 +77696,6 @@
       ]
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.startPeriodicChecks",
       "args": [
        {
@@ -78971,23 +77716,7 @@
       "args": []
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
+      "name": "version.checkForUpdates",
       "args": []
      },
      {
@@ -78995,71 +77724,7 @@
       "args": []
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.checkForUpdates",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.checkForUpdates",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
       "args": []
      },
      {
@@ -79166,14 +77831,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -79210,10 +77867,6 @@
       ]
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.startPeriodicChecks",
       "args": [
        {
@@ -79227,14 +77880,6 @@
       "args": []
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "=> startPeriodicChecks",
       "args": [
        {
@@ -79243,39 +77888,7 @@
       ]
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.checkForUpdates",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
       "args": []
      }
     ],
@@ -79351,14 +77964,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -79395,27 +78000,7 @@
       ]
      },
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.checkForUpdates",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
       "args": []
      },
      {
@@ -79499,14 +78084,6 @@
     ],
     "calls": [
      {
-      "name": "version.getState",
-      "args": []
-     },
-     {
-      "name": "version.getState",
-      "args": []
-     },
-     {
       "name": "version.on",
       "args": [
        "update-available"
@@ -79541,10 +78118,6 @@
       "args": [
        "check-error"
       ]
-     },
-     {
-      "name": "version.getState",
-      "args": []
      },
      {
       "name": "version.startPeriodicChecks",
@@ -79760,19 +78333,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
       "args": []
      }
     ],
@@ -79821,19 +78382,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
       "args": []
      }
     ],
@@ -79966,35 +78515,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
       "args": []
      }
     ],
@@ -80076,19 +78597,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getState",
-      "args": []
-     },
-     {
-      "name": "workspace.getState",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getState",
       "args": []
      }
     ],
@@ -80270,19 +78779,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getState",
-      "args": []
-     },
-     {
-      "name": "workspace.getState",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getState",
       "args": []
      },
      {
@@ -80290,10 +78787,6 @@
       "args": [
        "preview"
       ]
-     },
-     {
-      "name": "workspace.getState",
-      "args": []
      },
      {
       "name": "=> togglePanel",
@@ -80304,26 +78797,10 @@
       ]
      },
      {
-      "name": "workspace.getState",
-      "args": []
-     },
-     {
-      "name": "workspace.getState",
-      "args": []
-     },
-     {
-      "name": "workspace.getState",
-      "args": []
-     },
-     {
       "name": "workspace.setActivePanel",
       "args": [
        "editor"
       ]
-     },
-     {
-      "name": "workspace.getState",
-      "args": []
      },
      {
       "name": "=> setActivePanel",
@@ -80332,18 +78809,6 @@
         "returned": null
        }
       ]
-     },
-     {
-      "name": "workspace.getState",
-      "args": []
-     },
-     {
-      "name": "workspace.getState",
-      "args": []
-     },
-     {
-      "name": "workspace.getState",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -80575,19 +79040,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
       "args": []
      },
      {
@@ -80597,28 +79050,12 @@
       ]
      },
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "=> togglePanel",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
      },
      {
       "name": "workspace.togglePanel",
@@ -80627,28 +79064,12 @@
       ]
      },
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "=> togglePanel",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
      },
      {
       "name": "workspace.togglePanel",
@@ -80657,28 +79078,12 @@
       ]
      },
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "=> togglePanel",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -80859,19 +79264,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
       "args": []
      },
      {
@@ -80882,28 +79275,12 @@
       ]
      },
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "=> resizePanel",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
      },
      {
       "name": "workspace.resizePanel",
@@ -80913,28 +79290,12 @@
       ]
      },
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "=> resizePanel",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -81064,19 +79425,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
       "args": []
      },
      {
@@ -81086,28 +79435,12 @@
       ]
      },
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "=> setActivePanel",
       "args": [
        {
         "returned": null
        }
       ]
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -81339,19 +79672,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
       "args": []
      },
      {
@@ -81359,10 +79680,6 @@
       "args": [
        "chat"
       ]
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
      },
      {
       "name": "=> togglePanel",
@@ -81373,26 +79690,10 @@
       ]
      },
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.setActivePanel",
       "args": [
        "preview"
       ]
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
      },
      {
       "name": "=> setActivePanel",
@@ -81403,23 +79704,7 @@
       ]
      },
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.resetLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
       "args": []
      },
      {
@@ -81429,18 +79714,6 @@
         "returned": null
        }
       ]
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
      }
     ],
     "listenersAfterUnmount": {
@@ -81520,19 +79793,7 @@
     ],
     "calls": [
      {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
-      "args": []
-     },
-     {
       "name": "workspace.subscribe",
-      "args": []
-     },
-     {
-      "name": "workspace.getLayout",
       "args": []
      }
     ],
