@@ -34,6 +34,15 @@ export function pinCaseTimeZone(): void {
 
 pinCaseTimeZone()
 
+/**
+ * Puts the page back at the document root (`/`, no query, no hash) before a case mounts, so no
+ * case starts on an address an earlier case left behind (a hook that mirrors its state to
+ * `location.hash` while its debounce is still pending when the case ends).
+ */
+export function resetCasePage(): void {
+  history.replaceState(null, '', '/')
+}
+
 /** Records one call into the running case (`name`, `args`). */
 export type PageRecord = (name: string, args: unknown[]) => void
 

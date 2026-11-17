@@ -582,6 +582,12 @@ export function createAngularAdapter({
                 await appRef.whenStable()
                 appRef.tick()
               },
+              // Change detection after each interaction and each timer callback of an advance,
+              // as the app's scheduler runs it after each task in a browser.
+              wrap: async (step) => {
+                await step()
+                appRef.tick()
+              },
               setProps: async () => {
                 // Steps run in order, so the next materialized `props` step is this one.
                 ref.instance.p = { ...ref.instance.p, ...laterProps[stepProps++] }

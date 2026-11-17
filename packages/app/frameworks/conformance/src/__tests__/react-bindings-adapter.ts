@@ -87,9 +87,7 @@ export function createReactBindingAdapter(exportsOf: Record<string, unknown>): B
           })
         },
         flush: async () => {
-          await act(async () => {
-            await settle()
-          })
+          await settle((work) => act(work))
         },
         wrap: async (step) => {
           await act(step)

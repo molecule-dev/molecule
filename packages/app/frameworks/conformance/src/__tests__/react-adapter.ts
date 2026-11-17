@@ -208,9 +208,7 @@ async function runReactCase(
         })
         return {
           flush: async () => {
-            await act(async () => {
-              await settle()
-            })
+            await settle((work) => act(work))
           },
           setProps: async (next) => {
             props = { ...props, ...reactProps(next) }

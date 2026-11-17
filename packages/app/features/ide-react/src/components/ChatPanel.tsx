@@ -12944,6 +12944,7 @@ export function ChatPanel({
           {canEdit !== false && (
             <button
               type="button"
+              data-mol-id="chat-new-conversation"
               onClick={handleNewChat}
               className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
               title={t('ide.chat.newChat', undefined, { defaultValue: 'New chat' })}

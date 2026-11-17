@@ -16,7 +16,10 @@
  * `aria-controls`) is renumbered too, as `#ref<n>` in order of appearance, so
  * it still differs from a reference that resolves. A dangling reference the
  * caller wrote itself (`keepReferences`, such as a Label's `htmlFor`) stays
- * verbatim, so a component that mangles it still differs.
+ * verbatim, so a component that mangles it still differs. A radio button's `name`
+ * only groups the radios that share it (one checked at a time, one Tab stop), and a
+ * component usually generates it (`useId`), so it is renumbered the same way, as
+ * `radio<n>` in order of appearance; a name the case wrote stays verbatim.
  *
  * Adjacent text nodes are merged before comparison (comments and scaffolding
  * between them are transparent): `'One'`+`'Two'` renders exactly like
@@ -123,6 +126,33 @@ const normalizeClass = (value: string, hash: boolean): string =>
     .sort()
     .join(' ')
 
+/**
+ * The hashed form of a snapshot taken with real class names: each element's `class` value as
+ * {@link normalizeDom} writes it with `hashClasses`. A readable golden that is current gives back
+ * the committed golden it was recorded beside; one recorded before a re-record does not.
+ *
+ * @param snapshot - A snapshot from {@link normalizeDom} without `hashClasses`.
+ * @returns The snapshot with hashed classes.
+ */
+export function hashSnapshotClasses(snapshot: string): string {
+  // Each element's opening tag is a line of its own and the only place ` class="` can appear:
+  // text escapes '<', and every other attribute value escapes its quotes.
+  return snapshot
+    .split('\n')
+    .map((line) =>
+      line.startsWith('<')
+        ? line.replace(/ class="([^"]*)"/, (_match, value: string) => {
+            const tokens = value
+              .replaceAll('&lt;', '<')
+              .replaceAll('&quot;', '"')
+              .replaceAll('&amp;', '&')
+            return ` class="${normalizeClass(tokens, true)}"`
+          })
+        : line,
+    )
+    .join('\n')
+}
+
 /** Options for {@link normalizeDom}. */
 export interface NormalizeOptions {
   /** Replace each class token with {@link hashClassToken}. */
@@ -151,6 +181,8 @@ interface IdMap {
   nextDangling: number
   /** Dangling references kept verbatim ({@link NormalizeOptions.keepReferences}). */
   keep: ReadonlySet<string>
+  /** Radio group names (`<input type="radio" name>`), renumbered as `radio<n>`. */
+  radios: Map<string, string>
 }
 
 const referenceToken = (ids: IdMap, id: string): string => {
@@ -283,6 +315,18 @@ const serializeElement = (
       if (!value) continue
     } else if (name === 'id') {
       value = ids.map.get(value) ?? value
+    } else if (
+      name === 'name' &&
+      tag === 'input' &&
+      el.getAttribute('type')?.toLowerCase() === 'radio' &&
+      !ids.keep.has(value)
+    ) {
+      let token = ids.radios.get(value)
+      if (!token) {
+        token = `radio${ids.radios.size}`
+        ids.radios.set(value, token)
+      }
+      value = token
     } else if (ID_REFERENCE_ATTRS.has(name)) {
       value = value
         .split(/\s+/)
@@ -352,6 +396,7 @@ const serializeRoot = (root: Node, options: NormalizeOptions): string => {
     dangling: new Map(),
     nextDangling: 0,
     keep: options.keepReferences ?? new Set(),
+    radios: new Map(),
   }
   collectIds(root, ids)
   const out: string[] = []

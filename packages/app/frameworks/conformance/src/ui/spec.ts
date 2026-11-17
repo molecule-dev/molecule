@@ -220,6 +220,13 @@ export type Interaction =
   | { type: 'props'; props: Record<string, unknown> }
   /** Settles the oldest pending call of a callback listed with `defer` in {@link UICase.callbackResults}. */
   | { type: 'settle'; callback: string; value?: unknown; error?: string }
+  /**
+   * Calls a function the component handed to a callback, as the host holding it would: the
+   * function at `path` in the arguments of that callback's latest call (`[0]` is its first
+   * argument, `[0, 'send']` that argument's `send` field), with `args`, awaiting what it
+   * returns. A component that re-registers a function on each change hands the newest one.
+   */
+  | { type: 'invoke'; callback: string; path: (string | number)[]; args?: unknown[] }
   /** Navigates the router the component sees (as a link elsewhere in the app would). */
   | { type: 'navigate'; to: string }
   /**

@@ -787,6 +787,13 @@ export function usePreviewPanelLogic(
   // Mirror iframeReady to a ref so timer callbacks read current value
   const iframeReadyRef = useRef(iframeReady)
   iframeReadyRef.current = iframeReady
+  // Shows the iframe. When it was hidden, the overlay's fade starts in the same update: set
+  // from an effect a render later, a render with the overlay already gone would come first, so
+  // the overlay would be removed and mounted again instead of fading out.
+  const reveal = useCallback(() => {
+    if (!iframeReadyRef.current) setFadingOut(true)
+    setIframeReady(true)
+  }, [])
   // Whether the CURRENT iframe document has fired `onLoad`. When it has, the load
   // reached the document and only the handshake is missing — the onLoad grace
   // fallback (not a remount) clears the overlay, so the stuck-detector stands down.
@@ -1167,7 +1174,7 @@ export function usePreviewPanelLogic(
   // (which lower `iframeReady`). `confirmedContent` stays the diagnostic render-verdict signal.
   useEffect(() => {
     if (iframeReady) {
-      setFadingOut(true)
+      // (The fade itself started with the reveal: see reveal().)
       // Content is showing again — tear down the loop-breaker panel so a later good render
       // always clears it, and refund the dead-end auto-recovery budget (the episode ended
       // in a working preview, so the next outage starts with a full budget).
@@ -1470,7 +1477,7 @@ export function usePreviewPanelLogic(
 
         clearPoll()
         setEverLoaded(true)
-        setIframeReady(true)
+        reveal()
         setStuckRetryCount(0)
         // The app CONFIRMED it rendered visible content — the strong signal that clears the
         // status overlay (vs. the onLoad grace which only reveals the iframe). Also tears down
@@ -1639,7 +1646,7 @@ export function usePreviewPanelLogic(
       if (debounceTimer) clearTimeout(debounceTimer)
       if (pendingMsg) clearTimeout(pendingMsg)
     }
-  }, [clearPoll, onPreviewError, recordNavigation, onUiResult])
+  }, [clearPoll, onPreviewError, recordNavigation, onUiResult, reveal])
 
   // --- iframe onLoad: grace fallback when molecule:ready never arrives ---
   // The document finished loading. `molecule:ready` is the fast path that clears
@@ -1678,9 +1685,10 @@ export function usePreviewPanelLogic(
       }
       lastReadyAtRef.current = Date.now()
       setEverLoaded(true)
-      setIframeReady(true)
       setConfirmedContent(true)
+      // Ends a fade left from an earlier reveal; reveal() starts one only if the iframe was hidden.
       setFadingOut(false)
+      reveal()
       setBlankPostBuild(false)
       setStuckRetryCount(0)
       setDocLoadedTick((k) => k + 1)
@@ -1731,10 +1739,10 @@ export function usePreviewPanelLogic(
       // healthy wake posts within seconds); only that reveals during the wake window.
       if (!hasEverRenderedRef.current || inWakeWindow()) return
       setEverLoaded(true)
-      setIframeReady(true)
+      reveal()
       setStuckRetryCount(0)
     }, ONLOAD_GRACE_MS)
-  }, [inWakeWindow])
+  }, [inWakeWindow, reveal])
 
   // --- Health check: periodically verify server is still up ---
   useEffect(() => {

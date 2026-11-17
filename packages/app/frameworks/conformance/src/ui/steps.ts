@@ -11,6 +11,7 @@ import { getProvider as getI18nProvider, type I18nProvider } from '@molecule/app
 import { createMemoryRouter, type Router } from '@molecule/app-routing'
 import type { ThemeProvider } from '@molecule/app-theme'
 
+import { advanceClock, type ClockScope, installCaseClock } from './clock.js'
 import {
   freshContainer,
   performDomInteraction,
@@ -26,7 +27,7 @@ import {
   installLocalStorage,
   installSessionStorage,
   layoutNote,
-  pinCaseTimeZone,
+  resetCasePage,
 } from './page.js'
 import { capturePage, pixelCaptureDir } from './pixel-capture.js'
 import type {
@@ -52,13 +53,16 @@ export interface CaseServices {
 
 /**
  * Builds the case's services. Service calls are recorded on the recorder, so a
- * component that calls `logout()` in one framework must call it in all.
+ * component that calls `logout()` in one framework must call it in all. Every adapter builds
+ * these first, so this is also where the page goes back to `/` (`resetCasePage`), before an
+ * area fake mounts the case on a URL of its own.
  *
  * @param testCase - The case.
  * @param recorder - The case's recorder.
  * @returns Services to hand to the framework's providers.
  */
 export function buildServices(testCase: UICase, recorder: CallRecorder): CaseServices {
+  resetCasePage()
   const sink = (name: string, args: unknown[]): void => {
     recorder.calls.push({ name, args: args.map(normalizeArg) })
   }
@@ -94,6 +98,8 @@ export function buildAppServices(
 /** Records calls under their React callback name. */
 export class CallRecorder {
   readonly calls: RecordedCall[] = []
+  /** Each callback call's arguments as passed (`calls` holds them normalized), for `invoke` steps. */
+  private readonly passed: { name: string; args: unknown[] }[] = []
   private readonly pending = new Map<
     string,
     { resolve: (v: unknown) => void; reject: (e: Error) => void }[]
@@ -120,6 +126,7 @@ export class CallRecorder {
   spy(name: string): (...args: unknown[]) => unknown {
     return (...args: unknown[]) => {
       this.calls.push({ name, args: args.map((arg) => this.normalize(arg)) })
+      this.passed.push({ name, args })
       this.watchSignals(name, args)
       const result = this.results[name]
       if (!result) return undefined
@@ -178,6 +185,37 @@ export class CallRecorder {
     if (!next) throw new Error(`conformance: ${name} has no pending call to settle`)
     if (error !== undefined) next.reject(new Error(error))
     else next.resolve(value)
+  }
+
+  /**
+   * Calls a function the component passed to a callback (an `invoke` step).
+   *
+   * @param name - The callback.
+   * @param path - Where the function sits in the arguments of the callback's latest call.
+   * @param args - What to call it with.
+   */
+  async invoke(
+    name: string,
+    path: readonly (string | number)[],
+    args: readonly unknown[],
+  ): Promise<void> {
+    let call: { name: string; args: unknown[] } | undefined
+    for (let index = this.passed.length - 1; index >= 0 && !call; index--)
+      if (this.passed[index].name === name) call = this.passed[index]
+    if (!call)
+      throw new Error(`conformance: ${name} was never called, so it handed over nothing to invoke`)
+    const target = path.reduce<unknown>(
+      (value, key) =>
+        value === null || value === undefined
+          ? undefined
+          : (value as Record<string | number, unknown>)[key],
+      call.args,
+    )
+    if (typeof target !== 'function')
+      throw new Error(
+        `conformance: the latest ${name} call has no function at [${path.join(', ')}]`,
+      )
+    await target(...args)
   }
 }
 
@@ -372,9 +410,9 @@ export interface MountedCase {
   /** Navigates the router the component sees. */
   navigate(to: string): void
   /**
-   * Runs one DOM interaction or timer advance inside the framework's update
-   * scope, for a framework that requires one (React's `act`). Without it the
-   * step runs directly.
+   * Runs one DOM interaction, or one timer callback of an `advance` step, inside the
+   * framework's update scope, for a framework that requires one (React's `act`). The
+   * framework renders and runs its effects before it returns. Without it the work runs directly.
    */
   wrap?(step: () => Promise<void>): Promise<void>
 }
@@ -468,34 +506,6 @@ export async function runSteps(
   return { snapshots, readable, ...(pages ? { pages } : {}), calls: recorder.calls }
 }
 
-/**
- * Installs a case's clock before mount: the UTC time zone, fake timers (`fakeTimers`,
- * for `advance` steps) and a pinned `Date.now()` (`now`). With `now` alone only `Date` is faked, so a
- * component's real timers still run. Undone with `vi.useRealTimers()`.
- *
- * @param testCase - The case (UI or hook).
- * @param testCase.fakeTimers - Whether to fake timers too.
- * @param testCase.now - The epoch milliseconds `Date.now()` starts at.
- */
-export function installCaseClock(testCase: { fakeTimers?: boolean; now?: number }): void {
-  pinCaseTimeZone()
-  const now = testCase.now === undefined ? {} : { now: testCase.now }
-  if (testCase.fakeTimers)
-    vi.useFakeTimers({
-      toFake: [
-        'setTimeout',
-        'clearTimeout',
-        'setInterval',
-        'clearInterval',
-        'Date',
-        'requestAnimationFrame',
-        'cancelAnimationFrame',
-      ],
-      ...now,
-    })
-  else if (testCase.now !== undefined) vi.useFakeTimers({ toFake: ['Date'], ...now })
-}
-
 /** The fields a UI case takes. */
 const CASE_FIELDS: FieldsOf<UICase> = {
   name: 'required',
@@ -540,6 +550,7 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   advance: { ms: 'required' },
   props: { props: 'required' },
   settle: { callback: 'required', value: 'optional', error: 'optional' },
+  invoke: { callback: 'required', path: 'required', args: 'optional' },
   navigate: { to: 'required' },
   event: { selector: 'required', event: 'required', bubbles: 'optional' },
   resize: { selector: 'required', width: 'optional', height: 'optional' },
@@ -580,6 +591,7 @@ export function checkCaseFields(testCase: UICase): void {
 const AFTER_UNMOUNT = new Set<Interaction['type']>([
   'fetch',
   'settle',
+  'invoke',
   'advance',
   'http',
   'auth',
@@ -619,12 +631,23 @@ const runStep = async (
   }
   // A DOM step's note for the snapshot after it (whether an anchor click's default was prevented).
   let note: string | undefined
-  if (step.type === 'props') {
+  if (step.type === 'advance') {
+    // One timer callback at a time, each in the framework's update scope (`./clock.ts`); a
+    // torn-down component has no scope left.
+    const scope: ClockScope | undefined =
+      !state.unmounted && mounted.wrap ? (work) => mounted.wrap!(work) : undefined
+    await advanceClock(step.ms, scope)
+    if (state.unmounted) {
+      await settle()
+      return undefined
+    }
+  } else if (step.type === 'props') {
     await mounted.setProps(step.props)
   } else {
     const perform = async (): Promise<void> => {
-      if (step.type === 'advance') await vi.advanceTimersByTimeAsync(step.ms)
-      else if (step.type === 'settle') recorder.settle(step.callback, step.value, step.error)
+      if (step.type === 'settle') recorder.settle(step.callback, step.value, step.error)
+      else if (step.type === 'invoke')
+        await recorder.invoke(step.callback, step.path, step.args ?? [])
       else if (step.type === 'fetch') page.answerFetch()
       else if (step.type === 'navigate') mounted.navigate(step.to)
       else if (step.type === 'locale') await getI18nProvider().setLocale(step.locale)
@@ -649,15 +672,20 @@ const runStep = async (
 
 /**
  * Drains microtasks and a macrotask turn, so promise chains a component starts
- * on mount settle before the snapshot.
+ * on mount settle before the snapshot. Under fake timers it runs the timers due now, one at a
+ * time (`advanceClock(0)`).
+ *
+ * @param scope - The framework's update scope (React's `act`) each piece of work runs in.
  */
-export async function settle(): Promise<void> {
-  for (let i = 0; i < 3; i++) {
-    await Promise.resolve()
-  }
+export async function settle(scope: ClockScope = (work) => work()): Promise<void> {
+  await scope(async () => {
+    for (let i = 0; i < 3; i++) {
+      await Promise.resolve()
+    }
+  })
   if (vi.isFakeTimers()) {
-    await vi.advanceTimersByTimeAsync(0)
+    await advanceClock(0, scope)
   } else {
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await scope(() => new Promise<void>((resolve) => setTimeout(resolve, 0)))
   }
 }

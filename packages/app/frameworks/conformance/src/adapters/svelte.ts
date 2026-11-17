@@ -17,7 +17,6 @@
  */
 
 import { type Component, flushSync, mount, unmount } from 'svelte'
-import { vi } from 'vitest'
 
 import type { AuthClient } from '@molecule/app-auth'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -156,8 +155,7 @@ export function createSvelteAdapter({
                 // macrotask here, or that timer never fires between two cases
                 // (the runner only churns microtasks) and the next case adopts
                 // this case's form state.
-                if (vi.isFakeTimers()) await vi.advanceTimersByTimeAsync(0)
-                else await new Promise((resolve) => setTimeout(resolve, 0))
+                await settle()
               },
             }
           },

@@ -42,6 +42,7 @@ import {
   reactPartsUrl,
   sharedExportProblems,
   writeFeatureGoldens,
+  writeFeatureGoldensAt,
   writeFeatureReadableGoldens,
 } from '../features/index.js'
 import { caseExports, type CaseResult, onlyFromEnv, writePixelCapture } from '../ui/index.js'
@@ -50,6 +51,12 @@ import { createReactBindingAdapter } from './react-bindings-adapter.js'
 import { assertCompleteRecording, missingRecordings } from './recording.js'
 
 const RECORD = process.env.RECORD_GOLDENS === '1'
+/**
+ * Where a recording goes instead of over the committed goldens: `<dir>/<feature>.json` (or a
+ * `<feature>/` directory per component) and the readable copy beside it. For a case being written
+ * while other recordings of the same feature run, or a recording to compare before keeping it.
+ */
+const OUT = process.env.CONFORMANCE_GOLDENS_OUT || null
 /** The React packages this run is narrowed to, or null for every feature. */
 const ONLY = onlyFromEnv('CONFORMANCE_FEATURE')
 /**
@@ -60,6 +67,17 @@ const ONLY = onlyFromEnv('CONFORMANCE_FEATURE')
 const COMPONENTS = onlyFromEnv('CONFORMANCE_COMPONENTS')
 /** Whether a component family runs in this run. */
 const runsComponent = (component: string): boolean => !COMPONENTS || COMPONENTS.includes(component)
+/**
+ * The cases this run is narrowed to: those whose name matches `CONFORMANCE_CASES`, a regular
+ * expression (a case derived from one, `… then a locale switch`, keeps its name as a prefix), or
+ * null for all. Like `CONFORMANCE_COMPONENTS` it skips the value checks; a recording narrowed to
+ * some cases goes to `CONFORMANCE_GOLDENS_OUT` only, since it holds none of the others.
+ */
+const CASES = process.env.CONFORMANCE_CASES ? new RegExp(process.env.CONFORMANCE_CASES) : null
+/** Whether a case runs in this run. */
+const runsCase = (testCase: { name: string }): boolean => !CASES || CASES.test(testCase.name)
+/** Whether value checks run (a narrowed run checks only the cases it names). */
+const NARROWED = COMPONENTS !== null || CASES !== null
 
 /** The cases of each React feature package this run covers, by package. */
 const featureCases: Record<string, FeatureCases> = Object.fromEntries(
@@ -103,6 +121,24 @@ if (RECORD && COMPONENTS)
       throw new Error(
         `framework-conformance: CONFORMANCE_COMPONENTS narrows a recording, which would rewrite ${name}'s one goldens file without its other components; record it whole, or set goldensPerComponent in its cases`,
       )
+
+if (
+  CASES &&
+  !Object.values(featureCases).some((feature) =>
+    [
+      ...feature.families.filter((f) => runsComponent(f.component)),
+      ...(COMPONENTS ? [] : (feature.hooks ?? [])),
+    ].some((family) => family.cases.some(runsCase)),
+  )
+)
+  throw new Error(
+    `framework-conformance: CONFORMANCE_CASES (${CASES.source}) matches no case of this run`,
+  )
+
+if (RECORD && CASES && !OUT)
+  throw new Error(
+    'framework-conformance: CONFORMANCE_CASES narrows a recording to some cases, which would rewrite the goldens without the others; record to CONFORMANCE_GOLDENS_OUT',
+  )
 
 const recorded: Record<string, FeatureGoldens> = {}
 const recordedReadable: Record<string, FeatureGoldens> = {}
@@ -183,7 +219,7 @@ for (const [name, module] of Object.entries(MODULES)) {
       expect(goldens?.exports, stale(name)).toEqual(exportNames)
     })
 
-    for (const check of COMPONENTS ? [] : (feature.values ?? [])) {
+    for (const check of NARROWED ? [] : (feature.values ?? [])) {
       it(`value: ${check.export}`, () => {
         const value = featureValue(check, module[check.export])
         recorded[name]!.values[check.export] = value
@@ -212,7 +248,7 @@ for (const [name, module] of Object.entries(MODULES)) {
           const names = family.cases.map((c) => c.name)
           expect(new Set(names).size).toBe(names.length)
         })
-        for (const testCase of family.cases) {
+        for (const testCase of family.cases.filter(runsCase)) {
           it(testCase.name, async () => {
             const result: HookCaseResult = await runHookCase(
               bindingAdapter,
@@ -240,7 +276,7 @@ for (const [name, module] of Object.entries(MODULES)) {
           const names = family.cases.map((c) => c.name)
           expect(new Set(names).size).toBe(names.length)
         })
-        for (const testCase of family.cases) {
+        for (const testCase of family.cases.filter(runsCase)) {
           it(testCase.name, async () => {
             const result = await adapter.run(
               family.component,
@@ -279,16 +315,16 @@ afterAll(() => {
   for (const [name, feature] of Object.entries(featureCases)) {
     const expected: Record<string, string[]> = {}
     const got: Record<string, Record<string, unknown> | undefined> = {}
-    if (!COMPONENTS) {
+    if (!NARROWED) {
       expected.values = (feature.values ?? []).map((v) => v.export)
       got.values = recorded[name]?.values
     }
     for (const family of feature.families.filter((f) => runsComponent(f.component))) {
-      expected[family.component] = family.cases.map((c) => c.name)
+      expected[family.component] = family.cases.filter(runsCase).map((c) => c.name)
       got[family.component] = recorded[name]?.cases[family.component]
     }
     for (const family of COMPONENTS ? [] : (feature.hooks ?? [])) {
-      expected[`hook ${family.hook}`] = family.cases.map((c) => c.name)
+      expected[`hook ${family.hook}`] = family.cases.filter(runsCase).map((c) => c.name)
       got[`hook ${family.hook}`] = recorded[name]?.hooks?.[family.hook]
     }
     assertCompleteRecording(missingRecordings(expected, got), featureGoldensFile(name))
@@ -298,6 +334,17 @@ afterAll(() => {
     for (const golden of [recorded[name]!, recordedReadable[name]!])
       if (golden.hooks && Object.keys(golden.hooks).length === 0) delete golden.hooks
     const form = { perComponent: feature.goldensPerComponent === true, components: COMPONENTS }
+    if (OUT) {
+      const base = join(OUT, featureCasesName(name))
+      writeFeatureGoldensAt(`${base}.json`, base, recorded[name]!, { ...form, indent: 1 })
+      writeFeatureGoldensAt(
+        `${base}.readable.json`,
+        `${base}.readable`,
+        recordedReadable[name]!,
+        form,
+      )
+      continue
+    }
     writeFeatureGoldens(name, recorded[name]!, form)
     writeFeatureReadableGoldens(name, recordedReadable[name]!, form)
   }

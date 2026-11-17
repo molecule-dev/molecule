@@ -5,6 +5,7 @@
  * @module
  */
 
+export * from './clock.js'
 export * from './environment.js'
 export * from './fakes.js'
 export * from './normalize.js'

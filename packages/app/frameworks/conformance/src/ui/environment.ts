@@ -488,6 +488,7 @@ export function performDomInteraction(step: Interaction): string | undefined {
     case 'advance':
     case 'props':
     case 'settle':
+    case 'invoke':
     case 'navigate':
     case 'locale':
     case 'http':

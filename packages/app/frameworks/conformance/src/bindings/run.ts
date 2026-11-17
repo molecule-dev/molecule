@@ -12,10 +12,11 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
+import { advanceClock, installCaseClock } from '../ui/clock.js'
 import { writeLocalStorageFromOtherTab } from '../ui/environment.js'
-import { type CaseLocalStorage, installLocalStorage } from '../ui/page.js'
+import { type CaseLocalStorage, installLocalStorage, resetCasePage } from '../ui/page.js'
 import { checkFields, checkStepFields, type FieldsOf, type StepFields } from '../ui/step-fields.js'
-import { CallRecorder, installCaseClock, settle } from '../ui/steps.js'
+import { CallRecorder, settle } from '../ui/steps.js'
 import * as allCases from './cases/index.js'
 import {
   installControlledMediaQueries,
@@ -252,6 +253,8 @@ export async function runHookCase(
   // restores the bonds and the browser for every later case.
   let disposeControls: (() => Promise<void>) | null = null
   try {
+    // Before the area fakes: one of them (`authFlows`) mounts the case on its own URL.
+    resetCasePage()
     const { services, controls } = buildBindingServices(testCase.context ?? {}, (name, args) => {
       recorder.calls.push({ name, args })
     })
@@ -425,7 +428,8 @@ export async function runHookCase(
             }
             break
           case 'advance':
-            await run(() => vi.advanceTimersByTimeAsync(step.ms).then(() => undefined))
+            // One timer callback at a time, each in the framework's scope (`ui/clock.ts`).
+            await advanceClock(step.ms, (work) => run(work))
             break
           case 'settle':
             await run(() => recorder.settle(step.fn, step.value, step.error))

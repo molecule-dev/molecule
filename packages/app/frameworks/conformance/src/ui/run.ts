@@ -18,6 +18,7 @@ import { describe, expect, it } from 'vitest'
 import * as allCases from './cases/index.js'
 import { PSEUDO_LOCALE } from './environment.js'
 import goldensJson from './goldens.json' with { type: 'json' }
+import { hashSnapshotClasses } from './normalize.js'
 import { writePixelCapture } from './pixel-capture.js'
 import type {
   AppComposition,
@@ -250,8 +251,15 @@ export function runCaseSuite(suite: CaseSuite, adapter: FrameworkAdapter, gaps: 
                   pages: actual.pages,
                 })
               }
+              // The readable copy is a local cache: it helps only while it still matches the
+              // committed golden (a re-record elsewhere, or a pull, leaves it describing an
+              // older recording, and its diff would then show changes that are not there).
+              const cached = suite.readable?.[family.component]?.[testCase.name]?.snapshots
               const readableExpected =
-                suite.readable?.[family.component]?.[testCase.name]?.snapshots
+                cached?.length === expected.snapshots.length &&
+                cached.every((s, i) => hashSnapshotClasses(s) === expected.snapshots[i])
+                  ? cached
+                  : undefined
               for (let i = 0; i < expected.snapshots.length; i++) {
                 const step =
                   i === 0

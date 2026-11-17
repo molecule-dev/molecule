@@ -14,7 +14,7 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
 import { getClassMap } from '@molecule/app-ui'
 
-import { normalizeDom, type NormalizeOptions } from '../ui/normalize.js'
+import { hashSnapshotClasses, normalizeDom, type NormalizeOptions } from '../ui/normalize.js'
 import type { UICase } from '../ui/spec.js'
 import { caseStrings } from '../ui/steps.js'
 import { loadReferenceStylesheet, referenceStyles } from '../ui/stylesheet.js'
@@ -245,6 +245,41 @@ describe('normalizeDom id references', () => {
     expect(out).not.toBe(norm(label('email'), { keepReferences }))
   })
 
+  it('renumbers generated radio group names, keeping the grouping and a name the case wrote', () => {
+    const radios = (names: string[], extra: Record<string, string> = {}): HTMLElement =>
+      container((root) => {
+        for (const name of names) {
+          const el = h('input')
+          el.setAttribute('type', 'radio')
+          el.setAttribute('name', name)
+          root.append(el)
+        }
+        for (const [name, type] of Object.entries(extra)) {
+          const el = h('input')
+          el.setAttribute('type', type)
+          el.setAttribute('name', name)
+          root.append(el)
+        }
+      })
+    const keepReferences = new Set(['flavor'])
+    const react = norm(radios(['_r_1it_', '_r_1it_', '_r_1iu_', 'flavor'], { email: 'text' }), {
+      keepReferences,
+    })
+    const port = norm(radios(['v-3', 'v-3', 'v-4', 'flavor'], { email: 'text' }), {
+      keepReferences,
+    })
+    expect(react).toBe(port)
+    expect(react.match(/name="[^"]*"/g)).toEqual([
+      'name="radio0"',
+      'name="radio0"',
+      'name="radio1"',
+      'name="flavor"',
+      'name="email"',
+    ])
+    // Two radios in one group are not two radios in two groups.
+    expect(norm(radios(['a', 'b']))).not.toBe(norm(radios(['a', 'a'])))
+  })
+
   it('tells a dangling reference from a resolved one', () => {
     const render = (targetId: string): HTMLElement =>
       container((root) => {
@@ -325,5 +360,22 @@ describe('referenceStyles', () => {
       { computedStyle },
     )
     expect(asked).toContain('b')
+  })
+})
+
+describe('hashSnapshotClasses', () => {
+  it('turns a readable snapshot into the hashed one the same DOM records', () => {
+    const cm = getClassMap()
+    const el = container((r) => {
+      // A class token with '&' (escaped in the attribute), a sibling attribute whose value has a
+      // double space, and text that spells a class attribute (text escapes its '<').
+      const header = h('div', ['<b class="x">'], `${cm.tableHeader} ${cm.flex()}`)
+      header.setAttribute('aria-label', 'Clip  starting at 2.00s')
+      header.setAttribute('data-note', ' class="not-this"')
+      r.append(header, h('p', ['plain'], cm.alertDescription))
+    })
+    const hashed = norm(el, { hashClasses: true })
+    expect(hashSnapshotClasses(norm(el))).toBe(hashed)
+    expect(hashed).not.toBe(norm(el))
   })
 })

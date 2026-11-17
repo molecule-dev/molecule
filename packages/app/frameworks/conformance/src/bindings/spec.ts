@@ -28,9 +28,11 @@ import type { CaseContext, RecordedCall } from '../ui/spec.js'
 import type { AsyncSeed } from './fakes/async.js'
 import type { AuthFlowsSeed } from './fakes/auth-flows.js'
 import type { ChatSeed } from './fakes/chat.js'
+import type { ChatCardsSeed } from './fakes/chat-cards.js'
 import type { CoreSeed } from './fakes/core.js'
 import type { NativeSeed } from './fakes/native.js'
 import type { QuerySeed } from './fakes/query.js'
+import type { VoiceSeed } from './fakes/voice.js'
 
 /**
  * A function argument, created by the kit and recorded under `$fn`.
@@ -116,8 +118,12 @@ export interface AreaSeeds {
   native?: NativeSeed
   /** `fakes/chat.ts`: the chat provider and its streams. */
   chat?: ChatSeed
+  /** `fakes/chat-cards.ts`: the app's custom chat cards (`registerCustomEventCard`). */
+  chatCards?: ChatCardsSeed
   /** `fakes/query.ts`: the shared query cache (`useQuery`, `usePrefetch`). */
   query?: QuerySeed
+  /** `fakes/voice.ts`: dictation (Web Speech, the `ai-voice` provider, the engine catalog). */
+  voice?: VoiceSeed
 }
 
 /** One step of a binding case. */
