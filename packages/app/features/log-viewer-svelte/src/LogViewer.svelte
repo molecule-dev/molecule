@@ -10,7 +10,7 @@
   import type { Snippet } from 'svelte'
   import { SvelteSet } from 'svelte/reactivity'
 
-  import { getClassMap } from '@molecule/app-ui'
+  import { type ColorVariant, getClassMap } from '@molecule/app-ui'
 
   import { reactStyle } from './style.js'
   import type { LogLevel, LogViewerProps } from './types.js'
@@ -19,14 +19,14 @@
 
   const cm = $derived(getClassMap())
 
-  /** Severity badge colors: trace grey → fatal dark red (fixed, not themed). */
-  const LEVEL_COLOR: Record<LogLevel, string> = {
-    trace: '#94a3b8',
-    debug: '#60a5fa',
-    info: '#22c55e',
-    warn: '#eab308',
-    error: '#ef4444',
-    fatal: '#b91c1c',
+  /** Severity badge tones: trace neutral → fatal red (themed). */
+  const LEVEL_TONE: Record<LogLevel, ColorVariant> = {
+    trace: 'secondary',
+    debug: 'info',
+    info: 'success',
+    warn: 'warning',
+    error: 'error',
+    fatal: 'error',
   }
 
   /** The expanded entry ids (React's internal `openIds` state). */
@@ -100,14 +100,13 @@
           <span use:reactStyle={{ width: '48px', textAlign: 'right', opacity: 0.7 }}
             >{@render field(entry.timestamp)}</span
           ><span
+            class={cm.cn(cm.bgTone(LEVEL_TONE[entry.level]), cm.textOnTone)}
             use:reactStyle={{
               display: 'inline-block',
               minWidth: '48px',
               textAlign: 'center',
               padding: '0 6px',
               borderRadius: '4px',
-              background: LEVEL_COLOR[entry.level],
-              color: '#fff',
               fontWeight: 700,
               textTransform: 'uppercase',
             }}>{entry.level}</span

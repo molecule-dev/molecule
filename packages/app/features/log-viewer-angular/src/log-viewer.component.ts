@@ -17,20 +17,20 @@ import {
   ViewChild,
 } from '@angular/core'
 
-import type { UIClassMap } from '@molecule/app-ui'
+import type { ColorVariant, UIClassMap } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { hasNodes, SlotGuard } from './slot-dom.js'
 import type { LogEntry, LogLevel } from './types.js'
 
-/** Severity badge colors: trace grey → fatal dark red (fixed, not themed). */
-const LEVEL_COLOR: Record<LogLevel, string> = {
-  trace: '#94a3b8',
-  debug: '#60a5fa',
-  info: '#22c55e',
-  warn: '#eab308',
-  error: '#ef4444',
-  fatal: '#b91c1c',
+/** Severity badge tones: trace neutral → fatal red (themed). */
+const LEVEL_TONE: Record<LogLevel, ColorVariant> = {
+  trace: 'secondary',
+  debug: 'info',
+  info: 'success',
+  warn: 'warning',
+  error: 'error',
+  fatal: 'error',
 }
 
 /**
@@ -60,7 +60,7 @@ const LEVEL_COLOR: Record<LogLevel, string> = {
     style: 'display: contents',
   },
   // prettier-ignore
-  template: `<span #empty data-parity-unwrap style="display: contents">@if (emptyTemplate(); as emptyTpl) {<ng-container [ngTemplateOutlet]="emptyTpl" />}<ng-content select="[slot=emptyState]"></ng-content></span><div #log [class]="logClasses()" role="log">@for (entry of entries; track entry.id) {<details [attr.open]="isOpen(entry.id) ? '' : null" (toggle)="detailsToggle(entry.id, $event)"><summary [class]="summaryClasses()"><span [style]="timestampStyle()">@if (isNode(entry.timestamp)) {<ng-container [ngTemplateOutlet]="templateOf(entry.timestamp)" />}@else {{{ textOf(entry.timestamp) }}}</span><span [style]="levelStyle(entry.level)">{{ entry.level }}</span>@if (entry.service) {<span [class]="serviceClasses()">@if (isNode(entry.service)) {<ng-container [ngTemplateOutlet]="templateOf(entry.service)" />}@else {{{ textOf(entry.service) }}}</span>}<span [class]="messageClasses()">@if (isNode(entry.message)) {<ng-container [ngTemplateOutlet]="templateOf(entry.message)" />}@else {{{ textOf(entry.message) }}}</span>@if (entry.traceId) {<span [style]="traceStyle()">@if (isNode(entry.traceId)) {<ng-container [ngTemplateOutlet]="templateOf(entry.traceId)" />}@else {{{ textOf(entry.traceId) }}}</span>}</summary>@if (entry.data !== undefined) {<pre [class]="dataClasses()" [style]="dataStyle()" [textContent]="dataText(entry.data)"></pre>}</details>}</div>`,
+  template: `<span #empty data-parity-unwrap style="display: contents">@if (emptyTemplate(); as emptyTpl) {<ng-container [ngTemplateOutlet]="emptyTpl" />}<ng-content select="[slot=emptyState]"></ng-content></span><div #log [class]="logClasses()" role="log">@for (entry of entries; track entry.id) {<details [attr.open]="isOpen(entry.id) ? '' : null" (toggle)="detailsToggle(entry.id, $event)"><summary [class]="summaryClasses()"><span [style]="timestampStyle()">@if (isNode(entry.timestamp)) {<ng-container [ngTemplateOutlet]="templateOf(entry.timestamp)" />}@else {{{ textOf(entry.timestamp) }}}</span><span [class]="levelClasses(entry.level)" [style]="levelStyle()">{{ entry.level }}</span>@if (entry.service) {<span [class]="serviceClasses()">@if (isNode(entry.service)) {<ng-container [ngTemplateOutlet]="templateOf(entry.service)" />}@else {{{ textOf(entry.service) }}}</span>}<span [class]="messageClasses()">@if (isNode(entry.message)) {<ng-container [ngTemplateOutlet]="templateOf(entry.message)" />}@else {{{ textOf(entry.message) }}}</span>@if (entry.traceId) {<span [style]="traceStyle()">@if (isNode(entry.traceId)) {<ng-container [ngTemplateOutlet]="templateOf(entry.traceId)" />}@else {{{ textOf(entry.traceId) }}}</span>}</summary>@if (entry.data !== undefined) {<pre [class]="dataClasses()" [style]="dataStyle()" [textContent]="dataText(entry.data)"></pre>}</details>}</div>`,
 })
 export class LogViewer implements AfterViewInit, AfterViewChecked, DoCheck {
   /** The log entries, rendered in order. */
@@ -236,20 +236,27 @@ export class LogViewer implements AfterViewInit, AfterViewChecked, DoCheck {
   }
 
   /**
-   * The severity badge's inline style (fixed palette, white uppercase text).
+   * The severity badge's class list (themed tone fill + inverse text).
    *
    * @param level - The entry's severity level.
+   * @returns The class string.
+   */
+  levelClasses(level: LogLevel): string {
+    return this.cm().cn(this.cm().bgTone(LEVEL_TONE[level]), this.cm().textOnTone)
+  }
+
+  /**
+   * The severity badge's inline style (fixed box, uppercase text).
+   *
    * @returns The style map.
    */
-  levelStyle(level: LogLevel): Record<string, string> {
+  levelStyle(): Record<string, string> {
     return {
       display: 'inline-block',
       'min-width': '48px',
       'text-align': 'center',
       padding: '0 6px',
       'border-radius': '4px',
-      background: LEVEL_COLOR[level],
-      color: '#fff',
       'font-weight': '700',
       'text-transform': 'uppercase',
     }

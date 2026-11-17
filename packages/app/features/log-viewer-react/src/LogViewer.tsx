@@ -1,7 +1,7 @@
 import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
-import { getClassMap } from '@molecule/app-ui'
+import { type ColorVariant, getClassMap } from '@molecule/app-ui'
 
 /** Severity level of a log entry, ordered from lowest to highest. */
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'
@@ -34,13 +34,14 @@ export interface LogViewerProps {
   emptyState?: ReactNode
 }
 
-const LEVEL_COLOR: Record<LogLevel, string> = {
-  trace: '#94a3b8',
-  debug: '#60a5fa',
-  info: '#22c55e',
-  warn: '#eab308',
-  error: '#ef4444',
-  fatal: '#b91c1c',
+/** Severity badge tones: trace neutral → fatal red (themed). */
+const LEVEL_TONE: Record<LogLevel, ColorVariant> = {
+  trace: 'secondary',
+  debug: 'info',
+  info: 'success',
+  warn: 'warning',
+  error: 'error',
+  fatal: 'error',
 }
 
 /**
@@ -100,14 +101,13 @@ export function LogViewer({
             >
               <span style={{ width: 48, textAlign: 'right', opacity: 0.7 }}>{e.timestamp}</span>
               <span
+                className={cm.cn(cm.bgTone(LEVEL_TONE[e.level]), cm.textOnTone)}
                 style={{
                   display: 'inline-block',
                   minWidth: 48,
                   textAlign: 'center',
                   padding: '0 6px',
                   borderRadius: 4,
-                  background: LEVEL_COLOR[e.level],
-                  color: '#fff',
                   fontWeight: 700,
                   textTransform: 'uppercase',
                 }}

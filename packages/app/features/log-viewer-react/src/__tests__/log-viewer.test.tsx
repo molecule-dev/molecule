@@ -15,6 +15,9 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
+        // Expose the tone a tone helper was called with, so the severity
+        // mapping is assertable (the proxy otherwise echoes only the name).
+        if (prop === 'bgTone') return (tone: unknown) => `${token}-${String(tone)}`
         return (..._args: unknown[]) => token
       },
     }
@@ -67,8 +70,9 @@ describe('LogViewer', () => {
 
   it('colors the level badge by severity', () => {
     const markup = html(createElement(LogViewer, { entries }))
-    expect(markup).toContain('#22c55e') // info
-    expect(markup).toContain('#ef4444') // error
+    expect(markup).toContain('bgTone-success') // info
+    expect(markup).toContain('bgTone-error') // error
+    expect(markup).toContain('textOnTone')
   })
 
   it('renders the service label and trace id when present', () => {

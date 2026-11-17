@@ -26,6 +26,9 @@ vi.mock('@molecule/app-ui', () => ({
               .join(' ')
         }
         const token = String(prop)
+        // Expose the tone a tone helper was called with, so the severity
+        // mapping is assertable (the proxy otherwise echoes only the name).
+        if (prop === 'bgTone') return (tone: unknown) => `${token}-${String(tone)}`
         return (..._args: unknown[]) => token
       },
     }
@@ -36,17 +39,14 @@ vi.mock('@molecule/app-ui', () => ({
 import { createApp, defineComponent, h, type VNodeChild } from 'vue'
 
 import { LogViewer } from '../LogViewer.js'
-import type { LogEntry } from '../types.js'
+import type { LogEntry, LogViewerProps } from '../types.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
 })
 
 /** Mounts a {@link LogViewer} and returns the markup it produced. */
-const render = (
-  props: Record<string, unknown>,
-  slots?: Record<string, () => VNodeChild[]>,
-): string => {
+const render = (props: LogViewerProps, slots?: Record<string, () => VNodeChild[]>): string => {
   const host = document.createElement('div')
   document.body.appendChild(host)
   const app = createApp(defineComponent({ render: () => h(LogViewer, props, slots) }))
@@ -95,10 +95,9 @@ describe('LogViewer', () => {
 
   it('colors the level badge by severity', () => {
     const markup = render({ entries })
-    // jsdom serializes CSSOM colors as rgb() — the same values React's
-    // runtime mount writes.
-    expect(markup).toContain('rgb(34, 197, 94)') // info
-    expect(markup).toContain('rgb(239, 68, 68)') // error
+    expect(markup).toContain('bgTone-success') // info
+    expect(markup).toContain('bgTone-error') // error
+    expect(markup).toContain('textOnTone')
   })
 
   it('renders the service label and trace id when present', () => {

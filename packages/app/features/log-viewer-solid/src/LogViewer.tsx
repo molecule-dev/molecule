@@ -11,18 +11,18 @@
 
 import { type Component, createSignal, For, type JSX, Show } from 'solid-js'
 
-import { getClassMap } from '@molecule/app-ui'
+import { type ColorVariant, getClassMap } from '@molecule/app-ui'
 
 import type { LogEntry, LogLevel, LogViewerProps } from './types.js'
 
-/** Severity badge colors: trace grey → fatal dark red (fixed, not themed). */
-const LEVEL_COLOR: Record<LogLevel, string> = {
-  trace: '#94a3b8',
-  debug: '#60a5fa',
-  info: '#22c55e',
-  warn: '#eab308',
-  error: '#ef4444',
-  fatal: '#b91c1c',
+/** Severity badge tones: trace neutral → fatal red (themed). */
+const LEVEL_TONE: Record<LogLevel, ColorVariant> = {
+  trace: 'secondary',
+  debug: 'info',
+  info: 'success',
+  warn: 'warning',
+  error: 'error',
+  fatal: 'error',
 }
 
 /**
@@ -137,14 +137,16 @@ export const LogViewer: Component<LogViewerProps> = (props) => {
             {entry().timestamp}
           </span>
           <span
+            class={cm.cn(cm.bgTone(LEVEL_TONE[entry().level]), cm.textOnTone)}
             style={{
               display: 'inline-block',
               'min-width': '48px',
               'text-align': 'center',
-              padding: '0 6px',
+              // A static style object is inlined into Solid's template verbatim,
+              // so the shorthand is written in the CSSOM-normalized form React
+              // emits (`0px 6px`), keeping the DOM identical.
+              padding: '0px 6px',
               'border-radius': '4px',
-              background: LEVEL_COLOR[entry().level],
-              color: '#fff',
               'font-weight': '700',
               'text-transform': 'uppercase',
             }}
