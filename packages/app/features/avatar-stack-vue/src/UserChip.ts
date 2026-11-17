@@ -12,6 +12,8 @@ import { defineComponent, h, type PropType, type VNode, type VNodeChild } from '
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-vue'
 
+import type { UserChipProps } from './types.js'
+
 /**
  * Resolves a node-valued prop that may also arrive as a same-named slot: the
  * slot wins, and an absent pair contributes nothing.
@@ -53,6 +55,8 @@ export const UserChip = defineComponent({
   name: 'UserChip',
   props: {
     name: { type: String, required: true },
+    href: String,
+    nameLinkProps: Object as PropType<UserChipProps['nameLinkProps']>,
     src: String,
     subtitle: null,
     trailing: null,
@@ -68,15 +72,28 @@ export const UserChip = defineComponent({
     return (): VNode => {
       const subtitleSlot = slots.subtitle
       const trailingSlot = slots.trailing
+      const avatar = h(Avatar, {
+        src: props.src,
+        alt: props.name,
+        name: props.name,
+        size: props.size,
+      })
+      const { className, class: linkClass, ...linkAttrs } = props.nameLinkProps ?? {}
       return h('div', { class: cm.cn(cm.flex({ align: 'center', gap: 'sm' }), props.className) }, [
-        h(Avatar, {
-          src: props.src,
-          alt: props.name,
-          name: props.name,
-          size: props.size,
-        }),
+        props.href === undefined ? avatar : h('div', { 'aria-hidden': 'true' }, [avatar]),
         h('div', { class: cm.cn(cm.flex1, cm.stack(0)) }, [
-          h('span', { class: cm.cn(cm.textSize('sm'), cm.fontWeight('medium')) }, [props.name]),
+          props.href === undefined
+            ? h('span', { class: cm.cn(cm.textSize('sm'), cm.fontWeight('medium')) }, [props.name])
+            : h(
+                'a',
+                {
+                  'data-mol-id': 'user-chip-profile',
+                  ...linkAttrs,
+                  href: props.href,
+                  class: [cm.cn(cm.textSize('sm'), cm.fontWeight('medium'), className), linkClass],
+                },
+                [props.name],
+              ),
           hasNode(subtitleSlot, props.subtitle)
             ? h('span', { class: cm.textSize('xs') }, [...slotOrProp(subtitleSlot, props.subtitle)])
             : null,

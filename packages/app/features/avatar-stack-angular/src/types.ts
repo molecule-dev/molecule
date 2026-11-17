@@ -31,6 +31,24 @@ export interface AvatarStackProps {
   className?: string
 }
 
+/** Attributes for the canonical UserChip name link; other native attributes are accepted by name. */
+interface UserChipNameLinkProps {
+  /** Extra name-link classes. */
+  className?: string
+  /** Extra name-link classes (the native HTML spelling). */
+  class?: string
+  /** Browsing context for the profile destination. */
+  target?: string
+  /** Relationship to the profile destination. */
+  rel?: string
+  /** App router or click handler; receives the native link event. */
+  onClick?: (event: MouseEvent) => void
+  /** React-style inline style values. */
+  style?: Record<string, string | number | undefined | null>
+  /** Additional native attributes and event handlers, using `onClick`-style event names. */
+  [attribute: string]: unknown
+}
+
 /**
  * Props accepted by {@link UserChip} — the same props
  * `@molecule/app-avatar-stack-react` accepts. Node props (`subtitle`,
@@ -41,6 +59,10 @@ export interface AvatarStackProps {
 export interface UserChipProps {
   /** Display name. */
   name: string
+  /** Profile destination. Only the displayed name becomes a link. */
+  href?: string
+  /** Attributes and events for the canonical name link. */
+  nameLinkProps?: UserChipNameLinkProps
   /** Optional avatar image URL. */
   src?: string
   /** Optional secondary line (role / email / handle), projected as `[slot=subtitle]` content. */

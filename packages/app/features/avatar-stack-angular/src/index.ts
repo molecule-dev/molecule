@@ -24,6 +24,9 @@
  *     <div mol-user-chip name="Alice Kim" src="/avatars/alice.jpg">
  *       <span slot="subtitle">Admin</span>
  *     </div>
+ *     <div mol-user-chip name="Alice Kim" href="/people/alice" data-person="alice"
+ *       [nameLinkProps]="{ className: 'person-name', target: '_blank', rel: 'noreferrer' }">
+ *     </div>
  *   `,
  * })
  * export class Assignees {
@@ -36,6 +39,14 @@
  * ```
  *
  * @remarks
+ * `UserChip` with `href` renders one profile link on the displayed name, with
+ * a decorative avatar outside it. Subtitle and trailing projections remain outside
+ * the link. The `nameLinkProps` input forwards anchor attributes and events
+ * (including `onClick` for app routing); `className` or `class` adds link classes.
+ * The host div is the root: bind ordinary attributes and events directly on it.
+ * Without `href`, the plain avatar/name DOM is unchanged and `nameLinkProps`
+ * is ignored. An empty-string `href` still renders a link.
+ *
  * The overflow chip announces "+N more" — this is the only user-visible
  * text (currently English-only). Avatar fallbacks (initials, color hash)
  * come from `<div mol-avatar>` in `@molecule/app-ui-angular`. The overlap is

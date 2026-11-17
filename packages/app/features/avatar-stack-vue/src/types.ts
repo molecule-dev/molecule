@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { VNodeChild } from 'vue'
+import type { AnchorHTMLAttributes, HTMLAttributes, VNodeChild } from 'vue'
 
 /** Represents a single person entry rendered inside an AvatarStack. */
 export interface AvatarStackPerson {
@@ -29,9 +29,16 @@ export interface AvatarStackProps {
 }
 
 /** Props accepted by the {@link UserChip} component. */
-export interface UserChipProps {
+export interface UserChipProps extends HTMLAttributes {
   /** Display name. */
   name: string
+  /** Profile destination. Only the displayed name becomes a link. */
+  href?: string
+  /** Name-link attributes and events; `className` supplements the default name classes. */
+  nameLinkProps?: Omit<AnchorHTMLAttributes, 'href' | 'innerHTML' | 'textContent'> & {
+    /** Extra name-link classes (the React-compatible spelling). */
+    className?: string
+  }
   /** Optional avatar image URL. */
   src?: string
   /**

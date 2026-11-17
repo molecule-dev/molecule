@@ -7,7 +7,7 @@
  * @module
  */
 
-import { type Component, Show } from 'solid-js'
+import { type Component, type JSX, Show, splitProps } from 'solid-js'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-solid'
@@ -23,18 +23,61 @@ import type { UserChipProps } from './types.js'
  */
 export const UserChip: Component<UserChipProps> = (props) => {
   const cm = getClassMap()
-  const size = (): 'xs' | 'sm' | 'md' | 'lg' => props.size ?? 'sm'
+  const [local, rest] = splitProps(props, [
+    'name',
+    'href',
+    'nameLinkProps',
+    'src',
+    'subtitle',
+    'trailing',
+    'size',
+    'className',
+    'class',
+  ])
+  const size = (): 'xs' | 'sm' | 'md' | 'lg' => local.size ?? 'sm'
+  // One spread preserves explicit undefined attributes; Solid's mergeProps would
+  // otherwise keep the default marker when the caller explicitly removes it.
+  const nameLinkAttributes = (): JSX.AnchorHTMLAttributes<HTMLAnchorElement> & {
+    'data-mol-id'?: string
+  } => ({
+    'data-mol-id': 'user-chip-profile',
+    ...local.nameLinkProps,
+    href: local.href,
+    class: cm.cn(
+      cm.textSize('sm'),
+      cm.fontWeight('medium'),
+      local.nameLinkProps?.className,
+      local.nameLinkProps?.class,
+    ),
+  })
 
   return (
-    <div class={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), props.className)}>
-      <Avatar src={props.src} alt={props.name} name={props.name} size={size()} />
+    <div
+      {...rest}
+      class={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), local.className, local.class)}
+    >
+      <Show
+        when={local.href !== undefined}
+        fallback={<Avatar src={local.src} alt={local.name} name={local.name} size={size()} />}
+      >
+        <div aria-hidden="true">
+          <Avatar src={local.src} alt={local.name} name={local.name} size={size()} />
+        </div>
+      </Show>
       <div class={cm.cn(cm.flex1, cm.stack(0 as const))}>
-        <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>{props.name}</span>
-        <Show when={props.subtitle}>
-          <span class={cm.textSize('xs')}>{props.subtitle}</span>
+        <Show
+          when={local.href !== undefined}
+          fallback={
+            <span class={cm.cn(cm.textSize('sm'), cm.fontWeight('medium'))}>{local.name}</span>
+          }
+        >
+          <a {...nameLinkAttributes()}>{local.name}</a>
+        </Show>
+        <Show when={local.subtitle}>
+          <span class={cm.textSize('xs')}>{local.subtitle}</span>
         </Show>
       </div>
-      {props.trailing}
+      {local.trailing}
     </div>
   )
 }

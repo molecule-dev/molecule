@@ -25,12 +25,22 @@
  *     <>
  *       <AvatarStack people={people} max={3} size="sm" />
  *       <UserChip name="Alice Kim" src="/avatars/alice.jpg" subtitle="Admin" />
+ *       <UserChip name="Alice Kim" href="/people/alice" data-person="alice"
+ *         nameLinkProps={{ className: 'person-name', target: '_blank', rel: 'noreferrer' }} />
  *     </>
  *   )
  * }
  * ```
  *
  * @remarks
+ * `UserChip` with `href` renders one profile link on the displayed name, with
+ * a decorative avatar outside it. Subtitle and trailing content remain outside
+ * the link. `nameLinkProps` forwards anchor attributes and events (including
+ * `onClick` for app routing); `className` or Solid's `class` adds link classes.
+ * Remaining root attributes and events pass through to the outer div via `splitProps`.
+ * Without `href`, the plain avatar/name DOM is unchanged and `nameLinkProps`
+ * is ignored. An empty-string `href` still renders a link.
+ *
  * The overflow chip announces "+N more" — this is the only user-visible
  * text (currently English-only). Avatar fallbacks (initials, color hash)
  * come from `<Avatar>` in `@molecule/app-ui-solid`. The overlap is an

@@ -4,7 +4,8 @@
  *
  * `AvatarStack` has no callback props — every branch is chosen by props alone
  * (`people`, `max`, `size`, `className`), so the interactions below change
- * props. `UserChip` adds the node-valued `subtitle` and `trailing` slots.
+ * props. `UserChip` adds the node-valued `subtitle` and `trailing` slots,
+ * a canonical profile link, and forwarded root/link attributes and events.
  *
  * @module
  */
@@ -95,6 +96,105 @@ export const avatarStackFeature: FeatureCases = {
       cases: [
         { name: 'name only', props: { name: 'Alice Kim' } },
         { name: 'name and avatar source', props: { name: 'Alice Kim', src: '/avatars/alice.jpg' } },
+        {
+          name: 'href links only the displayed name',
+          props: { name: 'Alice Kim', src: '/avatars/alice.jpg', href: '/people/alice' },
+        },
+        {
+          name: 'href forwards name link attributes and click',
+          props: {
+            name: 'Alice Kim',
+            href: '/people/alice',
+            id: 'identity-row',
+            'data-person': 'alice',
+            nameLinkProps: {
+              className: 'parity-token',
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              title: 'View profile',
+              tabIndex: 0,
+              'data-profile': 'alice',
+              onClick: { $callback: 'nameLinkClick' },
+            },
+          },
+          callbacks: ['onClick'],
+          interactions: [{ type: 'click', selector: 'a[data-mol-id="user-chip-profile"]' }],
+        },
+        {
+          name: 'href keeps subtitle and trailing content outside the name link',
+          props: { name: 'Alice Kim', src: '/avatars/alice.jpg', href: '/people/alice' },
+          slots: {
+            subtitle: [{ tag: 'strong', children: ['Owner'] }],
+            trailing: [{ tag: 'button', attrs: { type: 'button' }, children: ['Assign'] }],
+          },
+        },
+        {
+          name: 'unlinked chip forwards root attributes and click',
+          props: {
+            name: 'Alice Kim',
+            id: 'identity-row',
+            title: 'Assignment',
+            'data-person': 'alice',
+            'aria-label': 'Assigned person',
+            tabIndex: 0,
+          },
+          callbacks: ['onClick'],
+          interactions: [{ type: 'click', selector: '#identity-row' }],
+        },
+        {
+          name: 'href added and removed at runtime',
+          props: { name: 'Alice Kim', href: undefined },
+          interactions: [
+            { type: 'props', props: { href: '/people/alice' } },
+            { type: 'props', props: { href: undefined } },
+          ],
+        },
+        {
+          name: 'href changes including an empty destination',
+          props: { name: 'Alice Kim', href: '/people/alice' },
+          interactions: [
+            { type: 'props', props: { href: '' } },
+            { type: 'props', props: { href: '/crew/alice' } },
+          ],
+        },
+        {
+          name: 'name link attributes and listeners change and are removed',
+          props: {
+            name: 'Alice Kim',
+            href: '/people/alice',
+            nameLinkProps: {
+              className: 'parity-token',
+              target: '_blank',
+              rel: 'noreferrer',
+              'data-mol-id': undefined,
+              'aria-current': false,
+              onClick: { $callback: 'firstNameClick' },
+            },
+          },
+          interactions: [
+            { type: 'click', selector: 'a' },
+            {
+              type: 'props',
+              props: {
+                nameLinkProps: {
+                  className: 'parity-next',
+                  title: 'Updated profile',
+                  onClick: { $callback: 'nextNameClick' },
+                },
+              },
+            },
+            { type: 'click', selector: 'a' },
+            { type: 'props', props: { nameLinkProps: undefined } },
+            { type: 'click', selector: 'a' },
+          ],
+        },
+        {
+          name: 'name link attributes are ignored without href',
+          props: {
+            name: 'Alice Kim',
+            nameLinkProps: { className: 'parity-token', target: '_blank', title: 'View profile' },
+          },
+        },
         {
           name: 'subtitle',
           props: { name: 'Alice Kim' },

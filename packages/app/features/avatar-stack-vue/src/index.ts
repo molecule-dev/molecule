@@ -30,6 +30,12 @@
  *         h(UserChip, { name: 'Alice Kim', src: '/avatars/alice.jpg' }, {
  *           subtitle: () => ['Admin'],
  *         }),
+ *         // Linked byline: only the name is a profile link.
+ *         h(UserChip, {
+ *           name: 'Alice Kim', href: '/people/alice',
+ *           nameLinkProps: { className: 'person-name', target: '_blank', rel: 'noreferrer' },
+ *           'data-person': 'alice',
+ *         }),
  *       ])
  *   },
  * })
@@ -38,6 +44,14 @@
  * ```
  *
  * @remarks
+ * `UserChip` with `href` renders one profile link on the displayed name, with
+ * a decorative avatar outside it. Subtitle and trailing content remain outside
+ * the link. `nameLinkProps` forwards anchor attributes and events (including
+ * `onClick` for app routing); `className` or Vue's `class` adds link classes.
+ * Remaining root attributes and listeners fall through to the outer div.
+ * Without `href`, the plain avatar/name DOM is unchanged and `nameLinkProps`
+ * is ignored. An empty-string `href` still renders a link.
+ *
  * The overflow chip announces "+N more" — this is the only user-visible
  * text (currently English-only). Avatar fallbacks (initials, color hash)
  * come from `<Avatar>` in `@molecule/app-ui-vue`. The overlap is an
