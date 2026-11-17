@@ -153,6 +153,25 @@ export function hashSnapshotClasses(snapshot: string): string {
     .join('\n')
 }
 
+/**
+ * The readable copy of a case's snapshots, when it still describes the committed golden: every
+ * snapshot hashes to the golden's. A copy recorded before a re-record (elsewhere, or before a
+ * pull) describes an older recording, and a diff against it would show changes that are not there.
+ *
+ * @param cached - The case's readable snapshots from the local cache, if any.
+ * @param golden - The case's committed (hashed) snapshots.
+ * @returns `cached` when it matches the golden, otherwise undefined.
+ */
+export function currentReadable(
+  cached: readonly string[] | undefined,
+  golden: readonly string[],
+): readonly string[] | undefined {
+  return cached?.length === golden.length &&
+    cached.every((snapshot, i) => hashSnapshotClasses(snapshot) === golden[i])
+    ? cached
+    : undefined
+}
+
 /** Options for {@link normalizeDom}. */
 export interface NormalizeOptions {
   /** Replace each class token with {@link hashClassToken}. */

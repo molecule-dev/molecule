@@ -14,7 +14,12 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
 import { getClassMap } from '@molecule/app-ui'
 
-import { hashSnapshotClasses, normalizeDom, type NormalizeOptions } from '../ui/normalize.js'
+import {
+  currentReadable,
+  hashSnapshotClasses,
+  normalizeDom,
+  type NormalizeOptions,
+} from '../ui/normalize.js'
 import type { UICase } from '../ui/spec.js'
 import { caseStrings } from '../ui/steps.js'
 import { loadReferenceStylesheet, referenceStyles } from '../ui/stylesheet.js'
@@ -377,5 +382,23 @@ describe('hashSnapshotClasses', () => {
     const hashed = norm(el, { hashClasses: true })
     expect(hashSnapshotClasses(norm(el))).toBe(hashed)
     expect(hashed).not.toBe(norm(el))
+  })
+})
+
+describe('currentReadable', () => {
+  const cm = getClassMap()
+  const snapshot = (text: string): string =>
+    norm(container((r) => r.append(h('p', [text], cm.alertDescription))))
+  const golden = [snapshot('one'), snapshot('two')].map(hashSnapshotClasses)
+
+  it('uses a readable copy that hashes to the golden', () => {
+    const cached = [snapshot('one'), snapshot('two')]
+    expect(currentReadable(cached, golden)).toBe(cached)
+  })
+
+  it('ignores a copy recorded before a re-record, or one with a different step count', () => {
+    expect(currentReadable([snapshot('one'), snapshot('old')], golden)).toBeUndefined()
+    expect(currentReadable([snapshot('one')], golden)).toBeUndefined()
+    expect(currentReadable(undefined, golden)).toBeUndefined()
   })
 })

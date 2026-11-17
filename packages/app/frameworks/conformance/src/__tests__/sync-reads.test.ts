@@ -35,7 +35,7 @@ function useExtraRenders(): number {
  * @returns The panel count.
  */
 function useLayoutOnce(): number {
-  return ReactBindings.useWorkspace().state.layout.panels.length
+  return ReactBindings.useWorkspace().layout.panels.length
 }
 
 /**
@@ -67,6 +67,16 @@ function useOnlineRerendered(): boolean {
   return useOnlineOnce()
 }
 
+/**
+ * What the hook returned on mount (a throw would leave nothing to compare).
+ *
+ * @param result - The case result.
+ * @param result.snapshots - Its snapshots.
+ * @returns The mount result.
+ */
+const mounted = (result: { snapshots: unknown[] }): unknown =>
+  (result.snapshots[0] as { result?: unknown }).result
+
 const hooks = createReactBindingAdapter({
   ...ReactBindings,
   useLayoutOnce,
@@ -83,6 +93,7 @@ describe('a synchronous read of a fake', () => {
       name: 'rerendered',
       context,
     })
+    expect(mounted(once)).toEqual(expect.any(Number))
     expect(once.snapshots).toEqual(rerendered.snapshots)
     expect(rerendered.calls).toEqual(once.calls)
   })
@@ -94,6 +105,7 @@ describe('a synchronous read of a fake', () => {
       name: 'rerendered',
       context,
     })
+    expect(mounted(once)).toBe(true)
     expect(once.snapshots).toEqual(rerendered.snapshots)
     expect(rerendered.calls).toEqual(once.calls)
   })
