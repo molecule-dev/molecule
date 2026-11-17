@@ -28,7 +28,13 @@ import { describe, expect, it } from 'vitest'
  * @param source - The TypeScript source to check.
  * @returns The diagnostic messages.
  */
-function diagnosticsFor(source: string): string[] {
+/**
+ * The compiler options every probe shares (this package's own tsconfig, no emit)
+ * and one host whose parsed source files are reused across probes. Every call
+ * would otherwise re-read and re-parse lib and the whole `@molecule/*` peer
+ * declaration graph — seconds per program, dozens of programs per file.
+ */
+const probeOptions: ts.CompilerOptions = (() => {
   const configPath = join(__dirname, '..', '..', 'tsconfig.json')
   const parsed = ts.getParsedCommandLineOfConfigFile(
     configPath,
@@ -38,23 +44,56 @@ function diagnosticsFor(source: string): string[] {
       onUnRecoverableConfigFileDiagnostic: () => undefined,
     },
   )
-  const options: ts.CompilerOptions = { ...(parsed?.options ?? {}), noEmit: true }
+  return { ...(parsed?.options ?? {}), noEmit: true }
+})()
+
+const sharedProbeHost = (() => {
+  const base = ts.createCompilerHost(probeOptions)
+  const cache = new Map<string, ts.SourceFile | undefined>()
+  const baseGetSourceFile = base.getSourceFile.bind(base)
+  base.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+    if (!cache.has(fileName)) {
+      cache.set(
+        fileName,
+        baseGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile),
+      )
+    }
+    return cache.get(fileName)
+  }
+  return { host: base, forget: (fileName: string) => cache.delete(fileName) }
+})()
+
+function diagnosticsFor(source: string): string[] {
   const virtualFile = join(__dirname, '__typed-probe__.ts')
-  const host = ts.createCompilerHost(options)
-  const getSourceFile = host.getSourceFile.bind(host)
-  const fileExists = host.fileExists.bind(host)
-  const readFile = host.readFile.bind(host)
+  const { host } = sharedProbeHost
+  const packageGetSourceFile = host.getSourceFile.bind(host)
+  const packageFileExists = host.fileExists.bind(host)
+  const packageReadFile = host.readFile.bind(host)
   host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
     fileName === virtualFile
       ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
-  host.fileExists = (fileName) => fileName === virtualFile || fileExists(fileName)
-  host.readFile = (fileName) => (fileName === virtualFile ? source : readFile(fileName))
-  const program = ts.createProgram([virtualFile], options, host)
-  return ts
+      : packageGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+  host.fileExists = (fileName) => fileName === virtualFile || packageFileExists(fileName)
+  host.readFile = (fileName) => (fileName === virtualFile ? source : packageReadFile(fileName))
+  const program = ts.createProgram([virtualFile], probeOptions, host)
+  const diagnostics = ts
     .getPreEmitDiagnostics(program)
     .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+  // Restore the shared host and drop this probe's virtual file from its cache:
+  // the next call reuses the file name with different content.
+  host.getSourceFile = packageGetSourceFile
+  host.fileExists = packageFileExists
+  host.readFile = packageReadFile
+  sharedProbeHost.forget(virtualFile)
+  return diagnostics
 }
+
+/**
+ * One probe runs a full `ts.createProgram` in-process, which legitimately takes
+ * seconds on a loaded machine — a budget of its own instead of the 5 s default
+ * that guards runtime tests against hangs.
+ */
+const PROBE_TIMEOUT_MS = 30_000
 
 /** The app types and client every probe shares. */
 const preamble = `
@@ -73,7 +112,7 @@ const client = createJWTAuthClient<AppUser, CustomRegister>({ storage: 'memory' 
 `
 
 describe('custom registration fields accept an ordinary interface', () => {
-  it('takes an interface as the client’s second generic', () => {
+  it('takes an interface as the client’s second generic', { timeout: PROBE_TIMEOUT_MS }, () => {
     const diagnostics = diagnosticsFor(`
 ${preamble}
 
@@ -84,7 +123,7 @@ export const send = () =>
     expect(diagnostics.join('\n')).toEqual('')
   })
 
-  it('types RegisterData with an interface directly', () => {
+  it('types RegisterData with an interface directly', { timeout: PROBE_TIMEOUT_MS }, () => {
     const diagnostics = diagnosticsFor(`
 import type { RegisterData } from '../types.js'
 
@@ -102,7 +141,7 @@ export const data: RegisterData<CustomRegister> = {
     expect(diagnostics.join('\n')).toEqual('')
   })
 
-  it('still takes a type alias', () => {
+  it('still takes a type alias', { timeout: PROBE_TIMEOUT_MS }, () => {
     const diagnostics = diagnosticsFor(`
 import { createJWTAuthClient } from '../client.js'
 import type { UserProfile } from '../types.js'
@@ -122,7 +161,7 @@ export const send = () =>
     expect(diagnostics.join('\n')).toEqual('')
   })
 
-  it('leaves a caller without the second generic unchanged', () => {
+  it('leaves a caller without the second generic unchanged', { timeout: PROBE_TIMEOUT_MS }, () => {
     const diagnostics = diagnosticsFor(`
 import { createJWTAuthClient } from '../client.js'
 import type { UserProfile } from '../types.js'
@@ -140,8 +179,11 @@ export const send = () =>
     expect(diagnostics.join('\n')).toEqual('')
   })
 
-  it('the old Record<string, unknown> constraint rejects the same interface', () => {
-    const diagnostics = diagnosticsFor(`
+  it(
+    'the old Record<string, unknown> constraint rejects the same interface',
+    { timeout: PROBE_TIMEOUT_MS },
+    () => {
+      const diagnostics = diagnosticsFor(`
 interface CustomRegister {
   username: string
 }
@@ -151,10 +193,11 @@ declare function legacyClient<TRegister extends Record<string, unknown>>(): TReg
 export const rejected = legacyClient<CustomRegister>()
 `)
 
-    expect(diagnostics.join('\n')).toContain('Index signature for type')
-  })
+      expect(diagnostics.join('\n')).toContain('Index signature for type')
+    },
+  )
 
-  it('still requires a custom field the interface declares', () => {
+  it('still requires a custom field the interface declares', { timeout: PROBE_TIMEOUT_MS }, () => {
     const diagnostics = diagnosticsFor(`
 ${preamble}
 
@@ -164,7 +207,7 @@ export const send = () => client.register({ email: 'reader@example.test', passwo
     expect(diagnostics.join('\n')).toContain('username')
   })
 
-  it('still rejects a mistyped custom field', () => {
+  it('still rejects a mistyped custom field', { timeout: PROBE_TIMEOUT_MS }, () => {
     const diagnostics = diagnosticsFor(`
 ${preamble}
 
@@ -175,7 +218,7 @@ export const send = () =>
     expect(diagnostics.join('\n')).toContain('number')
   })
 
-  it('still rejects a mistyped email or password', () => {
+  it('still rejects a mistyped email or password', { timeout: PROBE_TIMEOUT_MS }, () => {
     const diagnostics = diagnosticsFor(`
 ${preamble}
 
@@ -186,8 +229,11 @@ export const send = () =>
     expect(diagnostics.join('\n')).toContain('number')
   })
 
-  it('rejects an interface that overrides a built-in field with a wrong type', () => {
-    const diagnostics = diagnosticsFor(`
+  it(
+    'rejects an interface that overrides a built-in field with a wrong type',
+    { timeout: PROBE_TIMEOUT_MS },
+    () => {
+      const diagnostics = diagnosticsFor(`
 import { createJWTAuthClient } from '../client.js'
 import type { UserProfile } from '../types.js'
 
@@ -203,10 +249,11 @@ interface BadRegister {
 export const client = createJWTAuthClient<AppUser, BadRegister>({ storage: 'memory' })
 `)
 
-    expect(diagnostics.join('\n')).toContain('not assignable')
-  })
+      expect(diagnostics.join('\n')).toContain('not assignable')
+    },
+  )
 
-  it('rejects fields that are not an object', () => {
+  it('rejects fields that are not an object', { timeout: PROBE_TIMEOUT_MS }, () => {
     const diagnostics = diagnosticsFor(`
 import { createJWTAuthClient } from '../client.js'
 import type { UserProfile } from '../types.js'

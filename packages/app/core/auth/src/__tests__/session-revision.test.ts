@@ -31,7 +31,7 @@ it('keeps the session revision for profile reads/writes and changes it for expli
   await client.initialize()
   const revision = client.getSessionRevision!()
   await client.updateProfile({ name: 'Updated' })
-  await client.validateSession()
+  await client.validateSession!()
   client.setUser({ ...user, name: 'Background profile' })
   client.setAccessToken('same-token')
   expect(client.getSessionRevision!()).toBe(revision)

@@ -85,7 +85,7 @@ describe('AuthState.status', () => {
       expect(client.getState().status).toBe('loading')
 
       resolveFetch?.(await createMockResponse({ user }))
-      await client.whenRestored()
+      await client.whenRestored!()
 
       expect(client.getState().status).toBe('authenticated')
     } finally {
@@ -102,7 +102,7 @@ describe('AuthState.status', () => {
     await client.initialize()
     mockFetch.mockImplementationOnce(() => Promise.reject(new Error('network down')))
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState().status).toBe('unavailable')
     expect(client.getState().user).toEqual(user)
@@ -124,7 +124,7 @@ describe('AuthState.status', () => {
       Promise.reject(new DOMException('The operation was aborted', 'AbortError')),
     )
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState().status).toBe('unavailable')
     expect(client.isAuthenticated()).toBe(true)
@@ -139,7 +139,7 @@ describe('AuthState.status', () => {
     await client.initialize()
     mockFetch.mockImplementationOnce(() => createMockResponse({ error: 'down' }, 503))
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState().status).toBe('unavailable')
     expect(client.getAccessToken()).not.toBeNull()
@@ -153,7 +153,7 @@ describe('AuthState.status', () => {
     await client.initialize()
     mockFetch.mockImplementationOnce(() => createMockResponse({ error: 'invalid token' }, 401))
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState().status).toBe('unauthenticated')
     expect(client.isAuthenticated()).toBe(false)
@@ -168,7 +168,7 @@ describe('AuthState.status', () => {
     await client.initialize()
     mockFetch.mockImplementationOnce(() => createMockResponse({ error: 'forbidden' }, 403))
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState().status).toBe('unauthenticated')
     expect(client.getAccessToken()).toBeNull()
@@ -189,7 +189,7 @@ describe('AuthState.status', () => {
       createMockResponse({ errors: { route: ['not found'] } }, 404),
     )
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState().status).toBe('unavailable')
     expect(client.isAuthenticated()).toBe(true)
@@ -208,7 +208,7 @@ describe('AuthState.status', () => {
     await client.initialize()
     mockFetch.mockImplementationOnce(() => createMockResponse({ user: fresh }))
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState().status).toBe('authenticated')
     expect(client.getUser()).toEqual(fresh)
@@ -227,14 +227,19 @@ describe('AuthState.status', () => {
     client.subscribe(listener)
     mockFetch.mockImplementationOnce(() => createMockResponse({ user: { ...user } }))
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getUser()).toBe(before)
     expect(listener).not.toHaveBeenCalled()
   })
 
   it('validateSession hands a changed profile to listeners once, as a new object', async () => {
-    const client = createJWTAuthClient({ storage: createMockStorage() })
+    // The server answer carries a field the base `UserProfile` does not name; the
+    // client stores the wire profile as it came, so this app's profile type names it.
+    interface ProfileWithBio extends UserProfile {
+      bio?: string
+    }
+    const client = createJWTAuthClient<ProfileWithBio>({ storage: createMockStorage() })
     client.setAccessToken(createMockJWT())
     client.setUser(user)
     await client.initialize()
@@ -245,7 +250,7 @@ describe('AuthState.status', () => {
       createMockResponse({ user: { ...user, bio: 'Updated bio' } }),
     )
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getUser()).not.toBe(before)
     expect(client.getUser()?.bio).toBe('Updated bio')
@@ -256,7 +261,7 @@ describe('AuthState.status', () => {
   it('validateSession with no token settles as unauthenticated without a request', async () => {
     const client = createJWTAuthClient({ storage: createMockStorage() })
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState().status).toBe('unauthenticated')
     expect(mockFetch).not.toHaveBeenCalled()

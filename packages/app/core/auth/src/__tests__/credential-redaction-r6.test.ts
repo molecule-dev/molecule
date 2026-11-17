@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createJWTAuthClient } from '../index.js'
+import type { AuthClientConfigOptions, UserProfile } from '../types.js'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -8,8 +9,9 @@ afterEach(() => {
 })
 
 const initializedClient = (
-  config: Parameters<typeof createJWTAuthClient>[0] = {},
-): ReturnType<typeof createJWTAuthClient> => createJWTAuthClient({ autoRefresh: false, ...config })
+  config: AuthClientConfigOptions<UserProfile> = {},
+): ReturnType<typeof createJWTAuthClient> =>
+  createJWTAuthClient<UserProfile>({ autoRefresh: false, ...config })
 
 const login = async (client: ReturnType<typeof createJWTAuthClient>): Promise<unknown> => {
   await client.initialize()

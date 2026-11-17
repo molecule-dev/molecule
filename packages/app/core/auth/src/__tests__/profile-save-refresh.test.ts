@@ -113,7 +113,9 @@ describe('profile saves and access-only sessions', () => {
       const { auth, items } = setup()
       // The operation's own rejection is covered by the "reports a current-user …
       // failure" test above; this test only asserts the canonical row survives.
-      const pending = auth[operation]().catch((_error) => undefined)
+      // The JWT client always implements both operations; the shared
+      // `AuthClient` interface only marks `validateSession` optional.
+      const pending = auth[operation]!().catch((_error) => undefined)
       expect(fetch).toHaveBeenCalledOnce()
       auth.setUser(saved)
       read.resolve(Response.json({ user: original }))

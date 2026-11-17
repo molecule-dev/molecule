@@ -344,7 +344,7 @@ describe('sign-out session ownership', () => {
       } else if (operation === 'refresh') {
         await client.refresh()
       } else if (operation === 'validate') {
-        await client.validateSession()
+        await client.validateSession!()
       } else {
         await client.initialize()
       }

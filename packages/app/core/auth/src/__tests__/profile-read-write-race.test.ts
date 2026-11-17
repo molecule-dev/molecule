@@ -37,7 +37,7 @@ it('does not let a profile read started before a save replace the accepted profi
   })
   client.setSession({ accessToken: 'opaque-token', user: loaded })
 
-  const read = client.validateSession()
+  const read = client.validateSession!()
   const saved = await client.updateProfile({ bio: 'Typed bio', image: 'typed.png' })
   expect(client.getUser()).toEqual(saved)
 

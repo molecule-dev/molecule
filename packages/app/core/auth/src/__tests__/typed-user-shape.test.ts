@@ -19,10 +19,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createJWTAuthClient } from '../index.js'
 import type { AuthResult, UserProfile } from '../types.js'
 
-/** The app's own profile: the wire fields plus the base identity fields. */
+/** The app's own profile: the wire fields (bio included) plus the base identity fields. */
 interface AppUser extends UserProfile {
   username: string
   image: string
+  bio: string
 }
 
 /** The wire user a RealWorld-shaped API answers with (no `id`/`name`/`avatar`). */
@@ -226,33 +227,70 @@ describe('a typed client preserves the app user fields through every path', () =
  * @param source - The TypeScript source to check.
  * @returns The flattened diagnostic messages.
  */
+/** The compiler options every probe here compiles with. */
+const probeOptions: ts.CompilerOptions = {
+  strict: true,
+  skipLibCheck: true,
+  noEmit: true,
+  target: ts.ScriptTarget.ES2022,
+  module: ts.ModuleKind.NodeNext,
+  moduleResolution: ts.ModuleResolutionKind.NodeNext,
+  types: [],
+  lib: ['lib.es2022.d.ts', 'lib.dom.d.ts'],
+}
+
+/**
+ * One host whose parsed source files are reused across probes. A fresh host
+ * per call would re-read and re-parse lib and the whole `@molecule/*` peer
+ * declaration graph — seconds per program, dozens of programs per file.
+ */
+const sharedProbeHost = (() => {
+  const base = ts.createCompilerHost(probeOptions)
+  const cache = new Map<string, ts.SourceFile | undefined>()
+  const baseGetSourceFile = base.getSourceFile.bind(base)
+  base.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+    if (!cache.has(fileName)) {
+      cache.set(
+        fileName,
+        baseGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile),
+      )
+    }
+    return cache.get(fileName)
+  }
+  return { host: base, forget: (fileName: string) => cache.delete(fileName) }
+})()
+
 const diagnosticsFor = (source: string): string[] => {
   const virtualFile = join(__dirname, '__typed-probe__.ts')
-  const options: ts.CompilerOptions = {
-    strict: true,
-    skipLibCheck: true,
-    noEmit: true,
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.NodeNext,
-    moduleResolution: ts.ModuleResolutionKind.NodeNext,
-    types: [],
-    lib: ['lib.es2022.d.ts', 'lib.dom.d.ts'],
-  }
-  const host = ts.createCompilerHost(options)
-  const getSourceFile = host.getSourceFile.bind(host)
-  const fileExists = host.fileExists.bind(host)
-  const readFile = host.readFile.bind(host)
+  const { host } = sharedProbeHost
+  const packageGetSourceFile = host.getSourceFile.bind(host)
+  const packageFileExists = host.fileExists.bind(host)
+  const packageReadFile = host.readFile.bind(host)
   host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
     fileName === virtualFile
       ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
-  host.fileExists = (fileName) => fileName === virtualFile || fileExists(fileName)
-  host.readFile = (fileName) => (fileName === virtualFile ? source : readFile(fileName))
-  const program = ts.createProgram([virtualFile], options, host)
-  return ts
+      : packageGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+  host.fileExists = (fileName) => fileName === virtualFile || packageFileExists(fileName)
+  host.readFile = (fileName) => (fileName === virtualFile ? source : packageReadFile(fileName))
+  const program = ts.createProgram([virtualFile], probeOptions, host)
+  const diagnostics = ts
     .getPreEmitDiagnostics(program)
     .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+  // Restore the shared host and drop this probe's virtual file from its cache:
+  // the next call reuses the file name with different content.
+  host.getSourceFile = packageGetSourceFile
+  host.fileExists = packageFileExists
+  host.readFile = packageReadFile
+  sharedProbeHost.forget(virtualFile)
+  return diagnostics
 }
+
+/**
+ * One probe runs a full `ts.createProgram` in-process, which legitimately takes
+ * seconds on a loaded machine — a budget of its own instead of the 5 s default
+ * that guards runtime tests against hangs.
+ */
+const PROBE_TIMEOUT_MS = 30_000
 
 /**
  * Type-level verification: the config's mapper is checked against the SAME
@@ -275,17 +313,21 @@ export const client = createJWTAuthClient<AppUser>({
 })
 `
 
-  it('rejects a mapper whose user omits the custom required fields', () => {
-    const diagnostics = diagnosticsFor(
-      source("{ id: 'ann', email: 'ann@example.com', name: 'ann' }"),
-    )
+  it(
+    'rejects a mapper whose user omits the custom required fields',
+    { timeout: PROBE_TIMEOUT_MS },
+    () => {
+      const diagnostics = diagnosticsFor(
+        source("{ id: 'ann', email: 'ann@example.com', name: 'ann' }"),
+      )
 
-    expect(diagnostics.join('\n')).toContain('AuthResult<NoInfer<AppUser>>')
-    expect(diagnostics.join('\n')).toContain('username')
-    expect(diagnostics.join('\n')).toContain('image')
-  })
+      expect(diagnostics.join('\n')).toContain('AuthResult<NoInfer<AppUser>>')
+      expect(diagnostics.join('\n')).toContain('username')
+      expect(diagnostics.join('\n')).toContain('image')
+    },
+  )
 
-  it('accepts a mapper that keeps the custom fields', () => {
+  it('accepts a mapper that keeps the custom fields', { timeout: PROBE_TIMEOUT_MS }, () => {
     expect(
       diagnosticsFor(
         source(
@@ -316,7 +358,7 @@ interface AppUser extends UserProfile {
 export const client = createJWTAuthClient<AppUser>({ ${fields} })
 `
 
-  it('accepts a body adapter typed by the custom profile', () => {
+  it('accepts a body adapter typed by the custom profile', { timeout: PROBE_TIMEOUT_MS }, () => {
     expect(
       diagnosticsFor(
         source(
@@ -326,19 +368,27 @@ export const client = createJWTAuthClient<AppUser>({ ${fields} })
     ).toEqual([])
   })
 
-  it('rejects a body adapter that reads a field the profile does not have', () => {
-    const diagnostics = diagnosticsFor(
-      source('profileRequestBody: (data) => ({ user: { nope: data.nope } })'),
-    )
+  it(
+    'rejects a body adapter that reads a field the profile does not have',
+    { timeout: PROBE_TIMEOUT_MS },
+    () => {
+      const diagnostics = diagnosticsFor(
+        source('profileRequestBody: (data) => ({ user: { nope: data.nope } })'),
+      )
 
-    expect(diagnostics.join('\n')).toContain("'nope'")
-  })
+      expect(diagnostics.join('\n')).toContain("'nope'")
+    },
+  )
 
-  it('rejects a method outside the standard profile-update set', () => {
-    const diagnostics = diagnosticsFor(source("profileUpdateMethod: 'DELETE'"))
+  it(
+    'rejects a method outside the standard profile-update set',
+    { timeout: PROBE_TIMEOUT_MS },
+    () => {
+      const diagnostics = diagnosticsFor(source("profileUpdateMethod: 'DELETE'"))
 
-    expect(diagnostics.join('\n')).toContain('DELETE')
-  })
+      expect(diagnostics.join('\n')).toContain('DELETE')
+    },
+  )
 })
 
 describe('profile endpoint resolver has the signed-in profile type', () => {
@@ -349,27 +399,39 @@ interface Account extends UserProfile { slug: string }
 const config: AuthClientConfig<Account> = { ${field} }
 export const client = createJWTAuthClient<Account>(config)
 `
-  it('accepts a current-user keyed write route independently of the read route', () => {
-    expect(
-      diagnosticsFor(
-        source(
-          "currentUserEndpoint: '/viewer', profileEndpoint: (user) => '/members/' + encodeURIComponent(user.id)",
+  it(
+    'accepts a current-user keyed write route independently of the read route',
+    { timeout: PROBE_TIMEOUT_MS },
+    () => {
+      expect(
+        diagnosticsFor(
+          source(
+            "currentUserEndpoint: '/viewer', profileEndpoint: (user) => '/members/' + encodeURIComponent(user.id)",
+          ),
         ),
-      ),
-    ).toEqual([])
-  })
-  it('rejects an unknown profile property in the route resolver', () => {
-    expect(diagnosticsFor(source('profileEndpoint: (user) => user.missing')).join('\n')).toContain(
-      'missing',
-    )
-  })
-  it('keeps explicitly different read and write string routes compatible', () => {
-    expect(
-      diagnosticsFor(
-        source(
-          "currentUserEndpoint: '/viewer', profileEndpoint: '/preferences', profileUpdateMethod: 'PUT'",
+      ).toEqual([])
+    },
+  )
+  it(
+    'rejects an unknown profile property in the route resolver',
+    { timeout: PROBE_TIMEOUT_MS },
+    () => {
+      expect(
+        diagnosticsFor(source('profileEndpoint: (user) => user.missing')).join('\n'),
+      ).toContain('missing')
+    },
+  )
+  it(
+    'keeps explicitly different read and write string routes compatible',
+    { timeout: PROBE_TIMEOUT_MS },
+    () => {
+      expect(
+        diagnosticsFor(
+          source(
+            "currentUserEndpoint: '/viewer', profileEndpoint: '/preferences', profileUpdateMethod: 'PUT'",
+          ),
         ),
-      ),
-    ).toEqual([])
-  })
+      ).toEqual([])
+    },
+  )
 })

@@ -216,7 +216,7 @@ describe('mapAuthResponse shapes the user on every path that adopts one', () => 
     await client.initialize()
     mockFetch.mockImplementationOnce(() => createMockResponse({ user: wireUser }))
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getUser()).toEqual(mappedUser)
     expect(client.getUser()?.id).toBe('ann')
@@ -267,7 +267,7 @@ describe('mapAuthResponse shapes the user on every path that adopts one', () => 
     await client.initialize()
     mockFetch.mockImplementationOnce(() => createMockResponse({ user: freshUser }))
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getUser()).toEqual(freshUser)
   })

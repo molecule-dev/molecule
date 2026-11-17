@@ -49,8 +49,9 @@ describe('round-eight auth HTTP capture', () => {
 
     expect(reads).toBe(1)
     expect(caught).toBeInstanceOf(HttpError)
-    expect((caught as HttpError).response!.data).toEqual({ safe: 'same' })
-    expect(caught.message).not.toContain('second-read-secret')
+    const httpError = caught as HttpError
+    expect(httpError.response!.data).toEqual({ safe: 'same' })
+    expect(httpError.message).not.toContain('second-read-secret')
     expect(client.getState().loading).toBe(false)
     client.destroy()
   })

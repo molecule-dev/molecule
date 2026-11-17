@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { isHttpError } from '@molecule/app-http'
 import {
   createConsoleLoggerProvider,
   createRemoteTransport,
@@ -7,7 +8,6 @@ import {
   setProvider,
 } from '@molecule/app-logger'
 
-import { isHttpError } from '../../../http/src/index.js'
 import { createJWTAuthClient } from '../index.js'
 
 const LOG_URL = 'https://logs.example.test/auth-r4'

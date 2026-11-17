@@ -41,7 +41,13 @@ import { login, register } from '../utilities.js'
  * @param source - The TypeScript source to check.
  * @returns The diagnostic messages.
  */
-function diagnosticsFor(source: string): string[] {
+/**
+ * The compiler options every probe shares (this package's own tsconfig, no emit)
+ * and one host whose parsed source files are reused across probes. Every call
+ * would otherwise re-read and re-parse lib and the whole `@molecule/*` peer
+ * declaration graph — seconds per program, dozens of programs per file.
+ */
+const probeOptions: ts.CompilerOptions = (() => {
   const configPath = join(__dirname, '..', '..', 'tsconfig.json')
   const parsed = ts.getParsedCommandLineOfConfigFile(
     configPath,
@@ -51,22 +57,48 @@ function diagnosticsFor(source: string): string[] {
       onUnRecoverableConfigFileDiagnostic: () => undefined,
     },
   )
-  const options: ts.CompilerOptions = { ...(parsed?.options ?? {}), noEmit: true }
+  return { ...(parsed?.options ?? {}), noEmit: true }
+})()
+
+const sharedProbeHost = (() => {
+  const base = ts.createCompilerHost(probeOptions)
+  const cache = new Map<string, ts.SourceFile | undefined>()
+  const baseGetSourceFile = base.getSourceFile.bind(base)
+  base.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+    if (!cache.has(fileName)) {
+      cache.set(
+        fileName,
+        baseGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile),
+      )
+    }
+    return cache.get(fileName)
+  }
+  return { host: base, forget: (fileName: string) => cache.delete(fileName) }
+})()
+
+function diagnosticsFor(source: string): string[] {
   const virtualFile = join(__dirname, '__typed-probe__.ts')
-  const host = ts.createCompilerHost(options)
-  const getSourceFile = host.getSourceFile.bind(host)
-  const fileExists = host.fileExists.bind(host)
-  const readFile = host.readFile.bind(host)
+  const { host } = sharedProbeHost
+  const packageGetSourceFile = host.getSourceFile.bind(host)
+  const packageFileExists = host.fileExists.bind(host)
+  const packageReadFile = host.readFile.bind(host)
   host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
     fileName === virtualFile
       ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
-  host.fileExists = (fileName) => fileName === virtualFile || fileExists(fileName)
-  host.readFile = (fileName) => (fileName === virtualFile ? source : readFile(fileName))
-  const program = ts.createProgram([virtualFile], options, host)
-  return ts
+      : packageGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+  host.fileExists = (fileName) => fileName === virtualFile || packageFileExists(fileName)
+  host.readFile = (fileName) => (fileName === virtualFile ? source : packageReadFile(fileName))
+  const program = ts.createProgram([virtualFile], probeOptions, host)
+  const diagnostics = ts
     .getPreEmitDiagnostics(program)
     .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+  // Restore the shared host and drop this probe's virtual file from its cache:
+  // the next call reuses the file name with different content.
+  host.getSourceFile = packageGetSourceFile
+  host.fileExists = packageFileExists
+  host.readFile = packageReadFile
+  sharedProbeHost.forget(virtualFile)
+  return diagnostics
 }
 
 /**
@@ -102,7 +134,7 @@ ${body}
 describe('a custom object profile without id is a supported type', () => {
   it('accepts the no-id interface in createJWTAuthClient and AuthClientConfig', () => {
     expect(diagnosticsFor(customProfileSource()).join('\n')).toEqual('')
-  })
+  }, 30_000)
 
   it('accepts the no-id interface through the bonded client accessors', () => {
     expect(
@@ -121,7 +153,7 @@ export const client = getClient<SessionUser>()
 export const username: string | undefined = getUser<SessionUser>()?.username
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('does not infer the profile from a config the caller annotated', () => {
     // The annotation types the config; it does NOT supply the factory's type
@@ -176,7 +208,7 @@ export const client = createJWTAuthClient<SessionUser>(config)
 export const username: string | undefined = client.getUser()?.username
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('rejects a mapper that omits a required custom field', () => {
     const diagnostics = diagnosticsFor(`
@@ -199,7 +231,7 @@ export const client = createJWTAuthClient<SessionUser>({
 
     expect(diagnostics.join('\n')).toContain('AuthResult<NoInfer<SessionUser>>')
     expect(diagnostics.join('\n')).toContain('bio')
-  })
+  }, 30_000)
 
   it('rejects a profile patch field the custom profile does not have', () => {
     const diagnostics = diagnosticsFor(
@@ -207,7 +239,7 @@ export const client = createJWTAuthClient<SessionUser>({
     )
 
     expect(diagnostics.join('\n')).toContain('nickname')
-  })
+  }, 30_000)
 
   it('types the profile endpoint resolver with the custom profile', () => {
     expect(
@@ -249,7 +281,7 @@ const config: AuthClientConfig<SessionUser> = {
 export const client = createJWTAuthClient<SessionUser>(config)
 `).join('\n'),
     ).toContain("Property 'id' does not exist")
-  })
+  }, 30_000)
 
   it('types the profile body adapter with the custom profile', () => {
     expect(
@@ -285,7 +317,7 @@ export const client = createJWTAuthClient<SessionUser>({
 `)
 
     expect(diagnostics.join('\n')).toContain("Property 'id' does not exist")
-  })
+  }, 30_000)
 })
 
 describe('the profile is named at the call, never inferred from the config', () => {
@@ -324,7 +356,7 @@ export const username: string | undefined = client.getUser()?.username
 
       expect(diagnostics.join('\n'), member).toContain('UserProfile')
       expect(diagnostics.join('\n'), member).toContain('username')
-    })
+    }, 30_000)
 
     it(`accepts the ${member} callback when the profile is named`, () => {
       expect(
@@ -336,7 +368,7 @@ export const client = createJWTAuthClient<SessionUser>({ ${entry} })
 export const username: string | undefined = client.getUser()?.username
 `).join('\n'),
       ).toEqual('')
-    })
+    }, 30_000)
   }
 
   it('keeps the default id: string readable when a Partial request body is untyped', () => {
@@ -354,7 +386,7 @@ const client = createJWTAuthClient({
 export const id: string = client.getUser()?.id ?? ''
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('does not infer an id-bearing profile from an annotated config (old-red)', () => {
     // This is the 1.8 shape the major changes: an id-bearing custom profile was
@@ -389,7 +421,7 @@ export const client = createJWTAuthClient<ExistingUser>(config)
 export const name: string | undefined = client.getUser()?.username
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('does not infer an id-bearing profile from a typed mapper (old-red)', () => {
     // 1.8 compiled this and typed the client ExistingUser. The default-profile
@@ -411,7 +443,7 @@ export const name: string | undefined = client.getUser()?.username
 
     expect(diagnostics.join('\n')).toContain('UserProfile')
     expect(diagnostics.join('\n')).toContain('username')
-  })
+  }, 30_000)
 
   it('accepts any as the explicit opt-out at every entrypoint', () => {
     expect(
@@ -436,7 +468,7 @@ export async function go() {
 }
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('accepts generic forwarding that copies AuthProfileConstraint', () => {
     expect(
@@ -457,7 +489,7 @@ export function current<T extends AuthProfileConstraint<T>>(): T | null {
 }
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('rejects generic forwarding constrained only to object', () => {
     const diagnostics = diagnosticsFor(`
@@ -473,7 +505,7 @@ export function current<T extends object>(): T | null {
 `)
 
     expect(diagnostics.join('\n')).toContain('does not satisfy the constraint')
-  })
+  }, 30_000)
 })
 
 describe('the default profile and invalid profile types are unchanged', () => {
@@ -497,7 +529,7 @@ const client = createJWTAuthClient({})
 export const wrong: number = client.getUser()!.id
 `).join('\n'),
     ).toContain('number')
-  })
+  }, 30_000)
 
   it('does NOT take the profile from an untyped mapper', () => {
     // Before the profile was accepted at all, this failed on the constraint.
@@ -513,7 +545,7 @@ export const client = createJWTAuthClient({
 
     expect(diagnostics.join('\n')).toContain('AuthResult<NoInfer<UserProfile>>')
     expect(diagnostics.join('\n')).toContain('id')
-  })
+  }, 30_000)
 
   // Give each independent profile its own unchanged compiler-probe budget. Grouping
   // six or sixteen TypeScript programs in one case times out under normal shared load.
@@ -680,7 +712,7 @@ export const aliasConfig: AuthClientConfig<TypeAlias> = {}
 export const emptyConfig: AuthClientConfig<{}> = {}
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 })
 
 describe('the listener contract', () => {
@@ -705,7 +737,7 @@ client.addEventListener((event: AuthEvent<SessionUser>) => {
 })
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('contextually types an unannotated inline listener on a custom-profile client', () => {
     // The public consumer shape: an id-bearing custom profile and a listener
@@ -730,7 +762,7 @@ client.addEventListener((event) => {
 })
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('implements the interface with the profile-typed listener', () => {
     expect(
@@ -771,7 +803,7 @@ const listener: AuthEventListener<MyUser> = () => undefined
 export const registration = (client: ProfileClient) => client.addEventListener(listener)
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('rejects the pre-2.0 default-listener declaration on a custom profile', () => {
     // The documented breaking change: `AuthEventListener` (default profile)
@@ -810,7 +842,7 @@ export declare class LegacyClient implements AuthClient<MyUser> {
 `)
 
     expect(diagnostics.join('\n')).toContain('addEventListener')
-  })
+  }, 30_000)
 
   it('rejects the default listener on a client whose profile has no id', () => {
     const diagnostics = diagnosticsFor(`
@@ -848,7 +880,7 @@ export declare class LegacyClient implements AuthClient<SessionUser> {
 `)
 
     expect(diagnostics.join('\n')).toContain('addEventListener')
-  })
+  }, 30_000)
 })
 
 describe('the bonded utilities type the custom profile', () => {
@@ -886,7 +918,7 @@ export const legacyRegister = await register<{ username: string }>({
 })
 `).join('\n'),
     ).toEqual('')
-  })
+  }, 30_000)
 
   it('keeps the untyped utilities on the default profile', () => {
     expect(
@@ -907,7 +939,7 @@ export const signedIn = await login({ email: 'ann@example.com', password: 'pw' }
 export const username: string = signedIn.user.username
 `)
     expect(diagnostics.join('\n')).toContain('username')
-  })
+  }, 30_000)
 })
 
 /** The app's own profile: the wire fields, and no `id` at all. */
@@ -1038,7 +1070,9 @@ describe('the complete custom profile survives the client lifecycle', () => {
 
   it('a configured profile save keeps every field and publishes the saved profile', async () => {
     const updatedWire = { ...wireUser, bio: 'updated bio' }
-    const fetchMock = vi.fn(() => createMockResponse({ user: updatedWire }))
+    const fetchMock = vi.fn((_input: RequestInfo | URL, _init?: RequestInit) =>
+      createMockResponse({ user: updatedWire }),
+    )
     vi.stubGlobal('fetch', fetchMock)
     const storage = createMockStorage()
     const config: AuthClientConfig<SessionUser> = {
@@ -1074,7 +1108,9 @@ describe('the complete custom profile survives the client lifecycle', () => {
     // A REAL bonded client (the same instance `getClient()` resolves), not a
     // mock: the utilities are typed for the app's profile and return the profile
     // the API answered with — no `id` invented anywhere.
-    const fetchMock = vi.fn(() => createMockResponse({ user: wireUser }))
+    const fetchMock = vi.fn((_input: RequestInfo | URL, _init?: RequestInit) =>
+      createMockResponse({ user: wireUser }),
+    )
     vi.stubGlobal('fetch', fetchMock)
     const storage = createMockStorage()
     setClient(createJWTAuthClient<SessionUser>({ storage, mapAuthResponse }))

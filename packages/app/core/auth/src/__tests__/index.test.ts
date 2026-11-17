@@ -767,7 +767,7 @@ describe('JWT Auth Client', () => {
       try {
         await client.initialize()
         expect(client.isAuthenticated()).toBe(false)
-        const cookie = (globalThis as { document?: { cookie: string } }).document.cookie
+        const cookie = (globalThis as { document?: { cookie: string } }).document?.cookie
         expect(cookie).not.toContain('mol_auth=1')
 
         // and the skip-gate works: no further probe without the hint
@@ -801,7 +801,7 @@ describe('JWT Auth Client', () => {
       try {
         await client.initialize()
         expect(client.isAuthenticated()).toBe(false)
-        const cookie = (globalThis as { document?: { cookie: string } }).document.cookie
+        const cookie = (globalThis as { document?: { cookie: string } }).document?.cookie
         expect(cookie).toContain('mol_auth=1')
       } finally {
         delete (globalThis as { document?: unknown }).document
@@ -1811,7 +1811,7 @@ describe('JWT Auth Client', () => {
 
       // Only an actual rejection ends the session.
       mockFetch.mockImplementationOnce(() => createMockResponse({ error: 'Unauthorized' }, 401))
-      await client.validateSession()
+      await client.validateSession!()
 
       expect(client.isAuthenticated()).toBe(false)
       expect(client.getAccessToken()).toBeNull()

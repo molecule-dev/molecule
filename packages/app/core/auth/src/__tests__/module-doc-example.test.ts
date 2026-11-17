@@ -72,31 +72,70 @@ function readIndexExample(marker: string): string {
  * @param source - The probe source.
  * @returns The diagnostics.
  */
-function compileProbe(source: string): string[] {
+/**
+ * The compiler options every probe shares (this package's own tsconfig, no emit)
+ * and one host whose parsed source files are reused across probes. Every call
+ * would otherwise re-read and re-parse lib and the whole `@molecule/*` peer
+ * declaration graph — seconds per program, dozens of programs per file.
+ */
+const probeOptions: ts.CompilerOptions = (() => {
   const configPath = join(__dirname, '..', '..', 'tsconfig.json')
   const parsed = ts.getParsedCommandLineOfConfigFile(
     configPath,
     { noEmit: true },
     { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => undefined },
   )
-  const options: ts.CompilerOptions = { ...(parsed?.options ?? {}), noEmit: true }
+  return { ...(parsed?.options ?? {}), noEmit: true }
+})()
+
+const sharedProbeHost = (() => {
+  const base = ts.createCompilerHost(probeOptions)
+  const cache = new Map<string, ts.SourceFile | undefined>()
+  const baseGetSourceFile = base.getSourceFile.bind(base)
+  base.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+    if (!cache.has(fileName)) {
+      cache.set(
+        fileName,
+        baseGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile),
+      )
+    }
+    return cache.get(fileName)
+  }
+  return { host: base, forget: (fileName: string) => cache.delete(fileName) }
+})()
+
+function compileProbe(source: string): string[] {
   const virtualFile = join(__dirname, '__doc-probe__.ts')
-  const host = ts.createCompilerHost(options)
-  const getSourceFile = host.getSourceFile.bind(host)
-  const fileExists = host.fileExists.bind(host)
-  const readFile = host.readFile.bind(host)
+  const { host } = sharedProbeHost
+  const packageGetSourceFile = host.getSourceFile.bind(host)
+  const packageFileExists = host.fileExists.bind(host)
+  const packageReadFile = host.readFile.bind(host)
   host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
     fileName === virtualFile
       ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
-  host.fileExists = (fileName) => fileName === virtualFile || fileExists(fileName)
-  host.readFile = (fileName) => (fileName === virtualFile ? source : readFile(fileName))
-  const program = ts.createProgram([virtualFile], options, host)
-  return ts
+      : packageGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+  host.fileExists = (fileName) => fileName === virtualFile || packageFileExists(fileName)
+  host.readFile = (fileName) => (fileName === virtualFile ? source : packageReadFile(fileName))
+  const program = ts.createProgram([virtualFile], probeOptions, host)
+  const diagnostics = ts
     .getPreEmitDiagnostics(program)
     .filter((diagnostic) => diagnostic.file?.fileName === virtualFile)
     .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+  // Restore the shared host and drop this probe's virtual file from its cache:
+  // the next call reuses the file name with different content.
+  host.getSourceFile = packageGetSourceFile
+  host.fileExists = packageFileExists
+  host.readFile = packageReadFile
+  sharedProbeHost.forget(virtualFile)
+  return diagnostics
 }
+
+/**
+ * One probe runs a full `ts.createProgram` in-process, which legitimately takes
+ * seconds on a loaded machine — a budget of its own instead of the 5 s default
+ * that guards runtime tests against hangs.
+ */
+const PROBE_TIMEOUT_MS = 30_000
 
 /**
  * Rewrites the example's package imports to this package's source modules.
@@ -229,13 +268,17 @@ const moduleExamples = [
 ] as const
 
 describe('every module-doc mapper example', () => {
-  it('compiles the synchronous integration reader against the real client', () => {
-    const example = codeBlocks(readSource('index.ts')).find((block) =>
-      block.includes('readSession'),
-    )
-    expect(example, 'a copyable session-reader adapter').toBeDefined()
-    expect(compileProbe(toSourceImports(example!)).join('\n')).toEqual('')
-  })
+  it(
+    'compiles the synchronous integration reader against the real client',
+    () => {
+      const example = codeBlocks(readSource('index.ts')).find((block) =>
+        block.includes('readSession'),
+      )
+      expect(example, 'a copyable session-reader adapter').toBeDefined()
+      expect(compileProbe(toSourceImports(example!)).join('\n')).toEqual('')
+    },
+    PROBE_TIMEOUT_MS,
+  )
 
   it.each([401, 503])(
     'runs the documented reader through login and a %s recheck',
@@ -273,7 +316,7 @@ describe('every module-doc mapper example', () => {
         vi.fn(async () => new Response('{}', { status })),
       )
       try {
-        await client.validateSession()
+        await client.validateSession!()
         expect(readSession()).toMatchObject(
           status === 401
             ? { status: 'unauthenticated', user: null, accessToken: null }
@@ -300,10 +343,14 @@ describe('every module-doc mapper example', () => {
   })
 
   for (const [name, marker] of moduleExamples) {
-    it(`compiles against the real source — ${name}`, () => {
-      const example = toSourceImports(readIndexExample(marker))
-      expect(compileProbe(example).join('\n'), name).toEqual('')
-    })
+    it(
+      `compiles against the real source — ${name}`,
+      () => {
+        const example = toSourceImports(readIndexExample(marker))
+        expect(compileProbe(example).join('\n'), name).toEqual('')
+      },
+      PROBE_TIMEOUT_MS,
+    )
 
     it(`keeps the bearer out of the cached profile — ${name}`, async () => {
       const source = configModuleSource(readIndexExample(marker))

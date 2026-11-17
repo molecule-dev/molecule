@@ -42,7 +42,7 @@ describe('round-nine auth failure reconstruction', () => {
     const { caught, client } = await loginWithFailure(original)
     try {
       expect(caught).toBeInstanceOf(HttpError)
-      expect(caught.stack).toBe(before)
+      expect((caught as HttpError).stack).toBe(before)
     } finally {
       client.destroy()
     }
@@ -60,7 +60,7 @@ describe('round-nine auth failure reconstruction', () => {
     const { caught, client } = await loginWithFailure(original)
     try {
       expect(caught).toBeInstanceOf(HttpError)
-      expect(caught.message).toBe('readable application message')
+      expect((caught as HttpError).message).toBe('readable application message')
       expect(client.getState().error).toBe('readable application message')
     } finally {
       client.destroy()
@@ -78,7 +78,7 @@ describe('round-nine auth failure reconstruction', () => {
     const { caught, client } = await loginWithFailure(original)
     try {
       expect(caught).toBeInstanceOf(HttpError)
-      expect(caught.message).not.toContain('accessor-credential')
+      expect((caught as HttpError).message).not.toContain('accessor-credential')
       expect(client.getState().loading).toBe(false)
       expect(client.getState().error).not.toContain('accessor-credential')
     } finally {

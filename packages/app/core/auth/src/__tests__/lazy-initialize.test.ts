@@ -111,7 +111,7 @@ describe('lazy initialization — a dropped initialize() is no longer fatal', ()
     expect(client.getState().status).toBe('loading')
 
     // The first read started it; `whenRestored()` is the same restore's signal.
-    await client.whenRestored()
+    await client.whenRestored!()
 
     expect(client.getState()).toMatchObject({
       status: 'unauthenticated',
@@ -141,7 +141,7 @@ describe('lazy initialization — a dropped initialize() is no longer fatal', ()
     })
 
     expect(client.getState().status).toBe('loading')
-    await Promise.all([client.initialize(), client.whenRestored()])
+    await Promise.all([client.initialize(), client.whenRestored!()])
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
     expect(mockFetch).toHaveBeenCalledWith(
@@ -284,7 +284,7 @@ describe('lazy initialization — a dropped initialize() is no longer fatal', ()
 
     // The lazy read must not produce an unhandled rejection.
     client.getState()
-    await client.whenRestored()
+    await client.whenRestored!()
 
     expect(client.getState()).toMatchObject({ status: 'unavailable', initialized: true })
     expect(document.cookie).toContain('mol_auth=1')

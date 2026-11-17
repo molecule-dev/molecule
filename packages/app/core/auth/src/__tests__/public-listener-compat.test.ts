@@ -156,6 +156,27 @@ function consumerOptions(): ts.CompilerOptions {
  * @param name - A unique probe file name (the programs are independent).
  * @returns The diagnostic messages.
  */
+/**
+ * One host whose parsed source files are reused across probes. A fresh host per
+ * call would re-read and re-parse lib and the whole `@molecule/*` declaration
+ * graph — seconds per program, and this suite runs a program per case.
+ */
+const sharedProbeHost = (() => {
+  const base = ts.createCompilerHost(consumerOptions())
+  const cache = new Map<string, ts.SourceFile | undefined>()
+  const baseGetSourceFile = base.getSourceFile.bind(base)
+  base.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+    if (!cache.has(fileName)) {
+      cache.set(
+        fileName,
+        baseGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile),
+      )
+    }
+    return cache.get(fileName)
+  }
+  return { host: base, forget: (fileName: string) => cache.delete(fileName) }
+})()
+
 function diagnosticsFor(source: string, contract?: string, name = 'probe'): string[] {
   const probePath = join(packageRoot, `__public_${name}__.ts`)
   const files = new Map<string, string>([[probePath, source]])
@@ -165,26 +186,40 @@ function diagnosticsFor(source: string, contract?: string, name = 'probe'): stri
     files.set(fixturePath, contract)
     options.paths = { '@molecule/app-auth': [fixturePath] }
   }
-  const host = ts.createCompilerHost(options)
-  const getSourceFile = host.getSourceFile.bind(host)
-  const fileExists = host.fileExists.bind(host)
-  const readFile = host.readFile.bind(host)
+  const { host } = sharedProbeHost
+  const packageGetSourceFile = host.getSourceFile.bind(host)
+  const packageFileExists = host.fileExists.bind(host)
+  const packageReadFile = host.readFile.bind(host)
   host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
     const source = files.get(fileName)
     return source !== undefined
       ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
-      : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+      : packageGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
   }
-  host.fileExists = (fileName) => files.has(fileName) || fileExists(fileName)
-  host.readFile = (fileName) => files.get(fileName) ?? readFile(fileName)
+  host.fileExists = (fileName) => files.has(fileName) || packageFileExists(fileName)
+  host.readFile = (fileName) => files.get(fileName) ?? packageReadFile(fileName)
   const program = ts.createProgram([probePath], options, host)
-  return ts
+  const diagnostics = ts
     .getPreEmitDiagnostics(program)
     .map(
       (diagnostic) =>
         `${diagnostic.code} ${ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')}`,
     )
+  // Restore the shared host and drop this probe's in-memory files from its
+  // cache: the next call reuses those names with different content.
+  host.getSourceFile = packageGetSourceFile
+  host.fileExists = packageFileExists
+  host.readFile = packageReadFile
+  for (const fileName of files.keys()) sharedProbeHost.forget(fileName)
+  return diagnostics
 }
+
+/**
+ * One probe runs a full `ts.createProgram` in-process, which legitimately takes
+ * seconds on a loaded machine — a budget of its own instead of the 5 s default
+ * that guards runtime tests against hangs.
+ */
+const PROBE_TIMEOUT_MS = 30_000
 
 /**
  * Source fragments shared by the cases below.
@@ -262,20 +297,26 @@ ${fullClientStub('MyUser')}}
 `
 
 describe('the public listener contract compiles through the exported dist', () => {
-  it('compiles the exact main consumer: a UserProfile extension and an unannotated listener', () => {
-    assertDistIsCurrent()
-    expect(diagnosticsFor(publicConsumer, undefined, 'consumer').join('\n')).toEqual('')
-  })
+  it(
+    'compiles the exact main consumer: a UserProfile extension and an unannotated listener',
+    () => {
+      assertDistIsCurrent()
+      expect(diagnosticsFor(publicConsumer, undefined, 'consumer').join('\n')).toEqual('')
+    },
+    PROBE_TIMEOUT_MS,
+  )
 
-  it('contextually types an inline listener on the inferred and explicit default profile', () => {
-    assertDistIsCurrent()
-    for (const [name, declaration] of [
-      ['inferred', 'const client = createJWTAuthClient()'],
-      ['explicit', 'const client = createJWTAuthClient<UserProfile>()'],
-    ]) {
-      expect(
-        diagnosticsFor(
-          `
+  it(
+    'contextually types an inline listener on the inferred and explicit default profile',
+    () => {
+      assertDistIsCurrent()
+      for (const [name, declaration] of [
+        ['inferred', 'const client = createJWTAuthClient()'],
+        ['explicit', 'const client = createJWTAuthClient<UserProfile>()'],
+      ]) {
+        expect(
+          diagnosticsFor(
+            `
 import { createJWTAuthClient, type UserProfile } from '@molecule/app-auth'
 
 ${declaration}
@@ -287,19 +328,23 @@ client.addEventListener((event) => {
   }
 })
 `,
-          undefined,
-          `default_${name}`,
-        ).join('\n'),
-        name,
-      ).toEqual('')
-    }
-  })
+            undefined,
+            `default_${name}`,
+          ).join('\n'),
+          name,
+        ).toEqual('')
+      }
+    },
+    PROBE_TIMEOUT_MS,
+  )
 
-  it('contextually types an inline listener on an id-bearing custom profile', () => {
-    assertDistIsCurrent()
-    expect(
-      diagnosticsFor(
-        `${customIdProfile}
+  it(
+    'contextually types an inline listener on an id-bearing custom profile',
+    () => {
+      assertDistIsCurrent()
+      expect(
+        diagnosticsFor(
+          `${customIdProfile}
 client.addEventListener((event) => {
   if (event.type === 'login') {
     const id: string = event.user.id
@@ -309,34 +354,42 @@ client.addEventListener((event) => {
   }
 })
 `,
-        undefined,
-        'custom_id_inline',
-      ).join('\n'),
-    ).toEqual('')
-  })
+          undefined,
+          'custom_id_inline',
+        ).join('\n'),
+      ).toEqual('')
+    },
+    PROBE_TIMEOUT_MS,
+  )
 
-  it('accepts a stored default listener on an id-bearing custom-profile client', () => {
-    assertDistIsCurrent()
-    expect(
-      diagnosticsFor(
-        `${customIdProfile}
+  it(
+    'accepts a stored default listener on an id-bearing custom-profile client',
+    () => {
+      assertDistIsCurrent()
+      expect(
+        diagnosticsFor(
+          `${customIdProfile}
 const listener: AuthEventListener = (event) => {
   if (event.type === 'login') console.log(event.user.id)
 }
 
 client.addEventListener(listener)
 `,
-        undefined,
-        'custom_id_stored',
-      ).join('\n'),
-    ).toEqual('')
-  })
+          undefined,
+          'custom_id_stored',
+        ).join('\n'),
+      ).toEqual('')
+    },
+    PROBE_TIMEOUT_MS,
+  )
 
-  it('types a listener on a custom profile with no id, annotated or inline', () => {
-    assertDistIsCurrent()
-    expect(
-      diagnosticsFor(
-        `${customNoIdProfile}
+  it(
+    'types a listener on a custom profile with no id, annotated or inline',
+    () => {
+      assertDistIsCurrent()
+      expect(
+        diagnosticsFor(
+          `${customNoIdProfile}
 client.addEventListener((event: AuthEvent<SessionUser>) => {
   if (event.type === 'login') {
     const username: string = event.user.username
@@ -344,14 +397,14 @@ client.addEventListener((event: AuthEvent<SessionUser>) => {
   }
 })
 `,
-        undefined,
-        'custom_no_id_typed',
-      ).join('\n'),
-    ).toEqual('')
+          undefined,
+          'custom_no_id_typed',
+        ).join('\n'),
+      ).toEqual('')
 
-    expect(
-      diagnosticsFor(
-        `${customNoIdProfile}
+      expect(
+        diagnosticsFor(
+          `${customNoIdProfile}
 client.addEventListener((event) => {
   if (event.type === 'login') {
     const username: string = event.user.username
@@ -359,70 +412,86 @@ client.addEventListener((event) => {
   }
 })
 `,
-        undefined,
-        'custom_no_id_inline',
-      ).join('\n'),
-    ).toEqual('')
-  })
-
-  it('accepts the profile-typed listener declaration of an external provider', () => {
-    assertDistIsCurrent()
-    for (const [name, profile] of [
-      ['id', 'interface MyUser extends UserProfile { username: string }'],
-      ['no_id', 'interface MyUser { username: string; email: string }'],
-    ]) {
-      expect(
-        diagnosticsFor(
-          implementationProbe(
-            profile,
-            'addEventListener(listener: AuthEventListener<MyUser>): () => void',
-          ),
           undefined,
-          `provider_${name}`,
+          'custom_no_id_inline',
         ).join('\n'),
-        name,
       ).toEqual('')
-    }
-  })
+    },
+    PROBE_TIMEOUT_MS,
+  )
+
+  it(
+    'accepts the profile-typed listener declaration of an external provider',
+    () => {
+      assertDistIsCurrent()
+      for (const [name, profile] of [
+        ['id', 'interface MyUser extends UserProfile { username: string }'],
+        ['no_id', 'interface MyUser { username: string; email: string }'],
+      ]) {
+        expect(
+          diagnosticsFor(
+            implementationProbe(
+              profile,
+              'addEventListener(listener: AuthEventListener<MyUser>): () => void',
+            ),
+            undefined,
+            `provider_${name}`,
+          ).join('\n'),
+          name,
+        ).toEqual('')
+      }
+    },
+    PROBE_TIMEOUT_MS,
+  )
 })
 
 describe('the public listener contract rejects unsound listeners', () => {
-  it('rejects the default listener on a client whose profile has no id', () => {
-    assertDistIsCurrent()
-    const diagnostics = diagnosticsFor(
-      `${customNoIdProfile}
+  it(
+    'rejects the default listener on a client whose profile has no id',
+    () => {
+      assertDistIsCurrent()
+      const diagnostics = diagnosticsFor(
+        `${customNoIdProfile}
 const listener: AuthEventListener = (event) => {
   if (event.type === 'login') console.log(event.user.id)
 }
 
 client.addEventListener(listener)
 `,
-      undefined,
-      'no_id_default',
-    )
-    expect(diagnostics.join('\n')).toContain('not assignable')
-    expect(diagnostics.join('\n')).toContain('id')
-  })
+        undefined,
+        'no_id_default',
+      )
+      expect(diagnostics.join('\n')).toContain('not assignable')
+      expect(diagnostics.join('\n')).toContain('id')
+    },
+    PROBE_TIMEOUT_MS,
+  )
 
-  it('rejects a login-only callback (the client emits more events)', () => {
-    assertDistIsCurrent()
-    expect(
-      diagnosticsFor(
-        `${customNoIdProfile}
+  it(
+    'rejects a login-only callback (the client emits more events)',
+    () => {
+      assertDistIsCurrent()
+      expect(
+        diagnosticsFor(
+          `${customNoIdProfile}
 client.addEventListener((event: { type: 'login'; user: SessionUser }) => {
   console.log(event.user.username)
 })
 `,
-        undefined,
-        'login_only',
-      ).join('\n'),
-    ).toContain('not assignable')
-  })
+          undefined,
+          'login_only',
+        ).join('\n'),
+      ).toContain('not assignable')
+    },
+    PROBE_TIMEOUT_MS,
+  )
 
-  it('rejects a narrower-profile listener that claims fields the client cannot emit', () => {
-    assertDistIsCurrent()
-    const diagnostics = diagnosticsFor(
-      `${customIdProfile}
+  it(
+    'rejects a narrower-profile listener that claims fields the client cannot emit',
+    () => {
+      assertDistIsCurrent()
+      const diagnostics = diagnosticsFor(
+        `${customIdProfile}
 interface OtherUser extends UserProfile {
   nickname: string
 }
@@ -433,39 +502,55 @@ const listener = (event: AuthEvent<OtherUser>) => {
 
 client.addEventListener(listener)
 `,
-      undefined,
-      'narrower_profile',
-    )
-    expect(diagnostics.join('\n')).toContain('not assignable')
-    expect(diagnostics.join('\n')).toContain('nickname')
-  })
-
-  it('rejects the pre-2.0 default-listener declaration on an external provider', () => {
-    assertDistIsCurrent()
-    expect(
-      diagnosticsFor(
-        implementationProbe(
-          'interface MyUser extends UserProfile { username: string }',
-          'addEventListener(listener: AuthEventListener): () => void',
-        ),
         undefined,
-        'provider_legacy',
-      ).join('\n'),
-    ).toContain('addEventListener')
-  })
+        'narrower_profile',
+      )
+      expect(diagnostics.join('\n')).toContain('not assignable')
+      expect(diagnostics.join('\n')).toContain('nickname')
+    },
+    PROBE_TIMEOUT_MS,
+  )
+
+  it(
+    'rejects the pre-2.0 default-listener declaration on an external provider',
+    () => {
+      assertDistIsCurrent()
+      expect(
+        diagnosticsFor(
+          implementationProbe(
+            'interface MyUser extends UserProfile { username: string }',
+            'addEventListener(listener: AuthEventListener): () => void',
+          ),
+          undefined,
+          'provider_legacy',
+        ).join('\n'),
+      ).toContain('addEventListener')
+    },
+    PROBE_TIMEOUT_MS,
+  )
 })
 
 describe('the listener contract controls', () => {
-  it('compiles the exact consumer against the published 1.8.1 contract', () => {
-    // The consumer was valid before the change — this is what makes its break a
-    // regression rather than a new-shape expectation.
-    expect(diagnosticsFor(publicConsumer, before5f10Contract, 'control_181').join('\n')).toEqual('')
-  })
+  it(
+    'compiles the exact consumer against the published 1.8.1 contract',
+    () => {
+      // The consumer was valid before the change — this is what makes its break a
+      // regression rather than a new-shape expectation.
+      expect(diagnosticsFor(publicConsumer, before5f10Contract, 'control_181').join('\n')).toEqual(
+        '',
+      )
+    },
+    PROBE_TIMEOUT_MS,
+  )
 
-  it('reports TS7006 against the pre-fix union contract', () => {
-    // The old-red control: this suite detects the defect it was written for.
-    const diagnostics = diagnosticsFor(publicConsumer, unionContract, 'control_union')
-    expect(diagnostics.join('\n')).toContain("Parameter 'event' implicitly has an 'any' type")
-    expect(diagnostics.join('\n')).toContain('7006')
-  })
+  it(
+    'reports TS7006 against the pre-fix union contract',
+    () => {
+      // The old-red control: this suite detects the defect it was written for.
+      const diagnostics = diagnosticsFor(publicConsumer, unionContract, 'control_union')
+      expect(diagnostics.join('\n')).toContain("Parameter 'event' implicitly has an 'any' type")
+      expect(diagnostics.join('\n')).toContain('7006')
+    },
+    PROBE_TIMEOUT_MS,
+  )
 })

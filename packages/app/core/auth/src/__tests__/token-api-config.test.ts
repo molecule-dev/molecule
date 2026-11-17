@@ -26,7 +26,7 @@ describe('session restore callers', () => {
     storage.setItem('session.jwt', 'stored-token')
     let answer!: (response: Response) => void
     const request = vi.fn(
-      () =>
+      (_input: RequestInfo | URL, _init?: RequestInit) =>
         new Promise<Response>((resolve) => {
           answer = resolve
         }),
@@ -135,7 +135,7 @@ describe('token API configuration', () => {
       expect(storage.getItem('session.jwt')).toBe('nested-token')
       expect(client.getUser()).toEqual({ id: 'reader', name: 'Reader' })
 
-      await client.validateSession()
+      await client.validateSession!()
       await client.updateProfile({ name: 'Updated' })
 
       expect(requests.slice(1)).toEqual([
@@ -185,7 +185,7 @@ describe('token API configuration', () => {
     })
     try {
       await client.login({ email: 'reader@example.test', password: 'secret' })
-      await client.validateSession()
+      await client.validateSession!()
 
       expect(requests[1]).toEqual({
         url: '/api/users/me',

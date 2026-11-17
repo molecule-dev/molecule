@@ -66,7 +66,10 @@ const createJWT = (): string =>
     btoa('mock-signature'),
   ].join('.')
 
-const user: UserProfile = { id: 'u1', email: 'ann@example.com', name: 'Ann' }
+// `satisfies` keeps email/name `string` (not the optional `UserProfile` fields),
+// so the credentials passed to `login`/`register` below are the strings those
+// calls take.
+const user = { id: 'u1', email: 'ann@example.com', name: 'Ann' } satisfies UserProfile
 
 describe('AuthState.status keeps the decided status while a sign-in runs (xr-molecule-flash-m380)', () => {
   const mockFetch = vi.fn()
@@ -180,7 +183,7 @@ describe('AuthState.status keeps the decided status while a sign-in runs (xr-mol
     expect(client.getState()).toMatchObject({ status: 'loading', initialized: false })
 
     settleRestore?.(jsonResponse({ user }))
-    await client.whenRestored()
+    await client.whenRestored!()
 
     expect(client.getState()).toMatchObject({ status: 'authenticated', initialized: true })
   })
@@ -193,7 +196,7 @@ describe('AuthState.status keeps the decided status while a sign-in runs (xr-mol
     // A network failure during verification: the token is kept, the session is
     // not confirmed.
     mockFetch.mockImplementationOnce(() => Promise.reject(new Error('network down')))
-    await client.validateSession()
+    await client.validateSession!()
     expect(client.getState().status).toBe('unavailable')
 
     const seen: AuthState<UserProfile>[] = []
@@ -214,7 +217,7 @@ describe('AuthState.status keeps the decided status while a sign-in runs (xr-mol
     client.setUser(user)
     await client.initialize()
     mockFetch.mockImplementationOnce(() => Promise.reject(new Error('network down')))
-    await client.validateSession()
+    await client.validateSession!()
     expect(client.getState().status).toBe('unavailable')
 
     mockFetch.mockImplementationOnce(() =>
@@ -232,7 +235,7 @@ describe('AuthState.status keeps the decided status while a sign-in runs (xr-mol
     await client.initialize()
     mockFetch.mockImplementationOnce(() => Promise.resolve(jsonResponse({ error: 'died' }, 401)))
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState()).toMatchObject({
       status: 'unauthenticated',

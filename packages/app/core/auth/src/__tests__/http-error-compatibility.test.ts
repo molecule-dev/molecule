@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { HttpError, isHttpError } from '@molecule/app-http'
 import { I18nError } from '@molecule/app-i18n'
 import {
   createConsoleLoggerProvider,
@@ -9,7 +10,6 @@ import {
   setProvider,
 } from '@molecule/app-logger'
 
-import { HttpError, isHttpError } from '../../../http/src/index.js'
 import { createJWTAuthClient } from '../index.js'
 import type { AuthError, UserProfile } from '../types.js'
 

@@ -71,6 +71,9 @@ interface AdapterCall {
   body: unknown
 }
 
+/** The response shape the adapter's fetch resolves with. */
+type AdapterResponse = Awaited<ReturnType<typeof createMockResponse>>
+
 /**
  * A deterministic API serving the standard `PUT /api/user` contract.
  *
@@ -83,7 +86,7 @@ interface AdapterCall {
  * @returns The fetch implementation plus every request it saw.
  */
 function createPutUserAdapter(respond: (patch: Record<string, unknown>) => unknown): {
-  fetch: ReturnType<typeof vi.fn>
+  fetch: (url: string, init?: RequestInit) => Promise<AdapterResponse>
   calls: AdapterCall[]
 } {
   const calls: AdapterCall[] = []
@@ -149,9 +152,12 @@ describe('the profile-update transport is configuration', () => {
     }
     const reader: Reader = { id: 'reader', username: 'reader', name: 'Reader' }
 
-    const api = createPutUserAdapter((patch) => ({
-      user: { login: 'reader', name: patch.name } satisfies WireReader,
-    }))
+    const api = createPutUserAdapter((patch) => {
+      // The patch arrives as parsed JSON (an unknown value per field); the strict
+      // adapter serves only a string name, so the wire answer can type it.
+      if (typeof patch.name !== 'string') throw new TypeError('expected a string name')
+      return { user: { login: 'reader', name: patch.name } satisfies WireReader }
+    })
     vi.stubGlobal('fetch', api.fetch)
     const storage = createMockStorage()
     const client = createJWTAuthClient<Reader>({
