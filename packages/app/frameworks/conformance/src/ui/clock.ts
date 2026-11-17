@@ -102,10 +102,11 @@ export async function advanceClock(
       await clock.nextAsync()
     })
   }
-  if (clock.now < target)
-    await scope(async () => {
-      await clock.tickAsync(target - clock.now)
-    })
+  // Always, even with no time left: the tick ends on a real macrotask turn, so promise chains and
+  // work queued outside the fake clock (a deferred reply's handlers) settle before the snapshot.
+  await scope(async () => {
+    await clock.tickAsync(Math.max(0, target - clock.now))
+  })
 }
 
 /**

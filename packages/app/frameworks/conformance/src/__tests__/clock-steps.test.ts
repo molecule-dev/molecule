@@ -4,7 +4,8 @@
  * with React's `act`, the scope the React adapters give: an effect cancels a timer due at the
  * same instant, an interval renders once per tick, a promise chain a timer starts renders before
  * the next timer, a timer created on the way fires only when due by the end, `Date.now()` ends
- * where the step says, and a case that fakes only `Date` still moves it.
+ * where the step says, a case that fakes only `Date` still moves it, and a settle under fake
+ * timers still ends on a real macrotask turn.
  *
  * @module
  */
@@ -14,6 +15,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { advanceClock, type ClockScope, installCaseClock } from '../ui/clock.js'
+import { settle } from '../ui/steps.js'
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
@@ -143,6 +145,21 @@ describe('advanceClock', () => {
     installCaseClock({ now: 5_000 })
     await advanceClock(250)
     expect(Date.now()).toBe(5_250)
+  })
+
+  it('settles a long promise chain under fake timers, with no timer due', async () => {
+    // A deferred reply's handlers run many promise hops after the answer; the settle that
+    // follows a step must let all of them run, as a real macrotask turn does.
+    installCaseClock({ fakeTimers: true, now: 0 })
+    let done = false
+    void (async () => {
+      for (let i = 0; i < 20; i++) await Promise.resolve()
+      done = true
+    })()
+    await settle()
+    expect(done).toBe(true)
+    await advanceClock(0)
+    expect(Date.now()).toBe(0)
   })
 
   it('fails an advance whose timers never drain', async () => {
