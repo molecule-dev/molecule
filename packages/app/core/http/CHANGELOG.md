@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.8.3
+
+### Patch Changes
+
+- Correct response data types for explicitly selected text and binary parsers.
+
 ## 1.8.2
 
 ### Patch Changes

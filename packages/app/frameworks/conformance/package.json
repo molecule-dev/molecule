@@ -140,7 +140,7 @@
     "@molecule/app-header-react": "4.0.0",
     "@molecule/app-help-button-react": "4.0.0",
     "@molecule/app-home-page-react": "4.0.0",
-    "@molecule/app-http": "1.8.2",
+    "@molecule/app-http": "1.8.3",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-icons-molecule": "1.0.3",
