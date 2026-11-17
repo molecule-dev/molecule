@@ -59,8 +59,13 @@ function fixture({ red = [], slow = [] } = {}) {
   const run = (args, groupSize = 2, concurrency = 2, extra = {}) => {
     const result = spawnSync(process.execPath, ['scripts/vitest-grouped.mjs', ...args], {
       cwd: dir,
+      // The runner's own settings come only from `extra`: a release runs this suite under
+      // MOL_VITEST_FAIL_FAST=1, which the fixture's runner would otherwise inherit and stop after
+      // its first failing group (2026-11-17).
       env: {
-        ...process.env,
+        ...Object.fromEntries(
+          Object.entries(process.env).filter(([key]) => !key.startsWith('MOL_VITEST_')),
+        ),
         TMPDIR: path.join(dir, 'tmp'),
         MOL_VITEST_GROUP_PROJECTS: String(groupSize),
         MOL_VITEST_GROUP_CONCURRENCY: String(concurrency),
