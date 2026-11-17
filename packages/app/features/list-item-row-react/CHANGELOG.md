@@ -1,5 +1,11 @@
 # @molecule/app-list-item-row-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The row's open action sits on a transparent native button covering the whole row, named by the title, so keyboard and mouse users get the same action while the actions slot keeps its own clicks. `selected` now sets `aria-current="true"` instead of `aria-selected`.
+
 ## 4.0.0
 
 ### Patch Changes

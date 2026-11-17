@@ -1,5 +1,11 @@
 # @molecule/app-avatar-stack-vue
 
+## 1.2.0
+
+### Minor Changes
+
+- Add profile name links, link attributes and root attribute forwarding to UserChip.
+
 ## 1.1.0
 
 ### Minor Changes

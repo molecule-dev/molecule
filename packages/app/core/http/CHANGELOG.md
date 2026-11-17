@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.8.2
+
+### Patch Changes
+
+- Document independent account clients that preserve the visitor session.
+
 ## 1.8.1
 
 ### Patch Changes

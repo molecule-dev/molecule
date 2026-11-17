@@ -1,5 +1,11 @@
 # @molecule/app-list-item-row-svelte
 
+## 1.1.1
+
+### Patch Changes
+
+- The row's open action sits on a transparent native button covering the whole row, named by the title, so keyboard and mouse users get the same action while the actions slot keeps its own clicks. `selected` now sets `aria-current="true"` instead of `aria-selected`.
+
 ## 1.1.0
 
 ### Minor Changes

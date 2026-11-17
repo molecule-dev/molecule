@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.20.2
+
+### Patch Changes
+
+- DeepSeek peak-pricing exclusions now cover the 2027 Chinese public holidays, so those dates bill at the off-peak rate.
+
 ## 1.20.1
 
 ### Patch Changes

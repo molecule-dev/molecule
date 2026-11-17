@@ -1,5 +1,11 @@
 # @molecule/app-oauth-buttons-react
 
+## 4.1.0
+
+### Minor Changes
+
+- A provider without a built-in label now renders through one fallback translation key that passes the provider name as a placeholder, instead of a translation key built at runtime. The locale bond adds that key in every language.
+
 ## 4.0.0
 
 ### Patch Changes

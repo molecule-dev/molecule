@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ide-react",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "React IDE components — chat, editor, preview, file-explorer panels for an AI-powered workspace",
   "type": "module",
   "main": "dist/index.js",
@@ -55,7 +55,7 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
-    "@molecule/app-ide-panel-logic": "1.2.0",
+    "@molecule/app-ide-panel-logic": "1.3.0",
     "material-file-icons": "2.4.0"
   },
   "devDependencies": {
@@ -66,9 +66,9 @@
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-live-preview": "1.0.3",
-    "@molecule/app-locales-ide": "1.11.4",
+    "@molecule/app-locales-ide": "1.11.5",
     "@molecule/app-logger": "1.0.6",
-    "@molecule/app-react": "4.7.2",
+    "@molecule/app-react": "4.7.3",
     "@molecule/app-storage": "1.1.1",
     "@molecule/app-ui": "1.4.0",
     "@molecule/app-ui-react": "4.1.5",

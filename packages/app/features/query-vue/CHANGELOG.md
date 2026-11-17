@@ -1,5 +1,11 @@
 # @molecule/app-query-vue
 
+## 1.3.1
+
+### Patch Changes
+
+- Keep collection status tied to the current view and verify collection requests follow path selections.
+
 ## 1.3.0
 
 ### Minor Changes

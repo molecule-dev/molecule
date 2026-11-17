@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.5.1
+
+### Patch Changes
+
+- Document complete custom-account saves and live query mutations, with lifecycle regression coverage.
+
 ## 3.5.0
 
 ### Minor Changes

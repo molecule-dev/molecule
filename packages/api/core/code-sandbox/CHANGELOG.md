@@ -1,5 +1,13 @@
 # @molecule/api-code-sandbox
 
+## 1.10.0
+
+### Minor Changes
+
+- Allow each sandbox's resource request to select its CPU class. Fly now uses that
+  class for both Machine creation and volume placement instead of always using the
+  provider default. Omitted values preserve existing sizing.
+
 ## 1.9.0
 
 ### Minor Changes

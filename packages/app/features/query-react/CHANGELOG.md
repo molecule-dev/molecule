@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.7.1
+
+### Patch Changes
+
+- Keep collection status tied to the current view and verify collection requests follow path selections.
+
 ## 1.7.0
 
 ### Minor Changes

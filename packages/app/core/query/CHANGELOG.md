@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.3.2
+
+### Patch Changes
+
+- Document complete custom-account saves and live query mutations, with lifecycle regression coverage.
+
 ## 1.3.1
 
 ### Patch Changes

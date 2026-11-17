@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-log-viewer-svelte",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Expandable log rows with timestamp, severity, service label, and JSON structured-data panel",
   "homepage": "https://www.molecule.dev/packages/app-log-viewer-svelte",
   "type": "module",

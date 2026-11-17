@@ -1,5 +1,11 @@
 # @molecule/app-feature-video-timeline-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Track kind and edit-mode labels are now looked up with literal translation keys, so they follow the active locale and keep their English defaults.
+
 ## 4.0.0
 
 ### Patch Changes

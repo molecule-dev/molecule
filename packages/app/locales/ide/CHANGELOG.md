@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.11.5
+
+### Patch Changes
+
+- Run the preview panel's behaviour from @molecule/app-ide-panel-logic so every framework's IDE shares it, export the command, setting and share label helpers, and fix chat panel, accessibility and translation details.
+
 ## 1.11.4
 
 ### Patch Changes

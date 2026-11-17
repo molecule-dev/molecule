@@ -1,5 +1,11 @@
 # @molecule/app-log-viewer-svelte
 
+## 1.1.1
+
+### Patch Changes
+
+- Severity badge colours come from the theme's success, warning and error tones with on-tone text instead of fixed hex values. This requires `@molecule/app-ui` 1.4 or later.
+
 ## 1.1.0
 
 ### Minor Changes

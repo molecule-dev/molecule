@@ -1,5 +1,11 @@
 # @molecule/app-newsletter-signup-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The email field's accessible label and the failed-subscription message are looked up through translation keys instead of fixed English text, and the locale bond adds both keys in every language.
+
 ## 4.0.0
 
 ### Patch Changes

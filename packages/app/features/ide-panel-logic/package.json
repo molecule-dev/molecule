@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ide-panel-logic",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Framework-neutral logic of the molecule.dev IDE panels (chat, preview, file explorer, tests), shared by every framework's IDE package",
   "type": "module",
   "main": "dist/index.js",
@@ -56,7 +56,7 @@
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-ide": "1.1.0",
     "@molecule/app-live-preview": "1.0.3",
-    "@molecule/app-locales-ide": "1.11.4",
+    "@molecule/app-locales-ide": "1.11.5",
     "@molecule/app-storage": "1.1.1",
     "@types/node": "26.6.5",
     "jsdom": "30.1.3",

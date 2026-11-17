@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.4.2
+
+### Patch Changes
+
+- Keep collection status tied to the current view and verify collection requests follow path selections.
+
 ## 1.4.1
 
 ### Patch Changes

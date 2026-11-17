@@ -1,5 +1,15 @@
 # @molecule/app-ide-panel-logic
 
+## 1.3.0
+
+### Minor Changes
+
+- Run the preview panel's behaviour from @molecule/app-ide-panel-logic so every framework's IDE shares it, export the command, setting and share label helpers, and fix chat panel, accessibility and translation details.
+
+### Patch Changes
+
+- The preview's loading overlay now fades out when the app appears instead of being removed and shown again, and the chat header's new-conversation button has a `data-mol-id`.
+
 ## 1.2.0
 
 ### Minor Changes

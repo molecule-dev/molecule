@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-list-item-row-angular",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Thumbnail + title + subtitle + metadata + actions row (nav lists, mobile menus)",
   "homepage": "https://www.molecule.dev/packages/app-list-item-row-angular",
   "type": "module",

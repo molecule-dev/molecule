@@ -60,7 +60,7 @@
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
-    "@molecule/app-oauth-buttons-angular": "1.1.0",
+    "@molecule/app-oauth-buttons-angular": "1.2.0",
     "@molecule/app-ui": "1.4.0",
     "@molecule/app-ui-angular": "1.2.0",
     "@types/node": "26.6.5",

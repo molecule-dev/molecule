@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.7.3
+
+### Patch Changes
+
+- Document complete custom-account saves and live query mutations, with lifecycle regression coverage.
+
 ## 4.7.2
 
 ### Patch Changes
