@@ -369,6 +369,44 @@ describe('create — app provisioning and tenant isolation', () => {
 })
 
 describe('create — Machine configuration', () => {
+  it.each([
+    ['performance', 'shared'],
+    ['shared', 'performance'],
+  ] as const)(
+    'honors a %s CPU class per app over the provider %s default',
+    async (cpuKind, defaultCpuKind) => {
+      // A latency-sensitive service and a small idle site can share one provider.
+      // The requested vCPU count alone does not select their sustained CPU quota.
+      const double = queueCreate(createFetchDouble())
+        .on(`GET /apps/${APP}/volumes`, { body: [] })
+        .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_service', name: 'service' } })
+      await makeProvider({ defaultCpuKind }, double).create({
+        projectId: PROJECT_ID,
+        volumeName: 'service',
+        resources: { cpu: 1, cpuKind, memoryMB: 2048, diskMB: 1024 },
+      })
+      const body = double.matching(`POST /apps/${APP}/machines`)[0].body as {
+        config: { guest: unknown }
+      }
+      expect(body.config.guest).toEqual({ cpus: 1, cpu_kind: cpuKind, memory_mb: 2048 })
+      expect(double.matching(`POST /apps/${APP}/volumes`)[0].body).toMatchObject({
+        compute: { cpus: 1, cpu_kind: cpuKind, memory_mb: 2048 },
+      })
+    },
+  )
+
+  it('keeps the provider CPU class when the app has no override', async () => {
+    const double = queueCreate(createFetchDouble())
+    await makeProvider({ defaultCpuKind: 'performance' }, double).create({
+      projectId: PROJECT_ID,
+      resources: { cpu: 1, memoryMB: 2048, diskMB: 0 },
+    })
+    const body = double.matching(`POST /apps/${APP}/machines`)[0].body as {
+      config: { guest: unknown }
+    }
+    expect(body.config.guest).toEqual({ cpus: 1, cpu_kind: 'performance', memory_mb: 2048 })
+  })
+
   it('sets the guest, image, region and managed metadata', async () => {
     const double = queueCreate(createFetchDouble())
     await makeProvider({ baseImage: 'registry.fly.io/molecule-sandbox:latest' }, double).create({

@@ -1714,7 +1714,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       metadata,
       guest: {
         cpus: config.resources?.cpu ?? this.config.defaultCpu ?? 1,
-        cpu_kind: this.config.defaultCpuKind ?? 'shared',
+        cpu_kind: config.resources?.cpuKind ?? this.config.defaultCpuKind ?? 'shared',
         memory_mb: config.resources?.memoryMB ?? this.config.defaultMemoryMB ?? 1024,
       },
       // `no` matches the Docker provider: a sandbox whose main process exits

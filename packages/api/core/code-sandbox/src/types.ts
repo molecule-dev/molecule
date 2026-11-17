@@ -17,6 +17,13 @@
 export interface SandboxResources {
   /** CPU cores. Fractional values are allowed where the provider supports them. */
   cpu: number
+  /**
+   * CPU class on providers that distinguish burstable and sustained vCPUs.
+   * `shared` can throttle below the requested core count after its burst balance
+   * drains. `performance` supplies a full CPU quota on Fly. Omitted values keep
+   * the provider's configured default. Providers without CPU classes ignore it.
+   */
+  cpuKind?: 'shared' | 'performance'
   /** Memory ceiling in megabytes. */
   memoryMB: number
   /** Disk ceiling in megabytes. Advisory — not every provider can enforce it. */
