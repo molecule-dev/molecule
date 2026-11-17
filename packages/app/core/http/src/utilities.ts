@@ -227,8 +227,10 @@ export const getClient = (): HttpClient => {
  * @param config - Optional request configuration (headers, params, timeout).
  * @returns The HTTP response with typed data.
  */
-export const get = <T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>> =>
-  getClient().get<T>(url, config)
+export const get: HttpClient['get'] = <T = unknown>(
+  url: string,
+  config?: RequestConfig,
+): Promise<HttpResponse<T>> => getClient().get<T>(url, config)
 
 /**
  * Makes a POST request using the bonded HTTP client.
@@ -242,7 +244,7 @@ export const get = <T = unknown>(url: string, config?: RequestConfig): Promise<H
  * @param config - Optional request configuration (headers, params, timeout).
  * @returns The HTTP response with typed data.
  */
-export const post = <T = unknown>(
+export const post: HttpClient['post'] = <T = unknown>(
   url: string,
   data?: unknown,
   config?: RequestConfig,
@@ -258,7 +260,7 @@ export const post = <T = unknown>(
  * @param config - Optional request configuration (the third argument).
  * @returns The HTTP response with typed data.
  */
-export const put = <T = unknown>(
+export const put: HttpClient['put'] = <T = unknown>(
   url: string,
   data?: unknown,
   config?: RequestConfig,
@@ -274,7 +276,7 @@ export const put = <T = unknown>(
  * @param config - Optional request configuration (the third argument).
  * @returns The HTTP response with typed data.
  */
-export const patch = <T = unknown>(
+export const patch: HttpClient['patch'] = <T = unknown>(
   url: string,
   data?: unknown,
   config?: RequestConfig,
@@ -287,8 +289,10 @@ export const patch = <T = unknown>(
  * @param config - Optional request configuration.
  * @returns The HTTP response with typed data.
  */
-export const del = <T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>> =>
-  getClient().delete<T>(url, config)
+export const del: HttpClient['delete'] = <T = unknown>(
+  url: string,
+  config?: RequestConfig,
+): Promise<HttpResponse<T>> => getClient().delete<T>(url, config)
 
 /**
  * Pre-created fetch client for environments where `fetch` is available.

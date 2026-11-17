@@ -20,10 +20,14 @@ import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
  */
 export type AuthTokenResolver = () => string | null | undefined
 
+/* eslint-disable @typescript-eslint/no-unused-vars -- Parser overloads retain but ignore a JSON type argument for source compatibility. */
 /**
  * HTTP client interface.
  *
  * All HTTP providers must implement this interface.
+ * An explicit text, blob or arraybuffer parser determines the data type even when
+ * a JSON generic is supplied. Keep JSON as the default for mutations returning a
+ * record. A successful DELETE with no body already resolves with null data.
  */
 export interface HttpClient {
   /**
@@ -40,11 +44,32 @@ export interface HttpClient {
    * Makes a generic HTTP request. `data` is a field of THIS config object — the same body
    * `post(url, data, config)` takes as its second argument.
    */
+  request<T = unknown>(
+    config: FullRequestConfig & { responseType: 'text' },
+  ): Promise<HttpResponse<string>>
+  request<T = unknown>(
+    config: FullRequestConfig & { responseType: 'blob' },
+  ): Promise<HttpResponse<Blob>>
+  request<T = unknown>(
+    config: FullRequestConfig & { responseType: 'arraybuffer' },
+  ): Promise<HttpResponse<ArrayBuffer>>
   request<T = unknown>(config: FullRequestConfig): Promise<HttpResponse<T>>
 
   /**
    * Makes a GET request.
    */
+  get<T = unknown>(
+    url: string,
+    config: RequestConfig & { responseType: 'text' },
+  ): Promise<HttpResponse<string>>
+  get<T = unknown>(
+    url: string,
+    config: RequestConfig & { responseType: 'blob' },
+  ): Promise<HttpResponse<Blob>>
+  get<T = unknown>(
+    url: string,
+    config: RequestConfig & { responseType: 'arraybuffer' },
+  ): Promise<HttpResponse<ArrayBuffer>>
   get<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
@@ -52,23 +77,80 @@ export interface HttpClient {
    * `data` itself, so `post(url, { data: body })` sends `{"data":body}` — pass `body` directly.
    * A config (headers, params) is the THIRD argument.
    */
+  post<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig & { responseType: 'text' },
+  ): Promise<HttpResponse<string>>
+  post<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig & { responseType: 'blob' },
+  ): Promise<HttpResponse<Blob>>
+  post<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig & { responseType: 'arraybuffer' },
+  ): Promise<HttpResponse<ArrayBuffer>>
   post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
    * Makes a PUT request. `data` is the request BODY (second argument) — never `{ data: body }`,
    * which sends `{"data":body}`; a config is the THIRD argument.
    */
+  put<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig & { responseType: 'text' },
+  ): Promise<HttpResponse<string>>
+  put<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig & { responseType: 'blob' },
+  ): Promise<HttpResponse<Blob>>
+  put<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig & { responseType: 'arraybuffer' },
+  ): Promise<HttpResponse<ArrayBuffer>>
   put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
    * Makes a PATCH request. `data` is the request BODY (second argument) — never `{ data: body }`,
    * which sends `{"data":body}`; a config is the THIRD argument.
    */
+  patch<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig & { responseType: 'text' },
+  ): Promise<HttpResponse<string>>
+  patch<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig & { responseType: 'blob' },
+  ): Promise<HttpResponse<Blob>>
+  patch<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig & { responseType: 'arraybuffer' },
+  ): Promise<HttpResponse<ArrayBuffer>>
   patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
    * Makes a DELETE request.
    */
+  delete<T = unknown>(
+    url: string,
+    config: RequestConfig & { responseType: 'text' },
+  ): Promise<HttpResponse<string>>
+  delete<T = unknown>(
+    url: string,
+    config: RequestConfig & { responseType: 'blob' },
+  ): Promise<HttpResponse<Blob>>
+  delete<T = unknown>(
+    url: string,
+    config: RequestConfig & { responseType: 'arraybuffer' },
+  ): Promise<HttpResponse<ArrayBuffer>>
   delete<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
@@ -145,6 +227,7 @@ export interface HttpClient {
    */
   onAuthError(handler: () => void): () => void
 }
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 /**
  * HTTP client configuration.
