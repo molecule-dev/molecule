@@ -51,9 +51,19 @@ export const FAVORITE_REACTION = 'favorite'
  */
 export const RESERVED_ARTICLE_SLUGS: ReadonlySet<string> = new Set(['feed', 'tags'])
 
-/** A free slug for a title; `excludeId` lets an article keep its own on update. */
-const articleSlug = (title: string, excludeId?: string): Promise<string> =>
-  uniqueSlug(
+/**
+ * Find a free slug in this package's articles table without writing an article.
+ * Uses the same normalization, reserved route slugs and fallback as createArticle
+ * and updateArticle. This is a lookup, not a reservation: keep the table's UNIQUE
+ * index and retry a conflicting insert. For another table use api-slug's
+ * uniqueSlugInTable instead.
+ *
+ * @param title - The article title.
+ * @param excludeId - The existing article's id, so it may keep its own slug on update.
+ * @returns An unused article slug; empty normalized titles use `article`.
+ */
+export function uniqueArticleSlug(title: string, excludeId?: string): Promise<string> {
+  return uniqueSlug(
     title,
     async (slug) => {
       if (RESERVED_ARTICLE_SLUGS.has(slug)) return true
@@ -64,6 +74,7 @@ const articleSlug = (title: string, excludeId?: string): Promise<string> =>
     },
     { fallback: 'article' },
   )
+}
 
 let lastCreatedMs = 0
 
@@ -191,7 +202,7 @@ const writeTags = async (articleId: string, tags: string[]): Promise<void> => {
  * @returns The created article.
  */
 export async function createArticle(authorId: string, input: CreateArticleInput): Promise<Article> {
-  const slug = await articleSlug(input.title)
+  const slug = await uniqueArticleSlug(input.title)
   const tags = cleanTags(input.tagList)
   // Written here rather than left to the column default: the default is
   // millisecond-precision, so two articles created inside the same millisecond
@@ -370,7 +381,7 @@ export async function updateArticle(
   const patch: Record<string, unknown> = { updatedAt: nextUpdatedAt(row.updatedAt) }
   if (input.title !== undefined && input.title !== row.title) {
     patch.title = input.title
-    patch.slug = await articleSlug(input.title, row.id)
+    patch.slug = await uniqueArticleSlug(input.title, row.id)
   }
   if (input.description !== undefined) patch.description = input.description
   if (input.body !== undefined) patch.body = input.body

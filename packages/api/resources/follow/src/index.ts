@@ -8,6 +8,19 @@
  * deduplicates ids, and does no I/O for an empty page or an absent viewer. It works for
  * any target type, including documents, topics and users. Use `isFollowing` for one target.
  *
+ * **Custom routes use the same services.** A profile route, username parameter or
+ * different response envelope does not require the package's HTTP routes. Resolve
+ * the username in the app, then call `follow(viewerId, 'user', profile.id)`,
+ * `unfollow(viewerId, 'user', profile.id)` or
+ * `isFollowing(viewerId, 'user', profile.id)` and project the profile locally.
+ * `isFollowing` accepts `string | null | undefined`; an absent viewer returns
+ * `false` without a database read. Mutations still require an authenticated id.
+ *
+ * These services use the package's `follows` table, with `followerId`, `targetType`
+ * and `targetId`. For users, `targetId` is the canonical user id, never the username.
+ * A genuinely different relationship schema stays local; these calls do not read a
+ * custom `followingId` column or a separate table.
+ *
  * @module
  * @example
  * ```typescript
@@ -19,6 +32,24 @@
  * // GET    /:targetType/:targetId/followers
  * // GET    /following
  * // GET    /follow/check/:targetType/:targetId
+ * ```
+ *
+ * @example
+ * ```typescript
+ * import { isFollowing } from '@molecule/api-resource-follow'
+ *
+ * // The app resolves a username to this public profile before projecting it.
+ * async function projectProfile(
+ *   profile: { id: string; username: string; bio: string | null; avatar: string | null },
+ *   viewerId: string | null | undefined,
+ * ) {
+ *   return {
+ *     username: profile.username,
+ *     bio: profile.bio,
+ *     image: profile.avatar,
+ *     following: await isFollowing(viewerId, 'user', profile.id),
+ *   }
+ * }
  * ```
  *
  * @remarks

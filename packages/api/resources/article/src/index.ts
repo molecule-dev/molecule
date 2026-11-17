@@ -48,6 +48,13 @@
  * `null`, with ordered tags, favorite count and the viewer's `favorited` state.
  * Both read this package's `articles` table. Keep your route, author-profile lookup
  * and response projection local; call these functions instead of copying the slug query.
+ * `uniqueArticleSlug(title, excludeId?)` exposes the same free-slug policy used by
+ * `createArticle` and `updateArticle`, including reserved route words and the
+ * `article` fallback. Use it for a custom workflow that needs a slug before writing;
+ * use `createArticle` for a normal create. It checks availability without reserving
+ * a slug, so retain the UNIQUE index and retry a conflicting insert. A different
+ * table can use `uniqueSlugInTable(table, column, title, { excludeId })` from
+ * `@molecule/api-slug`; its general policy does not reserve this resource's routes.
  *
  * ```typescript
  * import { findArticleRow } from '@molecule/api-resource-article'

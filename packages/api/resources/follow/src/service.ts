@@ -128,18 +128,19 @@ export async function getFollowing(
 }
 
 /**
- * Checks if a user is following a target.
+ * Checks if a viewer is following a target. An absent viewer returns false without I/O.
  *
- * @param followerId - The follower's user ID.
+ * @param followerId - The viewer's user ID, or no viewer for public content.
  * @param targetType - The type of target.
  * @param targetId - The ID of the target.
  * @returns `true` if following.
  */
 export async function isFollowing(
-  followerId: string,
+  followerId: string | null | undefined,
   targetType: string,
   targetId: string,
 ): Promise<boolean> {
+  if (!followerId) return false
   const existing = await findOne<Follow>(TABLE, [
     { field: 'followerId', operator: '=', value: followerId },
     { field: 'targetType', operator: '=', value: targetType },
