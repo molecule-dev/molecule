@@ -377,10 +377,10 @@ function registerPackageLocales(
 /**
  * Concurrency limit for the startup support-probe. Each probe is a
  * dynamic `import()` of a locale's `ui.ts`. In dev mode Vite serves
- * each as a separate HTTP request; in production they share a chunk
- * and the probe is essentially free. Keeping concurrency modest avoids
- * stampeding dev-server connections while still finishing the 79 probes
- * in well under a second on a warm cache.
+ * each as a separate HTTP request; production builds can split them into
+ * separate chunks too. The limit bounds concurrent imports, not the total
+ * startup work. Pass supportedLocales to avoid fetching every language just
+ * to discover the support list.
  */
 const PROBE_CONCURRENCY = 6
 
