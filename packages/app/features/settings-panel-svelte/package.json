@@ -61,7 +61,7 @@
   "devDependencies": {
     "@molecule/app-auth": "3.5.1",
     "@molecule/app-framework-conformance": "0.0.0",
-    "@molecule/app-http": "1.8.3",
+    "@molecule/app-http": "1.8.4",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-push": "1.1.0",

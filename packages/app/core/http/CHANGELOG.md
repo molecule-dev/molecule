@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.8.4
+
+### Patch Changes
+
+- A wrapper that implements a verb with a delegating arrow (`get: (url, config) => inner.get(url, config)`) type-checks again.
+
 ## 1.8.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-alibaba
 
+## 1.2.2
+
+### Patch Changes
+
+- The provider's fallback default model is now qwen4-max, the current Qwen flagship.
+
 ## 1.2.1
 
 ### Patch Changes
