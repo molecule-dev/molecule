@@ -4,6 +4,7 @@
 
 ### Patch Changes
 
+- A verb chosen at runtime (`client[verb](url)`) type-checks when called with a URL alone.
 - Correct response data types for explicitly selected text and binary parsers.
 
 ## 1.8.2

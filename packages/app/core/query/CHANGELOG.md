@@ -4,6 +4,7 @@
 
 ### Patch Changes
 
+- Query options for one document type are assignable to options for a union of document types again; `normalizeData` no longer fixes them to one exact type.
 - Document complete custom-account saves and live query mutations, with lifecycle regression coverage.
 
 ## 1.3.1
