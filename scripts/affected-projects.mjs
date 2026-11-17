@@ -33,12 +33,20 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
+const GUARDS = ['scripts/__tests__']
+/** The structured form lets bounded local checks retain CI's own repository guards. */
+const emit = (paths = null) =>
+  process.stdout.write(
+    process.argv.includes('--json')
+      ? JSON.stringify({ full: paths === null, filter: paths?.join(' ') ?? '', guards: GUARDS })
+      : (paths?.join(' ') ?? ''),
+  )
 const git = (...args) => execFileSync('git', ['-C', ROOT, ...args], { encoding: 'utf8' }).trim()
 
 /** Print the human summary to stderr, an empty filter list to stdout, and exit → full run. */
 const full = (why) => {
   console.error(`affected: FULL run — ${why}`)
-  process.stdout.write('')
+  emit()
   process.exit(0)
 }
 
@@ -119,7 +127,7 @@ if (changed.some((f) => f === '.' || GLOBAL.some((re) => re.test(f))))
 // Trust publication metadata does not change package/runtime/test source. Keep repo-meta guards.
 if (changed.every((file) => file === '.trust-state.json')) {
   console.error('affected: META — trust ledger only; repository tooling tests')
-  process.stdout.write('scripts/__tests__')
+  emit(GUARDS)
   process.exit(0)
 }
 
@@ -187,4 +195,4 @@ console.error(
 // runs the framework conformance kit, every import is declared, …). A package
 // change can break one without being their dependent, so they run on every
 // scoped push too; they take seconds.
-process.stdout.write([...out, 'scripts/__tests__'].join(' '))
+emit([...out, ...GUARDS])

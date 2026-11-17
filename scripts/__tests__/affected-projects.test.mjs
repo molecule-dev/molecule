@@ -133,6 +133,24 @@ describe('trust-only affected scope', () => {
     )
     expect(actual.status).toBe(0)
     expect(actual.stdout).toBe(expected)
+    const structured = (files) =>
+      spawnSync(process.execPath, ['scripts/affected-projects.mjs', '--changed-files', '--json'], {
+        cwd: f.dir,
+        input: JSON.stringify(files),
+        encoding: 'utf8',
+      })
+    const scoped = structured(['packages/api/core/a/src/index.ts'])
+    expect(() => JSON.parse(scoped.stdout)).not.toThrow()
+    expect(JSON.parse(scoped.stdout)).toEqual({
+      full: false,
+      filter: expected,
+      guards: ['scripts/__tests__'],
+    })
+    expect(JSON.parse(structured(['scripts/global.mjs']).stdout)).toEqual({
+      full: true,
+      filter: '',
+      guards: ['scripts/__tests__'],
+    })
   })
 
   it('runs real meta tests through the unchanged CI shell, without unrelated package tests', () => {
