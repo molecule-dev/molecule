@@ -4,6 +4,7 @@
   grid in `currentColor`.
 -->
 <script lang="ts">
+  import { untranslated } from './svg-attrs.js'
   import type { OAuthLogoProps } from './types.js'
 
   let {
@@ -18,6 +19,7 @@
 </script>
 
 <svg
+  {...untranslated}
   xmlns="http://www.w3.org/2000/svg"
   width={size}
   height={size}

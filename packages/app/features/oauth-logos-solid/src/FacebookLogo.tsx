@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js'
 
+import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
 const F_PATH =
@@ -18,6 +19,7 @@ export const FacebookLogo: Component<OAuthLogoProps> = (props) => {
   const isMono = (): boolean => props.mode === 'mono'
   return (
     <svg
+      {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size()}
       height={size()}

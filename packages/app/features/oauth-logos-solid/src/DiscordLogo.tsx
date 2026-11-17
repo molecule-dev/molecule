@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js'
 
+import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
 const PATH =
@@ -17,6 +18,7 @@ export const DiscordLogo: Component<OAuthLogoProps> = (props) => {
   const fill = (): string => (isMono() ? 'currentColor' : '#5865F2')
   return (
     <svg
+      {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size()}
       height={size()}

@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 
+import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
 const IN_PATH =
@@ -22,6 +23,7 @@ export function LinkedInLogo({
   const isMono = mode === 'mono'
   return (
     <svg
+      {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}

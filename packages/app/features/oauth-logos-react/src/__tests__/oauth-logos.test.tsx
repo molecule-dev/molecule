@@ -70,6 +70,27 @@ describe('individual provider logos', () => {
     expect(markup).toContain('class="logo-cls"')
   })
 
+  it.each(LOGOS)(
+    '%s marks its root <svg> translate="no" so the brand name never translates',
+    (_n, logo, label) => {
+      const markup = html(createElement(logo))
+      // HTML's own marker for text that stays as written in every language:
+      // the accessible name is a brand name, so it takes no t() and no locale bond.
+      expect(markup).toContain('translate="no"')
+      expect(markup).toContain(`aria-label="${label}"`)
+    },
+  )
+
+  it.each(LOGOS)(
+    '%s keeps translate="no" when an explicit ariaLabel overrides the brand default',
+    (_n, logo, label) => {
+      const markup = html(createElement(logo, { ariaLabel: 'Continue with this provider' }))
+      expect(markup).toContain('translate="no"')
+      expect(markup).toContain('aria-label="Continue with this provider"')
+      expect(markup).not.toContain(`aria-label="${label}"`)
+    },
+  )
+
   it.each(LOGOS)('%s emits drawable geometry (<path> or <rect>)', (_n, logo) => {
     const markup = html(createElement(logo))
     // 8 marks use <path>; Microsoft's mark is 4 colored <rect> squares.
@@ -94,6 +115,17 @@ describe('OAuthProviderLogo dispatcher', () => {
   ] as const)('dispatches "%s" to the logo with default label "%s"', (provider, label) => {
     const markup = html(createElement(OAuthProviderLogo, { provider }))
     expect(markup.startsWith('<svg')).toBe(true)
+    expect(markup).toContain(`aria-label="${label}"`)
+  })
+
+  it.each([
+    ['github', 'GitHub'],
+    ['twitter', 'X (Twitter)'],
+    ['apple', 'Apple'],
+    ['discord', 'Discord'],
+  ] as const)('dispatches "%s" with translate="no" on the root <svg>', (provider, label) => {
+    const markup = html(createElement(OAuthProviderLogo, { provider }))
+    expect(markup).toContain('translate="no"')
     expect(markup).toContain(`aria-label="${label}"`)
   })
 

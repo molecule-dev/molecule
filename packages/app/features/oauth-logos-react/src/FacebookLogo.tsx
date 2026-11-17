@@ -1,3 +1,4 @@
+import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
 const F_PATH =
@@ -20,6 +21,7 @@ export function FacebookLogo({
   const isMono = mode === 'mono'
   return (
     <svg
+      {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}

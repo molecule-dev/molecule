@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js'
 
+import { untranslated } from './svg-attrs.js'
 import type { OAuthLogoProps } from './types.js'
 
 const PATH =
@@ -14,6 +15,7 @@ export const AppleLogo: Component<OAuthLogoProps> = (props) => {
   const ariaLabel = (): string => props.ariaLabel ?? 'Apple'
   return (
     <svg
+      {...untranslated}
       xmlns="http://www.w3.org/2000/svg"
       width={size()}
       height={size()}

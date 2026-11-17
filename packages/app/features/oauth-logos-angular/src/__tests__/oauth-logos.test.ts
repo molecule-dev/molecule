@@ -119,6 +119,35 @@ describe('individual provider logos', () => {
     await destroy()
   })
 
+  it.each(LOGOS)(
+    '%s marks its root <svg> translate="no" so the brand name never translates',
+    async (_n, logo, label) => {
+      const { host, destroy } = await renderFixture(`<svg ${selectorOf(logo)} />`, {}, [logo])
+      const svg = host.querySelector('svg')!
+      // HTML's own marker for text that stays as written in every language:
+      // the accessible name is a brand name, so it takes no t() and no locale bond.
+      expect(svg.getAttribute('translate')).toBe('no')
+      expect(svg.getAttribute('aria-label')).toBe(label)
+      await destroy()
+    },
+  )
+
+  it.each(LOGOS)(
+    '%s keeps translate="no" when an explicit ariaLabel overrides the brand default',
+    async (_n, logo, label) => {
+      const { host, destroy } = await renderFixture(
+        `<svg ${selectorOf(logo)} [ariaLabel]="p['ariaLabel']" />`,
+        { ariaLabel: 'Continue with this provider' },
+        [logo],
+      )
+      const svg = host.querySelector('svg')!
+      expect(svg.getAttribute('translate')).toBe('no')
+      expect(svg.getAttribute('aria-label')).toBe('Continue with this provider')
+      expect(svg.getAttribute('aria-label')).not.toBe(label)
+      await destroy()
+    },
+  )
+
   it.each(LOGOS)('%s emits drawable geometry (<path> or <rect>)', async (_n, logo) => {
     const { host, destroy } = await renderFixture(`<svg ${selectorOf(logo)} />`, {}, [logo])
     // 8 marks use <path>; Microsoft's mark is 4 colored <rect> squares.
@@ -150,6 +179,23 @@ describe('OAuthProviderLogo dispatcher', () => {
     const svg = host.querySelector('svg')
     expect(svg).not.toBeNull()
     expect(svg!.getAttribute('aria-label')).toBe(label)
+    await destroy()
+  })
+
+  it.each([
+    ['github', 'GitHub'],
+    ['twitter', 'X (Twitter)'],
+    ['apple', 'Apple'],
+    ['discord', 'Discord'],
+  ] as const)('dispatches "%s" with translate="no" on the root <svg>', async (provider, label) => {
+    const { host, destroy } = await renderFixture(
+      `<mol-oauth-provider-logo [provider]="p['provider']" />`,
+      { provider },
+      [OAuthProviderLogo],
+    )
+    const svg = host.querySelector('svg')!
+    expect(svg.getAttribute('translate')).toBe('no')
+    expect(svg.getAttribute('aria-label')).toBe(label)
     await destroy()
   })
 

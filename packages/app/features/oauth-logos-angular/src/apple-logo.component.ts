@@ -13,6 +13,7 @@ import { Component } from '@angular/core'
   inputs: ['size', 'className', 'mode', 'ariaLabel', 'title'],
   host: {
     xmlns: 'http://www.w3.org/2000/svg',
+    translate: 'no',
     fill: 'currentColor',
     viewBox: '0 0 24 24',
     '[attr.width]': 'attrSize()',

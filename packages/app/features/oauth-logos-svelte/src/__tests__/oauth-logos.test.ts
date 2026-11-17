@@ -104,6 +104,29 @@ describe('individual provider logos', () => {
     expect(svg.getAttribute('class')).toBe('logo-cls')
   })
 
+  it.each(LOGOS)(
+    '%s marks its root <svg> translate="no" so the brand name never translates',
+    (_n, logo, label) => {
+      const svg = render(logo as Component<Record<string, unknown>>, {}).querySelector('svg')!
+      // HTML's own marker for text that stays as written in every language:
+      // the accessible name is a brand name, so it takes no t() and no locale bond.
+      expect(svg.getAttribute('translate')).toBe('no')
+      expect(svg.getAttribute('aria-label')).toBe(label)
+    },
+  )
+
+  it.each(LOGOS)(
+    '%s keeps translate="no" when an explicit ariaLabel overrides the brand default',
+    (_n, logo, label) => {
+      const svg = render(logo as Component<Record<string, unknown>>, {
+        ariaLabel: 'Continue with this provider',
+      }).querySelector('svg')!
+      expect(svg.getAttribute('translate')).toBe('no')
+      expect(svg.getAttribute('aria-label')).toBe('Continue with this provider')
+      expect(svg.getAttribute('aria-label')).not.toBe(label)
+    },
+  )
+
   it.each(LOGOS)('%s emits drawable geometry (<path> or <rect>)', (_n, logo) => {
     const svg = render(logo as Component<Record<string, unknown>>, {}).querySelector('svg')!
     // 8 marks use <path>; Microsoft's mark is 4 colored <rect> squares.
@@ -130,6 +153,19 @@ describe('OAuthProviderLogo dispatcher', () => {
       provider,
     }).querySelector('svg')!
     expect(svg).not.toBeNull()
+    expect(svg.getAttribute('aria-label')).toBe(label)
+  })
+
+  it.each([
+    ['github', 'GitHub'],
+    ['twitter', 'X (Twitter)'],
+    ['apple', 'Apple'],
+    ['discord', 'Discord'],
+  ])('dispatches "%s" with translate="no" on the root <svg>', async (provider, label) => {
+    const svg = render(OAuthProviderLogo as Component<Record<string, unknown>>, {
+      provider,
+    }).querySelector('svg')!
+    expect(svg.getAttribute('translate')).toBe('no')
     expect(svg.getAttribute('aria-label')).toBe(label)
   })
 

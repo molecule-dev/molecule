@@ -18,9 +18,10 @@ import type { OAuthLogoProps } from './types.js'
  *
  * Mirrors `@molecule/app-oauth-logos-react`'s per-logo JSX attributes
  * exactly: `width`/`height` from `size` (default 20), `viewBox="0 0 24 24"`,
- * and the a11y trio driven by `ariaLabel` (`role="img"` + `aria-label` when
- * set, `aria-hidden` when it is `''`). The `undefined` values Vue removes
- * stand for React's omitted JSX attributes.
+ * `translate="no"` (each logo's accessible name is a brand name, which stays
+ * as written in every language), and the a11y trio driven by `ariaLabel`
+ * (`role="img"` + `aria-label` when set, `aria-hidden` when it is `''`).
+ * The `undefined` values Vue removes stand for React's omitted JSX attributes.
  *
  * @param props - The component's props, with its per-logo defaults resolved.
  * @returns The attribute object for `h('svg', …)`.
@@ -29,6 +30,7 @@ export function logoSvgAttrs(props: OAuthLogoProps): Record<string, unknown> {
   const { size = 20, className, ariaLabel = '' } = props
   return {
     xmlns: 'http://www.w3.org/2000/svg',
+    translate: 'no',
     width: size,
     height: size,
     viewBox: '0 0 24 24',

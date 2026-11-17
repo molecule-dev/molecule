@@ -9,6 +9,23 @@ import { GoogleLogo } from './google-logo.component.js'
 import { LinkedInLogo } from './linkedin-logo.component.js'
 import { MicrosoftLogo } from './microsoft-logo.component.js'
 import { TwitterLogo } from './twitter-logo.component.js'
+import type { OAuthLogoProps, OAuthProviderId } from './types.js'
+
+/**
+ * Props for {@link OAuthProviderLogo} — the same shape as React's
+ * `OAuthProviderLogoProps`. Every member is a component input, except
+ * `fallback`, which is the content projected into `[slot=fallback]`.
+ */
+export interface OAuthProviderLogoProps extends OAuthLogoProps {
+  /** The provider id (a canonical `OAuthProviderId` or any other string). */
+  provider: OAuthProviderId | string
+  /**
+   * Rendered when `provider` has no registered logo (default: nothing).
+   * In Angular this is projected content: `<ng-content select="[slot=fallback]">`,
+   * the counterpart of React's `fallback` prop.
+   */
+  fallback?: unknown
+}
 
 /**
  * Dispatcher: renders the canonical logo for a given provider id.

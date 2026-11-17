@@ -6,7 +6,7 @@
  * @module
  */
 
-import { createComponent, type JSX } from 'solid-js'
+import { type Component, createComponent } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -31,11 +31,15 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Renders a component into the body and returns the mount's inner HTML (comment anchors stripped). */
-const html = (component: () => JSX.Element, props: Record<string, unknown> = {}): string => {
+/**
+ * Renders a component into the body and returns the mount's inner HTML
+ * (comment anchors stripped). Props are typed as the component's own props, so
+ * a drifted prop name or value shape fails to compile.
+ */
+const html = <P extends object>(component: Component<P>, props: P): string => {
   const mount = document.createElement('div')
   document.body.appendChild(mount)
-  mounts.push(render(() => createComponent(component as () => JSX.Element, props), mount))
+  mounts.push(render(() => createComponent(component, props), mount))
   return mount.innerHTML.replaceAll(/<!--[\s\S]*?-->/g, '')
 }
 
@@ -55,7 +59,7 @@ const LOGOS = [
 
 describe('individual provider logos', () => {
   it.each(LOGOS)('%s renders an <svg> with its default brand aria-label', (_n, logo, label) => {
-    const markup = html(logo)
+    const markup = html(logo, {})
     expect(markup.startsWith('<svg')).toBe(true)
     expect(markup).toContain(`aria-label="${label}"`)
     expect(markup).toContain('role="img"')
@@ -63,7 +67,7 @@ describe('individual provider logos', () => {
   })
 
   it.each(LOGOS)('%s defaults to a 20px square', (_n, logo) => {
-    const markup = html(logo)
+    const markup = html(logo, {})
     expect(markup).toContain('width="20"')
     expect(markup).toContain('height="20"')
   })
@@ -91,8 +95,29 @@ describe('individual provider logos', () => {
     expect(markup).toContain('class="logo-cls"')
   })
 
+  it.each(LOGOS)(
+    '%s marks its root <svg> translate="no" so the brand name never translates',
+    (_n, logo, label) => {
+      const markup = html(logo, {})
+      // HTML's own marker for text that stays as written in every language:
+      // the accessible name is a brand name, so it takes no t() and no locale bond.
+      expect(markup).toContain('translate="no"')
+      expect(markup).toContain(`aria-label="${label}"`)
+    },
+  )
+
+  it.each(LOGOS)(
+    '%s keeps translate="no" when an explicit ariaLabel overrides the brand default',
+    (_n, logo, label) => {
+      const markup = html(logo, { ariaLabel: 'Continue with this provider' })
+      expect(markup).toContain('translate="no"')
+      expect(markup).toContain('aria-label="Continue with this provider"')
+      expect(markup).not.toContain(`aria-label="${label}"`)
+    },
+  )
+
   it.each(LOGOS)('%s emits drawable geometry (<path> or <rect>)', (_n, logo) => {
-    const markup = html(logo)
+    const markup = html(logo, {})
     // 8 marks use <path>; Microsoft's mark is 4 colored <rect> squares.
     expect(/<(path|rect)\b/.test(markup)).toBe(true)
   })
@@ -115,6 +140,17 @@ describe('OAuthProviderLogo dispatcher', () => {
   ] as const)('dispatches "%s" to the logo with default label "%s"', (provider, label) => {
     const markup = html(OAuthProviderLogo, { provider })
     expect(markup.startsWith('<svg')).toBe(true)
+    expect(markup).toContain(`aria-label="${label}"`)
+  })
+
+  it.each([
+    ['github', 'GitHub'],
+    ['twitter', 'X (Twitter)'],
+    ['apple', 'Apple'],
+    ['discord', 'Discord'],
+  ] as const)('dispatches "%s" with translate="no" on the root <svg>', (provider, label) => {
+    const markup = html(OAuthProviderLogo, { provider })
+    expect(markup).toContain('translate="no"')
     expect(markup).toContain(`aria-label="${label}"`)
   })
 

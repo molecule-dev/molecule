@@ -39,6 +39,10 @@ export interface OAuthLogoProps {
    * Accessible label. Defaults to the provider's brand name
    * (e.g., `"GitHub"`, `"Google"`). Pass `''` to mark the logo
    * `aria-hidden` (typical when the button itself has an aria-label).
+   *
+   * Brand names stay as written in every language — they are never routed
+   * through `t()`; each logo's root `<svg>` carries `translate="no"` so
+   * localization tools leave the default (and any override) alone.
    */
   ariaLabel?: string
   /** Optional title rendered as `<title>` for hover tooltips. */
