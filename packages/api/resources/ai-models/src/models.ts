@@ -452,6 +452,24 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   model page still describes it (docs lag the endpoint). The catalog entry
  *   dropped its cn region and is now US/DeepInfra-only, whose rates re-verified
  *   unchanged the same day: $0.30/$1, cache read 0.3333× input.)
+ *   (re-verified 2026-11-17 across the provider's own pages: qwen4-max
+ *   (released 2026-11-16) ADDED. alibabacloud.com/help/en/model-studio/
+ *   qwen4-max + the EN model-pricing page: Singapore intl $1.5/$4.5 with
+ *   explicit/implicit cache read $0.075 (5% of input) and every Global region
+ *   at $1.413/$4.24 with cache read $0.071 — the ZH context-cache doc lists
+ *   qwen4-max OUTSIDE its standard 20% cache-read table and defers to the
+ *   console, whose per-region figures the pricing page publishes (explicit
+ *   5m creation 125%, 1h 200%; implicit creation 1× input). 1M ctx / 131,072
+ *   out (262,144 thinking), Text+Image+Video input in every region, hybrid
+ *   thinking ON by default (thinking_budget, native reasoning_effort
+ *   low|high|xhigh exists but the bond sends the budget form), parallel tool
+ *   calling. US = DeepInfra (Qwen/Qwen4-Max), read live the same day off
+ *   api.deepinfra.com/models/Qwen/Qwen4-Max: $1.413/$4.24, cache read
+ *   0.0502477× input = $0.071, no write premium, multimodal + input-video
+ *   tags, and the host's live list carries exactly one qwen4 id (no dated
+ *   snapshot sibling). Knowledge cutoff: not published by either host —
+ *   best-effort estimate. qwen4-max supersedes qwen3.8-max: same
+ *   agentic-flagship tier, cheaper at list on both hosts.)
  * - Zhipu: https://docs.z.ai/guides/overview/pricing + docs.z.ai/guides/llm/
  *   glm-5.3 (verified 2026-08-26: glm-5.3 shipped 2026-08-14 and IS in the
  *   catalog — $1.40/$4.40, cached $0.26, i.e. glm-5.2's card unchanged, 1M ctx,
@@ -2831,20 +2849,78 @@ export const MODELS: readonly ModelDefinition[] = [
   // Verified: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
   //           https://www.alibabacloud.com/help/en/model-studio/qwen-coder
   //           https://openrouter.ai/qwen/qwen3.7-max
-  // qwen3.8-max (2026-08-03) is the agentic flagship, succeeding qwen3.7-max —
-  // Alibaba's own Qwen-Coder docs now recommend the general-purpose models over
-  // Qwen-Coder. Their thinking
-  // uses enable_thinking (default ON for the 3.7 series) + thinking_budget
-  // (token cap) — a real budget param, so effort scales the budget. The
-  // qwen3-coder models are NON-thinking (previous catalog entry was wrong).
+  // qwen4-max (2026-11-16) is the agentic flagship, succeeding qwen3.8-max —
+  // multimodal (Text+Image+Video input) on BOTH hosts this generation. Hybrid
+  // thinking uses enable_thinking (default ON) + thinking_budget (token cap) —
+  // a real budget param, so effort scales the budget. (Qwen4-Max also exposes a
+  // native reasoning_effort low|high|xhigh, but the alibaba bond speaks only
+  // the budget form, so the catalog models effort as scaled budgets like the
+  // 3.x flagships.) The qwen3-coder models are NON-thinking.
   // Prices are DashScope international list rates (the bond calls DashScope,
-  // not OpenRouter; a 50%-off promo currently applies — billed at list).
+  // not OpenRouter; bill at list).
   // ---------------------------------------------------------------------------
-  // qwen3.8-max (GA 2026-08-03) succeeds qwen3.7-max as the agentic flagship,
+  // qwen4-max (2026-11-16) succeeds qwen3.8-max as the agentic flagship,
+  // priced BELOW it at $1.5/$4.5 on the Singapore international card (every
+  // other native region and the US re-host bill $1.413/$4.24). Same hybrid
+  // thinking mechanism as the 3.x series. Cache rates are published per region
+  // on the model-pricing page — see the Sources block for the citation.
+  {
+    id: 'qwen4-max',
+    provider: 'alibaba',
+    label: 'Qwen4 Max',
+    description: 'Alibaba agentic flagship — 1M context, multimodal, hybrid thinking',
+    // Model page (verified 2026-11-17): context 1,000,000; max input 991,808
+    // (983,616 thinking); max output 131,072 (262,144 in thinking mode); max
+    // chain-of-thought 262,144. Kept at the non-thinking output figure —
+    // understating only shortens completions.
+    contextWindow: 1_000_000,
+    maxOutputTokens: 131_072,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['4K', '8K', '16K', '32K'],
+    defaultEffortLevel: '8K',
+    effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
+    // Multimodal on BOTH hosts this generation: the model page lists
+    // Text/Image/Video input in every region, and the DeepInfra re-host's own
+    // record tags the id multimodal + input-video (Qwen3.8-Max's re-host
+    // carried no such tags — that is why vision stayed false there).
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // Singapore international list card (model page + model-pricing page,
+    // verified 2026-11-17). The ZH context-cache doc lists qwen4-max among the
+    // models OUTSIDE the standard 20% cache-read table and defers to the
+    // console, whose figures the pricing page publishes per region: cache read
+    // $0.075 in Singapore (5% of input; $0.071 in every Global region).
+    // Implicit creation is billed at plain input (write 1×); the explicit 5m
+    // creation premium is 125% = $1.875, which implicit-mode billing never
+    // charges.
+    inputPricePerMTok: 1.5,
+    outputPricePerMTok: 4.5,
+    cacheReadPricePerMTok: 0.075,
+    cacheWritePricePerMTok: 1.5,
+    regions: ['us', 'cn'],
+    // US = DeepInfra (Qwen/Qwen4-Max), verified 2026-11-17 against
+    // api.deepinfra.com/models/Qwen/Qwen4-Max: $1.413/$4.24, cache read
+    // 0.0502477× input = $0.071, no write premium (omitted → region input).
+    // The host's live model list carries exactly one qwen4 id — no dated
+    // snapshot sibling — and the entry is not deprecated.
+    regionPricing: {
+      us: { inputPricePerMTok: 1.413, outputPricePerMTok: 4.24, cacheReadPricePerMTok: 0.071 },
+    },
+    // Not published by Alibaba — best-effort estimate for the Qwen4 generation
+    // (released 2026-11-16).
+    knowledgeCutoff: '2026-08-01',
+  },
+  // qwen3.8-max (GA 2026-08-03) succeeded qwen3.7-max as the agentic flagship,
   // priced BELOW it at $2/$6 (intl CNY 14.988/44.965, same fixed conversion).
   // Same hybrid thinking mechanism as the 3.7 series (enable_thinking default
   // ON + thinking_budget; preserve_thinking supported). Context cache uses the
   // standard implicit rates — see the Sources block for the ZH-doc citation.
+  // Superseded by qwen4-max (2026-11-16): same tier at a LOWER list price on
+  // both hosts. Still served upstream, so it stays priceable — just not
+  // offered.
   {
     id: 'qwen3.8-max',
     provider: 'alibaba',
@@ -2891,6 +2967,8 @@ export const MODELS: readonly ModelDefinition[] = [
     },
     // Not published by Alibaba — best-effort estimate.
     knowledgeCutoff: '2026-04-01',
+    deprecatedAt: '2026-11-16',
+    supersededBy: 'qwen4-max',
   },
   {
     id: 'qwen3.8-flash',
@@ -2968,11 +3046,13 @@ export const MODELS: readonly ModelDefinition[] = [
     },
     // Not published by Alibaba — best-effort estimate.
     knowledgeCutoff: '2026-01-01',
-    // Superseded by qwen3.8-max (GA 2026-08-03): same tier and mechanism, and
-    // CHEAPER at list ($2/$6 vs $2.50/$7.50). Still served upstream (the 50%-off
-    // promo runs on this id), so it stays priceable — it is just not offered.
+    // Superseded (GA 2026-08-03) and now pointed one hop forward at qwen4-max
+    // (2026-11-16): same tier and mechanism, each generation CHEAPER at list
+    // ($2/$6 then $1.5/$4.5, vs this id's $2.50/$7.50). Still served upstream
+    // (the 50%-off promo runs on this id), so it stays priceable — it is just
+    // not offered.
     deprecatedAt: '2026-08-03',
-    supersededBy: 'qwen3.8-max',
+    supersededBy: 'qwen4-max',
   },
   {
     id: 'qwen3-coder-plus',

@@ -99,7 +99,7 @@ class AlibabaAIProvider implements AIProvider {
   constructor(config: AlibabaConfig = {}) {
     this.apiKey =
       config.apiKey ?? process.env.DASHSCOPE_API_KEY ?? process.env.ALIBABA_API_KEY ?? ''
-    this.defaultModel = config.defaultModel ?? 'qwen3.8-max'
+    this.defaultModel = config.defaultModel ?? 'qwen4-max'
     this.maxTokens = config.maxTokens ?? 4096
     this.onRateLimit = config.onRateLimit
     this.baseUrl =

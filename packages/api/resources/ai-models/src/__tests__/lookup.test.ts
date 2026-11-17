@@ -1140,8 +1140,15 @@ const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }
   },
   {
     older: 'qwen3-coder-plus',
-    newer: 'qwen3.8-max',
+    newer: 'qwen4-max',
     why: 'Coding specialist with no newer coder id — a distinct tier, not an older max.',
+  },
+  {
+    older: 'qwen3.8-flash',
+    newer: 'qwen4-max',
+    why:
+      "Alibaba's cheap general-purpose tier ($0.15/$0.47, cn-only) — qwen4-max is the " +
+      'flagship ($1.5/$4.5), not a flash successor; hiding flash would leave no cheap Qwen.',
   },
   {
     older: 'qwen3-coder-plus',
@@ -1298,7 +1305,8 @@ describe('supersededBy', () => {
       'kimi-k2.5': 'kimi-k3.1-pro',
       'minimax-m2.7': 'minimax-m3.1-flash',
       'minimax-m2.5': 'minimax-m3.1-flash',
-      'qwen3.7-max': 'qwen3.8-max',
+      'qwen3.7-max': 'qwen4-max',
+      'qwen3.8-max': 'qwen4-max',
       'glm-5.2': 'glm-5.3',
       'glm-5': 'glm-5.3',
     }
@@ -1312,7 +1320,8 @@ describe('supersededBy', () => {
 
 describe('resolveSelectableModelId', () => {
   it('forwards a superseded id to its successor', () => {
-    expect(resolveSelectableModelId('qwen3.7-max')).toBe('qwen3.8-max')
+    expect(resolveSelectableModelId('qwen3.7-max')).toBe('qwen4-max')
+    expect(resolveSelectableModelId('qwen3.8-max')).toBe('qwen4-max')
     expect(resolveSelectableModelId('claude-opus-4-6')).toBe('claude-opus-5-5')
   })
 

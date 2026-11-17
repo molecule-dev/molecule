@@ -15,6 +15,8 @@ vi.mock('@molecule/api-bond', () => ({
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { AITool } from '@molecule/api-ai'
+
 import { createProvider } from '../provider.js'
 
 function jsonResponse(
@@ -104,8 +106,15 @@ describe('chat()', () => {
       Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} })),
     )
     const provider = createProvider({ apiKey: 'k' })
-    const tools = [
-      { name: 'ask_user', description: 'Ask', parameters: { type: 'object', properties: {} } },
+    // A real caller's tool carries its execute callback; this test only maps the
+    // request body, so the callback is never invoked.
+    const tools: AITool[] = [
+      {
+        name: 'ask_user',
+        description: 'Ask',
+        parameters: { type: 'object', properties: {} },
+        execute: async () => ({}),
+      },
     ]
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'h' }],
@@ -201,7 +210,7 @@ describe('chat()', () => {
     }
   })
 
-  it('defaults model to qwen3.8-max', async () => {
+  it('defaults model to qwen4-max', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
       jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
@@ -214,7 +223,7 @@ describe('chat()', () => {
       // drain
     }
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
-    expect(body.model).toBe('qwen3.8-max')
+    expect(body.model).toBe('qwen4-max')
   })
 
   it('uses max_completion_tokens', async () => {
