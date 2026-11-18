@@ -87,6 +87,58 @@ import {
 } from './lib/untrusted.mjs'
 
 /**
+ * The commit a `git push` sends, from the lines git writes to a pre-push hook's stdin
+ * (`<local ref> <local sha> <remote ref> <remote sha>`): the first one that is not a delete.
+ * Read only when stdin is not a terminal, so a hand-run `--from-hook` never waits on it.
+ *
+ * @returns The full sha, or null when there is none to read.
+ */
+const pushedCommit = () => {
+  if (process.stdin.isTTY) return null
+  let text
+  try {
+    text = readFileSync(0, 'utf8')
+  } catch (_error) {
+    // No readable stdin (closed or not a pipe): the run falls back to REF.
+    return null
+  }
+  for (const line of text.split('\n')) {
+    const sha = line.trim().split(/\s+/)[1] ?? ''
+    if (/^[0-9a-f]{40,64}$/.test(sha) && !/^0+$/.test(sha)) return sha
+  }
+  return null
+}
+
+/**
+ * The package directories (relative to the repo root) committed in `ref`.
+ *
+ * @param ref - A commit.
+ * @returns The directories holding a committed `package.json`, or null when git cannot read `ref`
+ *   (a copy outside git): the list then stays as the working tree has it, and the build step's own
+ *   committed-tree check still keeps uncommitted packages out of npm.
+ */
+const committedPackageDirs = (ref) => {
+  let out
+  try {
+    out = execFileSync(
+      'git',
+      ['-C', ROOT, 'ls-tree', '-r', '-z', '--name-only', ref, '--', 'packages'],
+      {
+        encoding: 'utf8',
+        maxBuffer: 256 * 1024 * 1024,
+        stdio: ['ignore', 'pipe', 'ignore'],
+      },
+    )
+  } catch (_error) {
+    return null
+  }
+  const dirs = new Set()
+  for (const path of out.split('\0'))
+    if (path.endsWith('/package.json')) dirs.add(path.slice(0, -'/package.json'.length))
+  return dirs
+}
+
+/**
  * Packages the registry has never seen.
  *
  * @returns Records for names absent from npm, sorted.
@@ -190,6 +242,39 @@ if (!CI) {
   untrusted.push(
     ...unproven.filter((pkg) => !waiting.includes(pkg)).map((pkg) => ({ ...pkg, relink: true })),
   )
+}
+
+// The list names only packages committed in the tree this run acts on: the commit a push sends
+// (git passes it to the pre-push hook on stdin), else REF. Only committed code is pushed, built or
+// published, so a package that exists only in the shared checkout (another session's work in
+// progress) gets one summary line instead. 2026-11-18: a scripted push of dc34e320b listed 356
+// such packages as if the push carried them; trust:new itself skipped them at build time.
+// A re-link (a package npm already has) builds nothing, so it stays listed.
+if (!CI && untrusted.length) {
+  const pushed = FROM_HOOK ? pushedCommit() : null
+  const dirs = committedPackageDirs(pushed ?? REF)
+  if (dirs) {
+    const absent = untrusted.filter((pkg) => !pkg.relink && !dirs.has(pkg.dir))
+    if (absent.length) {
+      const shown = absent
+        .slice(0, 5)
+        .map((pkg) => pkg.name)
+        .join(', ')
+      const more = absent.length > 5 ? `, and ${absent.length - 5} more` : ''
+      console.log(
+        pushed
+          ? `${absent.length} package(s) without a trusted publisher are not in the commit being pushed ` +
+              `(${pushed.slice(0, 12)}), so they are not part of it: ${shown}${more}`
+          : `  ${absent.length} new package(s) are not committed${REF === 'HEAD' ? '' : ` in ${REF}`} yet, so ` +
+              `they are left for a later run (only committed code is published): ${shown}${more}`,
+      )
+      untrusted.splice(
+        0,
+        untrusted.length,
+        ...untrusted.filter((pkg) => pkg.relink || dirs.has(pkg.dir)),
+      )
+    }
+  }
 }
 
 // The common case by far: nothing new, no output, no network call, no delay.
