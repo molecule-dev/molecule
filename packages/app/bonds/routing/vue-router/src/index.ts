@@ -40,10 +40,26 @@
  * - Composables must run inside a component tree that has the vue-router plugin
  *   installed (`app.use(router)`), since they call `useRouter()`/`useRoute()`.
  *
+ * - **A route with parameters? Declare its page with `defineRoute`.** The route path is the
+ *   source of truth for the page's parameter names: `:name`, `:name?`, `:name(regex)`,
+ *   `:name+` and `:name*` each arrive as `string | undefined` (a repeated parameter is joined with
+ *   `/`). For example:
+ *
+ *   ```ts
+ *   import { h } from 'vue'
+ *   import { defineRoute } from '@molecule/app-routing-vue-router'
+ *
+ *   const routes = [
+ *     defineRoute('/shelves/:shelf', ({ shelf }) => h(Shelf, { name: shelf, view: 'all' })),
+ *     defineRoute('/shelves/:shelf/saved', ({ shelf }) => h(Shelf, { name: shelf, view: 'saved' })),
+ *   ]
+ *   ```
+ *
  * @module @molecule/app-routing-vue-router
  */
 
 export * from './composables.js'
+export * from './define-route.js'
 export * from './history.js'
 export * from './provider.js'
 export * from './types.js'

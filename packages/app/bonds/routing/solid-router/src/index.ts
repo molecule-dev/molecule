@@ -28,9 +28,23 @@
  * - Do NOT wire the exported `provider` const in a Solid app: it is the core's plain
  *   browser router for use where no Solid Router is mounted.
  *
+ * - **A route with parameters? Declare its page with `defineRoute`.** The route path is the
+ *   source of truth for the page's parameter names: `:name`, `:name?` and `*rest` each arrive
+ *   as `string | undefined`. For example:
+ *
+ *   ```tsx
+ *   import { defineRoute } from '@molecule/app-routing-solid-router'
+ *
+ *   const shelves = [
+ *     defineRoute('/shelves/:shelf', ({ shelf }) => <Shelf name={shelf} view="all" />),
+ *     defineRoute('/shelves/:shelf/saved', ({ shelf }) => <Shelf name={shelf} view="saved" />),
+ *   ]
+ *   ```
+ *
  * @module @molecule/app-routing-solid-router
  */
 
+export * from './define-route.js'
 export * from './memory-history.js'
 export * from './provider.js'
 export * from './types.js'

@@ -36,3 +36,39 @@ export interface AngularRouterOptions {
    */
   routes?: RouteDefinition[]
 }
+
+/**
+ * Scans an Angular route path for its parameter segments. Angular reads a segment as a
+ * parameter only when the whole segment is `:name`.
+ *
+ * @template S - The path text still to scan.
+ * @template Found - The names collected so far.
+ */
+type ScanAngularPath<
+  S extends string,
+  Found extends string = never,
+> = S extends `${infer Segment}/${infer Rest}`
+  ? ScanAngularPath<Rest, Segment extends `:${infer Name}` ? Found | Name : Found>
+  : S extends `:${infer Name}`
+    ? Found | Name
+    : Found
+
+/**
+ * The parameter names an Angular route path declares (`:name`). A path that is not a
+ * literal declares any name.
+ *
+ * @template Path - A route path.
+ */
+export type AngularRouteParamName<Path extends string> = string extends Path
+  ? string
+  : Exclude<ScanAngularPath<Path>, ''>
+
+/**
+ * The parameters an Angular route path declares. Every value is a string, or
+ * `undefined` when the URL leaves the parameter out.
+ *
+ * @template Path - A route path.
+ */
+export type AngularRouteParams<Path extends string> = Readonly<{
+  [Name in AngularRouteParamName<Path>]: string | undefined
+}>

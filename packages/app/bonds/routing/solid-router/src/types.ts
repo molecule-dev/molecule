@@ -76,3 +76,57 @@ export interface SolidRouterOptions {
    */
   history?: SolidMemoryHistory
 }
+
+/** Characters a Solid Router parameter name may contain. */
+type SolidParamNameChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
+
+/**
+ * Reads a parameter name one character at a time, then resumes the scan.
+ *
+ * @template S - The text from the next unread character.
+ * @template Name - The name read so far.
+ * @template Found - The names collected before this one.
+ */
+type ReadSolidParamName<
+  S extends string,
+  Name extends string,
+  Found extends string,
+> = S extends `${infer C}${infer R}`
+  ? SolidParamNameChars extends `${string}${C}${string}`
+    ? ReadSolidParamName<R, `${Name}${C}`, Found>
+    : ScanSolidPath<S, Found | Name>
+  : Found | Name
+
+/**
+ * Scans a path for the names after each `:` or `*`. A bare `*` declares no name.
+ *
+ * @template S - The path text still to scan.
+ * @template Found - The names collected so far.
+ */
+type ScanSolidPath<S extends string, Found extends string = never> = S extends `:${infer R}`
+  ? ReadSolidParamName<R, '', Found>
+  : S extends `*${infer R}`
+    ? ReadSolidParamName<R, '', Found>
+    : S extends `${string}${infer R}`
+      ? ScanSolidPath<R, Found>
+      : Found
+
+/**
+ * The parameter names a Solid Router path declares: `:name`, `:name?` and `*rest`.
+ * A path that is not a literal declares any name.
+ *
+ * @template Path - A route path.
+ */
+export type SolidRouteParamName<Path extends string> = string extends Path
+  ? string
+  : Exclude<ScanSolidPath<Path>, ''>
+
+/**
+ * The parameters a Solid Router path declares. Every value is a string, or `undefined`
+ * when the URL leaves the parameter out.
+ *
+ * @template Path - A route path.
+ */
+export type SolidRouteParams<Path extends string> = Readonly<{
+  [Name in SolidRouteParamName<Path>]: string | undefined
+}>

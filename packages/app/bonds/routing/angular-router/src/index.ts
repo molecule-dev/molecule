@@ -33,9 +33,25 @@
  * constant is the core browser router fallback (an Angular-backed router needs a
  * booted injector, which an import-time constant cannot have).
  *
+ * A route with parameters? Declare its page with `defineRoute` and read its parameters with
+ * `injectRouteParams`. The route path is the source of truth for the parameter names (`:name`;
+ * Angular paths have no optional parameters):
+ *
+ * @example
+ * ```ts
+ * import { defineRoute, injectRouteParams } from '@molecule/app-routing-angular-router'
+ *
+ * class ShelfPage {
+ *   readonly params = injectRouteParams<'shelves/:shelf'>()
+ * }
+ *
+ * const routes = [defineRoute('shelves/:shelf', ShelfPage)]
+ * ```
+ *
  * @module @molecule/app-routing-angular-router
  */
 
+export * from './define-route.js'
 export * from './provider.js'
 export * from './providers.js'
 export * from './types.js'
