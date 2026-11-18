@@ -218,23 +218,103 @@ export const getProvider = (): LoggerProvider => {
 }
 
 /**
+ * Returns `make(source)` for the current source, making it again only when the
+ * source changes (a provider or logger bonded since the last call).
+ *
+ * @param make - Builds the value for one source.
+ * @returns A function from the current source to its value.
+ */
+const perSource = <S, T>(make: (source: S) => T): ((source: S) => T) => {
+  let last: { source: S; value: T } | undefined
+  return (source) => {
+    if (!last || last.source !== source) last = { source, value: make(source) }
+    return last.value
+  }
+}
+
+/**
+ * A logger that looks up its target on every call. A module-level
+ * `const logger = getLogger('x')` runs at import time, before an app's
+ * composition root bonds its provider; resolving per call makes such a logger
+ * log through whichever provider is bonded when it logs, so a provider can be
+ * swapped at any time.
+ *
+ * @param resolve - Returns the logger to call now.
+ * @returns The forwarding logger.
+ */
+const forwardingLogger = (resolve: () => Logger): Logger => ({
+  trace: (message, ...args) => resolve().trace(message, ...args),
+  debug: (message, ...args) => resolve().debug(message, ...args),
+  info: (message, ...args) => resolve().info(message, ...args),
+  warn: (message, ...args) => resolve().warn(message, ...args),
+  error: (message, ...args) => resolve().error(message, ...args),
+  setLevel: (level) => resolve().setLevel(level),
+  getLevel: () => resolve().getLevel(),
+  child: (name, context) => derivedLogger(resolve, (parent) => parent.child(name, context)),
+  withContext: (context) => derivedLogger(resolve, (parent) => parent.withContext(context)),
+  addTransport: (transport) => resolve().addTransport(transport),
+  removeTransport: (transport) => resolve().removeTransport(transport),
+})
+
+/**
+ * A logger derived from a forwarding logger's current target (`child`,
+ * `withContext`). It is derived at once, so a provider whose `withContext` adds
+ * the context to the logger in place (the console provider does) applies it
+ * immediately, and derived again from each provider bonded after that.
+ *
+ * @param resolve - Returns the parent's current target.
+ * @param make - Derives the logger from a parent.
+ * @returns The forwarding derived logger.
+ */
+const derivedLogger = (resolve: () => Logger, make: (parent: Logger) => Logger): Logger => {
+  const from = perSource(make)
+  from(resolve())
+  return forwardingLogger(() => from(resolve()))
+}
+
+const namedLoggers = new Map<string, Logger>()
+
+/**
  * Retrieves a logger by name from the bonded provider. Returns the root
  * logger if no name is given.
+ *
+ * The logger looks up the bonded provider each time it logs, so one created at
+ * module level (before the app bonds its provider) still logs through the
+ * provider bonded later, and through a provider swapped in at any time.
  *
  * @param name - Optional logger name for scoped logging.
  * @returns The named or root logger.
  */
-export const getLogger = (name?: string): Logger => getProvider().getLogger(name)
+export const getLogger = (name?: string): Logger => {
+  const key = name ?? ''
+  let logger = namedLoggers.get(key)
+  if (!logger) {
+    logger = forwardingLogger(() => getProvider().getLogger(name))
+    namedLoggers.set(key, logger)
+  }
+  return logger
+}
 
 /**
  * Creates a named logger with optional configuration via the bonded provider.
+ *
+ * Like {@link getLogger}, the logger follows the bonded provider: it is created
+ * on the provider bonded when it first logs, and again on each provider bonded
+ * after that.
  *
  * @param nameOrConfig - The logger name string, or a full `LoggerConfig` object.
  * @param config - Optional configuration when the first argument is a name string.
  * @returns A new named logger instance.
  */
-export const createLogger = (nameOrConfig: string | LoggerConfig, config?: LoggerConfig): Logger =>
-  getProvider().createLogger(nameOrConfig, config)
+export const createLogger = (
+  nameOrConfig: string | LoggerConfig,
+  config?: LoggerConfig,
+): Logger => {
+  const createdOn = perSource((provider: LoggerProvider) =>
+    provider.createLogger(nameOrConfig, config),
+  )
+  return forwardingLogger(() => createdOn(getProvider()))
+}
 
 /**
  * Sets the global log level on the bonded provider, affecting all loggers.
