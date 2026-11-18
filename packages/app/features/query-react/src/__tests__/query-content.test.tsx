@@ -1,4 +1,4 @@
-import { act, createElement as h } from 'react'
+import { act, createElement as h, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 
@@ -181,4 +181,86 @@ it('a loaded null is missing rather than pending or actionable', () => {
   )
   expect(children).not.toHaveBeenCalled()
   expect(host.textContent).toBe('Not found')
+})
+
+function ScheduleForm({ title }: { title: string }) {
+  const [draft, setDraft] = useState(title)
+  return h(
+    'form',
+    {},
+    h('input', { value: draft, readOnly: true }),
+    h('button', { type: 'button', onClick: () => setDraft('Unsaved') }, 'Edit'),
+  )
+}
+
+it('mounts the form with loaded values and resets it when an already cached record opens', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'b'], { title: 'Thursday' })
+  let id = 'a'
+  let resolve!: (data: { title: string }) => void
+  const first = new Promise<{ title: string }>((done) => {
+    resolve = done
+  })
+  function Page() {
+    const query = useQuery({ key: ['schedule', id], fetch: async () => first })
+    return h(QueryContent<{ title: string }>, {
+      query,
+      recordKey: id,
+      pending: h('p', { role: 'status' }, 'Loading schedule'),
+      children: (record) => h(ScheduleForm, record),
+    })
+  }
+  mount(Page)
+  expect(host.querySelector('form')).toBeNull()
+  await act(async () => resolve({ title: 'Tuesday' }))
+  expect(host.querySelector('input')?.value).toBe('Tuesday')
+  act(() => host.querySelector('button')!.click())
+  act(() => client.set(['schedule', 'a'], { title: 'Tuesday, revised' }))
+  expect(host.querySelector('input')?.value).toBe('Unsaved')
+  id = 'b'
+  act(() => root!.render(h(Page)))
+  expect(host.querySelector('input')?.value).toBe('Thursday')
+})
+
+it('keeps a previous query key out of the form until the new record arrives', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'a'], { title: 'Tuesday' })
+  let id = 'a'
+  let resolve!: (data: { title: string }) => void
+  const second = new Promise<{ title: string }>((done) => {
+    resolve = done
+  })
+  function Page() {
+    const query = useQuery({
+      key: ['schedule', id],
+      fetch: async () => second,
+      keepPreviousData: true,
+      principal: 'public',
+    })
+    return h(QueryContent<{ title: string }>, {
+      query,
+      recordKey: id,
+      pending: h('p', { role: 'status' }, 'Loading schedule'),
+      children: (record) => h(ScheduleForm, record),
+    })
+  }
+  mount(Page)
+  expect(host.querySelector('input')?.value).toBe('Tuesday')
+  id = 'b'
+  act(() => root!.render(h(Page)))
+  expect(host.querySelector('form')).toBeNull()
+  expect(host.querySelector('[role="status"]')?.textContent).toBe('Loading schedule')
+  await act(async () => resolve({ title: 'Thursday' }))
+  expect(host.querySelector('input')?.value).toBe('Thursday')
+})
+
+it('counterexample: a form with static initial values retains its draft on rerender', () => {
+  function Page() {
+    return h(ScheduleForm, { title: 'New schedule' })
+  }
+  mount(Page)
+  expect(host.querySelector('input')?.value).toBe('New schedule')
+  act(() => host.querySelector('button')!.click())
+  act(() => root!.render(h(Page)))
+  expect(host.querySelector('input')?.value).toBe('Unsaved')
 })

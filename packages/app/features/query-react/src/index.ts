@@ -20,6 +20,12 @@
  * (`@molecule/app-query-memory`, or `@molecule/app-query-tanstack`) and call the bond's
  * `setProvider(provider)` once at startup (the scaffold's `app/src/bonds/` does this).
  *
+ * **Editing a loaded record? Mount the form inside `QueryContent` with `recordKey`.**
+ * Its child receives the current document. Initialize local draft state or
+ * `useForm({ defaultValues })` in that child form. A different record starts a
+ * new draft, including when it is cached, and same-record refreshes preserve typing.
+ * Render a create form from its static defaults.
+ *
  * **Keep displayed records on the query cache.** Render `query.data` directly. A custom
  * mutation handler publishes its saved response with `query.setData(saved)`; every observer
  * and the next visit receive it, and subsequent refreshes still update the view. A local

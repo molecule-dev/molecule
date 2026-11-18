@@ -1,6 +1,7 @@
 import { type JSX, type ReactNode, useId } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { OptimisticToggleButton, type OptimisticToggleButtonProps } from '@molecule/app-ui-react'
 
 /** Props for {@link ListItemRow}. */
 export interface ListItemRowProps {
@@ -14,6 +15,8 @@ export interface ListItemRowProps {
   leading?: ReactNode
   /** Optional right-side actions (buttons, action menu). */
   actions?: ReactNode
+  /** Loaded boolean action rendered as a native button, independently of read-only metadata. */
+  toggle?: OptimisticToggleButtonProps
   /**
    * Called when the row is activated. The whole row is clickable through a
    * transparent native button over it, named by the title; the inner controls
@@ -54,6 +57,7 @@ export function ListItemRow({
   metadata,
   leading,
   actions,
+  toggle,
   onClick,
   selected,
   disabled,
@@ -108,7 +112,12 @@ export function ListItemRow({
         {subtitle && <div className={cm.textSize('sm')}>{subtitle}</div>}
         {metadata && <div className={cm.textSize('xs')}>{metadata}</div>}
       </div>
-      {actions && <div className={cm.cn(cm.shrink0, cm.position('relative'))}>{actions}</div>}
+      {(toggle || actions) && (
+        <div className={cm.cn(cm.shrink0, cm.position('relative'))}>
+          {toggle && <OptimisticToggleButton {...toggle} />}
+          {actions}
+        </div>
+      )}
     </div>
   )
 }

@@ -12,6 +12,19 @@
  * supply named routes, or receive onRouterReady. Hook-created adapters remain local
  * so multiple consumers cannot overwrite the global router bond.
  *
+ * **A route with parameters? Declare its page with `defineRoute`.** The route path
+ * is the source of truth for the page's parameter names. Use explicit props for a
+ * view selected by a literal suffix. For example:
+ *
+ * ```tsx
+ * import { defineRoute } from '@molecule/app-routing-react-router'
+ *
+ * const routes = [
+ *   defineRoute('/shelves/:shelf', ({ shelf }) => <Shelf name={shelf} view="all" />),
+ *   defineRoute('/shelves/:shelf/saved', ({ shelf }) => <Shelf name={shelf} view="saved" />),
+ * ]
+ * ```
+ *
  * **Paginated or filtered page? Use `useListRoute` for its URL state.** It reads
  * page, filters and selected views from the current URL; builds links that retain
  * the current path/filters; and resets page when a filter or view changes.
@@ -212,6 +225,7 @@
  * @module @molecule/app-routing-react-router
  */
 
+export * from './defineRoute.js'
 export * from './hooks.js'
 export * from './lazyPage.js'
 export * from './list-types.js'

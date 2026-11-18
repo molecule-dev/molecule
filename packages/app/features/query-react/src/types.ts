@@ -2,7 +2,7 @@
  * React query observer contracts.
  * @module
  */
-import type { ReactNode } from 'react'
+import type { Key, ReactNode } from 'react'
 
 import type { QueryOptions, QueryState } from '@molecule/app-query'
 
@@ -53,6 +53,12 @@ export interface QueryContentProps<T> {
 
   /** State from useQuery, or any compatible query observer. */
   query: Pick<QueryState<T>, 'data' | 'status' | 'error' | 'isPreviousData'>
+  /**
+   * Stable identity of the requested record, including the principal when needed.
+   * Use for record-specific state such as an edit form. Changing the key remounts the
+   * loaded branch and excludes data retained from a previous query key.
+   */
+  recordKey?: Key
   /** Mounted only with a real document, including false, zero and an empty list. */
   children: (data: QueryContentContext<T>) => ReactNode
   /** Initial idle/loading content. Render a status node, never a fake item or action. */
