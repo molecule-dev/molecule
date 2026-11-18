@@ -1,10 +1,32 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
+import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
 // Shared framework mocks, defined before vi.mock hoisting.
 const { mockVueRouter, mockRoute } = vi.hoisted(() => {
-  const mockVueRouter = {
-    // The bond reads the live currentRoute (not a passed snapshot).
-    currentRoute: { value: null as unknown },
+  // The route the bond reads through the live currentRoute (not a passed snapshot).
+  const mockRoute: RouteLocationNormalizedLoaded = {
+    path: '/',
+    fullPath: '/',
+    hash: '',
+    query: {},
+    params: {},
+    meta: {},
+    name: 'home',
+    matched: [],
+    redirectedFrom: undefined,
+  }
+  const mockVueRouter: {
+    currentRoute: { value: RouteLocationNormalizedLoaded }
+    push: Mock<(path: string) => Promise<void>>
+    replace: Mock<(path: string) => Promise<void>>
+    back: Mock<() => void>
+    forward: Mock<() => void>
+    go: Mock<(delta: number) => void>
+    resolve: Mock<(to: { name: string }) => { fullPath: string }>
+    afterEach: Mock<() => () => void>
+    options: { history: { state: { position: number }; listen: Mock<() => () => void> } }
+  } = {
+    currentRoute: { value: mockRoute },
     push: vi.fn(async (path: string) => {
       mockVueRouter.currentRoute.value = {
         ...mockVueRouter.currentRoute.value,
@@ -26,18 +48,6 @@ const { mockVueRouter, mockRoute } = vi.hoisted(() => {
     afterEach: vi.fn(() => () => {}),
     options: { history: { state: { position: 0 }, listen: vi.fn(() => () => {}) } },
   }
-  const mockRoute = {
-    path: '/',
-    fullPath: '/',
-    hash: '',
-    query: {},
-    params: {},
-    meta: {},
-    name: 'home',
-    matched: [],
-    redirectedFrom: undefined,
-  }
-  mockVueRouter.currentRoute.value = mockRoute
   return { mockVueRouter, mockRoute }
 })
 
@@ -45,7 +55,7 @@ const { mockVueRouter, mockRoute } = vi.hoisted(() => {
 // is bonded (the provider singleton needs the real createBrowserRouter at import time).
 let bonded: { navigate: (path: string, options?: unknown) => unknown } | null = null
 vi.mock('@molecule/app-routing', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = await importOriginal<typeof actualAppRouting>()
   return {
     ...actual,
     setRouter: vi.fn((router: { navigate: (p: string, o?: unknown) => unknown }) => {
@@ -77,6 +87,8 @@ vi.mock('vue', () => ({
   onUnmounted: vi.fn(),
 }))
 
+// The real module's types, for `importOriginal` below (type-only: erased at runtime).
+import type * as actualAppRouting from '@molecule/app-routing'
 import { navigate as coreNavigate, setRouter } from '@molecule/app-routing'
 
 import { useMoleculeRouterProvider } from '../index.js'

@@ -21,7 +21,13 @@ vi.mock('vue', () => ({
   onUnmounted: vi.fn(),
 }))
 
-import { type Router as VueRouterInstance, useRouter as useVueRouter } from 'vue-router'
+import {
+  type LocationQueryValue,
+  type NavigationFailure,
+  type RouteLocationNormalizedLoaded,
+  type Router as VueRouterInstance,
+  useRouter as useVueRouter,
+} from 'vue-router'
 
 import type { RouteDefinition, RouteLocation } from '../index.js'
 import {
@@ -41,25 +47,17 @@ import {
 const flush = (): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, 0))
 
 describe('@molecule/app-routing-vue-router', () => {
-  interface MockRoute {
-    path: string
-    fullPath: string
-    hash: string
-    query: Record<string, string | string[] | null>
-    params: Record<string, string | string[]>
-    meta: Record<string, unknown>
-    name: string | undefined
-    matched: never[]
-    redirectedFrom: undefined
-  }
+  // A mock Vue route is the real type: the bond reads these fields off `currentRoute`.
+  type MockRoute = RouteLocationNormalizedLoaded
 
-  // Helper to create a mock Vue route
+  // Helper to create a mock Vue route. `query` is Vue Router's own query shape: a key's
+  // value is `string | null` or an array of those (repeated keys keep `null` entries).
   const createMockRoute = (
     path: string,
     options?: {
       fullPath?: string
       hash?: string
-      query?: Record<string, string | string[] | null>
+      query?: Record<string, LocationQueryValue | LocationQueryValue[]>
       params?: Record<string, string | string[]>
       meta?: Record<string, unknown>
       name?: string
@@ -94,6 +92,9 @@ describe('@molecule/app-routing-vue-router', () => {
     }
   }
 
+  // The move information Vue Router's history listener reports. Its `type` mirrors the
+  // internal `NavigationInformation['type']` ('pop' | 'push'); this double also uses
+  // 'replace' for its own commits, which the bond reads as any non-pop move.
   interface MockHistoryInfo {
     type: 'push' | 'replace' | 'pop'
     delta: number
@@ -101,16 +102,24 @@ describe('@molecule/app-routing-vue-router', () => {
   type HistoryListener = (to: string, from: string, info: MockHistoryInfo) => void
   type AfterHook = (to: MockRoute, from: MockRoute, failure: undefined) => void
 
+  // The double's members carry the real signatures (not `vi.fn()` types), so this
+  // interface is checked against the Vue Router instance it stands in for.
   interface MockVueRouter {
     currentRoute: { readonly value: MockRoute }
-    push: ReturnType<typeof vi.fn>
-    replace: ReturnType<typeof vi.fn>
-    back: ReturnType<typeof vi.fn>
-    forward: ReturnType<typeof vi.fn>
-    go: ReturnType<typeof vi.fn>
-    resolve: ReturnType<typeof vi.fn>
-    afterEach: ReturnType<typeof vi.fn>
-    options: { history: { state: Record<string, unknown>; listen: ReturnType<typeof vi.fn> } }
+    push: (path: string) => Promise<NavigationFailure | void | undefined>
+    replace: (path: string) => Promise<NavigationFailure | void | undefined>
+    back: () => void
+    forward: () => void
+    go: (delta: number) => void
+    resolve: (to: {
+      name: string
+      params?: Record<string, string>
+      query?: Record<string, string>
+    }) => { fullPath: string }
+    afterEach: (hook: AfterHook) => () => void
+    options: {
+      history: { state: Record<string, unknown>; listen: (listener: HistoryListener) => () => void }
+    }
   }
 
   // Helper to create a mock Vue Router instance that behaves like the real one where the
@@ -119,7 +128,7 @@ describe('@molecule/app-routing-vue-router', () => {
   const createMockVueRouter = (initialRoute: MockRoute = createMockRoute('/')): MockVueRouter => {
     const historyListeners = new Set<HistoryListener>()
     const afterHooks = new Set<AfterHook>()
-    const entryState: Record<string, unknown> = { position: 0 }
+    const entryState: { position: number } = { position: 0 }
     let current = initialRoute
 
     const commit = (fullPath: string, type: 'push' | 'replace'): void => {
@@ -176,10 +185,10 @@ describe('@molecule/app-routing-vue-router', () => {
     }
   }
 
-  const asVueRouter = (mock: MockVueRouter): VueRouterInstance =>
-    mock as unknown as VueRouterInstance
-  const asLoadedRoute = (route: MockRoute): RouteLocationNormalizedLoaded =>
-    route as unknown as RouteLocationNormalizedLoaded
+  // One cast, checked by the compiler: the double only carries the surface the bond reads
+  // (currentRoute, push/replace/go, resolve, afterEach, options.history). If it drifts
+  // away from that contract, this cast itself stops compiling.
+  const asVueRouter = (mock: MockVueRouter): VueRouterInstance => mock as VueRouterInstance
 
   describe('createVueRouter', () => {
     describe('initialization', () => {
@@ -309,7 +318,9 @@ describe('@molecule/app-routing-vue-router', () => {
       })
 
       it('should return typed params from route', () => {
-        interface ProductParams {
+        // A type alias, not an interface: `getParams<T extends RouteParams>` needs the
+        // implicit string index signature only object-literal type aliases get.
+        type ProductParams = {
           id: string
           category: string
         }
@@ -688,7 +699,7 @@ describe('@molecule/app-routing-vue-router', () => {
         router.setQueryParam('newParam', 'newValue')
         await flush()
 
-        const callArg = vueRouter.push.mock.calls[0][0] as string
+        const callArg = vi.mocked(vueRouter.push).mock.calls[0][0]
         expect(callArg).toContain('existing=value')
         expect(callArg).toContain('newParam=newValue')
       })
@@ -705,7 +716,7 @@ describe('@molecule/app-routing-vue-router', () => {
         router.setQueryParam('toRemove', undefined)
         await flush()
 
-        const callArg = vueRouter.push.mock.calls[0][0] as string
+        const callArg = vi.mocked(vueRouter.push).mock.calls[0][0]
         expect(callArg).toContain('keep=this')
         expect(callArg).not.toContain('toRemove')
       })
@@ -733,7 +744,7 @@ describe('@molecule/app-routing-vue-router', () => {
 
         expect(vueRouter.push).toHaveBeenCalledWith(expect.stringContaining('#section2'))
         // Should not have double ##
-        expect(vueRouter.push.mock.calls[0][0] as string).not.toContain('##')
+        expect(vi.mocked(vueRouter.push).mock.calls[0][0]).not.toContain('##')
       })
     })
 
@@ -1067,7 +1078,7 @@ describe('@molecule/app-routing-vue-router', () => {
         await vueRouter.push('/native-link')
 
         expect(listener).not.toHaveBeenCalled()
-        expect(vueRouter.afterEach.mock.results[0]?.value).toBeTypeOf('function')
+        expect(vi.mocked(vueRouter.afterEach).mock.results[0]?.value).toBeTypeOf('function')
       })
     })
   })
@@ -1363,7 +1374,7 @@ describe('@molecule/app-routing-vue-router', () => {
       // Set new query
       router.setQuery({ q: 'new-search', filter: 'active' })
       await flush()
-      const lastCall = vueRouter.push.mock.calls.slice(-1)[0][0] as string
+      const lastCall = vi.mocked(vueRouter.push).mock.calls.slice(-1)[0][0]
       expect(lastCall).toContain('q=new-search')
       expect(lastCall).toContain('filter=active')
     })
@@ -1404,7 +1415,7 @@ describe('@molecule/app-routing-vue-router', () => {
 
   describe('route snapshot argument (deprecated)', () => {
     it('should accept route without using it', () => {
-      const router = createVueRouter({ route: asLoadedRoute(createMockRoute('/unused')) })
+      const router = createVueRouter({ route: createMockRoute('/unused') })
 
       // The router is functional; no snapshot is read (params come from the live router).
       expect(router.getParams()).toEqual({})
