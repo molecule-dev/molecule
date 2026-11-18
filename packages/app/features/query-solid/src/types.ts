@@ -60,6 +60,12 @@ export interface QueryContentProps<T> {
   /** State from useQuery, or any compatible query observer. */
   query: Pick<QueryState<T>, 'data' | 'status' | 'error' | 'isPreviousData'>
   /**
+   * Stable identity of the requested record, including the principal when needed.
+   * Use for record-specific state such as an edit form. Changing the key remounts the
+   * loaded branch and excludes data retained from a previous query key.
+   */
+  recordKey?: PropertyKey
+  /**
    * Mounted only with a real document, including false, zero and an empty list. Runs once
    * per loaded stretch with the document as an accessor (Solid's `<Show>` idiom): a new
    * document reaches the same mounted content, so read it where it is used (`data()`).
@@ -71,6 +77,20 @@ export interface QueryContentProps<T> {
   missing?: JSX.Element
   /** A failed initial read. Cached data stays visible if its refresh fails. */
   error?: (error: QueryContentErrorContext) => JSX.Element
+}
+
+/**
+ * A loaded document and its verified identity, required to render the
+ * record's actions.
+ */
+export interface QueryRecordContentProps<T, Id extends string | number> extends Omit<
+  QueryContentProps<T>,
+  'children'
+> {
+  /** Extracts the ID from the loaded document. Null, undefined and an empty string are pending. */
+  getRecordId: (data: NonNullable<T>) => Id | null | undefined
+  /** Receives the ID with the document. The branch remounts when the ID or recordKey changes. */
+  children: (data: QueryContentContext<T>, id: NoInfer<Id>) => JSX.Element
 }
 
 /**

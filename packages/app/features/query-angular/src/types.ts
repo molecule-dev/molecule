@@ -52,6 +52,18 @@ export interface QueryContentContext<T> {
 }
 
 /**
+ * The context a record-bound children template receives: the loaded document
+ * as `$implicit`/`a0`, and its verified identity as `a1`.
+ *
+ * @template T - The document's shape.
+ * @template Id - The identity's type.
+ */
+interface QueryRecordContentContext<T, Id extends string | number> extends QueryContentContext<T> {
+  /** The document's verified, nonempty identity (the second render argument). */
+  a1: Id
+}
+
+/**
  * The context an error template receives: the failed read's error value, as
  * `$implicit` and as the render function's first argument (`a0`).
  */
@@ -77,6 +89,12 @@ export interface QueryContentProps<T> {
 
   /** State from useQuery, or any compatible query observer. */
   query: Pick<QueryState<T>, 'data' | 'status' | 'error' | 'isPreviousData'>
+  /**
+   * Stable identity of the requested record, including the principal when needed.
+   * Use for record-specific state such as an edit form. Changing the key remounts the
+   * loaded branch and excludes data retained from a previous query key.
+   */
+  recordKey?: PropertyKey
   /** Mounted only with a real document, including false, zero and an empty list. */
   children: TemplateRef<QueryContentContext<T>> | null
   /** Initial idle/loading content. Render a status template, never a fake item or action. */
@@ -85,6 +103,20 @@ export interface QueryContentProps<T> {
   missing?: TemplateRef<unknown> | null
   /** A failed initial read. Cached data stays visible if its refresh fails. */
   error?: TemplateRef<QueryContentErrorContext> | null
+}
+
+/**
+ * A loaded document and its verified identity, required to render the
+ * record's actions.
+ */
+export interface QueryRecordContentProps<T, Id extends string | number> extends Omit<
+  QueryContentProps<T>,
+  'children'
+> {
+  /** Extracts the ID from the loaded document. Null, undefined and an empty string are pending. */
+  getRecordId: (data: QueryContentContext<T>['$implicit']) => Id | null | undefined
+  /** Receives the ID with the document. The branch remounts when the ID or recordKey changes. */
+  children: TemplateRef<QueryRecordContentContext<T, NoInfer<Id>>> | null
 }
 
 /**

@@ -2,9 +2,21 @@
  * Render resource-dependent content only after its document exists.
  * @module
  */
-import type { VNodeChild } from 'vue'
+import { Fragment, h, type VNodeChild } from 'vue'
 
-import type { QueryContentProps } from './types.js'
+import type { QueryContentProps, QueryRecordContentProps } from './types.js'
+
+/**
+ * Wraps the loaded branch in a keyed fragment, so a changed `recordKey` starts
+ * the branch fresh (React's `createElement(Fragment, { key: recordKey }, content)`).
+ *
+ * @param key - The record identity, or `undefined` to keep the branch in place.
+ * @param content - The loaded branch.
+ * @returns The keyed branch, or the branch itself without a record key.
+ */
+function withRecordKey(key: PropertyKey | undefined, content: VNodeChild): VNodeChild {
+  return key === undefined ? content : h(Fragment, { key }, [content])
+}
 
 /**
  * The slots {@link QueryContent} accepts alongside its props: every node-valued
@@ -27,6 +39,11 @@ export interface QueryContentSlots<T> {
  * container rendered by `children`, and so does a refresh line; the default
  * fallbacks render nothing.
  * A previous key's empty or missing document renders pending/error until the current key answers.
+ * Pass `recordKey` for an edit form. The form mounts with the current record and resets when
+ * its identity changes, including a switch to a record already in cache.
+ * Pass `getRecordId` to bind actions to the loaded document's identity. The branch stays
+ * pending without a nonempty ID and receives the ID as its second argument. Changing either
+ * key remounts the branch, including a switch to a record already in cache.
  *
  * The loaded branch is the `children` render function, or the default slot
  * (which receives `{ data }`); `pending` and `missing` are node props or
@@ -61,25 +78,50 @@ export interface QueryContentSlots<T> {
  * ```
  */
 export const QueryContent = Object.assign(
-  function QueryContent<T>(
-    props: QueryContentProps<T>,
+  function QueryContent<T, Id extends string | number = string | number>(
+    props: QueryContentProps<T> | QueryRecordContentProps<T, Id>,
     ctx: { slots: QueryContentSlots<T> },
   ): VNodeChild {
-    const query = props.query
+    const { query, recordKey, pending, missing, error, empty } = props
+    // Vue keeps every declared prop on the props object, so the presence test is the value's type.
+    const identified = typeof (props as { getRecordId?: unknown }).getRecordId === 'function'
     const data = query.data
     if (
       data === undefined ||
-      (query.isPreviousData && (data === null || props.empty?.when(data)))
+      (query.isPreviousData &&
+        (identified || recordKey !== undefined || data === null || empty?.when(data)))
     ) {
-      if (query.status === 'error' && props.error) return props.error(query.error)
-      return props.pending ?? ctx.slots.pending?.() ?? null
+      if (query.status === 'error' && error) return error(query.error)
+      return pending ?? ctx.slots.pending?.() ?? null
     }
-    if (data === null) return props.missing ?? ctx.slots.missing?.() ?? null
-    if (props.empty?.when(data)) return props.empty.render?.(data) ?? null
-    if (props.children) return props.children(data)
-    return ctx.slots.default?.({ data }) ?? null
+    if (data === null) return missing ?? ctx.slots.missing?.() ?? null
+    if (identified) {
+      const record = props as QueryRecordContentProps<T, Id>
+      const id = record.getRecordId(data)
+      // No identity means no record-specific action: the branch stays pending.
+      if (id == null || id === '') return pending ?? ctx.slots.pending?.() ?? null
+      const content = empty?.when(data)
+        ? (empty.render?.(data) ?? null)
+        : (record.children(data, id) ?? null)
+      return withRecordKey(recordKey, h(Fragment, { key: id }, [content]))
+    }
+    const plain = props as QueryContentProps<T>
+    if (empty?.when(data)) return withRecordKey(recordKey, empty.render?.(data) ?? null)
+    if (plain.children) return withRecordKey(recordKey, plain.children(data))
+    return withRecordKey(recordKey, ctx.slots.default?.({ data }) ?? null)
   },
   // Declared so Vue extracts these from attrs instead of inheriting them onto
   // whatever the branches render.
-  { props: ['query', 'children', 'pending', 'missing', 'error', 'empty'] },
+  {
+    props: [
+      'query',
+      'children',
+      'pending',
+      'missing',
+      'error',
+      'empty',
+      'recordKey',
+      'getRecordId',
+    ],
+  },
 )

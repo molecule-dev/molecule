@@ -6,7 +6,7 @@
  * false, zero, an empty string and an empty list as documents.
  */
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
-import { h, nextTick, shallowRef } from 'vue'
+import { defineComponent, h, nextTick, ref, shallowRef } from 'vue'
 
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
 import { provider } from '@molecule/app-query-memory'
@@ -187,4 +187,99 @@ it('a loaded null is missing rather than pending or actionable', () => {
   )
   expect(children).not.toHaveBeenCalled()
   expect(page.host.textContent).toBe('Not found')
+})
+
+// An edit form's own state: it starts from the record it mounted with and only
+// its own Edit click changes the draft, the way the React package's form does.
+const ScheduleForm = defineComponent({
+  props: { title: { type: String, required: true } },
+  setup(props) {
+    const draft = ref(props.title)
+    return () =>
+      h('form', {}, [
+        h('input', { value: draft.value, readonly: true }),
+        h(
+          'button',
+          {
+            type: 'button',
+            onClick: () => {
+              draft.value = 'Unsaved'
+            },
+          },
+          'Edit',
+        ),
+      ])
+  },
+})
+
+it('mounts the form with loaded values and resets it when an already cached record opens', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'b'], { title: 'Thursday' })
+  const id = shallowRef('a')
+  const first = deferred<{ title: string }>()
+  const page = mountApp(() => {
+    const query = useQuery<{ title: string }>(() => ({
+      key: ['schedule', id.value],
+      fetch: async () => first.promise,
+    }))
+    return () =>
+      h(QueryContent<{ title: string }>, {
+        query: query.value,
+        recordKey: id.value,
+        pending: h('p', { role: 'status' }, 'Loading schedule'),
+        children: (record) => h(ScheduleForm, record),
+      })
+  })
+  expect(page.host.querySelector('form')).toBeNull()
+  first.resolve({ title: 'Tuesday' })
+  await settle()
+  expect(page.host.querySelector<HTMLInputElement>('input')?.value).toBe('Tuesday')
+  page.host.querySelector<HTMLButtonElement>('button')!.click()
+  await nextTick()
+  client.set(['schedule', 'a'], { title: 'Tuesday, revised' })
+  await settle()
+  expect(page.host.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
+  id.value = 'b'
+  await nextTick()
+  expect(page.host.querySelector<HTMLInputElement>('input')?.value).toBe('Thursday')
+})
+
+it('keeps a previous query key out of the form until the new record arrives', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'a'], { title: 'Tuesday' })
+  const id = shallowRef('a')
+  const second = deferred<{ title: string }>()
+  const page = mountApp(() => {
+    const query = useQuery<{ title: string }>(() => ({
+      key: ['schedule', id.value],
+      fetch: async () => second.promise,
+      keepPreviousData: true,
+      principal: 'public',
+    }))
+    return () =>
+      h(QueryContent<{ title: string }>, {
+        query: query.value,
+        recordKey: id.value,
+        pending: h('p', { role: 'status' }, 'Loading schedule'),
+        children: (record) => h(ScheduleForm, record),
+      })
+  })
+  await settle()
+  expect(page.host.querySelector<HTMLInputElement>('input')?.value).toBe('Tuesday')
+  id.value = 'b'
+  await nextTick()
+  expect(page.host.querySelector('form')).toBeNull()
+  expect(page.host.querySelector('[role="status"]')?.textContent).toBe('Loading schedule')
+  second.resolve({ title: 'Thursday' })
+  await settle()
+  expect(page.host.querySelector<HTMLInputElement>('input')?.value).toBe('Thursday')
+})
+
+it('counterexample: a form with static initial values retains its draft on rerender', async () => {
+  const page = mountComponent(() => h(ScheduleForm, { title: 'New schedule' }))
+  expect(page.host.querySelector<HTMLInputElement>('input')?.value).toBe('New schedule')
+  page.host.querySelector<HTMLButtonElement>('button')!.click()
+  await nextTick()
+  await page.setProps({})
+  expect(page.host.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
 })

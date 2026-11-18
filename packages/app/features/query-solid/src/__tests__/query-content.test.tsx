@@ -4,7 +4,7 @@
  * `useQuery` primitive and the memory query bond — the counterparts of the
  * React package's own QueryContent tests.
  */
-import { createSignal, For, onCleanup } from 'solid-js'
+import { createSignal, For, type JSX, onCleanup } from 'solid-js'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
@@ -13,7 +13,7 @@ import { provider } from '@molecule/app-query-memory'
 import { QueryContent } from '../query-content.jsx'
 import type { QueryContentProps } from '../types.js'
 import { useQuery } from '../use-query.js'
-import { mountComponent, settle, unmountAll } from './helpers.jsx'
+import { deferred, mountComponent, settle, unmountAll } from './helpers.jsx'
 
 beforeAll(() => setProvider(provider))
 beforeEach(() => resetQueryClient())
@@ -276,5 +276,108 @@ it('follows each replaced query object: states move from pending through loaded 
   await settle()
   expect(mounted.host.querySelector('[data-state="error"]')?.textContent).toBe('failed: boom')
   expect(mounted.host.querySelector('article')).toBeNull()
+  await mounted.unmount()
+})
+
+// An edit form's own state: it starts from the record it mounted with and only
+// its own Edit click changes the draft, the way the React package's form does.
+function ScheduleForm(props: { title: string }): JSX.Element {
+  const [draft, setDraft] = createSignal(props.title)
+  return (
+    <form>
+      <input value={draft()} readonly />
+      <button type="button" onClick={() => setDraft('Unsaved')}>
+        Edit
+      </button>
+    </form>
+  )
+}
+
+it('mounts the form with loaded values and resets it when an already cached record opens', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'b'], { title: 'Thursday' })
+  const [id, setId] = createSignal('a')
+  const first = deferred<{ title: string }>()
+  function Page(): JSX.Element {
+    const query = useQuery(() => ({
+      key: ['schedule', id()],
+      fetch: async () => first.promise,
+    }))
+    return (
+      <QueryContent<{ title: string }>
+        query={query}
+        recordKey={id()}
+        pending={<p role="status">Loading schedule</p>}
+      >
+        {(record) => <ScheduleForm title={record().title} />}
+      </QueryContent>
+    )
+  }
+  const mounted = mountComponent(Page)
+  expect(mounted.host.querySelector('form')).toBeNull()
+  first.resolve({ title: 'Tuesday' })
+  await settle()
+  expect(mounted.host.querySelector<HTMLInputElement>('input')?.value).toBe('Tuesday')
+  mounted.host.querySelector<HTMLButtonElement>('button')!.click()
+  await settle()
+  client.set(['schedule', 'a'], { title: 'Tuesday, revised' })
+  await settle()
+  expect(mounted.host.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
+  setId('b')
+  await settle()
+  expect(mounted.host.querySelector<HTMLInputElement>('input')?.value).toBe('Thursday')
+  await mounted.unmount()
+})
+
+it('keeps a previous query key out of the form until the new record arrives', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'a'], { title: 'Tuesday' })
+  const [id, setId] = createSignal('a')
+  const second = deferred<{ title: string }>()
+  function Page(): JSX.Element {
+    const query = useQuery(() => ({
+      key: ['schedule', id()],
+      fetch: async () => second.promise,
+      keepPreviousData: true,
+      principal: 'public',
+    }))
+    return (
+      <QueryContent<{ title: string }>
+        query={query}
+        recordKey={id()}
+        pending={<p role="status">Loading schedule</p>}
+      >
+        {(record) => <ScheduleForm title={record().title} />}
+      </QueryContent>
+    )
+  }
+  const mounted = mountComponent(Page)
+  await settle()
+  expect(mounted.host.querySelector<HTMLInputElement>('input')?.value).toBe('Tuesday')
+  setId('b')
+  await settle()
+  expect(mounted.host.querySelector('form')).toBeNull()
+  expect(mounted.host.querySelector('[role="status"]')?.textContent).toBe('Loading schedule')
+  second.resolve({ title: 'Thursday' })
+  await settle()
+  expect(mounted.host.querySelector<HTMLInputElement>('input')?.value).toBe('Thursday')
+  await mounted.unmount()
+})
+
+it('counterexample: a form with static initial values retains its draft on rerender', async () => {
+  const [tick, setTick] = createSignal(0)
+  const mounted = mountComponent(() => (
+    <>
+      <span data-tick>{tick()}</span>
+      <ScheduleForm title="New schedule" />
+    </>
+  ))
+  expect(mounted.host.querySelector<HTMLInputElement>('input')?.value).toBe('New schedule')
+  mounted.host.querySelector<HTMLButtonElement>('button')!.click()
+  await settle()
+  setTick(1)
+  await settle()
+  expect(mounted.host.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
+  expect(mounted.host.querySelector('[data-tick]')?.textContent).toBe('1')
   await mounted.unmount()
 })

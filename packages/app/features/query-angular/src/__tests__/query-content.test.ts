@@ -8,7 +8,7 @@
  * @module
  */
 import '@angular/compiler'
-import { Component, computed, signal, type Type } from '@angular/core'
+import { Component, computed, type OnInit, signal, type Type } from '@angular/core'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
@@ -19,6 +19,32 @@ import { type ComponentMount, drain, hostOf, mountComponent } from './harness.js
 
 beforeAll(() => setProvider(provider))
 beforeEach(() => resetQueryClient())
+
+/**
+ * An edit form's own state: it starts from the record it mounted with and only
+ * its own Edit click changes the draft, the way the React package's form does.
+ */
+class ScheduleFormComponent implements OnInit {
+  title = ''
+  readonly draft = signal('')
+  ngOnInit(): void {
+    this.draft.set(this.title)
+  }
+  edit(): void {
+    this.draft.set('Unsaved')
+  }
+}
+const ScheduleForm = Component({
+  selector: 'mol-schedule-form',
+  standalone: true,
+  inputs: ['title'],
+  template: `
+    <form>
+      <input [value]="draft()" readonly />
+      <button type="button" (click)="edit()">Edit</button>
+    </form>
+  `,
+})(ScheduleFormComponent)
 
 const mounts: ComponentMount<object>[] = []
 const mounted = async <M extends object>(view: Promise<ComponentMount<M>>) => {
@@ -42,13 +68,18 @@ let pageCount = 0
  *
  * @param template - The page's template.
  * @param body - The class the template binds.
+ * @param imports - Extra standalone components the template uses.
  * @returns The component type.
  */
-function page(template: string, body: new () => object): Type<object> {
+function page(
+  template: string,
+  body: new () => object,
+  imports: Type<unknown>[] = [],
+): Type<object> {
   return Component({
     selector: `mol-page-${++pageCount}`,
     standalone: true,
-    imports: [QueryContent],
+    imports: [QueryContent, ...imports],
     template,
   })(body) as Type<object>
 }
@@ -248,4 +279,104 @@ it('a loaded null is missing rather than pending or actionable', async () => {
   const view = await mounted(mountComponent<object>(Host))
   expect(render).not.toHaveBeenCalled()
   expect(view.host.textContent).toBe('Not found')
+})
+
+it('mounts the form with loaded values and resets it when an already cached record opens', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'b'], { title: 'Thursday' })
+  let resolve!: (value: { title: string }) => void
+  const request = new Promise<{ title: string }>((done) => {
+    resolve = done
+  })
+  const Page = page(
+    `<mol-query-content [query]="query" [recordKey]="id()" [pending]="pending" [children]="content"></mol-query-content>
+    <ng-template #pending><p role="status">Loading schedule</p></ng-template>
+    <ng-template #content let-record>
+      <mol-schedule-form [title]="record.title"></mol-schedule-form>
+    </ng-template>`,
+    class SchedulePage {
+      readonly id = signal('a')
+      readonly query = useQuery(
+        computed(() => ({
+          key: ['schedule', this.id()],
+          fetch: async () => request,
+        })),
+      )
+    },
+    [ScheduleForm],
+  )
+  const view = await mounted(mountComponent<{ id: ReturnType<typeof signal<string>> }>(Page))
+  expect(view.host.querySelector('form')).toBeNull()
+  resolve({ title: 'Tuesday' })
+  await flush()
+  await view.settle()
+  expect(view.host.querySelector<HTMLInputElement>('input')?.value).toBe('Tuesday')
+  view.host.querySelector<HTMLButtonElement>('button')!.click()
+  view.tick()
+  client.set(['schedule', 'a'], { title: 'Tuesday, revised' })
+  await flush()
+  view.tick()
+  expect(view.host.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
+  view.component.id.set('b')
+  view.tick()
+  expect(view.host.querySelector<HTMLInputElement>('input')?.value).toBe('Thursday')
+})
+
+it('keeps a previous query key out of the form until the new record arrives', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'a'], { title: 'Tuesday' })
+  let resolve!: (value: { title: string }) => void
+  const request = new Promise<{ title: string }>((done) => {
+    resolve = done
+  })
+  const Page = page(
+    `<mol-query-content [query]="query" [recordKey]="id()" [pending]="pending" [children]="content"></mol-query-content>
+    <ng-template #pending><p role="status">Loading schedule</p></ng-template>
+    <ng-template #content let-record>
+      <mol-schedule-form [title]="record.title"></mol-schedule-form>
+    </ng-template>`,
+    class LoadingSchedulePage {
+      readonly id = signal('a')
+      readonly query = useQuery(
+        computed(() => ({
+          key: ['schedule', this.id()],
+          fetch: async () => request,
+          keepPreviousData: true,
+          principal: 'public',
+        })),
+      )
+    },
+    [ScheduleForm],
+  )
+  const view = await mounted(mountComponent<{ id: ReturnType<typeof signal<string>> }>(Page))
+  await view.settle()
+  expect(view.host.querySelector<HTMLInputElement>('input')?.value).toBe('Tuesday')
+  view.component.id.set('b')
+  view.tick()
+  expect(view.host.querySelector('form')).toBeNull()
+  expect(view.host.querySelector('[role="status"]')?.textContent).toBe('Loading schedule')
+  resolve({ title: 'Thursday' })
+  await flush()
+  await view.settle()
+  expect(view.host.querySelector<HTMLInputElement>('input')?.value).toBe('Thursday')
+})
+
+it('counterexample: a form with static initial values retains its draft on rerender', async () => {
+  const count = signal(0)
+  const Host = hostOf(
+    `<button type="button" data-rerender (click)="model.count.set(model.count() + 1)">rerender</button>
+    <mol-schedule-form title="New schedule"></mol-schedule-form>
+    <p data-count>{{ model.count() }}</p>`,
+    { count },
+    [ScheduleForm],
+  )
+  const view = await mounted(mountComponent<object>(Host))
+  expect(view.host.querySelector<HTMLInputElement>('input')?.value).toBe('New schedule')
+  view.host.querySelector<HTMLButtonElement>('form button')!.click()
+  view.tick()
+  expect(view.host.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
+  view.host.querySelector<HTMLButtonElement>('button[data-rerender]')!.click()
+  view.tick()
+  expect(view.host.querySelector('[data-count]')?.textContent).toBe('1')
+  expect(view.host.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
 })

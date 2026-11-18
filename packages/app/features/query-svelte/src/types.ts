@@ -64,6 +64,12 @@ export interface QueryContentProps<T> {
   query:
     | Readable<Pick<QueryState<T>, 'data' | 'status' | 'error' | 'isPreviousData'>>
     | Pick<QueryState<T>, 'data' | 'status' | 'error' | 'isPreviousData'>
+  /**
+   * Stable identity of the requested record, including the principal when needed.
+   * Use for record-specific state such as an edit form. Changing the key remounts the
+   * loaded branch and excludes data retained from a previous query key.
+   */
+  recordKey?: PropertyKey
   /** Mounted only with a real document, including false, zero and an empty list. */
   children: Snippet<[QueryContentContext<T>]>
   /** Initial idle/loading content. Render a status snippet, never a fake item or action. */
@@ -72,6 +78,20 @@ export interface QueryContentProps<T> {
   missing?: Snippet | null
   /** A failed initial read. Cached data stays visible if its refresh fails. */
   error?: Snippet<[QueryContentErrorContext]> | null
+}
+
+/**
+ * A loaded document and its verified identity, required to render the
+ * record's actions.
+ */
+export interface QueryRecordContentProps<T, Id extends string | number> extends Omit<
+  QueryContentProps<T>,
+  'children'
+> {
+  /** Extracts the ID from the loaded document. Null, undefined and an empty string are pending. */
+  getRecordId: (data: QueryContentContext<T>) => Id | null | undefined
+  /** Receives the ID with the document. The branch remounts when the ID or recordKey changes. */
+  children: Snippet<[QueryContentContext<T>, NoInfer<Id>]>
 }
 
 /**

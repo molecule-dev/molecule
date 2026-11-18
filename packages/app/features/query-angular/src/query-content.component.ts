@@ -21,7 +21,11 @@ import {
   ViewContainerRef,
 } from '@angular/core'
 
-import type { QueryContentContext, QueryContentErrorContext, QueryContentProps } from './types.js'
+import type {
+  QueryContentErrorContext,
+  QueryContentProps,
+  QueryRecordContentProps,
+} from './types.js'
 
 /** What the component currently shows: one template and its context. */
 interface Branch {
@@ -37,16 +41,22 @@ interface Branch {
  * container rendered by `children`, and so does a refresh line; the default
  * fallbacks render nothing.
  * A previous key's empty or missing document renders pending/error until the current key answers.
+ * Pass `recordKey` for an edit form: the form mounts with the current record and
+ * resets when its identity changes, including a switch to a record already in cache.
+ * Pass `getRecordId` to bind actions to the loaded document's identity: the branch
+ * stays pending without a nonempty ID and receives the ID as template context `a1`
+ * (`let-id="a1"`).
  *
  * The templates receive the render arguments as template context: `children`
- * gets the document as `$implicit` and `a0` (`let-data`), `error` gets the
- * error value (`let-error`), and `pending`/`missing` render without a context.
+ * gets the document as `$implicit` and `a0` (`let-data`), the record-bound branch
+ * also gets the ID as `a1` (`let-id`), `error` gets the error value
+ * (`let-error`), and `pending`/`missing` render without a context.
  */
 @Component({
   selector: 'mol-query-content',
   standalone: true,
   template: '<ng-container #outlet></ng-container>',
-  inputs: ['query', 'pending', 'missing', 'children', 'error', 'empty'],
+  inputs: ['query', 'pending', 'missing', 'children', 'error', 'empty', 'recordKey', 'getRecordId'],
   host: {
     'data-parity-unwrap': '',
     style: 'display: contents',
@@ -55,8 +65,21 @@ interface Branch {
 export class QueryContent<T = unknown> implements DoCheck, OnChanges {
   /** State from useQuery, or any compatible query observer. */
   query: QueryContentProps<T>['query'] = { data: undefined, status: 'idle', error: undefined }
+  /**
+   * Stable identity of the requested record, including the principal when needed.
+   * Use for record-specific state such as an edit form. Changing the key remounts the
+   * loaded branch and excludes data retained from a previous query key.
+   */
+  recordKey: QueryContentProps<T>['recordKey'] = undefined
+  /**
+   * Extracts the ID from the loaded document. Null, undefined and an empty string
+   * are pending. With it set, `children` receives the ID as template context `a1`.
+   */
+  getRecordId: QueryRecordContentProps<T, string | number>['getRecordId'] | undefined = undefined
   /** Mounted only with a real document, including false, zero and an empty list. */
-  children: TemplateRef<QueryContentContext<T>> | null = null
+  children:
+    QueryContentProps<T>['children'] | QueryRecordContentProps<T, string | number>['children'] =
+    null
   /** Initial idle/loading content. Render a status template, never a fake item or action. */
   pending: TemplateRef<unknown> | null = null
   /** Content for a loaded null record. Null is distinct from an unfinished request. */
@@ -75,6 +98,10 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
   private readonly observer = signal<QueryContentProps<T>['query']>(this.query)
   /** The template currently mounted. */
   private current: TemplateRef<unknown> | null = null
+  /** The record the mounted branch belongs to (`recordKey` when it last mounted). */
+  private mountedRecord: PropertyKey | undefined = undefined
+  /** The document identity the mounted branch belongs to, when `getRecordId` is set. */
+  private mountedId: string | number | undefined = undefined
   /** The context object the mounted view reads (updated in place). */
   private readonly context: Record<string, unknown> = {}
   /** The mounted branch view, when a template is showing. */
@@ -107,9 +134,14 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
    */
   private branch(): Branch {
     const query = this.query
+    const identified = typeof this.getRecordId === 'function'
     if (
       query?.data === undefined ||
-      (query.isPreviousData && (query.data === null || this.empty?.when(query.data)))
+      (query.isPreviousData &&
+        (identified ||
+          this.recordKey !== undefined ||
+          query.data === null ||
+          this.empty?.when(query.data)))
     ) {
       return query?.status === 'error' && this.error
         ? {
@@ -119,9 +151,36 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
         : { template: this.pending ?? null, context: {} }
     }
     if (query.data === null) return { template: this.missing ?? null, context: {} }
+    const identifiedTemplate = identified ? this.children : null
+    if (identified) {
+      const id = this.recordIdentity()
+      // No identity means no record-specific action: the branch stays pending.
+      if (id === undefined) return { template: this.pending ?? null, context: {} }
+      if (this.empty?.when(query.data))
+        return { template: this.empty.render, context: { $implicit: query.data, a0: query.data } }
+      return {
+        template: identifiedTemplate,
+        context: { $implicit: query.data, a0: query.data, a1: id },
+      }
+    }
     if (this.empty?.when(query.data))
       return { template: this.empty.render, context: { $implicit: query.data, a0: query.data } }
     return { template: this.children, context: { $implicit: query.data, a0: query.data } }
+  }
+
+  /**
+   * The loaded document's verified identity, when `getRecordId` is set: absent,
+   * null and an empty string are no identity.
+   *
+   * @returns The nonempty ID, or `undefined` without one.
+   */
+  private recordIdentity(): string | number | undefined {
+    const getRecordId = this.getRecordId
+    if (typeof getRecordId !== 'function') return undefined
+    const data = this.query?.data
+    if (data === undefined || data === null) return undefined
+    const id = getRecordId(data as NonNullable<T>)
+    return id == null || id === '' ? undefined : id
   }
 
   /**
@@ -142,16 +201,22 @@ export class QueryContent<T = unknown> implements DoCheck, OnChanges {
   }
 
   /**
-   * Shows the branch the current query state describes: a different template
-   * replaces the mounted view, and a changed document (or error) is written into
-   * the context the mounted view reads.
+   * Shows the branch the current query state describes: a different template —
+   * or a changed record identity — replaces the mounted view, and a changed
+   * document (or error) is written into the context the mounted view reads.
+   * Replacing the view on a `recordKey` or ID change mounts the record's own
+   * state (an edit form) fresh, the way React's keyed Fragment does.
    */
   private update(): void {
     const next = this.branch()
-    if (next.template !== this.current) {
+    const id = this.recordIdentity()
+    const recordChanged = this.recordKey !== this.mountedRecord || id !== this.mountedId
+    if (next.template !== this.current || recordChanged) {
       this.view?.destroy()
       this.view = undefined
       this.current = next.template
+      this.mountedRecord = this.recordKey
+      this.mountedId = id
       if (next.template) this.view = this.outlet.createEmbeddedView(next.template, this.context)
     }
     for (const key of Object.keys(this.context)) {

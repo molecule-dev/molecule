@@ -18,6 +18,8 @@ import type { UseQueryResult } from '../types.js'
 import { deferred, settle } from './helpers/harness.js'
 import Items from './helpers/Items.svelte'
 import RecordRegion from './helpers/Record.svelte'
+import ScheduleRecord from './helpers/ScheduleRecord.svelte'
+import StaticForm from './helpers/StaticForm.svelte'
 
 beforeAll(() => setProvider(provider))
 beforeEach(() => resetQueryClient())
@@ -231,4 +233,72 @@ it('a loaded null is missing rather than pending or actionable', () => {
   instances.push(() => unmount(instance))
   expect(seen).toEqual([])
   expect(container.textContent).toBe('Not found')
+})
+
+it('mounts the form with loaded values and resets it when an already cached record opens', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'b'], { title: 'Thursday' })
+  const gate = deferred<{ title: string }>()
+  const id = writable<PropertyKey>('a')
+  const options = optionsOf<{ title: string }>({
+    key: ['schedule', 'a'],
+    fetch: async () => gate.promise,
+  })
+  const container = track(ScheduleRecord, { options, id })
+  expect(container.querySelector('form')).toBeNull()
+  gate.resolve({ title: 'Tuesday' })
+  await settle()
+  expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('Tuesday')
+  container.querySelector('button')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  await settle(1)
+  client.set(['schedule', 'a'], { title: 'Tuesday, revised' })
+  await settle()
+  expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
+  options.set({ key: ['schedule', 'b'], fetch: async () => gate.promise })
+  id.set('b')
+  flushSync()
+  expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('Thursday')
+})
+
+it('keeps a previous query key out of the form until the new record arrives', async () => {
+  const client = getQueryClient()
+  client.set(['schedule', 'a'], { title: 'Tuesday' })
+  const gate = deferred<{ title: string }>()
+  const id = writable<PropertyKey>('a')
+  const options = optionsOf<{ title: string }>({
+    key: ['schedule', 'a'],
+    fetch: async () => gate.promise,
+    keepPreviousData: true,
+    principal: 'public',
+  })
+  const container = track(ScheduleRecord, { options, id })
+  await settle()
+  expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('Tuesday')
+  options.set({
+    key: ['schedule', 'b'],
+    fetch: async () => gate.promise,
+    keepPreviousData: true,
+    principal: 'public',
+  })
+  id.set('b')
+  flushSync()
+  expect(container.querySelector('form')).toBeNull()
+  expect(container.querySelector('[role="status"]')?.textContent).toBe('Loading schedule')
+  gate.resolve({ title: 'Thursday' })
+  await settle()
+  expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('Thursday')
+})
+
+it('counterexample: a form with static initial values retains its draft on rerender', async () => {
+  const container = track(StaticForm, {})
+  expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('New schedule')
+  container.querySelector('form button')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  await settle(1)
+  expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
+  container
+    .querySelector('button[data-rerender]')
+    ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  flushSync()
+  expect(container.querySelector('[data-count]')?.textContent).toBe('1')
+  expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('Unsaved')
 })
