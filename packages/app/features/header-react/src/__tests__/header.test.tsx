@@ -1,6 +1,7 @@
 import type { Context, ReactElement, ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import type { LinkProps } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -46,8 +47,8 @@ vi.mock('@molecule/app-react', async () => {
 })
 
 vi.mock('react-router', () => ({
-  Link: ({ to, children }: { to: string; children?: ReactNode }) =>
-    createElement('a', { href: to, 'data-link': '' }, children),
+  Link: ({ to, ...props }: LinkProps) =>
+    createElement('a', { ...props, href: String(to), 'data-link': '' }),
 }))
 
 const { AppHeader } = await import('../AppHeader.js')
@@ -70,6 +71,59 @@ const withProviders = (node: ReactNode): ReactElement =>
   )
 
 describe('AppHeader', () => {
+  it('renders the brand and each declared destination as links in the primary navigation landmark', () => {
+    const markup = html(
+      createElement(AppHeader, {
+        appName: 'Field Notes',
+        brandClassName: 'wordmark',
+        navigation: {
+          label: 'Site',
+          className: 'site-navigation',
+          listClassName: 'site-links',
+          itemClassName: 'site-link-item',
+          links: {
+            '/': { children: 'Home' },
+            '/notebooks/42': {
+              className: 'account-link',
+              'aria-current': 'page',
+              children: createElement(
+                'span',
+                null,
+                createElement('img', { src: '/avatar.png', alt: '' }),
+                'My notebook',
+              ),
+            },
+          },
+        },
+        extraActions: createElement('button', { type: 'button' }, 'Preferences'),
+      }),
+    )
+    const nav = markup.match(/<nav\b[^>]*aria-label="Site"[^>]*>([\s\S]+?)<\/nav>/)?.[1]
+    expect(nav).toBeDefined()
+    expect(markup).toMatch(/<nav[^>]*class="[^"]*site-navigation"/)
+    expect(nav).toMatch(/<a[^>]*class="wordmark"[^>]*href="\/"/)
+    expect(nav).toContain('<ul class="site-links">')
+    expect(nav?.match(/<li class="site-link-item">/g)).toHaveLength(2)
+    expect(nav?.match(/href="\/notebooks\/42"/g)).toHaveLength(1)
+    expect(nav).toMatch(
+      /<a[^>]*class="account-link"[^>]*aria-current="page"[^>]*>.*avatar\.png.*My notebook.*<\/a>/,
+    )
+    expect(nav?.match(/href="\/"/g)).toHaveLength(2)
+    expect(nav).toContain('Preferences')
+  })
+
+  it('keeps a brand-and-actions header without a primary navigation landmark', () => {
+    const markup = html(
+      createElement(AppHeader, {
+        appName: 'Field Notes',
+        extraActions: createElement('button', { type: 'button' }, 'Preferences'),
+      }),
+    )
+    expect(markup).toContain('Field Notes')
+    expect(markup).toContain('Preferences')
+    expect(markup).not.toContain('<nav')
+  })
+
   it('renders the appName and the logo image', () => {
     const markup = html(createElement(AppHeader, { appName: 'Acme' }))
     expect(markup).toContain('Acme')

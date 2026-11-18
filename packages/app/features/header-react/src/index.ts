@@ -5,6 +5,31 @@
  * Reproduces the byte-identical Header pattern from 9 flagship apps as a
  * single composable primitive. Pair with `@molecule/app-shell-layout-react`'s
  * `<AppShellLayout>` to assemble a full chrome.
+ * Give `navigation` the destinations available in the current view or session.
+ * The header renders the brand and one native anchor per destination in a named
+ * navigation landmark. Group an avatar or icon with its label in that link's
+ * children. Use `brandClassName` and the navigation classes with the app's stylesheet.
+ *
+ * @example
+ * ```tsx
+ * import { AppHeader } from '@molecule/app-header-react'
+ *
+ * function WorkspaceHeader({ account, labels }: {
+ *   account: { href: string; name: string; avatarSrc: string } | null
+ *   labels: { primary: string; notebooks: string; settings: string; signIn: string }
+ * }) {
+ *   return <AppHeader appName="Bearing" brandClassName="wordmark" navigation={{
+ *     label: labels.primary,
+ *     links: {
+ *       '/notebooks': { children: labels.notebooks },
+ *       ...(account ? {
+ *         [account.href]: { children: <><img src={account.avatarSrc} alt="" />{account.name}</> },
+ *         '/settings': { children: labels.settings },
+ *       } : { '/sign-in': { children: labels.signIn } }),
+ *     },
+ *   }} />
+ * }
+ * ```
  *
  * @example
  * ```tsx

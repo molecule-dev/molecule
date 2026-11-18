@@ -1,10 +1,32 @@
 import type { ReactElement, ReactNode } from 'react'
 import { useContext } from 'react'
-import { Link } from 'react-router'
+import { Link, type LinkProps } from 'react-router'
 
 import { I18nContext, ThemeContext } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, ThemeToggle } from '@molecule/app-ui-react'
+
+/** A primary navigation landmark with one link per declared destination. */
+export interface AppHeaderNavigation {
+  /** Accessible name for the navigation landmark. */
+  label: string
+  /**
+   * Router destinations mapped to anchor props. Put a destination's icon and text in
+   * the same children so they share one native link and one keyboard stop.
+   */
+  links: Readonly<
+    Record<
+      string,
+      Omit<LinkProps, 'to' | 'children' | 'dangerouslySetInnerHTML'> & { children: ReactNode }
+    >
+  >
+  /** Additional class on the native nav element. */
+  className?: string
+  /** Additional class on the links' list. */
+  listClassName?: string
+  /** Additional class on each list item. */
+  itemClassName?: string
+}
 
 /** Props for the {@link AppHeader} component. */
 export interface AppHeaderProps {
@@ -16,6 +38,10 @@ export interface AppHeaderProps {
   logoSize?: number
   /** Path the brand link navigates to. Defaults to `/`. */
   brandTo?: string
+  /** Additional class on the brand anchor. */
+  brandClassName?: string
+  /** Primary destinations, such as public links or links for the current session. */
+  navigation?: AppHeaderNavigation
   /** Slot for the right-side user menu — typically `<UserMenu />` from `@molecule/app-ui-react`. */
   userMenu?: ReactNode
   /**
@@ -76,6 +102,8 @@ export function AppHeader({
   logoSrc = '/logo.svg',
   logoSize = 30,
   brandTo = '/',
+  brandClassName,
+  navigation,
   userMenu,
   themeToggle = DEFAULT_THEME_TOGGLE,
   extraActions,
@@ -84,26 +112,41 @@ export function AppHeader({
   dataMolId,
 }: AppHeaderProps): ReactElement {
   const cm = getClassMap()
+  const Inner = navigation ? 'nav' : 'div'
   return (
     <header
       className={cm.cn(cm.headerBar, fixed ? cm.headerFixed : '', className)}
       data-mol-id={dataMolId}
     >
-      <div className={cm.headerInner}>
+      <Inner
+        className={
+          navigation?.className ? cm.cn(cm.headerInner, navigation.className) : cm.headerInner
+        }
+        aria-label={navigation?.label}
+      >
         <Flex align="center" justify="between" className={cm.h('full')}>
-          <Link to={brandTo}>
+          <Link to={brandTo} className={brandClassName}>
             <Flex align="center" gap="xs">
               <img src={logoSrc} width={logoSize} height={logoSize} alt="" />
               <span className={cm.logoText}>{appName}</span>
             </Flex>
           </Link>
           <Flex align="center" gap="sm">
+            {navigation && (
+              <ul className={navigation.listClassName}>
+                {Object.entries(navigation.links).map(([to, link]) => (
+                  <li key={to} className={navigation.itemClassName}>
+                    <Link {...link} to={to} />
+                  </li>
+                ))}
+              </ul>
+            )}
             {themeToggle}
             {extraActions}
             {userMenu}
           </Flex>
         </Flex>
-      </div>
+      </Inner>
     </header>
   )
 }
