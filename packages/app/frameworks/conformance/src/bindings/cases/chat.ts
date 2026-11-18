@@ -1251,6 +1251,47 @@ export const useChatCases: HookCases = {
         { type: 'control', name: 'chat.finish' },
       ],
     },
+    {
+      // A 503 before the server starts the turn re-sends the message instead of resuming it;
+      // that re-send is the retry, so it climbs the ladder (5 s, 10 s, 20 s) rather than
+      // starting over at attempt 1 the way a new message from the user does.
+      name: 'a 5XX before the turn starts re-sends and climbs the ladder on each failure',
+      args: noHistory(),
+      context: chatArea({}),
+      fakeTimers: true,
+      steps: [
+        { type: 'call', method: 'sendMessage', args: ['hi'] },
+        {
+          type: 'control',
+          name: 'chat.emit',
+          args: [{ type: 'error', message: 'Overloaded', status: 503 }],
+        },
+        { type: 'control', name: 'chat.finish' },
+        { type: 'advance', ms: 6000 },
+        {
+          type: 'control',
+          name: 'chat.emit',
+          args: [{ type: 'error', message: 'Overloaded', status: 503 }],
+        },
+        { type: 'control', name: 'chat.finish' },
+        { type: 'advance', ms: 11000 },
+        {
+          type: 'control',
+          name: 'chat.emit',
+          args: [{ type: 'error', message: 'Overloaded', status: 503 }],
+        },
+        { type: 'control', name: 'chat.finish' },
+        { type: 'advance', ms: 21000 },
+        {
+          type: 'control',
+          name: 'chat.emit',
+          args: [{ type: 'message_start', id: 'a1', timestamp: 1000 }],
+        },
+        { type: 'control', name: 'chat.emit', args: [{ type: 'text', content: 'ok' }] },
+        { type: 'control', name: 'chat.emit', args: [{ type: 'done' }] },
+        { type: 'control', name: 'chat.finish' },
+      ],
+    },
 
     // ── Stop, abort and unmount ──────────────────────────────────────────────
     {

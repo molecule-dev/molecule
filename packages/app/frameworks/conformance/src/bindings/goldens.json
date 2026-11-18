@@ -23212,6 +23212,709 @@
      "chat.openStreams": 0
     }
    },
+   "a 5XX before the turn starts re-sends and climbs the ladder on each failure": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "abort": "method",
+      "appendCardMessage": "method",
+      "appendCompleteMessage": "method",
+      "applyRemoteEvent": "method",
+      "backgroundTasks": "value",
+      "cancelRetry": "method",
+      "clearHistory": "method",
+      "clearQueuedForFile": "method",
+      "deleteQueuedMessage": "method",
+      "editQueuedMessage": "method",
+      "error": "value",
+      "errorMeta": "value",
+      "fastMode": "value",
+      "isLoading": "value",
+      "isRemoteStreaming": "value",
+      "messages": "value",
+      "mode": "value",
+      "noteRemoteStreamEvent": "method",
+      "reconcileHistory": "method",
+      "retryCountdown": "value",
+      "sendMessage": "method",
+      "setFastMode": "method",
+      "setMode": "method",
+      "streamingStatus": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": false,
+       "isRemoteStreaming": false,
+       "messages": [],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": {
+        "attempt": 1,
+        "secondsRemaining": 5
+       },
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": false,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 0
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": {
+        "attempt": 1,
+        "secondsRemaining": 5
+       },
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 5000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 5000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": {
+        "attempt": 2,
+        "secondsRemaining": 10
+       },
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": false,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 5000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": {
+        "attempt": 2,
+        "secondsRemaining": 10
+       },
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 16000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 16000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": {
+        "attempt": 3,
+        "secondsRemaining": 20
+       },
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": false,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 16000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": {
+        "attempt": 3,
+        "secondsRemaining": 20
+       },
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 37000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 37000
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 37000
+        },
+        {
+         "blocks": [],
+         "content": "",
+         "id": "a1",
+         "isStreaming": true,
+         "role": "assistant",
+         "timestamp": 1000
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": true,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 37000
+        },
+        {
+         "blocks": [
+          {
+           "content": "ok",
+           "type": "text"
+          }
+         ],
+         "content": "ok",
+         "id": "a1",
+         "isStreaming": false,
+         "role": "assistant",
+         "timestamp": 1000,
+         "toolCalls": []
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "abort": "[method]",
+       "appendCardMessage": "[method]",
+       "appendCompleteMessage": "[method]",
+       "applyRemoteEvent": "[method]",
+       "backgroundTasks": [],
+       "cancelRetry": "[method]",
+       "clearHistory": "[method]",
+       "clearQueuedForFile": "[method]",
+       "deleteQueuedMessage": "[method]",
+       "editQueuedMessage": "[method]",
+       "error": null,
+       "errorMeta": null,
+       "fastMode": false,
+       "isLoading": false,
+       "isRemoteStreaming": false,
+       "messages": [
+        {
+         "content": "hi",
+         "id": "uuid-1",
+         "queued": false,
+         "role": "user",
+         "timestamp": 37000
+        },
+        {
+         "blocks": [
+          {
+           "content": "ok",
+           "type": "text"
+          }
+         ],
+         "content": "ok",
+         "id": "a1",
+         "isStreaming": false,
+         "role": "assistant",
+         "timestamp": 1000,
+         "toolCalls": []
+        }
+       ],
+       "mode": "execute",
+       "noteRemoteStreamEvent": "[method]",
+       "reconcileHistory": "[method]",
+       "retryCountdown": null,
+       "sendMessage": "[method]",
+       "setFastMode": "[method]",
+       "setMode": "[method]",
+       "streamingStatus": null
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "chat.sendMessage",
+      "args": [
+       "hi",
+       {
+        "endpoint": "/projects/p1/chat",
+        "messageId": "uuid-1",
+        "projectId": "p1"
+       }
+      ]
+     },
+     {
+      "name": "=> sendMessage",
+      "args": [
+       {
+        "resolved": null
+       }
+      ]
+     },
+     {
+      "name": "chat.sendMessage",
+      "args": [
+       "hi",
+       {
+        "endpoint": "/projects/p1/chat",
+        "messageId": "uuid-1",
+        "projectId": "p1"
+       }
+      ]
+     },
+     {
+      "name": "chat.sendMessage",
+      "args": [
+       "hi",
+       {
+        "endpoint": "/projects/p1/chat",
+        "messageId": "uuid-1",
+        "projectId": "p1"
+       }
+      ]
+     },
+     {
+      "name": "chat.sendMessage",
+      "args": [
+       "hi",
+       {
+        "endpoint": "/projects/p1/chat",
+        "messageId": "uuid-1",
+        "projectId": "p1"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0,
+     "chat.openStreams": 0
+    }
+   },
    "abort keeps the streamed content and flags the message aborted": {
     "shape": {
      "kind": "object",

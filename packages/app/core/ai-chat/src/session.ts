@@ -186,6 +186,17 @@ type Box<T> = { current: T }
  * on even if the session moves to another project meanwhile.
  */
 interface KeyedOperations extends ChatSessionControls {
+  /**
+   * The public send plus `internal.autoRetry`, which only the 5XX auto-retry's own re-send sets, so
+   * it keeps the retry budget a fresh send resets. Views reach this through the public controls, which
+   * pass the first three arguments only.
+   */
+  sendMessage: (
+    message: string,
+    attachments?: ChatAttachment[],
+    options?: ChatSendOptions,
+    internal?: { autoRetry?: boolean },
+  ) => Promise<void>
   setMessages: (updater: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) => void
   loadConversation: () => void
   resumeStream: (resumeId: string, existingContent: string) => Promise<void>
@@ -586,10 +597,14 @@ export function createChatSession(init: CreateChatSessionOptions): ChatSession {
       const uid = target.userMsgId
       core.setMessages((prev) => prev.filter((m) => m.id !== uid))
     }
-    void core.sendMessage(target.message, target.attachments, {
-      ...target.options,
-      ...(target.userMsgId ? { messageId: target.userMsgId } : {}),
-    })
+    // This re-send IS the retry, so it keeps the budget that scheduled it: reset,
+    // the ladder never leaves attempt 1 and a failing ladder re-arms at 5 s forever.
+    void core.sendMessage(
+      target.message,
+      target.attachments,
+      { ...target.options, ...(target.userMsgId ? { messageId: target.userMsgId } : {}) },
+      { autoRetry: true },
+    )
   }
 
   /**
@@ -1744,6 +1759,7 @@ export function createChatSession(init: CreateChatSessionOptions): ChatSession {
       message: string,
       attachments?: ChatAttachment[],
       options?: ChatSendOptions,
+      internal: { autoRetry?: boolean } = {},
     ): Promise<void> => {
       if (!mountedRef.current) return
       const config = currentConfig()
@@ -1950,8 +1966,9 @@ export function createChatSession(init: CreateChatSessionOptions): ChatSession {
       core.finalizeRemoteStream()
       setError(null)
       setErrorMeta(null)
-      // A fresh user-initiated send abandons any pending 5XX auto-retry.
-      resetRetry()
+      // A fresh send abandons any pending 5XX auto-retry; the retry's own re-send
+      // keeps the budget it belongs to (see fireRetry).
+      if (!internal.autoRetry) resetRetry()
       resetStatusQueue()
       setStreamingFlag(persistence, storageKey)
 

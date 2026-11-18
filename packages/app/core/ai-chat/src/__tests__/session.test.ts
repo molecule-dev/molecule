@@ -150,6 +150,68 @@ describe('createChatSession', () => {
     expect(session.controls).toBe(controls)
   })
 
+  it('climbs the 5XX retry ladder on repeated failures, then surfaces the error', async () => {
+    vi.useFakeTimers()
+    const provider = fakeProvider()
+    const session = createChatSession(options(provider, { loadOnMount: false }))
+    session.connect()
+    // The server answers every send with a 503 before the turn starts, so each retry re-sends.
+    const fail = async (): Promise<void> => {
+      provider.emit({ type: 'error', message: 'Service unavailable', status: 503 })
+      provider.finish()
+      await vi.advanceTimersByTimeAsync(0)
+    }
+    const sending = session.controls.sendMessage('hi')
+    await fail()
+    await sending
+    const ladder: Array<[number, number]> = []
+    for (let i = 0; i < 8; i++) {
+      const countdown = session.getState().retryCountdown
+      expect(countdown).not.toBeNull()
+      ladder.push([countdown!.attempt, countdown!.secondsRemaining])
+      expect(session.getState().error).toBeNull()
+      await vi.advanceTimersByTimeAsync(countdown!.secondsRemaining * 1000)
+      await fail()
+    }
+    expect(ladder).toEqual([
+      [1, 5],
+      [2, 10],
+      [3, 20],
+      [4, 30],
+      [5, 30],
+      [6, 30],
+      [7, 30],
+      [8, 30],
+    ])
+    expect(provider.sendMessage).toHaveBeenCalledTimes(9)
+    expect(session.getState().retryCountdown).toBeNull()
+    expect(session.getState().error).toBe('Service unavailable')
+  })
+
+  it('starts a fresh retry budget when the user sends during a pending retry', async () => {
+    vi.useFakeTimers()
+    const provider = fakeProvider()
+    const session = createChatSession(options(provider, { loadOnMount: false }))
+    session.connect()
+    const fail = async (): Promise<void> => {
+      provider.emit({ type: 'error', message: 'Service unavailable', status: 503 })
+      provider.finish()
+      await vi.advanceTimersByTimeAsync(0)
+    }
+    const first = session.controls.sendMessage('hi')
+    await fail()
+    await first
+    await vi.advanceTimersByTimeAsync(5000)
+    await fail()
+    expect(session.getState().retryCountdown).toEqual({ attempt: 2, secondsRemaining: 10 })
+    // A new message abandons the pending retry; its own failure starts the ladder over.
+    const second = session.controls.sendMessage('again')
+    expect(session.getState().retryCountdown).toBeNull()
+    await fail()
+    await second
+    expect(session.getState().retryCountdown).toEqual({ attempt: 1, secondsRemaining: 5 })
+  })
+
   it('shares one transcript between sessions of the same project', async () => {
     const provider = fakeProvider([[message('s1', 'user', 'hello')]])
     const a = createChatSession(options(provider))
