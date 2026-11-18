@@ -306,17 +306,23 @@ function ResponsiveAppShellBase({
   // fleet templates all carry this; it belongs in the shell). Key on
   // `location.key` rather than pathname/search: the fleet's `#top`
   // safe-target pattern appends a hash when the current item is re-tapped,
-  // changing neither, and the drawer must still dismiss.
-  useEffect(() => {
+  // changing neither, and the drawer must still dismiss. Adjusted during
+  // render (React's pattern for state derived from a changed input) so the
+  // closed drawer is the state that commits, with no second render pass.
+  const [seenLocationKey, setSeenLocationKey] = useState(location.key)
+  if (seenLocationKey !== location.key) {
+    setSeenLocationKey(location.key)
     setDrawerOpen(false)
-  }, [location.key])
+  }
 
   // A resize crossing to desktop unmounts the drawer panel; dropping the
   // logical open state too means resizing back to mobile doesn't surface a
   // drawer the user closed (or never opened on this breakpoint).
-  useEffect(() => {
+  const [wasDesktop, setWasDesktop] = useState(isDesktop)
+  if (wasDesktop !== isDesktop) {
+    setWasDesktop(isDesktop)
     if (isDesktop) setDrawerOpen(false)
-  }, [isDesktop])
+  }
 
   const openDrawer = (): void => setDrawerOpen(true)
   const closeDrawer = (): void => setDrawerOpen(false)

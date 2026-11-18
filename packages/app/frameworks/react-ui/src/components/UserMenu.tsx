@@ -1,5 +1,5 @@
 import type { JSX, ReactNode } from 'react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useLocation } from 'react-router'
 
 import type { IconName } from '@molecule/app-icons'
@@ -92,11 +92,18 @@ export function UserMenu({
 
   // Close the drawer whenever the route changes. React Router updates
   // `location` on both in-app navigation and browser back/forward
-  // (popstate), so a single effect covers both — without it the drawer
-  // stays mounted over the next page and blocks clicks underneath.
-  useEffect(() => {
+  // (popstate), so a single check covers both — without it the drawer
+  // stays mounted over the next page and blocks clicks underneath. The
+  // reset happens during render (React's pattern for state derived from a
+  // changed input) so the closed drawer is what commits.
+  const [seenRoute, setSeenRoute] = useState({
+    pathname: location.pathname,
+    search: location.search,
+  })
+  if (seenRoute.pathname !== location.pathname || seenRoute.search !== location.search) {
+    setSeenRoute({ pathname: location.pathname, search: location.search })
     setOpen(false)
-  }, [location.pathname, location.search])
+  }
 
   return (
     <>

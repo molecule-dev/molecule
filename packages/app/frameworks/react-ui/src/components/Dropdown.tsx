@@ -4,7 +4,15 @@
  * @module
  */
 
-import React, { forwardRef, useCallback, useEffect, useId, useRef, useState } from 'react'
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation } from 'react-router'
 
@@ -204,13 +212,10 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
     const itemRefs = useRef<(HTMLDivElement | null)[]>([])
     // Which end of the menu keyboard-driven opens should focus: ArrowDown
     // (and Enter/Space/click) want the first item, ArrowUp wants the last.
-    const pendingOpenFocusRef = useRef<'first' | 'last'>('first')
-    // Mirrors `items` for the open-transition effect below WITHOUT adding
-    // `items` to its dependency array — see that effect for why.
-    const itemsRef = useRef(items)
-    useEffect(() => {
-      itemsRef.current = items
-    })
+    // State, because the open transition below reads it while rendering.
+    const [pendingOpenFocus, setPendingOpenFocus] = useState<'first' | 'last'>('first')
+    // The trigger's width for `width="trigger"`, measured when the menu opens.
+    const [triggerWidth, setTriggerWidth] = useState<number | undefined>(undefined)
     const location = useLocation()
     const menuId = useId()
 
@@ -236,7 +241,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
     }, [placement, align])
 
     const handleTriggerClick = useCallback(() => {
-      if (!isOpen) pendingOpenFocusRef.current = 'first'
+      if (!isOpen) setPendingOpenFocus('first')
       setOpen(!isOpen)
     }, [isOpen, setOpen])
 
@@ -246,17 +251,17 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
           case 'Enter':
           case ' ':
             e.preventDefault()
-            pendingOpenFocusRef.current = 'first'
+            setPendingOpenFocus('first')
             setOpen(true)
             break
           case 'ArrowDown':
             e.preventDefault()
-            pendingOpenFocusRef.current = 'first'
+            setPendingOpenFocus('first')
             setOpen(true)
             break
           case 'ArrowUp':
             e.preventDefault()
-            pendingOpenFocusRef.current = 'last'
+            setPendingOpenFocus('last')
             setOpen(true)
             break
           default:
@@ -294,24 +299,35 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
       }
     }, [isOpen, updatePosition])
 
-    // Moves focus to the first (or last, for an ArrowUp-driven open) item
-    // whenever the menu transitions closed → open. Deps are `[isOpen]`
-    // ONLY — reading `items` through a ref instead of the dependency array
-    // means a parent re-render that recreates the `items` array (extremely
-    // common: `items={[...]}` inline) does NOT re-run this and yank focus
-    // back to the first item out from under a user who already arrow-keyed
-    // further into the menu.
-    useEffect(() => {
-      if (!isOpen) {
+    // Moves the roving tab stop to the first (or last, for an ArrowUp-driven
+    // open) item whenever the menu opens, a menu mounted open included, and
+    // drops it when the menu closes. It is adjusted during render, React's
+    // pattern for state that follows a changed input, and only on the
+    // transition: a parent re-render that recreates the `items` array
+    // (extremely common: `items={[...]}` inline) does NOT move the stop back
+    // to the first item under a user who already arrow-keyed further in.
+    const [openSeen, setOpenSeen] = useState(false)
+    if (openSeen !== isOpen) {
+      setOpenSeen(isOpen)
+      if (isOpen) {
+        const focusable = focusableItemIndexes(items)
+        setPendingOpenFocus('first')
+        if (focusable.length > 0) {
+          setActiveIndex(
+            pendingOpenFocus === 'last' ? focusable[focusable.length - 1] : focusable[0],
+          )
+        }
+      } else {
         setActiveIndex(-1)
-        return
       }
-      const focusable = focusableItemIndexes(itemsRef.current)
-      const wantLast = pendingOpenFocusRef.current === 'last'
-      pendingOpenFocusRef.current = 'first'
-      if (focusable.length === 0) return
-      setActiveIndex(wantLast ? focusable[focusable.length - 1] : focusable[0])
-    }, [isOpen])
+    }
+
+    // `width="trigger"` sizes the menu to the trigger, measured before the
+    // opening frame paints.
+    const sizeToTrigger = width === 'trigger'
+    useLayoutEffect(() => {
+      if (isOpen && sizeToTrigger) setTriggerWidth(triggerRef.current?.offsetWidth)
+    }, [isOpen, sizeToTrigger])
 
     // Syncs real DOM focus to the roving-tabindex active item.
     useEffect(() => {
@@ -351,10 +367,25 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
 
     // Close on route change — a dropdown left open over the next page
     // blocks clicks underneath. React Router's `location` updates on
-    // both in-app navigation and browser back/forward (popstate).
+    // both in-app navigation and browser back/forward (popstate). The
+    // uncontrolled menu closes in the render that sees the new route; the
+    // close is reported through `onOpenChange` after it commits, in both
+    // modes, and only for a real route change, so an owner that follows
+    // `onOpenChange` keeps a menu it opened (or mounted open) open.
+    // (`pathname` holds no `?` and `search` starts with one, so the key
+    // cannot collide.)
+    const locationKey = `${location.pathname}${location.search}`
+    const [closedForLocation, setClosedForLocation] = useState(locationKey)
+    if (closedForLocation !== locationKey) {
+      setClosedForLocation(locationKey)
+      setInternalOpen(false)
+    }
+    const reportedLocationRef = useRef(locationKey)
     useEffect(() => {
-      setOpen(false)
-    }, [location.pathname, location.search, setOpen])
+      if (reportedLocationRef.current === locationKey) return
+      reportedLocationRef.current = locationKey
+      onOpenChange?.(false)
+    }, [locationKey, onOpenChange])
 
     const handleMenuKeyDown = useCallback(
       (e: React.KeyboardEvent) => {
@@ -394,19 +425,9 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
       [items, activeIndex, handleClose],
     )
 
-    // Calculate menu width
-    const menuWidth =
-      width === 'trigger'
-        ? // Not measurable until the trigger ref exists (the first open
-          // frame, before layout). Falling through to the raw 'trigger'
-          // string here previously set an invalid `width: 'trigger'` inline
-          // style (silently ignored) for that frame — `undefined` instead
-          // lets the menu size itself; a later re-render (position update)
-          // recomputes with the real pixel width once the ref is populated.
-          triggerRef.current?.offsetWidth
-        : typeof width === 'number'
-          ? width
-          : width
+    // The menu width: the measured trigger width for 'trigger', never the raw
+    // string, which would be an invalid inline width.
+    const menuWidth = sizeToTrigger ? triggerWidth : width
 
     const menu = isOpen && (
       <div

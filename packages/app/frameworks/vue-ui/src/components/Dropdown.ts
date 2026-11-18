@@ -12,7 +12,6 @@ import {
   Fragment,
   h,
   isVNode,
-  onMounted,
   type PropType,
   ref,
   Teleport,
@@ -453,17 +452,15 @@ export const Dropdown = defineComponent({
       { flush: 'post' },
     )
 
-    // React's route-change effect also runs on mount, announcing the (already
-    // false) open state through `openChange` once. Closing on route change —
-    // a dropdown left open over the next page blocks clicks underneath —
-    // covers both in-app navigation and back/forward through the router's
-    // reactive location.
+    // Closing on route change — a dropdown left open over the next page blocks
+    // clicks underneath — covers both in-app navigation and back/forward
+    // through the router's reactive location. Mounting is not a route change,
+    // so nothing is reported then.
     const location = useLocation()
     watch(
       () => [location.value.pathname, location.value.search],
       () => setOpen(false),
     )
-    onMounted(() => setOpen(false))
 
     const handleMenuKeyDown = (event: KeyboardEvent): void => {
       const focusable = focusableItemIndexes(props.items)

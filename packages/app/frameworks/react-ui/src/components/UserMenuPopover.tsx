@@ -117,9 +117,21 @@ export function UserMenuPopover({
   const panelId = useId()
 
   // Close on route change so the panel never sticks across navigations.
-  useEffect(() => {
+  // Adjusted during render (React's pattern for state derived from a changed
+  // input) so the closed panel is what commits.
+  const [seenRoute, setSeenRoute] = useState({
+    pathname: location.pathname,
+    search: location.search,
+    hash: location.hash,
+  })
+  if (
+    seenRoute.pathname !== location.pathname ||
+    seenRoute.search !== location.search ||
+    seenRoute.hash !== location.hash
+  ) {
+    setSeenRoute({ pathname: location.pathname, search: location.search, hash: location.hash })
     setOpen(false)
-  }, [location.pathname, location.search, location.hash])
+  }
 
   // Also close on a raw `popstate` — `useLocation()` only fires when a
   // URL part changes, but a same-route SPA navigation still pops.

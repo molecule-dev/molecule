@@ -397,14 +397,14 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
   })
 
   // Close on route change — a dropdown left open over the next page blocks
-  // clicks underneath. Runs once on mount as well, matching the reference.
+  // clicks underneath. Mounting is not a route change (`defer` skips it).
   createEffect(
     on(
       () => [location().pathname, location().search],
       () => {
         setOpen(false)
       },
-      { defer: false },
+      { defer: true },
     ),
   )
 

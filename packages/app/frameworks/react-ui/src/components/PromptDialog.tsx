@@ -127,13 +127,18 @@ export function PromptDialog({
   const descriptionId = useId()
 
   // Re-seed from initialValue each open so a reopened dialog shows the
-  // CURRENT value, not whatever the user typed last time.
-  useEffect(() => {
+  // CURRENT value, not whatever the user typed last time. Adjusted during
+  // render (React's pattern for state derived from a changed input) so the
+  // seeded value is what the opening frame paints, rather than a second
+  // render pass after it.
+  const [seededFrom, setSeededFrom] = useState({ open, initialValue })
+  if (seededFrom.open !== open || seededFrom.initialValue !== initialValue) {
+    setSeededFrom({ open, initialValue })
     if (open) {
       setValue(initialValue)
       setPending(false)
     }
-  }, [open, initialValue])
+  }
 
   // The dialog exists to take one string, so opening it puts focus in the
   // input. This effect runs after Modal's own (which focuses the dialog's first

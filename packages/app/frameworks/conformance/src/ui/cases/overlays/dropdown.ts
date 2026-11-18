@@ -39,9 +39,12 @@ export const dropdownCases: UIComponentCases = {
       interactions: [{ type: 'click', selector: 'button' }],
     },
     {
+      // Nothing is reported on mount: an owner that follows onOpenChange keeps
+      // a menu it mounted open open.
       name: 'controlled open on mount',
       fakeTimers: true,
       props: { items: ITEMS, open: true },
+      callbacks: ['onOpenChange'],
       slots: { trigger: triggerButton },
     },
     {
@@ -215,7 +218,7 @@ export const dropdownCases: UIComponentCases = {
       ],
     },
     {
-      name: 'onOpenChange fires on mount and toggle',
+      name: 'onOpenChange fires on each toggle, not on mount',
       fakeTimers: true,
       props: { items: ITEMS },
       callbacks: ['onOpenChange'],
@@ -282,6 +285,7 @@ export const dropdownCases: UIComponentCases = {
       name: 'route change closes the open menu',
       fakeTimers: true,
       props: { items: ITEMS },
+      callbacks: ['onOpenChange'],
       slots: { trigger: triggerButton },
       interactions: [
         { type: 'click', selector: 'button' },

@@ -244,7 +244,8 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
   private lastAlign: DropdownAlign = 'start'
   private menuWidth: number | string | undefined
   private removedListeners: (() => void)[] = []
-  private lastRoute = ''
+  /** The route (path and query) the menu last saw; `null` until the first check. */
+  private lastRoute: string | null = null
   /** Which end a keyboard open focuses (`first`, or `last` for ArrowUp). */
   private pendingOpenFocus: 'first' | 'last' = 'first'
   /** The menu item element `focusActive` put DOM focus on last. */
@@ -253,14 +254,14 @@ export class Dropdown implements AfterViewInit, AfterViewChecked, DoCheck, OnDes
   private checkedItems: DropdownItem<string>[] | null = null
   /** Whether `focusedItemEl` held DOM focus before this check updated the view. */
   private itemHadFocus = false
-  /** Closes the menu when the route (path or query) changes, and on mount, as React's effect does. */
+  /** Closes the menu when the route (path or query) changes; mounting is not a route change. */
   private readonly routeEffect = effect(() => {
     const location = this.router.location()
     const key = `${location.pathname}${location.search}`
     if (key === this.lastRoute) return
+    const mounting = this.lastRoute === null
     this.lastRoute = key
-    // React's effect runs on mount too, so the first run always closes.
-    this.setOpen(false)
+    if (!mounting) this.setOpen(false)
   })
 
   /**

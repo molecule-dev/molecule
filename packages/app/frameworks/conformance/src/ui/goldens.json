@@ -2087,19 +2087,13 @@
     ],
     "calls": []
    },
-   "onOpenChange fires on mount and toggle": {
+   "onOpenChange fires on each toggle, not on mount": {
     "snapshots": [
      "<button aria-expanded=\"false\" aria-haspopup=\"menu\" tabindex=\"0\" type=\"button\">\nOptions\n</button>\n@route /",
      "<button aria-controls=\"#id0\" aria-expanded=\"true\" aria-haspopup=\"menu\" tabindex=\"0\" type=\"button\">\nOptions\n</button>\n<div class=\"c05825734 c0e0dac04 c1280a784 c14908b9a c1f523237 c34bf8be7 c4172119d c4b92e3a8 c640638db c8aba5ee4 c8f19053a c9ed626f5 cb385c2bd cc26cbf54 cf3993f31\" data-state=\"open\" id=\"#id0\" role=\"menu\" style=\"left: 0px; position: absolute; top: 0px; z-index: 50\" tabindex=\"-1\">\n<div class=\"c106553d7 c13d4ff0f c1e8176ab c2ae0ba0d c352ceae2 c3c56a5ea c445db9b9 c64e6d975 c7d370ab9 c8d3cd30e c978a2871 ccae02ff2 ce0805772 cea5cdeac cfc82911d\" role=\"menuitem\" tabindex=\"0\">\n<span class=\"cb5823274\">\nProfile\n</span>\n</div>\n<div class=\"c106553d7 c13d4ff0f c1e8176ab c2ae0ba0d c352ceae2 c3c56a5ea c445db9b9 c64e6d975 c7d370ab9 c8d3cd30e c978a2871 ccae02ff2 ce0805772 cea5cdeac cfc82911d\" role=\"menuitem\" tabindex=\"-1\">\n<span class=\"cb5823274\">\nSettings\n</span>\n<span class=\"c3e193c79 c4647f690 c96fffd38\">\n⌘,\n</span>\n</div>\n<div class=\"c0da89a5b c6cc022b1 cca0fc486 cfde19efb\" role=\"separator\">\n</div>\n<div aria-disabled=\"true\" class=\"c106553d7 c13d4ff0f c1e8176ab c28b13c26 c2ae0ba0d c352ceae2 c39634294 c3c56a5ea c445db9b9 c64e6d975 c7d370ab9 c8d3cd30e c978a2871 ccae02ff2 ce0805772 cea5cdeac cfc82911d\" data-disabled=\"true\" role=\"menuitem\" tabindex=\"-1\">\n<span class=\"cb5823274\">\nDelete\n</span>\n</div>\n</div>\n@route /\n@focus body>div:1>div:0",
      "<button aria-expanded=\"false\" aria-haspopup=\"menu\" tabindex=\"0\" type=\"button\">\nOptions\n</button>\n@route /\n@focus body>div:0>div:0>button:0"
     ],
     "calls": [
-     {
-      "name": "onOpenChange",
-      "args": [
-       false
-      ]
-     },
      {
       "name": "onOpenChange",
       "args": [
@@ -2153,7 +2147,20 @@
      "<button aria-controls=\"#id0\" aria-expanded=\"true\" aria-haspopup=\"menu\" tabindex=\"0\" type=\"button\">\nOptions\n</button>\n<div class=\"c05825734 c0e0dac04 c1280a784 c14908b9a c1f523237 c34bf8be7 c4172119d c4b92e3a8 c640638db c8aba5ee4 c8f19053a c9ed626f5 cb385c2bd cc26cbf54 cf3993f31\" data-state=\"open\" id=\"#id0\" role=\"menu\" style=\"left: 0px; position: absolute; top: 0px; z-index: 50\" tabindex=\"-1\">\n<div class=\"c106553d7 c13d4ff0f c1e8176ab c2ae0ba0d c352ceae2 c3c56a5ea c445db9b9 c64e6d975 c7d370ab9 c8d3cd30e c978a2871 ccae02ff2 ce0805772 cea5cdeac cfc82911d\" role=\"menuitem\" tabindex=\"0\">\n<span class=\"cb5823274\">\nProfile\n</span>\n</div>\n<div class=\"c106553d7 c13d4ff0f c1e8176ab c2ae0ba0d c352ceae2 c3c56a5ea c445db9b9 c64e6d975 c7d370ab9 c8d3cd30e c978a2871 ccae02ff2 ce0805772 cea5cdeac cfc82911d\" role=\"menuitem\" tabindex=\"-1\">\n<span class=\"cb5823274\">\nSettings\n</span>\n<span class=\"c3e193c79 c4647f690 c96fffd38\">\n⌘,\n</span>\n</div>\n<div class=\"c0da89a5b c6cc022b1 cca0fc486 cfde19efb\" role=\"separator\">\n</div>\n<div aria-disabled=\"true\" class=\"c106553d7 c13d4ff0f c1e8176ab c28b13c26 c2ae0ba0d c352ceae2 c39634294 c3c56a5ea c445db9b9 c64e6d975 c7d370ab9 c8d3cd30e c978a2871 ccae02ff2 ce0805772 cea5cdeac cfc82911d\" data-disabled=\"true\" role=\"menuitem\" tabindex=\"-1\">\n<span class=\"cb5823274\">\nDelete\n</span>\n</div>\n</div>\n@route /\n@focus body>div:1>div:0",
      "<button aria-expanded=\"false\" aria-haspopup=\"menu\" tabindex=\"0\" type=\"button\">\nOptions\n</button>\n@route /elsewhere"
     ],
-    "calls": []
+    "calls": [
+     {
+      "name": "onOpenChange",
+      "args": [
+       true
+      ]
+     },
+     {
+      "name": "onOpenChange",
+      "args": [
+       false
+      ]
+     }
+    ]
    },
    "defaults (closed), then a locale switch": {
     "snapshots": [

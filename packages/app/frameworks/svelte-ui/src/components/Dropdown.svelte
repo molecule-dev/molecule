@@ -198,12 +198,15 @@
   })
 
   // Close on route change — a dropdown left open over the next page blocks
-  // clicks underneath. Like React's mount effect, this also runs once on
-  // mount, announcing the (already false) open state through onOpenChange.
+  // clicks underneath. Mounting is not a route change, so the first run only
+  // records the route.
+  let closedForRoute: string | null = null
   $effect(() => {
-    void $location.pathname
-    void $location.search
-    setOpen(false)
+    const route = `${$location.pathname}${$location.search}`
+    if (route === closedForRoute) return
+    const mounting = closedForRoute === null
+    closedForRoute = route
+    if (!mounting) setOpen(false)
   })
 
   const handleMenuKeyDown = (e: KeyboardEvent): void => {
