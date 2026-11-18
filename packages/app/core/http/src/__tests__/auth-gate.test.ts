@@ -219,6 +219,61 @@ describe('the skipAuthGate opt-out', () => {
     expect(String(mockFetch.mock.calls[1]?.[0])).toContain('/profiles/alice')
   })
 
+  it('starts a custom HTTP restore without holding the restore request behind first paint', async () => {
+    const storage = deferred()
+    const response = deferred()
+    const client = createFetchClient({ baseURL: 'http://api.test' })
+    let token = 'stored-credential'
+    client.setAuthTokenResolver?.(() => token)
+    mockFetch.mockImplementation((url) =>
+      String(url).endsWith('/account')
+        ? response.promise.then(() => okResponse({ token: 'confirmed-credential' }))
+        : okResponse({ labels: ['Reading'] }),
+    )
+
+    vi.useFakeTimers()
+    try {
+      const restorer = vi.fn(async (request: typeof client.request) => {
+        await storage.promise
+        const account = await request<{ token: string }>({
+          method: 'GET',
+          url: '/account',
+        })
+        token = account.data.token
+      })
+      const restore = setAuthGate({ client, restore: restorer })
+      const sidebar = client.get('/labels')
+      await vi.advanceTimersByTimeAsync(0)
+      expect(mockFetch).not.toHaveBeenCalled()
+
+      storage.resolve()
+      await vi.advanceTimersByTimeAsync(0)
+      expect(mockFetch.mock.calls.map(([url]) => String(url))).toEqual(['http://api.test/account'])
+      expect(new Headers(mockFetch.mock.calls[0]?.[1].headers).get('authorization')).toBe(
+        'Bearer stored-credential',
+      )
+
+      response.resolve()
+      await restore
+      await expect(sidebar).resolves.toMatchObject({ data: { labels: ['Reading'] } })
+      await client.get('/preferences')
+      expect(restorer).toHaveBeenCalledTimes(1)
+      expect(mockFetch.mock.calls.map(([url]) => String(url))).toEqual([
+        'http://api.test/account',
+        'http://api.test/labels',
+        'http://api.test/preferences',
+      ])
+      expect(new Headers(mockFetch.mock.calls[1]?.[1].headers).get('authorization')).toBe(
+        'Bearer confirmed-credential',
+      )
+    } finally {
+      storage.resolve()
+      response.resolve()
+      await vi.runAllTimersAsync()
+      vi.useRealTimers()
+    }
+  })
+
   it('does not stall every request when the gate shares one restore request (m97 shape)', async () => {
     // X1 xr-molecule-flash-m97 exactly: the app's store memoizes its restore, so the gate hands
     // out ONE promise whose request goes through the gated client. Without the opt-out that

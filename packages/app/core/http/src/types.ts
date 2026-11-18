@@ -45,6 +45,9 @@ export interface RequestConfig {
   /**
    * Send this request WITHOUT waiting for the session restore (the auth gate).
    *
+   * For a custom HTTP restore, `setAuthGate({ client, restore })` provides a request function
+   * that applies this option automatically.
+   *
    * A request the gate's restore issues from a LATER continuation must set this. The gate
    * recognizes a request the settle function issues while it runs and never holds it — this
    * package's client awaits the gate before anything else, so a `restoreSession()` that calls

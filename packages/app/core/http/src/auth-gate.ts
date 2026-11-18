@@ -54,7 +54,8 @@
 
 import { getLogger } from '@molecule/app-logger'
 
-import type { AuthGateRequest } from './types.js'
+import type { HttpClient } from './client.js'
+import type { AuthGateRequest, FullRequestConfig, HttpResponse } from './types.js'
 
 const logger = getLogger('http')
 
@@ -120,9 +121,32 @@ let gateSettling = false
  */
 const GATE_TIMEOUT_MS = 3_000
 
+/** Wiring for an application that restores its session through its own HTTP client. */
+export interface HttpAuthRestore {
+  /** The application's configured transport, including its token resolver and interceptors. */
+  client: Pick<HttpClient, 'request'>
+  /** Restore the session using the supplied request function, which bypasses this gate. */
+  restore: (request: HttpClient['request']) => Promise<void>
+}
+
 /**
  * Registers the gate every HTTP request awaits before it is sent, or clears it
  * with `null`.
+ *
+ * For an app restoring its own session through HTTP, pass `{ client, restore }` after
+ * configuring the client. This starts one restore. The callback's request function bypasses
+ * the gate even after an asynchronous storage read, and other requests wait for it to settle.
+ * The returned promise resolves when the restore settles.
+ *
+ * ```typescript
+ * void setAuthGate({
+ *   client,
+ *   async restore(request) {
+ *     const { data } = await request<Profile>({ method: 'GET', url: currentProfilePath })
+ *     session.setProfile(data)
+ *   },
+ * })
+ * ```
  *
  * Pass a function that resolves once the session restore has settled — with the
  * template auth that is `() => authClient.whenRestored()`, which resolves
@@ -144,7 +168,7 @@ const GATE_TIMEOUT_MS = 3_000
  * `RequestConfig.skipAuthGate`). `@molecule/app-auth`'s own restore needs neither because it
  * uses `fetch` rather than the bonded client.
  *
- * @param next - The gate, or `null` to clear a previously registered one.
+ * @param next - A session wait function, HTTP restore wiring, or `null` to clear the gate.
  *
  * @example
  * ```typescript
@@ -153,7 +177,20 @@ const GATE_TIMEOUT_MS = 3_000
  * setAuthGate(() => authClient.whenRestored())
  * ```
  */
-export const setAuthGate = (next: (() => Promise<void>) | null): void => {
+export function setAuthGate(next: HttpAuthRestore): Promise<void>
+export function setAuthGate(next: (() => Promise<void>) | null): void
+export function setAuthGate(
+  next: (() => Promise<void>) | HttpAuthRestore | null,
+): Promise<void> | void {
+  if (next && typeof next !== 'function') {
+    const request: HttpClient['request'] = <T = unknown>(
+      config: FullRequestConfig,
+    ): Promise<HttpResponse<T>> => next.client.request<T>({ ...config, skipAuthGate: true })
+    const restore = Promise.resolve().then(() => next.restore(request))
+    const waitForRestore = (): Promise<void> => restore
+    setAuthGate(waitForRestore)
+    return invokeGate(waitForRestore)
+  }
   gate = next
   inFlightGate = null
   reportedStall = null

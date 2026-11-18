@@ -13,13 +13,15 @@
  * so multiple consumers cannot overwrite the global router bond.
  *
  * **A route with parameters? Declare its page with `defineRoute`.** The route path
- * is the source of truth for the page's parameter names. Use explicit props for a
- * view selected by a literal suffix. For example:
+ * is the source of truth for the page's parameter names. Use `{ Component: Page }`
+ * to receive a typed `params` prop automatically, or use the callback to supply
+ * a view selected by a literal suffix. For example:
  *
  * ```tsx
  * import { defineRoute } from '@molecule/app-routing-react-router'
  *
  * const routes = [
+ *   defineRoute('/shelves/:shelf/edit', { Component: EditShelf }),
  *   defineRoute('/shelves/:shelf', ({ shelf }) => <Shelf name={shelf} view="all" />),
  *   defineRoute('/shelves/:shelf/saved', ({ shelf }) => <Shelf name={shelf} view="saved" />),
  * ]

@@ -117,7 +117,10 @@
  * saved-item state) cannot go out unauthenticated and answer for an anonymous viewer. The auth
  * bond registers that wait with `setAuthGate`; apps that bond auth through
  * `@molecule/app-bonds-default-react` get it without doing anything. An app with its own session
- * module registers its own: `setAuthGate(() => session.whenRestored())`.
+ * module can start its restore and register the wait together with
+ * `setAuthGate({ client, restore })`.
+ * Use the provided `request` inside that callback. It uses the configured transport and
+ * bypasses the gate, including after awaits and with intercepting HTTP providers.
  * Waiting for the restore does NOT attach the token: a client created beside the auth bond needs
  * `createDefaultHttpClientWithAuthBearer({ baseURL, getToken: () => authClient.getAccessToken(),
  * authScheme })` from `@molecule/app-bonds-default-react` (or an auth client built with
