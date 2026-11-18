@@ -81,6 +81,22 @@ const library = {
 } satisfies Record<string, ListRouteNavItem>
 
 describe('ListRouteNav URL-selected navigation', () => {
+  it('keeps list markup while a named destination resets the page and leaves its source path', () => {
+    mount('/shelves/reference?page=2&sort=title', library, {
+      list: { className: 'library-menu', itemClassName: 'library-menu-item' },
+      linkClassName: ({ active }) => (active ? 'selected' : 'choice'),
+    })
+    const all = choice('all')
+    expect(all.closest('nav > ul.library-menu > li.library-menu-item')).not.toBeNull()
+    expect(choice('shelf').getAttribute('aria-current')).toBe('page')
+    expect(all.getAttribute('href')).toBe('/library?sort=title')
+    act(() => all.click())
+    expect(read('url')).toBe('/library?sort=title')
+    expect(read('page')).toBe('1')
+    expect(choice('all').getAttribute('aria-current')).toBe('page')
+    expect(choice('all').className).toBe('selected')
+  })
+
   it('keeps a sibling view destination independent of the currently selected view', () => {
     const memberViews = {
       authored: { path: '/members/:member', label: 'Authored entries' },

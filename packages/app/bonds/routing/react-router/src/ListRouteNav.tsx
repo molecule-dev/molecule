@@ -48,6 +48,8 @@ export interface ListRouteNavProps<Selection extends string = string> extends Om
   pageParam?: string
   /** Required for protected selections, with the same readiness rules as useListRoute. */
   auth?: ListRouteAuth
+  /** Render links in a list, with optional classes for the list and its items. */
+  list?: { className?: string; itemClassName?: string }
   /** App-owned styling, resolved from its class map. */
   linkClassName?: string | ((state: ListRouteNavItemState<Selection>) => string | undefined)
 }
@@ -66,6 +68,7 @@ export function ListRouteNav<Selection extends string>({
   defaultSelection,
   pageParam,
   auth,
+  list,
   linkClassName,
   ...rest
 }: ListRouteNavProps<Selection>): JSX.Element {
@@ -85,34 +88,42 @@ export function ListRouteNav<Selection extends string>({
       }
     }
   }
-  const list = useListRoute({ selections: destinations, defaultSelection, pageParam, auth })
+  const route = useListRoute({ selections: destinations, defaultSelection, pageParam, auth })
 
-  return (
-    <nav {...rest}>
-      {(Object.entries(selections) as [Selection, ListRouteNavItem][]).map(([selection, item]) => {
-        const active = list.selection === selection
-        const disabled = item.disabled === true
-        const className =
-          typeof linkClassName === 'function'
-            ? linkClassName({ selection, active, disabled })
-            : linkClassName
-        const attrs = {
-          className,
-          'data-state': active ? 'active' : 'inactive',
-          'data-mol-id': `list-route-${selection}`,
-          'aria-current': active ? ('page' as const) : undefined,
-        }
+  const links = (Object.entries(selections) as [Selection, ListRouteNavItem][]).map(
+    ([selection, item]) => {
+      const active = route.selection === selection
+      const disabled = item.disabled === true
+      const className =
+        typeof linkClassName === 'function'
+          ? linkClassName({ selection, active, disabled })
+          : linkClassName
+      const attrs = {
+        className,
+        'data-state': active ? 'active' : 'inactive',
+        'data-mol-id': `list-route-${selection}`,
+        'aria-current': active ? ('page' as const) : undefined,
+      }
 
-        return disabled ? (
-          <span key={selection} {...attrs} role="link" aria-disabled="true">
-            {item.label}
-          </span>
-        ) : (
-          <Link key={selection} {...attrs} to={list.href({ selection })}>
-            {item.label}
-          </Link>
-        )
-      })}
-    </nav>
+      const link = disabled ? (
+        <span key={selection} {...attrs} role="link" aria-disabled="true">
+          {item.label}
+        </span>
+      ) : (
+        <Link key={selection} {...attrs} to={route.href({ selection })}>
+          {item.label}
+        </Link>
+      )
+
+      return list ? (
+        <li key={selection} className={list.itemClassName}>
+          {link}
+        </li>
+      ) : (
+        link
+      )
+    },
   )
+
+  return <nav {...rest}>{list ? <ul className={list.className}>{links}</ul> : links}</nav>
 }

@@ -3,7 +3,8 @@
  *
  * Exports:
  * - `<TagList>` — read-only saved tags on detail/preview screens. Renders every
- *   value in order; optional `itemClassName` and `renderTag` keep app-owned markup.
+ *   value in order. Pass native list attributes, `itemClassName`, and `renderTag` to
+ *   use the same component in the preview and the destination page's markup.
  * - `<TagChip>` — standalone labeled chip with optional remove button.
  * - `<TagInput>` — controlled tokenizer: Enter, comma, or Tab adds the
  *   draft; blur commits a non-empty draft; Backspace on an empty field

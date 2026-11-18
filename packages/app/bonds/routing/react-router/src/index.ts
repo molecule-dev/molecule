@@ -41,6 +41,7 @@
  * path and query together. It renders every declared choice on every route, builds
  * each destination through `useListRoute`, resets pagination on selection, and derives
  * the active link from the URL. Keep this declaration shared by the related routes.
+ * Pass `list={{ className, itemClassName }}` when the design uses a list of links.
  * Use the UI package's `Tabs` for panels whose selection is genuinely local state.
  *
  * @example
