@@ -12,6 +12,7 @@ import type {
   ClientSearchIndexOptions,
 } from '@molecule/app-client-search'
 import { createIndex, hasProvider } from '@molecule/app-client-search'
+import { useValueAtKeyChange } from '@molecule/app-react/render'
 
 /**
  * Indexes `docs` with the bonded provider. The index is rebuilt only when the
@@ -26,7 +27,9 @@ export function useClientSearchIndex<T extends ClientSearchDocument>(
   docs: T[] | null | undefined,
   options: ClientSearchIndexOptions<T>,
 ): ClientSearchIndex<T> | null {
-  // The options object is intentionally not a dependency: a fresh literal each
-  // render would rebuild the index every time. A different index → new docs.
-  return useMemo(() => (docs && hasProvider() ? createIndex(docs, options) : null), [docs])
+  // Options are read once per list: a fresh literal each render must not
+  // rebuild the index. They are the options of the render in which `docs` last
+  // changed, kept in state, so a render React throws away leaves no trace.
+  const held = useValueAtKeyChange(options, [docs])
+  return useMemo(() => (docs && hasProvider() ? createIndex(docs, held) : null), [docs, held])
 }

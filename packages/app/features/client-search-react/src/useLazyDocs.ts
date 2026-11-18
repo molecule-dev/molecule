@@ -7,6 +7,8 @@
 
 import { useEffect, useState } from 'react'
 
+import { useEffectEvent } from '@molecule/app-react/render'
+
 /**
  * Starts with `initial` (records the page already bundles, so the first
  * keystroke always has something to search) and switches to the result of
@@ -18,16 +20,19 @@ import { useEffect, useState } from 'react'
  * @returns The current documents.
  */
 export function useLazyDocs<T>(initial: T[], load: () => Promise<T[]>): T[] {
-  const [docs, setDocs] = useState<T[]>(initial)
+  // The fuller set, with the `initial` it was loaded for: a new `initial` shows
+  // at once, and an older load never replaces it.
+  const [loaded, setLoaded] = useState<{ initial: T[]; docs: T[] } | null>(null)
+  // `load` is read once per document set; a new function alone must not refetch.
+  const loadDocs = useEffectEvent(load)
   useEffect(() => {
-    setDocs(initial)
     let alive = true
     let idle: number | undefined
     let timer: ReturnType<typeof setTimeout> | undefined
     const run = (): void => {
-      load()
+      loadDocs()
         .then((rich) => {
-          if (alive) setDocs(rich)
+          if (alive) setLoaded({ initial, docs: rich })
         })
         .catch((error: unknown) => {
           console.debug('search: the fuller document set did not load', error)
@@ -44,7 +49,6 @@ export function useLazyDocs<T>(initial: T[], load: () => Promise<T[]>): T[] {
       if (idle !== undefined) w.cancelIdleCallback?.(idle)
       if (timer !== undefined) clearTimeout(timer)
     }
-    // `load` is read once per document set; a new function alone must not refetch.
   }, [initial])
-  return docs
+  return loaded?.initial === initial ? loaded.docs : initial
 }

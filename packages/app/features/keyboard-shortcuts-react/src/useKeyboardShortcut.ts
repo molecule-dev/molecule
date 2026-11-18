@@ -4,9 +4,10 @@
  * @module
  */
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { getProvider } from '@molecule/app-keyboard-shortcuts'
+import { useStableCallback } from '@molecule/app-react/render'
 
 /** Options for {@link useKeyboardShortcut}. */
 export interface UseKeyboardShortcutOptions {
@@ -39,8 +40,9 @@ export function useKeyboardShortcut(
   options: UseKeyboardShortcutOptions = {},
 ): void {
   const { enabled = true, description, scope, preventDefault } = options
-  const latest = useRef(handler)
-  latest.current = handler
+  // A stable function that calls the latest committed `handler`, so the
+  // provider registers once and never runs a function read during render.
+  const latest = useStableCallback(handler)
   const combos = expandKeys(keys).join(',')
 
   useEffect(() => {
@@ -50,14 +52,14 @@ export function useKeyboardShortcut(
     const unregister = provider.registerMany(
       combos.split(',').map((k) => ({
         keys: k,
-        handler: (event: KeyboardEvent) => latest.current(event),
+        handler: (event: KeyboardEvent) => latest(event),
         description,
         scope,
         preventDefault,
       })),
     )
     return unregister
-  }, [combos, enabled, description, scope, preventDefault])
+  }, [combos, enabled, description, latest, scope, preventDefault])
 }
 
 /**

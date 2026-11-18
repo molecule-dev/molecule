@@ -1,0 +1,3096 @@
+{
+ "exports": [
+  "hashForQuery",
+  "readHashQuery",
+  "useClientSearch",
+  "useClientSearchIndex",
+  "useLazyDocs",
+  "useListNavigation",
+  "useSearchSession",
+  "writeHashQuery"
+ ],
+ "values": {
+  "readHashQuery": [
+   {
+    "query": "",
+    "legacy": false
+   },
+   {
+    "query": "",
+    "legacy": false
+   },
+   {
+    "query": "",
+    "legacy": false
+   },
+   {
+    "query": "user feedback",
+    "legacy": false
+   },
+   {
+    "query": "user feedback",
+    "legacy": false
+   },
+   {
+    "query": "",
+    "legacy": false
+   },
+   {
+    "query": "a=b",
+    "legacy": false
+   },
+   {
+    "query": "",
+    "legacy": false
+   },
+   {
+    "query": "",
+    "legacy": false
+   },
+   {
+    "query": "category:auth",
+    "legacy": true
+   },
+   {
+    "query": "category:auth",
+    "legacy": true
+   },
+   {
+    "query": "",
+    "legacy": false
+   },
+   {
+    "query": "",
+    "legacy": false
+   }
+  ],
+  "hashForQuery": [
+   "",
+   "",
+   "#q=a%20b",
+   "#q=a%20b%20",
+   "#q=category%3Aauth%20oauth",
+   "#q=a%2Bb",
+   "#q=%C3%BCn%C3%AFcode",
+   "#q=a%2Fb%3Fc%3Dd%26e"
+  ],
+  "writeHashQuery": [
+   null,
+   null,
+   null,
+   null
+  ]
+ },
+ "cases": {},
+ "hooks": {
+  "useClientSearch": {
+   "blank text browses with no index and no hits": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "clear": "method",
+      "hits": "value",
+      "parsed": "value",
+      "query": "value",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "query": "",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an initial query starts the text": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "clear": "method",
+      "hits": "value",
+      "parsed": "value",
+      "query": "value",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": true,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "stripe",
+        "text": "stripe"
+       },
+       "query": "stripe",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "typing sets the text and parses a filter": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "clear": "method",
+      "hits": "value",
+      "parsed": "value",
+      "query": "value",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "query": "",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [
+         {
+          "field": "category",
+          "values": [
+           "auth"
+          ]
+         }
+        ],
+        "phrases": [],
+        "raw": "category:auth google",
+        "text": "google"
+       },
+       "query": "category:auth google",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "phrases and exclusions are parsed apart from the terms": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "clear": "method",
+      "hits": "value",
+      "parsed": "value",
+      "query": "value",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "query": "",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [
+         "deprecated"
+        ],
+        "filters": [],
+        "phrases": [
+         "sign in"
+        ],
+        "raw": "-deprecated \"sign in\" oauth",
+        "text": "oauth"
+       },
+       "query": "-deprecated \"sign in\" oauth",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "clear empties the text and deactivates a typed query": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "clear": "method",
+      "hits": "value",
+      "parsed": "value",
+      "query": "value",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "query": "",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth",
+        "text": "auth"
+       },
+       "query": "auth",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": false,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "query": "",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> clear",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a debounce holds the text while it waits out the pause": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "clear": "method",
+      "hits": "value",
+      "parsed": "value",
+      "query": "value",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "query": "",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "stripe",
+        "text": "stripe"
+       },
+       "query": "stripe",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "stripe",
+        "text": "stripe"
+       },
+       "query": "stripe",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "changed options are followed on the same mount without resetting the text": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "clear": "method",
+      "hits": "value",
+      "parsed": "value",
+      "query": "value",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": true,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "one",
+        "text": "one"
+       },
+       "query": "one",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "clear": "[method]",
+       "hits": [],
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "one",
+        "text": "one"
+       },
+       "query": "one",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useClientSearchIndex": {
+   "no documents yet is null": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "documents without a bonded provider are null": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a remount with another list is still null without a provider": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": null,
+      "route": "/"
+     },
+     {
+      "result": null,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useLazyDocs": {
+   "starts with the initial documents": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       },
+       {
+        "category": "auth",
+        "id": "b",
+        "name": "oauth google"
+       },
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       }
+      ],
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "the fuller set replaces the initial documents when it loads": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       },
+       {
+        "category": "auth",
+        "id": "b",
+        "name": "oauth google"
+       },
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       }
+      ],
+      "route": "/"
+     },
+     {
+      "result": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       },
+       {
+        "category": "auth",
+        "id": "b",
+        "name": "oauth google"
+       },
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       },
+       {
+        "category": "billing",
+        "id": "d",
+        "name": "invoice drafts"
+       }
+      ],
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "load",
+      "args": []
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a failed load keeps the initial documents": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       },
+       {
+        "category": "auth",
+        "id": "b",
+        "name": "oauth google"
+       },
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       }
+      ],
+      "route": "/"
+     },
+     {
+      "result": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       },
+       {
+        "category": "auth",
+        "id": "b",
+        "name": "oauth google"
+       },
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       }
+      ],
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "load",
+      "args": []
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "unmounting before the load runs starts nothing": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       },
+       {
+        "category": "auth",
+        "id": "b",
+        "name": "oauth google"
+       },
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       }
+      ],
+      "route": "/"
+     },
+     null,
+     null
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a new initial list reloads the fuller set on a fresh mount": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       },
+       {
+        "category": "auth",
+        "id": "b",
+        "name": "oauth google"
+       },
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       }
+      ],
+      "route": "/"
+     },
+     {
+      "result": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       }
+      ],
+      "route": "/"
+     },
+     {
+      "result": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       },
+       {
+        "category": "auth",
+        "id": "b",
+        "name": "oauth google"
+       },
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       },
+       {
+        "category": "billing",
+        "id": "d",
+        "name": "invoice drafts"
+       }
+      ],
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "load",
+      "args": []
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useListNavigation": {
+   "arrows move, wrap, jump, select and escape": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "activeIndex": "value",
+      "onKeyDown": "method",
+      "reset": "method",
+      "setActiveIndex": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 0,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 2,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 2,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 0,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 0,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 0,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 0,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "select",
+      "args": [
+       0
+      ]
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "escape",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> reset",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "modifier combos and a list without looping, then a shrinking list": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "activeIndex": "value",
+      "onKeyDown": "method",
+      "reset": "method",
+      "setActiveIndex": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 2,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 2,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 0,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an empty list ignores the movement keys": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "activeIndex": "value",
+      "onKeyDown": "method",
+      "reset": "method",
+      "setActiveIndex": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 5,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "escape",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> setActiveIndex",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> reset",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an initial index, then setActiveIndex moves the highlight": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "activeIndex": "value",
+      "onKeyDown": "method",
+      "reset": "method",
+      "setActiveIndex": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "activeIndex": 1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": 0,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "activeIndex": -1,
+       "onKeyDown": "[method]",
+       "reset": "[method]",
+       "setActiveIndex": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setActiveIndex",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> reset",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useSearchSession": {
+   "an empty start with no documents has nothing active": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "typing sets the text and ranks it": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth",
+        "text": "auth"
+       },
+       "prefetch": "[method]",
+       "query": "auth",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a filter alone is active but not ranked": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [
+         {
+          "field": "category",
+          "values": [
+           "auth"
+          ]
+         }
+        ],
+        "phrases": [],
+        "raw": "category:auth",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "category:auth",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "removeFilter rewrites the text without that filter": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [
+         {
+          "field": "category",
+          "values": [
+           "auth"
+          ]
+         }
+        ],
+        "phrases": [],
+        "raw": "category:auth oauth",
+        "text": "oauth"
+       },
+       "prefetch": "[method]",
+       "query": "category:auth oauth",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "oauth",
+        "text": "oauth"
+       },
+       "prefetch": "[method]",
+       "query": "oauth",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> removeFilter",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "escape clears a typed query": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth",
+        "text": "auth"
+       },
+       "prefetch": "[method]",
+       "query": "auth",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "escape with nothing typed calls the escape handler": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "escape",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an augmented hit is appended, highlighted and opened on Enter": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [
+        {
+         "doc": {
+          "category": "payments",
+          "id": "c",
+          "name": "stripe payments"
+         },
+         "fields": [],
+         "id": "c",
+         "related": true,
+         "score": 0,
+         "terms": []
+        }
+       ],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": 0,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [
+        {
+         "doc": {
+          "category": "payments",
+          "id": "c",
+          "name": "stripe payments"
+         },
+         "fields": [],
+         "id": "c",
+         "related": true,
+         "score": 0,
+         "terms": []
+        }
+       ],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": 0,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [
+        {
+         "doc": {
+          "category": "payments",
+          "id": "c",
+          "name": "stripe payments"
+         },
+         "fields": [],
+         "id": "c",
+         "related": true,
+         "score": 0,
+         "terms": []
+        }
+       ],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": 0,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [
+        {
+         "doc": {
+          "category": "payments",
+          "id": "c",
+          "name": "stripe payments"
+         },
+         "fields": [],
+         "id": "c",
+         "related": true,
+         "score": 0,
+         "terms": []
+        }
+       ],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "more",
+      "args": [
+       {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       {}
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> setActiveIndex",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "prevent",
+      "args": []
+     },
+     {
+      "name": "open",
+      "args": [
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       }
+      ]
+     },
+     {
+      "name": "=> onKeyDown",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "more aborted",
+      "args": [
+       0
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "prefetch warms the top hits once the results settle": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [
+        {
+         "doc": {
+          "category": "auth",
+          "id": "a",
+          "name": "auth sessions"
+         },
+         "fields": [],
+         "id": "a",
+         "related": true,
+         "score": 0,
+         "terms": []
+        },
+        {
+         "doc": {
+          "category": "payments",
+          "id": "c",
+          "name": "stripe payments"
+         },
+         "fields": [],
+         "id": "c",
+         "related": true,
+         "score": 0,
+         "terms": []
+        }
+       ],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [
+        {
+         "doc": {
+          "category": "auth",
+          "id": "a",
+          "name": "auth sessions"
+         },
+         "fields": [],
+         "id": "a",
+         "related": true,
+         "score": 0,
+         "terms": []
+        },
+        {
+         "doc": {
+          "category": "payments",
+          "id": "c",
+          "name": "stripe payments"
+         },
+         "fields": [],
+         "id": "c",
+         "related": true,
+         "score": 0,
+         "terms": []
+        }
+       ],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "more",
+      "args": [
+       {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       {}
+      ]
+     },
+     {
+      "name": "warm",
+      "args": [
+       {
+        "category": "auth",
+        "id": "a",
+        "name": "auth sessions"
+       }
+      ]
+     },
+     {
+      "name": "warm",
+      "args": [
+       {
+        "category": "payments",
+        "id": "c",
+        "name": "stripe payments"
+       }
+      ]
+     },
+     {
+      "name": "more aborted",
+      "args": [
+       0
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a longer augment delay holds the extra hits until it passes": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [
+        {
+         "doc": {
+          "category": "payments",
+          "id": "c",
+          "name": "stripe payments"
+         },
+         "fields": [],
+         "id": "c",
+         "related": true,
+         "score": 0,
+         "terms": []
+        }
+       ],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       "prefetch": "[method]",
+       "query": "auth sessions",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "more",
+      "args": [
+       {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth sessions",
+        "text": "auth sessions"
+       },
+       {}
+      ]
+     },
+     {
+      "name": "more aborted",
+      "args": [
+       0
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a remount starts a fresh session": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth",
+        "text": "auth"
+       },
+       "prefetch": "[method]",
+       "query": "auth",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "the address bar is mirrored while typing and cleared again": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "active": "value",
+      "activeIndex": "value",
+      "clear": "method",
+      "focus": "method",
+      "hits": "value",
+      "inputRef": "value",
+      "onKeyDown": "method",
+      "open": "method",
+      "parsed": "value",
+      "prefetch": "method",
+      "query": "value",
+      "ranked": "value",
+      "removeFilter": "method",
+      "setActiveIndex": "method",
+      "setQuery": "method"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth",
+        "text": "auth"
+       },
+       "prefetch": "[method]",
+       "query": "auth",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": true,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "auth",
+        "text": "auth"
+       },
+       "prefetch": "[method]",
+       "query": "auth",
+       "ranked": true,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "active": false,
+       "activeIndex": -1,
+       "clear": "[method]",
+       "focus": "[method]",
+       "hits": [],
+       "inputRef": {
+        "current": null
+       },
+       "onKeyDown": "[method]",
+       "open": "[method]",
+       "parsed": {
+        "exclude": [],
+        "filters": [],
+        "phrases": [],
+        "raw": "",
+        "text": ""
+       },
+       "prefetch": "[method]",
+       "query": "",
+       "ranked": false,
+       "removeFilter": "[method]",
+       "setActiveIndex": "[method]",
+       "setQuery": "[method]"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setQuery",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> clear",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  }
+ }
+}

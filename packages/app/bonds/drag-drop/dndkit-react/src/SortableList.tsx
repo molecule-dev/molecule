@@ -18,6 +18,7 @@ import {
   sortableListPlugins,
   sortableListSensors,
 } from '@molecule/app-drag-drop-dndkit'
+import { useStableCallback } from '@molecule/app-react/render'
 
 import type { SortableListState } from './context.js'
 import { SortableListContext } from './context.js'
@@ -45,7 +46,7 @@ export interface SortableListProps<T extends { id: string }> extends SortableLis
  * @returns The list.
  */
 export function SortableList<T extends { id: string }>(props: SortableListProps<T>): JSX.Element {
-  const { items, axis, strategy, disabled = false, config, children } = props
+  const { items, axis, strategy, disabled = false, config, getItemLabel, children } = props
   const latest = useRef(props)
   useLayoutEffect(() => {
     latest.current = props
@@ -58,18 +59,16 @@ export function SortableList<T extends { id: string }>(props: SortableListProps<
   )
   const resolvedAxis = resolveSortableAxis(axis, strategy)
   const modifiers = useMemo(() => sortableListModifiers(resolvedAxis), [resolvedAxis])
-  const plugins = useMemo(
-    () =>
-      sortableListPlugins({
-        labelOf: (id) => {
-          const { items: current, getItemLabel } = latest.current
-          const item = current.find((candidate) => candidate.id === id)
-          return item && getItemLabel ? getItemLabel(item) : id
-        },
-        count: () => latest.current.items.length,
-      }),
-    [],
-  )
+  // The announcer callbacks are handed to dnd-kit and fire long after this
+  // render, so they must read the latest committed `items` / `getItemLabel`.
+  // `useStableCallback` gives them that without writing a ref during render,
+  // and their identities stay stable, so the plugin list is built once.
+  const labelOf = useStableCallback((id: string): string => {
+    const item = items.find((candidate) => candidate.id === id)
+    return item && getItemLabel ? getItemLabel(item) : id
+  })
+  const count = useStableCallback((): number => items.length)
+  const plugins = useMemo(() => sortableListPlugins({ labelOf, count }), [labelOf, count])
   const state = useMemo<SortableListState>(
     () => ({ indexOf: (id) => items.findIndex((item) => item.id === id), disabled }),
     [items, disabled],

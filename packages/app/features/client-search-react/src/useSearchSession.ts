@@ -15,6 +15,7 @@ import type {
   ParsedQuery,
 } from '@molecule/app-client-search'
 import { extractFieldText, formatQuery } from '@molecule/app-client-search'
+import { useEffectEvent, useStableCallback } from '@molecule/app-react/render'
 import {
   get as storageGet,
   hasProvider as hasStorage,
@@ -166,14 +167,15 @@ export function useSearchSession<T extends ClientSearchDocument>(
   const touched = useRef(initial.query.length > 0)
   const committed = useRef(initial.query)
   const working = useRef(false)
-  const onOpenRef = useRef(config.onOpen)
-  onOpenRef.current = config.onOpen
-  const prefetchRef = useRef(config.prefetch)
-  prefetchRef.current = config.prefetch
-  const onEscapeRef = useRef(config.onEscape)
-  onEscapeRef.current = config.onEscape
-  const augmentRef = useRef(augment)
-  augmentRef.current = augment
+  // The page's handlers of the latest committed render, behind stable functions.
+  const onOpen = useStableCallback(config.onOpen)
+  const prefetch = useStableCallback((doc: T) => config.prefetch?.(doc))
+  const canPrefetch = Boolean(config.prefetch)
+  const escape = useStableCallback((): boolean => {
+    if (!config.onEscape) return false
+    config.onEscape()
+    return true
+  })
 
   const setQuery = useCallback(
     (next: string) => {
@@ -191,8 +193,8 @@ export function useSearchSession<T extends ClientSearchDocument>(
   }, [])
 
   // Nothing in the URL: offer back what was typed elsewhere, once, on mount.
-  useEffect(() => {
-    if (!rememberKey || touched.current || !hasStorage()) return
+  const recallRemembered = useEffectEvent((): (() => void) | undefined => {
+    if (!rememberKey || touched.current || !hasStorage()) return undefined
     let alive = true
     storageGet<Remembered | null>(rememberKey)
       .then((saved) => {
@@ -206,7 +208,8 @@ export function useSearchSession<T extends ClientSearchDocument>(
     return () => {
       alive = false
     }
-  }, [])
+  })
+  useEffect(() => recallRemembered(), [])
 
   // A plain-anchor link becomes the `#q=` form at once.
   useEffect(() => {
@@ -255,24 +258,29 @@ export function useSearchSession<T extends ClientSearchDocument>(
   const open = useCallback(
     (doc: T) => {
       commit()
-      onOpenRef.current(doc)
+      onOpen(doc)
     },
-    [commit],
+    [commit, onOpen],
   )
-  const prefetch = useCallback((doc: T) => prefetchRef.current?.(doc), [])
 
   // Extra hits from elsewhere, appended after the index's own.
   const [related, setRelated] = useState<{ raw: string; docs: T[] }>({ raw: '', docs: [] })
   const wanted = Boolean(augment) && augmentWhen(search.parsed)
   const raw = search.parsed.raw
+  // The parse of the committed render, read when the effect starts: the parsed
+  // object changes with the raw text, and keying the effect on raw avoids double runs.
+  const readParsed = useEffectEvent(() => search.parsed)
+  const runAugment = useEffectEvent((parsed: ParsedQuery, signal: AbortSignal) =>
+    augment?.(parsed, signal),
+  )
   useEffect(() => {
     if (!wanted) return
     const controller = new AbortController()
-    const parsed = search.parsed
+    const parsed = readParsed()
     const timer = setTimeout(() => {
-      const fn = augmentRef.current
-      if (!fn) return
-      fn(parsed, controller.signal)
+      const pending = runAugment(parsed, controller.signal)
+      if (!pending) return
+      pending
         .then((extra) => {
           if (!controller.signal.aborted) setRelated({ raw: parsed.raw, docs: extra ?? [] })
         })
@@ -284,7 +292,6 @@ export function useSearchSession<T extends ClientSearchDocument>(
       clearTimeout(timer)
       controller.abort()
     }
-    // The parsed object changes with the raw text; keying on raw avoids double runs.
   }, [wanted, raw, augmentDelayMs])
 
   const hits = useMemo<SessionHit<T>[]>(() => {
@@ -325,8 +332,7 @@ export function useSearchSession<T extends ClientSearchDocument>(
     },
     onEscape: () => {
       if (search.query) clear()
-      else if (onEscapeRef.current) onEscapeRef.current()
-      else inputRef.current?.blur()
+      else if (!escape()) inputRef.current?.blur()
     },
   })
   const { reset } = nav
@@ -337,12 +343,12 @@ export function useSearchSession<T extends ClientSearchDocument>(
   const ranked = search.parsed.text.trim().length > 0 || search.parsed.phrases.length > 0
   // Warm the pages of the first few hits once results settle.
   useEffect(() => {
-    if (!ranked || !hits.length || !prefetchRef.current) return
+    if (!ranked || !hits.length || !canPrefetch) return
     const timer = setTimeout(() => {
-      for (const hit of hits.slice(0, 5)) prefetchRef.current?.(hit.doc)
+      for (const hit of hits.slice(0, 5)) prefetch(hit.doc)
     }, 300)
     return () => clearTimeout(timer)
-  }, [hits, ranked])
+  }, [hits, ranked, canPrefetch, prefetch])
 
   const removeFilter = useCallback(
     (i: number) => {

@@ -5,7 +5,19 @@
  */
 
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
+
+/**
+ * Moves a highlight past the end of a list of `count` items to its last item,
+ * or to none (`-1`) when the list is empty.
+ *
+ * @param index - The highlighted index.
+ * @param count - The number of items.
+ * @returns The index within the list.
+ */
+function clampToCount(index: number, count: number): number {
+  return index >= count ? (count ? count - 1 : -1) : index
+}
 
 /** Options for {@link useListNavigation}. */
 export interface UseListNavigationOptions {
@@ -50,11 +62,17 @@ export interface ListNavigation {
  */
 export function useListNavigation(options: UseListNavigationOptions): ListNavigation {
   const { count, onSelect, onEscape, loop = true, initialIndex = -1 } = options
-  const [activeIndex, setActiveIndex] = useState(initialIndex)
+  const [activeIndex, setActiveIndex] = useState(() => clampToCount(initialIndex, count))
 
-  useEffect(() => {
-    setActiveIndex((i) => (i >= count ? (count ? count - 1 : -1) : i))
-  }, [count])
+  // When the list changes length, a highlight past its end moves to the last
+  // item (or to none). This happens during render, React's pattern for state
+  // adjusted to a changed prop; between length changes `setActiveIndex` is
+  // taken as given, as the other frameworks' list navigation does.
+  const [clampedCount, setClampedCount] = useState(count)
+  if (clampedCount !== count) {
+    setClampedCount(count)
+    setActiveIndex((index) => clampToCount(index, count))
+  }
 
   const onKeyDown = useCallback(
     (event: ReactKeyboardEvent) => {
