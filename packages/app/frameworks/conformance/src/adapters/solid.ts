@@ -270,35 +270,37 @@ export function createSolidAdapter({
             const mountPoint = document.createElement('div')
             mountPoint.setAttribute('data-parity-unwrap', '')
             container.appendChild(mountPoint)
-            const dispose = render(
-              () =>
-                createComponent(MoleculeProvider, {
-                  config,
-                  get children() {
-                    const merged: Record<string, unknown> = {}
-                    for (const key of Object.keys(initial)) {
-                      Object.defineProperty(merged, key, {
-                        enumerable: true,
-                        get: () => props[key],
-                      })
-                    }
-                    for (const slot of slotNames) {
-                      Object.defineProperty(merged, slot, {
-                        enumerable: true,
-                        get: () => single(toSolidNodes(testCase.slots?.[slot])),
-                      })
-                    }
-                    if (testCase.children) {
-                      Object.defineProperty(merged, 'children', {
-                        enumerable: true,
-                        get: () => single(toSolidNodes(testCase.children)),
-                      })
-                    }
-                    return createComponent(Comp, merged)
-                  },
-                }),
-              mountPoint,
-            )
+            const show = (): (() => void) =>
+              render(
+                () =>
+                  createComponent(MoleculeProvider, {
+                    config,
+                    get children() {
+                      const merged: Record<string, unknown> = {}
+                      for (const key of Object.keys(initial)) {
+                        Object.defineProperty(merged, key, {
+                          enumerable: true,
+                          get: () => props[key],
+                        })
+                      }
+                      for (const slot of slotNames) {
+                        Object.defineProperty(merged, slot, {
+                          enumerable: true,
+                          get: () => single(toSolidNodes(testCase.slots?.[slot])),
+                        })
+                      }
+                      if (testCase.children) {
+                        Object.defineProperty(merged, 'children', {
+                          enumerable: true,
+                          get: () => single(toSolidNodes(testCase.children)),
+                        })
+                      }
+                      return createComponent(Comp, merged)
+                    },
+                  }),
+                mountPoint,
+              )
+            let dispose = show()
             return {
               flush: async () => {
                 await settle()
@@ -324,6 +326,10 @@ export function createSolidAdapter({
               },
               unmount: async () => {
                 dispose()
+              },
+              // The same mount point, so the component sits where it did before.
+              remount: async () => {
+                dispose = show()
               },
             }
           },

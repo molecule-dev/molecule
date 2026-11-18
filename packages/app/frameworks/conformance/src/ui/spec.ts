@@ -235,6 +235,19 @@ export type Interaction =
    */
   | { type: 'event'; selector: string; event: string; bubbles?: boolean }
   /**
+   * Scrolls the element `selector` matches to `top`, as a user dragging its scrollbar or
+   * turning the wheel would: `scrollTop` is written, then `scroll` fires at the element (it
+   * does not bubble, as in a browser). The element needs a {@link LayoutStub} with a
+   * `scrollTop`, which keeps the offset between 0 and `scrollHeight - clientHeight`.
+   */
+  | { type: 'scroll'; selector: string; top: number }
+  /**
+   * The window loses or regains focus, as switching to another app or tab and back would:
+   * `document.hasFocus()` answers `focused`, and `blur` or `focus` fires at the window.
+   * Every case starts with the window focused.
+   */
+  | { type: 'windowFocus'; focused: boolean }
+  /**
    * Resizes every element `selector` matches: each recording `ResizeObserver` watching one
    * of them fires its callback with one entry whose `contentRect` is `width` × `height`
    * (a size the step omits is 0). A component that guards
@@ -343,6 +356,14 @@ export type Interaction =
    * that settles afterwards must not reach one.
    */
   | { type: 'unmount' }
+  /**
+   * Mounts the component again in the same app, with the props the case last gave it, as a
+   * host that renders it again would (a panel reopened, a route visited again). Unmounts it
+   * first when it is still mounted. What the component's packages keep at module level (a
+   * chat session's message store, a cache) carries over; what the component keeps for one
+   * instance (its refs and local state) starts again.
+   */
+  | { type: 'remount' }
 
 /** Framework-neutral app context a component may read (auth, theme, route, locale). */
 export interface CaseContext {
@@ -522,6 +543,15 @@ export interface UICase {
    * fails on any other violation, and on a rule listed here that no snapshot breaks.
    */
   a11y?: CaseA11y
+  /**
+   * The file that stores this case's result, for a feature component with too many cases for
+   * one goldens file (a feature stored per component, `goldensPerComponent`):
+   * `goldens/<feature>/<Component>/<goldensGroup>.json`. Every case of the component names
+   * one, or none does; a case the kit derives from another (a locale switch, a keyed list)
+   * keeps the group of the case it starts from. Letters, digits, `-` and `_` only. The UI
+   * kit's own goldens are one file, so its cases name none.
+   */
+  goldensGroup?: string
 }
 
 /** The axe-core rules a case's own input breaks on purpose ({@link UICase.a11y}). */

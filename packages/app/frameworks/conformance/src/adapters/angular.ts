@@ -565,16 +565,29 @@ export function createAngularAdapter({
                     ...(services.auth ? [provideAuth(services.auth)] : []),
                   ],
             })
-            const ref: ComponentRef<{
+            /**
+             * Creates the host component in the app and attaches it to the container.
+             *
+             * @param props - The props it starts with (the case's, or on a remount the last ones).
+             * @returns The host's component ref.
+             */
+            const show = (
+              props: Record<string, unknown>,
+            ): ComponentRef<{
               p: Record<string, unknown>
               cbFns: Record<string, (...args: unknown[]) => unknown>
-            }> = createComponent(host, {
-              environmentInjector: appRef.injector,
-            })
-            container.appendChild(ref.location.nativeElement as HTMLElement)
-            ref.instance.cbFns = Object.fromEntries(spies)
-            appRef.attachView(ref.hostView)
-            appRef.tick()
+            }> => {
+              const created = createComponent(host, {
+                environmentInjector: appRef.injector,
+              })
+              created.instance.p = props
+              container.appendChild(created.location.nativeElement as HTMLElement)
+              created.instance.cbFns = Object.fromEntries(spies)
+              appRef.attachView(created.hostView)
+              appRef.tick()
+              return created
+            }
+            let ref = show(initialProps)
             return {
               flush: async () => {
                 appRef.tick()
@@ -611,6 +624,10 @@ export function createAngularAdapter({
                 const element = ref.location.nativeElement as HTMLElement
                 ref.destroy()
                 element.remove()
+              },
+              // The same application, with the props the destroyed host last had.
+              remount: async () => {
+                ref = show(ref.instance.p)
               },
               dispose: async () => {
                 appRef.destroy()

@@ -112,22 +112,24 @@ export function createSvelteAdapter({
         return await runSteps(
           testCase,
           async (container) => {
-            const instance = mount(Host, {
-              target: container,
-              props: {
-                component: Target,
-                exports: exportsOf,
-                setMoleculeContext,
-                callback: callbackSpy,
-                config,
-                // React's MoleculeProvider (the full composition root) renders with
-                // `awaitSession: false`; its component-case AuthProvider waits.
-                awaitSession: !full,
-                bag,
-                slots: testCase.slots ?? {},
-                children: testCase.children,
-              },
-            })
+            const show = (): ReturnType<typeof mount> =>
+              mount(Host, {
+                target: container,
+                props: {
+                  component: Target,
+                  exports: exportsOf,
+                  setMoleculeContext,
+                  callback: callbackSpy,
+                  config,
+                  // React's MoleculeProvider (the full composition root) renders with
+                  // `awaitSession: false`; its component-case AuthProvider waits.
+                  awaitSession: !full,
+                  bag,
+                  slots: testCase.slots ?? {},
+                  children: testCase.children,
+                },
+              })
+            let instance = show()
             flushSync()
             return {
               flush: async () => {
@@ -156,6 +158,11 @@ export function createSvelteAdapter({
                 // (the runner only churns microtasks) and the next case adopts
                 // this case's form state.
                 await settle()
+              },
+              // The prop bag keeps the props the component last had.
+              remount: async () => {
+                instance = show()
+                flushSync()
               },
             }
           },

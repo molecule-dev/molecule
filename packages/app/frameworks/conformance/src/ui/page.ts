@@ -35,12 +35,32 @@ export function pinCaseTimeZone(): void {
 pinCaseTimeZone()
 
 /**
- * Puts the page back at the document root (`/`, no query, no hash) before a case mounts, so no
- * case starts on an address an earlier case left behind (a hook that mirrors its state to
- * `location.hash` while its debounce is still pending when the case ends).
+ * Puts the page back where every case starts, before the case mounts: at the document root (`/`,
+ * no query, no hash), so no case starts on an address an earlier case left behind (a hook that
+ * mirrors its state to `location.hash` while its debounce is still pending when the case ends),
+ * and with the window focused.
  */
 export function resetCasePage(): void {
   history.replaceState(null, '', '/')
+  setWindowFocus(true)
+}
+
+/** Whether the window has focus, as `document.hasFocus()` reports it. */
+let windowFocused = true
+
+/**
+ * Sets what `document.hasFocus()` answers. jsdom's own answer turns true once anything has
+ * been focused and never turns false again, so a component's unfocused branch (a sound or a
+ * notification only while the user is in another tab) could not run. The `windowFocus` step
+ * sets it, and every case starts focused.
+ *
+ * @param focused - Whether the window has focus.
+ */
+export function setWindowFocus(focused: boolean): void {
+  windowFocused = focused
+  if (typeof document === 'undefined') return
+  if (Object.getOwnPropertyDescriptor(document, 'hasFocus')) return
+  Object.defineProperty(document, 'hasFocus', { configurable: true, value: () => windowFocused })
 }
 
 /** Records one call into the running case (`name`, `args`). */

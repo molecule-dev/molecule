@@ -15,7 +15,7 @@ import { describe, expect, it } from 'vitest'
 import { getProvider as getI18nProvider } from '@molecule/app-i18n'
 
 import { CallRecorder, type MountedCase, runSteps, settle, type UICase } from '../ui/index.js'
-import { pinCaseTimeZone } from '../ui/page.js'
+import { pinCaseTimeZone, resetCasePage } from '../ui/page.js'
 
 /**
  * Mounts a DOM tree built by `build`, which may add listeners; `teardown` removes them.
@@ -565,5 +565,106 @@ describe('cues steps', () => {
         captions(true, 'track'),
       ),
     ).rejects.toThrow('matched a <p>, not a <track>')
+  })
+})
+
+describe('the scroll step', () => {
+  /**
+   * A log of ten rows whose text says where a scroll listener found it.
+   *
+   * @param container - Where it goes.
+   * @returns The teardown.
+   */
+  const scrolledLog = (container: HTMLElement): (() => void) => {
+    const log = document.createElement('div')
+    log.setAttribute('role', 'log')
+    for (let i = 0; i < 10; i++) log.appendChild(document.createElement('div'))
+    container.appendChild(log)
+    const p = paragraph(container)
+    p.textContent = 'not scrolled'
+    const onScroll = (): void => {
+      p.textContent = `scrolled to ${log.scrollTop}`
+    }
+    log.addEventListener('scroll', onScroll)
+    return () => log.removeEventListener('scroll', onScroll)
+  }
+  const layout = [{ selector: '[role="log"]', childHeight: 100, clientHeight: 400, scrollTop: 600 }]
+
+  it('moves a stubbed element and fires scroll at it, kept within the content', async () => {
+    const { readable } = await run(
+      {
+        name: 'scroll',
+        layout,
+        interactions: [
+          { type: 'scroll', selector: '[role="log"]', top: 0 },
+          { type: 'scroll', selector: '[role="log"]', top: 5000 },
+        ],
+      },
+      scrolledLog,
+    )
+    expect(readable[0]).toContain('not scrolled')
+    expect(readable[1]).toContain('scrolled to 0')
+    expect(readable[2]).toContain('scrolled to 600')
+  })
+
+  it('fails on an element without a scrollTop stub, which jsdom would leave at 0', async () => {
+    await expect(
+      run(
+        { name: 'unstubbed', interactions: [{ type: 'scroll', selector: '[role="log"]', top: 0 }] },
+        scrolledLog,
+      ),
+    ).rejects.toThrow('has no layout stub with a scrollTop')
+  })
+})
+
+describe('the windowFocus step', () => {
+  /**
+   * A paragraph showing `document.hasFocus()` whenever the window gains or loses focus.
+   *
+   * @param container - Where it goes.
+   * @returns The teardown.
+   */
+  const focusReport = (container: HTMLElement): (() => void) => {
+    const p = paragraph(container)
+    const show = (event?: Event): void => {
+      p.textContent = `${event?.type ?? 'start'}: ${document.hasFocus()}`
+    }
+    show()
+    window.addEventListener('blur', show)
+    window.addEventListener('focus', show)
+    return () => {
+      window.removeEventListener('blur', show)
+      window.removeEventListener('focus', show)
+    }
+  }
+
+  // Every adapter resets the page as it builds a case's services (`buildServices`); this
+  // runner mounts directly, so it resets the page the same way first.
+  it('makes document.hasFocus() false, then true again, firing blur and focus at the window', async () => {
+    resetCasePage()
+    const { readable } = await run(
+      {
+        name: 'away and back',
+        interactions: [
+          { type: 'windowFocus', focused: false },
+          { type: 'windowFocus', focused: true },
+        ],
+      },
+      focusReport,
+    )
+    expect(readable[0]).toContain('start: true')
+    expect(readable[1]).toContain('blur: false')
+    expect(readable[2]).toContain('focus: true')
+  })
+
+  it('starts every case focused, whatever the case before it left', async () => {
+    resetCasePage()
+    await run(
+      { name: 'left unfocused', interactions: [{ type: 'windowFocus', focused: false }] },
+      focusReport,
+    )
+    resetCasePage()
+    const { readable } = await run({ name: 'next case', interactions: [] }, focusReport)
+    expect(readable[0]).toContain('start: true')
   })
 })

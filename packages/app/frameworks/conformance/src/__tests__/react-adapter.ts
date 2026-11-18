@@ -171,6 +171,9 @@ async function runReactCase(
   }
 
   const route: RouteSnapshot = { path: testCase.context?.route ?? '/' }
+  // Where the router starts: the case's route, then on a remount the route the component left.
+  let entry: string | { pathname: string; search: string; state: unknown } =
+    testCase.context?.route ?? '/'
   const element = (): ReactElement => {
     let tree: ReactElement = createElement(
       'div',
@@ -194,7 +197,7 @@ async function runReactCase(
       tree = createElement(ThemeProvider, { provider: services.theme, children: tree })
       tree = createElement(I18nProvider, { provider: services.i18n, children: tree })
     }
-    tree = createElement(MemoryRouter, { initialEntries: [testCase.context?.route ?? '/'] }, tree)
+    tree = createElement(MemoryRouter, { initialEntries: [entry] }, tree)
     return tree
   }
 
@@ -202,7 +205,7 @@ async function runReactCase(
     return await runSteps(
       testCase,
       async (container) => {
-        const root = createRoot(container)
+        let root = createRoot(container)
         await act(async () => {
           root.render(element())
         })
@@ -228,6 +231,19 @@ async function runReactCase(
           unmount: async () => {
             await act(async () => {
               root.unmount()
+            })
+          },
+          // The router lives inside the tree, so it starts again where the component left it.
+          remount: async () => {
+            const at = route.path.indexOf('?')
+            entry = {
+              pathname: at < 0 ? route.path : route.path.slice(0, at),
+              search: at < 0 ? '' : route.path.slice(at),
+              state: route.state,
+            }
+            root = createRoot(container)
+            await act(async () => {
+              root.render(element())
             })
           },
         }

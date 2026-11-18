@@ -4,6 +4,7 @@
   "createQueryResource",
   "intentPrefetchProps",
   "prefetchQuery",
+  "useListQuery",
   "usePrefetch",
   "useQuery"
  ],

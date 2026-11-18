@@ -254,6 +254,10 @@ export function createVueAdapter({
                 shown.value = false
                 await nextTick()
               },
+              remount: async () => {
+                shown.value = true
+                await nextTick()
+              },
               dispose: async () => {
                 app.unmount()
               },

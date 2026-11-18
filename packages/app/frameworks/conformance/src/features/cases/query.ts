@@ -541,6 +541,8 @@ export const queryFeature: FeatureCases = {
     prefetchQuery: '@molecule/app-query',
   },
   frameworkShaped: {
+    useListQuery:
+      'takes the route and each input as this framework’s own reactive source, one per key (React plain values read each render, Vue refs or getters, Solid accessors, Svelte stores, Angular signals), which a hook case’s one-source-per-argument mount cannot pass; every binding runs the same nine list-query tests by title',
     intentPrefetchProps:
       'its handler prop names follow each framework listener naming (React onPointerEnter/onFocus/onTouchStart, Vue onPointerenter, …); every framework must prefetch on pointer enter, focus and touch start (its own unit tests pin it)',
   },

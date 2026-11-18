@@ -23,6 +23,7 @@ import {
   installDomGaps,
   reachCues,
   setLayoutStubs,
+  setWindowFocus,
   type TransferData,
 } from './page.js'
 import { installPseudoLocaleIntl } from './pseudo-locale-intl.js'
@@ -406,6 +407,22 @@ export function performDomInteraction(step: Interaction): string | undefined {
       )
       return
     }
+    case 'scroll': {
+      const el = query(step.selector)
+      // Only a stubbed element keeps an offset: jsdom has no layout, so its own scrollTop stays 0.
+      if (!Object.getOwnPropertyDescriptor(el, 'scrollTop')?.set)
+        throw new Error(
+          `scroll: "${step.selector}" has no layout stub with a scrollTop; add one to the case's layout`,
+        )
+      el.scrollTop = step.top
+      el.dispatchEvent(new Event('scroll'))
+      return
+    }
+    case 'windowFocus': {
+      setWindowFocus(step.focused)
+      window.dispatchEvent(new FocusEvent(step.focused ? 'focus' : 'blur'))
+      return
+    }
     case 'resize': {
       const elements = Array.from(document.querySelectorAll(step.selector))
       if (elements.length === 0) throw new Error(`resize: no element matches ${step.selector}`)
@@ -496,6 +513,7 @@ export function performDomInteraction(step: Interaction): string | undefined {
     case 'control':
     case 'fetch':
     case 'unmount':
+    case 'remount':
       return
   }
 }

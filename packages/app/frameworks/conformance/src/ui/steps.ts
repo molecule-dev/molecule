@@ -401,6 +401,12 @@ export interface MountedCase {
    * steps settle it, as it would be in a real app.
    */
   unmount(): Promise<void>
+  /**
+   * Mount the component again after {@link MountedCase.unmount}, in the same app (its
+   * services, router and the props it last had), for a `remount` step. An adapter without
+   * it fails a case that remounts.
+   */
+  remount?(): Promise<void>
   /** Tear down what outlives the component (the application), after the case. */
   dispose?(): Promise<void>
   /** Current route (`pathname` + `search`) of the router the component sees. */
@@ -523,6 +529,7 @@ const CASE_FIELDS: FieldsOf<UICase> = {
   pointer: 'optional',
   layout: 'optional',
   a11y: 'optional',
+  goldensGroup: 'optional',
 }
 
 /** The fields each interaction takes. */
@@ -553,6 +560,8 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   invoke: { callback: 'required', path: 'required', args: 'optional' },
   navigate: { to: 'required' },
   event: { selector: 'required', event: 'required', bubbles: 'optional' },
+  scroll: { selector: 'required', top: 'required' },
+  windowFocus: { focused: 'required' },
   resize: { selector: 'required', width: 'optional', height: 'optional' },
   cues: { selector: 'required', cues: 'required' },
   locale: { locale: 'required' },
@@ -572,6 +581,7 @@ const INTERACTION_FIELDS: StepFields<Interaction> = {
   localStorage: { key: 'required', value: 'required' },
   fetch: {},
   unmount: {},
+  remount: {},
 }
 
 /**
@@ -587,7 +597,7 @@ export function checkCaseFields(testCase: UICase): void {
   )
 }
 
-/** The steps that still mean something once the component is gone: they settle what it started. */
+/** The steps that still mean something once the component is gone: they settle what it started, or mount it again. */
 const AFTER_UNMOUNT = new Set<Interaction['type']>([
   'fetch',
   'settle',
@@ -598,6 +608,7 @@ const AFTER_UNMOUNT = new Set<Interaction['type']>([
   'control',
   'message',
   'localStorage',
+  'remount',
 ])
 
 const runStep = async (
@@ -627,6 +638,18 @@ const runStep = async (
     await mounted.unmount()
     state.unmounted = true
     await settle()
+    return undefined
+  }
+  if (step.type === 'remount') {
+    if (!mounted.remount)
+      throw new Error('conformance: this adapter cannot remount a component (MountedCase.remount)')
+    if (!state.unmounted) {
+      await mounted.unmount()
+      await settle()
+    }
+    await mounted.remount()
+    state.unmounted = false
+    await mounted.flush()
     return undefined
   }
   // A DOM step's note for the snapshot after it (whether an anchor click's default was prevented).
