@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { registerSW } from 'virtual:pwa-register'
 
 import { t } from '@molecule/app-i18n'
@@ -5,6 +6,7 @@ import { error as logError } from '@molecule/app-logger'
 import { getUpdateSummary, type UpdateSummary } from '@molecule/app-version'
 
 const CHECK_INTERVAL = 5 * 60 * 1000 // 5 minutes
+const registeredPages = new WeakSet<Window>()
 
 /**
  * Registers the service worker with full PWA lifecycle management:
@@ -13,9 +15,14 @@ const CHECK_INTERVAL = 5 * 60 * 1000 // 5 minutes
  * - Multi-tab coordination (all tabs reload when new SW activates)
  * - Window focus notification to SW
  * - Error recovery (unregister SW + reload on fatal errors)
+ *
+ * Runs once per page in a production browser tab. A second call, such as a
+ * legacy entry point alongside build-injected registration, is harmless.
  */
 export function registerPWA(): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined' || import.meta.env?.DEV || window.top !== window) return
+  if (registeredPages.has(window)) return
+  registeredPages.add(window)
 
   // Single source of truth for the post-update reload. `updateSW(true)` skip-waits
   // the NEW worker; the browser fires `controllerchange` once it actually takes

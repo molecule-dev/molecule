@@ -5,9 +5,11 @@ import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 /** Captured registerSW options, so a test can fire the PWA lifecycle callbacks. */
 const swCallbacks = vi.hoisted(() => ({}) as Record<string, (...args: unknown[]) => unknown>)
+const registerSWMock = vi.hoisted(() => vi.fn())
 
 vi.mock('virtual:pwa-register', () => ({
   registerSW: (options: Record<string, (...args: unknown[]) => unknown> = {}) => {
+    registerSWMock()
     Object.assign(swCallbacks, options)
     return () => {}
   },
@@ -16,6 +18,15 @@ vi.mock('virtual:pwa-register', () => ({
 import { registerPWA } from '../index.js'
 
 describe('@molecule/app-pwa-default', () => {
+  beforeEach(() => {
+    vi.stubEnv('DEV', false)
+    registerSWMock.mockClear()
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
   it('exports a registerPWA function', () => {
     expect(typeof registerPWA).toBe('function')
     expect(registerPWA.name).toBe('registerPWA')
@@ -31,12 +42,14 @@ describe('@molecule/app-pwa-default', () => {
     const saved = { window: globalThis.window, navigator: globalThis.navigator }
     const setUp = (
       controller: object | null,
+      inFrame = false,
     ): { sw: EventTarget & { controller: object | null }; reload: ReturnType<typeof vi.fn> } => {
       const sw = new EventTarget() as EventTarget & { controller: object | null }
       sw.controller = controller
       const reload = vi.fn()
       const win = new EventTarget() as EventTarget & { location: { reload: () => void } }
       win.location = { reload }
+      Object.assign(win, { top: inFrame ? new EventTarget() : win })
       Object.defineProperty(globalThis, 'window', {
         value: win,
         configurable: true,
@@ -70,6 +83,25 @@ describe('@molecule/app-pwa-default', () => {
       // A later change is a real update.
       sw.dispatchEvent(new Event('controllerchange'))
       expect(reload).toHaveBeenCalledTimes(1)
+    })
+
+    it('runs one registrar and one reload listener when called twice on a page', () => {
+      const { sw, reload } = setUp({})
+      registerPWA()
+      expect(registerSWMock).toHaveBeenCalledTimes(1)
+      sw.dispatchEvent(new Event('controllerchange'))
+      expect(reload).toHaveBeenCalledTimes(1)
+    })
+
+    it('leaves a legacy startup call inactive in dev', () => {
+      vi.stubEnv('DEV', true)
+      setUp(null)
+      expect(registerSWMock).not.toHaveBeenCalled()
+    })
+
+    it('leaves a production page in an IDE preview iframe unregistered', () => {
+      setUp(null, true)
+      expect(registerSWMock).not.toHaveBeenCalled()
     })
 
     it.each(['installing', 'waiting'])(

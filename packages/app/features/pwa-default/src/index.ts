@@ -6,9 +6,7 @@
  *
  * @example
  * ```ts
- * // src/pwa.ts is a 1-line re-export:
- * //   export { registerPWA } from '@molecule/app-pwa-default'
- * // then call it once at app startup (e.g. in main.tsx):
+ * // If your Vite config does not inject registration, call it at app startup.
  * import { registerPWA } from '@molecule/app-pwa-default'
  *
  * registerPWA()
@@ -29,7 +27,10 @@
  * is one, else counts such as "3 new features and 2 bugs fixed"). It needs the
  * build's `release-notes.json`, which `@molecule/app-vite-config-default` writes;
  * without it the banner shows the headline alone.
- * Call `registerPWA()` exactly once at app startup; it is a no-op during SSR.
+ * Molecule's Vite configs inject registration into production builds. Each
+ * browser tab sets up the worker once even when existing startup code also
+ * calls `registerPWA()`. Dev servers, iframes (including the IDE preview),
+ * and server rendering skip registration.
  *
  * @module
  */

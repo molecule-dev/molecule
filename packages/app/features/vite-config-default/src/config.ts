@@ -6,8 +6,8 @@ import process from 'node:process'
 
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { type UserConfig, version as viteVersion } from 'vite'
-import { VitePWA } from 'vite-plugin-pwa'
+import { type Plugin, type UserConfig, version as viteVersion } from 'vite'
+import { type VitePluginPWAAPI, VitePWA } from 'vite-plugin-pwa'
 
 import { releaseNotesPlugin } from '@molecule/app-version/build'
 
@@ -19,6 +19,39 @@ export interface DefaultViteConfigBranding {
   APP_NAME: string
   APP_DESCRIPTION: string
   BRAND_COLOR: string
+}
+
+/**
+ * Schedule the app's registrar from the built HTML, independently of the app
+ * entry. Existing config consumers without the optional registrar keep their
+ * existing worker and can provide their own registration.
+ *
+ * @returns Build-only plugin for the main document.
+ */
+function pwaRegistrationPlugin(): Plugin {
+  let pwa: VitePluginPWAAPI | undefined
+  return {
+    name: 'molecule:pwa-registration',
+    apply: 'build',
+    configResolved(config) {
+      if (isInstalled('@molecule/app-pwa-default', config.root)) {
+        pwa = config.plugins.find((plugin) => plugin.name === 'vite-plugin-pwa')?.api
+      }
+    },
+    transformIndexHtml: {
+      order: 'pre',
+      handler() {
+        if (pwa?.disabled !== false) return
+        return [
+          {
+            tag: 'script',
+            attrs: { type: 'module' },
+            children: "import { registerPWA } from '@molecule/app-pwa-default'; registerPWA()",
+          },
+        ]
+      },
+    },
+  }
 }
 
 /**
@@ -178,8 +211,8 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
 
   const pwaOptions = {
     registerType: 'prompt' as const,
-    // The app's registerPWA() call owns registration. Removing that call must
-    // not activate VitePWA's separate automatic registrar during the build.
+    // The default package owns controller changes so the first claim leaves
+    // the initial page and its in-flight navigation alone.
     injectRegister: false as const,
     includeAssets: ['icons/*.svg', 'favicon.svg', 'og-image.svg'],
     manifest: {
@@ -224,6 +257,8 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       // entries, 2.2 MB, plus ~5 MB of fonts) before the worker could even
       // take control.
       globPatterns: ['**/*.{html,ico,png,svg}', 'assets/index-*.js', 'assets/index-*.css'],
+      // OAuth and other server routes still go to the network on document loads.
+      navigateFallbackDenylist: [/^\/(?:api|health|socket\.io)(?:\/|\?|$)/],
       // No runtime API caching. The old rule matched every /api/ request with
       // NetworkFirst, which tried to cache SSE/streaming GETs (EventSource,
       // text/event-stream) and threw "Cache.put() encountered a network error",
@@ -322,6 +357,7 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       react(),
       tailwindcss(),
       VitePWA(pwaOptions),
+      pwaRegistrationPlugin(),
       moleculePushServiceWorkerPlugin(),
       // release-notes.json + the build-time stamp behind the update banner's
       // one-line summary of what a waiting update brings.
