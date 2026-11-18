@@ -1,4 +1,4 @@
-import { act, createElement as h, useState } from 'react'
+import { act, createElement as h, useEffect, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 
@@ -138,7 +138,10 @@ it('an initial failure never mounts its resource actions and can recover on retr
         return { id: 'one' }
       },
     })
-    retry = query.refetch
+    const { refetch } = query
+    useEffect(() => {
+      retry = refetch
+    })
     return h(QueryContent<{ id: string }>, {
       query,
       error: () => h('p', { role: 'alert' }, 'Failed'),
