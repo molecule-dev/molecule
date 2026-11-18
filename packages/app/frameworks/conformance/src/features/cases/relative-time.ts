@@ -35,6 +35,15 @@ export const relativeTimeFeature: FeatureCases = {
     {
       component: 'RelativeTime',
       cases: [
+        // The first case also runs again with a pseudo-locale switch
+        // ("…, then a locale switch"): with no `locale` prop the label formats
+        // in the app's active locale, so the switched snapshot's text is the
+        // pseudo-locale's `⟦…⟧`.
+        {
+          name: 'no locale follows the app’s active locale',
+          props: { date: ISO_FIVE_MINUTES_AGO },
+          now: NOW,
+        },
         {
           name: 'a past date renders its relative text',
           props: { date: ISO_FIVE_MINUTES_AGO, locale: 'en-US' },
@@ -63,11 +72,6 @@ export const relativeTimeFeature: FeatureCases = {
         {
           name: 'the locale is passed through to Intl',
           props: { date: ISO_FIVE_MINUTES_AGO, locale: 'fr' },
-          now: NOW,
-        },
-        {
-          name: 'no locale uses the runtime locale',
-          props: { date: ISO_FIVE_MINUTES_AGO },
           now: NOW,
         },
         {

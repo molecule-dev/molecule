@@ -8,11 +8,17 @@
 
 import { defineComponent, h, onBeforeUnmount, ref, type VNode, watch } from 'vue'
 
+import { useLocale } from '@molecule/app-vue'
+
 import { formatRelativeTime } from './formatRelativeTime.js'
 
 /**
  * Live-updating relative time display ("5 minutes ago"). Re-computes on a
  * timer so the text stays accurate as the user leaves the page open.
+ *
+ * Without a `locale` prop the label formats in the app's active locale
+ * (`useLocale()`), so a locale switch re-words it at once; an explicit
+ * `locale` still wins.
  *
  * Pass `refreshMs={0}` for a one-shot render (cheaper in long lists; the
  * parent can provide a single ticker).
@@ -24,12 +30,16 @@ export const RelativeTime = defineComponent({
   name: 'RelativeTime',
   props: {
     date: { type: [Date, String, Number], required: true },
+    /** Locale override; defaults to the app's active locale (`useLocale()`). */
     locale: String,
     refreshMs: { type: Number, default: 60_000 },
     titleLocale: String,
     className: String,
   },
   setup(props) {
+    // Re-renders on a locale switch, so the label changes language at once.
+    // An explicit `locale` prop still wins.
+    const activeLocale = useLocale()
     // The clock the last tick (or prop change) observed: reading it in the
     // render function is what makes an interval tick re-render the text.
     const clock = ref(Date.now())
@@ -73,7 +83,7 @@ export const RelativeTime = defineComponent({
       return h(
         'time',
         { datetime: iso, title, class: className },
-        formatRelativeTime(date, clock.value, locale),
+        formatRelativeTime(date, clock.value, locale ?? activeLocale.value),
       )
     }
   },

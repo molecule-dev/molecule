@@ -8,7 +8,10 @@
 export interface RelativeTimeProps {
   /** ISO string, Date, or epoch ms. */
   date: Date | string | number
-  /** Locale override. */
+  /**
+   * Locale override. Defaults to the app's active locale (`useLocale()`), so the
+   * label follows a locale switch; an explicit `locale` still wins.
+   */
   locale?: string
   /** Auto-refresh interval (ms). Defaults to 60_000 (1 min). Set 0 to disable. */
   refreshMs?: number

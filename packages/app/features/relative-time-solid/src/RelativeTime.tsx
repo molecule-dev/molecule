@@ -1,11 +1,17 @@
 import { type Component, createEffect, createSignal, onCleanup } from 'solid-js'
 
+import { useLocale } from '@molecule/app-solid'
+
 import { formatRelativeTime } from './formatRelativeTime.js'
 import type { RelativeTimeProps } from './types.js'
 
 /**
  * Live-updating relative time display ("5 minutes ago"). Re-computes on a
  * timer so the text stays accurate as the user leaves the page open.
+ *
+ * Without a `locale` prop the label formats in the app's active locale
+ * (`useLocale()`), so a locale switch re-words it at once; an explicit
+ * `locale` still wins.
  *
  * Pass `refreshMs={0}` for a one-shot render (cheaper in long lists; the
  * parent can provide a single ticker).
@@ -17,6 +23,9 @@ import type { RelativeTimeProps } from './types.js'
  * @returns The rendered relative time.
  */
 export const RelativeTime: Component<RelativeTimeProps> = (props) => {
+  // Re-renders on a locale switch, so the label changes language at once.
+  // An explicit `locale` prop still wins.
+  const activeLocale = useLocale()
   // The clock the last tick (or prop change) observed: the text reads it, so a
   // tick re-computes the text at the current time.
   const [clock, setClock] = createSignal(Date.now())
@@ -54,7 +63,7 @@ export const RelativeTime: Component<RelativeTimeProps> = (props) => {
 
   return (
     <time dateTime={iso()} title={title()} class={props.className}>
-      {formatRelativeTime(props.date, clock(), props.locale)}
+      {formatRelativeTime(props.date, clock(), props.locale ?? activeLocale())}
     </time>
   )
 }

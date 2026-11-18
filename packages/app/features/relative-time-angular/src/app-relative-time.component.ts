@@ -13,6 +13,8 @@ import {
   type SimpleChanges,
 } from '@angular/core'
 
+import { useLocale } from '@molecule/app-angular'
+
 import { formatRelativeTime } from './formatRelativeTime.js'
 import type { RelativeTimeProps } from './types.js'
 
@@ -20,8 +22,10 @@ import type { RelativeTimeProps } from './types.js'
  * RelativeTime component.
  *
  * Live-updating relative time display ("5 minutes ago") that re-computes on a
- * timer. The host IS the `<time>` element (`time[mol-relative-time]`),
- * matching React's root exactly.
+ * timer. Without a `locale` input the label formats in the app's active locale
+ * (`useLocale()`), so a locale switch re-words it at once; an explicit
+ * `locale` still wins. The host IS the `<time>` element
+ * (`time[mol-relative-time]`), matching React's root exactly.
  */
 @Component({
   selector: 'time[mol-relative-time]',
@@ -37,7 +41,10 @@ import type { RelativeTimeProps } from './types.js'
 export class RelativeTime implements RelativeTimeProps, OnChanges, OnInit, OnDestroy {
   /** ISO string, Date, or epoch ms. */
   date!: Date | string | number
-  /** Locale override. */
+  /**
+   * Locale override. Defaults to the app's active locale (`useLocale()`), so the
+   * label follows a locale switch; an explicit `locale` still wins.
+   */
   locale?: string
   /** Auto-refresh interval (ms). Defaults to 60_000 (1 min). Set 0 to disable. */
   refreshMs?: number
@@ -45,6 +52,9 @@ export class RelativeTime implements RelativeTimeProps, OnChanges, OnInit, OnDes
   titleLocale?: string
   /** Extra classes (applies to the surrounding `<time>` element). */
   className?: string
+
+  /** The app's active locale — re-renders on a locale switch; an explicit `locale` input still wins. */
+  private readonly language = useLocale()
 
   /** The clock the last tick (or input change) observed. */
   private readonly clock = signal(Date.now())
@@ -78,13 +88,14 @@ export class RelativeTime implements RelativeTimeProps, OnChanges, OnInit, OnDes
   }
 
   /**
-   * The rendered relative text; reads the clock signal so a tick re-renders at
-   * the current time (React re-computes the text on every render).
+   * The rendered relative text. It formats against the clock signal's
+   * committed value — the same "now" React keeps in state — so a tick re-reads
+   * the time while an unrelated re-render (or locale switch) keeps the value
+   * the last tick observed; the locale signal re-words the label at once.
    * @returns The relative time string.
    */
   text(): string {
-    this.clock()
-    return formatRelativeTime(this.date, Date.now(), this.locale)
+    return formatRelativeTime(this.date, this.clock(), this.locale ?? this.language())
   }
 
   /**

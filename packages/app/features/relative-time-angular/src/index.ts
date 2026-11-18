@@ -31,14 +31,16 @@
  * ```
  *
  * @remarks
- * - Zero molecule wiring required — no ClassMap, no i18n provider, no bonds;
- *   safe in any Angular tree.
+ * - Zero molecule wiring required — no ClassMap, no bonds; safe in any Angular
+ *   tree. `<time mol-relative-time>` reads the app's active i18n locale
+ *   through `useLocale()` (a default English provider serves when none is
+ *   bonded).
  * - Inputs: `date` (Date | ISO string | epoch ms), `locale`, `refreshMs`
  *   (default 60000 — pass `0` to disable the per-instance timer, cheaper in
- *   long lists), `titleLocale` (adds an absolute-date `title` tooltip),
- *   `className`.
- * - `locale` defaults to the runtime's locale, NOT your app's i18n locale —
- *   pass the active locale explicitly for consistent localized output.
+ *   long lists), `titleLocale` (adds an absolute-date `title` tooltip,
+ *   formatted in that locale), `className`.
+ * - `locale` defaults to the app's active i18n locale (`useLocale()`), so the
+ *   label follows a locale switch; an explicit `locale` input still wins.
  * - When `Intl.RelativeTimeFormat` is unavailable, fallback strings
  *   ("just now", "5m ago") are English-only.
  *

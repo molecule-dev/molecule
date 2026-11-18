@@ -1,5 +1,6 @@
-import { type JSX, type ReactNode, useCallback, useEffect, useState } from 'react'
+import { type JSX, type ReactNode, useEffect, useState } from 'react'
 
+import type { HttpClient } from '@molecule/app-http'
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-react'
@@ -12,6 +13,27 @@ export interface Device {
   lastSeen?: string
   /** `true` for the device making the current request (the API marks it). */
   isCurrent?: boolean
+}
+
+/**
+ * Reads the current device list, or `null` when the endpoint is unavailable.
+ *
+ * GET /api/devices responds with the ARRAY itself (see the device resource's
+ * query handler) — `response.data` IS the rows. This used to read
+ * `response.data.data`, which is always undefined for that shape, so the
+ * section rendered "No devices" for everyone.
+ *
+ * @param http - The authenticated HTTP client.
+ * @returns The device rows, or `null` when the request fails.
+ */
+async function fetchDevices(http: HttpClient): Promise<Device[] | null> {
+  try {
+    const response = await http.get<Device[]>('/api/devices')
+    return Array.isArray(response.data) ? response.data : []
+  } catch (_error) {
+    // Devices endpoint is optional; the section renders empty when unavailable.
+    return null
+  }
 }
 
 /** Props for {@link DevicesSection}. */
@@ -48,24 +70,26 @@ export function DevicesSection({ renderRowIcon }: DevicesSectionProps = {}): JSX
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [revokingId, setRevokingId] = useState<string | null>(null)
 
-  const load = useCallback(async (): Promise<void> => {
-    try {
-      // GET /api/devices responds with the ARRAY itself (see the device
-      // resource's query handler) — response.data IS the rows. This used to
-      // read `response.data.data`, which is always undefined for that shape,
-      // so the section rendered "No devices" for everyone.
-      const response = await http.get<Device[]>('/api/devices')
-      setDevices(Array.isArray(response.data) ? response.data : [])
-    } catch (_error) {
-      // Devices endpoint is optional; the section renders empty when unavailable.
-    } finally {
+  const load = async (): Promise<void> => {
+    const rows = await fetchDevices(http)
+    if (rows) setDevices(rows)
+    setLoading(false)
+  }
+
+  // The first read settles from the request's own continuation: the effect body
+  // itself writes no state, and a response that arrives after unmount is
+  // dropped.
+  useEffect(() => {
+    let ignore = false
+    void fetchDevices(http).then((rows) => {
+      if (ignore) return
+      if (rows) setDevices(rows)
       setLoading(false)
+    })
+    return () => {
+      ignore = true
     }
   }, [http])
-
-  useEffect(() => {
-    load()
-  }, [load])
 
   const revoke = async (id: string): Promise<void> => {
     setRevokingId(id)

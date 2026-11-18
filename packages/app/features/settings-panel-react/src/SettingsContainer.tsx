@@ -22,8 +22,11 @@ export interface SettingsContainerProps {
  * @returns The settings panel container.
  */
 export function SettingsContainer({ onClose, children }: SettingsContainerProps): ReactElement {
-  const cm = getClassMap()
+  // One context value per handler, so consumers re-render only when `onClose`
+  // changes. Created before `cm`: the compiler cannot tell the class map is never
+  // mutated, and a memo created while it is live would lose its memoization.
   const value = useMemo(() => ({ onClose }), [onClose])
+  const cm = getClassMap()
   return (
     <SettingsPanelContext.Provider value={value}>
       <div className={cm.cn(cm.sp('p', 6), cm.stack(6))}>{children}</div>

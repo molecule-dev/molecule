@@ -32,6 +32,12 @@
  },
  "cases": {
   "RelativeTime": {
+   "no locale follows the app’s active locale": {
+    "snapshots": [
+     "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /"
+    ],
+    "calls": []
+   },
    "a past date renders its relative text": {
     "snapshots": [
      "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /"
@@ -65,12 +71,6 @@
    "the locale is passed through to Intl": {
     "snapshots": [
      "<time datetime=\"2026-05-13T11:55:00.000Z\">\nil y a 5 minutes\n</time>\n@route /"
-    ],
-    "calls": []
-   },
-   "no locale uses the runtime locale": {
-    "snapshots": [
-     "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /"
     ],
     "calls": []
    },
@@ -174,10 +174,10 @@
     ],
     "calls": []
    },
-   "a past date renders its relative text, then a locale switch": {
+   "no locale follows the app’s active locale, then a locale switch": {
     "snapshots": [
      "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /",
-     "<time datetime=\"2026-05-13T11:55:00.000Z\">\n5 minutes ago\n</time>\n@route /"
+     "<time datetime=\"2026-05-13T11:55:00.000Z\">\n⟦5 minutes ago⟧\n</time>\n@route /"
     ],
     "calls": []
    }

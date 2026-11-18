@@ -1,13 +1,18 @@
 import type React from 'react'
 import { useEffect, useState } from 'react'
 
+import { useLocale } from '@molecule/app-react'
+
 import { formatRelativeTime } from './formatRelativeTime.js'
 
 /** Props accepted by the {@link RelativeTime} component. */
 export interface RelativeTimeProps {
   /** ISO string, Date, or epoch ms. */
   date: Date | string | number
-  /** Locale override. */
+  /**
+   * Locale override. Defaults to the app's active locale (`useLocale()`), so the
+   * label follows a locale switch; an explicit `locale` still wins.
+   */
   locale?: string
   /** Auto-refresh interval (ms). Defaults to 60_000 (1 min). Set 0 to disable. */
   refreshMs?: number
@@ -21,8 +26,15 @@ export interface RelativeTimeProps {
  * Live-updating relative time display ("5 minutes ago"). Re-computes on
  * a timer so the text stays accurate as the user leaves the page open.
  *
- * Pass `refreshMs={0}` for a one-shot render (cheaper in long lists;
- * the parent can provide a single ticker).
+ * Without a `locale` prop the label formats in the app's active locale
+ * (`useLocale()`), so a locale switch re-words it at once; an explicit
+ * `locale` still wins.
+ *
+ * Pass `refreshMs={0}` for a one-shot render (cheaper in long lists). The
+ * clock is then taken once at mount and only the component's own interval
+ * advances it, so a parent that re-renders the label does not refresh it —
+ * give the element a `key` that changes on the parent's tick if every row
+ * must share one clock (remount re-takes "now").
  * @param props - Component props (see {@link RelativeTimeProps}).
  */
 export function RelativeTime({
@@ -32,10 +44,15 @@ export function RelativeTime({
   titleLocale,
   className,
 }: RelativeTimeProps): React.JSX.Element {
-  const [, setTick] = useState(0)
+  // Re-renders on a locale switch, so the label changes language at once.
+  const activeLocale = useLocale()
+  // "Now" is state, not a render-time `Date.now()`: the interval below advances
+  // it, and a render (a locale switch, a parent update) keeps the committed
+  // clock. It is taken once per mount and refreshed on the caller's interval.
+  const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
     if (refreshMs <= 0) return
-    const id = setInterval(() => setTick((x) => x + 1), refreshMs)
+    const id = setInterval(() => setNow(Date.now()), refreshMs)
     return () => clearInterval(id)
   }, [refreshMs])
   const iso =
@@ -52,7 +69,7 @@ export function RelativeTime({
       : undefined
   return (
     <time dateTime={iso} title={titleFmt} className={className}>
-      {formatRelativeTime(date, Date.now(), locale)}
+      {formatRelativeTime(date, now, locale ?? activeLocale)}
     </time>
   )
 }
