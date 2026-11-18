@@ -30,6 +30,36 @@ export function useThemeProvider(): ThemeProvider {
   return provider
 }
 
+/** A provider that also exposes `onThemeChange`, the subscription some providers offer besides `subscribe`. */
+interface ThemeChangeSource {
+  /** Calls `listener` after each theme change; returns the unsubscribe. */
+  onThemeChange(listener: () => void): () => void
+}
+
+/** A provider that names its active theme through `getThemeName()`. */
+interface ThemeNameSource {
+  /** The active theme's name. */
+  getThemeName(): string
+}
+
+/**
+ * Whether the provider has an `onThemeChange` method.
+ * @param provider - The provider to inspect.
+ * @returns `true` when `provider.onThemeChange` is a function.
+ */
+function hasThemeChange(provider: ThemeProvider): provider is ThemeProvider & ThemeChangeSource {
+  return 'onThemeChange' in provider && typeof provider.onThemeChange === 'function'
+}
+
+/**
+ * Whether the provider has a `getThemeName` method.
+ * @param provider - The provider to inspect.
+ * @returns `true` when `provider.getThemeName` is a function.
+ */
+function hasThemeName(provider: ThemeProvider): provider is ThemeProvider & ThemeNameSource {
+  return 'getThemeName' in provider && typeof provider.getThemeName === 'function'
+}
+
 /**
  * Subscribe to a theme provider, supporting both `subscribe` and `onThemeChange` methods.
  * @param provider - The ThemeProvider instance to subscribe to.
@@ -38,16 +68,9 @@ export function useThemeProvider(): ThemeProvider {
  */
 function subscribeToThemeProvider(provider: ThemeProvider, callback: () => void): () => void {
   if (typeof provider.subscribe === 'function') {
-    return provider.subscribe(callback as unknown as (theme: Theme) => void)
+    return provider.subscribe(callback)
   }
-  if (
-    typeof (provider as unknown as Record<string, (...args: unknown[]) => unknown>)
-      .onThemeChange === 'function'
-  ) {
-    return (
-      provider as unknown as Record<string, (...args: unknown[]) => () => void>
-    ).onThemeChange(callback)
-  }
+  if (hasThemeChange(provider)) return provider.onThemeChange(callback)
   return () => {}
 }
 
@@ -67,8 +90,7 @@ interface ThemeSnapshot {
  */
 function readThemeSnapshot(provider: ThemeProvider): ThemeSnapshot {
   const theme = provider.getTheme()
-  const candidate = provider as unknown as Record<string, (...args: unknown[]) => string>
-  const name = typeof candidate.getThemeName === 'function' ? candidate.getThemeName() : theme.name
+  const name = hasThemeName(provider) ? provider.getThemeName() : theme.name
   return { theme, name }
 }
 
@@ -173,11 +195,7 @@ export function useTheme(): UseThemeResult {
     }
     const themes = provider.getThemes?.() ?? []
     if (themes.length === 0) return
-    const currentName =
-      typeof (provider as unknown as Record<string, (...args: unknown[]) => string>)
-        .getThemeName === 'function'
-        ? (provider as unknown as Record<string, (...args: unknown[]) => string>).getThemeName()
-        : provider.getTheme().name
+    const currentName = hasThemeName(provider) ? provider.getThemeName() : provider.getTheme().name
     const currentIndex = themes.findIndex((t: Theme | string) =>
       typeof t === 'string' ? t === currentName : t.name === currentName,
     )

@@ -4,7 +4,6 @@
  * @module
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { PromiseStatus } from '@molecule/app-utilities'
@@ -34,6 +33,8 @@ export interface UsePromiseState<T> {
  * state, so it is not proof that an outstanding request has stopped. Use an
  * app-owned queue when every click must be accepted in order.
  *
+ * @template T - What the async function resolves with
+ * @template A - The async function's parameters
  * @param asyncFn - The async function to wrap
  * @returns Tuple of [state, wrappedFunction]
  *
@@ -52,13 +53,10 @@ export interface UsePromiseState<T> {
  * )
  * ```
  */
-export const usePromise = <T extends (...args: any[]) => Promise<any>>(
-  asyncFn: T,
-): [
-  UsePromiseState<Awaited<ReturnType<T>>>,
-  (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>,
-] => {
-  type V = Awaited<ReturnType<T>>
+export const usePromise = <T, A extends unknown[]>(
+  asyncFn: (...args: A) => Promise<T>,
+): [UsePromiseState<T>, (...args: A) => Promise<T>] => {
+  type V = T
 
   const [status, setStatus] = useState<PromiseStatus>('idle')
   const [value, setValue] = useState<V | null>(null)
@@ -103,7 +101,7 @@ export const usePromise = <T extends (...args: any[]) => Promise<any>>(
 
   const callAsyncFn = useMemo(
     () =>
-      (...args: Parameters<T>): Promise<V> => {
+      (...args: A): Promise<V> => {
         cancelledRef.current = false
         callIdRef.current += 1
         const thisCallId = callIdRef.current

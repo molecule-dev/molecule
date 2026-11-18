@@ -10,7 +10,7 @@ import { t } from '@molecule/app-i18n'
 import type { StateProvider, Store } from '@molecule/app-state'
 
 import { StateContext } from '../contexts.js'
-import type { UseStoreOptions } from '../types.js'
+import type { SelectingStoreOptions, UseStoreOptions } from '../types.js'
 
 /**
  * The fix, appended to the error below — this hook is the one place that READS
@@ -73,15 +73,32 @@ export function useStateProvider(): StateProvider {
  * const doubled = useStore(counterStore, { selector: (s) => s.count * 2 })
  * ```
  */
-export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T, S>): S {
+export function useStore<T>(store: Store<T>, options?: UseStoreOptions<T, T>): T
+/**
+ * Hook to subscribe to the part of a store a selector picks.
+ *
+ * @param store - The store to subscribe to
+ * @param options - The selector, and an optional equality function for its results
+ * @returns The selected value
+ */
+export function useStore<T, S>(store: Store<T>, options: SelectingStoreOptions<T, S>): S
+/**
+ * The implementation both signatures share: without a selector the selected value is the state
+ * itself, which the first signature types as `T`.
+ *
+ * @param store - The store to subscribe to
+ * @param options - Hook options (selector, equalityFn)
+ * @returns The selected value
+ */
+export function useStore<T>(store: Store<T>, options?: UseStoreOptions<T, unknown>): unknown {
   const { selector, equalityFn } = options ?? {}
 
   // Use a ref to track the previous selected value for equality comparison
-  const prevSelectedRef = useRef<S | undefined>(undefined)
+  const prevSelectedRef = useRef<unknown>(undefined)
 
   const getSnapshot = useCallback(() => {
     const state = store.getState()
-    const selected = selector ? selector(state) : (state as unknown as S)
+    const selected = selector ? selector(state) : state
 
     // If we have an equality function and a previous value, check equality
     if (equalityFn && prevSelectedRef.current !== undefined) {
