@@ -60,6 +60,7 @@ interface DeepseekCallContext {
 interface DeepseekUsage {
   prompt_tokens?: number
   completion_tokens?: number
+  completion_tokens_details?: { reasoning_tokens?: number | null } | null
   prompt_cache_hit_tokens?: number
   prompt_cache_miss_tokens?: number
   prompt_tokens_details?: { cached_tokens?: number }
@@ -1233,10 +1234,12 @@ class DeepseekAIProviderImpl implements AIProvider {
    */
   private parseUsage(usage: DeepseekUsage): TokenUsage {
     const cached = usage.prompt_cache_hit_tokens ?? usage.prompt_tokens_details?.cached_tokens ?? 0
+    const reasoning = usage.completion_tokens_details?.reasoning_tokens
     return {
       inputTokens:
         usage.prompt_cache_miss_tokens ?? Math.max(0, (usage.prompt_tokens ?? 0) - cached),
       outputTokens: usage.completion_tokens ?? 0,
+      ...(typeof reasoning === 'number' ? { reasoningOutputTokens: reasoning } : {}),
       cacheReadInputTokens: cached,
     }
   }
@@ -1473,6 +1476,10 @@ class DeepseekAIProviderImpl implements AIProvider {
           state.usage = {
             ...state.usage,
             ...usage,
+            completion_tokens_details: {
+              ...state.usage.completion_tokens_details,
+              ...usage.completion_tokens_details,
+            },
             prompt_tokens_details: {
               ...state.usage.prompt_tokens_details,
               ...usage.prompt_tokens_details,

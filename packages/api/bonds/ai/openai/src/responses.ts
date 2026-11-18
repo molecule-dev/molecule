@@ -115,6 +115,7 @@ function replayedItems(
 interface ResponsesUsage {
   input_tokens?: number
   output_tokens?: number
+  output_tokens_details?: { reasoning_tokens?: number | null } | null
   input_tokens_details?: { cached_tokens?: number; cache_write_tokens?: number }
 }
 
@@ -296,9 +297,11 @@ export function responsesUsage(
 ): TokenUsage {
   const cached = usage?.input_tokens_details?.cached_tokens ?? 0
   const written = usage?.input_tokens_details?.cache_write_tokens ?? 0
+  const reasoning = usage?.output_tokens_details?.reasoning_tokens
   return {
     inputTokens: Math.max(0, (usage?.input_tokens ?? 0) - cached - written),
     outputTokens: usage?.output_tokens ?? 0,
+    ...(typeof reasoning === 'number' ? { reasoningOutputTokens: reasoning } : {}),
     cacheReadInputTokens: cached,
     ...(written > 0 ? { cacheCreationInputTokens: written } : {}),
     ...(webSearchCalls > 0 ? { webSearchRequests: webSearchCalls } : {}),

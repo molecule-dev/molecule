@@ -136,7 +136,18 @@ export type ChatEvent =
  */
 export interface TokenUsage {
   inputTokens: number
+  /** Total output tokens, including any reported reasoning output tokens. */
   outputTokens: number
+  /**
+   * Reasoning output tokens, a subset of `outputTokens`.
+   * Absent when the provider does not report them.
+   */
+  reasoningOutputTokens?: number
+  /**
+   * Output tokens previously used for metering when a provider reports reasoning
+   * separately from its output total. Defaults to `outputTokens` when omitted.
+   */
+  meteredOutputTokens?: number
   /** Number of input tokens written to the prompt cache. */
   cacheCreationInputTokens?: number
   /** Number of input tokens read from the prompt cache. */

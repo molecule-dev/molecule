@@ -79,8 +79,9 @@ interface GoogleStreamState {
    * {@link GoogleStreamState.cachedInputTokens} before reporting it.
    */
   inputTokens: number
-  /** Candidate (output) token count reported by `usageMetadata.candidatesTokenCount`. */
-  outputTokens: number
+  /** Response candidate tokens, excluding thoughts. */
+  candidateTokens: number
+  reasoningOutputTokens?: number
   /** Cached-content token count reported by `usageMetadata.cachedContentTokenCount` — a SUBSET of `inputTokens`. */
   cachedInputTokens: number
   /** Monotonic counter used to synthesize stable ids for streamed function calls. */
@@ -103,7 +104,7 @@ interface GoogleStreamState {
  * `promptTokenCount` INCLUDES the cached portion — Gemini documents it as "the
  * total effective prompt size meaning this includes the number of tokens in the
  * cached content" — so `cachedContentTokenCount` is a SUBSET, not an addition.
- * `TokenUsage` buckets are disjoint (every consumer prices each at its own rate),
+ * The input buckets are disjoint (consumers price each at its own rate),
  * so the cached share is subtracted here, exactly as the OpenAI-compatible bonds
  * subtract `prompt_tokens_details.cached_tokens` from `prompt_tokens`. Passing
  * `promptTokenCount` through raw billed the cached tokens TWICE: once at the full
@@ -112,12 +113,15 @@ interface GoogleStreamState {
  * reports `input_tokens` and `cache_read_input_tokens` already disjoint.)
  *
  * @param state - The streaming parser state.
- * @returns The usage counters accumulated so far, as disjoint buckets.
+ * @returns Usage so far, with reasoning included in the output total.
  */
 function snapshotUsage(state: GoogleStreamState): TokenUsage {
+  const reasoning = state.reasoningOutputTokens
   return {
     inputTokens: Math.max(0, state.inputTokens - state.cachedInputTokens),
-    outputTokens: state.outputTokens,
+    outputTokens: state.candidateTokens + (reasoning ?? 0),
+    ...(reasoning !== undefined ? { reasoningOutputTokens: reasoning } : {}),
+    ...(reasoning ? { meteredOutputTokens: state.candidateTokens } : {}),
     ...(state.cachedInputTokens ? { cacheReadInputTokens: state.cachedInputTokens } : {}),
     ...webSearchUsage(state),
   }
@@ -659,7 +663,7 @@ class GoogleAIProvider implements AIProvider {
   private *parseNonStreamingResponse(data: Record<string, unknown>): Iterable<ChatEvent> {
     const state: GoogleStreamState = {
       inputTokens: 0,
-      outputTokens: 0,
+      candidateTokens: 0,
       cachedInputTokens: 0,
       toolCounter: 0,
       searchQueriesInvoked: 0,
@@ -704,7 +708,7 @@ class GoogleAIProvider implements AIProvider {
     let buffer = ''
     const state: GoogleStreamState = {
       inputTokens: 0,
-      outputTokens: 0,
+      candidateTokens: 0,
       cachedInputTokens: 0,
       toolCounter: 0,
       searchQueriesInvoked: 0,
@@ -931,13 +935,17 @@ class GoogleAIProvider implements AIProvider {
       | {
           promptTokenCount?: number
           candidatesTokenCount?: number
+          thoughtsTokenCount?: number
           cachedContentTokenCount?: number
         }
       | undefined
     if (!usage) return
     if (typeof usage.promptTokenCount === 'number') state.inputTokens = usage.promptTokenCount
     if (typeof usage.candidatesTokenCount === 'number') {
-      state.outputTokens = usage.candidatesTokenCount
+      state.candidateTokens = usage.candidatesTokenCount
+    }
+    if (typeof usage.thoughtsTokenCount === 'number') {
+      state.reasoningOutputTokens = usage.thoughtsTokenCount
     }
     if (typeof usage.cachedContentTokenCount === 'number') {
       state.cachedInputTokens = usage.cachedContentTokenCount

@@ -44,6 +44,7 @@ interface MoonshotCallContext {
 interface MoonshotStreamState {
   inputTokens: number
   outputTokens: number
+  reasoningOutputTokens?: number
   cacheReadTokens: number
 }
 
@@ -581,18 +582,21 @@ class MoonshotAIProvider implements AIProvider {
       | {
           prompt_tokens?: number
           completion_tokens?: number
+          completion_tokens_details?: { reasoning_tokens?: number | null } | null
           prompt_tokens_details?: { cached_tokens?: number }
         }
       | undefined
     // prompt_tokens INCLUDES cached tokens on OpenAI-compatible APIs — report
     // the cached portion separately (cacheReadPricePerMTok) and only the fresh
     // remainder as inputTokens, matching the other bonds' semantics.
+    const reasoning = usage?.completion_tokens_details?.reasoning_tokens
     const cachedTokens = usage?.prompt_tokens_details?.cached_tokens ?? 0
     yield {
       type: 'done',
       usage: {
         inputTokens: Math.max(0, (usage?.prompt_tokens ?? 0) - cachedTokens),
         outputTokens: usage?.completion_tokens ?? 0,
+        ...(typeof reasoning === 'number' ? { reasoningOutputTokens: reasoning } : {}),
         ...(cachedTokens ? { cacheReadInputTokens: cachedTokens } : {}),
       },
     }
@@ -682,6 +686,9 @@ class MoonshotAIProvider implements AIProvider {
       usage: {
         inputTokens: Math.max(0, state.inputTokens - state.cacheReadTokens),
         outputTokens: state.outputTokens,
+        ...(state.reasoningOutputTokens !== undefined
+          ? { reasoningOutputTokens: state.reasoningOutputTokens }
+          : {}),
         ...(state.cacheReadTokens ? { cacheReadInputTokens: state.cacheReadTokens } : {}),
       },
       provider: call.meta,
@@ -769,10 +776,13 @@ class MoonshotAIProvider implements AIProvider {
           | {
               prompt_tokens?: number
               completion_tokens?: number
+              completion_tokens_details?: { reasoning_tokens?: number | null } | null
               prompt_tokens_details?: { cached_tokens?: number }
             }
           | undefined
         if (usage) {
+          const reasoning = usage.completion_tokens_details?.reasoning_tokens
+          if (typeof reasoning === 'number') state.reasoningOutputTokens = reasoning
           if (usage.prompt_tokens) state.inputTokens = usage.prompt_tokens
           if (usage.completion_tokens) state.outputTokens = usage.completion_tokens
           if (usage.prompt_tokens_details?.cached_tokens)

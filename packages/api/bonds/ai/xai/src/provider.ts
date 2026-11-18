@@ -17,6 +17,7 @@ import type {
   ChatParams,
   ContentBlock,
   ProviderResponseMeta,
+  TokenUsage,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
@@ -35,11 +36,31 @@ interface XaiCallContext {
   readonly endUserId?: string
 }
 
+/**
+ * Normalize xAI Chat Completions usage, where completion_tokens excludes
+ * reasoning. Keep the raw completion count for existing meters.
+ *
+ * @param completionTokens - The provider's completion token count.
+ * @param reasoning - The provider's reasoning token count, when reported.
+ * @returns The complete output count and its reasoning breakdown.
+ */
+function outputUsage(
+  completionTokens: number,
+  reasoning: number | null | undefined,
+): Pick<TokenUsage, 'outputTokens' | 'reasoningOutputTokens' | 'meteredOutputTokens'> {
+  return {
+    outputTokens: completionTokens + (reasoning ?? 0),
+    ...(typeof reasoning === 'number' ? { reasoningOutputTokens: reasoning } : {}),
+    ...(reasoning ? { meteredOutputTokens: completionTokens } : {}),
+  }
+}
+
 /** Mutable token usage counters shared across SSE line-processing calls. */
 interface XaiStreamState {
   /** Total prompt tokens (cached + uncached), as reported by the API. */
   inputTokens: number
-  outputTokens: number
+  completionTokens: number
+  reasoningOutputTokens?: number
   /** Cached prompt tokens (subset of inputTokens), from prompt_tokens_details. */
   cachedTokens: number
 }
@@ -486,6 +507,7 @@ class XaiAIProvider implements AIProvider {
       | {
           prompt_tokens?: number
           completion_tokens?: number
+          completion_tokens_details?: { reasoning_tokens?: number | null } | null
           prompt_tokens_details?: { cached_tokens?: number }
         }
       | undefined
@@ -496,7 +518,10 @@ class XaiAIProvider implements AIProvider {
         // Report uncached input + cached separately (Anthropic semantics) so the
         // consumer's context/cost math doesn't double-count the cached subset.
         inputTokens: Math.max(0, (usage?.prompt_tokens ?? 0) - cached),
-        outputTokens: usage?.completion_tokens ?? 0,
+        ...outputUsage(
+          usage?.completion_tokens ?? 0,
+          usage?.completion_tokens_details?.reasoning_tokens,
+        ),
         cacheReadInputTokens: cached,
       },
     }
@@ -525,7 +550,7 @@ class XaiAIProvider implements AIProvider {
 
     const decoder = new TextDecoder()
     let buffer = ''
-    const state: XaiStreamState = { inputTokens: 0, outputTokens: 0, cachedTokens: 0 }
+    const state: XaiStreamState = { inputTokens: 0, completionTokens: 0, cachedTokens: 0 }
 
     // Track pending tool calls (accumulated across deltas). `started` guards the
     // one-shot tool_use_start emission once the id + name are first known.
@@ -590,7 +615,7 @@ class XaiAIProvider implements AIProvider {
       type: 'done',
       usage: {
         inputTokens: Math.max(0, state.inputTokens - state.cachedTokens),
-        outputTokens: state.outputTokens,
+        ...outputUsage(state.completionTokens, state.reasoningOutputTokens),
         cacheReadInputTokens: state.cachedTokens,
       },
       provider: call.meta,
@@ -678,12 +703,15 @@ class XaiAIProvider implements AIProvider {
           | {
               prompt_tokens?: number
               completion_tokens?: number
+              completion_tokens_details?: { reasoning_tokens?: number | null } | null
               prompt_tokens_details?: { cached_tokens?: number }
             }
           | undefined
         if (usage) {
+          const reasoning = usage.completion_tokens_details?.reasoning_tokens
+          if (typeof reasoning === 'number') state.reasoningOutputTokens = reasoning
           if (usage.prompt_tokens) state.inputTokens = usage.prompt_tokens
-          if (usage.completion_tokens) state.outputTokens = usage.completion_tokens
+          if (usage.completion_tokens) state.completionTokens = usage.completion_tokens
           if (usage.prompt_tokens_details?.cached_tokens)
             state.cachedTokens = usage.prompt_tokens_details.cached_tokens
         }

@@ -48,6 +48,7 @@ interface AnthropicCallContext {
 interface AnthropicStreamState {
   inputTokens: number
   outputTokens: number
+  reasoningOutputTokens?: number
   cacheCreationInputTokens: number
   cacheReadInputTokens: number
   /** Speed tier the provider reported for this request (fast-mode metering). */
@@ -72,6 +73,9 @@ function snapshotUsage(state: AnthropicStreamState): TokenUsage {
   return {
     inputTokens: state.inputTokens,
     outputTokens: state.outputTokens,
+    ...(state.reasoningOutputTokens !== undefined
+      ? { reasoningOutputTokens: state.reasoningOutputTokens }
+      : {}),
     ...(state.cacheCreationInputTokens
       ? { cacheCreationInputTokens: state.cacheCreationInputTokens }
       : {}),
@@ -703,6 +707,7 @@ class AnthropicAIProvider implements AIProvider {
       | {
           input_tokens?: number
           output_tokens?: number
+          output_tokens_details?: { thinking_tokens?: number | null } | null
           cache_creation_input_tokens?: number | null
           cache_read_input_tokens?: number | null
           speed?: string
@@ -711,11 +716,13 @@ class AnthropicAIProvider implements AIProvider {
         }
       | undefined
     const servedSpeed = parseSpeed(usage)
+    const reasoning = usage?.output_tokens_details?.thinking_tokens
     yield {
       type: 'done',
       usage: {
         inputTokens: usage?.input_tokens ?? 0,
         outputTokens: usage?.output_tokens ?? 0,
+        ...(typeof reasoning === 'number' ? { reasoningOutputTokens: reasoning } : {}),
         ...(usage?.cache_creation_input_tokens
           ? { cacheCreationInputTokens: usage.cache_creation_input_tokens }
           : {}),
@@ -953,11 +960,18 @@ class AnthropicAIProvider implements AIProvider {
           }
         } else if (eventType === 'message_delta') {
           const usage = event.usage as
-            { output_tokens?: number; server_tool_use?: ServerToolUse | null } | undefined
+            | {
+                output_tokens?: number
+                output_tokens_details?: { thinking_tokens?: number | null } | null
+                server_tool_use?: ServerToolUse | null
+              }
+            | undefined
+          const reasoning = usage?.output_tokens_details?.thinking_tokens
+          if (typeof reasoning === 'number') state.reasoningOutputTokens = reasoning
           const reportedSearches = usage?.server_tool_use?.web_search_requests
           if (typeof reportedSearches === 'number') state.webSearchRequests = reportedSearches
-          if (usage?.output_tokens) {
-            state.outputTokens = usage.output_tokens
+          if (typeof usage?.output_tokens === 'number') state.outputTokens = usage.output_tokens
+          if (usage?.output_tokens || typeof reasoning === 'number') {
             // Metering snapshot (latest wins): if the stream is cut after this
             // point, the consumer books these provider-reported counts instead
             // of dropping the turn (see the ChatEvent 'usage' contract).
