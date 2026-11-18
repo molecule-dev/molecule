@@ -17,6 +17,7 @@ import { getProvider, I18nError } from '@molecule/app-i18n'
 
 import { I18nContext } from '../contexts.js'
 import type { UseTFunction, UseTranslationResult } from '../types.js'
+import { useValueAtKeyChange } from './useValueAtKeyChange.js'
 
 /**
  * Hook to access the i18n provider: the one the nearest `I18nProvider` supplies, otherwise
@@ -28,6 +29,38 @@ import type { UseTFunction, UseTranslationResult } from '../types.js'
  */
 export function useI18nProvider(): I18nProvider {
   return useContext(I18nContext) ?? getProvider()
+}
+
+/** The provider listener `useLocaleSnapshot` attaches, in the shape useSyncExternalStore reads. */
+interface LocaleStore {
+  listener: () => void
+  subscribe: (onChange: () => void) => () => void
+  getSnapshot: () => string
+}
+
+/**
+ * Creates the locale store of one provider (see {@link useLocaleSnapshot}).
+ *
+ * @param provider - The i18n provider.
+ * @returns The store: its listener, subscription and snapshot.
+ */
+function createLocaleStore(provider: I18nProvider): LocaleStore {
+  let notifications = 0
+  const onChanges = new Set<() => void>()
+  return {
+    listener: (): void => {
+      notifications += 1
+      onChanges.forEach((onChange) => onChange())
+    },
+    subscribe: (onChange: () => void): (() => void) => {
+      onChanges.add(onChange)
+      return () => {
+        onChanges.delete(onChange)
+      }
+    },
+    getSnapshot: (): string =>
+      `${notifications}:${provider.getRevision?.() ?? 0}:${provider.getLocale()}`,
+  }
 }
 
 /**
@@ -63,24 +96,7 @@ export function useI18nProvider(): I18nProvider {
  * @returns A value that changes on every notification, revision and locale switch.
  */
 function useLocaleSnapshot(provider: I18nProvider): string {
-  const store = useMemo(() => {
-    let notifications = 0
-    const onChanges = new Set<() => void>()
-    return {
-      listener: (): void => {
-        notifications += 1
-        onChanges.forEach((onChange) => onChange())
-      },
-      subscribe: (onChange: () => void): (() => void) => {
-        onChanges.add(onChange)
-        return () => {
-          onChanges.delete(onChange)
-        }
-      },
-      getSnapshot: (): string =>
-        `${notifications}:${provider.getRevision?.() ?? 0}:${provider.getLocale()}`,
-    }
-  }, [provider])
+  const store = useMemo(() => createLocaleStore(provider), [provider])
   useLayoutEffect(() => provider.onLocaleChange(store.listener), [provider, store])
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
 }
@@ -115,12 +131,14 @@ export function useTranslation(): UseTranslationResult {
   // its own values on the first render instead of the previous ones.
   const locale = provider.getLocale()
   const direction = provider.getDirection()
-  // `snapshot` is the recompute key: a new list once per notification, the same
+  // `snapshot` is the change key: a new list once per notification, the same
   // list otherwise, so an effect that depends on `locales` stays stable.
-  const locales = useMemo(() => provider.getLocales(), [provider, snapshot])
+  const locales = useValueAtKeyChange(provider.getLocales(), [provider, snapshot])
 
-  // Memoized translation function
-  const t: I18nProvider['t'] = useCallback(
+  // One translation function per provider and locale: `t`'s identity follows a
+  // locale switch, so text memoized on it (or a React.memo child that takes `t`
+  // as a prop) refreshes after the switch — `useT()` is the identity-stable form.
+  const t = useValueAtKeyChange<I18nProvider['t']>(
     (key: string, values?: InterpolationValues, options?: TranslateOptions) =>
       provider.t(key, values, options),
     [provider, locale],

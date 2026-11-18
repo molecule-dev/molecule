@@ -166,7 +166,14 @@ afterAll(() => {
 import { useAppState } from '../hooks/useAppState.js'
 import { useBackHandler } from '../hooks/useBackHandler.js'
 import { useKeyboardHeight } from '../hooks/useKeyboardHeight.js'
-import { useSafeArea } from '../hooks/useSafeArea.js'
+import type { useSafeArea as UseSafeArea } from '../hooks/useSafeArea.js'
+
+// useSafeArea resolves its optional peer when its module loads, so it is imported
+// after the require patch above is installed.
+let useSafeArea: typeof UseSafeArea
+beforeAll(async () => {
+  ;({ useSafeArea } = await import('../hooks/useSafeArea.js'))
+})
 
 // ---------------------------------------------------------------------------
 // Setup/teardown
@@ -426,6 +433,25 @@ describe('useSafeArea', () => {
     expect(insets.right).toBe(10)
     expect(insets.bottom).toBe(30)
     expect(insets.left).toBe(10)
+  })
+
+  it('returns zero insets when react-native-safe-area-context is not installed', async () => {
+    const name = 'react-native-safe-area-context'
+    const installed = requireMockModules[name]
+    const cached = _require.cache[name]
+    delete requireMockModules[name]
+    delete _require.cache[name]
+    try {
+      vi.resetModules()
+      const { useSafeArea: withoutPeer } = await import('../hooks/useSafeArea.js')
+      mockUseSafeAreaInsets.mockClear()
+
+      expect(withoutPeer()).toEqual({ top: 0, right: 0, bottom: 0, left: 0 })
+      expect(mockUseSafeAreaInsets).not.toHaveBeenCalled()
+    } finally {
+      requireMockModules[name] = installed
+      _require.cache[name] = cached
+    }
   })
 })
 

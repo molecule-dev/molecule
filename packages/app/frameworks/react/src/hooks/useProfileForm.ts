@@ -118,6 +118,17 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
     ...formOptions
   } = options
   const form = useForm<TValues>({ ...formOptions, defaultValues })
+  // Depend on the controller's methods, not on the `form` wrapper (a fresh
+  // object each render): the methods keep one identity per controller, so the
+  // memoized actions below stay stable across re-renders.
+  const {
+    getValue: getFieldValue,
+    register: registerField,
+    reset: resetFormValues,
+    setValue: setFieldValue,
+    updateValues: updateFormValues,
+    handleSubmit: submitValidated,
+  } = form
   const client = useAuthClient<TUser>()
   const { user } = useAuth<TUser>()
   const [error, setError] = useState<unknown>()
@@ -151,29 +162,29 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
 
   const readValues = useCallback((): TValues => {
     const values = copyValues(baseline.current)
-    for (const key of Object.keys(values) as (keyof TValues)[]) values[key] = form.getValue(key)
+    for (const key of Object.keys(values) as (keyof TValues)[]) values[key] = getFieldValue(key)
     return values
-  }, [form.getValue])
+  }, [getFieldValue])
 
   const rebase = useCallback(
     (next: TValues, preserveAgainst?: TValues): void => {
       const current = readValues()
       baseline.current = copyValues(next)
       if (preserveAgainst) {
-        form.updateValues(next, { keepDirtyValues: true })
+        updateFormValues(next, { keepDirtyValues: true })
         for (const key of Object.keys(current) as (keyof TValues)[]) {
           if (
             editedFields.current.has(key) ||
             !formValuesEqual(current[key], preserveAgainst[key])
           ) {
-            form.setValue(key, current[key])
+            setFieldValue(key, current[key])
           }
         }
       } else {
-        form.reset(next)
+        resetFormValues(next)
       }
     },
-    [readValues, form.reset, form.updateValues, form.setValue],
+    [readValues, updateFormValues, setFieldValue, resetFormValues],
   )
 
   useLayoutEffect(() => {
@@ -245,7 +256,7 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
     let saved: TUser | undefined
     const run = async (): Promise<TUser | undefined> => {
       try {
-        await form.handleSubmit(async () => {
+        await submitValidated(async () => {
           // Validation can await arbitrary app work. Check BEFORE toPatch and
           // again immediately before the mutation: its credentials are read by
           // updateProfile now, not when the reader originally clicked Save.
@@ -269,7 +280,7 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
                   // The accepted response intentionally transformed or cleared
                   // this field (for example, a write-only password).
                   editedFields.current.delete(key)
-                  form.setValue(key, savedValues[key])
+                  setFieldValue(key, savedValues[key])
                 }
               }
               rebase(savedValues, snapshot)
@@ -298,14 +309,14 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
     }
     activeSave.current = run()
     return activeSave.current
-  }, [client, readValues, form.handleSubmit, rebase])
+  }, [client, readValues, submitValidated, setFieldValue, rebase])
 
   const register = useCallback(
     <K extends keyof TValues>(
       name: K,
       registerOptions?: Parameters<UseFormResult<TValues>['register']>[1],
     ): Omit<FieldRegistration, 'value'> & { value: TValues[K] } => {
-      const registration = form.register(name, registerOptions)
+      const registration = registerField(name, registerOptions)
       return {
         ...registration,
         onChange: (event: Parameters<FieldRegistration['onChange']>[0]) => {
@@ -314,20 +325,20 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
         },
       } as Omit<FieldRegistration, 'value'> & { value: TValues[K] }
     },
-    [form.register],
+    [registerField],
   )
   const setValue = useCallback(
     <K extends keyof TValues>(name: K, value: TValues[K]): void => {
       editedFields.current.add(name)
-      form.setValue(name, value)
+      setFieldValue(name, value)
     },
-    [form.setValue],
+    [setFieldValue],
   )
   const reset = useCallback(() => {
     editedFields.current.clear()
-    form.reset(baseline.current)
+    resetFormValues(baseline.current)
     setError(undefined)
-  }, [form.reset])
+  }, [resetFormValues])
   const onSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>): void => {
       event.preventDefault()

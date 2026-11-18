@@ -5,7 +5,14 @@
  */
 
 import type { Dispatch, SetStateAction } from 'react'
-import { useCallback, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'react'
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 
 import type {
   FieldRegistration,
@@ -24,10 +31,43 @@ import {
   snapshotFormValue,
 } from '@molecule/app-forms'
 
+/** A controller read in the shape useSyncExternalStore subscribes to. */
+interface SnapshotStore<S> {
+  getSnapshot: () => S
+  subscribe: (onChange: () => void) => () => void
+}
+
 /**
  * Adapt controller notifications to React's stable snapshot contract. Providers
  * may return fresh objects from their getters; reads between notifications must
  * still return the same snapshot to useSyncExternalStore.
+ *
+ * @param form - Controller that owns the subscription.
+ * @param read - Reads the form state or a selected field.
+ * @returns The store: the snapshot of the last notification, and its subscription.
+ */
+function createSnapshotStore<T extends FormValuesConstraint<T>, S>(
+  form: FormController<T>,
+  read: () => S,
+): SnapshotStore<S> {
+  let snapshot = read()
+  return {
+    getSnapshot: () => snapshot,
+    subscribe: (onChange: () => void) => {
+      const refresh = (): void => {
+        snapshot = read()
+        onChange()
+      }
+      const unsubscribe = form.subscribe(refresh)
+      // A controller can change after render but before React subscribes.
+      refresh()
+      return unsubscribe
+    },
+  }
+}
+
+/**
+ * Subscribes to one read of a controller (see {@link createSnapshotStore}).
  *
  * @param form - Controller that owns the subscription.
  * @param read - Reads the form state or a selected field.
@@ -37,23 +77,44 @@ function useFormSnapshot<T extends FormValuesConstraint<T>, S>(
   form: FormController<T>,
   read: () => S,
 ): S {
-  const store = useMemo(() => {
-    let snapshot = read()
-    return {
-      getSnapshot: () => snapshot,
-      subscribe: (onChange: () => void) => {
-        const refresh = (): void => {
-          snapshot = read()
-          onChange()
-        }
-        const unsubscribe = form.subscribe(refresh)
-        // A controller can change after render but before React subscribes.
-        refresh()
-        return unsubscribe
-      },
-    }
-  }, [form, read])
+  const store = useMemo(() => createSnapshotStore(form, read), [form, read])
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
+}
+
+/** The cached [edit, fill] pair `asState` returns for one field (or, keyed `undefined`, the whole form). */
+type FieldStateActions<T> = readonly [
+  Dispatch<SetStateAction<T | T[keyof T]>>,
+  (
+    value: Partial<T> | T[keyof T] | ((previous: T | T[keyof T]) => Partial<T> | T[keyof T]),
+  ) => void,
+]
+
+/**
+ * Everything that belongs to one form controller. A `resetKey` change replaces
+ * it as a whole, so no snapshot or cached action outlives its controller.
+ */
+interface ControllerScope<T extends FormValuesConstraint<T>> {
+  /** The `resetKey` the controller was created for. */
+  key: UseFormOptions<T>['resetKey']
+  form: FormController<T>
+  /** The whole-form state snapshot. */
+  state: SnapshotStore<FormState<T>>
+  /** `asState`'s actions per field, created on first use. */
+  actions: Map<keyof T | undefined, FieldStateActions<T>>
+}
+
+/**
+ * Creates the scope of a new controller.
+ *
+ * @param key - The `resetKey` it is created for.
+ * @param form - The controller.
+ * @returns Its scope.
+ */
+function createControllerScope<T extends FormValuesConstraint<T>>(
+  key: UseFormOptions<T>['resetKey'],
+  form: FormController<T>,
+): ControllerScope<T> {
+  return { key, form, state: createSnapshotStore(form, () => form.getState()), actions: new Map() }
 }
 
 /**
@@ -164,23 +225,28 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
 ): UseFormResult<T> {
   const { createForm = createBondedForm, resetKey, ...formOptions } = options
 
-  // Create form controller once
-  const formRef = useRef<FormController<T> | null>(null)
-  const formKey = useRef(resetKey)
-  if (!formRef.current || !Object.is(formKey.current, resetKey)) {
-    formRef.current = createForm(formOptions)
-    formKey.current = resetKey
+  // One controller per `resetKey`, kept in state: a render React throws away
+  // (an interrupted transition, a suspended tree) leaves the committed one.
+  const [heldScope, setHeldScope] = useState(() =>
+    createControllerScope(resetKey, createForm(formOptions)),
+  )
+  let scope = heldScope
+  if (!Object.is(heldScope.key, resetKey)) {
+    scope = createControllerScope(resetKey, createForm(formOptions))
+    setHeldScope(scope)
   }
-  const form = formRef.current
-  const mounted = useRef(true)
+  const form = scope.form
+  // The controller on screen; a submit that finishes after its controller was
+  // replaced or unmounted must not call the page's handler.
+  const liveForm = useRef<FormController<T> | null>(null)
   const values = options.values
   const keepDirtyValues = options.resetOptions?.keepDirtyValues !== false
   const lastExternalValues = useRef<{ form: FormController<T>; values: Partial<T> } | null>(null)
 
   useLayoutEffect(() => {
-    mounted.current = true
+    liveForm.current = form
     return () => {
-      mounted.current = false
+      liveForm.current = null
     }
   }, [form])
 
@@ -202,10 +268,11 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     form.updateValues(values, { keepDirtyValues })
   }, [form, keepDirtyValues, values])
 
-  const readState = useCallback(() => form.getState(), [form])
-  const formState = useFormSnapshot(form, readState)
-  const stateSnapshots = useMemo(() => new WeakMap<FormController<T>, FormState<T>>(), [])
-  stateSnapshots.set(form, formState)
+  const formState = useSyncExternalStore(
+    scope.state.subscribe,
+    scope.state.getSnapshot,
+    scope.state.getSnapshot,
+  )
 
   // Memoized methods
   const register = useCallback(
@@ -218,19 +285,16 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
   const getValue = useCallback(<K extends keyof T>(name: K) => form.getValue(name), [form])
 
   const setValue = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <K extends keyof T>(name: K, value: T[K]) => form.setValue(name as any, value as any),
+    <K extends keyof T>(name: K, value: T[K]) => form.setValue(String(name), value),
     [form],
   )
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getError = useCallback((name: keyof T) => form.getError(name as any), [form])
+  const getError = useCallback((name: keyof T) => form.getError(String(name)), [form])
 
   const setError = useCallback(
     (name: keyof T, error: string | undefined) => {
       if (error !== undefined) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        form.setError(name as any, error)
+        form.setError(String(name), error)
       } else {
         form.clearError(name)
       }
@@ -248,27 +312,16 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     [form],
   )
 
-  const stateTuples = useMemo(
-    () =>
-      new Map<
-        keyof T | undefined,
-        readonly [
-          Dispatch<SetStateAction<T | T[keyof T]>>,
-          (
-            value:
-              Partial<T> | T[keyof T] | ((previous: T | T[keyof T]) => Partial<T> | T[keyof T]),
-          ) => void,
-        ]
-      >(),
-    [form],
-  )
+  // The cached actions live in the controller's scope, so a `resetKey` change
+  // drops them with it and no action stays bound to the previous controller.
   const asState = useCallback(
     (name?: keyof T) => {
+      const { form, state, actions } = scope
       const read = (): T | T[keyof T] =>
         name === undefined ? form.getState().values : form.getValue(name)
-      const snapshot = stateSnapshots.get(form) ?? form.getState()
+      const snapshot = state.getSnapshot()
       const visible = name === undefined ? snapshot.values : snapshot.values[name]
-      const existing = stateTuples.get(name)
+      const existing = actions.get(name)
       if (existing) return [visible, ...existing] as const
       const edit = (value: SetStateAction<T | T[keyof T]>): void => {
         const next =
@@ -299,10 +352,10 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
           { keepDirtyValues: true, keepOmittedValues: name !== undefined },
         )
       }
-      stateTuples.set(name, [edit, fill])
+      actions.set(name, [edit, fill])
       return [visible, edit, fill] as const
     },
-    [form, stateTuples, stateSnapshots],
+    [scope],
   ) as UseFormResult<T>['asState']
 
   const validate = useCallback(() => form.validate(), [form])
@@ -310,7 +363,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
   const handleSubmit = useCallback(
     (onSubmit: (values: T) => void | Promise<void>) => {
       return form.handleSubmit((values) => {
-        if (mounted.current && formRef.current === form) return onSubmit(values)
+        if (liveForm.current === form) return onSubmit(values)
       })
     },
     [form],

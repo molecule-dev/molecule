@@ -9,7 +9,7 @@ import { act, createElement, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { QueryOptions, QueryProvider, QueryState } from '@molecule/app-query'
+import type { QueryProvider, QueryState } from '@molecule/app-query'
 import { getQueryClient, resetQueryClient, setProvider } from '@molecule/app-query'
 import { provider as memoryProvider } from '@molecule/app-query-memory'
 import { provider as tanstackProvider } from '@molecule/app-query-tanstack'
@@ -297,15 +297,18 @@ describe.each([
   })
 
   it('refuses retention without a principal', () => {
+    // A caller that asserts a principal it does not have yet (a signed-in id read
+    // before sign-in finishes): the types are satisfied, so only the hook's own
+    // runtime guard stops it.
+    const session: { userId?: string } = {}
     expect(() =>
       renderHook(() =>
-        // Deliberately violating the type that requires `principal` with
-        // `keepPreviousData`, to assert the hook's own runtime guard.
         useQuery({
           key: ['list'],
           keepPreviousData: true,
+          principal: session.userId!,
           fetch: async () => [],
-        } as unknown as QueryOptions<never[]>),
+        }),
       ),
     ).toThrow(/keepPreviousData requires principal/)
   })

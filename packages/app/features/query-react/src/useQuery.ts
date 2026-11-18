@@ -4,10 +4,11 @@
  * @module
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { QueryOptions, QueryState } from '@molecule/app-query'
 import { getQueryClient, hashQueryKey } from '@molecule/app-query'
+import { useValueAtKeyChange } from '@molecule/app-react'
 
 import type { UseQueryResult } from './types.js'
 
@@ -23,7 +24,8 @@ const IDLE: QueryState<never> = {
 interface LoadedDocument<T> {
   hash: string
   principal: string
-  value: QueryState<T>
+  data: T
+  updatedAt: QueryState<T>['updatedAt']
 }
 
 /** The key this hook observes, and the principal that was current when it started to. */
@@ -90,8 +92,10 @@ export function useQuery<T>(options: QueryOptions<T> | null): UseQueryResult<T> 
     )
   }
   // Options are read once per key: a fresh `fetch` closure every render must
-  // not resubscribe.
-  const stable = useMemo(() => options, [hash])
+  // not resubscribe. They are the options of the render in which the key last
+  // changed, kept in state, so a render React throws away (an interrupted
+  // transition, a suspended tree) leaves the committed key's options.
+  const stable = useValueAtKeyChange(options, [hash])
   const setData = useCallback<UseQueryResult<T>['setData']>(
     (value) => {
       if (!stable) return
@@ -120,13 +124,23 @@ export function useQuery<T>(options: QueryOptions<T> | null): UseQueryResult<T> 
     hash,
     value: stable ? getQueryClient().getState<T>(stable.key) : (IDLE as QueryState<T>),
   }))
-  // The previous document is remembered ACROSS renders, so the render that
-  // first observes a new key still has the rows a person is looking at.
-  const loaded = useRef<LoadedDocument<T> | null>(null)
+  // Observing nothing forgets the last key's state, so observing that key again
+  // starts from the cache rather than from the state it had before.
+  if (!stable && state.hash !== '') setState({ hash: '', value: IDLE as QueryState<T> })
   // A key's document belongs to the principal that was current when the hook
   // started observing that key: a principal change the key does not reflect
   // never relabels the document on screen as the new principal's.
-  const observed = useRef<ObservedKey | null>(null)
+  const [observedKey, setObservedKey] = useState<ObservedKey>({ hash, principal })
+  let observed = observedKey
+  if (observedKey.hash !== hash) {
+    observed = { hash, principal }
+    setObservedKey(observed)
+  }
+  // The previous document is remembered ACROSS renders, so the render that
+  // first observes a new key still has the rows a person is looking at. Both
+  // live in state, updated while rendering: a render React throws away
+  // remembers nothing.
+  const [loaded, setLoaded] = useState<LoadedDocument<T> | null>(null)
 
   const current =
     state.hash === hash
@@ -135,44 +149,56 @@ export function useQuery<T>(options: QueryOptions<T> | null): UseQueryResult<T> 
         ? getQueryClient().getState<T>(stable.key)
         : (IDLE as QueryState<T>)
 
-  const previous = keepPreviousData ? loaded.current : null
-  const value: QueryState<T> =
-    previous !== null &&
-    previous.principal === principal &&
-    previous.hash !== hash &&
-    current.data === undefined &&
-    (current.status === 'idle' || current.status === 'loading')
-      ? {
-          ...current,
-          data: previous.value.data,
-          updatedAt: previous.value.updatedAt,
-          isPreviousData: true,
-        }
-      : current
+  const previous = keepPreviousData ? loaded : null
+  // One identity while a retained document is showing: the spread below would
+  // otherwise hand the result memo a fresh object on every render.
+  const value: QueryState<T> = useMemo(
+    () =>
+      previous !== null &&
+      previous.principal === principal &&
+      previous.hash !== hash &&
+      current.data === undefined &&
+      (current.status === 'idle' || current.status === 'loading')
+        ? {
+            ...current,
+            data: previous.data,
+            updatedAt: previous.updatedAt,
+            isPreviousData: true,
+          }
+        : current,
+    [previous, principal, hash, current],
+  )
 
-  useEffect(() => {
-    if (observed.current?.hash !== hash) observed.current = { hash, principal }
-    // A document is remembered only as its own principal's answer. While a
-    // retained previous document is showing, the memory is what makes it
-    // survive the fetch; keep it until this key answers. Anything else (no
-    // principal, a switch, a failure, a key observed under another principal)
-    // clears it, so a later key change can never fall back to another
-    // principal's document.
-    if (value.isPreviousData === true) return
-    loaded.current =
+  // A document is remembered only as its own principal's answer. While a
+  // retained previous document is showing, the memory is what makes it
+  // survive the fetch; keep it until this key answers. Anything else (no
+  // principal, a switch, a failure, a key observed under another principal)
+  // clears it, so a later key change can never fall back to another
+  // principal's document. Compared by field, since a provider may return a
+  // fresh state object for the same document.
+  if (value.isPreviousData !== true) {
+    if (
       principal !== undefined &&
-      observed.current.principal === principal &&
+      observed.principal === principal &&
       value.data !== undefined &&
       value.status === 'success'
-        ? { hash, principal, value }
-        : null
-  }, [hash, principal, value])
+    ) {
+      if (
+        loaded === null ||
+        loaded.hash !== hash ||
+        loaded.principal !== principal ||
+        loaded.data !== value.data ||
+        loaded.updatedAt !== value.updatedAt
+      ) {
+        setLoaded({ hash, principal, data: value.data, updatedAt: value.updatedAt })
+      }
+    } else if (loaded !== null) {
+      setLoaded(null)
+    }
+  }
 
   useEffect(() => {
-    if (!stable) {
-      setState({ hash: '', value: IDLE as QueryState<T> })
-      return
-    }
+    if (!stable) return
     const client = getQueryClient()
     return client.subscribe<T>(stable, (value) => setState({ hash, value }))
   }, [stable, hash])

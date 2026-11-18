@@ -10,6 +10,7 @@ import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http
 import { t } from '@molecule/app-i18n'
 
 import { HttpContext } from '../contexts.js'
+import { useEffectEvent } from './useEffectEvent.js'
 
 /**
  * Hook to access the HTTP client from context.
@@ -212,13 +213,15 @@ export function useHttp<T>(
   }, [])
 
   // Execute immediately if requested — mount only, as it has always been.
-  // `immediate` and `execute` are deliberately not dependencies: re-running this
+  // `immediate` and `execute` are read through an Effect Event rather than
+  // listed as dependencies: re-running this effect on a later identity change
   // would turn a state update into a second request, which is the historical
   // contract of this option (and every useGet(url, { immediate: true })'s).
+  const executeOnMount = useEffectEvent(() => {
+    if (immediate) void execute()
+  })
   useEffect(() => {
-    if (immediate) {
-      execute()
-    }
+    executeOnMount()
   }, [])
 
   return {
