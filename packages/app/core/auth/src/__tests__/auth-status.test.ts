@@ -174,6 +174,72 @@ describe('AuthState.status', () => {
     expect(client.getAccessToken()).toBeNull()
   })
 
+  it.each([400, 404])(
+    'restores a token from its external key and clears it on configured HTTP %s',
+    async (status) => {
+      const storage = createMockStorage()
+      const token = createMockJWT()
+      storage.setItem('directory.access', token)
+      mockFetch.mockImplementationOnce(() => createMockResponse({}, status))
+      const client = createJWTAuthClient({
+        baseURL: '/api',
+        storage,
+        tokenKey: 'directory.access',
+        authScheme: 'Token',
+        currentUserEndpoint: '/account',
+        currentUserRejectionStatuses: [400, 404],
+      })
+
+      await client.initialize()
+
+      expect(mockFetch).toHaveBeenCalledOnce()
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/account',
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.objectContaining({ Authorization: `Token ${token}` }),
+        }),
+      )
+      expect(client.getState().status).toBe('unauthenticated')
+      expect(client.getAccessToken()).toBeNull()
+      expect(storage.getItem('directory.access')).toBeNull()
+    },
+  )
+
+  it('honors a configured rejection from the current-user cookie probe', async () => {
+    const client = createJWTAuthClient({
+      storage: 'memory',
+      cookieRestore: 'always',
+      currentUserRejectionStatuses: [400],
+    })
+    mockFetch.mockImplementationOnce(() => createMockResponse({}, 400))
+
+    await client.initialize()
+
+    expect(client.getState().status).toBe('unauthenticated')
+  })
+
+  it.each([422, 503])(
+    'keeps the token when configured validation receives HTTP %s outside its policy',
+    async (status) => {
+      const storage = createMockStorage()
+      const token = createMockJWT()
+      storage.setItem('directory.access', token)
+      mockFetch.mockImplementationOnce(() => createMockResponse({}, status))
+      const client = createJWTAuthClient({
+        storage,
+        tokenKey: 'directory.access',
+        currentUserRejectionStatuses: [400, 404],
+      })
+
+      await client.initialize()
+
+      expect(client.getState().status).toBe('unavailable')
+      expect(client.getAccessToken()).toBe(token)
+      expect(storage.getItem('directory.access')).toBe(token)
+    },
+  )
+
   it('validateSession KEEPS the token and user on a 404 and names currentUserEndpoint', async () => {
     // xr-molecule-flash-m159: an app served its own current-user route and
     // rewrote `authConfig` without `currentUserEndpoint`, so the default

@@ -278,7 +278,7 @@ interface SessionCookieRestore<T> {
   user: T | null
   /** Whether a current-user request was sent at all. */
   attempted: boolean
-  /** Whether the server rejected the cookie (401/403) — the session is dead. */
+  /** Whether the current-user endpoint rejected the session. */
   rejected: boolean
   /** What went wrong when a request was sent but no user came back. */
   error?: string
@@ -381,6 +381,7 @@ export const createJWTAuthClient = <
     changePasswordEndpoint = '/auth/password/change',
     changePasswordMethod = 'POST',
     currentUserEndpoint = '/users/me',
+    currentUserRejectionStatuses = [],
     cookieRestore = 'hint',
     requestTimeout = 10_000,
     storagePrefix = 'molecule:auth:',
@@ -395,6 +396,14 @@ export const createJWTAuthClient = <
       'requestTimeout must be a positive number of milliseconds below 2147483648',
     )
   }
+  if (
+    currentUserRejectionStatuses.some(
+      (status) => !Number.isInteger(status) || status < 400 || status > 499,
+    )
+  ) {
+    throw new RangeError('currentUserRejectionStatuses must contain only HTTP 4xx status codes')
+  }
+  const currentUserRejections = new Set([401, 403, ...currentUserRejectionStatuses])
 
   const logger = getLogger('auth')
 
@@ -789,7 +798,7 @@ export const createJWTAuthClient = <
       const failure = new I18nError(key, undefined, fallback) as AuthError
       // The HTTP status, so a caller can tell "this token is dead" (401/403)
       // from "the server did not answer" (5xx, network) or "the route does not
-      // exist" (404) — `validateSession` clears the session only on the first.
+      // exist" (404). `validateSession` uses the current-user rejection policy.
       failure.status = response.status
       // The response body with credential values redacted — see {@link AuthError}.
       failure.body = body
@@ -979,10 +988,8 @@ export const createJWTAuthClient = <
       } catch (error) {
         if (!isCurrent()) return { user: null, attempted: false, rejected: false, stale: true }
         const httpStatus = (error as { status?: number }).status
-        // Only a REJECTED cookie (401/403) proves the hint stale: the session
-        // expired server-side, or the database was reset. Drop the hint then, so
-        // later loads skip a guaranteed-401 probe; the next login re-sets it.
-        if (httpStatus === 401 || httpStatus === 403) {
+        // An explicit rejection proves the hint stale. The next login re-sets it.
+        if (httpStatus !== undefined && currentUserRejections.has(httpStatus)) {
           clearSessionHintCookie()
           cookieSessionCandidate = false
           return { user: null, attempted: true, rejected: true, failure: error }
@@ -1128,7 +1135,7 @@ export const createJWTAuthClient = <
       if (outcome.error !== undefined) {
         // A cookie-only candidate is still a session candidate. A transient
         // failure (including a missing current-user route) leaves it available
-        // for retry; only 401/403 may classify it as signed out.
+        // for retry under the current-user rejection policy.
         setState({
           initialized: true,
           status: 'unavailable',
@@ -1725,14 +1732,9 @@ export const createJWTAuthClient = <
         } catch (error) {
           if (!isCurrentProfileRead()) return
           const httpStatus = (error as { status?: number }).status
-          // ONLY 401 and 403 are the server rejecting this token (revoked, expired,
-          // a reset database): drop the session rather than keep sending a header
-          // the server refuses. Any other status is not about the credential —
-          // most importantly a 404, which means `currentUserEndpoint` does not
-          // exist on this API. A route-not-found neither verifies nor rejects the
-          // token, so clearing it here signed every user out of a working session
-          // over a configuration mistake.
-          if (httpStatus === 401 || httpStatus === 403) {
+          // Keep the default safe when a configured endpoint does not exist. An
+          // API can explicitly name further 4xx codes that reject the session.
+          if (httpStatus !== undefined && currentUserRejections.has(httpStatus)) {
             endLocalSession()
             return
           }

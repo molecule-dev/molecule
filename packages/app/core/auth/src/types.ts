@@ -691,8 +691,9 @@ export interface AuthClient<
    * Exchanges a stored refresh token, or re-reads `currentUserEndpoint` with the
    * existing access token/session cookie when the API has no refresh credential.
    * That fallback maps, stores and publishes the server user without renewing
-   * the access token. Failures reject; 401/403 ends the session and transient
-   * failures retain it as unavailable. Use {@link updateProfile} for a profile
+   * the access token. Failures reject. A 401/403 ends the session, as does an
+   * additional {@link AuthClientConfigOptions.currentUserRejectionStatuses}
+   * code from the fallback. Transient failures retain it as unavailable. Use {@link updateProfile} for a profile
    * save, or {@link setUser} with the canonical row from an app-owned mutation.
    */
   refresh(): Promise<AuthResult<T>>
@@ -734,9 +735,9 @@ export interface AuthClient<
    * With a stored token AND a stored user it marks the session `'authenticated'`
    * SYNCHRONOUSLY — before its first `await` — so the first render is the
    * signed-in UI and no page waits on a verification round trip. Any check
-   * (a refresh, the cookie-restore probe) settles behind that render, and only an
-   * explicit 401/403 ends the session; a network/5xx/404 failure keeps it and
-   * reports `'unavailable'`. A token-only or cookie-only candidate stays
+   * (a refresh, the cookie-restore probe) settles behind that render. An
+   * explicit rejection ends the session (401/403 by default). Network and
+   * 5xx failures keep it as `'unavailable'`. A token-only or cookie-only candidate stays
    * `'loading'` until its current-user request decides the session. With neither
    * a token nor a cookie candidate, the client is immediately `'unauthenticated'`.
    *
@@ -755,8 +756,9 @@ export interface AuthClient<
    *
    * - The server confirms the user: the session is refreshed and {@link AuthState.status}
    *   stays `'authenticated'`.
-   * - The server answers 401 or 403: the token is dead — the stored session is
-   *   cleared and the status becomes `'unauthenticated'`.
+   * - The current-user endpoint answers 401, 403, or a code configured in
+   *   {@link AuthClientConfigOptions.currentUserRejectionStatuses}: the stored session
+   *   is cleared and the status becomes `'unauthenticated'`.
    * - The server cannot confirm the session — a network failure, a 5xx, or a 404
    *   from a misconfigured {@link AuthClientConfig.currentUserEndpoint}: the
    *   session (token AND user) is KEPT and the status becomes `'unavailable'`, so
@@ -973,12 +975,20 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * {@link AuthClient.validateSession} on every reload to confirm a stored token
    * is still valid. Must return the user (as `user` or `props`).
    *
-   * Set it whenever the app serves its own current-user route: a wrong value
-   * answers 404, which `validateSession` reports as `'unavailable'` and keeps the
-   * stored token instead of signing the user out — but the session then stays
-   * unconfirmed.
+   * Set it whenever the app serves its own current-user route. By default a
+   * 404 leaves the session `'unavailable'` and retains the stored token for retry.
    */
   currentUserEndpoint?: string
+
+  /**
+   * Additional HTTP 4xx codes that explicitly reject the session at
+   * {@link currentUserEndpoint}. A 401 or 403 always clears the session. For
+   * example, add `[400]` when the endpoint uses 400 for an invalid credential.
+   * Add 404 only if the route exists and uses that status to reject a session.
+   * Network failures and 5xx answers still keep the session available for retry.
+   * Applies to token validation and cookie restoration.
+   */
+  currentUserRejectionStatuses?: readonly number[]
 
   /**
    * When to probe {@link currentUserEndpoint} for an HttpOnly cookie session.
@@ -991,7 +1001,7 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * `storage: 'memory'` and the API's current-user endpoint; the request includes
    * credentials. An anonymous load then makes a probe too. A local sign-out
    * suppresses probes until a successful sign-in establishes another session.
-   * Network/5xx/404 failures leave a retryable candidate; 401/403 ends it.
+   * {@link currentUserRejectionStatuses} controls additional rejection codes.
    */
   cookieRestore?: 'hint' | 'always'
 

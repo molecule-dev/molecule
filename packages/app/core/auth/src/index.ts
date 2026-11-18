@@ -10,7 +10,8 @@
  *
  * **What this client already handles**
  * - `getAccessToken()` returns a stored token immediately, even while restore is pending.
- * - Only 401/403 ends a session; network and 5xx restore failures retain it.
+ * - Current-user 401/403 ends a session by default; network and 5xx failures retain it.
+ *   Set `currentUserRejectionStatuses` when that endpoint uses additional 4xx codes.
  * - `requestTimeout` bounds each complete auth request (default 10000 ms), including
  *   its response body. A restore timeout retains the candidate as `'unavailable'`.
  * - `tokenKey`/`storagePrefix`, `authScheme`, `mapAuthResponse`,
@@ -74,7 +75,7 @@
  * client's `withCredentials: true`. This explicit policy also probes anonymous
  * loads; a local sign-out suppresses further probes until sign-in succeeds. With only an access token,
  * it loads and maps the profile from that endpoint once before deciding the
- * session: 401/403 clears the token; network/5xx failures retain it as
+ * session: an explicit rejection clears the token; network/5xx failures retain it as
  * `unavailable`. `AuthClientConfig.storage` is
  * the config field that decides which route a reload takes. A store written
  * beside the client answers requests before its own restore settles: the first
@@ -125,16 +126,17 @@
  * Do not replace this guard with `!isAuthenticated` or
  * `status !== 'authenticated'`, or poll the session before painting the form.
  * `validateSession()` is the background re-check that produces the last two: call
- * it after the first render — a 401 or 403 clears the token (`'unauthenticated'`),
- * while a network failure, a 5xx, or a 404 from a wrong `currentUserEndpoint`
+ * it after the first render. A 401, 403, or configured rejection clears the token
+ * (`'unauthenticated'`). By default a network failure, a 5xx, or a 404 from a wrong `currentUserEndpoint`
  * KEEPS the token and the user (`'unavailable'`, retryable; the 404 error names
  * `currentUserEndpoint`). Do not build a
  * `validating`/`unavailable` flag beside the client: a second module-level state
  * plus its own listener set is a second session store, and it drifts from the
  * client's.
  *
- * **Only a server 401/403 rejects a credential; no response never does.** Explicit
- * sign-out and an application restore predicate can also end the local session.
+ * **A server rejection ends a session.** The default codes are 401 and 403. Configure
+ * additional codes for the current-user endpoint with `currentUserRejectionStatuses`.
+ * Explicit sign-out and an application restore predicate can also end the local session.
  * Every server-failure path that clears the stored session (`validateSession`, the cookie restore, the initial
  * refresh, the background refresh timer) keys on the server REJECTING the
  * credential. An aborted request, a dropped connection, or a 5xx arrives with no
@@ -334,6 +336,9 @@
  * returns the token, `getState().status` includes `unavailable`, and `getUser()` reads
  * the mapped profile. The configured `tokenKey` also applies to these getters.
  * Keep an integration's response shape local; do not persist another token or user.
+ * If that API's current-user GET rejects a credential with HTTP 400, set
+ * `currentUserRejectionStatuses: [400]` on the same client. Its normal initialization
+ * and background validation clear the exact storage key and notify the framework.
  *
  * ```typescript
  * import { getClient } from '@molecule/app-auth'
