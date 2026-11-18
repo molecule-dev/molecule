@@ -28,7 +28,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/app-ai-chat": "1.8.0",
+    "@molecule/app-ai-chat": "1.8.1",
     "@molecule/app-i18n": "1.2.2",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

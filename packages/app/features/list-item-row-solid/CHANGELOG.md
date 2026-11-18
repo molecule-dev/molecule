@@ -1,5 +1,11 @@
 # @molecule/app-list-item-row-solid
 
+## 1.2.0
+
+### Minor Changes
+
+- Add the `toggle` prop: a row toggle renders as its own button beside the actions, as in `@molecule/app-list-item-row-react`.
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-auth-modal-react
 
+## 4.0.3
+
+### Patch Changes
+
+- The touch-first viewport check reads `matchMedia` through `useSyncExternalStore` instead of copying it into state from an effect.
+
 ## 4.0.2
 
 ### Patch Changes

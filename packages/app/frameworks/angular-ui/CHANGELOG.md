@@ -1,5 +1,11 @@
 # @molecule/app-ui-angular
 
+## 1.2.1
+
+### Patch Changes
+
+- `Dropdown` no longer reports `openChange(false)` on mount, so a controlled menu mounted open stays open when its owner follows `openChange`.
+
 ## 1.2.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-embeddable-chat-widget
 
+## 4.0.3
+
+### Patch Changes
+
+- Remove unused code; behaviour is unchanged.
+
 ## 4.0.2
 
 ### Patch Changes

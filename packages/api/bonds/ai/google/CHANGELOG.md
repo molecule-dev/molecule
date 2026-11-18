@@ -1,5 +1,11 @@
 # @molecule/api-ai-google
 
+## 1.3.8
+
+### Patch Changes
+
+- Report thinking token counts from Gemini responses.
+
 ## 1.3.7
 
 ### Patch Changes

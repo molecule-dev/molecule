@@ -1,5 +1,11 @@
 # @molecule/app-ui-svelte
 
+## 1.1.7
+
+### Patch Changes
+
+- `Dropdown` no longer reports `openChange(false)` on mount, so a controlled menu mounted open stays open when its owner follows `openChange`.
+
 ## 1.1.6
 
 ### Patch Changes

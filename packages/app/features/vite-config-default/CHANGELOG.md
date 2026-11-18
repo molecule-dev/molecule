@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.3.2
+
+### Patch Changes
+
+- Register the production service worker independently of the app entry, keep registration idempotent, and leave server navigations on the network.
+
 ## 1.3.1
 
 ### Patch Changes

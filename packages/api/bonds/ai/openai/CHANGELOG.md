@@ -1,5 +1,11 @@
 # @molecule/api-ai-openai
 
+## 1.5.3
+
+### Patch Changes
+
+- Report reasoning token counts from OpenAI chat and Responses API calls.
+
 ## 1.5.2
 
 ### Patch Changes

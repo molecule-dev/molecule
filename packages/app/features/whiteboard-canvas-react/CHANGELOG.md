@@ -1,5 +1,11 @@
 # @molecule/app-whiteboard-canvas-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Remove unused code; behaviour is unchanged.
+
 ## 4.0.0
 
 ### Patch Changes

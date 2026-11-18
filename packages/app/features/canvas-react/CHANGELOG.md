@@ -1,5 +1,11 @@
 # @molecule/app-feature-canvas-react
 
+## 4.0.2
+
+### Patch Changes
+
+- `useCanvasViewport` and `useCanvasSelection` seed their state from the first render's `initial` without reading a ref during render.
+
 ## 4.0.1
 
 ### Patch Changes

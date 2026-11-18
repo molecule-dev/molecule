@@ -1,5 +1,11 @@
 # @molecule/app-countdown-react
 
+## 4.0.1
+
+### Patch Changes
+
+- `useCountdown` reads the clock as an external store: a new target reads it afresh (also with `tickMs` 0), and the returned object keeps its identity between ticks.
+
 ## 4.0.0
 
 ### Patch Changes

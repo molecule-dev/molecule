@@ -42,8 +42,8 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.2.2",
-    "@molecule/app-logger": "1.0.6",
-    "@molecule/app-react": "4.7.3",
+    "@molecule/app-logger": "1.1.0",
+    "@molecule/app-react": "4.8.0",
     "@molecule/app-ui": "1.4.0",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

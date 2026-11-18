@@ -1,5 +1,15 @@
 # @molecule/app-settings-panel-react
 
+## 4.2.0
+
+### Minor Changes
+
+- Every framework exports `AccountValues`, `Tier`, `TierPrice`, `TwoFactorSetup`, `SettingsContainerProps` and `DevicesSectionProps`; the Angular package no longer exports `provideSettingsPanelContext`, which only its own container uses.
+
+### Patch Changes
+
+- `DevicesSection` ignores a device list that arrives after it unmounts, and `SettingsContainer` keeps its context value stable while `onClose` keeps its identity.
+
 ## 4.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-listing-card-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render an optional server-backed toggle and its count together on a listing card.
+
 ## 4.0.0
 
 ### Patch Changes

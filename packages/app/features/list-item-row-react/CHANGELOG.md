@@ -1,5 +1,11 @@
 # @molecule/app-list-item-row-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Let list rows render a configured server-backed toggle beside their read-only metadata.
+
 ## 4.0.1
 
 ### Patch Changes

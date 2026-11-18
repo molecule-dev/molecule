@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.2.3
+
+### Patch Changes
+
+- Report reasoning token counts from DeepSeek responses.
+
 ## 1.2.2
 
 ### Patch Changes

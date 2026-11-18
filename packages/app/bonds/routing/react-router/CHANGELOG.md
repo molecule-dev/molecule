@@ -1,5 +1,13 @@
 # @molecule/app-routing-react-router
 
+## 1.5.0
+
+### Minor Changes
+
+- Render URL-backed list navigation as a styled list while keeping destinations and pagination linked.
+- Pass typed route parameters directly to page components declared with defineRoute.
+- Add defineRoute so React Router pages receive the parameters declared by their path.
+
 ## 1.4.2
 
 ### Patch Changes

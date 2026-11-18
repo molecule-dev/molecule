@@ -1,5 +1,12 @@
 # @molecule/app-query-angular
 
+## 1.4.0
+
+### Minor Changes
+
+- Every query binding exports the same names: React adds `useListQuery` with `ListQueryRoute`, `ListQueryState`, `ListQueryInputs` and `ListQuerySource`, and each binding names what `useQuery` takes (`QueryOptionsInput`) and what `QueryContent` renders and passes (`QueryContentSlots`, `QueryContentContext`, `QueryContentErrorContext`) in its own framework's form.
+- Add `recordKey` and `getRecordId` to `QueryContent`, as in `@molecule/app-query-react`: a newly opened record remounts its content, and a record action waits for a nonempty ID.
+
 ## 1.3.1
 
 ### Patch Changes

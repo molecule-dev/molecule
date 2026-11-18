@@ -1,5 +1,16 @@
 # @molecule/app-react-native
 
+## 4.2.0
+
+### Minor Changes
+
+- Re-exports the new `@molecule/app-react` hooks (peer raised to `^4.8.0`); `useSafeArea` resolves `react-native-safe-area-context` once and calls its hook unconditionally.
+- Re-exports `SelectingStoreOptions` from `@molecule/app-react`, the options type for a `useStore` call with a selector.
+
+### Patch Changes
+
+- `useAppState` reads `AppState` through `useSyncExternalStore`, so the first render reports the real state (not `'active'`) and a change before the subscription is not missed.
+
 ## 4.1.0
 
 ### Minor Changes

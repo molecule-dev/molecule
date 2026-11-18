@@ -1,5 +1,11 @@
 # @molecule/api-ai-alibaba
 
+## 1.2.3
+
+### Patch Changes
+
+- Report reasoning token counts from Alibaba Cloud responses.
+
 ## 1.2.2
 
 ### Patch Changes

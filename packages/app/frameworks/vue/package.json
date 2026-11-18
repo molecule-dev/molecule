@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-vue",
-  "version": "3.7.1",
+  "version": "3.7.2",
   "description": "Vue framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -55,7 +55,7 @@
     }
   },
   "devDependencies": {
-    "@molecule/app-ai-chat": "1.8.0",
+    "@molecule/app-ai-chat": "1.8.1",
     "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-framework-conformance": "0.0.0",
     "@molecule/app-utilities": "1.0.7",

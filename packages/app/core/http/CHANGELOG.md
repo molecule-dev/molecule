@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.9.0
+
+### Minor Changes
+
+- Let custom HTTP session restores use the configured client without waiting on their own auth gate.
+
 ## 1.8.4
 
 ### Patch Changes

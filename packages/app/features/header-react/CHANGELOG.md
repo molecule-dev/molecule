@@ -1,5 +1,11 @@
 # @molecule/app-header-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Render declared header destinations as native links in a named navigation landmark.
+
 ## 4.0.0
 
 ### Patch Changes

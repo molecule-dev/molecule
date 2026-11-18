@@ -1,5 +1,18 @@
 # @molecule/app-react
 
+## 4.8.0
+
+### Minor Changes
+
+- Add `useEffectEvent`, `useStableCallback` and `useValueAtKeyChange` under `@molecule/app-react/render`; `useForm`, `useHttp` and `useTranslation` no longer keep values from a render React discards, a locale switch runs a translated component once, and `useStoragePreference`, `useAIModels` and `useEditor` show the new key's, scope's or provider's value in the first render after it changes.
+- `useStore` without a selector returns the store's own state type (a second type argument now requires a `selector`, typed by the new `SelectingStoreOptions`), and `usePromise` takes its result and parameter types from the wrapped function (`usePromise<T, A>`). `useTheme` reads a provider's optional `onThemeChange`/`getThemeName` through type guards.
+
+### Patch Changes
+
+- `useAIModels` returns one empty `models` list, shared by every caller, while the catalog loads or after a failed fetch.
+- `useAIModels` returns the same empty `models` list while the catalog loads or after a failed fetch, so its identity changes only with the catalog.
+- Render cached sessions and signed-out pages on the first session read.
+
 ## 4.7.3
 
 ### Patch Changes

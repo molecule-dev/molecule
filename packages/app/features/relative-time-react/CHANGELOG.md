@@ -1,5 +1,11 @@
 # @molecule/app-relative-time-react
 
+## 4.0.1
+
+### Patch Changes
+
+- `locale` now defaults to the app's active locale, so the label follows a locale switch; an explicit `locale` still wins. All five framework packages behave the same way.
+
 ## 4.0.0
 
 ### Patch Changes

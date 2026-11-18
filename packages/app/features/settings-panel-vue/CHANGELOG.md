@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-vue
 
+## 1.2.0
+
+### Minor Changes
+
+- Every framework exports `AccountValues`, `Tier`, `TierPrice`, `TwoFactorSetup`, `SettingsContainerProps` and `DevicesSectionProps`; the Angular package no longer exports `provideSettingsPanelContext`, which only its own container uses.
+
 ## 1.1.1
 
 ### Patch Changes

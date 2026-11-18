@@ -1,5 +1,11 @@
 # @molecule/api-ai-zhipu
 
+## 1.3.2
+
+### Patch Changes
+
+- Report reasoning token counts from GLM responses.
+
 ## 1.3.1
 
 ### Patch Changes

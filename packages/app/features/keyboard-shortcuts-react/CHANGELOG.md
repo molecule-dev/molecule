@@ -1,5 +1,11 @@
 # @molecule/app-keyboard-shortcuts-react
 
+## 1.1.0
+
+### Minor Changes
+
+- `useKeyboardShortcut` calls the latest committed handler through `useStableCallback` from `@molecule/app-react/render`, so a render React discards never runs; the package now peers on `@molecule/app-react` 4.8 or later.
+
 ## 1.0.5
 
 ### Patch Changes

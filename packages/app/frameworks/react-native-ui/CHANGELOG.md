@@ -1,5 +1,11 @@
 # @molecule/app-ui-react-native
 
+## 1.0.10
+
+### Patch Changes
+
+- `Skeleton` and `Toast` create their `Animated.Value` once per mount in a lazy state initializer instead of on every render.
+
 ## 1.0.9
 
 ### Patch Changes

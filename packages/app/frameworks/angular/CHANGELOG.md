@@ -1,5 +1,13 @@
 # @molecule/app-angular
 
+## 3.7.2
+
+### Patch Changes
+
+- `useAIModels` returns one empty `models` list, shared by every caller, while the catalog loads or after a failed fetch.
+- `useAIModels` returns the same empty `models` list while the catalog loads or after a failed fetch, so its identity changes only with the catalog.
+- Render cached sessions and signed-out pages on the first session read.
+
 ## 3.7.1
 
 ### Patch Changes

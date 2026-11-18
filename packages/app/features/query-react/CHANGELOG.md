@@ -1,5 +1,14 @@
 # @molecule/app-query-react
 
+## 1.8.0
+
+### Minor Changes
+
+- Let QueryContent mount edit forms for the current query record and reset their drafts when its identity changes.
+- Every query binding exports the same names: React adds `useListQuery` with `ListQueryRoute`, `ListQueryState`, `ListQueryInputs` and `ListQuerySource`, and each binding names what `useQuery` takes (`QueryOptionsInput`) and what `QueryContent` renders and passes (`QueryContentSlots`, `QueryContentContext`, `QueryContentErrorContext`) in its own framework's form.
+- `useQuery` keeps the options and previous document of the committed render, so a discarded transition render no longer resubscribes the key on screen; it now peers on `@molecule/app-react` 4.8 or later.
+- Bind query actions to identified records and reject record writes with missing IDs.
+
 ## 1.7.1
 
 ### Patch Changes

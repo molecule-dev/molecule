@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.3.3
+
+### Patch Changes
+
+- Bind query actions to identified records and reject record writes with missing IDs.
+
 ## 1.3.2
 
 ### Patch Changes

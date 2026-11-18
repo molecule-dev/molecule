@@ -1,5 +1,11 @@
 # @molecule/app-inline-edit-react
 
+## 4.0.2
+
+### Patch Changes
+
+- `InlineEdit` shows a new `value` prop in the same render as the prop change instead of one render later.
+
 ## 4.0.1
 
 ### Patch Changes

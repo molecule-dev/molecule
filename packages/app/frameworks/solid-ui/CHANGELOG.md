@@ -1,5 +1,11 @@
 # @molecule/app-ui-solid
 
+## 1.1.5
+
+### Patch Changes
+
+- `Dropdown` no longer reports `openChange(false)` on mount, so a controlled menu mounted open stays open when its owner follows `openChange`.
+
 ## 1.1.4
 
 ### Patch Changes

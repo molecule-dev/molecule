@@ -1,5 +1,11 @@
 # @molecule/app-ide-panel-logic
 
+## 1.3.1
+
+### Patch Changes
+
+- `autoCommitReducer` returns the same state for a `tick` at zero, so a countdown that keeps ticking there causes no re-render.
+
 ## 1.3.0
 
 ### Minor Changes

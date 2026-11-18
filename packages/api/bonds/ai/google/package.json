@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-google",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "description": "Google Gemini AI provider bond — Gemini chat completions over the swappable @molecule/api-ai ai bond (GOOGLE_AI_API_KEY)",
   "homepage": "https://www.molecule.dev/packages/api-ai-google",
   "type": "module",
@@ -33,7 +33,7 @@
     "directory": "packages/api/bonds/ai/google"
   },
   "devDependencies": {
-    "@molecule/api-ai": "1.6.0",
+    "@molecule/api-ai": "1.6.1",
     "@molecule/api-bond": "1.0.4",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

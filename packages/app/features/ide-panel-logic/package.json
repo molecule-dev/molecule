@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ide-panel-logic",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Framework-neutral logic of the molecule.dev IDE panels (chat, preview, file explorer, tests), shared by every framework's IDE package",
   "type": "module",
   "main": "dist/index.js",
@@ -49,7 +49,7 @@
     "@molecule/app-storage": "^1.1.1"
   },
   "devDependencies": {
-    "@molecule/app-ai-chat": "1.8.0",
+    "@molecule/app-ai-chat": "1.8.1",
     "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-code-editor": "1.0.3",
     "@molecule/app-i18n": "1.2.2",

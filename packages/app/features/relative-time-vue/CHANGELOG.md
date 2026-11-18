@@ -1,5 +1,11 @@
 # @molecule/app-relative-time-vue
 
+## 1.1.1
+
+### Patch Changes
+
+- `locale` now defaults to the app's active locale, so the label follows a locale switch; an explicit `locale` still wins. All five framework packages behave the same way.
+
 ## 1.1.0
 
 ### Minor Changes

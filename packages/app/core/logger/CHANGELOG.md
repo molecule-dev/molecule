@@ -1,5 +1,11 @@
 # @molecule/app-logger
 
+## 1.1.0
+
+### Minor Changes
+
+- Loggers from `getLogger` and `createLogger` log through the provider bonded when they log, so a module-level logger follows a provider bonded or swapped later.
+
 ## 1.0.6
 
 ### Patch Changes

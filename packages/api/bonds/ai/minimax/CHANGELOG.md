@@ -1,5 +1,11 @@
 # @molecule/api-ai-minimax
 
+## 1.2.4
+
+### Patch Changes
+
+- Preserve reasoning token counts when MiniMax chat endpoints provide them.
+
 ## 1.2.3
 
 ### Patch Changes

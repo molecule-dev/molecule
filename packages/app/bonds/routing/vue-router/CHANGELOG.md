@@ -1,5 +1,11 @@
 # @molecule/app-routing-vue-router
 
+## 1.1.0
+
+### Minor Changes
+
+- Add defineRoute so Vue Router pages receive the parameters declared by their path.
+
 ## 1.0.9
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-xai
 
+## 1.0.11
+
+### Patch Changes
+
+- Report reasoning token counts from xAI responses.
+
 ## 1.0.10
 
 ### Patch Changes

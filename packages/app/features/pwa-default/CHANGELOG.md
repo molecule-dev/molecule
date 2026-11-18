@@ -1,5 +1,11 @@
 # @molecule/app-pwa-default
 
+## 1.1.3
+
+### Patch Changes
+
+- Register the production service worker independently of the app entry, keep registration idempotent, and leave server navigations on the network.
+
 ## 1.1.2
 
 ### Patch Changes

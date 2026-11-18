@@ -1,5 +1,11 @@
 # @molecule/app-inline-edit-solid
 
+## 1.1.2
+
+### Patch Changes
+
+- `InlineEdit` keeps a typed draft when the parent passes the same `value` again, and resets it only when `value` changes.
+
 ## 1.1.1
 
 ### Patch Changes

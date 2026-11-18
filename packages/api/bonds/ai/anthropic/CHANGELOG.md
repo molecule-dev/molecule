@@ -1,5 +1,11 @@
 # @molecule/api-ai-anthropic
 
+## 1.3.9
+
+### Patch Changes
+
+- Report thinking token counts from Anthropic responses.
+
 ## 1.3.8
 
 ### Patch Changes

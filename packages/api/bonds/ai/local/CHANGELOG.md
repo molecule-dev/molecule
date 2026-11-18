@@ -1,5 +1,11 @@
 # @molecule/api-ai-local
 
+## 1.0.10
+
+### Patch Changes
+
+- Report reasoning token counts when local inference servers provide them.
+
 ## 1.0.9
 
 ### Patch Changes

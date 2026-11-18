@@ -1,5 +1,15 @@
 # @molecule/app-auth
 
+## 3.6.0
+
+### Minor Changes
+
+- Allow applications to configure additional current-user HTTP 4xx codes that end the shared session.
+
+### Patch Changes
+
+- Render cached sessions and signed-out pages on the first session read.
+
 ## 3.5.1
 
 ### Patch Changes

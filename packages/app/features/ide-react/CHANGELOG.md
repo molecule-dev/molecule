@@ -1,5 +1,12 @@
 # @molecule/app-ide-react
 
+## 4.2.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-ide-panel-logic@1.3.1
+
 ## 4.2.0
 
 ### Minor Changes

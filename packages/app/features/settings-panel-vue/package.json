@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-settings-panel-vue",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Composable settings panel — a SettingsContainer + family of section sub-components (Account, Auth, Notifications, Billing, Devices, ThisDevice, LogOutDelete). Apps compose via the default slot, picking which sections to include and what order.",
   "homepage": "https://www.molecule.dev/packages/app-settings-panel-vue",
   "type": "module",
@@ -53,16 +53,16 @@
     "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@molecule/app-auth": "3.5.1",
+    "@molecule/app-auth": "3.6.0",
     "@molecule/app-framework-conformance": "0.0.0",
-    "@molecule/app-http": "1.8.4",
+    "@molecule/app-http": "1.9.0",
     "@molecule/app-i18n": "1.2.2",
     "@molecule/app-icons": "1.0.4",
     "@molecule/app-push": "1.1.0",
     "@molecule/app-ui": "1.4.0",
-    "@molecule/app-ui-vue": "1.1.4",
+    "@molecule/app-ui-vue": "1.1.5",
     "@molecule/app-utilities": "1.0.7",
-    "@molecule/app-vue": "3.7.1",
+    "@molecule/app-vue": "3.7.2",
     "@types/node": "26.6.5",
     "jsdom": "30.1.3",
     "typescript": "6.0.3",

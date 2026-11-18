@@ -1,5 +1,11 @@
 # @molecule/app-tag-input-react
 
+## 4.1.1
+
+### Patch Changes
+
+- Let saved tag lists carry the page’s accessible label and native list attributes.
+
 ## 4.1.0
 
 ### Minor Changes
