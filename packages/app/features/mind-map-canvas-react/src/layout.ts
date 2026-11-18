@@ -65,20 +65,6 @@ export function walkVisible(
 }
 
 /**
- * Count the number of leaves in a subtree (ignoring `collapsed`
- * subtrees, which contribute one leaf for the collapsed node itself).
- *
- * @param node - Subtree root.
- * @returns The number of visible leaves under `node`.
- */
-function countLeaves(node: MindMapNode): number {
-  if (node.collapsed || node.children.length === 0) return 1
-  let n = 0
-  for (const child of node.children) n += countLeaves(child)
-  return n
-}
-
-/**
  * Radial layout: root at `origin`, children fan out around it at
  * uniform angles, each generation living on its own concentric ring.
  * For deeper generations the angular slice of each child is its
@@ -229,10 +215,6 @@ export function computeHorizontalTreePositions(
       else positions.set(id, { x: p.x - rootCross, y: p.y })
     }
   }
-
-  // Suppress an unused-arg lint flag — leaves count is implicit in the
-  // cursor and is intentionally not exposed.
-  void countLeaves
 
   return { positions, edges, visibleNodes }
 }

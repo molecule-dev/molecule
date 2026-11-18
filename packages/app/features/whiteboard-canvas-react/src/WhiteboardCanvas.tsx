@@ -152,7 +152,6 @@ export function WhiteboardCanvas(props: WhiteboardCanvasProps): JSX.Element {
     (e: ReactPointerEvent<HTMLDivElement>) => {
       const innerEl = innerRef.current
       if (!innerEl) return { x: 0, y: 0 }
-      const rect = innerEl.getBoundingClientRect()
       // Use the parent surface (the canvas-surface root) as the
       // screen-space origin; the inner layer's rect is offset/scaled by
       // the current viewport transform, but the surface itself isn't.
@@ -168,10 +167,6 @@ export function WhiteboardCanvas(props: WhiteboardCanvasProps): JSX.Element {
       const innerZoom = Number(innerEl.dataset.canvasZoom ?? viewport.zoom) || 1
       const innerX = Number(innerEl.dataset.canvasX ?? viewport.x) || 0
       const innerY = Number(innerEl.dataset.canvasY ?? viewport.y) || 0
-      // Avoid the unused-rect lint by keeping the rect call above; it
-      // also forces a reflow read so jsdom tests get consistent
-      // measurements.
-      void rect
       return screenToCanvas(screenPoint, { x: innerX, y: innerY, zoom: innerZoom })
     },
     [viewport],

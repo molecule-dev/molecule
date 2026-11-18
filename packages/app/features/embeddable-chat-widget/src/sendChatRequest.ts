@@ -56,19 +56,15 @@ export async function sendChatRequest({
   }
 
   let errored: string | null = null
-  let done = false
   await readChatStream(response.body, (event) => {
     if (event.type === 'content') {
       onDelta(event.delta)
-    } else if (event.type === 'done') {
-      done = true
     } else if (event.type === 'error') {
       errored = event.message || 'Stream error'
     }
   })
+  // A `done` event needs no handling: many backends just close the stream.
   if (errored) {
     throw new Error(errored)
   }
-  // `done` is informational — many backends just close the stream.
-  void done
 }
